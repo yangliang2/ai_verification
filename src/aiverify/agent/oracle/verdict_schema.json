@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiverify/oracle/verdict_schema/v1",
+  "title": "OracleVerdict",
+  "description": "Oracle 判定输出冻结 schema（US-006 版本）。Phase 3 按模式归因分析的数据基础。",
+  "type": "object",
+  "required": [
+    "verdict_id",
+    "level",
+    "outcome",
+    "defect_class_hypothesis",
+    "trigger_steps",
+    "evidence",
+    "confidence"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "verdict_id": {
+      "type": "string",
+      "description": "判定唯一标识符，格式建议：{level}-{uuid4短码}"
+    },
+    "level": {
+      "type": "string",
+      "enum": ["L1", "L2", "L3"],
+      "description": "产出本判定的层级：L1=廉价信号层，L2=状态断言层，L3=LLM 语义判定层"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["fail", "pass", "inconclusive"],
+      "description": "判定结论：fail=确定有缺陷，pass=确定通过，inconclusive=信号不足无法判断"
+    },
+    "defect_class_hypothesis": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "crash_stability",
+            "state_loss",
+            "ui_rendering",
+            "performance_regression",
+            "permission_security"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "缺陷分类假设（taxonomy 五类）：无法归因时为 null"
+    },
+    "trigger_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "触发本判定的操作步骤列表（字符串描述）"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EvidenceItem"
+      },
+      "description": "支撑本判定的证据列表"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "判定置信度，范围 [0, 1]"
+    }
+  },
+  "$defs": {
+    "EvidenceItem": {
+      "type": "object",
+      "required": ["type", "ref", "note"],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "logcat_line",
+            "screenshot",
+            "state_diff",
+            "llm_reasoning"
+          ],
+          "description": "证据类型"
+        },
+        "ref": {
+          "type": "string",
+          "description": "证据引用：logcat 行内容 / 文件路径 / diff 文本"
+        },
+        "note": {
+          "type": "string",
+          "description": "对本条证据的说明"
+        }
+      }
+    }
+  }
+}

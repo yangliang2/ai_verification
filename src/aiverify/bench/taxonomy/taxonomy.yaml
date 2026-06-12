@@ -1,0 +1,673 @@
+# 行为层缺陷分类法 — Android 宿主 Kotlin 源码变异素材
+#
+# 用途：缺陷注入器（bench/injector）按此分类法对宿主源码定点生成变异 patch。
+# 每个模式描述一类"主流程正常、特定行为条件下出错"的真实行为层缺陷——
+# 不是编译错、不是纯逻辑错，而是 AI 写 Android 代码时真实会犯、code review 容易漏掉的错误。
+#
+# 来源依据见 docs/taxonomy.md。本文件为基于领域知识整理的初版，
+# 后续由开源 issue 挖掘与真实踩坑回填校准（计划 bench/goldset + flaky_pool 机制）。
+#
+# 字段约定：
+#   id                       类前缀-序号，全局唯一
+#   name                     模式简称
+#   description              缺陷机理（中文，准确）
+#   kotlin_example_before    正确代码片段（地道 Jetpack/Compose/协程惯用法）
+#   kotlin_example_after     注入缺陷后的片段（看似合理、能编译、review 易漏）
+#   trigger_scenario         触发该缺陷的用户行为 + 系统事件序列（自然语言步骤）
+#   expected_failure         可观察失败：crash / 状态丢失 / UI 错乱 / 数据错误
+#   device_state_dimensions  相关设备状态维度（驱动 harness/device 编排）
+
+version: 1
+
+categories:
+  # ===========================================================================
+  lifecycle:
+    title: 生命周期回调对称性与时序
+    patterns:
+      - id: lifecycle-01
+        name: onStop 未注销已注册的监听
+        description: >
+          onStart/onResume 注册了系统监听（SensorManager、BroadcastReceiver、
+          LocationManager 等），但 onStop/onPause 漏掉了对称的注销。Activity 不可见后
+          监听仍持有 Activity 引用并继续回调，造成内存泄漏，且回调里操作已不可见的视图。
+        kotlin_example_before: |
+          override fun onStart() {
+              super.onStart()
+              sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
+          }
+
+          override fun onStop() {
+              super.onStop()
+              sensorManager.unregisterListener(this)
+          }
+        kotlin_example_after: |
+          override fun onStart() {
+              super.onStart()
+              sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
+          }
+
+          override fun onStop() {
+              super.onStop()
+              // unregister 漏写：监听在后台持续回调并泄漏 Activity
+          }
+        trigger_scenario: >
+          1) 打开该界面；2) 按 Home 键将 App 切到后台（触发 onStop）；
+          3) 旋转设备或反复进出该界面数次；4) 观察内存与回调日志。
+        expected_failure: 内存泄漏（Activity 实例无法回收）；后台持续收到传感器回调，可能更新已 detach 的视图
+        device_state_dimensions: [background-pressure, low-memory]
+
+      - id: lifecycle-02
+        name: onResume 重复注册导致回调叠加
+        description: >
+          在 onResume 注册回调但未在 onPause 注销，每次回前台都叠加一次注册。
+          多次切换后同一事件触发 N 个回调，产生重复副作用（重复网络请求、重复埋点、计数翻倍）。
+        kotlin_example_before: |
+          override fun onResume() {
+              super.onResume()
+              eventBus.register(refreshObserver)
+          }
+
+          override fun onPause() {
+              super.onPause()
+              eventBus.unregister(refreshObserver)
+          }
+        kotlin_example_after: |
+          override fun onResume() {
+              super.onResume()
+              eventBus.register(refreshObserver)
+          }
+
+          override fun onPause() {
+              super.onPause()
+              // 漏写 unregister：每次回前台都新增一个注册
+          }
+        trigger_scenario: >
+          1) 进入界面；2) 切后台再回前台，重复 3-5 次；3) 触发一次 refresh 事件；
+          4) 观察该事件被处理的次数。
+        expected_failure: 单次事件触发多次副作用（重复请求/重复埋点/状态计数错误）
+        device_state_dimensions: [background-pressure]
+
+      - id: lifecycle-03
+        name: 依赖 onDestroy 必被调用来释放资源
+        description: >
+          把资源释放（关闭文件、停止服务、提交缓存）只放在 onDestroy。系统在内存压力下
+          可直接杀进程而不回调 onDestroy，导致资源未释放、未保存的数据丢失。
+          正确做法是在 onStop/onPause 完成必要的持久化与释放。
+        kotlin_example_before: |
+          override fun onStop() {
+              super.onStop()
+              draftRepository.flush()  // 离开可见态即落盘
+          }
+        kotlin_example_after: |
+          override fun onDestroy() {
+              super.onDestroy()
+              draftRepository.flush()  // 依赖 onDestroy 必被调用——后台被杀时不会执行
+          }
+        trigger_scenario: >
+          1) 在界面编辑草稿；2) 按 Home 切后台；3) 用 `adb shell am kill` 模拟系统回收进程；
+          4) 重新打开 App 查看草稿是否保留。
+        expected_failure: 数据丢失（草稿/缓存未落盘）
+        device_state_dimensions: [low-memory, background-pressure]
+
+      - id: lifecycle-04
+        name: lateinit 属性在异步回调先于初始化时访问
+        description: >
+          lateinit var 在 onCreate 异步路径中初始化，但某个回调/事件可能在初始化完成前
+          先到达并访问它，抛 UninitializedPropertyAccessException。主流程因时序通常正常，
+          慢设备或竞态下才暴露。
+        kotlin_example_before: |
+          private var adapter: FeedAdapter? = null
+
+          override fun onCreate(savedInstanceState: Bundle?) {
+              super.onCreate(savedInstanceState)
+              adapter = FeedAdapter()
+              recyclerView.adapter = adapter
+          }
+
+          fun onPushReceived(item: FeedItem) {
+              adapter?.prepend(item)  // 空安全：未就绪则忽略
+          }
+        kotlin_example_after: |
+          private lateinit var adapter: FeedAdapter
+
+          override fun onCreate(savedInstanceState: Bundle?) {
+              super.onCreate(savedInstanceState)
+              adapter = FeedAdapter()
+              recyclerView.adapter = adapter
+          }
+
+          fun onPushReceived(item: FeedItem) {
+              adapter.prepend(item)  // 推送早于初始化到达时抛 Uninitialized 异常
+          }
+        trigger_scenario: >
+          1) 冷启动进入界面，同时服务端推送一条消息；2) 在慢设备/低内存下，
+          推送回调先于 adapter 初始化执行；3) 观察是否崩溃。
+        expected_failure: crash（UninitializedPropertyAccessException）
+        device_state_dimensions: [low-memory, background-pressure]
+
+      - id: lifecycle-05
+        name: onSaveInstanceState 后仍提交 Fragment 事务
+        description: >
+          在 onSaveInstanceState 之后（如异步回调返回时）执行 commit() 提交 Fragment 事务，
+          抛 IllegalStateException: Can not perform this action after onSaveInstanceState。
+          应使用 commitAllowingStateLoss 或将事务前移到状态保存之前。
+        kotlin_example_before: |
+          viewLifecycleOwner.lifecycleScope.launch {
+              val data = repo.load()
+              if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                  childFragmentManager.beginTransaction()
+                      .replace(R.id.container, DetailFragment.of(data))
+                      .commit()
+              }
+          }
+        kotlin_example_after: |
+          viewLifecycleOwner.lifecycleScope.launch {
+              val data = repo.load()
+              childFragmentManager.beginTransaction()
+                  .replace(R.id.container, DetailFragment.of(data))
+                  .commit()  // 回调返回时可能已过 onSaveInstanceState
+          }
+        trigger_scenario: >
+          1) 进入界面触发异步加载；2) 在加载返回前按 Home 切后台（触发 onSaveInstanceState）；
+          3) 加载完成回调执行 commit；4) 观察崩溃。
+        expected_failure: crash（IllegalStateException after onSaveInstanceState）
+        device_state_dimensions: [background-pressure, no-network]
+
+      - id: lifecycle-06
+        name: 在 onCreate 中用错生命周期 owner 观察 LiveData
+        description: >
+          Fragment 中用 this（Fragment 的 lifecycle）而非 viewLifecycleOwner 观察 LiveData。
+          Fragment 视图销毁但实例存活（如进入返回栈）后，旧的 View 观察者仍被回调，
+          更新已销毁的视图引用，造成泄漏与崩溃。
+        kotlin_example_before: |
+          override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+              viewModel.items.observe(viewLifecycleOwner) { items ->
+                  binding.list.submitList(items)
+              }
+          }
+        kotlin_example_after: |
+          override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+              viewModel.items.observe(this) { items ->
+                  binding.list.submitList(items)  // 用 Fragment 而非 viewLifecycleOwner
+              }
+          }
+        trigger_scenario: >
+          1) 进入列表 Fragment；2) 导航到详情把它压入返回栈（视图销毁，实例存活）；
+          3) 数据更新触发观察者；4) 观察是否操作已销毁的 binding。
+        expected_failure: crash（访问已销毁视图 / binding 为 null）或内存泄漏
+        device_state_dimensions: [background-pressure]
+
+  # ===========================================================================
+  config-change:
+    title: 配置变更（旋转 / 字体 / 多窗口 / 深色模式）
+    patterns:
+      - id: config-change-01
+        name: 旋转后 UI 状态丢失（未持久化到 ViewModel/savedState）
+        description: >
+          临时 UI 状态（展开/折叠、选中项、滚动位置、输入草稿）只存在 Activity/Fragment
+          字段里。配置变更重建后字段重置，状态丢失。应放入 ViewModel 或 savedInstanceState。
+        kotlin_example_before: |
+          class FilterViewModel : ViewModel() {
+              val expanded = MutableStateFlow(false)
+              fun toggle() { expanded.value = !expanded.value }
+          }
+        kotlin_example_after: |
+          class FilterFragment : Fragment() {
+              private var expanded = false  // 配置变更重建后重置为 false
+              private fun toggle() { expanded = !expanded; render() }
+          }
+        trigger_scenario: >
+          1) 进入界面，展开筛选面板；2) 旋转设备（竖→横）；
+          3) 观察面板是否仍保持展开。
+        expected_failure: 状态丢失（旋转后面板折叠 / 选中项清空 / 草稿消失）
+        device_state_dimensions: [orientation-change]
+
+      - id: config-change-02
+        name: 在配置变更中重建昂贵对象而非交给 ViewModel
+        description: >
+          网络请求/数据库查询的结果只缓存在 Activity 字段，旋转后随重建丢失并重新发起。
+          浪费流量、引发闪烁，请求未取消时旧 Activity 还会被回调。应由 ViewModel 持有结果。
+        kotlin_example_before: |
+          class ProfileViewModel(repo: UserRepo) : ViewModel() {
+              val user: StateFlow<User?> = repo.user()
+                  .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+          }
+        kotlin_example_after: |
+          class ProfileActivity : AppCompatActivity() {
+              private var user: User? = null
+              override fun onCreate(s: Bundle?) {
+                  super.onCreate(s)
+                  lifecycleScope.launch { user = repo.fetchUser() }  // 旋转后重新拉取
+              }
+          }
+        trigger_scenario: >
+          1) 进入资料页触发加载；2) 快速旋转设备 2-3 次；
+          3) 观察网络面板是否每次旋转都重新请求、界面是否闪烁。
+        expected_failure: 重复网络请求 / UI 闪烁 / 旧请求回调更新已销毁界面
+        device_state_dimensions: [orientation-change, no-network]
+
+      - id: config-change-03
+        name: 重建后持有失效的视图/Context 引用
+        description: >
+          把 View、Activity Context 或 binding 存进会跨配置变更存活的对象（ViewModel、
+          单例、静态字段）。重建后该引用指向已销毁的实例，操作它崩溃或泄漏。
+        kotlin_example_before: |
+          class SnackHelper {
+              fun show(view: View, msg: String) {
+                  Snackbar.make(view, msg, Snackbar.LENGTH_SHORT).show()
+              }
+          }
+        kotlin_example_after: |
+          class SnackViewModel : ViewModel() {
+              var anchor: View? = null  // 把 View 存进跨重建存活的 ViewModel
+              fun show(msg: String) {
+                  anchor?.let { Snackbar.make(it, msg, Snackbar.LENGTH_SHORT).show() }
+              }
+          }
+        trigger_scenario: >
+          1) 进入界面（ViewModel 记下 anchor 视图）；2) 旋转设备触发重建；
+          3) 触发一次 snackbar 展示；4) 观察是否操作已销毁视图。
+        expected_failure: crash（视图已 detach）或内存泄漏（旧 Activity 视图树被 ViewModel 持有）
+        device_state_dimensions: [orientation-change, low-memory]
+
+      - id: config-change-04
+        name: 声明 configChanges 但未在 onConfigurationChanged 更新资源
+        description: >
+          为避免重建在 manifest 声明 android:configChanges="orientation|screenSize"，
+          却没实现 onConfigurationChanged 来切换布局/尺寸相关资源。旋转后系统不重建，
+          界面仍按旧方向排布，错乱。
+        kotlin_example_before: |
+          override fun onConfigurationChanged(newConfig: Configuration) {
+              super.onConfigurationChanged(newConfig)
+              applyLayoutFor(newConfig.orientation)  // 手动切换横竖布局
+          }
+        kotlin_example_after: |
+          // manifest 声明了 configChanges="orientation|screenSize"，
+          // 但未重写 onConfigurationChanged —— 旋转后布局不更新
+        trigger_scenario: >
+          1) 进入声明了 configChanges 的界面；2) 旋转设备；
+          3) 观察布局是否适配新方向。
+        expected_failure: UI 错乱（横屏仍用竖屏布局 / 控件重叠或被裁切）
+        device_state_dimensions: [orientation-change]
+
+      - id: config-change-05
+        name: Compose 中用普通变量而非 rememberSaveable 保存状态
+        description: >
+          Compose 中用 remember 保存需跨配置变更存活的状态。remember 在重组存活但
+          配置变更（Activity 重建）后丢失。需要跨重建的状态应用 rememberSaveable。
+        kotlin_example_before: |
+          var query by rememberSaveable { mutableStateOf("") }
+          TextField(value = query, onValueChange = { query = it })
+        kotlin_example_after: |
+          var query by remember { mutableStateOf("") }  // 旋转后输入丢失
+          TextField(value = query, onValueChange = { query = it })
+        trigger_scenario: >
+          1) 在搜索框输入文字；2) 旋转设备；3) 观察输入框内容是否保留。
+        expected_failure: 状态丢失（旋转后输入框清空）
+        device_state_dimensions: [orientation-change]
+
+  # ===========================================================================
+  process-death:
+    title: 后台进程被杀与冷恢复
+    patterns:
+      - id: process-death-01
+        name: ViewModel 状态未经 SavedStateHandle 持久化
+        description: >
+          ViewModel 能扛配置变更，但扛不住进程被杀。关键 UI 状态（当前页码、筛选条件、
+          选中 id）只存普通字段，进程被杀后系统重建 Task 时这些状态丢失。
+          应存入 SavedStateHandle。
+        kotlin_example_before: |
+          class ListViewModel(private val state: SavedStateHandle) : ViewModel() {
+              var page: Int
+                  get() = state["page"] ?: 0
+                  set(v) { state["page"] = v }
+          }
+        kotlin_example_after: |
+          class ListViewModel(state: SavedStateHandle) : ViewModel() {
+              var page: Int = 0  // 进程被杀重建后归零，丢失浏览进度
+          }
+        trigger_scenario: >
+          1) 翻到列表第 5 页；2) 按 Home 切后台；3) `adb shell am kill` 杀进程；
+          4) 从最近任务恢复 App；5) 观察是否回到第 5 页。
+        expected_failure: 状态丢失（恢复后回到第 1 页 / 筛选条件清空）
+        device_state_dimensions: [low-memory, background-pressure]
+
+      - id: process-death-02
+        name: 用内存单例缓存当持久化存储
+        description: >
+          把会话级数据（登录态、购物车、向导进度）写进内存单例（object / 静态 Map），
+          当成持久存储依赖。进程被杀后单例随进程销毁，冷恢复时数据为空但代码假定它一定有值。
+        kotlin_example_before: |
+          class CartRepository(private val dao: CartDao) {
+              suspend fun items(): List<CartItem> = dao.getAll()  // 落 Room
+          }
+        kotlin_example_after: |
+          object CartCache {
+              val items = mutableListOf<CartItem>()  // 仅内存，进程被杀即清空
+          }
+        trigger_scenario: >
+          1) 加购若干商品；2) 切后台并 `am kill` 杀进程；3) 恢复 App 进入购物车；
+          4) 观察购物车是否还在。
+        expected_failure: 数据丢失（购物车清空 / 登录态失效未提示）
+        device_state_dimensions: [low-memory, background-pressure]
+
+      - id: process-death-03
+        name: 深层页面冷恢复时依赖未初始化的上游数据
+        description: >
+          深层详情页假定上游页面（列表/全局初始化）一定先执行过并填好了共享数据。
+          进程被杀后系统直接重建栈顶的详情页，上游 onCreate 未跑，共享数据为空，
+          详情页解引用崩溃。
+        kotlin_example_before: |
+          override fun onCreate(s: Bundle?) {
+              super.onCreate(s)
+              val id = intent.getStringExtra(EXTRA_ID) ?: run { finish(); return }
+              viewModel.load(id)  // 自带恢复入参，自给自足
+          }
+        kotlin_example_after: |
+          override fun onCreate(s: Bundle?) {
+              super.onCreate(s)
+              val item = AppState.selectedItem!!  // 依赖上游填好的全局态，冷恢复时为 null
+              titleView.text = item.title
+          }
+        trigger_scenario: >
+          1) 从列表进入详情页；2) 切后台并 `am kill` 杀进程；
+          3) 从最近任务恢复（系统直接重建详情页）；4) 观察是否崩溃。
+        expected_failure: crash（NullPointerException，依赖的全局状态为空）
+        device_state_dimensions: [low-memory, background-pressure]
+
+      - id: process-death-04
+        name: onSaveInstanceState 保存了不可序列化或过大的数据
+        description: >
+          往 outState 放整个列表/Bitmap/非 Parcelable 对象。要么抛 TransactionTooLargeException，
+          要么写入失败静默丢状态。应只存可重建的 key（id、页码），数据从仓库重新拉取。
+        kotlin_example_before: |
+          override fun onSaveInstanceState(outState: Bundle) {
+              super.onSaveInstanceState(outState)
+              outState.putString(KEY_SELECTED_ID, selectedId)  // 只存 id
+          }
+        kotlin_example_after: |
+          override fun onSaveInstanceState(outState: Bundle) {
+              super.onSaveInstanceState(outState)
+              outState.putSerializable(KEY_ITEMS, ArrayList(allItems))  // 整列表塞进 Bundle
+          }
+        trigger_scenario: >
+          1) 加载一个较大列表；2) 切后台触发状态保存（数据量大时）；
+          3) 进程被杀后恢复；4) 观察是否 TransactionTooLargeException 或状态丢失。
+        expected_failure: crash（TransactionTooLargeException）或状态静默丢失
+        device_state_dimensions: [low-memory, background-pressure]
+
+      - id: process-death-05
+        name: 恢复后未重新校验权限/登录态
+        description: >
+          首次进入时已校验权限或登录并缓存了结果（内存标志）。进程被杀冷恢复后，
+          权限可能已被用户在设置里撤销、登录态可能已过期，但代码沿用旧的内存标志直接放行。
+        kotlin_example_before: |
+          override fun onResume() {
+              super.onResume()
+              if (!hasCameraPermission()) { requestCameraPermission(); return }
+              startPreview()  // 每次回前台实时校验
+          }
+        kotlin_example_after: |
+          private var grantedOnce = false
+          override fun onResume() {
+              super.onResume()
+              if (grantedOnce) { startPreview(); return }  // 信任旧的内存标志
+              if (hasCameraPermission()) { grantedOnce = true; startPreview() }
+          }
+        trigger_scenario: >
+          1) 进入相机页授予权限；2) 切后台，在系统设置里撤销相机权限；
+          3) `am kill` 后从最近任务恢复；4) 观察是否直接开相机。
+        expected_failure: crash（无权限调用相机抛 SecurityException）或越权访问
+        device_state_dimensions: [permission-revoked, low-memory, background-pressure]
+
+  # ===========================================================================
+  navigation:
+    title: 页面导航与返回栈
+    patterns:
+      - id: navigation-01
+        name: 重复点击导致同一目标页多开
+        description: >
+          导航按钮无防抖。快速双击在导航事件处理完成前触发两次 navigate，返回栈里压入
+          两个相同目标页。用户需多按一次返回，且两页状态可能不一致。
+        kotlin_example_before: |
+          button.setOnClickListener {
+              if (findNavController().currentDestination?.id == R.id.home) {
+                  findNavController().navigate(R.id.action_home_to_detail)
+              }
+          }
+        kotlin_example_after: |
+          button.setOnClickListener {
+              findNavController().navigate(R.id.action_home_to_detail)  // 无来源校验/防抖
+          }
+        trigger_scenario: >
+          1) 在首页快速双击进入详情的按钮；2) 进入详情后连按返回；
+          3) 观察是否需要按两次才回到首页。
+        expected_failure: UI 错乱（返回栈多压一页，返回行为异常）
+        device_state_dimensions: []
+
+      - id: navigation-02
+        name: deep link 进入时状态未初始化
+        description: >
+          目标页假定总是从上游页面正常导航而来、共享 ViewModel/参数已就绪。经 deep link
+          或通知直达时跳过了上游初始化，目标页读到空状态崩溃或显示空白。
+        kotlin_example_before: |
+          private val orderId: String =
+              savedStateHandle["orderId"] ?: error("missing orderId arg")
+        kotlin_example_after: |
+          // deep link 直达时 activityViewModels 里的 selectedOrder 从未被上游设置
+          private val order = activityViewModels<OrderSharedVM>().value.selectedOrder!!
+        trigger_scenario: >
+          1) 用 `adb shell am start -d "app://order/123"` 经 deep link 直达详情页；
+          2) 观察页面是否崩溃或空白。
+        expected_failure: crash（依赖的共享状态为空）或 UI 错乱（空白页）
+        device_state_dimensions: []
+
+      - id: navigation-03
+        name: 返回栈清理参数 popUpTo/inclusive 设置错误
+        description: >
+          登录成功后导航到主页，但 popUpTo 配置漏掉 inclusive 或目标设错，登录页留在返回栈。
+          用户从主页按返回又回到登录页，破坏导航语义。
+        kotlin_example_before: |
+          findNavController().navigate(
+              R.id.action_login_to_home,
+              null,
+              navOptions { popUpTo(R.id.login) { inclusive = true } }
+          )
+        kotlin_example_after: |
+          findNavController().navigate(
+              R.id.action_login_to_home,
+              null,
+              navOptions { popUpTo(R.id.login) { inclusive = false } }  // 登录页未弹出
+          )
+        trigger_scenario: >
+          1) 完成登录进入主页；2) 在主页按系统返回键；
+          3) 观察是否回到了登录页而非退出 App。
+        expected_failure: UI 错乱（返回回到登录页，导航语义错误）
+        device_state_dimensions: []
+
+      - id: navigation-04
+        name: Fragment 事务时序——在视图就绪前导航
+        description: >
+          在 onCreate/onAttach 等视图尚未就绪的时点调用 NavController 导航，或在
+          异步回调返回时 NavController 已与目标解绑，抛 IllegalStateException / 导航丢失。
+          应在视图生命周期内、用 viewLifecycleOwner 作用域导航。
+        kotlin_example_before: |
+          override fun onViewCreated(view: View, s: Bundle?) {
+              viewLifecycleOwner.lifecycleScope.launch {
+                  viewModel.events.collect { findNavController().navigate(it.dest) }
+              }
+          }
+        kotlin_example_after: |
+          override fun onCreate(s: Bundle?) {
+              super.onCreate(s)
+              lifecycleScope.launch {
+                  viewModel.events.collect { findNavController().navigate(it.dest) }
+              }  // 视图未就绪/已销毁时导航
+        trigger_scenario: >
+          1) 进入 Fragment，同时 ViewModel 立即发出导航事件；
+          2) 或进入后立刻离开使视图销毁；3) 观察导航是否崩溃或丢失。
+        expected_failure: crash（IllegalStateException：NavController 无关联视图）或导航无效
+        device_state_dimensions: [background-pressure]
+
+      - id: navigation-05
+        name: 旋转后重复触发一次性导航事件
+        description: >
+          用 LiveData/StateFlow 承载一次性导航事件，旋转重建后观察者重新订阅又收到上次的值，
+          再次导航，造成重复跳转。应使用 SingleLiveEvent / Channel / 消费后置空的事件包装。
+        kotlin_example_before: |
+          // 一次性事件用 Channel（消费即丢），重订阅不会重放
+          val navEvents = Channel<NavTarget>(Channel.BUFFERED)
+          val navFlow = navEvents.receiveAsFlow()
+        kotlin_example_after: |
+          // 用 StateFlow 承载一次性事件：旋转重订阅时重放最后一次，重复导航
+          val navTarget = MutableStateFlow<NavTarget?>(null)
+        trigger_scenario: >
+          1) 触发一次跳转事件进入下一页；2) 返回上一页；3) 旋转设备；
+          4) 观察是否又自动跳到了下一页。
+        expected_failure: UI 错乱（旋转后重复导航 / 卡在跳转循环）
+        device_state_dimensions: [orientation-change]
+
+  # ===========================================================================
+  coroutine-concurrency:
+    title: 协程作用域、并发与线程
+    patterns:
+      - id: coroutine-concurrency-01
+        name: 用 GlobalScope 启动与界面相关的协程
+        description: >
+          用 GlobalScope.launch 发起更新界面的协程。协程脱离生命周期，界面销毁后仍运行并
+          回写已销毁视图，造成泄漏与崩溃；旋转/退出无法取消。应使用 viewModelScope /
+          lifecycleScope。
+        kotlin_example_before: |
+          fun refresh() {
+              viewModelScope.launch {
+                  _state.value = repo.load()
+              }
+          }
+        kotlin_example_after: |
+          fun refresh() {
+              GlobalScope.launch {
+                  _state.value = repo.load()  // 脱离生命周期，无法取消
+              }
+          }
+        trigger_scenario: >
+          1) 触发一次刷新（发起较慢的加载）；2) 加载返回前退出界面或旋转；
+          3) 观察协程是否仍执行并回写、是否泄漏。
+        expected_failure: 内存泄漏 / crash（更新已销毁视图）/ 退出后仍有后台活动
+        device_state_dimensions: [orientation-change, background-pressure]
+
+      - id: coroutine-concurrency-02
+        name: 用 launch 而非 repeatOnLifecycle 收集 Flow
+        description: >
+          用 lifecycleScope.launch { flow.collect { } } 在 STARTED 之外仍持续收集。
+          界面进入后台时仍消费上游、更新不可见 UI，浪费资源且可能崩溃。应使用
+          repeatOnLifecycle(STARTED)。
+        kotlin_example_before: |
+          viewLifecycleOwner.lifecycleScope.launch {
+              viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                  viewModel.uiState.collect { render(it) }
+              }
+          }
+        kotlin_example_after: |
+          viewLifecycleOwner.lifecycleScope.launch {
+              viewModel.uiState.collect { render(it) }  // 后台仍收集并 render
+          }
+        trigger_scenario: >
+          1) 进入界面订阅状态流；2) 切后台；3) 上游持续推送新状态；
+          4) 观察后台是否仍在 render（日志/CPU）、回前台是否异常。
+        expected_failure: 资源浪费（后台持续渲染）/ crash（更新不可见视图）
+        device_state_dimensions: [background-pressure]
+
+      - id: coroutine-concurrency-03
+        name: 主线程阻塞——在主调度器执行重活
+        description: >
+          在主线程协程里做磁盘/网络/解析等阻塞操作，未切到 Dispatchers.IO/Default。
+          数据量大时主线程卡顿、掉帧甚至 ANR。应用 withContext(Dispatchers.IO) 包裹。
+        kotlin_example_before: |
+          viewModelScope.launch {
+              val parsed = withContext(Dispatchers.Default) { parseLargeJson(raw) }
+              _state.value = parsed
+          }
+        kotlin_example_after: |
+          viewModelScope.launch {
+              val parsed = parseLargeJson(raw)  // 在主调度器解析大 JSON，阻塞主线程
+              _state.value = parsed
+          }
+        trigger_scenario: >
+          1) 进入需要解析大数据的界面；2) 触发解析；
+          3) 解析期间尝试滚动/点击；4) 观察是否卡顿掉帧或 ANR。
+        expected_failure: UI 卡顿掉帧 / ANR（主线程被阻塞）
+        device_state_dimensions: [low-memory]
+
+      - id: coroutine-concurrency-04
+        name: 并发更新 UI 状态的竞态（非原子的读改写）
+        description: >
+          多个协程对同一 MutableStateFlow 做"读当前值-改-写回"的非原子更新，并发下相互覆盖，
+          计数/列表丢更新。应使用 update { } 原子操作。
+        kotlin_example_before: |
+          fun increment() {
+              _counter.update { it + 1 }  // 原子读改写
+          }
+        kotlin_example_after: |
+          fun increment() {
+              _counter.value = _counter.value + 1  // 并发下丢更新
+          }
+        trigger_scenario: >
+          1) 触发并发产生多次 increment（如快速多次点击 + 后台事件同时到达）；
+          2) 比对最终计数与触发次数是否一致。
+        expected_failure: 数据错误（计数偏小 / 列表项丢失）
+        device_state_dimensions: [background-pressure]
+
+      - id: coroutine-concurrency-05
+        name: 未取消旧 job 导致竞态与泄漏（搜索/防抖场景）
+        description: >
+          每次输入都新起一个搜索协程却不取消上一个。多个请求并发返回，慢的旧请求后到、
+          覆盖新结果，界面显示与输入不符；积压的 job 也泄漏。应取消旧 job 或用
+          flatMapLatest/collectLatest。
+        kotlin_example_before: |
+          private var searchJob: Job? = null
+          fun onQuery(q: String) {
+              searchJob?.cancel()
+              searchJob = viewModelScope.launch { _results.value = repo.search(q) }
+          }
+        kotlin_example_after: |
+          fun onQuery(q: String) {
+              viewModelScope.launch { _results.value = repo.search(q) }  // 不取消旧请求
+          }
+        trigger_scenario: >
+          1) 在搜索框快速连续输入若干字符（每次触发一次搜索）；
+          2) 制造网络抖动让旧请求比新请求晚返回；
+          3) 观察最终结果是否对应最新输入。
+        expected_failure: 数据错误（结果与当前输入不符）/ 内存泄漏（积压 job）
+        device_state_dimensions: [no-network, background-pressure]
+
+      - id: coroutine-concurrency-06
+        name: 在协程异常处理中吞掉 CancellationException
+        description: >
+          用 try/catch (Exception) 包裹挂起调用并统一吞异常，连 CancellationException
+          一起捕获。协程取消信号被吞，结构化并发的取消传播被破坏，已取消的协程仍执行
+          后续逻辑（更新已销毁界面 / 重复副作用）。应重抛 CancellationException。
+        kotlin_example_before: |
+          viewModelScope.launch {
+              try {
+                  val data = repo.load()
+                  _state.value = data
+              } catch (e: CancellationException) {
+                  throw e  // 取消必须重抛
+              } catch (e: Exception) {
+                  _state.value = UiState.Error(e)
+              }
+          }
+        kotlin_example_after: |
+          viewModelScope.launch {
+              try {
+                  val data = repo.load()
+                  _state.value = data
+              } catch (e: Exception) {  // 吞掉 CancellationException，破坏取消传播
+                  _state.value = UiState.Error(e)
+              }
+          }
+        trigger_scenario: >
+          1) 触发加载；2) 加载返回前退出界面（viewModelScope 取消）；
+          3) 观察是否仍走进了错误分支 / 更新了已销毁状态。
+        expected_failure: 状态错乱（取消后仍设置 Error/数据）/ 退出后残留副作用
+        device_state_dimensions: [background-pressure, no-network]

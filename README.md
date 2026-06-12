@@ -21,11 +21,37 @@ AI 时代编码能力越来越强，但验证能力没有跟上。本项目聚�
 
 AI 自动注入 ≥100 个行为层缺陷（五类各 ≥15），验证 Agent 抓取率 ≥80%（各类 ≥60%），误报率 ≤20%，全基准一轮墙钟 ≤24h（本地双真机）。
 
+## 目录结构
+
+```
+src/aiverify/
+  providers/         LLM provider 抽象 + 异源约束校验（check_cross_source）
+  harness/device/    adb 设备编排：DeviceController 系统事件原语、LogcatAnalyzer
+  harness/build/     批量构建管线：Patcher（无残留回滚）、Batcher（K 批文件不相交）、Builder（APK 缓存）
+  agent/planner/     验证计划生成器：PlanGenerator + plan_schema.json
+  agent/oracle/      分层判定：L1 crash/ANR、L2 状态断言、L3 LLM 语义 + verdict_schema.json（冻结）
+  bench/taxonomy/    行为层缺陷分类法：5 类 27 模式（taxonomy.yaml + 校验 loader）
+bench/goldset/       金标准缺陷素材：18 条已核实的真实开源 issue（candidates.md）
+docs/                taxonomy.md、host-app-selection.md（首选 Wikipedia App，备选 Thunderbird）
+tests/               145 个单测（全部不依赖真机与 API key）
+```
+
+## 本地开发
+
+```bash
+uv venv .venv && uv pip install --python .venv/bin/python pytest pyyaml jsonschema
+.venv/bin/python -m pytest          # 全量测试
+```
+
 ## 文档
 
 - 需求规格（13 轮深度访谈产物）：[`.omc/specs/deep-interview-ai-code-verification.md`](.omc/specs/deep-interview-ai-code-verification.md)
 - 实施计划（Planner/Architect/Critic 共识产物）：[`.omc/plans/ralplan-ai-behavior-verification.md`](.omc/plans/ralplan-ai-behavior-verification.md)
+- 缺陷分类法说明：[`docs/taxonomy.md`](docs/taxonomy.md)
+- 宿主 App 选型报告：[`docs/host-app-selection.md`](docs/host-app-selection.md)
+- **接线清单（真机/API key 依赖项）：[`HANDOFF.md`](HANDOFF.md)**
 
 ## 状态
 
-规划阶段完成（pending approval），实现未开始。
+Phase 0+1 无人值守边界内的部分已交付：全部基础组件 + 单测、缺陷分类法、金标准素材、宿主选型。
+真机执行、LLM 真实调用、注入管线（Phase 2）见 `HANDOFF.md` 的诚实声明与接线步骤——未实测的验收项不声称已验证。

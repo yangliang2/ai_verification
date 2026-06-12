@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VerificationPlan",
+  "description": "AI 验证计划：描述对一次代码变更的验证场景簇、盲区猜想与改动理解。",
+  "type": "object",
+  "required": ["change_summary", "scenario_clusters", "spec_blind_spots"],
+  "additionalProperties": false,
+  "properties": {
+    "change_summary": {
+      "type": "string",
+      "description": "对本次代码变更的理解摘要"
+    },
+    "scenario_clusters": {
+      "type": "array",
+      "description": "验证场景簇列表",
+      "items": {
+        "$ref": "#/definitions/ScenarioCluster"
+      }
+    },
+    "spec_blind_spots": {
+      "type": "array",
+      "description": "规格盲区猜想列表",
+      "items": {
+        "$ref": "#/definitions/SpecBlindSpot"
+      }
+    }
+  },
+  "definitions": {
+    "SystemEventStep": {
+      "type": "object",
+      "required": ["step_index", "event"],
+      "additionalProperties": false,
+      "properties": {
+        "step_index": {
+          "type": "integer",
+          "description": "在 user_actions 序列中对应的步骤索引（0-based）"
+        },
+        "event": {
+          "type": "string",
+          "enum": [
+            "rotate",
+            "kill_background",
+            "revoke_permission",
+            "network_off",
+            "network_on",
+            "low_memory",
+            "app_to_background",
+            "app_to_foreground",
+            "locale_change",
+            "battery_low"
+          ],
+          "description": "受控系统事件类型"
+        }
+      }
+    },
+    "ScenarioCluster": {
+      "type": "object",
+      "required": [
+        "id",
+        "target_screens",
+        "user_actions",
+        "system_events",
+        "expected_behavior",
+        "related_defect_patterns"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "场景簇唯一标识符"
+        },
+        "target_screens": {
+          "type": "array",
+          "description": "目标界面列表",
+          "items": {
+            "type": "string"
+          }
+        },
+        "user_actions": {
+          "type": "array",
+          "description": "操作意图序列（自然语言步骤）",
+          "items": {
+            "type": "string"
+          }
+        },
+        "system_events": {
+          "type": "array",
+          "description": "系统事件编排点列表",
+          "items": {
+            "$ref": "#/definitions/SystemEventStep"
+          }
+        },
+        "expected_behavior": {
+          "type": "string",
+          "description": "期望的系统行为描述"
+        },
+        "related_defect_patterns": {
+          "type": "array",
+          "description": "关联 taxonomy 模式 id 列表（可空）",
+          "items": {
+            "type": "string"
+          },
+          "nullable": true
+        }
+      }
+    },
+    "SpecBlindSpot": {
+      "type": "object",
+      "required": ["description", "rationale"],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "规格盲区描述"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "猜测该盲区存在的理由"
+        }
+      }
+    }
+  }
+}

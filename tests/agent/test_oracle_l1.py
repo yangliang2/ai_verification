@@ -1,0 +1,125 @@
+"""L1Oracle 单测——基于 logcat 文本的 crash/ANR 检测。
+
+覆盖三个案例：
+1. FATAL EXCEPTION（JVM 崩溃）
+2. ANR in（应用无响应）
+3. 无信号（应返回 inconclusive，不得返回 pass）
+"""
+
+
+from aiverify.agent.oracle import L1Oracle, validate_verdict
+
+# ---------------------------------------------------------------------------
+# Fixtures：真实格式 logcat 片段
+# ---------------------------------------------------------------------------
+
+LOGCAT_CRASH = """\
+--------- beginning of crash
+06-10 14:23:01.234  1234  1234 E AndroidRuntime: FATAL EXCEPTION: main
+06-10 14:23:01.234  1234  1234 E AndroidRuntime: Process: com.example.app, PID: 1234
+06-10 14:23:01.234  1234  1234 E AndroidRuntime: java.lang.NullPointerException: Attempt to invoke virtual method
+06-10 14:23:01.235  1234  1234 E AndroidRuntime: \tat com.example.app.MainActivity.onCreate(MainActivity.kt:42)
+06-10 14:23:01.235  1234  1234 E AndroidRuntime: \tat android.app.Activity.performCreate(Activity.java:8290)
+"""
+
+LOGCAT_ANR = """\
+06-10 15:01:00.000  2000  2000 E ActivityManager: ANR in com.example.app (com.example.app/.MainActivity)
+06-10 15:01:00.001  2000  2000 E ActivityManager: PID: 2000
+06-10 15:01:00.002  2000  2000 E ActivityManager: Reason: Input dispatching timed out (com.example.app/...
+06-10 15:01:00.003  2000  2000 E ActivityManager: Load: 3.5 / 3.2 / 2.8
+06-10 15:01:00.004  2000  2000 I ActivityManager: Killing 2000:com.example.app/u0a123 (adj 0): user request after error
+"""
+
+LOGCAT_CLEAN = """\
+06-10 16:00:00.000  3000  3000 I MainActivity: onCreate called
+06-10 16:00:00.100  3000  3000 D ViewModel: data loaded, items=42
+06-10 16:00:00.200  3000  3001 I RecyclerView: onCreateViewHolder position=0
+06-10 16:00:00.500  3000  3000 I MainActivity: onResume
+"""
+
+LOGCAT_COROUTINE_EXCEPTION = """\
+06-10 17:00:00.000  4000  4000 E AndroidRuntime: FATAL EXCEPTION: DefaultDispatcher-worker-1
+06-10 17:00:00.001  4000  4000 E AndroidRuntime: kotlinx.coroutines.internal.UnhandledCoroutineExceptionKt
+06-10 17:00:00.002  4000  4000 E AndroidRuntime: \tat kotlinx.coroutines.CoroutineExceptionHandler unhandled exception
+"""
+
+# ---------------------------------------------------------------------------
+# 测试
+# ---------------------------------------------------------------------------
+
+oracle = L1Oracle()
+
+
+def test_l1_detects_fatal_exception():
+    """FATAL EXCEPTION 行应触发 fail 判定，evidence 引用崩溃行。"""
+    verdict = oracle.judge(LOGCAT_CRASH, trigger_steps=["启动 MainActivity"])
+
+    assert verdict["level"] == "L1"
+    assert verdict["outcome"] == "fail"
+    assert verdict["defect_class_hypothesis"] == "crash_stability"
+    assert verdict["confidence"] > 0.5
+
+    # evidence 中应包含 logcat_line 类型，且 ref 包含崩溃关键词
+    assert verdict["evidence"], "fail 判定必须有证据"
+    types = {e["type"] for e in verdict["evidence"]}
+    assert "logcat_line" in types
+
+    refs = " ".join(e["ref"] for e in verdict["evidence"])
+    assert "FATAL EXCEPTION" in refs
+
+    # 触发步骤被透传
+    assert "启动 MainActivity" in verdict["trigger_steps"]
+
+    # schema 自验
+    validate_verdict(verdict)
+
+
+def test_l1_detects_anr():
+    """ANR in 行应触发 fail 判定，evidence 引用 ANR 行。"""
+    verdict = oracle.judge(LOGCAT_ANR, trigger_steps=["长按按钮触发耗时操作"])
+
+    assert verdict["level"] == "L1"
+    assert verdict["outcome"] == "fail"
+    assert verdict["defect_class_hypothesis"] == "crash_stability"
+
+    refs = " ".join(e["ref"] for e in verdict["evidence"])
+    assert "ANR in" in refs
+
+    validate_verdict(verdict)
+
+
+def test_l1_inconclusive_on_clean_logcat():
+    """无崩溃信号时 L1 必须返回 inconclusive，不得返回 pass。"""
+    verdict = oracle.judge(LOGCAT_CLEAN)
+
+    assert verdict["level"] == "L1"
+    assert verdict["outcome"] == "inconclusive", (
+        "L1 无信号时必须返回 inconclusive，不得返回 pass——L1 没有权力宣告通过"
+    )
+    assert verdict["defect_class_hypothesis"] is None
+    assert verdict["confidence"] == 0.0
+    assert verdict["evidence"] == []
+
+    validate_verdict(verdict)
+
+
+def test_l1_outcome_never_pass():
+    """L1 的所有输出均不应包含 outcome=pass。"""
+    for logcat in [LOGCAT_CRASH, LOGCAT_ANR, LOGCAT_CLEAN, LOGCAT_COROUTINE_EXCEPTION]:
+        verdict = oracle.judge(logcat)
+        assert verdict["outcome"] != "pass", (
+            f"L1 不应产出 pass，实际得到：{verdict['outcome']}"
+        )
+
+
+def test_l1_verdict_id_format():
+    """verdict_id 应以 'L1-' 开头。"""
+    verdict = oracle.judge(LOGCAT_CLEAN)
+    assert verdict["verdict_id"].startswith("L1-")
+
+
+def test_l1_coroutine_exception_detected():
+    """kotlinx.coroutines 未捕获异常也应触发 fail。"""
+    verdict = oracle.judge(LOGCAT_COROUTINE_EXCEPTION)
+    assert verdict["outcome"] == "fail"
+    validate_verdict(verdict)
