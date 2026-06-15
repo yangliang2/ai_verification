@@ -1,72 +1,145 @@
-# HANDOFF — 待接线清单
+# HANDOFF
 
-本次无人值守交付的边界：**不依赖真机、不依赖 LLM API key**。以下是你回来后把系统接到真实世界的步骤。每项附"如何自验已接通"。
+当前项目范围已经重新对齐：MVP 先验证 **Codex CLI + Android CLI + Wikipedia host** 的行为层 smoke 链路，不再把旧计划里的 “100+ 自动注入缺陷基准” 当作当前完成标准。
 
-## 诚实声明：未实测的验收项
+## 当前真实状态
 
-以下计划验收项（`.omc/plans/ralplan-ai-behavior-verification.md`）在本次交付中**只有代码与单测，未经真实环境验证**，不存在任何"已验证"声明：
+### 已完成
 
-| 验收项 | 状态 |
-|--------|------|
-| AC1 注入管线产出 ≥100 缺陷 | ❌ 未开始（bench/injector 是 Phase 2 工作，依赖 LLM key） |
-| AC2 缺陷可检测性验证 | ❌ 未开始（依赖真机 + 注入管线） |
-| AC3 验证闭环 ≤12min/缺陷 | ⚠️ 组件齐备（planner/driver 原语/oracle），但未在真机上跑过一次端到端，无计时数据 |
-| AC4/AC8 抓取率定标 | ❌ 未开始 |
-| AC9 全基准吞吐 SLO | ⚠️ K≥8 的宿主已选定（Wikipedia，文件级隔离），但单批构建时间未实测 |
-| M1 里程碑（金标准种子 5 抓 3） | ⚠️ 素材已挖好（18 条），未移植、未植入、未运行 |
+- GitHub PRD: <https://github.com/yangliang2/ai_verification/issues/1>
+- 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
+- 已保留 human-required issues: #8, #9
+- Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
+- Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
+- Test status: `.venv/bin/pytest` -> `170 passed`
 
-已验证的部分：**145 个本地单测全绿**（adb 命令序列、patch/分批/缓存逻辑、taxonomy 不变量、planner/oracle 的 Mock 路径、异源约束校验）。
+### 已实测
 
-## 接线步骤
+Android CLI:
+- Installed command: `/Users/peter/.local/bin/android`
+- Version: `1.0.15498356`
+- SDK path from `android info`: `/opt/homebrew/share/android-commandlinetools`
+- Confirmed commands: `android update`, `android init`, `android info`, `android layout`, `android layout --diff`, `android screen capture`, `android screen capture --annotate`, `android screen resolve --screenshot`, `android docs`, `android skills`
+- Caveat: `android screen resolve` uses `--screenshot`, not `--screen`
+- Caveat: `android run` deploys/checks APKs; it does not build missing APKs
 
-### 1. adb 真机连接
+Codex CLI:
+- Version: `codex-cli 0.139.0`
+- Confirmed flags: `codex exec --json --output-schema --output-last-message --sandbox --ask-for-approval --cd`
+
+Wikipedia host:
+- Path: `/Users/peter/hosts/wikipedia`
+- Commit: `6ccb8d85a21a8e34b96e4813d3caee5c690ece9b`
+- Build command: `./gradlew assembleDevDebug --no-daemon`
+- Build result: `BUILD SUCCESSFUL in 9m 48s`
+- APK: `/Users/peter/hosts/wikipedia/app/build/outputs/apk/dev/debug/app-dev-debug.apk`
+- APK SHA-256: `cf882666ecab7b4ad3362e5580ef3e692062d3958045b103e0c43a6014ee32e9`
+- Package: `org.wikipedia.dev`
+- Launch component used by Android CLI: `org.wikipedia.DefaultIcon`
+- Evidence confirms Wikipedia onboarding screen.
+
+### Implemented runner contracts
+
+- `src/aiverify/runner/run_spec.py`: `run-spec.yaml` parsing, validation, dry-run plan.
+- `src/aiverify/runner/codex_backend.py`: Codex CLI Verification Agent Backend contract.
+- `src/aiverify/runner/journey_result_schema.json`: structured Journey result schema.
+- `src/aiverify/runner/evidence.py`: Android CLI layout/screenshot/checkpoint evidence capture.
+- `src/aiverify/runner/journey.py`: Journey segment boundary orchestration.
+- `src/aiverify/runner/system_events.py`: system-event injection at boundaries.
+- `src/aiverify/runner/verdict.py`: Android CLI layout JSON to L2Oracle verdict.
+- `src/aiverify/harness/device/controller.py`: includes public `press_home()` for backgrounding.
+
+## Current Boundary
+
+Do not claim these are complete yet:
+
+- First Wikipedia config-change Goldset seed (#8).
+- M1 five-Goldset report (#9).
+- Full defect-injected end-to-end benchmark.
+- 100+ AI-generated source-level defects.
+- Detection rate, false-positive rate, or full-benchmark throughput.
+- Fully unattended Android Journey execution.
+- ColorOS internal app/build migration.
+
+The current value is narrower but concrete: the repo now has a tested runner contract, a real Android host build/deploy proof, and durable evidence discipline.
+
+## Next Issue
+
+Work #8 next: create the first Wikipedia config-change Goldset smoke seed.
+
+Recommended seed shape:
+
+```text
+Open a page with editable/search state
+→ enter sentinel text
+→ inject config-change/rotation at a Journey Segment Boundary
+→ capture Android CLI layout/screenshot before and after
+→ use L2Oracle to assert the sentinel state is retained or not duplicated
+→ write verdict and run record
+```
+
+Keep it deliberately simple. Avoid coroutine race, background process death, or deep navigation for the first seed; those add trigger instability before the evidence loop is proven.
+
+## Expected #8 Deliverables
+
+- Goldset patch under `bench/goldset/patches/`.
+- Goldset spec under `bench/goldset/specs/`.
+- A `run-spec.yaml` example or fixture for the smoke run.
+- A durable run record under `docs/runs/<date>-wikipedia-config-change-smoke/`.
+- GitHub issue comments with commands, outputs, artifacts, checksums, and known gaps.
+- A commit containing the implementation, run record, and evidence artifacts, unless there is a clear reason not to commit.
+
+## Execution Notes
+
+Use Android CLI first:
+
 ```bash
-brew install android-platform-tools   # 若无 adb
-adb devices                            # 连接 ColorOS 真机，开启 USB 调试
+android run --apks=/Users/peter/hosts/wikipedia/app/build/outputs/apk/dev/debug/app-dev-debug.apk \
+  --device=emulator-5554 \
+  --activity=org.wikipedia.DefaultIcon
+
+android layout --device=emulator-5554 --pretty -o=<run-dir>/artifacts/layout.json
+android screen capture -o=<run-dir>/artifacts/screen.png
+android screen capture --annotate -o=<run-dir>/artifacts/screen-annotated.png
 ```
-**自验**：`adb devices` 列出设备且状态为 `device`（非 unauthorized）。然后跑一次真实原语冒烟：
+
+Use adb where Android CLI lacks precise primitives:
+
 ```bash
-.venv/bin/python -c "
-from aiverify.harness.device import DeviceController, SubprocessAdbRunner
-dc = DeviceController(SubprocessAdbRunner())
-print(dc.dump_ui()[:200])"
+adb -s emulator-5554 shell settings put system accelerometer_rotation 0
+adb -s emulator-5554 shell settings put system user_rotation 1
+adb -s emulator-5554 logcat -d -t 200 > <run-dir>/artifacts/logcat-tail.txt
 ```
-能打印出当前屏幕的 XML 即接通。
 
-### 2. LLM provider 实现与 API key（异源约束）
-当前只有 `MockProvider`。需按 `aiverify.providers.LLMProvider` 接口实现两个真实 provider（建议各 ~50 行，走各家 OpenAI 兼容端点可共用一套 HTTP 代码）：
-- `AnthropicProvider`（env: `ANTHROPIC_API_KEY`）→ 建议角色：注入侧（Phase 2 injector）
-- `OpenAIProvider`（env: `OPENAI_API_KEY`）→ 建议角色：验证侧（planner + L3 oracle）
+Use Codex CLI as the verification backend shape:
 
-**异源约束已在代码层强制**：定标跑组装角色时调用 `check_cross_source(assignments, calibration_run=True)`，注入侧与验证侧同 provider 会直接抛 `CrossSourceViolation`。
-**自验**：`pytest tests/test_providers.py` 仍绿；用真实 key 跑一次 `PlanGenerator.generate()`（给一个小 diff），能产出通过 schema 校验的 `VerificationPlan`。
-
-### 3. 宿主 App（选型报告：docs/host-app-selection.md）
-首选 **wikimedia/apps-android-wikipedia**：
 ```bash
-git clone https://github.com/wikimedia/apps-android-wikipedia ~/hosts/wikipedia
-cd ~/hosts/wikipedia && ./gradlew assembleDevDebug   # 标准 gradle，无私有依赖
+codex exec --json \
+  --output-schema src/aiverify/runner/journey_result_schema.json \
+  --output-last-message <run-dir>/codex-result.json \
+  --sandbox danger-full-access \
+  --ask-for-approval never \
+  --cd /Users/peter/projects/ai_verfication \
+  "<Journey instructions + checkpoint/evidence contract>"
 ```
-**自验**：构建出 APK 并 `adb install` 成功启动。**顺手记录构建耗时**——这是 AC9 预算账的"单批构建 ≤20min"第一份实测数据。
 
-### 4. M1 里程碑：金标准种子缺陷植入
-素材在 `bench/goldset/candidates.md`（18 条，全部带已核实的 issue/修复链接）。步骤：
-1. 挑 5 条移植可行性"高"的（建议含 AntennaPod#1945 单行缺陷、TB#10288 旋转重复项）
-2. 在 Wikipedia 宿主对应模块手工复现等价缺陷，每条写成一个 git patch 存入 `bench/goldset/patches/`
-3. 用 `Patcher.apply()` 植入 → 构建 → 装机
-4. 跑验证 Agent（步骤 5），目标：5 个抓住 ≥3
+## Evidence Discipline
 
-### 5. 首次端到端运行
-组件已齐但**缺一个编排入口**（这是第一个要写的新代码，建议 `src/aiverify/runner.py`，~100 行）：
-```
-diff + 规格 → PlanGenerator.generate() → 按 scenario_clusters 驱动 DeviceController
-（system_events 在指定 step 注入）→ logcat/UI dump 喂 L1/L2 oracle → 不足时 L3 → verdict 落盘
-```
-所有积木的接口签名见各模块 `__init__.py` 导出。
-**自验**：对一个种子缺陷跑通全链路，产出通过 `validate_verdict()` 的 verdict JSON 文件。
+Follow `AGENTS.md` strictly:
 
-### 6. ColorOS 构建探路（计划 Phase 0 并行项，未做）
-计划要求尽早证伪"内部构建系统对接"可行性（签名、构建入口、产物安装权限）。这只能由你在内网做。最坏退化方案已写入计划：注入留开源宿主，仅迁移验证 Agent。
+- Non-trivial validation gets a `docs/runs/<date>-<slug>/README.md`.
+- Artifacts live under that run directory.
+- Issue comments link to the run record and include exact commands/results.
+- Important artifacts get SHA-256 checksums.
+- Run records and artifacts are committed with the change they justify.
+- If something remains local-only or uncommitted, say that explicitly.
 
-## 建议的接线顺序
-1 → 3（并行：设备 + 宿主构建）→ 2（key）→ 5（端到端入口）→ 4（M1 冲刺）。预计 1-2 个工作日到 M1 可验。
+## Historical Documents
+
+`.omc/plans/ralplan-ai-behavior-verification.md` is retained as historical context. It describes the broader long-term benchmark vision and old AC1-AC10 acceptance framing, but the current MVP source of truth is:
+
+- GitHub PRD #1 and child issues.
+- `CONTEXT.md`.
+- ADRs under `docs/adr/`.
+- This `HANDOFF.md`.
+- Run records under `docs/runs/`.

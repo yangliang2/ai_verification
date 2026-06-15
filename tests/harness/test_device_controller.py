@@ -101,6 +101,11 @@ class TestForceStopAndKill:
         ctrl.clear_data("com.example.app")
         assert fake.commands[-1] == ["shell", "pm", "clear", "com.example.app"]
 
+    def test_press_home(self):
+        ctrl, fake = _ctrl()
+        ctrl.press_home()
+        assert fake.commands[-1] == ["shell", "input", "keyevent", "HOME"]
+
 
 # ---------------------------------------------------------------------------
 # 权限管理

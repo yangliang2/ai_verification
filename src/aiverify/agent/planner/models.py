@@ -11,10 +11,11 @@ from dataclasses import dataclass, field
 
 @dataclass
 class SystemEventStep:
-    """系统事件编排点：在某个操作步骤索引处注入受控系统事件。
+    """系统事件编排点：在 Journey segment 边界注入受控系统事件。
 
     Attributes:
-        step_index: 在 user_actions 序列中对应的步骤索引（0-based）。
+        step_index: 在 user_actions 序列中对应的 segment 边界索引（0-based）。
+            MVP 中不表示 Android CLI Journey 内部的低级点击序号。
         event: 受控系统事件类型，如 rotate / kill_background / network_off 等。
     """
 

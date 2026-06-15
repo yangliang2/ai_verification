@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JourneyExecutionResult",
+  "type": "object",
+  "required": ["journey", "results"],
+  "additionalProperties": true,
+  "properties": {
+    "journey": { "type": "string" },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action", "status"],
+        "additionalProperties": true,
+        "properties": {
+          "action": { "type": "string" },
+          "status": { "type": "string", "enum": ["PASSED", "FAILED", "SKIPPED"] },
+          "commands": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "comment": { "type": "string" }
+        }
+      }
+    }
+  }
+}

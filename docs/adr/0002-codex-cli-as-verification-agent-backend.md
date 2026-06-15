@@ -1,0 +1,3 @@
+# Codex CLI as the first verification agent backend
+
+MVP uses Codex CLI as the first production-shaped verification agent backend instead of treating verification as raw LLM provider calls. The project goal is to measure whether an AI coding result can be sufficiently verified through injected behavior-layer defects, evidence capture, oracle evaluation, and scoring; using an agent backend preserves the real production shape while this repository provides the benchmark harness, Android execution constraints, verdict schema, and metrics. `LLMProvider` remains useful for narrow structured planner/oracle calls, but it is not the core abstraction for the verification-side agent.

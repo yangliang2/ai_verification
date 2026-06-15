@@ -164,6 +164,10 @@ class DeviceController:
         """
         return self._shell(["pm", "clear", package])
 
+    def press_home(self) -> AdbResult:
+        """按下 Home 键，将当前前台应用送入后台。"""
+        return self._shell(["input", "keyevent", "HOME"])
+
     # ------------------------------------------------------------------
     # 权限管理
     # ------------------------------------------------------------------

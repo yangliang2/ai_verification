@@ -18,6 +18,11 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"aiverify.agent.planner" = ["plan_schema.json"]
+"aiverify.agent.oracle" = ["verdict_schema.json"]
+"aiverify.runner" = ["journey_result_schema.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

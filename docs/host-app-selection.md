@@ -4,6 +4,8 @@
 > 数据来源：GitHub API（`gh repo view` / `gh api repos/...` / languages / commits / contents API）实查 + 源码树抽查。
 > **查询时间：2026-06（2026-06-11，美东时间）**。星数、commit 时间、语言占比均为当日实测值。
 
+> Current MVP update（2026-06-15）：首选宿主 `wikimedia/apps-android-wikipedia` 已在本机实测构建、部署、启动和 evidence capture。详见 `docs/runs/2026-06-15-afk-verification/README.md`。当前 MVP 继续使用 Wikipedia；Thunderbird 保留为后续第二宿主备选。
+
 ## 1. 硬指标回顾
 
 | 编号 | 指标 |
@@ -81,6 +83,17 @@ Kotlin 99.0%，但项目已进入维护模式（官方主力转向 Element X / C
 
 - **首选：wikimedia/apps-android-wikipedia** —— 唯一在六项硬指标上全部高分的真实产品级 App：近纯 Kotlin、日级维护、ViewModel+协程+View/Compose 双形态、零门槛标准 Gradle 构建、60+ 互不相交的功能包、页面与后台任务复杂度充足。
 - **备选：thunderbird/thunderbird-android** —— 148 模块的细粒度多模块工程，Compose 为主，与首选形成架构形态互补；Kotlin 占比（81.5%）与构建矩阵复杂度略逊于首选。
+
+### 4.1 Wikipedia 实测结果（2026-06-15）
+
+- Clone path: `/Users/peter/hosts/wikipedia`
+- Commit: `6ccb8d85a21a8e34b96e4813d3caee5c690ece9b`
+- Build command: `./gradlew assembleDevDebug --no-daemon`
+- Build result: `BUILD SUCCESSFUL in 9m 48s`
+- APK: `/Users/peter/hosts/wikipedia/app/build/outputs/apk/dev/debug/app-dev-debug.apk`
+- Package: `org.wikipedia.dev`
+- Android CLI deploy: `android run --apks=... --device=emulator-5554 --activity=org.wikipedia.DefaultIcon`
+- Evidence: layout and screenshots captured under `docs/runs/2026-06-15-afk-verification/artifacts/`
 
 ## 5. 首选注入点盘点初稿（Wikipedia）
 

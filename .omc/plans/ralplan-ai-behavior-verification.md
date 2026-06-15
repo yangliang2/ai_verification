@@ -1,4 +1,10 @@
-# 实施计划：AI 行为层验证 Agent + AI 缺陷注入评测系统（MVP）
+# 实施计划：AI 行为层验证 Agent + AI 缺陷注入评测系统（历史初版）
+
+> Status: Superseded for current MVP execution.
+>
+> This document is preserved as historical planning context for the broader benchmark vision. Do not use its AC1-AC10 checklist as the current MVP completion standard. The current execution scope is Codex CLI + Android CLI + Wikipedia host smoke/M1, tracked by GitHub PRD #1 and its child issues, with source of truth in `README.md`, `HANDOFF.md`, `CONTEXT.md`, `docs/adr/`, and `docs/runs/`.
+>
+> In particular, the current MVP does not claim completion of 100+ AI-injected defects, full benchmark detection rates, ColorOS migration, or fully unattended UI execution.
 
 **Status:** pending approval（共识已达成：Architect APPROVE + Critic APPROVE，2 轮迭代）
 **Source Spec:** `.omc/specs/deep-interview-ai-code-verification.md`（歧义度 8.5%，13 轮深度访谈）

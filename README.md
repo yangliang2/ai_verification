@@ -1,57 +1,123 @@
 # AI Verification
 
-用 AI 验证 AI 生成的代码——Android 行为层验证 Agent + AI 缺陷注入评测系统。
+验证 AI coding 结果是否真的经得起 Android 行为层故障场景，而不是只看静态 diff、单元测试或 happy path。
 
-## 背景
+当前 MVP 的重点不是重造一个裸 LLM provider，也不是立刻做 100+ 缺陷的大规模注入基准；重点是先打通一条可审计的验证链：
 
-AI 时代编码能力越来越强，但验证能力没有跟上。本项目聚焦 Android（Kotlin）开发中最隐蔽的一类问题：**主流程看似正确，但生命周期、页面导航、旋转/配置变更、后台杀进程、协程并发等行为层边界埋雷**。
+```text
+run-spec.yaml
+→ Codex CLI Verification Agent Backend
+→ Android CLI / adb 执行与证据采集
+→ Journey Segment Boundary 系统事件注入
+→ L1/L2/L3 oracle
+→ verdict + run record + issue evidence
+```
 
-## 核心设计：双轮驱动
+## 当前范围
 
-1. **行为层验证 Agent**：接收一次 AI 代码改动（SDD 规格 + diff + 源码）→ 自动生成验证计划 → 真机执行（LLM 驱动 UI 操作 + adb 确定性编排系统事件）→ 分层判定（crash/状态断言/LLM 语义）→ 输出风险透明化报告（含规格盲区发现），全程零人工脚本。
-2. **AI 缺陷注入评测系统**：AI 向宿主 App 源码级注入 100+ 行为层缺陷构建评测基准，持续度量验证 Agent 的抓取能力——评测系统是验证 Agent 的"陪练"。
+### MVP 已对齐的目标
 
-### 基准可信度三重锚（防"AI 测 AI"的同源共谋）
+- 使用 **Codex CLI** 作为第一种 Verification Agent Backend，保留真实生产形态的 agent 执行能力。
+- 使用 Google **Android CLI** 作为 Android agent-first 操作入口，覆盖 APK 部署、layout/screenshot 采集、docs/skills 查询；adb 作为系统事件和 logcat fallback。
+- 使用开源 Android 宿主 **wikimedia/apps-android-wikipedia** 先跑通 smoke/M1，而不是一开始接入 ColorOS 内部构建系统。
+- 用 **Run Spec** 描述一次可复现验证运行。
+- 在 **Journey Segment Boundary** 注入旋转、后台、权限、网络等行为层事件。
+- 把每次非平凡验证写成 `docs/runs/<date>-<slug>/`，并在 GitHub issue 中留下可审计证据。
 
-- **强制异源**：缺陷注入方与验证判定方使用不同 provider 的模型
-- **金标准对照集**：非 AI 生成的真实历史缺陷作 holdout，抓取率分别报告
-- **flaky_pool**：难复现真实缺陷留痕不丢弃，防基准被提纯成"只剩好抓的"
+### 暂不声称完成
 
-## 第一里程碑
+- 100+ AI 自动注入缺陷基准。
+- M1 五个 Goldset 种子缺陷报告。
+- ColorOS 一方应用迁移。
+- 完全无人值守的 LLM UI driver。
+- 对外可信的抓取率、误报率或全基准吞吐指标。
 
-AI 自动注入 ≥100 个行为层缺陷（五类各 ≥15），验证 Agent 抓取率 ≥80%（各类 ≥60%），误报率 ≤20%，全基准一轮墙钟 ≤24h（本地双真机）。
+这些仍是后续方向，但不是当前已验证的 MVP 状态。
+
+## 已验证状态
+
+2026-06-15 AFK implementation pass:
+
+- GitHub PRD: <https://github.com/yangliang2/ai_verification/issues/1>
+- 已完成并关闭：#2-#7
+- 保留人工语义工作：#8、#9
+- Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
+- 本地测试：`.venv/bin/pytest` -> `170 passed`
+
+Wikipedia host 实测：
+
+- Host path: `/Users/peter/hosts/wikipedia`
+- Host commit: `6ccb8d85a21a8e34b96e4813d3caee5c690ece9b`
+- Build: `./gradlew assembleDevDebug --no-daemon` -> `BUILD SUCCESSFUL in 9m 48s`
+- APK: `/Users/peter/hosts/wikipedia/app/build/outputs/apk/dev/debug/app-dev-debug.apk`
+- Package: `org.wikipedia.dev`
+- Android CLI deploy: `android run --apks=... --device=emulator-5554 --activity=org.wikipedia.DefaultIcon`
+- Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 
 ## 目录结构
 
-```
+```text
 src/aiverify/
-  providers/         LLM provider 抽象 + 异源约束校验（check_cross_source）
-  harness/device/    adb 设备编排：DeviceController 系统事件原语、LogcatAnalyzer
-  harness/build/     批量构建管线：Patcher（无残留回滚）、Batcher（K 批文件不相交）、Builder（APK 缓存）
-  agent/planner/     验证计划生成器：PlanGenerator + plan_schema.json
-  agent/oracle/      分层判定：L1 crash/ANR、L2 状态断言、L3 LLM 语义 + verdict_schema.json（冻结）
-  bench/taxonomy/    行为层缺陷分类法：5 类 27 模式（taxonomy.yaml + 校验 loader）
-bench/goldset/       金标准缺陷素材：18 条已核实的真实开源 issue（candidates.md）
-docs/                taxonomy.md、host-app-selection.md（首选 Wikipedia App，备选 Thunderbird）
-tests/               145 个单测（全部不依赖真机与 API key）
+  providers/          LLM provider 抽象与异源约束；保留给 planner/oracle/injector 等窄接口
+  harness/device/     adb 设备编排、系统事件原语、logcat/UI dump
+  harness/build/      patch、批量构建、APK 缓存等后续基准能力
+  agent/planner/      driver-agnostic 验证计划 schema 与 generator
+  agent/oracle/       L1/L2/L3 分层判定与 verdict schema
+  runner/             当前 MVP runner contracts
+    run_spec.py       单次验证运行输入契约
+    codex_backend.py  Codex CLI backend contract
+    evidence.py       Android CLI evidence checkpoints
+    journey.py        Journey segment boundary 编排
+    system_events.py  runner 到 DeviceController 的系统事件注入
+    verdict.py        Android CLI layout JSON 到 L2Oracle verdict
+
+bench/goldset/        真实历史行为层缺陷候选素材
+docs/adr/             当前架构决策
+docs/agents/          agent/issue tracker/triage 约定
+docs/runs/            可审计运行记录与 evidence artifacts
 ```
 
 ## 本地开发
 
 ```bash
-uv venv .venv && uv pip install --python .venv/bin/python pytest pyyaml jsonschema
-.venv/bin/python -m pytest          # 全量测试
+uv venv .venv
+uv pip install --python .venv/bin/python pytest pyyaml jsonschema
+.venv/bin/pytest
 ```
 
-## 文档
+Android smoke 需要额外环境：
 
-- 需求规格（13 轮深度访谈产物）：[`.omc/specs/deep-interview-ai-code-verification.md`](.omc/specs/deep-interview-ai-code-verification.md)
-- 实施计划（Planner/Architect/Critic 共识产物）：[`.omc/plans/ralplan-ai-behavior-verification.md`](.omc/plans/ralplan-ai-behavior-verification.md)
-- 缺陷分类法说明：[`docs/taxonomy.md`](docs/taxonomy.md)
-- 宿主 App 选型报告：[`docs/host-app-selection.md`](docs/host-app-selection.md)
-- **接线清单（真机/API key 依赖项）：[`HANDOFF.md`](HANDOFF.md)**
+```bash
+android update
+android init
+android info
+adb devices
+```
 
-## 状态
+当前实测 Android CLI 版本为 `1.0.15498356`，Codex CLI 版本为 `codex-cli 0.139.0`。
 
-Phase 0+1 无人值守边界内的部分已交付：全部基础组件 + 单测、缺陷分类法、金标准素材、宿主选型。
-真机执行、LLM 真实调用、注入管线（Phase 2）见 `HANDOFF.md` 的诚实声明与接线步骤——未实测的验收项不声称已验证。
+## 文档入口
+
+- 项目语言与术语：[`CONTEXT.md`](CONTEXT.md)
+- 当前交接和下一步：[`HANDOFF.md`](HANDOFF.md)
+- Agent 工作规范：[`AGENTS.md`](AGENTS.md)
+- Android CLI execution ADR：[`docs/adr/0001-android-cli-first-execution-base.md`](docs/adr/0001-android-cli-first-execution-base.md)
+- Codex CLI backend ADR：[`docs/adr/0002-codex-cli-as-verification-agent-backend.md`](docs/adr/0002-codex-cli-as-verification-agent-backend.md)
+- Host app 选型：[`docs/host-app-selection.md`](docs/host-app-selection.md)
+- 历史初版计划：[`.omc/plans/ralplan-ai-behavior-verification.md`](.omc/plans/ralplan-ai-behavior-verification.md)
+
+历史初版计划保留为背景资料，但已经被当前 PRD #1、ADR、run record 和 GitHub issue 状态 supersede；不要按旧 AC1-AC10 直接判断当前 MVP 是否完成。
+
+## 下一步
+
+当前自然下一步是 #8：创建第一个 Wikipedia config-change Goldset smoke seed。建议选择状态断言型缺陷：
+
+```text
+打开搜索或表单页
+→ 输入 sentinel 文本
+→ 旋转或触发配置变更
+→ Android CLI 抓 layout/screenshot
+→ L2Oracle 断言文本保留或未重复恢复
+```
+
+完成 #8 后再推进 #9，把 smoke slice 扩展到 M1 五个 Goldset 种子报告。
