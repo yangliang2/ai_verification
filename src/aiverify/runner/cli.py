@@ -23,6 +23,7 @@ import sys
 from pathlib import Path
 
 from aiverify.agent.oracle import L1Oracle
+from aiverify.agent.oracle.schema import validate_verdict
 from aiverify.harness.device.controller import DeviceController
 from aiverify.runner.codex_backend import CodexCliBackend, _DEFAULT_SCHEMA_PATH
 from aiverify.runner.evidence import AndroidEvidenceCollector
@@ -92,22 +93,35 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
     )
 
     checkpoints = {c.name: c for c in flow.checkpoints}
-    # before = state after the segment that carries the boundary event; after = post-event.
-    event_names = sorted(n for n in checkpoints if n.startswith("after-event-"))
-    if not event_names:
-        raise SystemExit("run spec has no boundary system event to compare around")
-    idx = event_names[0].rsplit("-", 1)[1]
-    before_cp = checkpoints[f"after-segment-{idx}"]
-    after_cp = checkpoints[f"after-event-{idx}"]
-
     steps = _trigger_steps(spec)
-    l2 = judge_l2_from_android_layout(
-        before_cp.layout_path.read_text(encoding="utf-8"),
-        after_cp.layout_path.read_text(encoding="utf-8"),
-        spec.scenario.assertions,
-        trigger_steps=steps,
-    )
-    l1 = L1Oracle().judge(after_cp.logcat_path.read_text(encoding="utf-8"), trigger_steps=steps)
+
+    # L1 scans every checkpoint's logcat, so a crash/ANR during any segment or after any
+    # event is caught — not only the post-event checkpoint (e.g. an ANR while typing).
+    all_logcat = "\n".join(cp.logcat_path.read_text(encoding="utf-8") for cp in flow.checkpoints)
+    l1 = L1Oracle().judge(all_logcat, trigger_steps=steps)
+
+    # L2 needs a before/after pair around a boundary event; scenarios without a system
+    # event (e.g. a crash/ANR triggered by a user action) are not L2-assertable.
+    event_names = sorted(n for n in checkpoints if n.startswith("after-event-"))
+    if event_names:
+        idx = event_names[0].rsplit("-", 1)[1]
+        before_cp = checkpoints[f"after-segment-{idx}"]
+        after_cp = checkpoints[f"after-event-{idx}"]
+        l2 = judge_l2_from_android_layout(
+            before_cp.layout_path.read_text(encoding="utf-8"),
+            after_cp.layout_path.read_text(encoding="utf-8"),
+            spec.scenario.assertions,
+            trigger_steps=steps,
+        )
+    else:
+        l2 = {
+            "verdict_id": "L2-na", "level": "L2", "outcome": "inconclusive",
+            "defect_class_hypothesis": None, "trigger_steps": steps,
+            "evidence": [{"type": "state_diff", "ref": "no boundary system event",
+                          "note": "scenario has no system event; L2 state assertion not applicable"}],
+            "confidence": 0.0,
+        }
+        validate_verdict(l2)
 
     verdict = {
         "scenario": spec.scenario.id,
@@ -142,11 +156,13 @@ def main(argv: list[str] | None = None) -> int:
         launch=not args.no_launch,
         model=args.model,
     )
+    l1_class = verdict["l1"]["defect_class_hypothesis"]
+    l2_class = verdict["l2"]["defect_class_hypothesis"]
     print(f"scenario: {verdict['scenario']}")
-    print(f"L1: {verdict['l1']['outcome']}  |  L2: {verdict['l2']['outcome']}"
-          f"  (defect_class={verdict['l2']['defect_class_hypothesis']})")
-    # non-zero exit when a defect is detected, so CI can gate on it
-    return 1 if verdict["l2"]["outcome"] == "fail" else 0
+    print(f"L1: {verdict['l1']['outcome']} ({l1_class})  |  L2: {verdict['l2']['outcome']} ({l2_class})")
+    # non-zero exit when a defect is detected by any oracle, so CI can gate on it
+    detected = verdict["l1"]["outcome"] == "fail" or verdict["l2"]["outcome"] == "fail"
+    return 1 if detected else 0
 
 
 if __name__ == "__main__":

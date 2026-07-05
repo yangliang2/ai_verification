@@ -116,13 +116,25 @@ taxonomy category × oracle path).
   `dark_mode` recreation. Run record `docs/runs/2026-07-05-wikipedia-lifecycle-04-recreation-crash/`,
   test `tests/bench/test_goldset_lifecycle_04_crash.py`. Suite 183 -> 187.
 
-Both cheap oracle paths (L1 crash, L2 state) now proven live. Remaining M1 seeds:
-process-death, navigation, coroutine-concurrency (see the report for candidate
-patterns + the process-death reliability note).
+Both cheap oracle paths (L1 crash, L2 state) now proven live.
+
+Seed 3 — coroutine-concurrency-03 main-thread ANR → **L1 fail / crash_stability**,
+event-less scenario (ANR triggered by typing). Exercised a CLI change: L1 now scans
+**all** checkpoint logcats, and event-less scenarios are L2-not-applicable. Run record
+`docs/runs/2026-07-05-wikipedia-coroutine-concurrency-03-anr/`. Suite now 190.
+
+**process-death is BLOCKED** (finding, see `docs/M1-goldset-report.md`): Wikipedia
+cold-starts to the feed after real process death, not back into SearchActivity, so the
+search scenario can't show process-death state loss. Needs a restore-capable screen
+(article PageActivity) or a multi-segment re-entry scenario + a background→kill→restore
+harness helper.
+
+3/5 M1 categories done (config-change, lifecycle, coroutine-concurrency).
 
 ## Next Issue
 
-Continue **#9**: seeds 3-5 (process-death, navigation, coroutine-concurrency).
+Continue **#9**: navigation seed (deterministic deep-link or double-open), then the
+process-death follow-up (restore-capable screen + harness helper).
 
 Recommended seed shape:
 

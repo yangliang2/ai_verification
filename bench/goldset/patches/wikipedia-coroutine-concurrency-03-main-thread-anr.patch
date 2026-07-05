@@ -1,0 +1,29 @@
+diff --git a/app/src/main/java/org/wikipedia/search/SearchFragment.kt b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+index 730a3cc..0032846 100644
+--- a/app/src/main/java/org/wikipedia/search/SearchFragment.kt
++++ b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+@@ -52,6 +52,9 @@ class SearchFragment : Fragment(), SearchResultCallback, RecentSearchesFragment.
+     private var query: String? = null
+     private var returnLink = false
+     private var initiateHybridSearch = false
++    // [aiverify goldset: coroutine-concurrency-03 injected defect] one-shot guard so the
++    // main-thread block (ANR) happens once on the first query, not on every keystroke.
++    private var mainThreadBlockDone = false
+     private lateinit var recentSearchesFragment: RecentSearchesFragment
+     private lateinit var searchResultsFragment: SearchResultsFragment
+     private lateinit var invokeSource: InvokeSource
+@@ -78,6 +81,14 @@ class SearchFragment : Fragment(), SearchResultCallback, RecentSearchesFragment.
+         }
+ 
+         override fun onQueryTextChange(queryText: String): Boolean {
++            // [aiverify goldset: coroutine-concurrency-03 injected defect] heavy work run
++            // on the main thread (should be withContext(Dispatchers.Default)); blocks the
++            // UI thread on the first query so typing triggers an ANR. Happy path with no
++            // typing never hits it.
++            if (queryText.isNotEmpty() && !mainThreadBlockDone) {
++                mainThreadBlockDone = true
++                Thread.sleep(6000)
++            }
+             binding.searchCabView.setCloseButtonVisibility(queryText)
+             startSearch(queryText.trim(), force = false, resetHybridSearch = searchResultsFragment.showHybridSearch)
+             return true

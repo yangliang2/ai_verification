@@ -1,0 +1,80 @@
+{
+  "scenario": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+  "l1": {
+    "verdict_id": "L1-c2e39fdd",
+    "level": "L1",
+    "outcome": "fail",
+    "defect_class_hypothesis": "crash_stability",
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    ],
+    "evidence": [
+      {
+        "type": "logcat_line",
+        "ref": "07-05 18:34:06.590   572   676 I WindowManager: ANR in Window{e75ad2c u0 org.wikipedia.dev/org.wikipedia.search.SearchActivity}. Reason:Input dispatching timed out (e75ad2c org.wikipedia.dev/org.wikipedia.search.SearchActivity (server) is not responding. Waited 5006ms for KeyEvent(deviceId=-1, eventTime=34633127702806, source=KEYBOARD, displayId=-1, action=DOWN, flags=0x00000000, keyCode=A(29), scanCode=0, metaState=0x00000000, repeatCount=0), policyFlags=0x6b000000).",
+        "note": "检测到 ANR in——应用无响应（主线程阻塞超时）"
+      },
+      {
+        "type": "logcat_line",
+        "ref": "07-05 18:34:06.953   572 15356 E ActivityManager: ANR in org.wikipedia.dev (org.wikipedia.dev/org.wikipedia.search.SearchActivity)",
+        "note": "检测到 ANR in——应用无响应（主线程阻塞超时）"
+      }
+    ],
+    "confidence": 0.95
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+      "results": [
+        {
+          "action": "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入",
+          "status": "PASSED",
+          "commands": [
+            "adb -s emulator-5554 shell monkey -p org.wikipedia.dev 1",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 371"
+          ],
+          "comment": "App opened directly to the main feed, Search tab was at [540,2232], and search_card was at [540,371]."
+        },
+        {
+          "action": "点搜索输入框 search_src_text，输入文本 'anrtest'",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 542 215",
+            "adb -s emulator-5554 shell input text \"anrtest\"",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input text \"nrtest\"",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Tapped search_src_text at [542,215]. Initial text command left only 'a', so appended 'nrtest'; final layout showed search_src_text text 'anrtest'."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": []
+}

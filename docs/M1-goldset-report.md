@@ -13,16 +13,16 @@ Two axes: **taxonomy category** (the defect's root cause) × **oracle path / sym
 (how the verifier catches it). A healthy M1 exercises both a spread of categories and
 both cheap oracle layers (L1 crash signal, L2 state assertion).
 
-| # | Taxonomy category | Seed | Trigger event | Oracle / symptom | Status |
+| # | Taxonomy category | Seed | Trigger | Oracle / symptom | Status |
 |---|---|---|---|---|---|
 | 1 | config-change | `config-change-01` search query loss | `dark_mode` | **L2 fail / state_loss** | ✅ done |
 | 2 | lifecycle | `lifecycle-04` recreation crash | `dark_mode` | **L1 fail / crash_stability** | ✅ done |
-| 3 | process-death | — | `kill_background` (+ background) | L2 state_loss / L1 crash | ⬜ pending |
-| 4 | navigation | — | double-open / deep link | L1 crash_stability | ⬜ pending |
-| 5 | coroutine-concurrency | — | rotate / background race | L1 ANR/crash | ⬜ pending |
+| 3 | coroutine-concurrency | `coroutine-concurrency-03` main-thread ANR | typing (no event) | **L1 fail / crash_stability (ANR)** | ✅ done |
+| 4 | process-death | — | background + `kill_background` | L2 state_loss / L1 crash | ⏸ blocked (see finding) |
+| 5 | navigation | — | double-open / deep link | L1 crash_stability | ⬜ pending |
 
-Oracle-path coverage so far: **L2 (state_loss) ✅**, **L1 (crash_stability) ✅**,
-L3 (LLM semantic) not yet exercised.
+Oracle-path coverage so far: **L2 (state_loss) ✅**, **L1 (crash_stability, both crash
+and ANR) ✅**, L3 (LLM semantic) not yet exercised. 3/5 categories done.
 
 ## Done seeds
 
@@ -47,18 +47,39 @@ L3 (LLM semantic) not yet exercised.
   run record `docs/runs/2026-07-05-wikipedia-lifecycle-04-recreation-crash/`;
   test `tests/bench/test_goldset_lifecycle_04_crash.py`.
 
-## Pending seeds (next work)
+### Seed 3 — coroutine-concurrency-03 (L1 / ANR)
+- Defect: `onQueryTextChange` runs `Thread.sleep(6000)` on the main thread (heavy work
+  that belongs on `Dispatchers.Default`); the first keystroke blocks the UI > 5s → ANR.
+- Event-less scenario (typing triggers it) → **L1 fail / crash_stability**; baseline no
+  block → **L1 inconclusive**.
+- Exercised a runner change: L1 now scans **all** checkpoint logcats (not only
+  post-event), and event-less scenarios are L2-not-applicable rather than an error.
+- Patch `bench/goldset/patches/wikipedia-coroutine-concurrency-03-main-thread-anr.patch`;
+  run record `docs/runs/2026-07-05-wikipedia-coroutine-concurrency-03-anr/`;
+  test `tests/bench/test_goldset_coroutine_03_anr.py`.
 
-3. **process-death** — `am kill` after backgrounding, then cold recovery. Candidate
-   patterns: process-death-01 (state not in SavedStateHandle → loss) or process-death-03
-   (deep page reads null upstream state → NPE). Note from experiments: reliable
-   process-death restore of a deep activity needs backgrounding first (`am kill` is a
-   no-op on the foreground app) and task-restore choreography — needs a harness helper.
-4. **navigation** — double-open ("Fragment already added") crash, or deep-link entry
-   that skips upstream init. Double-tap timing can be flaky; a deep-link trigger is
-   more deterministic but needs a `deep_link` injector event.
-5. **coroutine-concurrency** — main-thread block → ANR (L1), or GlobalScope updating a
-   destroyed view on rotation → crash. Races often need load/repetition to surface.
+## Blocked / pending seeds
+
+### 4. process-death — BLOCKED on host behavior (finding)
+Attempted with the search-sentinel scenario. Confirmed on device:
+- `am kill` on the **foreground** app is a no-op (process survives); the app must be
+  **backgrounded first** (`press home`), then `am kill` truly kills it (pid → NONE).
+- **But after a real process death + relaunch, Wikipedia cold-starts to the main feed,
+  not back into `SearchActivity`** — the search screen does not restore across process
+  death. So the search sentinel can't demonstrate process-death state loss (the baseline
+  itself doesn't restore it).
+
+To do a faithful process-death seed we need either (a) a host screen Wikipedia **does**
+restore across process death (e.g. an article `PageActivity`, or reading lists) plus a
+defect there, and/or (b) a multi-segment re-entry scenario where the crash fires on
+re-navigation after death — which also needs the runner's L1 multi-checkpoint scan
+(now added in seed 3) and a harness helper for the background→kill→restore choreography.
+This is scoped follow-up, not a quick seed.
+
+### 5. navigation — pending
+Double-open ("Fragment already added") crash, or deep-link entry that skips upstream
+init. Double-tap timing is flaky; a deep-link trigger is more deterministic but needs a
+`deep_link` launch path in the run-spec/CLI.
 
 ## Notes / findings carried forward
 
