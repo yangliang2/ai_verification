@@ -25,6 +25,38 @@ Oracle-path coverage so far: **L2 (state_loss) ✅**, **L1 (crash_stability, bot
 and ANR) ✅**, L3 (LLM semantic) not yet exercised. 4/5 categories done; only
 process-death remains (blocked on host restore behavior).
 
+## M1 target result
+
+> **M1 target — catch at least 3 of 5 seeds: MET.**
+> Of the 4 seeds attempted, **4 were caught** (0 missed, 0 build failures, 0 driver
+> failures). The 5th seed (process-death) is **not yet attempted** — blocked on host
+> restore behavior, tracked in issue #10. Detection rate on attempted seeds: **4/4**;
+> against the full 5-seed target: **4/5 attempted, 4/5 caught**.
+
+## Outcomes by category and timing
+
+Per the M1 report contract, each seed's outcome is separated into
+**caught / missed / build-failure / driver-failure / inconclusive**. "Caught" means an
+oracle returned `fail` for the injected defect. L2 shows `inconclusive` for the
+crash/ANR seeds because those scenarios have no state-assertion boundary — the **defect
+was still caught by L1**, so the per-seed outcome is *caught*.
+
+| Seed | Category | Per-seed outcome | L1 | L2 | Host build | End-to-end run |
+|---|---|---|---|---|---|---|
+| 1 config-change-01 | config-change | **caught** | inconclusive | **fail (state_loss)** | 9m48s cold / ~15s incr | ~2–3 min (Codex) |
+| 2 lifecycle-04 | lifecycle | **caught** | **fail (crash)** | inconclusive | ~15s incr | ~2–3 min (Codex) |
+| 3 coroutine-conc-03 | coroutine-concurrency | **caught** | **fail (ANR)** | n/a (no event) | ~15–30s incr | ~2–4 min (Codex, +6s ANR block) |
+| 4 navigation-01 | navigation | **caught** | **fail (crash)** | n/a (no event) | ~15–30s incr | ~1–3 min (Codex) |
+| 5 process-death | process-death | **not attempted (blocked → #10)** | — | — | — | — |
+
+Also captured for seed 1: a **baseline (control) run** under the same event → **L2 pass**
+(the negative control), confirming the harness does not false-positive when behavior is
+correct.
+
+Timing caveat (known gap): host build times are from Gradle output; end-to-end
+**per-seed wall-clock is approximate — not precisely instrumented**. Adding start/end
+timestamps to `verdict.json` is easy follow-up.
+
 ## Done seeds
 
 ### Seed 1 — config-change-01 (L2 / state_loss)
@@ -85,12 +117,7 @@ restore across process death (e.g. an article `PageActivity`, or reading lists) 
 defect there, and/or (b) a multi-segment re-entry scenario where the crash fires on
 re-navigation after death — which also needs the runner's L1 multi-checkpoint scan
 (now added in seed 3) and a harness helper for the background→kill→restore choreography.
-This is scoped follow-up, not a quick seed.
-
-### 5. navigation — pending
-Double-open ("Fragment already added") crash, or deep-link entry that skips upstream
-init. Double-tap timing is flaky; a deep-link trigger is more deterministic but needs a
-`deep_link` launch path in the run-spec/CLI.
+This is scoped follow-up, not a quick seed (see issue #10).
 
 ## Notes / findings carried forward
 
