@@ -110,11 +110,17 @@ adb devices
 
 ## 下一步
 
-#8 的 **baseline（阴性对照）已完成**：在真实 emulator 上跑通了
-`run-spec → 段边界注入旋转 → Android CLI layout → L1/L2 oracle → verdict`，
-Wikipedia 搜索框旋转后保留查询，L2=pass、L1=inconclusive。
-Run record：[`docs/runs/2026-07-05-wikipedia-config-change-smoke/`](docs/runs/2026-07-05-wikipedia-config-change-smoke/README.md)。
+**#8 已完整闭环（阴性对照 + 阳性注入，匹配对照）**：
 
-自然下一步是 #8 的**注入缺陷（阳性）半区**：给宿主注入等价的 config-change 缺陷
-（破坏 `search_src_text` 查询持久化并重建），验证同一链路报 **L2=fail / state_loss**。
-之后再推进 #9，把 smoke slice 扩展到 M1 五个 Goldset 种子报告。
+- 阴性对照（baseline）：`run-spec → 段边界注入配置变更 → Android CLI layout → L1/L2 oracle → verdict`，
+  查询保留 → **L2=pass**。
+- 阳性注入（defect）：`isSaveFromParentEnabled=false` 破坏搜索子树 saved state，
+  同一 `dark_mode` 事件下查询丢失 → **L2=fail / state_loss**。
+- 关键发现：`SearchActivity` 声明了 `configChanges="orientation|screenSize"`，旋转不重建、
+  无法暴露此缺陷；改用**深色模式（uiMode）**配置变更强制重建。为此新增了 `dark_mode` 系统事件
+  （`DeviceController.set_night_mode` + injector + 白名单，均有单测）。
+- Run records：
+  [`.../2026-07-05-wikipedia-config-change-smoke/`](docs/runs/2026-07-05-wikipedia-config-change-smoke/README.md)（pass）、
+  [`.../2026-07-05-wikipedia-config-change-01-defect/`](docs/runs/2026-07-05-wikipedia-config-change-01-defect/README.md)（fail）。
+
+下一步是 **#9**：把 smoke slice 扩展到 M1 五个 Goldset 种子报告（`candidates.md` 已有 18 条素材）。

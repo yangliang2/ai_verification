@@ -1,0 +1,54 @@
+{
+  "defect": {
+    "l1": {
+      "verdict_id": "L1-06b2dd25",
+      "level": "L1",
+      "outcome": "inconclusive",
+      "defect_class_hypothesis": null,
+      "trigger_steps": [
+        "type sentinel 'zzsentinelqx'",
+        "[boundary] inject dark-mode (uiMode) config change"
+      ],
+      "evidence": [],
+      "confidence": 0.0
+    },
+    "l2": {
+      "verdict_id": "L2-7015f265",
+      "level": "L2",
+      "outcome": "fail",
+      "defect_class_hypothesis": "state_loss",
+      "trigger_steps": [
+        "type sentinel 'zzsentinelqx'",
+        "[boundary] inject dark-mode (uiMode) config change"
+      ],
+      "evidence": [
+        {
+          "type": "state_diff",
+          "ref": "resource-id='search_src_text' attr='text'：期望='zzsentinelqx'，实际='Search Wikipedia'",
+          "note": "属性 'text' 值与期望不符"
+        }
+      ],
+      "confidence": 0.9
+    }
+  },
+  "baseline_control": {
+    "l2": {
+      "verdict_id": "L2-55a5e863",
+      "level": "L2",
+      "outcome": "pass",
+      "defect_class_hypothesis": null,
+      "trigger_steps": [
+        "type sentinel 'zzsentinelqx'",
+        "[boundary] inject dark-mode (uiMode) config change"
+      ],
+      "evidence": [
+        {
+          "type": "state_diff",
+          "ref": "已校验 1 条断言，全部通过",
+          "note": "L2 状态断言全部满足"
+        }
+      ],
+      "confidence": 0.9
+    }
+  }
+}

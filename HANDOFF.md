@@ -63,26 +63,32 @@ Do not claim these are complete yet:
 
 The current value is narrower but concrete: the repo now has a tested runner contract, a real Android host build/deploy proof, and durable evidence discipline.
 
-## Progress Update (2026-07-05)
+## Progress Update (2026-07-05) — #8 COMPLETE (both halves)
 
-#8 baseline (negative control) is done: first live end-to-end smoke on
-`emulator-5554` / AVD `aiverify_api35`, reusing the recorded APK (no rebuild).
-Search sentinel `zzsentinelqx` retained across a real portrait→landscape
-rotation → **L2=pass, L1=inconclusive**, computed by the repo code.
-Artifacts + run record: `docs/runs/2026-07-05-wikipedia-config-change-smoke/`.
-New durable assets: `bench/goldset/{run-specs,specs,fixtures}/wikipedia-config-change-smoke*`
-and `tests/bench/test_goldset_config_change_smoke.py` (3 tests; suite now 173 passed).
+Both the negative control and the injected-defect halves of #8 are done, as a
+matched pair on `emulator-5554` / AVD `aiverify_api35`, computed by the repo code:
 
-Still open in #8: the injected-defect (positive) half — patch `search_src_text`
-query persistence, rebuild, and observe L2=fail / state_loss. Codex CLI backend
-not yet exercised (this run was agent-in-the-loop).
+- Baseline: sentinel retained across the config change → **L2=pass**.
+- Defect (`isSaveFromParentEnabled=false`): sentinel lost → **L2=fail / state_loss**.
+- Run records: `docs/runs/2026-07-05-wikipedia-config-change-smoke/` (pass) and
+  `docs/runs/2026-07-05-wikipedia-config-change-01-defect/` (fail).
+
+Key finding: `SearchActivity` declares `configChanges="orientation|screenSize"`, so
+**rotation does not recreate it** and cannot expose config-change state loss (the
+baseline rotation-pass was trivial). The seed uses a **dark-mode (uiMode)** config
+change, which is not swallowed and forces recreation. New first-class `dark_mode`
+system event added: `DeviceController.set_night_mode`, injector branch, whitelist —
+all unit-tested. Suite now **181 passed** (was 170).
+
+Durable assets: `bench/goldset/{run-specs,specs,fixtures,patches}/wikipedia-config-change*`,
+`tests/bench/test_goldset_config_change_smoke.py`, `tests/bench/test_goldset_config_change_01_defect.py`.
+
+Still not exercised: Codex CLI backend (both runs were agent-in-the-loop).
 
 ## Next Issue
 
-Work #8 injected-defect half next; then #9.
-
-Original recommended shape (retained for reference):
-Create the first Wikipedia config-change Goldset smoke seed.
+Work **#9** next: extend the smoke slice to the M1 five-Goldset report
+(`bench/goldset/candidates.md` has 18 verified real-world source defects to draw from).
 
 Recommended seed shape:
 

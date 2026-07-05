@@ -74,3 +74,23 @@ def test_inject_app_to_background_presses_home() -> None:
         "keyevent",
         "HOME",
     ]
+
+
+def test_inject_dark_mode_defaults_to_night_on() -> None:
+    injector, fake = _injector()
+
+    injector.inject(SystemEventSpec(step_index=0, event="dark_mode"))
+
+    assert fake.commands[-1] == [
+        "-s", "emulator-5554", "shell", "cmd", "uimode", "night", "yes",
+    ]
+
+
+def test_inject_dark_mode_night_off_via_args() -> None:
+    injector, fake = _injector()
+
+    injector.inject(SystemEventSpec(step_index=0, event="dark_mode", args={"night": "no"}))
+
+    assert fake.commands[-1] == [
+        "-s", "emulator-5554", "shell", "cmd", "uimode", "night", "no",
+    ]

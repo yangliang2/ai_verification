@@ -196,6 +196,18 @@ class TestNetwork:
         assert fake.commands[-1] == ["shell", "svc", "data", "disable"]
 
 
+class TestNightMode:
+    def test_night_mode_on(self):
+        ctrl, fake = _ctrl()
+        ctrl.set_night_mode(enabled=True)
+        assert fake.commands[-1] == ["shell", "cmd", "uimode", "night", "yes"]
+
+    def test_night_mode_off(self):
+        ctrl, fake = _ctrl()
+        ctrl.set_night_mode(enabled=False)
+        assert fake.commands[-1] == ["shell", "cmd", "uimode", "night", "no"]
+
+
 # ---------------------------------------------------------------------------
 # 截图
 # ---------------------------------------------------------------------------

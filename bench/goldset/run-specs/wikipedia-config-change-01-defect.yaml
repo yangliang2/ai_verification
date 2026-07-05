@@ -1,0 +1,49 @@
+# Run Spec — Wikipedia config-change INJECTED DEFECT (positive half of #8)
+#
+# 目的：证明验证链路能"抓到"一个真实形态的 config-change 行为层缺陷。
+# 注入缺陷：在 SearchFragment.initSearchView() 里对搜索框
+#   binding.searchCabView.isSaveFromParentEnabled = false
+# 关闭整个搜索子树的 saved-instance-state，使配置变更重建后查询不再恢复。
+# happy path 完全正常，只有"输入文本 + 配置变更重建"才暴露状态丢失。
+#
+# 关键发现（见 run record）：SearchActivity 在 manifest 声明了
+#   android:configChanges="orientation|screenSize"
+# 因此【旋转不会重建 Activity】，save/restore 路径根本不触发——旋转无法暴露此缺陷，
+# baseline 旋转"通过"其实是平凡的（视图从未销毁）。
+# uiMode(深色模式) 不在该 configChanges 列表内，切换深色模式会强制 Activity 重建，
+# 才真正走 save/restore。深色模式是 taxonomy config-change 类明确涵盖的配置变更之一。
+#
+# 与 baseline 同一场景、同一断言、同一事件；差别只在被测源码那一行。
+# baseline（无缺陷）在同一 dark_mode 事件下 → L2 pass（对照见 run record）。
+# 本 run（有缺陷）：期望 L2 fail / defect_class_hypothesis=state_loss。
+#
+# 注入 patch：bench/goldset/patches/wikipedia-config-change-01-search-query-loss.patch
+# taxonomy 模式：config-change-01（配置变更后 UI 状态丢失，未持久化）
+# 真实历史对照：candidates.md C1 (Tusky #45), C3 (Thunderbird #10288)
+# 实测 run record：docs/runs/2026-07-05-wikipedia-config-change-01-defect/README.md
+
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-config-change-01-search-query-loss.patch
+
+scenario:
+  id: wikipedia-config-change-01-defect
+  user_actions:
+    - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
+    - "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'"
+  system_events:
+    - step_index: 1
+      event: dark_mode
+      args:
+        night: "yes"   # 切换系统深色模式 -> uiMode 配置变更 -> 强制 Activity 重建
+  assertions:
+    - resource_id: search_src_text
+      attr: text
+      expected: zzsentinelqx
+  expected_behavior: >
+    注入缺陷后，在段边界切换深色模式（uiMode 配置变更）强制 SearchActivity 重建，
+    被关闭的 saved state 导致 search_src_text 的文本 'zzsentinelqx' 丢失，回到
+    placeholder 'Search Wikipedia'。期望 L2 outcome=fail、
+    defect_class_hypothesis=state_loss；无崩溃，L1=inconclusive。

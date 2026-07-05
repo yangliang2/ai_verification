@@ -240,6 +240,25 @@ class DeviceController:
         state = "enable" if enabled else "disable"
         return self._shell(["svc", "data", state])
 
+    def set_night_mode(self, *, enabled: bool) -> AdbResult:
+        """开启或关闭系统深色模式（uiMode night 配置变更）。
+
+        深色模式属于 taxonomy config-change 类的配置变更之一。当被测 Activity 的
+        ``android:configChanges`` 未声明 ``uiMode`` 时，切换深色模式会强制 Activity
+        重建，从而真正走 save/restore 路径——这是在"声明了 orientation|screenSize
+        因而旋转不重建"的 Activity 上仍能验证配置变更状态保留的关键手段。
+
+        对应 adb shell cmd uimode night yes|no。
+
+        Args:
+            enabled: True 开启深色模式，False 关闭。
+
+        Returns:
+            AdbResult。
+        """
+        state = "yes" if enabled else "no"
+        return self._shell(["cmd", "uimode", "night", state])
+
     # ------------------------------------------------------------------
     # 截图
     # ------------------------------------------------------------------

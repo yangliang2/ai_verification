@@ -21,6 +21,7 @@ SUPPORTED_SYSTEM_EVENTS = frozenset(
         "app_to_foreground",
         "locale_change",
         "battery_low",
+        "dark_mode",
     }
 )
 

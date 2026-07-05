@@ -48,4 +48,11 @@ class DeviceSystemEventInjector:
         if event.event == "app_to_foreground":
             self.device.launch(self.package)
             return
+        if event.event == "dark_mode":
+            # config-change: toggling uiMode night forces recreation on activities
+            # whose configChanges does not declare uiMode (e.g. Wikipedia SearchActivity
+            # declares only orientation|screenSize). args.night defaults to "yes".
+            enabled = event.args.get("night", "yes") == "yes"
+            self.device.set_night_mode(enabled=enabled)
+            return
         raise SystemEventInjectionError(f"Unsupported system event for MVP injector: {event.event}")

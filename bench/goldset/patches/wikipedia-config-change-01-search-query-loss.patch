@@ -1,0 +1,18 @@
+diff --git a/app/src/main/java/org/wikipedia/search/SearchFragment.kt b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+index 730a3cc..d011e7f 100644
+--- a/app/src/main/java/org/wikipedia/search/SearchFragment.kt
++++ b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+@@ -338,6 +338,13 @@ class SearchFragment : Fragment(), SearchResultCallback, RecentSearchesFragment.
+         }
+ 
+     private fun initSearchView() {
++        // [aiverify goldset: config-change-01 injected defect]
++        // Disabling save-from-parent on the search view drops the whole search
++        // subtree's saved state (SearchView mUserQuery AND the search_src_text
++        // EditText) across configuration changes. The happy path looks fine;
++        // only a config change that recreates the activity (e.g. dark mode)
++        // with text entered exposes the state loss.
++        binding.searchCabView.isSaveFromParentEnabled = false
+         binding.searchCabView.setOnQueryTextListener(searchQueryListener)
+         binding.searchCabView.setCloseButtonClickListener(searchCloseListener)
+         binding.searchCabView.setSearchHintTextColor(ResourceUtil.getThemedColor(requireContext(),

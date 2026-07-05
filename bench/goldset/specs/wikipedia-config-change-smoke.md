@@ -40,9 +40,18 @@
 实测结果与 verdict JSON 见 run record；判定由 `bench/goldset/fixtures/wikipedia-config-change-smoke/`
 的 layout fixture 固化为回归测试 `tests/bench/test_goldset_config_change_smoke.py`。
 
+## 更正（2026-07-05，来自注入缺陷半区的发现）
+
+后续注入缺陷时发现：`SearchActivity` 在 manifest 声明了
+`android:configChanges="orientation|screenSize"`，因此**旋转根本不会重建 Activity**，
+不走 save/restore 路径。也就是说本 baseline 用旋转得到的 pass 是**平凡的**（视图从未销毁）。
+真正能考验配置变更状态保留的事件是**深色模式（uiMode）**——它不在该 configChanges 列表内，
+会强制重建。阳性半区与最终的匹配对照都改用 `dark_mode` 事件，详见
+[`docs/runs/2026-07-05-wikipedia-config-change-01-defect/`](../../../docs/runs/2026-07-05-wikipedia-config-change-01-defect/README.md)。
+
 ## 已知边界
 
-- 这是**阴性对照**，不证明验证器能"抓到"config-change 缺陷；那属于注入缺陷的下一步。
+- 这是**阴性对照**，不证明验证器能"抓到"config-change 缺陷；见上文注入缺陷半区。
 - Wikipedia 搜索页的结果列表为 Compose，`android layout` 不暴露其 resource-id；本 seed 只断言
   经典 View 的 `search_src_text`，避开 Compose 无 id 的节点。
 - 旋转经 `adb settings user_rotation` 注入；截图尺寸（1080x2400 → 2400x1080）作为旋转真实发生的证据。
