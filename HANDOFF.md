@@ -105,10 +105,24 @@ The two gaps from the #8 run records are closed:
   L1's loose pattern. Fixed by requiring the `AndroidRuntime` tag + clearing logcat
   at run start. Suite now **183 passed**.
 
+## Progress Update (2026-07-05) — #9 started, 2/5 seeds
+
+M1 Goldset report scaffolded: `docs/M1-goldset-report.md` (coverage matrix by
+taxonomy category × oracle path).
+
+- Seed 1 — config-change-01 → **L2 fail / state_loss** (done earlier).
+- Seed 2 — lifecycle-04 recreation crash → **L1 fail / crash_stability**, proven
+  end-to-end via the CLI (Codex-driven). `UninitializedPropertyAccessException` on a
+  `dark_mode` recreation. Run record `docs/runs/2026-07-05-wikipedia-lifecycle-04-recreation-crash/`,
+  test `tests/bench/test_goldset_lifecycle_04_crash.py`. Suite 183 -> 187.
+
+Both cheap oracle paths (L1 crash, L2 state) now proven live. Remaining M1 seeds:
+process-death, navigation, coroutine-concurrency (see the report for candidate
+patterns + the process-death reliability note).
+
 ## Next Issue
 
-Work **#9** next: extend the smoke slice to the M1 five-Goldset report
-(`bench/goldset/candidates.md` has 18 verified real-world source defects to draw from).
+Continue **#9**: seeds 3-5 (process-death, navigation, coroutine-concurrency).
 
 Recommended seed shape:
 

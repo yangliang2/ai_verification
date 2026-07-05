@@ -1,0 +1,37 @@
+diff --git a/app/src/main/java/org/wikipedia/search/SearchFragment.kt b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+index 730a3cc..db61b55 100644
+--- a/app/src/main/java/org/wikipedia/search/SearchFragment.kt
++++ b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+@@ -52,6 +52,11 @@ class SearchFragment : Fragment(), SearchResultCallback, RecentSearchesFragment.
+     private var query: String? = null
+     private var returnLink = false
+     private var initiateHybridSearch = false
++    // [aiverify goldset: lifecycle-04 injected defect] initialized only on first
++    // creation (savedInstanceState == null) and read on every onCreateView. After a
++    // configuration-change recreation it is never initialized, so the read throws
++    // UninitializedPropertyAccessException. Happy path (no config change) is fine.
++    private lateinit var configChangeToken: String
+     private lateinit var recentSearchesFragment: RecentSearchesFragment
+     private lateinit var searchResultsFragment: SearchResultsFragment
+     private lateinit var invokeSource: InvokeSource
+@@ -107,6 +112,7 @@ class SearchFragment : Fragment(), SearchResultCallback, RecentSearchesFragment.
+         super.onCreate(savedInstanceState)
+         if (savedInstanceState == null) {
+             handleIntent(requireActivity().intent)
++            configChangeToken = "initialized"
+         }
+         invokeSource = requireArguments().getSerializable(Constants.INTENT_EXTRA_INVOKE_SOURCE) as InvokeSource
+         query = requireArguments().getString(ARG_QUERY)
+@@ -135,6 +141,12 @@ class SearchFragment : Fragment(), SearchResultCallback, RecentSearchesFragment.
+         binding.searchContainer.setOnClickListener { onSearchContainerClick() }
+         binding.searchLangButton.setOnClickListener { onLangButtonClick() }
+         initSearchView()
++
++        // [aiverify goldset: lifecycle-04 injected defect] read the token that is only
++        // initialized on first creation; after a configuration-change recreation it was
++        // never set, so this read throws UninitializedPropertyAccessException.
++        binding.searchCabView.contentDescription = configChangeToken
++
+         if (invokeSource == InvokeSource.PLACES) {
+             Prefs.selectedLanguagePositionInSearch = app.languageState.appLanguageCodes.indexOf(Prefs.placesWikiCode)
+             PlacesEvent.logImpression("search_view")

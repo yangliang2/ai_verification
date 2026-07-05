@@ -1,0 +1,42 @@
+# Run Spec — Wikipedia lifecycle-04 recreation crash (M1 seed 2, L1 path)
+#
+# 目的：证明验证链路能通过 L1（廉价 logcat 信号）抓到一个"配置变更重建时崩溃"
+# 的行为层缺陷——与 config-change-01（L2 状态丢失）互补，覆盖 crash_stability 症状轴。
+#
+# 注入缺陷：SearchFragment 增加一个 lateinit configChangeToken，只在首次创建
+# （savedInstanceState == null）时初始化，却在每次 onCreateView 读取。配置变更
+# （深色模式 uiMode）重建后它从未被初始化 → 读取抛
+# kotlin.UninitializedPropertyAccessException → FATAL EXCEPTION。
+# happy path（不发生配置变更）永远不进这个未初始化路径。
+#
+# taxonomy 模式：lifecycle-04（lateinit 在初始化前被访问）
+# verdict 症状轴：crash_stability（L1 抓）
+# 触发事件：dark_mode（uiMode 配置变更，强制 SearchActivity 重建；见 config-change 发现）
+# 注入 patch：bench/goldset/patches/wikipedia-lifecycle-04-recreation-crash.patch
+# 实测 run record：docs/runs/2026-07-05-wikipedia-lifecycle-04-recreation-crash/
+
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-lifecycle-04-recreation-crash.patch
+
+scenario:
+  id: wikipedia-lifecycle-04-recreation-crash
+  user_actions:
+    - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
+    - "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'"
+  system_events:
+    - step_index: 1
+      event: dark_mode
+      args:
+        night: "yes"
+  assertions:
+    - resource_id: search_src_text
+      attr: text
+      expected: zzsentinelqx
+  expected_behavior: >
+    在段边界切换深色模式强制 SearchActivity 重建时，未初始化的 lateinit
+    configChangeToken 被读取，抛 UninitializedPropertyAccessException 崩溃。
+    期望 L1 outcome=fail、defect_class_hypothesis=crash_stability。
+    baseline（无缺陷）同一事件下不崩溃，L1=inconclusive。
