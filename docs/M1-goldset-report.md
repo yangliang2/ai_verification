@@ -18,11 +18,12 @@ both cheap oracle layers (L1 crash signal, L2 state assertion).
 | 1 | config-change | `config-change-01` search query loss | `dark_mode` | **L2 fail / state_loss** | ✅ done |
 | 2 | lifecycle | `lifecycle-04` recreation crash | `dark_mode` | **L1 fail / crash_stability** | ✅ done |
 | 3 | coroutine-concurrency | `coroutine-concurrency-03` main-thread ANR | typing (no event) | **L1 fail / crash_stability (ANR)** | ✅ done |
-| 4 | process-death | — | background + `kill_background` | L2 state_loss / L1 crash | ⏸ blocked (see finding) |
-| 5 | navigation | — | double-open / deep link | L1 crash_stability | ⬜ pending |
+| 4 | navigation | `navigation-01` double-open crash | tap More tab (no event) | **L1 fail / crash_stability** | ✅ done |
+| 5 | process-death | — | background + `kill_background` | L2 state_loss / L1 crash | ⏸ blocked (see finding) |
 
 Oracle-path coverage so far: **L2 (state_loss) ✅**, **L1 (crash_stability, both crash
-and ANR) ✅**, L3 (LLM semantic) not yet exercised. 3/5 categories done.
+and ANR) ✅**, L3 (LLM semantic) not yet exercised. 4/5 categories done; only
+process-death remains (blocked on host restore behavior).
 
 ## Done seeds
 
@@ -58,9 +59,19 @@ and ANR) ✅**, L3 (LLM semantic) not yet exercised. 3/5 categories done.
   run record `docs/runs/2026-07-05-wikipedia-coroutine-concurrency-03-anr/`;
   test `tests/bench/test_goldset_coroutine_03_anr.py`.
 
+### Seed 4 — navigation-01 (L1 / crash_stability)
+- Defect: tapping the More nav tab bypasses `ExclusiveBottomSheetPresenter`'s
+  dismiss-first guard and shows `MenuNavTabDialog` twice → `IllegalStateException:
+  Fragment already added`. Deterministic single-tap double-show (real trigger: rapid
+  double-tap without debounce).
+- Event-less scenario → **L1 fail / crash_stability**; baseline (guarded) → inconclusive.
+- Patch `bench/goldset/patches/wikipedia-navigation-01-double-open-crash.patch`;
+  run record `docs/runs/2026-07-05-wikipedia-navigation-01-double-open-crash/`;
+  test `tests/bench/test_goldset_navigation_01_crash.py`.
+
 ## Blocked / pending seeds
 
-### 4. process-death — BLOCKED on host behavior (finding)
+### 5. process-death — BLOCKED on host behavior (finding)
 Attempted with the search-sentinel scenario. Confirmed on device:
 - `am kill` on the **foreground** app is a no-op (process survives); the app must be
   **backgrounded first** (`press home`), then `am kill` truly kills it (pid → NONE).

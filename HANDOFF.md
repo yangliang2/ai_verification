@@ -129,12 +129,20 @@ search scenario can't show process-death state loss. Needs a restore-capable scr
 (article PageActivity) or a multi-segment re-entry scenario + a background→kill→restore
 harness helper.
 
-3/5 M1 categories done (config-change, lifecycle, coroutine-concurrency).
+Seed 4 — navigation-01 double-open crash → **L1 fail / crash_stability**. Tapping the
+More nav tab bypasses `ExclusiveBottomSheetPresenter`'s guard and shows the dialog twice
+→ `IllegalStateException: Fragment already added`. Event-less. Run record
+`docs/runs/2026-07-05-wikipedia-navigation-01-double-open-crash/`. Suite now 193.
+
+**4/5 M1 categories done** (config-change, lifecycle, coroutine-concurrency, navigation).
+Only **process-death** remains — BLOCKED on host restore behavior (see
+`docs/M1-goldset-report.md`).
 
 ## Next Issue
 
-Continue **#9**: navigation seed (deterministic deep-link or double-open), then the
-process-death follow-up (restore-capable screen + harness helper).
+Finish **#9**: the process-death seed needs a restore-capable screen (article
+`PageActivity`) or a re-entry scenario + a background→kill→restore harness helper. Then
+M1 is complete and #9 can close.
 
 Recommended seed shape:
 

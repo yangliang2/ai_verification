@@ -1,0 +1,19 @@
+diff --git a/app/src/main/java/org/wikipedia/main/MainFragment.kt b/app/src/main/java/org/wikipedia/main/MainFragment.kt
+index 521fa8b..3147bc1 100644
+--- a/app/src/main/java/org/wikipedia/main/MainFragment.kt
++++ b/app/src/main/java/org/wikipedia/main/MainFragment.kt
+@@ -181,7 +181,13 @@ class MainFragment : Fragment(), BackPressedHandler, MenuProvider, HistoryFragme
+                 }
+             }
+             if (item.order == NavTab.MORE.code()) {
+-                ExclusiveBottomSheetPresenter.show(childFragmentManager, MenuNavTabDialog.newInstance())
++                // [aiverify goldset: navigation-01 injected defect] bypass
++                // ExclusiveBottomSheetPresenter's dismiss-first guard and show the dialog
++                // twice (models a rapid double-open with no debounce) ->
++                // IllegalStateException: Fragment already added: MenuNavTabDialog.
++                val menuDialog = MenuNavTabDialog.newInstance()
++                menuDialog.show(childFragmentManager, "menu_nav_tab")
++                menuDialog.show(childFragmentManager, "menu_nav_tab")
+                 return@setOnItemSelectedListener false
+             }
+             val fragment = currentFragment

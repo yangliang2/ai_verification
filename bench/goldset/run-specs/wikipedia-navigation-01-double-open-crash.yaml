@@ -1,0 +1,34 @@
+# Run Spec — Wikipedia navigation-01 double-open crash (M1 seed 4)
+#
+# 目的：证明验证链路能通过 L1 抓到"重复打开同一 Fragment"的导航行为层缺陷。
+# 无系统事件——崩溃由用户动作（点 More tab）本身触发。
+#
+# 注入缺陷：MainFragment 里点 More tab 时，绕过 ExclusiveBottomSheetPresenter 的
+# dismiss-first 防抖，直接对同一个 MenuNavTabDialog 实例连续 show() 两次，
+# 抛 IllegalStateException: Fragment already added: MenuNavTabDialog。
+# 这是"缺少防抖/去重的重复打开"的确定化形式（真实场景为快速双击）。
+# happy path（正常单开，带 exclusive 守卫）不崩溃。
+#
+# taxonomy 模式：navigation-01（重复点击导致同一目标页多开）
+# verdict 症状轴：crash_stability（L1 抓）
+# 真实历史对照：candidates.md N1 (Element #7087), N4 (AntennaPod #5548)
+# 注入 patch：bench/goldset/patches/wikipedia-navigation-01-double-open-crash.patch
+# 实测 run record：docs/runs/2026-07-05-wikipedia-navigation-01-double-open-crash/
+
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-navigation-01-double-open-crash.patch
+
+scenario:
+  id: wikipedia-navigation-01-double-open-crash
+  user_actions:
+    - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部导航栏的 More tab（resource-id nav_tab_more）"
+  system_events: []
+  assertions: []
+  expected_behavior: >
+    点 More tab 打开 MenuNavTabDialog 时，注入的缺陷对同一实例连续 show() 两次，
+    抛 IllegalStateException: Fragment already added。期望 L1 outcome=fail、
+    defect_class_hypothesis=crash_stability；L2 无系统事件不适用。
+    baseline（带 exclusive 守卫）单开不崩溃，L1=inconclusive。

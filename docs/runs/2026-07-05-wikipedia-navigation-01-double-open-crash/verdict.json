@@ -1,0 +1,70 @@
+{
+  "scenario": "wikipedia-navigation-01-double-open-crash",
+  "l1": {
+    "verdict_id": "L1-36ba2fd3",
+    "level": "L1",
+    "outcome": "fail",
+    "defect_class_hypothesis": "crash_stability",
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部导航栏的 More tab（resource-id nav_tab_more）"
+    ],
+    "evidence": [
+      {
+        "type": "logcat_line",
+        "ref": "07-05 18:45:56.251 15876 15876 E AndroidRuntime: FATAL EXCEPTION: main",
+        "note": "检测到 FATAL EXCEPTION——JVM 未捕获异常导致进程崩溃"
+      },
+      {
+        "type": "logcat_line",
+        "ref": "07-05 18:46:01.294   572   676 I WindowManager: ANR in Window{96df002 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon}. Reason:Input dispatching timed out (96df002 org.wikipedia.dev/org.wikipedia.DefaultIcon (server) is not responding. Waited 5000ms for FocusEvent(hasFocus=false)).",
+        "note": "检测到 ANR in——应用无响应（主线程阻塞超时）"
+      }
+    ],
+    "confidence": 0.95
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部导航栏的 More tab（resource-id nav_tab_more）"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-navigation-01-double-open-crash-segment-0",
+      "results": [
+        {
+          "action": "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部导航栏的 More tab（resource-id nav_tab_more）",
+          "status": "FAILED",
+          "commands": [
+            "adb -s emulator-5554 shell monkey -p org.wikipedia.dev 1",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell cmd package resolve-activity --brief org.wikipedia.dev",
+            "adb -s emulator-5554 shell cmd package resolve-activity --brief -c android.intent.category.LAUNCHER org.wikipedia.dev",
+            "adb -s emulator-5554 shell cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -p org.wikipedia.dev",
+            "adb -s emulator-5554 shell dumpsys package org.wikipedia.dev",
+            "adb -s emulator-5554 shell am start -n org.wikipedia.dev/org.wikipedia.DefaultIcon",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 972 2232",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Main feed appeared and nav_tab_more was found at [972,2232]. Tapping it opened the system crash dialog: \"Wikipedia Dev keeps stopping\"."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": []
+}
