@@ -110,14 +110,11 @@ adb devices
 
 ## 下一步
 
-当前自然下一步是 #8：创建第一个 Wikipedia config-change Goldset smoke seed。建议选择状态断言型缺陷：
+#8 的 **baseline（阴性对照）已完成**：在真实 emulator 上跑通了
+`run-spec → 段边界注入旋转 → Android CLI layout → L1/L2 oracle → verdict`，
+Wikipedia 搜索框旋转后保留查询，L2=pass、L1=inconclusive。
+Run record：[`docs/runs/2026-07-05-wikipedia-config-change-smoke/`](docs/runs/2026-07-05-wikipedia-config-change-smoke/README.md)。
 
-```text
-打开搜索或表单页
-→ 输入 sentinel 文本
-→ 旋转或触发配置变更
-→ Android CLI 抓 layout/screenshot
-→ L2Oracle 断言文本保留或未重复恢复
-```
-
-完成 #8 后再推进 #9，把 smoke slice 扩展到 M1 五个 Goldset 种子报告。
+自然下一步是 #8 的**注入缺陷（阳性）半区**：给宿主注入等价的 config-change 缺陷
+（破坏 `search_src_text` 查询持久化并重建），验证同一链路报 **L2=fail / state_loss**。
+之后再推进 #9，把 smoke slice 扩展到 M1 五个 Goldset 种子报告。

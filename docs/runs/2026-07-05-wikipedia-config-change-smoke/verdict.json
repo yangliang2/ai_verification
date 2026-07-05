@@ -1,0 +1,34 @@
+{
+  "l1": {
+    "verdict_id": "L1-f45e262d",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Open Search tab and tap search input",
+      "Type sentinel 'zzsentinelqx'",
+      "[boundary] inject rotate portrait->landscape"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-dc98f11a",
+    "level": "L2",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Open Search tab and tap search input",
+      "Type sentinel 'zzsentinelqx'",
+      "[boundary] inject rotate portrait->landscape"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "已校验 1 条断言，全部通过",
+        "note": "L2 状态断言全部满足"
+      }
+    ],
+    "confidence": 0.9
+  }
+}

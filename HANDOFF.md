@@ -63,9 +63,26 @@ Do not claim these are complete yet:
 
 The current value is narrower but concrete: the repo now has a tested runner contract, a real Android host build/deploy proof, and durable evidence discipline.
 
+## Progress Update (2026-07-05)
+
+#8 baseline (negative control) is done: first live end-to-end smoke on
+`emulator-5554` / AVD `aiverify_api35`, reusing the recorded APK (no rebuild).
+Search sentinel `zzsentinelqx` retained across a real portrait→landscape
+rotation → **L2=pass, L1=inconclusive**, computed by the repo code.
+Artifacts + run record: `docs/runs/2026-07-05-wikipedia-config-change-smoke/`.
+New durable assets: `bench/goldset/{run-specs,specs,fixtures}/wikipedia-config-change-smoke*`
+and `tests/bench/test_goldset_config_change_smoke.py` (3 tests; suite now 173 passed).
+
+Still open in #8: the injected-defect (positive) half — patch `search_src_text`
+query persistence, rebuild, and observe L2=fail / state_loss. Codex CLI backend
+not yet exercised (this run was agent-in-the-loop).
+
 ## Next Issue
 
-Work #8 next: create the first Wikipedia config-change Goldset smoke seed.
+Work #8 injected-defect half next; then #9.
+
+Original recommended shape (retained for reference):
+Create the first Wikipedia config-change Goldset smoke seed.
 
 Recommended seed shape:
 

@@ -1,0 +1,36 @@
+# Run Spec — Wikipedia config-change baseline Smoke Slice (#8)
+#
+# 目的：证明验证链路对一个 config-change 行为层场景可端到端执行，
+# 且在"应当通过"时正确报 PASS。本 run-spec 为 baseline（未注入缺陷）：
+# Wikipedia 正确地在旋转后保留搜索框查询，因此期望 L2 outcome=pass。
+#
+# 对照的真实历史缺陷（若注入其等价缺陷则期望 L2 fail）见：
+#   bench/goldset/candidates.md  → C1 (Tusky #45), C3 (Thunderbird #10288)
+# 对应 taxonomy 模式：config-change-01 / config-change-05（旋转后 UI 状态丢失）。
+#
+# 实测 run record：docs/runs/2026-07-05-wikipedia-config-change-smoke/README.md
+
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.search.SearchActivity
+
+scenario:
+  id: wikipedia-config-change-smoke
+  user_actions:
+    - "打开 org.wikipedia.dev，点底部 Search tab，点 search_card 进入搜索输入"
+    - "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'"
+  system_events:
+    # 在最后一个用户动作之后（Journey Segment Boundary）注入旋转
+    - step_index: 1
+      event: rotate
+      args:
+        rotation: "1"   # 0=portrait, 1=landscape(90°)
+  assertions:
+    - resource_id: search_src_text
+      attr: text
+      expected: zzsentinelqx
+  expected_behavior: >
+    在段边界从竖屏旋转到横屏后，搜索输入框 search_src_text 的文本 'zzsentinelqx'
+    仍然保留（Wikipedia 通过 savedInstanceState 正确恢复查询）。baseline 期望
+    L2 outcome=pass；同时无崩溃/ANR，L1 outcome=inconclusive（弃权）。
