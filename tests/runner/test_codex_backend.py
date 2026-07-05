@@ -56,7 +56,14 @@ def test_codex_backend_invokes_exec_and_parses_result(tmp_path: Path) -> None:
     runner = FakeRunner(
         result_json={
             "journey": "smoke",
-            "results": [{"action": "Open search", "status": "PASSED"}],
+            "results": [
+                {
+                    "action": "Open search",
+                    "status": "PASSED",
+                    "commands": ["android layout --device=emulator-5554 --pretty"],
+                    "comment": "search opened",
+                }
+            ],
         }
     )
     backend = CodexCliBackend(runner=runner)
@@ -68,6 +75,10 @@ def test_codex_backend_invokes_exec_and_parses_result(tmp_path: Path) -> None:
     assert "--json" in command
     assert "--output-schema" in command
     assert "--output-last-message" in command
+    # codex 0.139.0 exec rejects --ask-for-approval; must use the bypass flag instead
+    assert "--ask-for-approval" not in command
+    assert "--dangerously-bypass-approvals-and-sandbox" in command
+    assert "--skip-git-repo-check" in command
     assert result.data["journey"] == "smoke"
     assert result.events_path.read_text(encoding="utf-8").strip()
     assert result.metadata["codex_version"] == "codex-cli 0.139.0"

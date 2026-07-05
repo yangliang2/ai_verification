@@ -140,14 +140,19 @@ class JourneySegmentRunner:
         artifact_dir: Path,
         output_schema: Path,
         device: str | None = None,
+        instruction_prefix: str = "",
     ) -> JourneySegmentFlow:
-        """Run all segments and capture checkpoints around boundary events."""
+        """Run all segments and capture checkpoints around boundary events.
+
+        instruction_prefix is prepended to each segment's Journey XML — used to give
+        the backend agent its driver guidance (tools, device serial, output contract).
+        """
         journey_results: list[JourneyExecutionResult] = []
         checkpoints: list[EvidenceCheckpoint] = []
         injected_events: list[SystemEventSpec] = []
 
         for index, segment in enumerate(scenario_to_segments(scenario)):
-            journey_xml = segment_to_journey_xml(segment)
+            journey_xml = instruction_prefix + segment_to_journey_xml(segment)
             segment_dir = artifact_dir / segment.id
             result = self.backend.execute(
                 JourneyExecutionRequest(

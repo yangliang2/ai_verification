@@ -96,6 +96,21 @@ adb devices
 
 当前实测 Android CLI 版本为 `1.0.15498356`，Codex CLI 版本为 `codex-cli 0.139.0`。
 
+## 端到端运行（Codex CLI backend）
+
+把一份 run-spec 从头跑到 verdict，无需手动驱动——Codex CLI 作为 Verification Agent
+Backend 驱动应用，runner 注入配置变更并采证据，oracle 判定：
+
+```bash
+PYTHONPATH=src python -m aiverify.runner \
+  bench/goldset/run-specs/wikipedia-config-change-01-defect.yaml \
+  --device emulator-5554 \
+  --artifact-dir docs/runs/<slug>/artifacts
+```
+
+L2=fail 时进程以非零码退出（便于 CI gate）。实测见
+[`docs/runs/2026-07-05-end-to-end-cli-codex/`](docs/runs/2026-07-05-end-to-end-cli-codex/README.md)。
+
 ## 文档入口
 
 - 项目语言与术语：[`CONTEXT.md`](CONTEXT.md)

@@ -123,3 +123,26 @@ def test_l1_coroutine_exception_detected():
     verdict = oracle.judge(LOGCAT_COROUTINE_EXCEPTION)
     assert verdict["outcome"] == "fail"
     validate_verdict(verdict)
+
+
+# 真实设备 logcat 里出现过的良性 exception 提及（非本应用崩溃）：
+# - gRPC/GmsCore 的 "ManagedChannel allocation site" 诊断日志（tag=gclu）
+# - 被 binder stub 捕获（Caught）的 NullPointerException（tag=Binder, W 级）
+# 这些都不是本应用未捕获崩溃，L1 不得因此 fail（L1 有 fail 权，误报代价最高）。
+LOGCAT_BENIGN_EXCEPTION_MENTIONS = """\
+07-05 17:27:58.083  1479  3410 E gclu    : java.lang.RuntimeException: ManagedChannel allocation site
+07-05 17:53:56.345 11442 11460 W Binder  : Caught a RuntimeException from the binder stub implementation.
+07-05 17:53:56.345 11442 11460 W Binder  : java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.InsetsController android.view.ViewRootImpl.getInsetsController()' on a null object reference
+07-05 17:52:21.012  3000  3000 I MainActivity: onResume
+"""
+
+
+def test_l1_ignores_benign_exception_mentions_from_other_tags():
+    """非 AndroidRuntime tag 的 exception 提及不得触发 fail（避免真机 logcat 噪声误报）。"""
+    verdict = oracle.judge(LOGCAT_BENIGN_EXCEPTION_MENTIONS)
+
+    assert verdict["outcome"] == "inconclusive", (
+        "gRPC 诊断日志与被捕获的 binder 异常不是崩溃，L1 应弃权而非误报 fail"
+    )
+    assert verdict["evidence"] == []
+    validate_verdict(verdict)

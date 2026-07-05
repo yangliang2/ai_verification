@@ -85,6 +85,26 @@ Durable assets: `bench/goldset/{run-specs,specs,fixtures,patches}/wikipedia-conf
 
 Still not exercised: Codex CLI backend (both runs were agent-in-the-loop).
 
+## Progress Update (2026-07-05) — backend wired + end-to-end CLI
+
+The two gaps from the #8 run records are closed:
+
+- **Codex CLI backend now runs live.** Fixed two blocking bugs: `CodexCliBackend`
+  used `--ask-for-approval` (rejected by codex 0.139.0 → now
+  `--dangerously-bypass-approvals-and-sandbox`), and `journey_result_schema.json`
+  was not OpenAI-strict (→ made `additionalProperties:false` + all-required).
+- **Assembled end-to-end CLI**: `python -m aiverify.runner RUN_SPEC --device ... --artifact-dir ...`
+  wires RunSpec → JourneySegmentRunner(CodexCliBackend, AndroidEvidenceCollector,
+  DeviceSystemEventInjector) → oracle → verdict. Added `instruction_prefix` seam to
+  `JourneySegmentRunner` (driver preamble) and `runner/cli.py` + `__main__.py`.
+- Live end-to-end on the defect build: **L1 inconclusive, L2 fail / state_loss**,
+  Codex-driven, no manual steps. Run record:
+  `docs/runs/2026-07-05-end-to-end-cli-codex/`.
+- The end-to-end run surfaced and fixed an **L1 false positive**: real-device logcat
+  noise (`E gclu: ...RuntimeException: ManagedChannel...`, caught binder NPE) matched
+  L1's loose pattern. Fixed by requiring the `AndroidRuntime` tag + clearing logcat
+  at run start. Suite now **183 passed**.
+
 ## Next Issue
 
 Work **#9** next: extend the smoke slice to the M1 five-Goldset report

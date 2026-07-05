@@ -2,16 +2,16 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "JourneyExecutionResult",
   "type": "object",
+  "additionalProperties": false,
   "required": ["journey", "results"],
-  "additionalProperties": true,
   "properties": {
     "journey": { "type": "string" },
     "results": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["action", "status"],
-        "additionalProperties": true,
+        "additionalProperties": false,
+        "required": ["action", "status", "commands", "comment"],
         "properties": {
           "action": { "type": "string" },
           "status": { "type": "string", "enum": ["PASSED", "FAILED", "SKIPPED"] },

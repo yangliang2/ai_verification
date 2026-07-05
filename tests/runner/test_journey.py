@@ -137,3 +137,27 @@ def test_journey_segment_runner_orders_segments_events_and_checkpoints(tmp_path:
     assert [event.event for event in injector.events] == ["rotate"]
     assert collector.names == ["after-segment-0", "after-event-0", "after-segment-1"]
     assert len(flow.checkpoints) == 3
+
+
+def test_journey_segment_runner_prepends_instruction_prefix(tmp_path: Path) -> None:
+    backend = FakeBackend()
+    runner = JourneySegmentRunner(
+        backend=backend,
+        checkpoint_collector=FakeCollector(),
+        system_event_injector=FakeInjector(),
+    )
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}", encoding="utf-8")
+
+    runner.run(
+        scenario=ScenarioSpec(id="smoke", user_actions=["Open search"]),
+        workdir=tmp_path,
+        artifact_dir=tmp_path / "artifacts",
+        output_schema=schema,
+        device="emulator-5554",
+        instruction_prefix="DRIVER GUIDANCE HERE\n",
+    )
+
+    instructions = backend.requests[0].journey_instructions
+    assert instructions.startswith("DRIVER GUIDANCE HERE\n")
+    assert "<journey" in instructions

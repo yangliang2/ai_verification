@@ -41,8 +41,11 @@ _CRASH_PATTERNS: list[tuple[re.Pattern[str], str]] = [
         "检测到进程崩溃（has died）",
     ),
     (
-        re.compile(r"java\.lang\.(RuntimeException|NullPointerException|OutOfMemoryError)"),
-        "检测到 Java 运行时致命异常",
+        # 必须带 AndroidRuntime tag：未捕获崩溃总是由 AndroidRuntime 记录。
+        # 否则会误报——其它进程的诊断日志（如 gRPC "ManagedChannel allocation
+        # site"）或被捕获的 binder 异常也会提到 java.lang.RuntimeException。
+        re.compile(r"AndroidRuntime.*java\.lang\.(RuntimeException|NullPointerException|OutOfMemoryError)"),
+        "检测到 AndroidRuntime 未捕获致命异常",
     ),
 ]
 

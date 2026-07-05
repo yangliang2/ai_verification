@@ -28,8 +28,8 @@ class JourneyExecutionRequest:
     artifact_dir: Path
     output_schema: Path = _DEFAULT_SCHEMA_PATH
     timeout_seconds: int = 900
-    sandbox: str = "danger-full-access"
-    approval_policy: str = "never"
+    sandbox: str = "workspace-write"
+    dangerously_bypass: bool = True
     model: str | None = None
 
 
@@ -70,13 +70,16 @@ class CodexCliBackend:
             str(request.output_schema),
             "--output-last-message",
             str(result_path),
-            "--sandbox",
-            request.sandbox,
-            "--ask-for-approval",
-            request.approval_policy,
+            "--skip-git-repo-check",
             "--cd",
             str(request.workdir),
         ]
+        # codex 0.139.0 exec has no --ask-for-approval; non-interactive access to
+        # the device (adb/android are outside the workspace) needs the bypass flag.
+        if request.dangerously_bypass:
+            args.append("--dangerously-bypass-approvals-and-sandbox")
+        else:
+            args += ["--sandbox", request.sandbox]
         if request.model:
             args += ["--model", request.model]
         args.append(request.journey_instructions)
@@ -85,6 +88,8 @@ class CodexCliBackend:
             args,
             cwd=request.workdir,
             timeout_seconds=request.timeout_seconds,
+            # feed empty stdin so codex exec does not block reading the parent's stdin
+            input_text="",
         )
         events_path.write_text(result.stdout, encoding="utf-8")
         if result.returncode != 0:
