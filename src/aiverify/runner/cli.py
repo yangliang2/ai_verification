@@ -20,6 +20,8 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 from aiverify.agent.oracle import L1Oracle
@@ -77,6 +79,8 @@ def _trigger_steps(spec: RunSpec) -> list[str]:
 
 def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         launch: bool = True, model: str | None = None) -> dict:
+    started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    run_start = time.monotonic()
     controller = DeviceController(serial=device)
     # clear logcat so L1 only sees this run's events, not stale crashes from prior runs
     controller.logcat_clear()
@@ -137,6 +141,12 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         "journey_results": [r.data for r in flow.journey_results],
         "checkpoints": [c.name for c in flow.checkpoints],
         "injected_events": [{"event": e.event, "args": e.args} for e in flow.injected_events],
+        "timing": {
+            "started_at": started_at,
+            "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "total_seconds": round(time.monotonic() - run_start, 3),
+            "phases": flow.timings,
+        },
     }
     (artifact_dir.parent / "verdict.json").write_text(
         json.dumps(verdict, ensure_ascii=False, indent=2), encoding="utf-8"

@@ -53,9 +53,11 @@ Also captured for seeds 1 and 5: a **baseline (control) run** under the same eve
 when behavior is correct. Seed 5's control ran end-to-end through the same CLI
 (4m37s, measured).
 
-Timing caveat (known gap): host build times are from Gradle output; end-to-end
-**per-seed wall-clock is approximate — not precisely instrumented**. Adding start/end
-timestamps to `verdict.json` is easy follow-up.
+Timing caveat: host build times are from Gradle output. Seeds 1–4 end-to-end
+wall-clock was approximate (shell `date` around the CLI). Since #11 the runner
+instruments timing itself: `verdict.json` now carries a `timing` block with run
+`started_at`/`finished_at`/`total_seconds` and per-phase durations (journey segment,
+checkpoint capture, system-event injection). Seed 5's table rows are measured.
 
 ## Done seeds
 

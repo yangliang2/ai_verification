@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import html
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from aiverify.runner.codex_backend import (
     JourneyExecutionRequest,
@@ -26,11 +27,17 @@ class JourneySegment:
 
 @dataclass(frozen=True)
 class JourneySegmentFlow:
-    """Result of executing segmented Journey instructions."""
+    """Result of executing segmented Journey instructions.
+
+    timings: per-phase wall-clock durations in execution order. Each entry has
+    "phase" (segment/checkpoint/event name), "kind" ("journey" | "checkpoint" |
+    "system_event"), "seconds", and for system events the "event" name.
+    """
 
     journey_results: list[JourneyExecutionResult]
     checkpoints: list[EvidenceCheckpoint]
     injected_events: list[SystemEventSpec] = field(default_factory=list)
+    timings: list[dict[str, Any]] = field(default_factory=list)
 
 
 class JourneyBackend(Protocol):
@@ -150,35 +157,66 @@ class JourneySegmentRunner:
         journey_results: list[JourneyExecutionResult] = []
         checkpoints: list[EvidenceCheckpoint] = []
         injected_events: list[SystemEventSpec] = []
+        timings: list[dict[str, Any]] = []
+
+        def _timed(phase: str, kind: str, fn, **extra: Any):
+            start = time.monotonic()
+            value = fn()
+            entry: dict[str, Any] = {
+                "phase": phase,
+                "kind": kind,
+                "seconds": round(time.monotonic() - start, 3),
+            }
+            entry.update(extra)
+            timings.append(entry)
+            return value
 
         for index, segment in enumerate(scenario_to_segments(scenario)):
             journey_xml = instruction_prefix + segment_to_journey_xml(segment)
             segment_dir = artifact_dir / segment.id
-            result = self.backend.execute(
-                JourneyExecutionRequest(
-                    journey_instructions=journey_xml,
-                    workdir=workdir,
-                    artifact_dir=segment_dir,
-                    output_schema=output_schema,
-                )
+            result = _timed(
+                segment.id,
+                "journey",
+                lambda: self.backend.execute(
+                    JourneyExecutionRequest(
+                        journey_instructions=journey_xml,
+                        workdir=workdir,
+                        artifact_dir=segment_dir,
+                        output_schema=output_schema,
+                    )
+                ),
             )
             journey_results.append(result)
             checkpoints.append(
-                self.checkpoint_collector.capture_checkpoint(
-                    name=f"after-segment-{index}",
-                    output_dir=artifact_dir,
-                    device=device,
+                _timed(
+                    f"after-segment-{index}",
+                    "checkpoint",
+                    lambda: self.checkpoint_collector.capture_checkpoint(
+                        name=f"after-segment-{index}",
+                        output_dir=artifact_dir,
+                        device=device,
+                    ),
                 )
             )
 
             if segment.system_event_after is not None:
-                self.system_event_injector.inject(segment.system_event_after)
-                injected_events.append(segment.system_event_after)
+                event = segment.system_event_after
+                _timed(
+                    f"event-{index}",
+                    "system_event",
+                    lambda: self.system_event_injector.inject(event),
+                    event=event.event,
+                )
+                injected_events.append(event)
                 checkpoints.append(
-                    self.checkpoint_collector.capture_checkpoint(
-                        name=f"after-event-{index}",
-                        output_dir=artifact_dir,
-                        device=device,
+                    _timed(
+                        f"after-event-{index}",
+                        "checkpoint",
+                        lambda: self.checkpoint_collector.capture_checkpoint(
+                            name=f"after-event-{index}",
+                            output_dir=artifact_dir,
+                            device=device,
+                        ),
                     )
                 )
 
@@ -186,4 +224,5 @@ class JourneySegmentRunner:
             journey_results=journey_results,
             checkpoints=checkpoints,
             injected_events=injected_events,
+            timings=timings,
         )
