@@ -14,10 +14,15 @@ class SystemEventInjectionError(ValueError):
 
 @dataclass
 class DeviceSystemEventInjector:
-    """Inject Run Spec system events through DeviceController."""
+    """Inject Run Spec system events through DeviceController.
+
+    activity: launcher activity（或 alias）完整类名，process_death 恢复拉起用；
+    debug 构建常有多个 LAUNCHER activity，缺省的 monkey 拉起不确定。
+    """
 
     device: DeviceController
     package: str
+    activity: str | None = None
 
     def inject(self, event: SystemEventSpec) -> None:
         """Inject one system event at a Journey Segment Boundary."""
@@ -44,6 +49,18 @@ class DeviceSystemEventInjector:
             return
         if event.event == "app_to_background":
             self.device.press_home()
+            return
+        if event.event == "process_death":
+            # 真实进程死亡：后台化 → am kill → launcher 重新拉起。
+            # 等待编排在 DeviceController.process_death 内部完成，返回时恢复已就绪，
+            # 调用方可立即抓取 after-event checkpoint。args 可覆盖各阶段等待秒数。
+            self.device.process_death(
+                self.package,
+                self.activity,
+                background_wait=float(event.args.get("background_wait", "2.0")),
+                kill_wait=float(event.args.get("kill_wait", "2.0")),
+                restore_wait=float(event.args.get("restore_wait", "8.0")),
+            )
             return
         if event.event == "app_to_foreground":
             self.device.launch(self.package)

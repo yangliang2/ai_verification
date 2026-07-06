@@ -28,6 +28,52 @@ def test_inject_rotate_uses_device_controller_rotation() -> None:
     ]
 
 
+def test_inject_process_death_home_kill_relaunch() -> None:
+    injector, fake = _injector()
+
+    injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="process_death",
+            args={"background_wait": "0", "kill_wait": "0", "restore_wait": "0"},
+        )
+    )
+
+    assert fake.commands[-3:] == [
+        ["-s", "emulator-5554", "shell", "input", "keyevent", "HOME"],
+        ["-s", "emulator-5554", "shell", "am", "kill", "org.example"],
+        [
+            "-s", "emulator-5554", "shell", "monkey", "-p", "org.example",
+            "-c", "android.intent.category.LAUNCHER", "1",
+        ],
+    ]
+
+
+def test_inject_process_death_relaunches_via_explicit_launcher_activity() -> None:
+    # debug 构建常有多个 LAUNCHER activity（如 LeakCanary），monkey 拉起不确定；
+    # 注入器携带 run spec 的 activity 时必须走显式 launcher intent。
+    fake = FakeAdbRunner()
+    device = DeviceController(serial="emulator-5554", runner=fake)
+    injector = DeviceSystemEventInjector(
+        device=device, package="org.example", activity="org.example.DefaultIcon"
+    )
+
+    injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="process_death",
+            args={"background_wait": "0", "kill_wait": "0", "restore_wait": "0"},
+        )
+    )
+
+    assert fake.commands[-1] == [
+        "-s", "emulator-5554", "shell", "am", "start",
+        "-a", "android.intent.action.MAIN",
+        "-c", "android.intent.category.LAUNCHER",
+        "-n", "org.example/org.example.DefaultIcon",
+    ]
+
+
 def test_inject_network_off_toggles_wifi_and_data() -> None:
     injector, fake = _injector()
 

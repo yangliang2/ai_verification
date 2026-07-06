@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import os
 import tempfile
+import time
 from dataclasses import dataclass, field
 
 from .adb import AdbResult, AdbRunner, SubprocessAdbRunner
@@ -167,6 +168,60 @@ class DeviceController:
     def press_home(self) -> AdbResult:
         """按下 Home 键，将当前前台应用送入后台。"""
         return self._shell(["input", "keyevent", "HOME"])
+
+    def process_death(
+        self,
+        package: str,
+        activity: str | None = None,
+        *,
+        background_wait: float = 2.0,
+        kill_wait: float = 2.0,
+        restore_wait: float = 8.0,
+    ) -> AdbResult:
+        """模拟真实进程死亡并恢复：后台化 → am kill → 从 launcher 重新拉起。
+
+        关键语义（实测于 emulator-5554 / API 35，见 issue #10）：
+        - ``am kill`` 对**前台**进程是 no-op，必须先 HOME 后台化才会真正杀死进程；
+        - 重新拉起后系统从 task record + savedInstanceState 恢复 Activity 栈，
+          应用自身的持久化状态（如 SharedPreferences）决定业务状态能否恢复。
+
+        重新拉起必须指定 activity 走显式 launcher intent（MAIN+LAUNCHER + 组件名），
+        与真实点击图标一致：已有任务会被原样带回前台（栈顶 Activity 不变）。
+        不指定 activity 时退回 ``monkey`` 拉起——但 debug 构建常有多个 LAUNCHER
+        activity（如 LeakCanary），monkey 的选择不确定，实测会拉起错误界面。
+
+        各阶段等待是编排的一部分：调用方（如 Journey 边界注入器）在本方法返回后
+        立即抓取 after-event checkpoint，因此恢复等待必须发生在方法内部。
+
+        Args:
+            package: 应用包名。
+            activity: launcher activity（或 activity-alias）完整类名；
+                None 时用 monkey 拉起（不推荐，见上）。
+            background_wait: HOME 之后等待秒数（让 onPause/onStop 及状态提交完成）。
+            kill_wait: am kill 之后等待秒数（让进程真正退出）。
+            restore_wait: 重新拉起后等待秒数（让 Activity 栈恢复完成）。
+
+        Returns:
+            重新拉起应用的 AdbResult。
+        """
+        self.press_home()
+        if background_wait > 0:
+            time.sleep(background_wait)
+        self.kill_background(package)
+        if kill_wait > 0:
+            time.sleep(kill_wait)
+        if activity:
+            result = self._shell([
+                "am", "start",
+                "-a", "android.intent.action.MAIN",
+                "-c", "android.intent.category.LAUNCHER",
+                "-n", f"{package}/{activity}",
+            ])
+        else:
+            result = self.launch(package)
+        if restore_wait > 0:
+            time.sleep(restore_wait)
+        return result
 
     # ------------------------------------------------------------------
     # 权限管理

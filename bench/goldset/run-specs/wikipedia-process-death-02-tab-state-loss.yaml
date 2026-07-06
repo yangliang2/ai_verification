@@ -1,0 +1,57 @@
+# Run Spec — Wikipedia process-death tab-state loss (M1 seed 5, L2 path)
+#
+# 目的：证明验证链路能抓到"进程死亡后状态静默丢失"的行为层缺陷——taxonomy
+# process-death 类的 L2 / state_loss 路径。
+#
+# 注入缺陷（process-death-02：把内存 singleton 当持久化存储用）：
+#   WikipediaApp.commitTabState() 不再写 Prefs.tabs，而是写进程内的
+#   InMemoryTabStateCache；initTabs() 也只从该 cache 恢复。
+# 后果：配置变更/普通导航完全正常（进程活着，cache 有效），只有真实进程死亡
+# （后台被系统回收）后重新拉起时，tab 列表（含每个 tab 的文章回退栈）静默丢失。
+#
+# 关键宿主行为发现（实测 emulator-5554 / API 35，解除 issue #10 的 blocker）：
+# 1. am kill 对前台进程是 no-op —— 必须先 HOME 后台化再 kill（pid 才变 NONE）。
+# 2. 进程死亡后从 launcher 重新拉起，系统会恢复 PageActivity 任务栈，且【当前
+#    文章】经由 Activity/Fragment saved-state + intent 重投递恢复——它不依赖
+#    Prefs.tabs。所以"当前文章还在"不能作为判别信号。
+# 3. 真正依赖 Prefs.tabs 的是 tab 列表本身：baseline 恢复后 tabsCountText 仍为
+#    "2"；缺陷构建恢复后只剩重建出的当前页，tabsCountText 变 "1"。
+# 4. debug 构建有多个 LAUNCHER activity（LeakCanary），monkey 拉起不确定；
+#    process_death 事件必须用显式 launcher intent（MAIN+LAUNCHER+组件名）拉起。
+#
+# 场景：开两个文章 tab（Cat、Dog）→ 段边界注入 process_death → 断言 tab 计数
+# 保持 "2"。baseline（无缺陷）同一事件下 → L2 pass；缺陷构建 → L2 fail /
+# state_loss。无崩溃，L1=inconclusive。
+#
+# 注入 patch：bench/goldset/patches/wikipedia-process-death-02-tab-state-loss.patch
+# taxonomy 模式：process-death-02（in-memory singleton 当持久化，恢复路径读不到）
+# 真实历史对照：candidates.md P1 (K-9 Mail #3970——部分状态只在内存，进程死亡
+# 恢复后静默丢失)
+# 实测 run record：docs/runs/2026-07-06-wikipedia-process-death-02-tab-state-loss/
+
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-process-death-02-tab-state-loss.patch
+
+scenario:
+  id: wikipedia-process-death-02-tab-state-loss
+  user_actions:
+    - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入，输入 'Cat'，点击搜索结果 'Cat' 打开文章页，等待文章加载完成（底部出现 Save/Language 工具栏）"
+    - "点文章页右上角的 tabs 按钮（resource-id=page_toolbar_button_tabs，content-desc='Show tabs'）进入标签页列表，点新建标签页按钮（content-desc 含 'new tab'/'New tab'）新建标签页，在出现的搜索界面输入 'Dog'，点击搜索结果 'Dog' 打开文章页，等待文章加载完成且右上角 tabsCountText 显示 2"
+  system_events:
+    - step_index: 1
+      event: process_death
+  assertions:
+    - resource_id: tabsCountText
+      attr: text
+      expected: "2"
+  expected_behavior: >
+    在段边界注入 process_death（HOME 后台化 → am kill 真杀进程 → 显式 launcher
+    intent 重新拉起）后，缺陷构建的 tab 状态只存在于被杀死进程的内存 cache 中：
+    系统恢复 PageActivity 并经 saved-state 重建当前文章（Dog），但 Cat tab 连同
+    回退栈静默丢失，tabsCountText 从 "2" 变 "1"。期望 L2 outcome=fail、
+    defect_class_hypothesis=state_loss；无崩溃，L1=inconclusive。
+    baseline（无缺陷）同一事件下 tab 列表从 Prefs.tabs 恢复，tabsCountText 保持
+    "2" → L2 pass。

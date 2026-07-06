@@ -138,11 +138,37 @@ More nav tab bypasses `ExclusiveBottomSheetPresenter`'s guard and shows the dial
 Only **process-death** remains — BLOCKED on host restore behavior (see
 `docs/M1-goldset-report.md`).
 
+## Progress Update (2026-07-06) — #9 COMPLETE: 5/5 seeds, M1 met
+
+Seed 5 — **process-death-02 tab-state loss → L2 fail / state_loss**, matched pair
+end-to-end via the CLI (Codex-driven): baseline L2 pass ("2"→"2" tabs), defect L2 fail
+("2"→node gone). Run record
+`docs/runs/2026-07-06-wikipedia-process-death-02-tab-state-loss/`. Suite now **202
+passed** (was 193). **All five M1 categories caught (5/5); the M1 target (≥3/5) is met.**
+
+What unblocked #10 (all verified on device):
+- `am kill` needs prior backgrounding (HOME), then pid truly dies.
+- The **current article** restores via system saved-state/intent redelivery, NOT
+  `Prefs.tabs` — so the valid sentinel is the **tab list** (`tabsCountText` "2"), not
+  "the article is still there". The old "cold-starts to feed" finding was
+  SearchActivity-specific.
+- Defect: `WikipediaApp` tab persistence → in-memory singleton (`commitTabState`/
+  `initTabs` no longer touch `Prefs.tabs`); invisible to config changes, fatal to
+  process death. Real-world shape K-9 Mail #3970.
+- New first-class `process_death` system event: `DeviceController.process_death`
+  (HOME → `am kill` → **explicit MAIN+LAUNCHER intent relaunch** — `monkey` is
+  nondeterministic on debug builds because LeakCanary adds a second LAUNCHER activity),
+  injector `activity` field, whitelist — all unit-tested.
+- Driver contract hardened: Codex once crashed the host via `am start -a SEARCH`
+  (unsupported intent → real FATAL → L1 false fail on the control). The driver
+  preamble now forbids intent-based navigation; reruns were clean.
+
 ## Next Issue
 
-Finish **#9**: the process-death seed needs a restore-capable screen (article
-`PageActivity`) or a re-entry scenario + a background→kill→restore harness helper. Then
-M1 is complete and #9 can close.
+**#9 is done** (report complete, 5/5) — awaiting human review/closure
+(`ready-for-human`). #10 resolved by seed 5. Natural next steps (not started):
+L3 (LLM semantic oracle) exercise, per-phase timing instrumentation in verdict.json,
+and scaling beyond one seed per category toward the fuller benchmark.
 
 Recommended seed shape:
 

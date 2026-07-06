@@ -77,6 +77,43 @@ class TestLaunch:
         assert "monkey" in cmd
 
 
+class TestProcessDeath:
+    def test_process_death_home_kill_relaunch_sequence(self):
+        ctrl, fake = _ctrl()
+        ctrl.process_death(
+            "com.example.app", background_wait=0, kill_wait=0, restore_wait=0
+        )
+        assert fake.commands[-3:] == [
+            ["shell", "input", "keyevent", "HOME"],
+            ["shell", "am", "kill", "com.example.app"],
+            [
+                "shell", "monkey", "-p", "com.example.app",
+                "-c", "android.intent.category.LAUNCHER", "1",
+            ],
+        ]
+
+    def test_process_death_with_launcher_activity_uses_explicit_launcher_intent(self):
+        ctrl, fake = _ctrl()
+        ctrl.process_death(
+            "com.example.app",
+            "com.example.Launcher",
+            background_wait=0, kill_wait=0, restore_wait=0,
+        )
+        assert fake.commands[-1] == [
+            "shell", "am", "start",
+            "-a", "android.intent.action.MAIN",
+            "-c", "android.intent.category.LAUNCHER",
+            "-n", "com.example.app/com.example.Launcher",
+        ]
+
+    def test_process_death_with_serial(self):
+        ctrl, fake = _ctrl(serial="emulator-5554")
+        ctrl.process_death(
+            "com.example.app", background_wait=0, kill_wait=0, restore_wait=0
+        )
+        assert all(cmd[:2] == ["-s", "emulator-5554"] for cmd in fake.commands[-3:])
+
+
 class TestForceStopAndKill:
     def test_force_stop(self):
         ctrl, fake = _ctrl()

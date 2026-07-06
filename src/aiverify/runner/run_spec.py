@@ -22,6 +22,7 @@ SUPPORTED_SYSTEM_EVENTS = frozenset(
         "locale_change",
         "battery_low",
         "dark_mode",
+        "process_death",
     }
 )
 

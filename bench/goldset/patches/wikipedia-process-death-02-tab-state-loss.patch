@@ -1,0 +1,53 @@
+diff --git a/app/src/main/java/org/wikipedia/WikipediaApp.kt b/app/src/main/java/org/wikipedia/WikipediaApp.kt
+index c451356..040e09e 100644
+--- a/app/src/main/java/org/wikipedia/WikipediaApp.kt
++++ b/app/src/main/java/org/wikipedia/WikipediaApp.kt
+@@ -210,10 +210,16 @@ class WikipediaApp : Application() {
+ 
+     fun commitTabState() {
+         if (tabList.isEmpty()) {
+-            Prefs.clearTabs()
++            // [aiverify goldset: process-death-02 injected defect] "storage" is a
++            // process-local singleton, so clearing it never touches persisted state.
++            InMemoryTabStateCache.clear()
+             initTabs()
+         } else {
+-            Prefs.tabs = tabList
++            // [aiverify goldset: process-death-02 injected defect] tab state is
++            // "committed" to an in-memory singleton instead of persistent storage.
++            // Survives config changes and normal navigation (process stays alive),
++            // but is silently lost when the process is killed and later restored.
++            InMemoryTabStateCache.tabs = tabList.toList()
+         }
+     }
+ 
+@@ -282,8 +288,12 @@ class WikipediaApp : Application() {
+     }
+ 
+     private fun initTabs() {
+-        if (Prefs.hasTabs) {
+-            tabList.addAll(Prefs.tabs)
++        // [aiverify goldset: process-death-02 injected defect] the restore path reads
++        // the in-memory cache; after real process death the new process starts with an
++        // empty cache, so all tabs (and the article backstack) are lost even though
++        // the Activity stack itself is restored by the system.
++        if (InMemoryTabStateCache.tabs.isNotEmpty()) {
++            tabList.addAll(InMemoryTabStateCache.tabs)
+         }
+         if (tabList.isEmpty()) {
+             tabList.add(Tab())
+@@ -295,3 +305,14 @@ class WikipediaApp : Application() {
+             private set
+     }
+ }
++
++// [aiverify goldset: process-death-02 injected defect] an in-memory singleton used as
++// if it were persistent storage for tab state. Real-world pattern: K-9 Mail #3970
++// (state kept only in memory is silently absent from the process-death restore path).
++private object InMemoryTabStateCache {
++    var tabs: List<Tab> = emptyList()
++
++    fun clear() {
++        tabs = emptyList()
++    }
++}

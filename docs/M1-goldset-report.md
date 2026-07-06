@@ -19,19 +19,18 @@ both cheap oracle layers (L1 crash signal, L2 state assertion).
 | 2 | lifecycle | `lifecycle-04` recreation crash | `dark_mode` | **L1 fail / crash_stability** | ✅ done |
 | 3 | coroutine-concurrency | `coroutine-concurrency-03` main-thread ANR | typing (no event) | **L1 fail / crash_stability (ANR)** | ✅ done |
 | 4 | navigation | `navigation-01` double-open crash | tap More tab (no event) | **L1 fail / crash_stability** | ✅ done |
-| 5 | process-death | — | background + `kill_background` | L2 state_loss / L1 crash | ⏸ blocked (see finding) |
+| 5 | process-death | `process-death-02` tab-state loss | `process_death` | **L2 fail / state_loss** | ✅ done |
 
-Oracle-path coverage so far: **L2 (state_loss) ✅**, **L1 (crash_stability, both crash
-and ANR) ✅**, L3 (LLM semantic) not yet exercised. 4/5 categories done; only
-process-death remains (blocked on host restore behavior).
+Oracle-path coverage: **L2 (state_loss) ✅**, **L1 (crash_stability, both crash
+and ANR) ✅**, L3 (LLM semantic) not yet exercised. **All 5 categories done.**
 
 ## M1 target result
 
-> **M1 target — catch at least 3 of 5 seeds: MET.**
-> Of the 4 seeds attempted, **4 were caught** (0 missed, 0 build failures, 0 driver
-> failures). The 5th seed (process-death) is **not yet attempted** — blocked on host
-> restore behavior, tracked in issue #10. Detection rate on attempted seeds: **4/4**;
-> against the full 5-seed target: **4/5 attempted, 4/5 caught**.
+> **M1 target — catch at least 3 of 5 seeds: MET, 5/5.**
+> All five seeds attempted, **all five caught** (0 missed, 0 build failures, 0 driver
+> failures). The process-death blocker (#10) was resolved by moving the sentinel to a
+> restore-capable surface (the tab list) and adding a `process_death` harness event.
+> Detection rate: **5/5**, with a passing baseline control for both L2 seeds.
 
 ## Outcomes by category and timing
 
@@ -47,11 +46,12 @@ was still caught by L1**, so the per-seed outcome is *caught*.
 | 2 lifecycle-04 | lifecycle | **caught** | **fail (crash)** | inconclusive | ~15s incr | ~2–3 min (Codex) |
 | 3 coroutine-conc-03 | coroutine-concurrency | **caught** | **fail (ANR)** | n/a (no event) | ~15–30s incr | ~2–4 min (Codex, +6s ANR block) |
 | 4 navigation-01 | navigation | **caught** | **fail (crash)** | n/a (no event) | ~15–30s incr | ~1–3 min (Codex) |
-| 5 process-death | process-death | **not attempted (blocked → #10)** | — | — | — | — |
+| 5 process-death-02 | process-death | **caught** | inconclusive | **fail (state_loss)** | ~15–30s incr | 3m53s (Codex, measured) |
 
-Also captured for seed 1: a **baseline (control) run** under the same event → **L2 pass**
-(the negative control), confirming the harness does not false-positive when behavior is
-correct.
+Also captured for seeds 1 and 5: a **baseline (control) run** under the same event →
+**L2 pass** (the negative control), confirming the harness does not false-positive
+when behavior is correct. Seed 5's control ran end-to-end through the same CLI
+(4m37s, measured).
 
 Timing caveat (known gap): host build times are from Gradle output; end-to-end
 **per-seed wall-clock is approximate — not precisely instrumented**. Adding start/end
@@ -101,23 +101,32 @@ timestamps to `verdict.json` is easy follow-up.
   run record `docs/runs/2026-07-05-wikipedia-navigation-01-double-open-crash/`;
   test `tests/bench/test_goldset_navigation_01_crash.py`.
 
-## Blocked / pending seeds
-
-### 5. process-death — BLOCKED on host behavior (finding)
-Attempted with the search-sentinel scenario. Confirmed on device:
-- `am kill` on the **foreground** app is a no-op (process survives); the app must be
-  **backgrounded first** (`press home`), then `am kill` truly kills it (pid → NONE).
-- **But after a real process death + relaunch, Wikipedia cold-starts to the main feed,
-  not back into `SearchActivity`** — the search screen does not restore across process
-  death. So the search sentinel can't demonstrate process-death state loss (the baseline
-  itself doesn't restore it).
-
-To do a faithful process-death seed we need either (a) a host screen Wikipedia **does**
-restore across process death (e.g. an article `PageActivity`, or reading lists) plus a
-defect there, and/or (b) a multi-segment re-entry scenario where the crash fires on
-re-navigation after death — which also needs the runner's L1 multi-checkpoint scan
-(now added in seed 3) and a harness helper for the background→kill→restore choreography.
-This is scoped follow-up, not a quick seed (see issue #10).
+### Seed 5 — process-death-02 (L2 / state_loss)
+- Defect: `WikipediaApp` tab persistence rewired to a process-local
+  `InMemoryTabStateCache` singleton instead of `Prefs.tabs` (in-memory singleton as
+  storage; real-world shape K-9 Mail #3970, candidates.md P1). Config changes and
+  navigation are unaffected (process alive); a real process death restarts with an
+  empty cache — the tab list and per-tab article backstacks are silently gone, no crash.
+- Scenario: two article tabs (Cat, Dog) → `process_death` boundary event (HOME →
+  `am kill` → explicit launcher-intent relaunch) → assert toolbar `tabsCountText`
+  stays "2".
+- Matched pair, both halves end-to-end Codex-driven with clean L1: baseline **L2 pass**
+  ("2" → "2"), defect **L2 fail / state_loss** ("2" → node gone: PageActivity restores
+  into an empty tab list and bails to the feed).
+- This resolved #10's blocker. Key host findings: the **current article restores via
+  system saved-state / intent redelivery, not app persistence** — so "the article is
+  still there" is not a valid sentinel (the earlier "cold-starts to the feed" finding
+  applied only to `SearchActivity`, which the system does not restore); and **`monkey`
+  relaunch is nondeterministic on debug builds** (LeakCanary adds a second LAUNCHER
+  activity), so the `process_death` event relaunches via an explicit MAIN+LAUNCHER
+  intent with the run spec's `activity`.
+- Also hardened the driver contract: the first baseline attempt was discarded because
+  Codex navigated via `am start -a SEARCH`, crashing the host with an unsupported
+  intent (an agent-induced L1 false fail). The driver preamble now forbids intent-based
+  navigation (tap/type only); the reruns used zero `am start`.
+- Patch `bench/goldset/patches/wikipedia-process-death-02-tab-state-loss.patch`;
+  run record `docs/runs/2026-07-06-wikipedia-process-death-02-tab-state-loss/`;
+  test `tests/bench/test_goldset_process_death_02_state_loss.py`.
 
 ## Notes / findings carried forward
 
@@ -125,3 +134,6 @@ This is scoped follow-up, not a quick seed (see issue #10).
   does not recreate it**; use `dark_mode` (uiMode) to force recreation. See seed 1.
 - The end-to-end CLI drives via the Codex CLI backend (agent navigates) while the
   runner deterministically injects the event and captures evidence.
+- The Verification Agent Backend must not navigate via intents (`am start` etc.);
+  unsupported intents can crash the host and contaminate L1. Enforced in the driver
+  preamble since seed 5.

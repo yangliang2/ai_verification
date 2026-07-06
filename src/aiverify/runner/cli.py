@@ -50,6 +50,11 @@ content-desc "Forward" or text "Skip" until the main feed appears.
 
 CONSTRAINTS: Only use android/adb shell commands against {device}. Do NOT edit files,
 install anything, or rotate/toggle the device — the harness injects system events itself.
+Navigate ONLY by tapping/typing on visible UI elements (`input tap` / `input text`).
+Do NOT use `am start`, `am broadcast`, `monkey`, or any intent-based shortcut to reach
+a screen — the app under test may not support that intent and could crash, which would
+contaminate the crash oracle. If a screen seems unreachable, keep tapping through the
+UI; report FAILED for the action rather than falling back to intents.
 
 FINAL OUTPUT: a JSON object matching the provided schema — a "journey" name and a
 "results" array with one entry per <action> ("action", "status" PASSED/FAILED/SKIPPED,
@@ -81,7 +86,9 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
     runner = JourneySegmentRunner(
         backend=CodexCliBackend(),
         checkpoint_collector=AndroidEvidenceCollector(),
-        system_event_injector=DeviceSystemEventInjector(device=controller, package=spec.package),
+        system_event_injector=DeviceSystemEventInjector(
+            device=controller, package=spec.package, activity=spec.activity
+        ),
     )
     flow = runner.run(
         scenario=spec.scenario,
