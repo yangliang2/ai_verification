@@ -166,9 +166,12 @@ What unblocked #10 (all verified on device):
 ## Next Issue
 
 **#9 is done** (report complete, 5/5) — awaiting human review/closure
-(`ready-for-human`). #10 resolved by seed 5. Natural next steps (not started):
-L3 (LLM semantic oracle) exercise, per-phase timing instrumentation in verdict.json,
-and scaling beyond one seed per category toward the fuller benchmark.
+(`ready-for-human`). #10 resolved by seed 5. #11 (per-phase timing in verdict.json)
+done and closed: journey/checkpoint/event durations are instrumented; the live run
+showed Codex driving is ~90% of wall clock. Remaining next steps: **#12** (L3
+semantic-oracle exercise — needs human scoping: seed choice, judge backend, cost
+bounds) and scaling beyond one seed per category toward the fuller benchmark (M2,
+needs owner decision).
 
 Recommended seed shape:
 
