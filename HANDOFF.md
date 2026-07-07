@@ -205,18 +205,16 @@ before L3 verdicts feed benchmark numbers.
 Open tracker state:
 
 - **#9 is done** (report complete, 5/5) — awaiting human review/closure (`ready-for-human`).
-- **#1 parent PRD is open** — smoke/M1/L3 progress is recorded; next milestone needs an owner decision.
-- **#13 M2 scoping is open** (`enhancement`, `ready-for-human`) — choose seed count, L3 repeatability requirements, calibration, execution mode, and reportable metrics before child implementation issues are created.
-- There is currently **no open `ready-for-agent` issue**.
+- **#1 parent PRD is open** — smoke/M1/L3 progress is recorded; can be closed after owner review if desired.
+- **#13 M2 scoping** produced the M2-alpha scope: keep Wikipedia host, keep Agent-In-The-Loop Execution, do not claim benchmark-wide rates yet, measure L3 repeatability before using L3 in metrics, and add one stable config-change seed.
+- **#14 is ready-for-agent** — measure L3 repeatability on the existing `ui-rendering-01` seed using fixed evidence and Codex CLI judge calls.
+- **#15 is ready-for-agent** — add a new config-change duplicated-state Goldset seed with matched baseline/defect L2 evidence.
 
-Remaining next step: resolve **#13 M2 scoping** before implementation.
-Owner decisions needed:
+Recommended execution order:
 
-- seed count per taxonomy category and whether M2 remains Wikipedia-only;
-- whether L3 repeatability/variance measurement is a required M2 gate;
-- cross-source calibration shape for injector vs Verification Agent Backend;
-- whether to prioritize fully unattended Journey execution or keep Agent-In-The-Loop Execution while scaling seeds;
-- benchmark metrics that can be reported without overclaiming.
+1. **#14 first.** It decides whether L3 can contribute to M2 metrics or must remain a separate qualitative oracle.
+2. **#15 second.** It expands the Goldset beyond one config-change state-loss seed while staying on a stable L2 path.
+3. Do not start broader seed expansion, fully unattended Journey execution, or public detection-rate reporting until #14/#15 complete and the resulting evidence is reviewed.
 
 Recommended seed shape:
 
