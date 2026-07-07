@@ -58,6 +58,11 @@ class ScenarioSpec:
     system_events: list[SystemEventSpec] = field(default_factory=list)
     assertions: list[AssertionSpec] = field(default_factory=list)
     expected_behavior: str = ""
+    # L3 语义判定用的"正确行为规格"。与 expected_behavior 不同：expected_behavior
+    # 描述本次运行（含注入缺陷时）的预期观测，会泄露缺陷位置，不能喂给 judge；
+    # l3_spec 只描述产品的正确行为，matched pair 的 baseline/defect 共用同一份。
+    # 非空时 runner 才会在 L1/L2 均未 fail 的前提下调用 L3。
+    l3_spec: str = ""
 
 
 @dataclass(frozen=True)
@@ -143,6 +148,7 @@ def _parse_scenario(raw: dict[str, Any]) -> ScenarioSpec:
     scenario_id = _required_str(raw, "id")
     user_actions = _optional_str_list(raw, "user_actions")
     expected_behavior = _optional_str(raw, "expected_behavior") or ""
+    l3_spec = _optional_str(raw, "l3_spec") or ""
 
     raw_events = raw.get("system_events", [])
     if raw_events is None:
@@ -164,6 +170,7 @@ def _parse_scenario(raw: dict[str, Any]) -> ScenarioSpec:
         system_events=system_events,
         assertions=assertions,
         expected_behavior=expected_behavior,
+        l3_spec=l3_spec,
     )
 
 

@@ -25,7 +25,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from aiverify.agent.oracle import L1Oracle
-from aiverify.agent.oracle.schema import validate_verdict
+from aiverify.agent.oracle.l3 import L3Oracle
+from aiverify.agent.oracle.schema import VerdictValidationError, validate_verdict
+from aiverify.providers.codex_cli import CodexCliProvider, CodexCliProviderError
 from aiverify.harness.device.controller import DeviceController
 from aiverify.runner.codex_backend import CodexCliBackend, _DEFAULT_SCHEMA_PATH
 from aiverify.runner.evidence import AndroidEvidenceCollector
@@ -70,6 +72,69 @@ def build_instruction_prefix(device: str) -> str:
     return _DRIVER_PREAMBLE.format(device=device)
 
 
+def _build_l3_trace_summary(spec: RunSpec, flow) -> str:
+    """L3 judge 的执行轨迹摘要：动作、驱动结果、最终 checkpoint 的 layout 全文。
+
+    只给观测事实，不给 expected_behavior（那会泄露注入缺陷的位置）。
+    layout JSON 实测在 10KB 量级，整体嵌入 prompt 在成本边界内。
+    """
+    final_cp = flow.checkpoints[-1]
+    journey_data = json.dumps(
+        [r.data for r in flow.journey_results], ensure_ascii=False, indent=2
+    )
+    layout_text = final_cp.layout_path.read_text(encoding="utf-8")
+    return (
+        "### 脚本化用户动作（scenario.user_actions）\n"
+        + "\n".join(f"{i + 1}. {a}" for i, a in enumerate(spec.scenario.user_actions))
+        + "\n\n### 驱动 agent 的分段执行结果（journey results JSON）\n"
+        + journey_data
+        + f"\n\n### 最终 checkpoint（{final_cp.name}）的 UI layout JSON 全文\n"
+        + layout_text
+    )
+
+
+def _judge_l3(spec: RunSpec, flow, *, l1: dict, l2: dict, steps: list[str],
+              workdir: Path, artifact_dir: Path, model: str | None) -> dict | None:
+    """按分层 oracle 设计门控并执行 L3：仅当 l3_spec 非空且 L1/L2 均未 fail。
+
+    judge 调用失败（格式两次不合规 / codex 出错）降级为 inconclusive 而不是
+    让整个 run 丢失 verdict——L3 无法判定本身就是一种合法结果。
+    """
+    if not spec.scenario.l3_spec:
+        return None
+    if l1["outcome"] == "fail" or l2["outcome"] == "fail":
+        return None
+
+    provider = CodexCliProvider(
+        workdir=workdir, artifact_dir=artifact_dir / "l3-judge", model=model
+    )
+    trace_summary = _build_l3_trace_summary(spec, flow)
+    screenshot_refs = [str(cp.screenshot_path) for cp in flow.checkpoints]
+    start = time.monotonic()
+    try:
+        verdict = L3Oracle(provider).judge(
+            trace_summary,
+            spec.scenario.l3_spec,
+            screenshot_refs=screenshot_refs,
+            trigger_steps=steps,
+        )
+    except (VerdictValidationError, CodexCliProviderError, json.JSONDecodeError) as exc:
+        verdict = {
+            "verdict_id": "L3-error", "level": "L3", "outcome": "inconclusive",
+            "defect_class_hypothesis": None, "trigger_steps": steps,
+            "evidence": [{"type": "llm_reasoning", "ref": "l3 judge error",
+                          "note": f"{type(exc).__name__}: {exc}"[:500]}],
+            "confidence": 0.0,
+        }
+        validate_verdict(verdict)
+    finally:
+        flow.timings.append({
+            "phase": "l3-judge", "kind": "oracle",
+            "seconds": round(time.monotonic() - start, 3),
+        })
+    return verdict
+
+
 def _trigger_steps(spec: RunSpec) -> list[str]:
     steps = list(spec.scenario.user_actions)
     for ev in spec.scenario.system_events:
@@ -78,7 +143,8 @@ def _trigger_steps(spec: RunSpec) -> list[str]:
 
 
 def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
-        launch: bool = True, model: str | None = None) -> dict:
+        launch: bool = True, model: str | None = None,
+        l3_model: str | None = None) -> dict:
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     run_start = time.monotonic()
     controller = DeviceController(serial=device)
@@ -134,10 +200,16 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         }
         validate_verdict(l2)
 
+    l3 = _judge_l3(
+        spec, flow, l1=l1, l2=l2, steps=steps,
+        workdir=workdir, artifact_dir=artifact_dir, model=l3_model,
+    )
+
     verdict = {
         "scenario": spec.scenario.id,
         "l1": l1,
         "l2": l2,
+        "l3": l3,
         "journey_results": [r.data for r in flow.journey_results],
         "checkpoints": [c.name for c in flow.checkpoints],
         "injected_events": [{"event": e.event, "args": e.args} for e in flow.injected_events],
@@ -162,6 +234,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--workdir", type=Path, default=Path.cwd(), help="Codex --cd working directory")
     ap.add_argument("--no-launch", action="store_true", help="Do not launch the app first")
     ap.add_argument("--model", default=None, help="Override Codex model")
+    ap.add_argument("--l3-model", default=None, help="Override Codex model for the L3 judge")
     args = ap.parse_args(argv)
 
     spec = load_run_spec(args.run_spec)
@@ -172,13 +245,22 @@ def main(argv: list[str] | None = None) -> int:
         workdir=args.workdir,
         launch=not args.no_launch,
         model=args.model,
+        l3_model=args.l3_model,
     )
     l1_class = verdict["l1"]["defect_class_hypothesis"]
     l2_class = verdict["l2"]["defect_class_hypothesis"]
     print(f"scenario: {verdict['scenario']}")
-    print(f"L1: {verdict['l1']['outcome']} ({l1_class})  |  L2: {verdict['l2']['outcome']} ({l2_class})")
+    l3 = verdict["l3"]
+    l3_desc = f"{l3['outcome']} ({l3['defect_class_hypothesis']})" if l3 else "not run"
+    print(
+        f"L1: {verdict['l1']['outcome']} ({l1_class})  |  L2: {verdict['l2']['outcome']} ({l2_class})"
+        f"  |  L3: {l3_desc}"
+    )
     # non-zero exit when a defect is detected by any oracle, so CI can gate on it
-    detected = verdict["l1"]["outcome"] == "fail" or verdict["l2"]["outcome"] == "fail"
+    detected = any(
+        v is not None and v["outcome"] == "fail"
+        for v in (verdict["l1"], verdict["l2"], verdict["l3"])
+    )
     return 1 if detected else 0
 
 
