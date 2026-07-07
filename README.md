@@ -2,7 +2,7 @@
 
 验证 AI coding 结果是否真的经得起 Android 行为层故障场景，而不是只看静态 diff、单元测试或 happy path。
 
-当前 MVP 的重点不是重造一个裸 LLM provider，也不是立刻做 100+ 缺陷的大规模注入基准；重点是先打通一条可审计的验证链：
+当前 MVP 已经打通一条可审计的验证链；下一阶段不是重造一个裸 LLM provider，也不是直接跳到 100+ 缺陷的大规模注入基准，而是先把已验证链路扩展成可度量的 M2 基准范围：
 
 ```text
 run-spec.yaml
@@ -15,34 +15,38 @@ run-spec.yaml
 
 ## 当前范围
 
-### MVP 已对齐的目标
+### MVP 已验证能力
 
 - 使用 **Codex CLI** 作为第一种 Verification Agent Backend，保留真实生产形态的 agent 执行能力。
 - 使用 Google **Android CLI** 作为 Android agent-first 操作入口，覆盖 APK 部署、layout/screenshot 采集、docs/skills 查询；adb 作为系统事件和 logcat fallback。
-- 使用开源 Android 宿主 **wikimedia/apps-android-wikipedia** 先跑通 smoke/M1，而不是一开始接入 ColorOS 内部构建系统。
-- 用 **Run Spec** 描述一次可复现验证运行。
-- 在 **Journey Segment Boundary** 注入旋转、后台、权限、网络等行为层事件。
+- 使用开源 Android 宿主 **wikimedia/apps-android-wikipedia** 跑通 smoke/M1，而不是一开始接入 ColorOS 内部构建系统。
+- 用 **Run Spec** 描述一次可复现验证运行，并通过 `python -m aiverify.runner` 产出 verdict。
+- 在 **Journey Segment Boundary** 注入配置变更、进程死亡等行为层事件。
+- 用 M1 五个 Goldset-derived Behavior-Layer Defect 证明 L1/L2 oracle 能抓住 crash、ANR、state loss。
+- 用第六个 ui-rendering seed 证明 L3 semantic oracle 能抓住 L1/L2 不可见的语义 UI 错误。
 - 把每次非平凡验证写成 `docs/runs/<date>-<slug>/`，并在 GitHub issue 中留下可审计证据。
 
 ### 暂不声称完成
 
 - 100+ AI 自动注入缺陷基准。
-- M1 五个 Goldset 种子缺陷报告。
+- M2/M3 级别的多种子检测率基准。
 - ColorOS 一方应用迁移。
 - 完全无人值守的 LLM UI driver。
-- 对外可信的抓取率、误报率或全基准吞吐指标。
+- 对外可信的抓取率、误报率、L3 稳定性或全基准吞吐指标。
 
 这些仍是后续方向，但不是当前已验证的 MVP 状态。
 
 ## 已验证状态
 
-2026-06-15 AFK implementation pass:
+截至 2026-07-07：
 
 - GitHub PRD: <https://github.com/yangliang2/ai_verification/issues/1>
-- 已完成并关闭：#2-#7
-- 保留人工语义工作：#8、#9
+- 已完成并关闭：#2-#8、#10-#12
+- #9 M1 five-Goldset report 已完成（5/5 caught），仍作为 `ready-for-human` 等待人工 review/closure。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
-- 本地测试：`.venv/bin/pytest` -> `170 passed`
+- M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
+- L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
+- 本地测试：`.venv/bin/pytest` -> `219 passed`
 
 Wikipedia host 实测：
 
@@ -58,7 +62,7 @@ Wikipedia host 实测：
 
 ```text
 src/aiverify/
-  providers/          LLM provider 抽象与异源约束；保留给 planner/oracle/injector 等窄接口
+  providers/          LLM provider 抽象、Codex CLI L3 judge、异源约束
   harness/device/     adb 设备编排、系统事件原语、logcat/UI dump
   harness/build/      patch、批量构建、APK 缓存等后续基准能力
   agent/planner/      driver-agnostic 验证计划 schema 与 generator
@@ -69,6 +73,7 @@ src/aiverify/
     evidence.py       Android CLI evidence checkpoints
     journey.py        Journey segment boundary 编排
     system_events.py  runner 到 DeviceController 的系统事件注入
+    cli.py            Run Spec 到 Codex driver、evidence、L1/L2/L3 verdict 的端到端入口
     verdict.py        Android CLI layout JSON 到 L2Oracle verdict
 
 bench/goldset/        真实历史行为层缺陷候选素材
@@ -98,8 +103,8 @@ adb devices
 
 ## 端到端运行（Codex CLI backend）
 
-把一份 run-spec 从头跑到 verdict，无需手动驱动——Codex CLI 作为 Verification Agent
-Backend 驱动应用，runner 注入配置变更并采证据，oracle 判定：
+把一份 run-spec 从头跑到 verdict，无需手动驱动：Codex CLI 作为 Verification Agent
+Backend 驱动应用，runner 注入行为层事件并采证据，oracle 判定：
 
 ```bash
 PYTHONPATH=src python -m aiverify.runner \
@@ -108,8 +113,9 @@ PYTHONPATH=src python -m aiverify.runner \
   --artifact-dir docs/runs/<slug>/artifacts
 ```
 
-L2=fail 时进程以非零码退出（便于 CI gate）。实测见
-[`docs/runs/2026-07-05-end-to-end-cli-codex/`](docs/runs/2026-07-05-end-to-end-cli-codex/README.md)。
+任一 oracle（L1/L2/L3）返回 `fail` 时进程以非零码退出（便于 CI gate）。实测见
+[`docs/runs/2026-07-05-end-to-end-cli-codex/`](docs/runs/2026-07-05-end-to-end-cli-codex/README.md)
+和 [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)。
 
 ## 文档入口
 
@@ -125,17 +131,10 @@ L2=fail 时进程以非零码退出（便于 CI gate）。实测见
 
 ## 下一步
 
-**#8 已完整闭环（阴性对照 + 阳性注入，匹配对照）**：
+当前没有 `ready-for-agent` 的开放 issue。开放项是：
 
-- 阴性对照（baseline）：`run-spec → 段边界注入配置变更 → Android CLI layout → L1/L2 oracle → verdict`，
-  查询保留 → **L2=pass**。
-- 阳性注入（defect）：`isSaveFromParentEnabled=false` 破坏搜索子树 saved state，
-  同一 `dark_mode` 事件下查询丢失 → **L2=fail / state_loss**。
-- 关键发现：`SearchActivity` 声明了 `configChanges="orientation|screenSize"`，旋转不重建、
-  无法暴露此缺陷；改用**深色模式（uiMode）**配置变更强制重建。为此新增了 `dark_mode` 系统事件
-  （`DeviceController.set_night_mode` + injector + 白名单，均有单测）。
-- Run records：
-  [`.../2026-07-05-wikipedia-config-change-smoke/`](docs/runs/2026-07-05-wikipedia-config-change-smoke/README.md)（pass）、
-  [`.../2026-07-05-wikipedia-config-change-01-defect/`](docs/runs/2026-07-05-wikipedia-config-change-01-defect/README.md)（fail）。
+- #9：M1 five-Goldset report 已完成，等待人工 review/closure。
+- #1：父 PRD 已覆盖 smoke/M1/L3 进展，等待人工 review/closure 或 M2 方向决策。
+- #13：M2 scoping，等待 owner 决定 seed count、L3 repeatability、calibration 和执行模式。
 
-下一步是 **#9**：把 smoke slice 扩展到 M1 五个 Goldset 种子报告（`candidates.md` 已有 18 条素材）。
+推荐下一步是推进 **#13 M2 scoping**：决定每个 taxonomy category 扩多少 seed、L3 repeatability 怎么测、是否需要跨来源 calibration run、以及哪些指标可以开始进入 benchmark number。

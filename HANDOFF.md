@@ -8,10 +8,13 @@
 
 - GitHub PRD: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已保留 human-required issues: #8, #9
+- 已关闭 implementation/follow-up issues: #8, #10, #11, #12
+- #9 M1 five-Goldset report 已完成（5/5 caught），仍 open / `ready-for-human` 等待 review/closure
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
-- Test status: `.venv/bin/pytest` -> `170 passed`
+- M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
+- Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
+- Test status: `.venv/bin/pytest` -> `219 passed`
 
 ### 已实测
 
@@ -25,7 +28,8 @@ Android CLI:
 
 Codex CLI:
 - Version: `codex-cli 0.139.0`
-- Confirmed flags: `codex exec --json --output-schema --output-last-message --sandbox --ask-for-approval --cd`
+- Driver backend uses `codex exec --json --output-schema --output-last-message --skip-git-repo-check --cd ... --dangerously-bypass-approvals-and-sandbox` because it must operate Android CLI / adb outside the workspace.
+- L3 judge backend uses `codex exec --json --output-last-message --skip-git-repo-check --sandbox read-only --cd ...` because it only reads evidence artifacts.
 
 Wikipedia host:
 - Path: `/Users/peter/hosts/wikipedia`
@@ -47,21 +51,23 @@ Wikipedia host:
 - `src/aiverify/runner/journey.py`: Journey segment boundary orchestration.
 - `src/aiverify/runner/system_events.py`: system-event injection at boundaries.
 - `src/aiverify/runner/verdict.py`: Android CLI layout JSON to L2Oracle verdict.
+- `src/aiverify/runner/cli.py`: end-to-end Run Spec runner, timing, L1/L2/L3 gating, non-zero exit on oracle fail.
+- `src/aiverify/providers/codex_cli.py`: Codex CLI-backed `LLMProvider` for L3 semantic judging.
+- `src/aiverify/agent/oracle/l1.py`, `l2.py`, `l3.py`: crash/ANR, state assertion, and semantic oracle paths now all exercised live.
 - `src/aiverify/harness/device/controller.py`: includes public `press_home()` for backgrounding.
 
 ## Current Boundary
 
 Do not claim these are complete yet:
 
-- First Wikipedia config-change Goldset seed (#8).
-- M1 five-Goldset report (#9).
 - Full defect-injected end-to-end benchmark.
 - 100+ AI-generated source-level defects.
-- Detection rate, false-positive rate, or full-benchmark throughput.
+- Detection rate, false-positive rate, L3 repeatability, or full-benchmark throughput beyond the M1 seed-count demonstration.
 - Fully unattended Android Journey execution.
 - ColorOS internal app/build migration.
+- Multimodal/visual-only L3 judgment.
 
-The current value is narrower but concrete: the repo now has a tested runner contract, a real Android host build/deploy proof, and durable evidence discipline.
+The current value is concrete but still bounded: the repo has a tested end-to-end runner, real Android host build/deploy proof, M1 5/5 Goldset detection evidence, live L1/L2/L3 oracle coverage, and durable evidence discipline.
 
 ## Progress Update (2026-07-05) — #8 COMPLETE (both halves)
 
@@ -196,12 +202,21 @@ before L3 verdicts feed benchmark numbers.
 
 ## Next Issue
 
-**#9 is done** (report complete, 5/5) — awaiting human review/closure
-(`ready-for-human`). #10 resolved by seed 5. #11 (per-phase timing) done and closed.
-**#12 (L3 semantic oracle) done**: all three oracle paths proven live. Remaining next
-step: scaling beyond one seed per category toward the fuller benchmark (**M2, needs
-owner decision** — scope, seed count per category, L3 repeatability measurement,
-cross-source calibration runs).
+Open tracker state:
+
+- **#9 is done** (report complete, 5/5) — awaiting human review/closure (`ready-for-human`).
+- **#1 parent PRD is open** — smoke/M1/L3 progress is recorded; next milestone needs an owner decision.
+- **#13 M2 scoping is open** (`enhancement`, `ready-for-human`) — choose seed count, L3 repeatability requirements, calibration, execution mode, and reportable metrics before child implementation issues are created.
+- There is currently **no open `ready-for-agent` issue**.
+
+Remaining next step: resolve **#13 M2 scoping** before implementation.
+Owner decisions needed:
+
+- seed count per taxonomy category and whether M2 remains Wikipedia-only;
+- whether L3 repeatability/variance measurement is a required M2 gate;
+- cross-source calibration shape for injector vs Verification Agent Backend;
+- whether to prioritize fully unattended Journey execution or keep Agent-In-The-Loop Execution while scaling seeds;
+- benchmark metrics that can be reported without overclaiming.
 
 Recommended seed shape:
 
@@ -216,14 +231,15 @@ Open a page with editable/search state
 
 Keep it deliberately simple. Avoid coroutine race, background process death, or deep navigation for the first seed; those add trigger instability before the evidence loop is proven.
 
-## Expected #8 Deliverables
+## Next Implementation Issue Discipline
 
-- Goldset patch under `bench/goldset/patches/`.
-- Goldset spec under `bench/goldset/specs/`.
-- A `run-spec.yaml` example or fixture for the smoke run.
-- A durable run record under `docs/runs/<date>-wikipedia-config-change-smoke/`.
-- GitHub issue comments with commands, outputs, artifacts, checksums, and known gaps.
-- A commit containing the implementation, run record, and evidence artifacts, unless there is a clear reason not to commit.
+For any new M2 implementation issue:
+
+- create or triage the GitHub issue before starting;
+- keep one category role and one state role from `docs/agents/triage-labels.md`;
+- add a durable run record under `docs/runs/<date>-<slug>/` for non-trivial verification;
+- post issue evidence with exact commands, important results, files/tests, manual or device steps, artifact inventory, checksums where practical, and known gaps;
+- commit the code/doc/evidence changes that support the issue comment.
 
 ## Execution Notes
 
@@ -253,10 +269,21 @@ Use Codex CLI as the verification backend shape:
 codex exec --json \
   --output-schema src/aiverify/runner/journey_result_schema.json \
   --output-last-message <run-dir>/codex-result.json \
-  --sandbox danger-full-access \
-  --ask-for-approval never \
-  --cd /Users/peter/projects/ai_verfication \
+  --skip-git-repo-check \
+  --cd /Users/peter/projects/ai_verification \
+  --dangerously-bypass-approvals-and-sandbox \
   "<Journey instructions + checkpoint/evidence contract>"
+```
+
+Use Codex CLI as the L3 judge shape:
+
+```bash
+codex exec --json \
+  --output-last-message <run-dir>/artifacts/l3-judge/l3-judge-call-1.md \
+  --skip-git-repo-check \
+  --sandbox read-only \
+  --cd /Users/peter/projects/ai_verification \
+  "<L3 spec + observed evidence>"
 ```
 
 ## Evidence Discipline
