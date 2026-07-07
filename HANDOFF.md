@@ -197,8 +197,22 @@ What was built:
   frozen live judge responses through `L3Oracle` + `MockProvider` — hardware- and
   LLM-independent.
 
-Known gap: single-shot judge — repeatability/variance of L3 is unmeasured; measure
-before L3 verdicts feed benchmark numbers.
+## Progress Update (2026-07-07) — #14 COMPLETE: L3 repeatability measured
+
+M2-alpha L3 repeatability on `ui-rendering-01` is measured using fixed evidence from
+the #12 matched pair and live Codex CLI judge calls:
+
+- Baseline: **5/5 L3 pass**, `defect_class_hypothesis=null`.
+- Defect: **5/5 L3 fail / ui_rendering**.
+- Errors/retries/inconclusive verdicts: **0**.
+- Confidence range: baseline 0.97-0.98; defect 0.97-0.98.
+- Run record: `docs/runs/2026-07-07-l3-repeatability-ui-rendering-01/`.
+- Test seam: `tests/bench/test_l3_repeatability.py` covers aggregation/reporting with
+  `MockProvider`; live runner is `python -m aiverify.bench.l3_repeatability`.
+
+Interpretation: L3 can contribute to M2 **text-layout semantic** seed metrics when
+the fixed-evidence repeatability gate is satisfied. Do not generalize this to
+visual-only/multimodal defects or benchmark-wide false-positive/detection rates yet.
 
 ## Next Issue
 
@@ -206,15 +220,14 @@ Open tracker state:
 
 - **#9 is done** (report complete, 5/5) — awaiting human review/closure (`ready-for-human`).
 - **#1 parent PRD is open** — smoke/M1/L3 progress is recorded; can be closed after owner review if desired.
-- **#13 M2 scoping** produced the M2-alpha scope: keep Wikipedia host, keep Agent-In-The-Loop Execution, do not claim benchmark-wide rates yet, measure L3 repeatability before using L3 in metrics, and add one stable config-change seed.
-- **#14 is ready-for-agent** — measure L3 repeatability on the existing `ui-rendering-01` seed using fixed evidence and Codex CLI judge calls.
+- **#13 M2 scoping** produced the M2-alpha scope and is closed.
+- **#14 is complete** — L3 repeatability on the existing `ui-rendering-01` seed is stable 5x/5x per half.
 - **#15 is ready-for-agent** — add a new config-change duplicated-state Goldset seed with matched baseline/defect L2 evidence.
 
 Recommended execution order:
 
-1. **#14 first.** It decides whether L3 can contribute to M2 metrics or must remain a separate qualitative oracle.
-2. **#15 second.** It expands the Goldset beyond one config-change state-loss seed while staying on a stable L2 path.
-3. Do not start broader seed expansion, fully unattended Journey execution, or public detection-rate reporting until #14/#15 complete and the resulting evidence is reviewed.
+1. **#15 next.** It expands the Goldset beyond one config-change state-loss seed while staying on a stable L2 path.
+2. Do not start broader seed expansion, fully unattended Journey execution, or public detection-rate reporting until #15 completes and the resulting evidence is reviewed.
 
 Recommended seed shape:
 

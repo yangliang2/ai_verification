@@ -152,8 +152,12 @@ The last unexercised oracle path. A sixth category beyond the M1 five, designed 
   run record `docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`;
   test `tests/bench/test_goldset_ui_rendering_01_nav_label_swap.py` (replays the
   frozen live judge responses via `MockProvider` — no emulator or LLM needed).
-- Known gap: single-shot judge — no repeatability/variance measurement yet; required
-  before L3 verdicts feed any benchmark number.
+- M2 repeatability follow-up (#14): the same fixed baseline/defect evidence was judged
+  5 times per half. Baseline was **5/5 L3 pass**, defect was **5/5 L3 fail /
+  ui_rendering**, with 0 judge errors and confidence 0.97-0.98. Run record:
+  `docs/runs/2026-07-07-l3-repeatability-ui-rendering-01/`. This supports using L3
+  for M2 **text-layout semantic** seeds under repeatability discipline; it still does
+  not prove visual-only or multimodal L3 reliability.
 
 ## Notes / findings carried forward
 

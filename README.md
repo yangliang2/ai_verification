@@ -131,12 +131,12 @@ PYTHONPATH=src python -m aiverify.runner \
 
 ## 下一步
 
-当前 M2-alpha 已从 #13 拆出两个 `ready-for-agent` 子 issue：
+当前 M2-alpha 的入口：
 
-- #14：测量 `ui-rendering-01` 的 L3 repeatability，先确认 L3 能否进入 M2 指标。
+- #14：`ui-rendering-01` 的 L3 repeatability 已完成；fixed evidence 下 baseline 5/5 pass、defect 5/5 fail/ui_rendering。
 - #15：新增一个 config-change duplicated-state Goldset seed，覆盖“恢复时叠加/重复”模式。
 - #13：M2 scoping 已给出第一轮范围，作为 M2-alpha 的决策记录。
 - #9：M1 five-Goldset report 已完成，等待人工 review/closure。
 - #1：父 PRD 已覆盖 smoke/M1/L3 进展，等待人工 review/closure。
 
-推荐下一步先做 **#14**，因为 #15 之后是否能把 L3 seed 纳入 M2 数字，取决于 repeatability 结果。
+推荐下一步做 **#15**。
