@@ -8,13 +8,14 @@
 
 - GitHub PRD: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #10, #11, #12
+- 已关闭 implementation/follow-up issues: #8, #10, #11, #12, #14
 - #9 M1 five-Goldset report 已完成（5/5 caught），仍 open / `ready-for-human` 等待 review/closure
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
+- Retrospective #11 timing run record: [`docs/runs/2026-07-06-runner-timing-instrumentation/README.md`](docs/runs/2026-07-06-runner-timing-instrumentation/README.md)
 - Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
-- Test status: `.venv/bin/pytest` -> `219 passed`
+- Test status: `.venv/bin/pytest` -> `223 passed, 2 warnings`
 
 ### 已实测
 
