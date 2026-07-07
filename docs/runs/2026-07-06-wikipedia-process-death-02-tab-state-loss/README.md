@@ -1,7 +1,10 @@
 # 2026-07-06 Wikipedia process-death tab-state-loss Run Record
 
-Issue: [#9](https://github.com/yangliang2/ai_verification/issues/9) — M1 five-Goldset report (seed 5, final category);
-unblocks and resolves [#10](https://github.com/yangliang2/ai_verification/issues/10) (process-death seed).
+Primary issue: [#10](https://github.com/yangliang2/ai_verification/issues/10)
+— process-death seed.
+
+Parent/milestone issue: [#9](https://github.com/yangliang2/ai_verification/issues/9)
+— M1 five-Goldset report (this run is seed 5, final category).
 
 ## What this proves
 
