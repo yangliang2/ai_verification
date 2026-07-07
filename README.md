@@ -40,9 +40,9 @@ run-spec.yaml
 
 截至 2026-07-07：
 
-- GitHub PRD: <https://github.com/yangliang2/ai_verification/issues/1>
-- 已完成并关闭：#2-#8、#10-#12、#14、#15
-- #9 M1 five-Goldset report 已完成（5/5 caught），仍作为 `ready-for-human` 等待人工 review/closure。
+- GitHub PRD #1 已完成并关闭：<https://github.com/yangliang2/ai_verification/issues/1>
+- 已完成并关闭：#2-#15
+- 当前 open / ready-for-agent：#16 M2 navigation back-button Goldset seed
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
@@ -132,12 +132,13 @@ PYTHONPATH=src python -m aiverify.runner \
 
 ## 下一步
 
-当前 M2-alpha 的入口：
+当前 M2-alpha / M2-follow-up 的入口：
 
 - #14：`ui-rendering-01` 的 L3 repeatability 已完成；fixed evidence 下 baseline 5/5 pass、defect 5/5 fail/ui_rendering。
 - #15：config-change duplicated-state Goldset seed 已完成；baseline L2 pass、defect L2 fail，覆盖“恢复时叠加/重复”模式。
 - #13：M2 scoping 已给出第一轮范围，作为 M2-alpha 的决策记录。
-- #9：M1 five-Goldset report 已完成，等待人工 review/closure。
-- #1：父 PRD 已覆盖 smoke/M1/L3 进展，等待人工 review/closure。
+- #9：M1 five-Goldset report 已完成并关闭。
+- #1：父 PRD 已完成并关闭。
+- #16：navigation back-button Goldset seed 已创建，覆盖“Back 被吞掉 / 需要额外返回一次”的非崩溃导航状态缺陷。
 
-推荐下一步决定下一个 M2 seed。
+推荐下一步执行 **#16**。

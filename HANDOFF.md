@@ -6,10 +6,10 @@
 
 ### 已完成
 
-- GitHub PRD: <https://github.com/yangliang2/ai_verification/issues/1>
+- GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #10, #11, #12, #14, #15
-- #9 M1 five-Goldset report 已完成（5/5 caught），仍 open / `ready-for-human` 等待 review/closure
+- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15
+- 当前 open / ready-for-agent: #16 M2 navigation back-button Goldset seed
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -239,19 +239,19 @@ config-change boundary starts from a focused SearchActivity with the keyboard hi
 
 Open tracker state:
 
-- **#9 is done** (report complete, 5/5) — awaiting human review/closure (`ready-for-human`).
-- **#1 parent PRD is open** — smoke/M1/L3 progress is recorded; can be closed after owner review if desired.
+- **#1 parent PRD is complete/closed** — smoke/M1/L3 progress is recorded with durable evidence.
+- **#9 is complete/closed** — M1 report complete, 5/5 caught.
 - **#13 M2 scoping** produced the M2-alpha scope and is closed.
 - **#14 is complete** — L3 repeatability on the existing `ui-rendering-01` seed is stable 5x/5x per half.
 - **#15 is complete/closed** — config-change duplicated-state seed has matched baseline/defect L2 evidence.
+- **#16 is ready-for-agent** — add a navigation Back-button Goldset seed for a non-crashing swallowed-Back defect.
 
 Recommended execution order:
 
-1. Decide the next M2 seed deliberately: either another L2 state-diff seed in a
-   different category, or a second L3 semantic seed now that #14 has a repeatability
-   gate.
+1. **#16 next.** It expands M2 into a second navigation seed and covers a non-crashing
+   L2 path instead of another L1 crash.
 2. Do not start broader seed expansion, fully unattended Journey execution, or public
-   detection-rate reporting until the #15 evidence is reviewed.
+   detection-rate reporting until #16 evidence is reviewed.
 
 ## Next Implementation Issue Discipline
 
