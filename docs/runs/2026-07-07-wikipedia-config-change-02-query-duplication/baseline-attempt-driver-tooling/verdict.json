@@ -1,0 +1,95 @@
+{
+  "scenario": "wikipedia-config-change-02-query-duplication",
+  "l1": {
+    "verdict_id": "L1-c710f618",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-97659a77",
+    "level": "L2",
+    "outcome": "fail",
+    "defect_class_hypothesis": "state_loss",
+    "trigger_steps": [
+      "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "resource-id='search_src_text'：操作后节点消失。操作前 text='<absent>'，期望保留 text='zzsentinelqx'",
+        "note": "节点 'search_src_text' 在操作后从 accessibility tree 中消失"
+      }
+    ],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "wikipedia-config-change-02-query-duplication-segment-0",
+      "results": [
+        {
+          "action": "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+          "status": "FAILED",
+          "commands": [],
+          "comment": "Unable to execute commands: response schema was active for final output, so shell command tooling was not available in this message."
+        },
+        {
+          "action": "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+          "status": "SKIPPED",
+          "commands": [],
+          "comment": "Skipped because the first action could not be executed in this response context."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0"
+  ],
+  "injected_events": [
+    {
+      "event": "dark_mode",
+      "args": {
+        "night": "yes"
+      }
+    }
+  ],
+  "timing": {
+    "started_at": "2026-07-07T13:22:12+00:00",
+    "finished_at": "2026-07-07T13:22:56+00:00",
+    "total_seconds": 44.111,
+    "phases": [
+      {
+        "phase": "wikipedia-config-change-02-query-duplication-segment-0",
+        "kind": "journey",
+        "seconds": 25.848
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 7.53
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "seconds": 0.422,
+        "event": "dark_mode"
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 10.15
+      }
+    ]
+  }
+}

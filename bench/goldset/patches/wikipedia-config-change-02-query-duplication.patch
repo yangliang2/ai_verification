@@ -1,0 +1,25 @@
+diff --git a/app/src/main/java/org/wikipedia/search/SearchFragment.kt b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+index 730a3cc..950b6c3 100644
+--- a/app/src/main/java/org/wikipedia/search/SearchFragment.kt
++++ b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+@@ -342,6 +342,20 @@ class SearchFragment : Fragment(), SearchResultCallback, RecentSearchesFragment.
+         binding.searchCabView.setSearchHintTextColor(ResourceUtil.getThemedColor(requireContext(),
+                 R.attr.secondary_color))
+ 
++        // [aiverify goldset: config-change-02 injected defect]
++        // Real-world analogue: Thunderbird/K-9 #10288, where recipient text was
++        // restored and then appended again on configuration change. This hook
++        // runs after Android restores SearchView state. On first creation the
++        // query is still blank, so the happy path before the config change looks
++        // correct. After uiMode recreation, the restored query is appended to
++        // itself instead of being treated as the replacement state.
++        binding.searchCabView.post {
++            val restoredQuery = binding.searchCabView.query.toString()
++            if (restoredQuery.isNotBlank()) {
++                binding.searchCabView.setQuery(restoredQuery + restoredQuery, false)
++            }
++        }
++
+         binding.searchCabView.queryHint =
+             if (invokeSource == InvokeSource.PLACES) {
+                 getString(R.string.places_search_hint)

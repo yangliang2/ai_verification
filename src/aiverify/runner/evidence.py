@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,10 +37,18 @@ class AndroidEvidenceCollector:
         runner: CommandRunner | None = None,
         android_bin: str = "android",
         adb_bin: str = "adb",
+        layout_attempts: int = 6,
+        layout_retry_sleep_seconds: float = 3.0,
+        screen_capture_timeout_seconds: int = 90,
+        logcat_timeout_seconds: int = 60,
     ) -> None:
         self.runner = runner if runner is not None else SubprocessCommandRunner()
         self.android_bin = android_bin
         self.adb_bin = adb_bin
+        self.layout_attempts = layout_attempts
+        self.layout_retry_sleep_seconds = layout_retry_sleep_seconds
+        self.screen_capture_timeout_seconds = screen_capture_timeout_seconds
+        self.logcat_timeout_seconds = logcat_timeout_seconds
 
     def capture_checkpoint(
         self,
@@ -62,12 +72,14 @@ class AndroidEvidenceCollector:
         layout_cmd = [self.android_bin, "layout", "--pretty"]
         if device:
             layout_cmd += ["--device", device]
-        layout = self._run_required(layout_cmd)
-        command_results.append(_command_to_dict(layout))
+        layout = self._capture_layout(layout_cmd, command_results=command_results)
         layout_path.write_text(layout.stdout, encoding="utf-8")
 
         screenshot_cmd = [self.android_bin, "screen", "capture", "-o", str(screenshot_path)]
-        screenshot = self._run_required(screenshot_cmd)
+        screenshot = self._run_required(
+            screenshot_cmd,
+            timeout_seconds=self.screen_capture_timeout_seconds,
+        )
         command_results.append(_command_to_dict(screenshot))
 
         if annotated_path is not None:
@@ -79,14 +91,20 @@ class AndroidEvidenceCollector:
                 "-o",
                 str(annotated_path),
             ]
-            annotated_result = self._run_required(annotated_cmd)
+            annotated_result = self._run_required(
+                annotated_cmd,
+                timeout_seconds=self.screen_capture_timeout_seconds,
+            )
             command_results.append(_command_to_dict(annotated_result))
 
         logcat_cmd = [self.adb_bin]
         if device:
             logcat_cmd += ["-s", device]
         logcat_cmd += ["logcat", "-d"]
-        logcat = self._run_required(logcat_cmd)
+        logcat = self._run_required(
+            logcat_cmd,
+            timeout_seconds=self.logcat_timeout_seconds,
+        )
         command_results.append(_command_to_dict(logcat))
         logcat_path.write_text(logcat.stdout, encoding="utf-8")
 
@@ -105,13 +123,49 @@ class AndroidEvidenceCollector:
             commands_path=commands_path,
         )
 
-    def _run_required(self, args: list[str]) -> CommandResult:
-        result = self.runner.run(args)
+    def _run_required(
+        self,
+        args: list[str],
+        *,
+        timeout_seconds: int | None = None,
+    ) -> CommandResult:
+        try:
+            result = self.runner.run(args, timeout_seconds=timeout_seconds)
+        except subprocess.TimeoutExpired as exc:
+            raise EvidenceCaptureError(
+                f"Command timed out after {exc.timeout}s: {' '.join(args)}"
+            ) from exc
         if result.returncode != 0:
             raise EvidenceCaptureError(
                 f"Command failed ({result.returncode}): {' '.join(args)}\n{result.stderr.strip()}"
             )
         return result
+
+    def _capture_layout(
+        self,
+        args: list[str],
+        *,
+        command_results: list[dict[str, object]],
+    ) -> CommandResult:
+        """Capture Android CLI layout, retrying transient empty/non-JSON dumps."""
+        last_result: CommandResult | None = None
+        attempts = max(1, self.layout_attempts)
+        for attempt in range(1, attempts + 1):
+            result = self._run_required(args)
+            command_results.append(_command_to_dict(result))
+            if _is_json_list(result.stdout):
+                return result
+            last_result = result
+            if attempt < attempts:
+                time.sleep(self.layout_retry_sleep_seconds)
+
+        assert last_result is not None
+        raise EvidenceCaptureError(
+            "Android layout did not return a JSON list after "
+            f"{attempts} attempt(s): {' '.join(args)}\n"
+            f"stdout={last_result.stdout[:500]!r}\n"
+            f"stderr={last_result.stderr[:500]!r}"
+        )
 
 
 def _command_to_dict(result: CommandResult) -> dict[str, object]:
@@ -121,3 +175,10 @@ def _command_to_dict(result: CommandResult) -> dict[str, object]:
         "stdout": result.stdout,
         "stderr": result.stderr,
     }
+
+
+def _is_json_list(text: str) -> bool:
+    try:
+        return isinstance(json.loads(text), list)
+    except json.JSONDecodeError:
+        return False

@@ -8,14 +8,15 @@
 
 - GitHub PRD: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #10, #11, #12, #14
+- 已关闭 implementation/follow-up issues: #8, #10, #11, #12, #14, #15
 - #9 M1 five-Goldset report 已完成（5/5 caught），仍 open / `ready-for-human` 等待 review/closure
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - Retrospective #11 timing run record: [`docs/runs/2026-07-06-runner-timing-instrumentation/README.md`](docs/runs/2026-07-06-runner-timing-instrumentation/README.md)
 - Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
-- Test status: `.venv/bin/pytest` -> `223 passed, 2 warnings`
+- Latest M2 seed run record: [`docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/README.md`](docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/README.md)
+- Test status: `.venv/bin/pytest` -> `230 passed, 2 warnings`
 
 ### 已实测
 
@@ -215,6 +216,25 @@ Interpretation: L3 can contribute to M2 **text-layout semantic** seed metrics wh
 the fixed-evidence repeatability gate is satisfied. Do not generalize this to
 visual-only/multimodal defects or benchmark-wide false-positive/detection rates yet.
 
+## Progress Update (2026-07-07) — #15 COMPLETE: M2 duplicated-state seed added
+
+Seed 7 — **config-change-02 query duplication → L2 fail**, matched pair end-to-end via
+the CLI on `emulator-5554` / Android API 36:
+
+- Baseline: `search_src_text` retains `zzsentinelqx` across `dark_mode` → **L2 pass**.
+- Defect: restored query is appended to itself (`zzsentinelqxzzsentinelqx`) after
+  recreation → **L2 fail**. Current verdict schema reports this as `state_loss`; the
+  spec/run record preserve the intended duplicated-state classification.
+- Run record: `docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/`.
+- Durable assets: `bench/goldset/{run-specs,specs,fixtures,patches}/wikipedia-config-change-02-query-duplication*`,
+  `tests/bench/test_goldset_config_change_02_query_duplication.py`.
+- Runner evidence hardening added during the live run: retry transient empty/non-JSON
+  Android CLI layout dumps and bound screenshot/logcat capture with explicit timeouts.
+
+Device finding: SearchActivity + soft keyboard/focus can produce noisy recreation
+behavior on API 36; the stable scenario presses system Back after typing so the
+config-change boundary starts from a focused SearchActivity with the keyboard hidden.
+
 ## Next Issue
 
 Open tracker state:
@@ -223,25 +243,15 @@ Open tracker state:
 - **#1 parent PRD is open** — smoke/M1/L3 progress is recorded; can be closed after owner review if desired.
 - **#13 M2 scoping** produced the M2-alpha scope and is closed.
 - **#14 is complete** — L3 repeatability on the existing `ui-rendering-01` seed is stable 5x/5x per half.
-- **#15 is ready-for-agent** — add a new config-change duplicated-state Goldset seed with matched baseline/defect L2 evidence.
+- **#15 is complete/closed** — config-change duplicated-state seed has matched baseline/defect L2 evidence.
 
 Recommended execution order:
 
-1. **#15 next.** It expands the Goldset beyond one config-change state-loss seed while staying on a stable L2 path.
-2. Do not start broader seed expansion, fully unattended Journey execution, or public detection-rate reporting until #15 completes and the resulting evidence is reviewed.
-
-Recommended seed shape:
-
-```text
-Open a page with editable/search state
-→ enter sentinel text
-→ inject config-change/rotation at a Journey Segment Boundary
-→ capture Android CLI layout/screenshot before and after
-→ use L2Oracle to assert the sentinel state is retained or not duplicated
-→ write verdict and run record
-```
-
-Keep it deliberately simple. Avoid coroutine race, background process death, or deep navigation for the first seed; those add trigger instability before the evidence loop is proven.
+1. Decide the next M2 seed deliberately: either another L2 state-diff seed in a
+   different category, or a second L3 semantic seed now that #14 has a repeatability
+   gate.
+2. Do not start broader seed expansion, fully unattended Journey execution, or public
+   detection-rate reporting until the #15 evidence is reviewed.
 
 ## Next Implementation Issue Discipline
 

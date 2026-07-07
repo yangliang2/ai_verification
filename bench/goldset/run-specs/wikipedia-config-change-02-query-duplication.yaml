@@ -1,0 +1,49 @@
+# Run Spec — Wikipedia config-change duplicated-state seed (#15)
+#
+# Purpose: add an M2 config-change seed where restored UI state is duplicated
+# rather than lost. This complements wikipedia-config-change-01.
+#
+# Injection: SearchFragment.initSearchView() adds a faulty post-restore hook that
+# appends the restored SearchView query to itself after uiMode recreation.
+#
+# Real-world source pattern: candidates.md C3 (Thunderbird/K-9 recipient token
+# text duplicated after configuration change; fixed by replacing rather than
+# appending restored recipients).
+#
+# Use dark_mode instead of rotation: SearchActivity consumes
+# orientation|screenSize, so rotation does not recreate the activity. uiMode is a
+# real config-change boundary and forces recreation on this host.
+#
+# Run precondition used for live validation: after `pm clear`, preseed default
+# shared prefs so transient host prompts do not obscure the boundary:
+# initialOnboardingEnabled=false, exploreFeedUpdatePromptShown=true,
+# yearInReviewVisited=true, isYearInReviewEnabled=false,
+# searchWidgetInstallPromptShown=true.
+
+host_project: /Users/80268204/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-config-change-02-query-duplication.patch
+spec: ../specs/wikipedia-config-change-02-query-duplication.md
+
+scenario:
+  id: wikipedia-config-change-02-query-duplication
+  user_actions:
+    - "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入"
+    - "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页"
+  system_events:
+    - step_index: 1
+      event: dark_mode
+      args:
+        night: "yes"
+  assertions:
+    - resource_id: search_src_text
+      attr: text
+      expected: zzsentinelqx
+  expected_behavior: >
+    注入缺陷后，在段边界切换深色模式（uiMode 配置变更）强制 SearchActivity 重建。
+    SearchView 已恢复的查询文本会被错误地再次 append，一次配置变更后
+    search_src_text 从 'zzsentinelqx' 变成 'zzsentinelqxzzsentinelqx'。期望 L2
+    outcome=fail；当前 schema 的 defect_class_hypothesis 仍为 state_loss，但
+    evidence 中应包含 duplicated actual value。无崩溃，L1=inconclusive。

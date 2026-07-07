@@ -159,6 +159,30 @@ The last unexercised oracle path. A sixth category beyond the M1 five, designed 
   for M2 **text-layout semantic** seeds under repeatability discipline; it still does
   not prove visual-only or multimodal L3 reliability.
 
+## Beyond M1 — Seed 7, config-change-02 (L2 / duplicated state, issue #15)
+
+First M2 seed expansion beyond the original five-category M1 matrix. This keeps the
+trigger and oracle path deliberately simple, but changes the symptom from state loss to
+duplicated restored state:
+
+- Defect: `SearchFragment.initSearchView()` re-applies the restored query after
+  recreation and appends it to itself (`zzsentinelqx` → `zzsentinelqxzzsentinelqx`).
+  The shape mirrors real duplicated editable-state regressions such as duplicated
+  Thunderbird/K-9 recipients after configuration changes.
+- Scenario: open Wikipedia SearchActivity, enter sentinel query `zzsentinelqx`, hide
+  the keyboard with Back, inject `dark_mode`, and assert `search_src_text.text` still
+  equals the original sentinel.
+- Matched pair, both halves end-to-end via the CLI on Android API 36:
+  baseline **L2 pass** (`zzsentinelqx` → `zzsentinelqx`), defect **L2 fail**
+  (`zzsentinelqx` → `zzsentinelqxzzsentinelqx`). Current L2 verdict schema reports the
+  mismatch as `state_loss`; the run/spec preserve that this is a duplicated-state seed.
+- Patch `bench/goldset/patches/wikipedia-config-change-02-query-duplication.patch`;
+  run record `docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/`;
+  test `tests/bench/test_goldset_config_change_02_query_duplication.py`.
+- Runner hardening from this live run: Android CLI layout capture now retries transient
+  empty/non-JSON dumps, and screenshot/logcat capture has bounded timeouts so evidence
+  collection fails with an explicit harness error instead of hanging indefinitely.
+
 ## Notes / findings carried forward
 
 - `SearchActivity` declares `configChanges="orientation|screenSize"`, so **rotation

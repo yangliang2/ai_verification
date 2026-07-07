@@ -1,0 +1,107 @@
+{
+  "scenario": "wikipedia-config-change-02-query-duplication",
+  "l1": {
+    "verdict_id": "L1-c0a31b48",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-69c752cd",
+    "level": "L2",
+    "outcome": "fail",
+    "defect_class_hypothesis": "state_loss",
+    "trigger_steps": [
+      "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "resource-id='search_src_text' attr='text'：期望='zzsentinelqx'，实际='zzsentinelqxzzsentinelqx'",
+        "note": "属性 'text' 值与期望不符"
+      }
+    ],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "wikipedia-config-change-02-query-duplication-segment-0",
+      "results": [
+        {
+          "action": "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 302"
+          ],
+          "comment": "Initial layout was already on the main feed, so onboarding was not present. Tapped nav_tab_search at [540,2232], then tapped search_card at [540,302] to open SearchActivity."
+        },
+        {
+          "action": "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 542 146",
+            "adb -s emulator-5554 shell input text \"zzsentinelqx\"",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Tapped search_src_text, entered zzsentinelqx, verified search_src_text displayed that text, then pressed Back once. Final layout remained on SearchActivity with search_src_text still showing zzsentinelqx."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0"
+  ],
+  "injected_events": [
+    {
+      "event": "dark_mode",
+      "args": {
+        "night": "yes"
+      }
+    }
+  ],
+  "timing": {
+    "started_at": "2026-07-07T13:39:24+00:00",
+    "finished_at": "2026-07-07T13:42:15+00:00",
+    "total_seconds": 171.036,
+    "phases": [
+      {
+        "phase": "wikipedia-config-change-02-query-duplication-segment-0",
+        "kind": "journey",
+        "seconds": 140.915
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 8.259
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "seconds": 0.364,
+        "event": "dark_mode"
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 21.21
+      }
+    ]
+  }
+}

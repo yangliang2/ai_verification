@@ -41,12 +41,13 @@ run-spec.yaml
 截至 2026-07-07：
 
 - GitHub PRD: <https://github.com/yangliang2/ai_verification/issues/1>
-- 已完成并关闭：#2-#8、#10-#12
+- 已完成并关闭：#2-#8、#10-#12、#14、#15
 - #9 M1 five-Goldset report 已完成（5/5 caught），仍作为 `ready-for-human` 等待人工 review/closure。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
-- 本地测试：`.venv/bin/pytest` -> `219 passed`
+- M2 seed run record: [`docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/`](docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/README.md)
+- 本地测试：`.venv/bin/pytest` -> `230 passed, 2 warnings`
 
 Wikipedia host 实测：
 
@@ -134,9 +135,9 @@ PYTHONPATH=src python -m aiverify.runner \
 当前 M2-alpha 的入口：
 
 - #14：`ui-rendering-01` 的 L3 repeatability 已完成；fixed evidence 下 baseline 5/5 pass、defect 5/5 fail/ui_rendering。
-- #15：新增一个 config-change duplicated-state Goldset seed，覆盖“恢复时叠加/重复”模式。
+- #15：config-change duplicated-state Goldset seed 已完成；baseline L2 pass、defect L2 fail，覆盖“恢复时叠加/重复”模式。
 - #13：M2 scoping 已给出第一轮范围，作为 M2-alpha 的决策记录。
 - #9：M1 five-Goldset report 已完成，等待人工 review/closure。
 - #1：父 PRD 已覆盖 smoke/M1/L3 进展，等待人工 review/closure。
 
-推荐下一步做 **#15**。
+推荐下一步决定下一个 M2 seed。
