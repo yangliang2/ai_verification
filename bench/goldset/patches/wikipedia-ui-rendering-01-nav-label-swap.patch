@@ -1,0 +1,23 @@
+diff --git a/app/src/main/java/org/wikipedia/navtab/NavTab.kt b/app/src/main/java/org/wikipedia/navtab/NavTab.kt
+index 04e3f75..9ab8db0 100644
+--- a/app/src/main/java/org/wikipedia/navtab/NavTab.kt
++++ b/app/src/main/java/org/wikipedia/navtab/NavTab.kt
+@@ -15,12 +15,16 @@ enum class NavTab(val text: Int, val id: Int, val icon: Int) : EnumCode {
+             return HomeFragment() // FeedFragment.newInstance()
+         }
+     },
+-    READING_LISTS(R.string.nav_item_saved, R.id.nav_tab_reading_lists, R.drawable.selector_nav_saved) {
++    // [aiverify goldset: ui-rendering-01 injected defect] the two nav_item_* string
++    // resources below are swapped (models a copy-paste wrong-resource-id mistake):
++    // the Saved tab renders the label "Search" and the Search tab renders "Saved".
++    // No crash, no missing node — a purely semantic label error.
++    READING_LISTS(R.string.nav_item_search, R.id.nav_tab_reading_lists, R.drawable.selector_nav_saved) {
+         override fun newInstance(): Fragment {
+             return ReadingListsFragment.newInstance()
+         }
+     },
+-    SEARCH(R.string.nav_item_search, R.id.nav_tab_search, R.drawable.selector_nav_search) {
++    SEARCH(R.string.nav_item_saved, R.id.nav_tab_search, R.drawable.selector_nav_search) {
+         override fun newInstance(): Fragment {
+             return HistoryFragment.newInstance()
+         }

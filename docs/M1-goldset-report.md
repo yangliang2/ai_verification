@@ -22,7 +22,8 @@ both cheap oracle layers (L1 crash signal, L2 state assertion).
 | 5 | process-death | `process-death-02` tab-state loss | `process_death` | **L2 fail / state_loss** | ✅ done |
 
 Oracle-path coverage: **L2 (state_loss) ✅**, **L1 (crash_stability, both crash
-and ANR) ✅**, L3 (LLM semantic) not yet exercised. **All 5 categories done.**
+and ANR) ✅**, **L3 (LLM semantic, ui_rendering) ✅** (post-M1 seed 6, issue #12 —
+see "Beyond M1" below). **All 5 categories done.**
 
 ## M1 target result
 
@@ -129,6 +130,30 @@ checkpoint capture, system-event injection). Seed 5's table rows are measured.
 - Patch `bench/goldset/patches/wikipedia-process-death-02-tab-state-loss.patch`;
   run record `docs/runs/2026-07-06-wikipedia-process-death-02-tab-state-loss/`;
   test `tests/bench/test_goldset_process_death_02_state_loss.py`.
+
+## Beyond M1 — Seed 6, ui-rendering-01 (L3 / ui_rendering, issue #12)
+
+The last unexercised oracle path. A sixth category beyond the M1 five, designed to be
+**invisible to L1 and L2 by construction** so only semantic judgment can catch it:
+
+- Defect: `NavTab.kt` swaps the `READING_LISTS`/`SEARCH` `text` string resources
+  (copy-paste wrong-resource-id shape) — the Saved tab renders "Search" and vice
+  versa. No crash, no missing node, app fully functional.
+- Judge: **Codex CLI** as `CodexCliProvider` (`provider_id="openai"`, read-only
+  sandbox) behind the existing `L3Oracle` contract; gated to run only when `l3_spec`
+  is set and L1/L2 both come back non-fail. Cross-source holds (Claude-authored patch
+  vs openai judge).
+- Matched pair, both halves end-to-end via the CLI: baseline **L3 pass** (exit 0),
+  defect **L3 fail / ui_rendering**, confidence 0.97 (exit 1). One judge call per
+  half (~21 s, ≈20% of wall clock).
+- The judge sees only `scenario.l3_spec` (correct-behavior product spec) + observed
+  evidence — never `expected_behavior` or the patch.
+- Patch `bench/goldset/patches/wikipedia-ui-rendering-01-nav-label-swap.patch`;
+  run record `docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`;
+  test `tests/bench/test_goldset_ui_rendering_01_nav_label_swap.py` (replays the
+  frozen live judge responses via `MockProvider` — no emulator or LLM needed).
+- Known gap: single-shot judge — no repeatability/variance measurement yet; required
+  before L3 verdicts feed any benchmark number.
 
 ## Notes / findings carried forward
 

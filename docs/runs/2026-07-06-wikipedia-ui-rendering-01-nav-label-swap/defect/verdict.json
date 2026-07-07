@@ -1,0 +1,114 @@
+{
+  "scenario": "wikipedia-ui-rendering-01-nav-label-swap",
+  "l1": {
+    "verdict_id": "L1-b19674cc",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，确认底部导航栏完整可见（不要点击任何底部 tab）"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，确认底部导航栏完整可见（不要点击任何底部 tab）"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": {
+    "verdict_id": "L3-a3f9c12b",
+    "level": "L3",
+    "outcome": "fail",
+    "defect_class_hypothesis": "ui_rendering",
+    "trigger_steps": [
+      "打开 org.wikipedia.dev",
+      "走完 onboarding 到主 feed",
+      "确认底部导航栏完整可见且未点击任何底部 tab"
+    ],
+    "evidence": [
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0 UI layout JSON",
+        "note": "界面已到达主 feed，底部导航栏完整可见，包含 Home、Search、Saved、Activity、More 五个标签，因此不是 inconclusive。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "resource-id=nav_tab_reading_lists, content-desc=Search",
+        "note": "规格要求 nav_tab_reading_lists 显示 Saved，但实际显示 Search，标签与功能不一致。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "resource-id=nav_tab_search, content-desc=Saved",
+        "note": "规格要求 nav_tab_search 显示 Search，但实际显示 Saved，说明 Search 与 Saved 两个 tab 标签发生互换。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/defect/artifacts/after-segment-0/screen.png",
+        "note": "截图引用对应最终 checkpoint，可作为底部导航栏标签错位的视觉证据。"
+      }
+    ],
+    "confidence": 0.97
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-ui-rendering-01-nav-label-swap-segment-0",
+      "results": [
+        {
+          "action": "打开 org.wikipedia.dev，走完 onboarding 到主 feed，确认底部导航栏完整可见（不要点击任何底部 tab）",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 1017 2274",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 1017 2274",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 1017 2274",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 76 2274",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Started on Wikipedia onboarding, advanced with visible Forward controls, then tapped visible Skip. Final main feed was visible with bottom nav items Home, Search, Saved, Activity, and More present; no bottom tab was tapped."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-07T00:47:11+00:00",
+    "finished_at": "2026-07-07T00:49:02+00:00",
+    "total_seconds": 111.319,
+    "phases": [
+      {
+        "phase": "wikipedia-ui-rendering-01-nav-label-swap-segment-0",
+        "kind": "journey",
+        "seconds": 83.869
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.294
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 22.027
+      }
+    ]
+  }
+}

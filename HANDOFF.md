@@ -163,15 +163,45 @@ What unblocked #10 (all verified on device):
   (unsupported intent → real FATAL → L1 false fail on the control). The driver
   preamble now forbids intent-based navigation; reruns were clean.
 
+## Progress Update (2026-07-06) — #12 COMPLETE: L3 semantic oracle exercised
+
+Scoping (owner-confirmed): seed = **ui-rendering semantic error**, judge = **Codex
+CLI**. Seed 6 — **ui-rendering-01 nav label swap → L3 fail / ui_rendering**, matched
+pair end-to-end via the CLI: baseline **L3 pass** (exit 0), defect **L3 fail**
+(confidence 0.97, exit 1); L1/L2 inconclusive by construction (no crash, no boundary
+event, no missing node). Run record
+`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`. Suite now **219
+passed** (was 202). All three oracle paths (L1/L2/L3) are now proven live.
+
+What was built:
+- `src/aiverify/providers/codex_cli.py`: `CodexCliProvider` implements `LLMProvider`
+  via `codex exec` (`provider_id="openai"`, judge sandbox **read-only**, answer +
+  event stream persisted under `artifacts/l3-judge/`). Cross-source constraint holds:
+  Claude-authored patches (injector) vs openai judge.
+- Run-spec: new optional `scenario.l3_spec` — the correct-behavior product spec fed to
+  the judge. Deliberately separate from `expected_behavior`, which describes the
+  defect run and would leak the answer; the judge never sees it.
+- `runner/cli.py`: L3 gating (runs only if `l3_spec` set AND L1/L2 both non-fail),
+  `l3` block in verdict.json, `l3-judge` timing phase, `--l3-model` flag, exit-code
+  gate includes L3. Judge errors degrade to `L3 inconclusive` (`L3-error`), not a
+  crashed run.
+- Defect: `NavTab.kt` READING_LISTS/SEARCH string resources swapped — Saved tab shows
+  "Search", Search tab shows "Saved" (copy-paste wrong-resource-id shape).
+- Regression: `tests/bench/test_goldset_ui_rendering_01_nav_label_swap.py` replays the
+  frozen live judge responses through `L3Oracle` + `MockProvider` — hardware- and
+  LLM-independent.
+
+Known gap: single-shot judge — repeatability/variance of L3 is unmeasured; measure
+before L3 verdicts feed benchmark numbers.
+
 ## Next Issue
 
 **#9 is done** (report complete, 5/5) — awaiting human review/closure
-(`ready-for-human`). #10 resolved by seed 5. #11 (per-phase timing in verdict.json)
-done and closed: journey/checkpoint/event durations are instrumented; the live run
-showed Codex driving is ~90% of wall clock. Remaining next steps: **#12** (L3
-semantic-oracle exercise — needs human scoping: seed choice, judge backend, cost
-bounds) and scaling beyond one seed per category toward the fuller benchmark (M2,
-needs owner decision).
+(`ready-for-human`). #10 resolved by seed 5. #11 (per-phase timing) done and closed.
+**#12 (L3 semantic oracle) done**: all three oracle paths proven live. Remaining next
+step: scaling beyond one seed per category toward the fuller benchmark (**M2, needs
+owner decision** — scope, seed count per category, L3 repeatability measurement,
+cross-source calibration runs).
 
 Recommended seed shape:
 

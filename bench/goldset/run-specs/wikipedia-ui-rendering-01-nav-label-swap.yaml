@@ -1,0 +1,49 @@
+# Run Spec — Wikipedia ui-rendering-01 nav label swap（L3 语义 oracle 练习，issue #12）
+#
+# 目的：证明验证链路能通过 L3（LLM 语义判定）抓到"内容渲染错误但不崩溃、
+# 不丢节点"的行为层缺陷——对 L1/L2 构造性不可见的第一个 seed。
+#
+# 注入缺陷：NavTab.kt 里 READING_LISTS 与 SEARCH 的 text 字符串资源互换
+# （模拟复制粘贴时用错 R.string.* 资源 ID）：Saved tab 显示 "Search"、
+# Search tab 显示 "Saved"。无崩溃、无 ANR、节点齐全、功能正常——只有渲染
+# 出来的标签语义是错的。
+#
+# 门控设计：场景无系统事件（L2 不适用）、无崩溃（L1 inconclusive），
+# l3_spec 非空 → runner 才调用 L3。judge 只看 l3_spec + 观测证据，
+# 不看 expected_behavior（那会泄露缺陷位置）。
+#
+# taxonomy 模式：ui-rendering-01（UI 元素接错字符串资源）
+# verdict 症状轴：ui_rendering（L3 抓）
+# 真实世界形状：复制粘贴错资源 ID / 标签互换而 resource-id 不变
+# 注入 patch：bench/goldset/patches/wikipedia-ui-rendering-01-nav-label-swap.patch
+# 实测 run record：docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/
+
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-ui-rendering-01-nav-label-swap.patch
+
+scenario:
+  id: wikipedia-ui-rendering-01-nav-label-swap
+  user_actions:
+    - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，确认底部导航栏完整可见（不要点击任何底部 tab）"
+  system_events: []
+  assertions: []
+  l3_spec: >
+    应用主界面底部导航栏必须从左到右显示五个 tab，每个 tab 的可见标签
+    （layout JSON 中的 content-desc 或 text）必须与其功能一一对应：
+    nav_tab_home 显示 "Home"（主页 feed）；
+    nav_tab_reading_lists 显示 "Saved"（已保存的阅读列表）；
+    nav_tab_search 显示 "Search"（搜索）；
+    nav_tab_edits 显示 "Activity"（编辑活动）；
+    nav_tab_more 显示 "More"（更多菜单）。
+    任何 tab 的标签文字与其功能不一致（错位、互换、显示无关文案）都属于
+    ui_rendering 缺陷。若观测到的界面尚未到达主界面（无底部导航栏），判
+    inconclusive 而不是 fail。
+  expected_behavior: >
+    缺陷构建：界面正常渲染、无崩溃无状态丢失，但 nav_tab_reading_lists 的标签
+    显示 "Search"、nav_tab_search 的标签显示 "Saved"（互换）。期望 L1
+    inconclusive（无崩溃）、L2 inconclusive（无系统事件不适用）、L3 outcome=fail、
+    defect_class_hypothesis=ui_rendering。
+    baseline（无缺陷）同一场景、同一 l3_spec 下标签全部正确 → L3 outcome=pass。
