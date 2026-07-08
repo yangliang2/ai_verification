@@ -243,6 +243,8 @@ from the bottom-nav label swap:
   `search_card` surface instead.
 - Consolidated M2 text-layout L3 evidence summary:
   `docs/M2-l3-text-layout-summary.md`.
+- Scoped M2 milestone note:
+  `docs/M2-scoped-milestone-note.md`.
 
 ## Notes / findings carried forward
 

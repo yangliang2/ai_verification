@@ -8,16 +8,17 @@
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18, #19
+- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18, #19, #20
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - M2 text-layout L3 summary: [`docs/M2-l3-text-layout-summary.md`](docs/M2-l3-text-layout-summary.md)
+- M2 scoped milestone note: [`docs/M2-scoped-milestone-note.md`](docs/M2-scoped-milestone-note.md)
 - Retrospective #11 timing run record: [`docs/runs/2026-07-06-runner-timing-instrumentation/README.md`](docs/runs/2026-07-06-runner-timing-instrumentation/README.md)
 - Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
 - Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
 - Latest L3 repeatability run record: [`docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md`](docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md)
-- Test status: `.venv/bin/pytest` -> `239 passed, 2 warnings`
+- Test status: `.venv/bin/pytest` -> `243 passed, 2 warnings`
 
 ### 已实测
 
@@ -326,6 +327,29 @@ text-layout semantic L3 seeds passing fixed-evidence repeatability under Codex C
 judging. It still does not support visual-only/multimodal L3 reliability or
 benchmark-wide detection/false-positive rates.
 
+## Progress Update (2026-07-08) — #20 COMPLETE: M2 scoped milestone note drafted
+
+The current M2-alpha evidence package is now summarized in
+`docs/M2-scoped-milestone-note.md`:
+
+- Source issues/evidence are separated into M1 seed-count baseline (#9/#10), L3
+  bring-up and repeatability (#12/#14/#17/#18/#19), and M2 seed expansion
+  (#15/#16/#17).
+- Proven claims are scoped to the audited runner/evidence chain, M1 5/5 seeded
+  defect catches, three M2 seed-expansion issues, and two repeatability-gated
+  text-layout semantic L3 seeds.
+- Explicit non-claims remain benchmark-wide detection rate, false-positive rate,
+  visual-only/multimodal L3 reliability, fully unattended Journey reliability,
+  100+ AI-generated defects, cross-host/non-Wikipedia generality, ColorOS migration,
+  and public throughput/cost metrics.
+- Test coverage:
+  `tests/bench/test_m2_scoped_milestone_note.py` guards the source evidence links,
+  headline repeatability numbers, judge boundary, and recommended next decisions.
+
+Interpretation: #20 is a scoped milestone note, not a new emulator/APK/L3-judge run.
+It is the safe handoff artifact for deciding whether to add another seed, clean up
+metric/schema language, or harden Journey automation next.
+
 ## Next Issue
 
 Open tracker state:
@@ -339,15 +363,18 @@ Open tracker state:
 - **#17 is complete/closed** — second L3 text-layout semantic seed has matched baseline/defect L3 evidence.
 - **#18 is complete/closed** — `ui-rendering-02` L3 repeatability is stable 5x/5x per half.
 - **#19 is complete/closed** — M2 text-layout L3 summary records both repeatability-gated seeds and limits.
+- **#20 is complete/closed** — M2 scoped milestone note records proven claims, non-claims, and next decisions.
 
 Recommended execution order:
 
 1. Pick the next M2 seed deliberately: another L2 state/navigation seed or another
    text-layout L3 semantic seed.
-2. Alternatively, draft a scoped M2 milestone note that separates seed-count evidence,
-   text-layout L3 repeatability evidence, and remaining benchmark gaps.
-3. Do not start broader seed expansion, fully unattended Journey execution, or public
-   detection-rate reporting until the #17/#18/#19 evidence is reviewed.
+2. Alternatively, clean up metric/schema language before aggregating M2 results:
+   separate per-seed outcome, oracle defect class, and taxonomy class.
+3. Or harden Journey automation and evidence recovery before adding more expensive
+   L3 seeds.
+4. Do not start broader seed expansion, fully unattended Journey execution, or public
+   detection-rate reporting until the #17/#18/#19/#20 evidence is reviewed.
 
 ## Next Implementation Issue Discipline
 

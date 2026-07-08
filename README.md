@@ -42,14 +42,15 @@ run-spec.yaml
 截至 2026-07-08：
 
 - GitHub PRD #1 已完成并关闭：<https://github.com/yangliang2/ai_verification/issues/1>
-- 已完成并关闭：#2-#19
+- 已完成并关闭：#2-#20
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - M2 text-layout L3 summary: [`docs/M2-l3-text-layout-summary.md`](docs/M2-l3-text-layout-summary.md)
+- M2 scoped milestone note: [`docs/M2-scoped-milestone-note.md`](docs/M2-scoped-milestone-note.md)
 - L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
 - Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
 - Latest L3 repeatability run record: [`docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/`](docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md)
-- 本地测试：`.venv/bin/pytest` -> `239 passed, 2 warnings`
+- 本地测试：`.venv/bin/pytest` -> `243 passed, 2 warnings`
 
 Wikipedia host 实测：
 
@@ -145,5 +146,6 @@ PYTHONPATH=src python -m aiverify.runner \
 - #17：第二个 L3 text-layout semantic seed 已完成；Search tab `search_card` baseline L3 pass、defect L3 fail/ui_rendering。
 - #18：`ui-rendering-02` 的 L3 repeatability 已完成；fixed evidence 下 baseline 5/5 pass、defect 5/5 fail/ui_rendering。
 - #19：M2 text-layout L3 小结已完成；记录两个 repeatability-gated seed 的可用范围和限制。
+- #20：M2 scoped milestone note 已完成；把 M1 seed-count、M2 seed expansion、text-layout L3 repeatability 和剩余 benchmark gap 分开记录。
 
-推荐下一步继续扩展新的 M2 seed，或开始把 M2 seed 结果整理成更正式的 scoped milestone。
+推荐下一步继续扩展新的 M2 seed，或处理 metric/schema cleanup、Journey automation hardening。
