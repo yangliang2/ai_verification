@@ -38,6 +38,37 @@ def test_parse_valid_run_spec_normalizes_paths(tmp_path: Path) -> None:
     assert spec.spec == tmp_path / "specs/smoke.md"
     assert spec.scenario.system_events[0].event == "rotate"
     assert spec.scenario.assertions[0].expected == "aiverify-smoke-1739"
+    assert spec.scenario.metric_context.seed_kind == "unspecified"
+
+
+def test_parse_run_spec_metric_context(tmp_path: Path) -> None:
+    data = _valid_spec()
+    data["scenario"]["metric_context"] = {
+        "seed_kind": "injected_defect",
+        "taxonomy_category": "navigation",
+        "taxonomy_pattern_id": "navigation-02",
+        "expected_oracle_level": "L2",
+        "expected_oracle_defect_class": "state_loss",
+    }
+
+    spec = parse_run_spec(data, base_dir=tmp_path)
+
+    assert spec.scenario.metric_context.seed_kind == "injected_defect"
+    assert spec.scenario.metric_context.taxonomy_category == "navigation"
+    assert spec.scenario.metric_context.taxonomy_pattern_id == "navigation-02"
+    assert spec.scenario.metric_context.expected_oracle_level == "L2"
+    assert spec.scenario.metric_context.expected_oracle_defect_class == "state_loss"
+
+
+def test_invalid_metric_context_fails() -> None:
+    data = _valid_spec()
+    data["scenario"]["metric_context"] = {
+        "seed_kind": "injected_defect",
+        "expected_oracle_level": "L4",
+    }
+
+    with pytest.raises(RunSpecError, match="expected_oracle_level"):
+        parse_run_spec(data)
 
 
 def test_load_run_spec_from_yaml(tmp_path: Path) -> None:

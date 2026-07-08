@@ -25,6 +25,12 @@ spec: ../specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.md
 
 scenario:
   id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: ui-rendering
+    taxonomy_pattern_id: ui-rendering-02
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
   user_actions:
     - "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
   system_events: []

@@ -11,6 +11,7 @@ separate.
 | M1 seed-count baseline | #9, #10 | `docs/M1-goldset-report.md`; M1 run records under `docs/runs/2026-07-05-*` and `docs/runs/2026-07-06-wikipedia-process-death-02-tab-state-loss/` |
 | L3 path bring-up and repeatability | #12, #14, #17, #18, #19 | `docs/M2-l3-text-layout-summary.md`; `docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`; `docs/runs/2026-07-07-l3-repeatability-ui-rendering-01/`; `docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`; `docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/` |
 | M2 seed expansion | #15, #16, #17 | `docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/`; `docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/`; `docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/` |
+| M2 metric/schema cleanup | #21 | `docs/M2-metric-schema.md`; `scenario.metric_context` in selected M2 run specs; top-level `verdict.json.metric_context` for new runs |
 
 ## What Is Proven
 
@@ -45,6 +46,14 @@ M2-alpha currently adds three post-M1 seed-expansion issues:
 
 These broaden symptom coverage beyond the original M1 five seeds, but they are still
 small-N evidence rather than benchmark-level metrics.
+
+### Metric Schema Boundary
+
+M2 metric cleanup (#21) separates per-seed detection outcome, oracle symptom class,
+and taxonomy/root-cause category. The current L1/L2/L3 `defect_class_hypothesis`
+schema is unchanged; new runs can use top-level `verdict.json.metric_context` to
+carry seed metadata and computed `caught` / `missed` outcomes. See
+`docs/M2-metric-schema.md`.
 
 ### Text-Layout L3 Repeatability
 
@@ -86,11 +95,11 @@ repeatability under Codex CLI judging.**
    - L2 state/navigation is cheaper and broadens non-L3 evidence.
    - Text-layout L3 broadens semantic coverage but should keep the #14/#18
      repeatability discipline.
-2. Clean up metric/schema language before aggregating M2:
-   - current L2 mismatch failures may still report as `state_loss` even when the seed
-     is duplicated-state or navigation-state.
-   - document whether per-seed outcome, oracle defect class, and taxonomy class should
-     be separate fields.
+2. Use the metric context contract while aggregating M2:
+   - keep per-seed outcome, oracle defect class, and taxonomy/root-cause category as
+     separate fields.
+   - backfill `scenario.metric_context` into older run specs only when they are pulled
+     into a new aggregate report.
 3. Harden automation:
    - reduce Agent-In-The-Loop assumptions in Journey execution;
    - keep intent-free navigation constraints;

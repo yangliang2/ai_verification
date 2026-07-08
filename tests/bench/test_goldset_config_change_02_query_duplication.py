@@ -47,6 +47,11 @@ def test_run_spec_parses_with_dark_mode_boundary_and_patch() -> None:
     assert "Back" in spec.scenario.user_actions[1]
     assert [a.resource_id for a in spec.scenario.assertions] == ["search_src_text"]
     assert [a.expected for a in spec.scenario.assertions] == ["zzsentinelqx"]
+    assert spec.scenario.metric_context.seed_kind == "injected_defect"
+    assert spec.scenario.metric_context.taxonomy_category == "config-change"
+    assert spec.scenario.metric_context.taxonomy_pattern_id == "config-change-02"
+    assert spec.scenario.metric_context.expected_oracle_level == "L2"
+    assert spec.scenario.metric_context.expected_oracle_defect_class == "state_loss"
 
 
 def test_defect_build_l2_fails_when_query_is_duplicated() -> None:

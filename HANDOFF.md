@@ -8,17 +8,18 @@
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18, #19, #20
+- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18, #19, #20, #21
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - M2 text-layout L3 summary: [`docs/M2-l3-text-layout-summary.md`](docs/M2-l3-text-layout-summary.md)
 - M2 scoped milestone note: [`docs/M2-scoped-milestone-note.md`](docs/M2-scoped-milestone-note.md)
+- M2 metric schema: [`docs/M2-metric-schema.md`](docs/M2-metric-schema.md)
 - Retrospective #11 timing run record: [`docs/runs/2026-07-06-runner-timing-instrumentation/README.md`](docs/runs/2026-07-06-runner-timing-instrumentation/README.md)
 - Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
 - Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
 - Latest L3 repeatability run record: [`docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md`](docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md)
-- Test status: `.venv/bin/pytest` -> `243 passed, 2 warnings`
+- Test status: `.venv/bin/pytest` -> `247 passed, 2 warnings`
 
 ### 已实测
 
@@ -350,6 +351,28 @@ Interpretation: #20 is a scoped milestone note, not a new emulator/APK/L3-judge 
 It is the safe handoff artifact for deciding whether to add another seed, clean up
 metric/schema language, or harden Journey automation next.
 
+## Progress Update (2026-07-08) — #21 COMPLETE: M2 metric/schema cleanup added
+
+M2 metric language is now separated from oracle verdict classes:
+
+- `docs/M2-metric-schema.md` defines seed detection outcome, oracle outcome, oracle
+  defect class, taxonomy category, and taxonomy pattern as separate concepts.
+- Run specs now support optional `scenario.metric_context`, parsed into
+  `MetricContextSpec` without breaking older specs.
+- The runner writes top-level `verdict.json.metric_context` for new runs. This
+  carries parsed seed metadata plus computed `seed_outcome`, `oracle_outcomes`,
+  `oracle_defect_classes`, and `failed_oracles`.
+- The existing L1/L2/L3 oracle verdict schema is unchanged. `defect_class_hypothesis`
+  remains the oracle symptom class, not the seed taxonomy/root-cause category.
+- M2 run specs with the current ambiguity now carry metric context:
+  `wikipedia-config-change-02-query-duplication`, `wikipedia-navigation-02-back-button-swallowed`,
+  and `wikipedia-ui-rendering-02-search-card-copy-mismatch`.
+
+Interpretation: future M2 aggregation should use `metric_context.seed_outcome` for
+per-seed caught/missed reporting, `metric_context.oracle_defect_classes` for oracle
+symptom classes, and `metric_context.taxonomy_category` / `taxonomy_pattern_id` for
+seed grouping.
+
 ## Next Issue
 
 Open tracker state:
@@ -364,17 +387,18 @@ Open tracker state:
 - **#18 is complete/closed** — `ui-rendering-02` L3 repeatability is stable 5x/5x per half.
 - **#19 is complete/closed** — M2 text-layout L3 summary records both repeatability-gated seeds and limits.
 - **#20 is complete/closed** — M2 scoped milestone note records proven claims, non-claims, and next decisions.
+- **#21 is complete/closed** — M2 metric context separates seed outcome, oracle symptom class, and taxonomy category.
 
 Recommended execution order:
 
 1. Pick the next M2 seed deliberately: another L2 state/navigation seed or another
    text-layout L3 semantic seed.
-2. Alternatively, clean up metric/schema language before aggregating M2 results:
-   separate per-seed outcome, oracle defect class, and taxonomy class.
+2. Use `scenario.metric_context` and top-level `verdict.json.metric_context` for any
+   new aggregate M2 report.
 3. Or harden Journey automation and evidence recovery before adding more expensive
    L3 seeds.
 4. Do not start broader seed expansion, fully unattended Journey execution, or public
-   detection-rate reporting until the #17/#18/#19/#20 evidence is reviewed.
+   detection-rate reporting until the #17/#18/#19/#20/#21 evidence is reviewed.
 
 ## Next Implementation Issue Discipline
 

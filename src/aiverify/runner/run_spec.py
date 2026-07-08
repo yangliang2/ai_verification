@@ -26,6 +26,20 @@ SUPPORTED_SYSTEM_EVENTS = frozenset(
     }
 )
 
+SUPPORTED_SEED_KINDS = frozenset(
+    {"unspecified", "injected_defect", "baseline_control"}
+)
+SUPPORTED_ORACLE_LEVELS = frozenset({"L1", "L2", "L3"})
+SUPPORTED_ORACLE_DEFECT_CLASSES = frozenset(
+    {
+        "crash_stability",
+        "state_loss",
+        "ui_rendering",
+        "performance_regression",
+        "permission_security",
+    }
+)
+
 
 class RunSpecError(ValueError):
     """Raised when a Run Spec is missing required fields or has invalid values."""
@@ -50,6 +64,17 @@ class SystemEventSpec:
 
 
 @dataclass(frozen=True)
+class MetricContextSpec:
+    """Benchmark metric metadata kept separate from oracle verdict output."""
+
+    seed_kind: str = "unspecified"
+    taxonomy_category: str | None = None
+    taxonomy_pattern_id: str | None = None
+    expected_oracle_level: str | None = None
+    expected_oracle_defect_class: str | None = None
+
+
+@dataclass(frozen=True)
 class ScenarioSpec:
     """Scenario portion of a Run Spec."""
 
@@ -58,6 +83,7 @@ class ScenarioSpec:
     system_events: list[SystemEventSpec] = field(default_factory=list)
     assertions: list[AssertionSpec] = field(default_factory=list)
     expected_behavior: str = ""
+    metric_context: MetricContextSpec = field(default_factory=MetricContextSpec)
     # L3 语义判定用的"正确行为规格"。与 expected_behavior 不同：expected_behavior
     # 描述本次运行（含注入缺陷时）的预期观测，会泄露缺陷位置，不能喂给 judge；
     # l3_spec 只描述产品的正确行为，matched pair 的 baseline/defect 共用同一份。
@@ -148,6 +174,7 @@ def _parse_scenario(raw: dict[str, Any]) -> ScenarioSpec:
     scenario_id = _required_str(raw, "id")
     user_actions = _optional_str_list(raw, "user_actions")
     expected_behavior = _optional_str(raw, "expected_behavior") or ""
+    metric_context = _parse_metric_context(raw.get("metric_context"))
     l3_spec = _optional_str(raw, "l3_spec") or ""
 
     raw_events = raw.get("system_events", [])
@@ -170,7 +197,54 @@ def _parse_scenario(raw: dict[str, Any]) -> ScenarioSpec:
         system_events=system_events,
         assertions=assertions,
         expected_behavior=expected_behavior,
+        metric_context=metric_context,
         l3_spec=l3_spec,
+    )
+
+
+def _parse_metric_context(raw: object) -> MetricContextSpec:
+    if raw is None:
+        return MetricContextSpec()
+    if not isinstance(raw, dict):
+        raise RunSpecError("scenario.metric_context 必须是映射")
+
+    seed_kind = _optional_nonempty_str(raw, "seed_kind") or "unspecified"
+    if seed_kind not in SUPPORTED_SEED_KINDS:
+        allowed = ", ".join(sorted(SUPPORTED_SEED_KINDS))
+        raise RunSpecError(
+            f"不支持的 metric_context.seed_kind：{seed_kind}（允许：{allowed}）"
+        )
+
+    expected_oracle_level = _optional_nonempty_str(raw, "expected_oracle_level")
+    if (
+        expected_oracle_level is not None
+        and expected_oracle_level not in SUPPORTED_ORACLE_LEVELS
+    ):
+        allowed = ", ".join(sorted(SUPPORTED_ORACLE_LEVELS))
+        raise RunSpecError(
+            f"不支持的 metric_context.expected_oracle_level："
+            f"{expected_oracle_level}（允许：{allowed}）"
+        )
+
+    expected_oracle_defect_class = _optional_nonempty_str(
+        raw, "expected_oracle_defect_class"
+    )
+    if (
+        expected_oracle_defect_class is not None
+        and expected_oracle_defect_class not in SUPPORTED_ORACLE_DEFECT_CLASSES
+    ):
+        allowed = ", ".join(sorted(SUPPORTED_ORACLE_DEFECT_CLASSES))
+        raise RunSpecError(
+            f"不支持的 metric_context.expected_oracle_defect_class："
+            f"{expected_oracle_defect_class}（允许：{allowed}）"
+        )
+
+    return MetricContextSpec(
+        seed_kind=seed_kind,
+        taxonomy_category=_optional_nonempty_str(raw, "taxonomy_category"),
+        taxonomy_pattern_id=_optional_nonempty_str(raw, "taxonomy_pattern_id"),
+        expected_oracle_level=expected_oracle_level,
+        expected_oracle_defect_class=expected_oracle_defect_class,
     )
 
 
@@ -216,6 +290,15 @@ def _optional_str(data: dict[str, Any], key: str) -> str | None:
         return None
     if not isinstance(value, str):
         raise RunSpecError(f"字段 {key} 必须是字符串")
+    return value
+
+
+def _optional_nonempty_str(data: dict[str, Any], key: str) -> str | None:
+    value = data.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise RunSpecError(f"字段 {key} 必须是非空字符串")
     return value
 
 

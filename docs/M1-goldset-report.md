@@ -245,6 +245,8 @@ from the bottom-nav label swap:
   `docs/M2-l3-text-layout-summary.md`.
 - Scoped M2 milestone note:
   `docs/M2-scoped-milestone-note.md`.
+- M2 metric schema:
+  `docs/M2-metric-schema.md`.
 
 ## Notes / findings carried forward
 

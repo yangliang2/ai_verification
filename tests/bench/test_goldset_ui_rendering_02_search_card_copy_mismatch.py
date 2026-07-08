@@ -55,6 +55,11 @@ def test_run_spec_is_eventless_l3_search_card_seed() -> None:
     assert spec.diff is not None and spec.diff.name.endswith(
         "wikipedia-ui-rendering-02-search-card-copy-mismatch.patch"
     )
+    assert spec.scenario.metric_context.seed_kind == "injected_defect"
+    assert spec.scenario.metric_context.taxonomy_category == "ui-rendering"
+    assert spec.scenario.metric_context.taxonomy_pattern_id == "ui-rendering-02"
+    assert spec.scenario.metric_context.expected_oracle_level == "L3"
+    assert spec.scenario.metric_context.expected_oracle_defect_class == "ui_rendering"
 
 
 def test_defect_build_l3_fails_with_ui_rendering() -> None:

@@ -9,10 +9,14 @@ from aiverify.providers.base import MockProvider
 from aiverify.runner.codex_backend import JourneyExecutionResult
 from aiverify.runner.evidence import EvidenceCheckpoint
 from aiverify.runner.journey import JourneySegmentFlow
-from aiverify.runner.run_spec import RunSpec, ScenarioSpec
+from aiverify.runner.run_spec import MetricContextSpec, RunSpec, ScenarioSpec
 
 
-def _spec(tmp_path, l3_spec: str) -> RunSpec:
+def _spec(
+    tmp_path,
+    l3_spec: str,
+    metric_context: MetricContextSpec | None = None,
+) -> RunSpec:
     return RunSpec(
         host_project=tmp_path,
         apk_glob="*.apk",
@@ -24,6 +28,7 @@ def _spec(tmp_path, l3_spec: str) -> RunSpec:
             id="ui-rendering-test",
             user_actions=["走完 onboarding 到主 feed，观察底部导航栏"],
             l3_spec=l3_spec,
+            metric_context=metric_context or MetricContextSpec(),
         ),
     )
 
@@ -147,3 +152,51 @@ def test_l3_unparseable_json_degrades_to_inconclusive(tmp_path, mock_provider_cl
     assert verdict is not None
     assert verdict["verdict_id"] == "L3-error"
     assert verdict["outcome"] == "inconclusive"
+
+
+def test_metric_context_separates_seed_taxonomy_from_oracle_class(tmp_path):
+    spec = _spec(
+        tmp_path,
+        l3_spec="",
+        metric_context=MetricContextSpec(
+            seed_kind="injected_defect",
+            taxonomy_category="navigation",
+            taxonomy_pattern_id="navigation-02",
+            expected_oracle_level="L2",
+            expected_oracle_defect_class="state_loss",
+        ),
+    )
+    l1 = _oracle_verdict("inconclusive", "L1")
+    l2 = _oracle_verdict("fail", "L2")
+    l2["defect_class_hypothesis"] = "state_loss"
+
+    context = cli._build_metric_context(spec, l1=l1, l2=l2, l3=None)
+
+    assert context["seed_outcome"] == "caught"
+    assert context["taxonomy_category"] == "navigation"
+    assert context["taxonomy_pattern_id"] == "navigation-02"
+    assert context["expected_oracle_defect_class"] == "state_loss"
+    assert context["oracle_defect_classes"] == {
+        "L1": None,
+        "L2": "state_loss",
+        "L3": None,
+    }
+    assert context["failed_oracles"] == ["L2"]
+
+
+def test_metric_context_marks_missed_injected_seed(tmp_path):
+    spec = _spec(
+        tmp_path,
+        l3_spec="",
+        metric_context=MetricContextSpec(seed_kind="injected_defect"),
+    )
+
+    context = cli._build_metric_context(
+        spec,
+        l1=_oracle_verdict("inconclusive", "L1"),
+        l2=_oracle_verdict("pass", "L2"),
+        l3=None,
+    )
+
+    assert context["seed_outcome"] == "missed"
+    assert context["failed_oracles"] == []

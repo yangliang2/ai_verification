@@ -142,6 +142,45 @@ def _trigger_steps(spec: RunSpec) -> list[str]:
     return steps
 
 
+def _build_metric_context(spec: RunSpec, *, l1: dict, l2: dict, l3: dict | None) -> dict:
+    """Build top-level benchmark metric context without changing oracle verdicts."""
+    oracle_verdicts = {"L1": l1, "L2": l2, "L3": l3}
+    oracle_outcomes = {
+        level: verdict["outcome"] if verdict is not None else "not_run"
+        for level, verdict in oracle_verdicts.items()
+    }
+    oracle_defect_classes = {
+        level: verdict["defect_class_hypothesis"] if verdict is not None else None
+        for level, verdict in oracle_verdicts.items()
+    }
+    failed_oracles = [
+        level for level, outcome in oracle_outcomes.items() if outcome == "fail"
+    ]
+    detected = bool(failed_oracles)
+    metric_spec = spec.scenario.metric_context
+    seed_kind = metric_spec.seed_kind
+
+    if seed_kind == "injected_defect":
+        seed_outcome = "caught" if detected else "missed"
+    elif seed_kind == "baseline_control":
+        seed_outcome = "false_positive" if detected else "passed_control"
+    else:
+        seed_outcome = "detected" if detected else "not_detected"
+
+    return {
+        "seed_id": spec.scenario.id,
+        "seed_kind": seed_kind,
+        "seed_outcome": seed_outcome,
+        "taxonomy_category": metric_spec.taxonomy_category,
+        "taxonomy_pattern_id": metric_spec.taxonomy_pattern_id,
+        "expected_oracle_level": metric_spec.expected_oracle_level,
+        "expected_oracle_defect_class": metric_spec.expected_oracle_defect_class,
+        "oracle_outcomes": oracle_outcomes,
+        "oracle_defect_classes": oracle_defect_classes,
+        "failed_oracles": failed_oracles,
+    }
+
+
 def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         launch: bool = True, model: str | None = None,
         l3_model: str | None = None) -> dict:
@@ -207,6 +246,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
 
     verdict = {
         "scenario": spec.scenario.id,
+        "metric_context": _build_metric_context(spec, l1=l1, l2=l2, l3=l3),
         "l1": l1,
         "l2": l2,
         "l3": l3,
