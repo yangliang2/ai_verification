@@ -211,6 +211,31 @@ navigation seed, which was an L1 crash, with a non-crashing navigation-state def
   evidence. The valid defect run relaunched the same installed defect APK, confirmed
   `nav_tab_search`, cleared logcat, and then ran the assembled runner.
 
+## Beyond M1 — Seed 9, ui-rendering-02 (L3 / search-card copy mismatch, issue #17)
+
+Second L3 text-layout semantic seed, added after #14 showed repeatability for the
+first L3 seed. It uses the same L3 oracle path but a different surface and symptom
+from the bottom-nav label swap:
+
+- Defect: `HistoryFragment.SearchCardViewHolder.updateSearchHint()` wires the Search
+  tab's `search_card` label and icon content description to the History empty-state
+  copy, `Track what you've been reading here.`. The card still exists and still opens
+  SearchActivity; only the rendered text/accessibility copy describes the wrong
+  feature.
+- Scenario: launch Wikipedia, tap bottom `nav_tab_search`, stop on the Search tab,
+  and judge the visible `search_card` copy. No system event is injected.
+- Matched pair, both halves end-to-end via the CLI on Android API 36:
+  baseline **L3 pass** (`search_text_view=Search Wikipedia`), defect **L3 fail /
+  ui_rendering** (`search_text_view=Track what you've been reading here.`). L1 and
+  L2 are inconclusive by construction.
+- Patch `bench/goldset/patches/wikipedia-ui-rendering-02-search-card-copy-mismatch.patch`;
+  run record `docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`;
+  test `tests/bench/test_goldset_ui_rendering_02_search_card_copy_mismatch.py`.
+- Boundary note: an initial SearchActivity empty-state surface was discarded because
+  `search_empty_message` was not visible in the final accessibility layout, so L3
+  correctly returned inconclusive. The committed seed uses the stable Search tab
+  `search_card` surface instead.
+
 ## Notes / findings carried forward
 
 - `SearchActivity` declares `configChanges="orientation|screenSize"`, so **rotation

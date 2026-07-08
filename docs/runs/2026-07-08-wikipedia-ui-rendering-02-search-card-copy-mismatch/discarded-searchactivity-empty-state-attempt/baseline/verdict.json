@@ -1,0 +1,107 @@
+{
+  "scenario": "wikipedia-ui-rendering-02-search-empty-copy-mismatch",
+  "l1": {
+    "verdict_id": "L1-77e4e3c0",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity. Leave the query empty and confirm the empty-state panel is visible, including search_empty_message."
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity. Leave the query empty and confirm the empty-state panel is visible, including search_empty_message."
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": {
+    "verdict_id": "L3-a3f9c2b1",
+    "level": "L3",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "App was already launched; onboarding was not present.",
+      "Tapped bottom Search tab nav_tab_search.",
+      "Tapped search_card to open SearchActivity.",
+      "Left query empty and inspected the empty-state panel/search_empty_message."
+    ],
+    "evidence": [
+      {
+        "type": "llm_reasoning",
+        "ref": "journey results JSON comment",
+        "note": "The driver reached SearchActivity with focused search_src_text, but reported that the empty-state panel/search_empty_message was not present in the visible layout."
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0 UI layout JSON",
+        "note": "Visible nodes include search_container, search_cab_view, search_lang_button, langCodeText, and search_src_text, but no node with resource-id search_empty_message."
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "功能规格",
+        "note": "The specification explicitly requires returning inconclusive rather than fail when SearchActivity or search_empty_message is not visible. Since search_empty_message is not visible, the copy mismatch cannot be evaluated."
+      }
+    ],
+    "confidence": 0.91
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-ui-rendering-02-search-empty-copy-mismatch-segment-0",
+      "results": [
+        {
+          "action": "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity. Leave the query empty and confirm the empty-state panel is visible, including search_empty_message.",
+          "status": "FAILED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 302",
+            "android layout --device=emulator-5554 --pretty",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Onboarding was not present. Reached SearchActivity with empty focused search_src_text, but the empty-state panel/search_empty_message was not present in the visible layout; final visible ids included search_container, search_cab_view, search_lang_button, langCodeText, and search_src_text."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-08T01:47:11+00:00",
+    "finished_at": "2026-07-08T01:49:15+00:00",
+    "total_seconds": 123.65,
+    "phases": [
+      {
+        "phase": "wikipedia-ui-rendering-02-search-empty-copy-mismatch-segment-0",
+        "kind": "journey",
+        "seconds": 96.178
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 6.096
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 21.226
+      }
+    ]
+  }
+}

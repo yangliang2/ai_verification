@@ -38,15 +38,15 @@ run-spec.yaml
 
 ## 已验证状态
 
-截至 2026-07-07：
+截至 2026-07-08：
 
 - GitHub PRD #1 已完成并关闭：<https://github.com/yangliang2/ai_verification/issues/1>
-- 已完成并关闭：#2-#16
+- 已完成并关闭：#2-#17
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
-- Latest M2 seed run record: [`docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/`](docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/README.md)
-- 本地测试：`.venv/bin/pytest` -> `234 passed, 2 warnings`
+- Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
+- 本地测试：`.venv/bin/pytest` -> `238 passed, 2 warnings`
 
 Wikipedia host 实测：
 
@@ -139,5 +139,6 @@ PYTHONPATH=src python -m aiverify.runner \
 - #9：M1 five-Goldset report 已完成并关闭。
 - #1：父 PRD 已完成并关闭。
 - #16：navigation back-button Goldset seed 已完成；baseline L2 pass、defect L2 fail，覆盖“Back 被吞掉 / 需要额外返回一次”的非崩溃导航状态缺陷。
+- #17：第二个 L3 text-layout semantic seed 已完成；Search tab `search_card` baseline L3 pass、defect L3 fail/ui_rendering。
 
-推荐下一步决定新的 M2 seed，或先 review #16 evidence 后再扩展。
+推荐下一步决定是否给 `ui-rendering-02` 做 repeatability 测量，或继续扩展新的 M2 seed。

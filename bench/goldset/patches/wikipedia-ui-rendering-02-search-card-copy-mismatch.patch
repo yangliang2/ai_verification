@@ -1,0 +1,20 @@
+diff --git a/app/src/main/java/org/wikipedia/history/HistoryFragment.kt b/app/src/main/java/org/wikipedia/history/HistoryFragment.kt
+index 74784e0..44575b1 100644
+--- a/app/src/main/java/org/wikipedia/history/HistoryFragment.kt
++++ b/app/src/main/java/org/wikipedia/history/HistoryFragment.kt
+@@ -292,7 +292,13 @@ class HistoryFragment : Fragment(), SearchActionModeCallback.Callback {
+
+         private fun updateSearchHint(searchIcon: ImageView, searchTextView: TextView) {
+             val showHybridSearch = Prefs.isHybridSearchOnboardingShown && HybridSearchAbCTest().isHybridSearchEnabled(WikipediaApp.instance.appOrSystemLanguageCode)
+-            searchIcon.contentDescription = getString(if (showHybridSearch) R.string.hybrid_search_search_hint else R.string.search_hint)
+-            searchTextView.text = getString(if (showHybridSearch) R.string.hybrid_search_search_hint else R.string.search_hint)
++            // [aiverify goldset: ui-rendering-02 injected defect]
++            // Wrong-string-resource shape: the Search tab's entry card keeps the
++            // same resource IDs and still opens SearchActivity, but its rendered
++            // copy describes reading history. This should be invisible to L1/L2
++            // and caught only by semantic UI judgment.
++            val wrongSearchCopy = getString(R.string.history_empty_message)
++            searchIcon.contentDescription = wrongSearchCopy
++            searchTextView.text = wrongSearchCopy
+         }
+     }

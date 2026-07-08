@@ -1,0 +1,109 @@
+{
+  "scenario": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+  "l1": {
+    "verdict_id": "L1-5e593ae5",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": {
+    "verdict_id": "L3-a4c9f21b",
+    "level": "L3",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Application was already on the main feed with nav_tab_home selected.",
+      "Tapped the bottom Search tab at nav_tab_search.",
+      "Stopped on the Search tab without tapping search_card or entering SearchActivity.",
+      "Final layout shows nav_tab_search selected and search_card visible."
+    ],
+    "evidence": [
+      {
+        "type": "llm_reasoning",
+        "ref": "journey results JSON: final comment",
+        "note": "The scripted step passed: nav_tab_search was tapped, the final state had nav_tab_search selected, and search_card was visible."
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "final checkpoint UI layout JSON: resource-id nav_tab_search",
+        "note": "The Search tab is present and selected, satisfying the prerequisite for evaluating the Search tab content."
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "final checkpoint UI layout JSON: resource-id search_card, search_text_view, search_icon",
+        "note": "search_card is visible, and its child text node search_text_view says \"Search Wikipedia\". The search_icon content description also says \"Search Wikipedia\", which clearly invites the user to search Wikipedia."
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "final checkpoint UI layout JSON: history_empty_title/history_empty_message",
+        "note": "History-related empty-state text is present elsewhere on the Search tab, but it is not the search_card copy. The visible search entry card itself does not describe reading history, saved pages, edit activity, or another non-search feature."
+      }
+    ],
+    "confidence": 0.96
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+      "results": [
+        {
+          "action": "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity.",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Initial layout was already on the main feed with nav_tab_home selected. Tapped nav_tab_search at [540,2232]. Final layout shows nav_tab_search selected and search_card visible at [540,302]; search_card was not tapped."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-08T01:56:38+00:00",
+    "finished_at": "2026-07-08T01:57:46+00:00",
+    "total_seconds": 68.051,
+    "phases": [
+      {
+        "phase": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+        "kind": "journey",
+        "seconds": 33.877
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 7.597
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 26.446
+      }
+    ]
+  }
+}

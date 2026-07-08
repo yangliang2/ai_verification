@@ -1,0 +1,105 @@
+{
+  "scenario": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+  "l1": {
+    "verdict_id": "L1-178c4019",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": {
+    "verdict_id": "L3-a4c9e2f1",
+    "level": "L3",
+    "outcome": "fail",
+    "defect_class_hypothesis": "ui_rendering",
+    "trigger_steps": [
+      "App was already launched and main feed was visible with Home selected.",
+      "Tapped the bottom Search tab at nav_tab_search.",
+      "Stopped on the Search tab without tapping search_card or entering SearchActivity.",
+      "Final layout confirmed nav_tab_search is selected and search_card is visible."
+    ],
+    "evidence": [
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0 layout: nav_tab_search",
+        "note": "The Search tab is selected, so the checkpoint is valid for evaluating the Search tab UI."
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0 layout: search_card/search_text_view/search_icon",
+        "note": "search_card is visible, but its child search_text_view text is \"Track what you've been reading here.\" and search_icon content-desc is also \"Track what you've been reading here.\" This describes reading history, not searching Wikipedia or asking/searching anything."
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "function spec",
+        "note": "The spec explicitly forbids the Search card copy from describing reading history or recently viewed articles. Because the Search tab and search_card are visible, this is a fail rather than inconclusive."
+      }
+    ],
+    "confidence": 0.97
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+      "results": [
+        {
+          "action": "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity.",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Initial layout showed main feed with Home selected and nav_tab_search at [540,2232]. Tapped Search. One UI dump returned a transient null-root error, then the fresh layout confirmed nav_tab_search selected and search_card visible at [540,302]; search_card was not tapped."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-08T02:01:13+00:00",
+    "finished_at": "2026-07-08T02:02:36+00:00",
+    "total_seconds": 82.535,
+    "phases": [
+      {
+        "phase": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+        "kind": "journey",
+        "seconds": 57.569
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 8.645
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 16.181
+      }
+    ]
+  }
+}

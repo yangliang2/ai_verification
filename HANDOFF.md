@@ -8,14 +8,14 @@
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16
+- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - Retrospective #11 timing run record: [`docs/runs/2026-07-06-runner-timing-instrumentation/README.md`](docs/runs/2026-07-06-runner-timing-instrumentation/README.md)
 - Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
-- Latest M2 seed run record: [`docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/README.md`](docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/README.md)
-- Test status: `.venv/bin/pytest` -> `234 passed, 2 warnings`
+- Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
+- Test status: `.venv/bin/pytest` -> `238 passed, 2 warnings`
 
 ### 已实测
 
@@ -258,6 +258,30 @@ before the runner began; that attempt is retained in the run record and not used
 as evidence. The valid defect run relaunched the same installed APK, confirmed
 `nav_tab_search`, cleared logcat, and then ran the assembled runner.
 
+## Progress Update (2026-07-08) — #17 COMPLETE: second L3 search-card seed added
+
+Seed 9 — **ui-rendering-02 Search card copy mismatch → L3 fail / ui_rendering**,
+matched pair end-to-end via the CLI on `emulator-5554` / Android API 36:
+
+- Baseline: Search tab `search_card` is visible, `search_text_view=Search Wikipedia`,
+  `search_icon` content description is `Search Wikipedia` → **L3 pass**.
+- Defect: same `search_card`, `search_text_view`, and `search_icon` nodes remain
+  visible, but both visible/accessibility copy say `Track what you've been reading
+  here.` → **L3 fail / ui_rendering**.
+- L1 and L2 are inconclusive by construction: no crash, no boundary event, no missing
+  node.
+- Run record:
+  `docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`.
+- Durable assets:
+  `bench/goldset/{run-specs,specs,fixtures,patches}/wikipedia-ui-rendering-02-search-card-copy-mismatch*`,
+  `tests/bench/test_goldset_ui_rendering_02_search_card_copy_mismatch.py`.
+
+Device finding: the first attempted #17 surface was SearchActivity's empty-state
+`search_empty_message`, but that node was not visible in the final accessibility
+layout after opening SearchActivity, so L3 correctly returned inconclusive. That
+attempt is retained under the run record's discarded probing directory and was not
+used as matched-pair evidence.
+
 ## Next Issue
 
 Open tracker state:
@@ -268,13 +292,16 @@ Open tracker state:
 - **#14 is complete** — L3 repeatability on the existing `ui-rendering-01` seed is stable 5x/5x per half.
 - **#15 is complete/closed** — config-change duplicated-state seed has matched baseline/defect L2 evidence.
 - **#16 is complete/closed** — navigation Back-button seed has matched baseline/defect L2 evidence.
+- **#17 is complete/closed** — second L3 text-layout semantic seed has matched baseline/defect L3 evidence.
 
 Recommended execution order:
 
-1. Decide the next M2 seed deliberately: another L2 state/navigation seed, or a
-   second L3 semantic seed under the #14 repeatability discipline.
-2. Do not start broader seed expansion, fully unattended Journey execution, or public
-   detection-rate reporting until #16 evidence is reviewed.
+1. Decide whether `ui-rendering-02` needs a repeatability measurement like #14 before
+   being used in any M2 aggregate L3 metric.
+2. Otherwise pick the next M2 seed deliberately: another L2 state/navigation seed or
+   another text-layout L3 semantic seed.
+3. Do not start broader seed expansion, fully unattended Journey execution, or public
+   detection-rate reporting until #17 evidence is reviewed.
 
 ## Next Implementation Issue Discipline
 
