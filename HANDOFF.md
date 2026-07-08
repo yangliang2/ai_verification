@@ -8,15 +8,14 @@
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15
-- 当前 open / ready-for-agent: #16 M2 navigation back-button Goldset seed
+- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - Retrospective #11 timing run record: [`docs/runs/2026-07-06-runner-timing-instrumentation/README.md`](docs/runs/2026-07-06-runner-timing-instrumentation/README.md)
 - Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
-- Latest M2 seed run record: [`docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/README.md`](docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/README.md)
-- Test status: `.venv/bin/pytest` -> `230 passed, 2 warnings`
+- Latest M2 seed run record: [`docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/README.md`](docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/README.md)
+- Test status: `.venv/bin/pytest` -> `234 passed, 2 warnings`
 
 ### 已实测
 
@@ -235,6 +234,30 @@ Device finding: SearchActivity + soft keyboard/focus can produce noisy recreatio
 behavior on API 36; the stable scenario presses system Back after typing so the
 config-change boundary starts from a focused SearchActivity with the keyboard hidden.
 
+## Progress Update (2026-07-08) — #16 COMPLETE: navigation Back-button seed added
+
+Seed 8 — **navigation-02 Back swallowed → L2 fail**, matched pair end-to-end via
+the CLI on `emulator-5554` / Android API 36:
+
+- Baseline: first Back hides the keyboard, second Back returns from SearchActivity
+  to the Search tab, and `search_card` remains visible across the `dark_mode`
+  observation boundary → **L2 pass**.
+- Defect: first Activity-level Back callback is consumed, so after the second Back
+  the app remains in SearchActivity with `search_src_text=zznavbackqx`; `search_card`
+  is absent across the `dark_mode` observation boundary → **L2 fail**. Current
+  verdict schema reports this as `state_loss`; the spec/run record preserve the
+  navigation swallowed-Back classification.
+- Run record:
+  `docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/`.
+- Durable assets:
+  `bench/goldset/{run-specs,specs,fixtures,patches}/wikipedia-navigation-02-back-button-swallowed*`,
+  `tests/bench/test_goldset_navigation_02_back_button_swallowed.py`.
+
+Device finding: the first defect prelaunch after `pm clear` hit a startup ANR
+before the runner began; that attempt is retained in the run record and not used
+as evidence. The valid defect run relaunched the same installed APK, confirmed
+`nav_tab_search`, cleared logcat, and then ran the assembled runner.
+
 ## Next Issue
 
 Open tracker state:
@@ -244,12 +267,12 @@ Open tracker state:
 - **#13 M2 scoping** produced the M2-alpha scope and is closed.
 - **#14 is complete** — L3 repeatability on the existing `ui-rendering-01` seed is stable 5x/5x per half.
 - **#15 is complete/closed** — config-change duplicated-state seed has matched baseline/defect L2 evidence.
-- **#16 is ready-for-agent** — add a navigation Back-button Goldset seed for a non-crashing swallowed-Back defect.
+- **#16 is complete/closed** — navigation Back-button seed has matched baseline/defect L2 evidence.
 
 Recommended execution order:
 
-1. **#16 next.** It expands M2 into a second navigation seed and covers a non-crashing
-   L2 path instead of another L1 crash.
+1. Decide the next M2 seed deliberately: another L2 state/navigation seed, or a
+   second L3 semantic seed under the #14 repeatability discipline.
 2. Do not start broader seed expansion, fully unattended Journey execution, or public
    detection-rate reporting until #16 evidence is reviewed.
 

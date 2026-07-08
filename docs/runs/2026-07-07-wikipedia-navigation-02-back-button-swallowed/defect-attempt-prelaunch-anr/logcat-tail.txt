@@ -1,0 +1,874 @@
+--------- beginning of main
+07-07 22:24:13.224 15387 15434 D WM-ForceStopRunnable: The default process name was not specified.
+07-07 22:24:13.226 15387 15434 D WM-ForceStopRunnable: Performing cleanup operations.
+07-07 22:24:13.340 15387 15434 E ashmem  : Pinning is deprecated since Android Q. Please use trim or other methods.
+07-07 22:24:13.496 15387 15434 D WM-SystemJobScheduler: Reconciling jobs
+07-07 22:24:13.599 15387 15434 D WM-ForceStopRunnable: Application was force-stopped, rescheduling.
+07-07 22:24:13.853 15387 15434 W JobInfo : Requested important-while-foreground flag for job1 is ignored and takes no effect
+07-07 22:24:13.854 15387 15434 D WM-SystemJobScheduler: Scheduling work ID 6bd8582d-81d0-410d-9079-9f71604e5bf1Job ID 1
+07-07 22:24:13.857 15387 15387 I g.wikipedia.dev: hiddenapi: Accessing hidden method Landroid/view/WindowManagerGlobal;->getInstance()Landroid/view/WindowManagerGlobal; (runtime_flags=0, domain=platform, api=unsupported) from Lcurtains/internal/WindowManagerSpy$windowManagerInstance$2; (domain=app) using reflection: allowed
+07-07 22:24:13.864 15387 15387 I g.wikipedia.dev: hiddenapi: Accessing hidden field Landroid/view/WindowManagerGlobal;->mViews:Ljava/util/ArrayList; (runtime_flags=0, domain=platform, api=unsupported) from Lcurtains/internal/WindowManagerSpy$mViewsField$2; (domain=app) using reflection: allowed
+07-07 22:24:13.874 15387 15387 I g.wikipedia.dev: hiddenapi: Accessing hidden field Landroid/app/ActivityThread;->mH:Landroid/app/ActivityThread$H; (runtime_flags=0, domain=platform, api=unsupported) from Lleakcanary/ServiceWatcher; (domain=app) using reflection: allowed
+07-07 22:24:13.875 15387 15387 I g.wikipedia.dev: hiddenapi: Accessing hidden method Landroid/app/ActivityThread;->currentActivityThread()Landroid/app/ActivityThread; (runtime_flags=0, domain=platform, api=unsupported) from Lleakcanary/ServiceWatcher$activityThreadInstance$2; (domain=app) using reflection: allowed
+07-07 22:24:13.894 15387 15387 I g.wikipedia.dev: hiddenapi: Accessing hidden field Landroid/os/Handler;->mCallback:Landroid/os/Handler$Callback; (runtime_flags=0, domain=platform, api=unsupported) from Lleakcanary/ServiceWatcher; (domain=app) using reflection: allowed
+07-07 22:24:13.899 15387 15387 I g.wikipedia.dev: hiddenapi: Accessing hidden field Landroid/util/Singleton;->mInstance:Ljava/lang/Object; (runtime_flags=0, domain=platform, api=unsupported) from Lleakcanary/ServiceWatcher; (domain=app) using reflection: allowed
+07-07 22:24:13.900 15387 15387 I g.wikipedia.dev: hiddenapi: Accessing hidden method Landroid/util/Singleton;->get()Ljava/lang/Object; (runtime_flags=0, domain=platform, api=unsupported) from Lleakcanary/ServiceWatcher; (domain=app) using reflection: allowed
+07-07 22:24:13.900 15387 15387 I g.wikipedia.dev: hiddenapi: Accessing hidden field Landroid/app/ActivityManager;->IActivityManagerSingleton:Landroid/util/Singleton; (runtime_flags=0, domain=platform, api=unsupported) from Lleakcanary/ServiceWatcher; (domain=app) using reflection: allowed
+07-07 22:24:13.916 15387 15434 D WM-GreedyScheduler: Starting tracking for 6bd8582d-81d0-410d-9079-9f71604e5bf1
+07-07 22:24:14.209 15387 15437 D WM-WorkConstraintsTrack: NetworkRequestConstraintController register shared callback
+07-07 22:24:14.284   763  1801 D ConnectivityService: requestNetwork for uid/pid:10224/15387 activeRequest: null callbackRequest: 325 [NetworkRequest [ REQUEST id=326, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|BLK
+07-07 22:24:14.314   763   961 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=326, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+07-07 22:24:14.314   763   961 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=326, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+07-07 22:24:14.315   763   961 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=326, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+07-07 22:24:14.315   763   969 D ConnectivityService: NetReassign [326 : null → 100] [c 1] [a 9] [i 14]
+07-07 22:24:14.315   763   961 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=326, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+07-07 22:24:14.341   763   938 D ConnectivityService: requestNetwork for uid/pid:10224/15387 activeRequest: null callbackRequest: 327 [NetworkRequest [ REQUEST id=328, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST
+07-07 22:24:14.341 15387 15438 D WM-WorkConstraintsTrack: NetworkRequestConstraintController onCapabilitiesChanged callback
+07-07 22:24:14.341 15387 15438 D WM-WorkConstraintsTrack: Not dispatching constraint state yet: isBlocked=null, capabilitiesInitialized=true
+07-07 22:24:14.341 15387 15438 D WM-WorkConstraintsTrack: NetworkRequestConstraintController onBlockedStatusChanged callback true
+07-07 22:24:14.352 15387 15436 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+07-07 22:24:14.357   763   969 D ConnectivityService: NetReassign [328 : null → 100] [c 0] [a 9] [i 2]
+07-07 22:24:14.357 15387 15434 D WM-GreedyScheduler: Constraints not met: Cancelling work ID WorkGenerationalId(workSpecId=6bd8582d-81d0-410d-9079-9f71604e5bf1, generation=0)
+07-07 22:24:14.357   763   961 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=328, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+07-07 22:24:14.358   763   961 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=328, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+07-07 22:24:14.358   763   961 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=328, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+07-07 22:24:14.358   763   961 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=328, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+07-07 22:24:14.437 15387 15438 I g.wikipedia.dev: Waiting for a blocking GC ClassLinker
+07-07 22:24:14.492 15387 15438 I g.wikipedia.dev: WaitForGcToComplete blocked ClassLinker on Background for 55.390ms
+07-07 22:24:14.566 15387 15436 D WM-Processor: Processor cancelling 6bd8582d-81d0-410d-9079-9f71604e5bf1
+07-07 22:24:14.567 15387 15436 D WM-Processor: WorkerWrapper could not be found for 6bd8582d-81d0-410d-9079-9f71604e5bf1
+07-07 22:24:14.571 15387 15387 D LeakCanary: Updated LeakCanary.config: Config(dumpHeap=false)
+07-07 22:24:14.579 15387 15436 D WM-GreedyScheduler: Cancelling work ID 6bd8582d-81d0-410d-9079-9f71604e5bf1
+07-07 22:24:14.603 15387 15387 I g.wikipedia.dev: AssetManager2(0xb400007b6869a058) locale list changing from [] to [en-US]
+07-07 22:24:14.605 15387 15387 I WebViewFactory: Loading com.google.android.webview version 149.0.7827.163 (code 782716303)
+07-07 22:24:14.608 15387 15387 I g.wikipedia.dev: AssetManager2(0xb400007b6869ded8) locale list changing from [] to [en-US]
+07-07 22:24:14.610 15387 15387 I g.wikipedia.dev: AssetManager2(0xb400007b6869f4b8) locale list changing from [] to [en-US]
+--------- beginning of system
+07-07 22:24:14.612 15387 15387 V ResourcesManager: The following library key has been added: ResourcesKey{ mHash=5b056804 mResDir=null mSplitDirs=[] mOverlayDirs=[] mLibDirs=[/data/app/~~xsH8FFyEDFK0p2ucq0f2iQ==/com.google.android.webview--bg3w43ZIgcOC3SjDegkeA==/base.apk,/system/framework/android.test.base.jar] mDisplayId=0 mOverrideConfig=v36 mCompatInfo={420dpi always-compat} mLoaders=[]}
+07-07 22:24:14.618 15387 15387 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+07-07 22:24:14.618 15387 15387 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+07-07 22:24:14.625 15387 15387 W g.wikipedia.dev: Loading /data/app/~~xsH8FFyEDFK0p2ucq0f2iQ==/com.google.android.webview--bg3w43ZIgcOC3SjDegkeA==/oat/arm64/base.odex non-executable as it requires an image which we failed to load
+07-07 22:24:14.629 15387 15387 D nativeloader: Configuring clns-10 for other apk /data/app/~~xsH8FFyEDFK0p2ucq0f2iQ==/com.google.android.webview--bg3w43ZIgcOC3SjDegkeA==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~xsH8FFyEDFK0p2ucq0f2iQ==/com.google.android.webview--bg3w43ZIgcOC3SjDegkeA==/lib/arm64:/data/app/~~xsH8FFyEDFK0p2ucq0f2iQ==/com.google.android.webview--bg3w43ZIgcOC3SjDegkeA==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand
+07-07 22:24:14.653 15387 15436 D WM-SystemJobScheduler: Scheduling work ID f5b06f2d-2456-4b3f-a82e-eb001118571aJob ID 2
+07-07 22:24:14.727 15387 15387 I cr_WVCFactoryProvider: version=149.0.7827.163 (782716303) minSdkVersion=29 multiprocess=true packageId=2 splits=<none>
+07-07 22:24:14.729 15387 15387 I g.wikipedia.dev: AssetManager2(0xb400007b68699d38) locale list changing from [] to [en-US]
+07-07 22:24:14.792 15387 15387 D nativeloader: Load /data/app/~~xsH8FFyEDFK0p2ucq0f2iQ==/com.google.android.webview--bg3w43ZIgcOC3SjDegkeA==/base.apk!/lib/arm64-v8a/libwebviewchromium.so using class loader ns clns-10 (caller=/data/app/~~xsH8FFyEDFK0p2ucq0f2iQ==/com.google.android.webview--bg3w43ZIgcOC3SjDegkeA==/base.apk): ok
+07-07 22:24:14.802 15387 15387 D nativeloader: Load /system/lib64/libwebviewchromium_plat_support.so using class loader ns clns-10 (caller=/data/app/~~xsH8FFyEDFK0p2ucq0f2iQ==/com.google.android.webview--bg3w43ZIgcOC3SjDegkeA==/base.apk): ok
+07-07 22:24:14.810 15387 15444 E chromium: [0707/222414.809835:ERROR:android_webview/browser/variations/variations_seed_loader.cc:39] Seed missing signature.
+07-07 22:24:14.811 15387 15444 I chromium: [0707/222414.811279:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)
+07-07 22:24:14.844 15387 15387 I cr_LibraryLoader: Successfully loaded native library
+07-07 22:24:14.855 15387 15387 I cr_CachingUmaRecorder: Flushed 43 samples from 21 histograms, 0 samples were dropped.
+07-07 22:24:14.860 15387 15387 I cr_ChildProcLH: ScopedServiceBindingBatch.tryActivate: false
+07-07 22:24:14.868 15387 15387 I cr_CombinedPProvider: #registerProvider() provider:WV.wk@e9b0954 isPolicyCacheEnabled:false policyProvidersSize:0
+07-07 22:24:14.868 15387 15387 I cr_PolicyProvider: #setManagerAndSource() 0
+07-07 22:24:14.870 15387 15444 I cr_policy: registerReceiver succeeded after 1ms
+07-07 22:24:14.871 15387 15387 I cr_DisplayManager: Is Display Topology available: false
+07-07 22:24:14.876 15387 15387 I g.wikipedia.dev: AssetManager2(0xb400007b6869faf8) locale list changing from [] to [en-US]
+07-07 22:24:14.910 15387 15387 I g.wikipedia.dev: AssetManager2(0xb400007b686a1718) locale list changing from [] to [en-US]
+07-07 22:24:14.911   763   938 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@332eda96 does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+07-07 22:24:14.991 15387 15387 D DesktopModeFlags: Toggle override initialized to: OVERRIDE_UNSET
+07-07 22:24:15.006 15387 15387 I DisplayManager: Implicitly registering for refresh rate
+07-07 22:24:15.012  1231  1231 D Zygote  : Forked child process 15447
+07-07 22:24:15.052 15447 15447 E libc    : SetHeapTaggingLevel: re-enabling tagging after it was disabled is not supported
+07-07 22:24:15.080 15447 15447 I ocessService0:0: Using CollectorTypeCMC GC.
+07-07 22:24:15.120   763   802 W ActivityManager: Slow operation: 208ms so far, now at startProcess: returned from zygote!
+07-07 22:24:15.123   763   802 W ActivityManager: Slow operation: 211ms so far, now at startProcess: done updating battery stats
+07-07 22:24:15.123   763   802 W ActivityManager: Slow operation: 212ms so far, now at startProcess: building log message
+07-07 22:24:15.123   763   802 I ActivityManager: Start proc 15447:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i15 for  {org.wikipedia.dev/org.chromium.content.app.SandboxedProcessService0:0}
+07-07 22:24:15.123   763   802 W ActivityManager: Slow operation: 212ms so far, now at startProcess: starting to update pids map
+07-07 22:24:15.124   763   802 I ActivityManager: ProcessObserver broadcast disabled
+07-07 22:24:15.124   763   802 W ActivityManager: Slow operation: 212ms so far, now at startProcess: done updating pids map
+07-07 22:24:15.131 15447 15447 E ocessService0:0: Not starting debugger since process cannot load the jdwp agent.
+07-07 22:24:15.131 15387 15387 I cr_CombinedPProvider: #linkNativeInternal() 1
+07-07 22:24:15.133 15387 15387 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+07-07 22:24:15.133 15387 15387 I cr_PolicyProvider: #notifySettingsAvailable() 0
+07-07 22:24:15.134 15387 15387 I cr_CombinedPProvider: #onSettingsAvailable() 0
+07-07 22:24:15.134 15387 15387 I cr_CombinedPProvider: #flushPolicies()
+07-07 22:24:15.137 15447 15447 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+07-07 22:24:15.177   763   791 W Looper  : Drained
+07-07 22:24:15.287 15447 15447 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+07-07 22:24:15.287 15447 15447 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+07-07 22:24:15.318 15447 15447 I ocessService0:0: AssetManager2(0x7b68697178) locale list changing from [] to [en-US]
+07-07 22:24:15.328   763 15466 D ActivityManager: created ANR temporary file:/data/anr/temp_anr_6601378006221599112.txt
+07-07 22:24:15.329   763 15466 I ActivityManager: Collecting stacks for pid 15387 into temporary file temp_anr_6601378006221599112.txt
+07-07 22:24:15.324   763   763 W AnrMainProcessD: type=1400 audit(0.0:150): avc:  denied  { read } for  name="transactions" dev="binder" ino=1048587 scontext=u:r:system_server:s0 tcontext=u:object_r:binderfs_logs_transactions:s0 tclass=file permissive=0
+07-07 22:24:15.333 15447 15447 I cr_WebViewApkApp: version=149.0.7827.163 (782716303) minSdkVersion=29 processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0 splits=<none>
+07-07 22:24:15.333   763 15466 E system_server: Could not open /dev/binderfs/binder_logs/transactions. Likely a permissions issue. errno: 2
+07-07 22:24:15.333   763 15466 E android.os.Debug: Failed to get binder state info for pid: 15387 status: -2: No such file or directory
+07-07 22:24:15.335 15463 15463 W dumpsys : Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: package
+07-07 22:24:15.337 15387 15459 W chromium: [WARNING:net/dns/dns_config_service_android.cc:69] Failed to read DnsConfig.
+07-07 22:24:15.360   763 15467 I ActivityManager: dumpStackTraces pids=null
+07-07 22:24:15.364   763 15466 I system_server: libdebuggerd_client: started dumping process 15387
+07-07 22:24:15.365   763 15467 I ActivityManager: Dumping to /data/anr/anr_2026-07-07-22-24-15-360
+07-07 22:24:15.371   272   272 I tombstoned: registered intercept for pid 15387 and type kDebuggerdJavaBacktrace
+07-07 22:24:15.373 15387 15389 I g.wikipedia.dev: Thread[2,tid=15389,WaitingInMainSignalCatcherLoop,Thread*=0xb400007bd8698b20,peer=0x2003050,"Signal Catcher"]: reacting to signal 3
+07-07 22:24:15.373 15387 15389 I g.wikipedia.dev:
+07-07 22:24:15.428 15447 15447 I cr_ChildProcessService: Creating new ChildProcessService pid=15447
+07-07 22:24:16.537  1806  2110 I bdee    : (REDACTED) getHotwordActive::active query: %s, watch: %s, devices connected: %s
+07-07 22:24:16.544   954   955 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:16.551   954   955 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_AdsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:16.597   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_CronetDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:16.630   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteLoader_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:16.691   954   955 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesA_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:16.711   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesC_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:16.724   954   955 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_GoogleCertificates_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:16.729   954   955 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MapsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:16.739   954   955 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MeasurementDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:16.746   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000011/dl-PlayCloudSearch.optional_262031100000.apk has no usable artifacts
+07-07 22:24:16.747   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.apk has no usable artifacts
+07-07 22:24:16.747   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:16.753   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.apk has no usable artifacts
+07-07 22:24:16.773   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000015/dl-MlkitOcrCommon.optional_262031100400.apk has no usable artifacts
+07-07 22:24:16.779   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.apk has no usable artifacts
+07-07 22:24:16.785   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:16.789   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000010/dl-TfliteDynamiteDynamite.integ_260580502100400.apk has no usable artifacts
+07-07 22:24:16.791   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:16.802   954   955 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/9D5BCED7935D64431BF672B8BBD597199833CA19/the.apk has no usable artifacts
+07-07 22:24:16.806   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:16.822   954   955 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/5833371D1ACC412507A92815B074897510CCCEDD/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:16.823   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:16.823   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:16.991   954   955 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/10FF5D5C646CC9E2F04BD9D73A072BD012EF1A7A/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:17.010   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:17.015   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000016/dl-MlkitBarcodeUi.optional_262031100400.apk has no usable artifacts
+07-07 22:24:17.019   954   955 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/729D45471C06B554246842057AC1D981DDFFE340/the.apk has no usable artifacts
+07-07 22:24:17.033   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000013/dl-Appsearch.optional_262031100400.apk has no usable artifacts
+07-07 22:24:17.233   954   955 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/7C26F94942E0B3DC400FC8F3A2AF71B87FD5F04D/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:17.296   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:17.345   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:17.346   954   955 W artd    : Could not get dex checksums for location /data/app/~~5n0V5TtqTHlJ_gqIm4S3yg==/com.android.vending-tKXrlUIP5yMb1nSAd67i5A==/base.apk, fd=-1
+07-07 22:24:17.375   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000012/dl-VisionOcr.optional_262031100000.apk has no usable artifacts
+07-07 22:24:18.410  1758  2176 W MediaProvider: Ignoring param:deletedata post U for external apps
+07-07 22:24:18.416  5427  5653 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+07-07 22:24:18.522  1758  2176 I MediaProvider: Deleted 0 0 0 0 0 0 1 items on external_primary due to com.android.shell
+07-07 22:24:19.309 15387 15387 W chromium: [WARNING:android_webview/browser/network_service/net_helpers.cc:137] HTTP Cache size is: 20971520
+07-07 22:24:19.422 15480 15480 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+07-07 22:24:19.536 15480 15480 I AndroidRuntime: Using default boot image
+07-07 22:24:19.536 15480 15480 I AndroidRuntime: Leaving lock profiling enabled
+07-07 22:24:19.560 15480 15480 I app_process: Using CollectorTypeCMC GC.
+07-07 22:24:19.582 15387 15387 D org.wikipedia.notifications.NotificationCategory$Companion: createNotificationChannels():71: Create notification channels skipped.
+07-07 22:24:19.624 15387 15387 I g.wikipedia.dev: Waiting for a blocking GC ClassLinker
+07-07 22:24:19.663 15387 15489 D org.wikipedia.appshortcuts.AppShortcuts$Companion$setShortcuts$2: invokeSuspend():33: Create dynamic shortcuts skipped.
+07-07 22:24:19.855   763  1686 D ActivityManager: sync unfroze 2205 com.google.android.gms for 6
+07-07 22:24:20.104 15387 15393 W g.wikipedia.dev: Suspending all threads took: 94.785ms
+07-07 22:24:20.108   763  1030 D BackgroundInstallControlService: Package event received: 0
+07-07 22:24:20.597  2205  2205 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.safetynet.service.START xflg=0x4 pkg=com.google.android.gms }
+07-07 22:24:20.598  2205  2205 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.safetynet.service.START xflg=0x4 pkg=com.google.android.gms }
+07-07 22:24:20.720   763   961 E WifiScoringParams: Invalid frequency(-1), using 5G as default rssi array
+07-07 22:24:20.882   511   511 E SurfaceFlinger: Out of order buffers detected for RequestedLayerState{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity#1159 parentId=1150} producedId=3 frameNumber=15 -> producedId=3 frameNumber=9
+07-07 22:24:21.182 15387 15387 I g.wikipedia.dev: WaitForGcToComplete blocked ClassLinker on Background for 1.558s
+07-07 22:24:21.185 14930 14940 I HWUI    : Davey! duration=731ms; Flags=0, FrameTimelineVsyncId=157654, IntendedVsync=6300008629500, Vsync=6300025296166, InputEventId=0, HandleInputStart=6300029314336, AnimationStart=6300029315253, PerformTraversalsStart=6300030339586, DrawStart=6300131406919, FrameDeadline=6300025296166, FrameStartTime=6300029275836, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=6300178042419, SyncStart=6300191757544, IssueDrawCommandsStart=6300197556086, SwapBuffers=6300357625420, FrameCompleted=6300754301378, DequeueBufferDuration=8542, QueueBufferDuration=15734542, GpuCompleted=6300754301378, SwapBuffersCompleted=6300407125711, DisplayPresentTime=0, CommandSubmissionCompleted=6300357625420,
+07-07 22:24:21.187 15387 15387 W g.wikipedia.dev: Verification of void org.wikipedia.installreferrer.InstallReferrerListener.openPageFromUrl(android.content.Context, java.lang.String) took 1.566s (15.96 bytecodes/s) (0B arena alloc)
+07-07 22:24:21.313 15387 15393 W g.wikipedia.dev: Suspending all threads took: 11.239ms
+07-07 22:24:21.499 15387 15438 D WM-WorkConstraintsTrack: NetworkRequestConstraintController onBlockedStatusChanged callback false
+07-07 22:24:21.779  2205  2205 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.safebrowsing.SafeBrowsingService.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+07-07 22:24:21.779  2205  2205 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.safebrowsing.SafeBrowsingService.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+07-07 22:24:21.869 15480 15480 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+07-07 22:24:21.882 15387 15490 I CameraManagerGlobal: Connecting to camera service
+07-07 22:24:21.887 15387 15387 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+07-07 22:24:21.890 15387 15387 I cr_PolicyProvider: #notifySettingsAvailable() 0
+07-07 22:24:21.890 15387 15387 I cr_CombinedPProvider: #onSettingsAvailable() 0
+07-07 22:24:21.890 15387 15387 I cr_CombinedPProvider: #flushPolicies()
+07-07 22:24:21.912 15387 15387 I Choreographer: Skipped 504 frames!  The application may be doing too much work on its main thread.
+07-07 22:24:21.957 15387 15435 D LeakCanary: LeakCanary is currently disabled: LeakCanary.Config.dumpHeap is set to false.
+07-07 22:24:21.965 15387 15387 D WM-DelayedWorkTracker: Scheduling work f5b06f2d-2456-4b3f-a82e-eb001118571a
+07-07 22:24:21.966 15387 15387 D WM-GreedyScheduler: Starting tracking for f5b06f2d-2456-4b3f-a82e-eb001118571a
+07-07 22:24:22.062 15387 15436 D WM-WorkConstraintsTrack: NetworkRequestConstraintController send initial capabilities
+07-07 22:24:22.063 15387 15436 D WM-GreedyScheduler: Constraints not met: Cancelling work ID WorkGenerationalId(workSpecId=f5b06f2d-2456-4b3f-a82e-eb001118571a, generation=0)
+07-07 22:24:22.065 15387 15387 D WM-RescheduleReceiver: Received intent Intent { act=android.intent.action.BOOT_COMPLETED flg=0x9000030 pkg=org.wikipedia.dev cmp=org.wikipedia.dev/androidx.work.impl.background.systemalarm.RescheduleReceiver (has extras) }
+07-07 22:24:22.066   763  1686 I BroadcastQueue: BOOT_COMPLETED_BROADCAST_COMPLETION_LATENCY_REPORTED action:android.intent.action.BOOT_COMPLETED dispatchLatency:-6244266 completeLatency:57677 dispatchRealLatency:-6244266 completeRealLatency:57677 receiversSize:2 userId:0 userType:android.os.usertype.full.SYSTEM
+07-07 22:24:22.070   272   272 I tombstoned: received crash request for pid 15387
+07-07 22:24:22.070   272   272 I tombstoned: found intercept fd 512 for pid 15387 and type kDebuggerdJavaBacktrace
+07-07 22:24:22.076   588   673 I AttributionAndPermissionUtils: checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10224, pid 15387, packageName "<unknown>"]
+07-07 22:24:22.079   763  1686 D ConnectivityService: Returning UNBLOCKED NetworkInfo to uid=10224
+07-07 22:24:22.101 15387 15389 I g.wikipedia.dev: Wrote stack traces to tombstoned
+07-07 22:24:22.103   272   272 W tombstoned: skipping tombstone file creation due to intercept
+07-07 22:24:22.104   763 15466 I system_server: libdebuggerd_client: done dumping process 15387
+07-07 22:24:22.136 15387 15489 W org.wikipedia.analytics.testkitchen.LogAdapterImpl: warn():17: Configuration is missing, enqueued events are not sent.
+07-07 22:24:22.139 15387 15489 W org.wikipedia.analytics.testkitchen.LogAdapterImpl: warn():17: Configuration is missing, enqueued events are not sent.
+07-07 22:24:22.155   763 15467 I ActivityManager: dumpStackTraces nativepids=null
+07-07 22:24:22.155   763 15467 I ActivityManager: dumpStackTraces extraPids=null
+07-07 22:24:22.156   763 15467 I ActivityManager: Done dumping
+07-07 22:24:22.245   763  1030 D BackgroundInstallControlService: Package event received: 0
+07-07 22:24:22.414 15480 15480 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-07 22:24:22.415 15480 15480 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/9/icu") succeeded.
+07-07 22:24:22.415 15480 15480 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt76l.dat
+07-07 22:24:22.451   763 15467 E ActivityManager: ANR in org.wikipedia.dev
+07-07 22:24:22.451   763 15467 E ActivityManager: PID: 15387
+07-07 22:24:22.451   763 15467 E ActivityManager: Reason: Process ProcessRecord{9cad2a5 15387:org.wikipedia.dev/u0a224} failed to complete startup
+07-07 22:24:22.451   763 15467 E ActivityManager: ErrorId: 51b214ad-3b2f-49c2-9194-1f50a70e9391
+07-07 22:24:22.451   763 15467 E ActivityManager: Frozen: false
+07-07 22:24:22.451   763 15467 E ActivityManager: Load: 0.0 / 0.0 / 0.0
+07-07 22:24:22.451   763 15467 E ActivityManager: ----- Output from /proc/pressure/memory -----
+07-07 22:24:22.451   763 15467 E ActivityManager: some avg10=0.02 avg60=1.37 avg300=2.57 total=239239846
+07-07 22:24:22.451   763 15467 E ActivityManager: full avg10=0.00 avg60=0.46 avg300=0.88 total=79505421
+07-07 22:24:22.451   763 15467 E ActivityManager: ----- End output from /proc/pressure/memory -----
+07-07 22:24:22.451   763 15467 E ActivityManager: ----- Output from /proc/pressure/cpu -----
+07-07 22:24:22.451   763 15467 E ActivityManager: some avg10=51.93 avg60=53.86 avg300=40.14 total=2371041933
+07-07 22:24:22.451   763 15467 E ActivityManager: full avg10=0.00 avg60=0.00 avg300=0.00 total=0
+07-07 22:24:22.451   763 15467 E ActivityManager: ----- End output from /proc/pressure/cpu -----
+07-07 22:24:22.451   763 15467 E ActivityManager: ----- Output from /proc/pressure/io -----
+07-07 22:24:22.451   763 15467 E ActivityManager: some avg10=2.45 avg60=6.28 avg300=8.08 total=619600507
+07-07 22:24:22.451   763 15467 E ActivityManager: full avg10=0.08 avg60=0.89 avg300=1.52 total=147371119
+07-07 22:24:22.451   763 15467 E ActivityManager: ----- End output from /proc/pressure/io -----
+07-07 22:24:22.451   763 15467 E ActivityManager:
+07-07 22:24:22.451   763 15467 E ActivityManager: CPU usage from 3ms to 6924ms later (2026-07-07 22:24:15.338 to 2026-07-07 22:24:22.259):
+07-07 22:24:22.451   763 15467 E ActivityManager:   97% 15387/org.wikipedia.dev: 52% user + 44% kernel / faults: 11257 minor 142 major
+07-07 22:24:22.451   763 15467 E ActivityManager:   26% 763/system_server: 16% user + 10% kernel / faults: 1626 minor 3 major
+07-07 22:24:22.451   763 15467 E ActivityManager:   2.7% 54/kswapd0: 0% user + 2.7% kernel
+07-07 22:24:22.451   763 15467 E ActivityManager:   9.4% 474/android.hardware.graphics.composer3-service.ranchu: 0.8% user + 8.5% kernel / faults: 49 minor
+07-07 22:24:22.451   763 15467 E ActivityManager:   8.4% 954/artd: 2.8% user + 5.5% kernel / faults: 2220 minor
+07-07 22:24:22.451   763 15467 E ActivityManager:   7.1% 511/surfaceflinger: 1.8% user + 5.2% kernel / faults: 12 minor
+07-07 22:24:22.451   763 15467 E ActivityManager:   1.6% 2205/zygote64: 0.2% user + 1.3% kernel / faults: 280 minor 945 major
+07-07 22:24:22.451   763 15467 E ActivityManager:   4.3% 13744/kworker/0:3: 0% user + 4.3% kernel
+07-07 22:24:22.451   763 15467 E ActivityManager:   3.4% 516/adbd: 0.5% user + 2.8% kernel / faults: 1476 minor
+07-07 22:24:22.451   763 15467 E ActivityManager:   3% 470/android.hardware.sensors-service.multihal: 0.8% user + 2.1% kernel / faults: 4 minor
+07-07 22:24:22.451   763 15467 E ActivityManager: 84% TOTAL: 19% user + 28% kernel + 6.4% iowait + 27% irq + 2% softirq
+07-07 22:24:22.451   763 15467 E ActivityManager: CPU usage from 6295212ms to 6295212ms ago (1970-01-01 08:00:00.000 to 1970-01-01 08:00:00.000) with 0% awake:
+07-07 22:24:22.451   763 15467 E ActivityManager: 0% TOTAL: 0% user + 0% kernel
+07-07 22:24:22.456   763 15467 I ActivityManager: Killing 15387:org.wikipedia.dev/u0a224 (adj 905): bg anr
+07-07 22:24:22.471   763 15467 D ActivityManager: Completed ANR of org.wikipedia.dev in 7136ms, latency 40ms
+07-07 22:24:22.472   763 15497 I DropBoxManagerService: add tag=data_app_anr isTagEnabled=true flags=0x6
+07-07 22:24:22.540 15480 15480 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-07 22:24:22.548 15480 15480 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-07 22:24:22.555 15480 15480 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*2789897741]#PCL[/system/framework/android.test.mock.jar*3361312393]} | PCL[])
+07-07 22:24:22.556 15480 15480 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*895143020]#PCL[/system/framework/android.test.base.jar*2789897741]} | PCL[/system/framework/android.test.runner.jar*895143020])
+07-07 22:24:22.640   516   516 I adbd    : Remote process closed the socket (on MSG_PEEK)
+07-07 22:24:22.708   453   453 I Zygote  : Process 15387 exited due to signal 9 (Killed)
+07-07 22:24:22.749   763   969 D ConnectivityService: releasing NetworkRequest [ REQUEST id=328, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ] (release request)
+07-07 22:24:22.755  2205  2205 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.safebrowsing.SafeBrowsingService.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+07-07 22:24:22.782   763   803 I libprocessgroup: Removed cgroup /sys/fs/cgroup/apps/uid_10224/pid_15387
+07-07 22:24:22.783   763   969 D ConnectivityService: releasing NetworkRequest [ REQUEST id=326, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10224 RequestorUid: 10224 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ] (release request)
+07-07 22:24:22.788   763   938 W ActivityManager: pid 4700 com.google.android.gms.persistent sent binder code 3 with flags 0 to frozen apps and got error -32
+07-07 22:24:22.846 15447 15447 I cr_ChildProcessService: Destroying ChildProcessService pid=15447
+07-07 22:24:22.859 15447 15447 I ocessService0:0: System.exit called, status: 0
+07-07 22:24:22.859 15447 15447 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+07-07 22:24:22.942  2205  2205 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.safetynet.service.START xflg=0x4 pkg=com.google.android.gms }
+07-07 22:24:22.950   763  1077 I ActivityManager: Killing 15447:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0a224i15 (adj 0): isolated not needed
+07-07 22:24:22.991   763   803 I libprocessgroup: Removed cgroup /sys/fs/cgroup/apps/uid_99015/pid_15447
+07-07 22:24:23.025  1231  1231 I Zygote  : Process 15447 exited cleanly (0)
+07-07 22:24:23.052 15480 15480 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+07-07 22:24:23.103 15480 15480 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+07-07 22:24:23.577   763   811 D BatteryStatsImpl: Reading cpu stats took 479ms
+07-07 22:24:23.592 15480 15480 I AconfigPackage: android.media.swcodec.flags is mapped to com.android.media.swcodec
+07-07 22:24:23.644 15480 15480 I AconfigPackage: com.google.android.settings.simplemode.flags is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.google.android.systemui is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.google.android.apps.nexuslauncher is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.android.settings.accessibility is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.android.settings.flags is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.google.android.apps.miphone.aiai.matchmaker.overview.ui is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.google.android.settings.flags is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.android.launcher3 is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.android.wallpaper is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.android.settings.media_drm is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.android.systemui.accessibility.accessibilitymenu is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.android.settings.keyboard is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.android.server.policy.feature.flags is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.android.settings.factory_reset is mapped to system_ext
+07-07 22:24:23.645 15480 15480 I AconfigPackage: com.google.android.haptics.flags is mapped to system_ext
+07-07 22:24:23.646 15480 15480 I AconfigPackage: com.android.permission.flags is mapped to com.android.permission
+07-07 22:24:23.659 15480 15480 I AconfigPackage: com.android.icu is mapped to com.android.i18n
+07-07 22:24:23.659 15480 15480 I AconfigPackage: com.android.appsearch.flags is mapped to com.android.appsearch
+07-07 22:24:23.660 15480 15480 I AconfigPackage: android.uprobestats.mainline.flags is mapped to com.android.uprobestats
+07-07 22:24:23.660 15480 15480 I AconfigPackage: android.provider.flags is mapped to com.android.configinfrastructure
+07-07 22:24:23.660 15480 15480 I AconfigPackage: com.android.server.deviceconfig is mapped to com.android.configinfrastructure
+07-07 22:24:23.675 15480 15480 I AconfigPackage: com.android.nfc.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.app.admin.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.database.sqlite is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.providers.calendar is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.server.power.feature.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.media.performance.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.app.contextualsearch.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.app.ondeviceintelligence.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.media.projection.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.companion is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.service.controls.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.text.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.providers.contactkeys.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.intentresolver is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.companion.virtualdevice.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.uprobestats.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.net.thread.platform.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.view.contentprotection.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.server.dreams is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.graphics.surfaceflinger.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.hardware.input is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.sdk is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.input.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.tracing is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.server.biometrics is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.view.contentcapture.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.app.job is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.content.res is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.net.platform.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.aconfig.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.graphics.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.server.app is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.speech.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.server.stats is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.hardware.biometrics is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.car.feature is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.adpf is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.location.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.settingslib.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.managedprovisioning.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.app.assist.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.server.net is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.settingslib.widget.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.internal.camera.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.hardware.libsensor.flags is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.internal.jank is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.providers.settings is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: android.multiuser is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.server.power.optimization is mapped to system
+07-07 22:24:23.676 15480 15480 I AconfigPackage: com.android.calllogbackup is mapped to system
+07-07 22:24:23.684 15480 15480 I AconfigPackage: com.android.media.flags is mapped to system
+07-07 22:24:23.746 15480 15480 I AconfigPackage: com.android.server.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.graphics.libvulkan.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: android.app.appfunctions.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: android.app.smartspace.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.providers.contacts.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.shell.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.media.aaudio is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: android.hardware.radio is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.google.wear.services.infra.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: suspend_service.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: android.media.midi is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.libcore.readonly is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.settingslib.widget.selectorwithwidgetpreference.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: android.service.notification is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.systemui.shared is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: android.app.jank is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: android.app.wearable is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.media.audio is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: android.service.chooser is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.server.compat is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.server.alarm is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: com.android.apex.flags is mapped to system
+07-07 22:24:23.755 15480 15480 I AconfigPackage: android.service.quickaccesswallet is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.app.usage is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.server.accessibility is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.app.supervision.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.server.utils is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.chre.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.content.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.media.codec is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.internal.os is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.nfc.nci.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.app is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.security.keystore2 is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.crashrecovery.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.tradeinmode.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.hardware.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.server.telecom.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.settingslib.media.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.server.policy is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.media.audiopolicy is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.egg.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.internal.compat.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.security is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.service.autofill is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.example.android.aconfig.demo.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.view.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.companion.virtual.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.aconfig_new_storage is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.server.feature.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.systemui is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.server.power.batterysaver is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.widget.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.media.editing.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.media.codec.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.server.powerstats is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.graphics.egl.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.media.audioserver is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: com.android.server.deviceidle is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.nfc is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.permission.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.service.voice.flags is mapped to system
+07-07 22:24:23.756 15480 15480 I AconfigPackage: android.content.pm is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: com.android.server.power.hint is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: android.os is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: android.service.dreams is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: com.android.graphics.libgui.flags is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: android.hardware.usb.flags is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: android.provider is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: com.android.server.job is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: com.android.internal.foldables.flags is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: com.android.internal.telephony.flags is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: android.webkit is mapped to system
+07-07 22:24:23.757 15480 15480 I AconfigPackage: android.credentials.flags is mapped to system
+07-07 22:24:23.761 15480 15480 I AconfigPackage: com.android.server.display.feature.flags is mapped to system
+07-07 22:24:23.793 15480 15480 I AconfigPackage: com.android.server.notification is mapped to system
+07-07 22:24:23.793 15480 15480 I AconfigPackage: android.appwidget.flags is mapped to system
+07-07 22:24:23.793 15480 15480 I AconfigPackage: com.android.frameworks.sensorservice.flags is mapped to system
+07-07 22:24:23.793 15480 15480 I AconfigPackage: com.android.printspooler.flags is mapped to system
+07-07 22:24:23.793 15480 15480 I AconfigPackage: com.android.window.flags is mapped to system
+07-07 22:24:23.793 15480 15480 I AconfigPackage: android.adaptiveauth is mapped to system
+07-07 22:24:23.793 15480 15480 I AconfigPackage: android.net.wifi.flags is mapped to system
+07-07 22:24:23.793 15480 15480 I AconfigPackage: android.media.tv.flags is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: com.android.server.usb.flags is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: android.os.vibrator is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: android.hardware.devicestate.feature.flags is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: com.android.server.usage is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: android.server is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: com.android.wm.shell is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: android.view.inputmethod is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: com.android.graphics.hwui.flags is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: com.android.server.backup is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: com.android.internal.pm.pkg.component.flags is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: android.view.accessibility is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: com.google.wear.sdk is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: android.media.audio is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: com.android.server.am is mapped to system
+07-07 22:24:23.794 15480 15480 I AconfigPackage: com.android.media.playback.flags is mapped to system
+07-07 22:24:23.802 15480 15480 I AconfigPackage: com.android.art.flags is mapped to com.android.art
+07-07 22:24:23.803 15480 15480 I AconfigPackage: com.android.libcore is mapped to com.android.art
+07-07 22:24:23.803 15480 15480 I AconfigPackage: com.android.media.extractor.flags is mapped to com.android.media
+07-07 22:24:23.803 15480 15480 I AconfigPackage: com.android.media.mainline.flags is mapped to com.android.media
+07-07 22:24:23.803 15480 15480 I AconfigPackage: com.android.wifi.flags is mapped to com.android.wifi
+07-07 22:24:23.804 15480 15480 I AconfigPackage: com.android.org.conscrypt.flags is mapped to com.android.conscrypt
+07-07 22:24:23.810 15480 15480 I AconfigPackage: com.android.healthfitness.flags is mapped to com.android.healthfitness
+07-07 22:24:23.825 15480 15480 I AconfigPackage: com.google.android.input.twoshay.flags is mapped to vendor
+07-07 22:24:23.825 15480 15480 I AconfigPackage: libgooglecamerahal.flags is mapped to vendor
+07-07 22:24:23.826 15480 15480 I AconfigPackage: com.android.ipsec.flags is mapped to com.android.ipsec
+07-07 22:24:23.826 15480 15480 I AconfigPackage: com.android.nfc.module.flags is mapped to com.android.nfcservices
+07-07 22:24:23.836 15480 15480 I AconfigPackage: com.android.adservices.ondevicepersonalization.flags is mapped to com.android.ondevicepersonalization
+07-07 22:24:23.837 15480 15480 I AconfigPackage: com.android.bluetooth.flags is mapped to com.android.bt
+07-07 22:24:23.837 15480 15480 I AconfigPackage: com.android.devicelock.flags is mapped to com.android.devicelock
+07-07 22:24:23.837 15480 15480 I AconfigPackage: android.os.profiling is mapped to com.android.profiling
+07-07 22:24:23.838 15480 15480 I AconfigPackage: com.android.os.statsd.flags is mapped to com.android.os.statsd
+07-07 22:24:23.839 15480 15480 I AconfigPackage: com.android.cellbroadcastreceiver.flags is mapped to com.android.cellbroadcast
+07-07 22:24:23.839 15480 15480 I AconfigPackage: com.android.adservices.flags is mapped to com.android.adservices
+07-07 22:24:23.839 15480 15480 I AconfigPackage: com.android.sdksandbox.flags is mapped to com.android.adservices
+07-07 22:24:23.839 15480 15480 I AconfigPackage: com.android.uwb.flags is mapped to com.android.uwb
+07-07 22:24:23.839 15480 15480 I AconfigPackage: com.android.ranging.flags is mapped to com.android.uwb
+07-07 22:24:23.839 15480 15480 I AconfigPackage: android.graphics.pdf.flags is mapped to com.android.mediaprovider
+07-07 22:24:23.839 15480 15480 I AconfigPackage: com.android.providers.media.flags is mapped to com.android.mediaprovider
+07-07 22:24:23.839 15480 15480 I AconfigPackage: android.graphics.pdf.flags.readonly is mapped to com.android.mediaprovider
+07-07 22:24:23.839 15480 15480 I AconfigPackage: com.android.net.ct.flags is mapped to com.android.tethering
+07-07 22:24:23.840 15480 15480 I AconfigPackage: com.android.net.flags is mapped to com.android.tethering
+07-07 22:24:23.840 15480 15480 I AconfigPackage: android.net.vcn is mapped to com.android.tethering
+07-07 22:24:23.840 15480 15480 I AconfigPackage: com.android.nearby.flags is mapped to com.android.tethering
+07-07 22:24:23.840 15480 15480 I AconfigPackage: android.net.http is mapped to com.android.tethering
+07-07 22:24:23.840 15480 15480 I AconfigPackage: com.android.net.thread.flags is mapped to com.android.tethering
+07-07 22:24:23.840 15480 15480 I AconfigPackage: com.android.system.virtualmachine.flags is mapped to com.android.virt
+07-07 22:24:23.842 15480 15480 E FeatureFlagsImplExport: android.os.flagging.AconfigStorageReadException: ERROR_PACKAGE_NOT_FOUND: package android.xr cannot be found on the device
+07-07 22:24:23.872 15480 15480 D UiAutomationConnection: Created on user UserHandle{0}
+07-07 22:24:23.873 15480 15480 I UiAutomation: Initialized for user 0 on display 0
+07-07 22:24:23.873 15480 15480 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+07-07 22:24:23.885   763   938 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+07-07 22:24:23.885   763   938 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+07-07 22:24:23.905   763   938 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+07-07 22:24:23.925   763   938 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-07 22:24:23.981   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:23.982   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:23.982   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.058   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.058   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.059   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.060   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.405   763  1800 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+07-07 22:24:24.409   763   763 W Looper  : Slow dispatch took 348ms main app=system_server main=true group=FOREGROUND h=com.android.server.alarm.AlarmManagerService$AlarmHandler c=null m=7
+07-07 22:24:24.410   763   763 W Looper  : Slow delivery took 350ms main app=system_server main=true group=FOREGROUND h=android.os.Handler c=null m=1
+07-07 22:24:24.410   763   763 D BatterySaverPolicy: accessibility changed to true, updating policy.
+07-07 22:24:24.424   763  1800 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-07 22:24:24.435   763   763 W Looper  : Drained
+07-07 22:24:24.437   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.437   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.437   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.437   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.437   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.437   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.438   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.438   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.438   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.438   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.438   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.438   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.438   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.438   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:24.521  2233 14183 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-07 22:24:24.806  2233  2403 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-07 22:24:24.807  2233  2403 I AiAiEcho: EchoTargets:
+07-07 22:24:24.807  2233  2403 I AiAiEcho: Filtered by AiAi flag check:
+07-07 22:24:24.807  2233  2403 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-07 22:24:24.808  2233  2403 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-07 22:24:24.808  2233  2403 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-07 22:24:24.808  2233  2403 I AiAiEcho: EchoTargets:
+07-07 22:24:24.808  2233  2403 I AiAiEcho: Filtered by AiAi flag check:
+07-07 22:24:24.808  2233  2403 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-07 22:24:25.053  2233  2403 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-07 22:24:25.064  2233  2403 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-07 22:24:25.290  2233 14183 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-07 22:24:25.299  2233  2403 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-07 22:24:25.304  2233  2403 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-07 22:24:25.304  2233  2403 I AiAiEcho: EchoTargets:
+07-07 22:24:25.304  2233  2403 I AiAiEcho: Filtered by AiAi flag check:
+07-07 22:24:25.304  2233  2403 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-07 22:24:25.304  2233  2403 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-07 22:24:25.304  2233  2403 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-07 22:24:25.304  2233  2403 I AiAiEcho: EchoTargets:
+07-07 22:24:25.304  2233  2403 I AiAiEcho: Filtered by AiAi flag check:
+07-07 22:24:25.304  2233  2403 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-07 22:24:25.304  2233  2403 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-07 22:24:26.600 14930 14930 D SsBaseTemplateCard: No text view can be set up
+07-07 22:24:26.600 14930 14930 D SsBaseTemplateCard: Passed-in item info is null
+07-07 22:24:26.600 14930 14930 D SsBaseTemplateCard: Passed-in item info is null
+07-07 22:24:26.601 14930 14930 D SsBaseTemplateCard: Passed-in item info is null
+07-07 22:24:26.601 14930 14930 I SsBaseTemplateCard: Secondary card pane is null
+07-07 22:24:26.611  2233  2403 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-07 22:24:26.756   763  2262 D WifiNl80211Manager: Scan result ready event
+07-07 22:24:26.757  2233  2403 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-07 22:24:26.766   763  2262 D WifiNative: Scan result ready event
+07-07 22:24:26.780 14930 14930 D SsBaseTemplateCard: No text view can be set up
+07-07 22:24:26.780 14930 14930 D SsBaseTemplateCard: Passed-in item info is null
+07-07 22:24:26.782 14930 14930 D SsBaseTemplateCard: Passed-in item info is null
+07-07 22:24:26.782 14930 14930 D SsBaseTemplateCard: Passed-in item info is null
+07-07 22:24:26.782 14930 14930 I SsBaseTemplateCard: Secondary card pane is null
+07-07 22:24:26.787  4700  4867 I WifiScanner: onFullResults
+07-07 22:24:27.425   763   961 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+07-07 22:24:27.454 15515 15515 W dumpsys : Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: package
+07-07 22:24:27.473  5557  5557 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-07 22:24:27.509  5557  5557 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-07 22:24:27.857  1758  2177 W MediaProvider: isAppCloneUserPair for user 0: false
+07-07 22:24:28.456   763   969 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-07 22:24:28.456   763   969 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-07 22:24:28.456   763   969 D InetDiagMessage: Destroyed live tcp sockets for uids={10224, 20224} in 1ms
+07-07 22:24:28.465 15480 15480 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@18ba4; boundsInParent: Rect(0, 0 - 900, 165); boundsInScreen: Rect(90, 81 - 990, 245); boundsInWindow: Rect(90, 81 - 990, 245); packageName: com.google.android.apps.nexuslauncher; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: com.google.android.apps.nexuslauncher:id/ripple; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-07 22:24:28.772   763   800 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:28.825  4700  4700 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+07-07 22:24:28.825  5427  5653 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+07-07 22:24:30.090 15480 15480 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@15716; boundsInParent: Rect(0, 0 - 197, 163); boundsInScreen: Rect(833, 205 - 1030, 368); boundsInWindow: Rect(833, 205 - 1030, 368); packageName: com.google.android.apps.nexuslauncher; className: android.widget.TextView; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: com.google.android.apps.nexuslauncher:id/fast_scroller_popup; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-07 22:24:30.148 15480 15480 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@707e; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(0, 0 - 0, 0); boundsInWindow: Rect(0, 0 - 0, 0); packageName: com.google.android.apps.nexuslauncher; className: null; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: false; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: null; isTextSelectable: false
+07-07 22:24:30.156  5557  5664 W Looper  : Slow dispatch took 1324ms SysUiBg app=com.android.systemui main=false group=FOREGROUND h=android.os.Handler c=android.telephony.TelephonyCallback$IPhoneStateListenerStub$$ExternalSyntheticLambda52@2b339e9 m=0
+07-07 22:24:30.158  5557  5664 W Looper  : Slow delivery took 1331ms SysUiBg app=com.android.systemui main=false group=FOREGROUND h=android.os.Handler c=android.telephony.TelephonyCallback$IPhoneStateListenerStub$$ExternalSyntheticLambda13@52ad66e m=0
+07-07 22:24:30.158  5557  5664 W Looper  : Drained
+07-07 22:24:30.160 15480 15480 W AccessibilityNodeInfoDumper: Fetch time: 2686ms
+07-07 22:24:30.171   763  1450 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+07-07 22:24:30.179  2233 14183 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-07 22:24:30.359  2233  2403 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-07 22:24:30.359  2233  2403 I AiAiEcho: EchoTargets:
+07-07 22:24:30.359  2233  2403 I AiAiEcho: Filtered by AiAi flag check:
+07-07 22:24:30.359  2233  2403 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-07 22:24:30.360   763  1450 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-07 22:24:30.360   763  1450 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+07-07 22:24:30.365   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.370   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.371   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.371   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.371   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.371   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.682  2233  2403 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-07 22:24:30.683  2233  2403 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-07 22:24:30.683  2233  2403 I AiAiEcho: EchoTargets:
+07-07 22:24:30.683  2233  2403 I AiAiEcho: Filtered by AiAi flag check:
+07-07 22:24:30.683  2233  2403 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-07 22:24:30.684  2233  2403 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-07 22:24:30.696  2233  2403 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-07 22:24:30.697  2233  2403 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-07 22:24:30.706   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.707   763   763 W Looper  : Slow dispatch took 342ms main app=system_server main=true group=FOREGROUND h=com.android.server.accessibility.AccessibilityManagerService$MainHandler c=com.android.server.accessibility.AccessibilityManagerService$$ExternalSyntheticLambda13@4c400aa m=0
+07-07 22:24:30.757   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.758   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.758   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.758   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.759   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.759   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.760   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.770   763   763 W Looper  : Slow delivery took 385ms main app=system_server main=true group=FOREGROUND h=com.android.server.accessibility.AccessibilityManagerService$MainHandler c=<recycled PooledLambda@bda260b> m=0
+07-07 22:24:30.772   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.772   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.772   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.772   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.772   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.772   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.772   763   763 W IPCThreadState: Sending oneway calls to frozen process.
+07-07 22:24:30.772   763   763 D BatterySaverPolicy: accessibility changed to false, updating policy.
+07-07 22:24:30.772   763   763 W Looper  : Drained
+07-07 22:24:30.820  5557  5557 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-07 22:24:31.688   763  2262 W FastPrintWriter: Write failure
+07-07 22:24:31.688   763  2262 W FastPrintWriter: java.io.IOException: write failed: EPIPE (Broken pipe)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at libcore.io.IoBridge.write(IoBridge.java:651)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at java.io.FileOutputStream.write(FileOutputStream.java:436)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.internal.util.FastPrintWriter.flushBytesLocked(FastPrintWriter.java:355)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.internal.util.FastPrintWriter.flushLocked(FastPrintWriter.java:378)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.internal.util.FastPrintWriter.appendLocked(FastPrintWriter.java:323)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.internal.util.FastPrintWriter.print(FastPrintWriter.java:500)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at java.io.PrintWriter.println(PrintWriter.java:822)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.server.pm.Settings.dumpPackageLPr(Settings.java:5336)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.server.pm.Settings.dumpPackagesLPr(Settings.java:5688)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.server.pm.ComputerEngine$Settings.dumpPackages(ComputerEngine.java:352)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.server.pm.ComputerEngine.dumpPackages(ComputerEngine.java:5959)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.server.pm.DumpHelper.doDump(DumpHelper.java:461)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.server.pm.PackageManagerService$IPackageManagerImpl.dump(PackageManagerService.java:6720)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at android.os.Binder.doDump(Binder.java:1072)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at android.os.Binder.dump(Binder.java:1062)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at android.os.Binder.onTransact(Binder.java:932)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at android.content.pm.IPackageManager$Stub.onTransact(IPackageManager.java:4729)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at com.android.server.pm.PackageManagerService$IPackageManagerImpl.onTransact(PackageManagerService.java:6668)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at android.os.Binder.execTransactInternal(Binder.java:1426)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at android.os.Binder.execTransact(Binder.java:1365)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: Caused by: android.system.ErrnoException: write failed: EPIPE (Broken pipe)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at libcore.io.Linux.writeBytes(Native Method)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at libcore.io.Linux.write(Linux.java:336)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at libcore.io.ForwardingOs.write(ForwardingOs.java:948)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at libcore.io.BlockGuardOs.write(BlockGuardOs.java:448)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	at libcore.io.IoBridge.write(IoBridge.java:646)
+07-07 22:24:31.688   763  2262 W FastPrintWriter: 	... 19 more
+07-07 22:24:31.712 15480 15509 W IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+07-07 22:24:31.956 15480 15508 W IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+07-07 22:24:31.964 15480 15480 D AndroidRuntime: Shutting down VM
+07-07 22:24:32.041 15480 15518 W IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+07-07 22:24:33.202   763   902 D ActivityManager: freezing 2205 com.google.android.gms
+07-07 22:24:33.387 14930 14930 D SsBaseTemplateCard: No text view can be set up
+07-07 22:24:33.387 14930 14930 D SsBaseTemplateCard: Passed-in item info is null
+07-07 22:24:33.387 14930 14930 D SsBaseTemplateCard: Passed-in item info is null
+07-07 22:24:33.387 14930 14930 D SsBaseTemplateCard: Passed-in item info is null
+07-07 22:24:33.387 14930 14930 I SsBaseTemplateCard: Secondary card pane is null
+07-07 22:24:35.339  4700  4700 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+07-07 22:24:35.636  5557  6364 I HWUI    : Davey! duration=5303ms; Flags=0, FrameTimelineVsyncId=157726, IntendedVsync=6309975295768, Vsync=6310008629100, InputEventId=0, HandleInputStart=6310014706424, AnimationStart=6310014707466, PerformTraversalsStart=6310014707716, DrawStart=6310014825216, FrameDeadline=6309991962434, FrameStartTime=6310014675049, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=6310015726508, SyncStart=6310016592883, IssueDrawCommandsStart=6310047481174, SwapBuffers=6315103007802, FrameCompleted=6315279377302, DequeueBufferDuration=13500, QueueBufferDuration=21902167, GpuCompleted=6315279377302, SwapBuffersCompleted=6315265715927, DisplayPresentTime=0, CommandSubmissionCompleted=6315103007802,
+07-07 22:24:35.687   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:35.717   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_AdsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:35.729   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_CronetDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:35.740 15519 15519 W dumpsys : Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: package
+07-07 22:24:35.772   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteLoader_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:35.815   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesA_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:35.948   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesC_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.004   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_GoogleCertificates_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.124   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MapsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.241   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MeasurementDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.274   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000011/dl-PlayCloudSearch.optional_262031100000.apk has no usable artifacts
+07-07 22:24:36.298   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.apk has no usable artifacts
+07-07 22:24:36.300   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.321   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.apk has no usable artifacts
+07-07 22:24:36.339   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000015/dl-MlkitOcrCommon.optional_262031100400.apk has no usable artifacts
+07-07 22:24:36.342   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.apk has no usable artifacts
+07-07 22:24:36.371   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.405   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000010/dl-TfliteDynamiteDynamite.integ_260580502100400.apk has no usable artifacts
+07-07 22:24:36.423   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.433   954   955 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/9D5BCED7935D64431BF672B8BBD597199833CA19/the.apk has no usable artifacts
+07-07 22:24:36.441   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.498   954   955 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/5833371D1ACC412507A92815B074897510CCCEDD/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:36.498   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.501   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.509   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.511   954   955 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/10FF5D5C646CC9E2F04BD9D73A072BD012EF1A7A/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:36.512   954   955 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.514   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_AdsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.515   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000016/dl-MlkitBarcodeUi.optional_262031100400.apk has no usable artifacts
+07-07 22:24:36.517   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_CronetDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.519   954   955 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/729D45471C06B554246842057AC1D981DDFFE340/the.apk has no usable artifacts
+07-07 22:24:36.520   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteLoader_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.521   954   955 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000013/dl-Appsearch.optional_262031100400.apk has no usable artifacts
+07-07 22:24:36.523   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesA_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.523   954   955 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/7C26F94942E0B3DC400FC8F3A2AF71B87FD5F04D/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:36.524   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.525   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.531   954   956 W artd    : Could not get dex checksums for location /data/app/~~5n0V5TtqTHlJ_gqIm4S3yg==/com.android.vending-tKXrlUIP5yMb1nSAd67i5A==/base.apk, fd=-1
+07-07 22:24:36.531   954   955 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesC_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.534   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000012/dl-VisionOcr.optional_262031100000.apk has no usable artifacts
+07-07 22:24:36.535   954   955 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_GoogleCertificates_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.540   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MapsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.543   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MeasurementDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:36.548   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000011/dl-PlayCloudSearch.optional_262031100000.apk has no usable artifacts
+07-07 22:24:36.548   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.apk has no usable artifacts
+07-07 22:24:36.549   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.550   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.apk has no usable artifacts
+07-07 22:24:36.552   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000015/dl-MlkitOcrCommon.optional_262031100400.apk has no usable artifacts
+07-07 22:24:36.553   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.apk has no usable artifacts
+07-07 22:24:36.554   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.557   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000010/dl-TfliteDynamiteDynamite.integ_260580502100400.apk has no usable artifacts
+07-07 22:24:36.558   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.564   954  7164 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/9D5BCED7935D64431BF672B8BBD597199833CA19/the.apk has no usable artifacts
+07-07 22:24:36.566   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.572   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/5833371D1ACC412507A92815B074897510CCCEDD/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:36.572   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.573   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.578   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/10FF5D5C646CC9E2F04BD9D73A072BD012EF1A7A/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:36.580   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.583   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000016/dl-MlkitBarcodeUi.optional_262031100400.apk has no usable artifacts
+07-07 22:24:36.587   954  7164 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/729D45471C06B554246842057AC1D981DDFFE340/the.apk has no usable artifacts
+07-07 22:24:36.590   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000013/dl-Appsearch.optional_262031100400.apk has no usable artifacts
+07-07 22:24:36.592   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/7C26F94942E0B3DC400FC8F3A2AF71B87FD5F04D/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:36.593   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.594   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:36.595   954  7164 W artd    : Could not get dex checksums for location /data/app/~~5n0V5TtqTHlJ_gqIm4S3yg==/com.android.vending-tKXrlUIP5yMb1nSAd67i5A==/base.apk, fd=-1
+07-07 22:24:36.597   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000012/dl-VisionOcr.optional_262031100000.apk has no usable artifacts
+07-07 22:24:38.426  5427  5653 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+07-07 22:24:45.145 15524 15524 W dumpsys : Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: package
+07-07 22:24:45.576   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:45.648   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_AdsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:45.659   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_CronetDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:45.665   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteLoader_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:45.670   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesA_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:45.674   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesC_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:45.680   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_GoogleCertificates_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:45.684   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MapsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:45.688   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MeasurementDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:45.690   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000011/dl-PlayCloudSearch.optional_262031100000.apk has no usable artifacts
+07-07 22:24:45.691   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.apk has no usable artifacts
+07-07 22:24:45.691   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:45.692   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.apk has no usable artifacts
+07-07 22:24:45.695   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000015/dl-MlkitOcrCommon.optional_262031100400.apk has no usable artifacts
+07-07 22:24:45.697   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.apk has no usable artifacts
+07-07 22:24:45.707   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:45.711   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000010/dl-TfliteDynamiteDynamite.integ_260580502100400.apk has no usable artifacts
+07-07 22:24:45.713   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:45.716   954  7164 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/9D5BCED7935D64431BF672B8BBD597199833CA19/the.apk has no usable artifacts
+07-07 22:24:45.719   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:45.725   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/5833371D1ACC412507A92815B074897510CCCEDD/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:45.725   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:45.726   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:45.730   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/10FF5D5C646CC9E2F04BD9D73A072BD012EF1A7A/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:45.731   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:45.737   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000016/dl-MlkitBarcodeUi.optional_262031100400.apk has no usable artifacts
+07-07 22:24:45.741   954  7164 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/729D45471C06B554246842057AC1D981DDFFE340/the.apk has no usable artifacts
+07-07 22:24:45.743   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000013/dl-Appsearch.optional_262031100400.apk has no usable artifacts
+07-07 22:24:45.747   954   956 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/7C26F94942E0B3DC400FC8F3A2AF71B87FD5F04D/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:45.748   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:45.750   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:45.752   954   956 W artd    : Could not get dex checksums for location /data/app/~~5n0V5TtqTHlJ_gqIm4S3yg==/com.android.vending-tKXrlUIP5yMb1nSAd67i5A==/base.apk, fd=-1
+07-07 22:24:45.755   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000012/dl-VisionOcr.optional_262031100000.apk has no usable artifacts
+07-07 22:24:48.417  5427  5653 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+07-07 22:24:52.274 15529 15529 W dumpsys : Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: activity
+07-07 22:24:55.227 15533 15533 W dumpsys : Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: package
+07-07 22:24:56.230   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:56.265   954   956 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_AdsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:56.271   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_CronetDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:56.282   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteLoader_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:56.295   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesA_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:56.363   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesC_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:56.369   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_GoogleCertificates_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:56.375   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MapsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:56.379   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MeasurementDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:24:56.385   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000011/dl-PlayCloudSearch.optional_262031100000.apk has no usable artifacts
+07-07 22:24:56.389   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.apk has no usable artifacts
+07-07 22:24:56.404   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:56.411   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.apk has no usable artifacts
+07-07 22:24:56.416   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000015/dl-MlkitOcrCommon.optional_262031100400.apk has no usable artifacts
+07-07 22:24:56.418   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.apk has no usable artifacts
+07-07 22:24:56.419   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:56.428   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000010/dl-TfliteDynamiteDynamite.integ_260580502100400.apk has no usable artifacts
+07-07 22:24:56.432   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:56.436   954  7164 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/9D5BCED7935D64431BF672B8BBD597199833CA19/the.apk has no usable artifacts
+07-07 22:24:56.437   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:56.441   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/5833371D1ACC412507A92815B074897510CCCEDD/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:56.442   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:56.443   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:56.449   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/10FF5D5C646CC9E2F04BD9D73A072BD012EF1A7A/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:56.451   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:56.482   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000016/dl-MlkitBarcodeUi.optional_262031100400.apk has no usable artifacts
+07-07 22:24:56.490   954  7164 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/729D45471C06B554246842057AC1D981DDFFE340/the.apk has no usable artifacts
+07-07 22:24:56.496   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000013/dl-Appsearch.optional_262031100400.apk has no usable artifacts
+07-07 22:24:56.504   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/7C26F94942E0B3DC400FC8F3A2AF71B87FD5F04D/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:24:56.504   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:56.505   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:24:56.519   954  7164 W artd    : Could not get dex checksums for location /data/app/~~5n0V5TtqTHlJ_gqIm4S3yg==/com.android.vending-tKXrlUIP5yMb1nSAd67i5A==/base.apk, fd=-1
+07-07 22:24:56.521   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000012/dl-VisionOcr.optional_262031100000.apk has no usable artifacts
+07-07 22:24:57.172   763   778 I system_server: Background concurrent mark compact GC freed 33MB AllocSpace bytes, 21(1224KB) LOS objects, 43% free, 31MB/55MB, paused 7.740ms,4.320ms total 1.939s
+07-07 22:24:57.181   763   779 I BpBinder: onLastStrongRef automatically unlinking death recipients:
+07-07 22:24:58.419  5427  5653 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+07-07 22:25:05.341 15536 15536 W dumpsys : Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: package
+07-07 22:25:06.384   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:06.397   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_AdsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:06.443   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_CronetDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:06.452   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteLoader_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:06.456   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesA_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:06.472   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesC_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:06.480   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_GoogleCertificates_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:06.496   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MapsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:06.503   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MeasurementDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:06.505   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000011/dl-PlayCloudSearch.optional_262031100000.apk has no usable artifacts
+07-07 22:25:06.507   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.apk has no usable artifacts
+07-07 22:25:06.508   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:06.510   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.apk has no usable artifacts
+07-07 22:25:06.512   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000015/dl-MlkitOcrCommon.optional_262031100400.apk has no usable artifacts
+07-07 22:25:06.514   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.apk has no usable artifacts
+07-07 22:25:06.516   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:06.525   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000010/dl-TfliteDynamiteDynamite.integ_260580502100400.apk has no usable artifacts
+07-07 22:25:06.527   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:06.529   954   956 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/9D5BCED7935D64431BF672B8BBD597199833CA19/the.apk has no usable artifacts
+07-07 22:25:06.531   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:06.537   954   956 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/5833371D1ACC412507A92815B074897510CCCEDD/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:25:06.539   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:06.540   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:06.548   954   956 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/10FF5D5C646CC9E2F04BD9D73A072BD012EF1A7A/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:25:06.549   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:06.555   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000016/dl-MlkitBarcodeUi.optional_262031100400.apk has no usable artifacts
+07-07 22:25:06.559   954   956 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/729D45471C06B554246842057AC1D981DDFFE340/the.apk has no usable artifacts
+07-07 22:25:06.561   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000013/dl-Appsearch.optional_262031100400.apk has no usable artifacts
+07-07 22:25:06.565   954   956 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/7C26F94942E0B3DC400FC8F3A2AF71B87FD5F04D/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:25:06.566   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:06.567   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:06.568   954   956 W artd    : Could not get dex checksums for location /data/app/~~5n0V5TtqTHlJ_gqIm4S3yg==/com.android.vending-tKXrlUIP5yMb1nSAd67i5A==/base.apk, fd=-1
+07-07 22:25:06.570   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000012/dl-VisionOcr.optional_262031100000.apk has no usable artifacts
+07-07 22:25:08.419  5427  5653 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+07-07 22:25:09.625   763   801 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@5786070d does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+07-07 22:25:09.685   453   453 D Zygote  : Forked child process 15539
+07-07 22:25:09.686   763   802 W ActivityManager: Slow operation: 61ms so far, now at startProcess: returned from zygote!
+07-07 22:25:09.686   763   802 W ActivityManager: Slow operation: 62ms so far, now at startProcess: done updating battery stats
+07-07 22:25:09.686   763   802 W ActivityManager: Slow operation: 62ms so far, now at startProcess: building log message
+07-07 22:25:09.686   763   802 I ActivityManager: Start proc 15539:org.wikipedia.dev/u0a224 for broadcast {org.wikipedia.dev/org.wikipedia.notifications.NotificationPollBroadcastReceiver}
+07-07 22:25:09.686   763   802 W ActivityManager: Slow operation: 62ms so far, now at startProcess: starting to update pids map
+07-07 22:25:09.686   763   802 I ActivityManager: ProcessObserver broadcast disabled
+07-07 22:25:09.686   763   802 W ActivityManager: Slow operation: 62ms so far, now at startProcess: done updating pids map
+07-07 22:25:09.729 15539 15539 I g.wikipedia.dev: Late-enabling -Xcheck:jni
+07-07 22:25:09.877 15539 15539 I g.wikipedia.dev: Using CollectorTypeCMC GC.
+07-07 22:25:09.959   516   548 I adbd    : jdwp connection from 15539
+07-07 22:25:10.013 15539 15539 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+07-07 22:25:10.269 15539 15539 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/org.apache.http.legacy.jar
+07-07 22:25:10.269 15539 15539 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+07-07 22:25:10.269 15539 15539 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+07-07 22:25:11.490   763   791 W Looper  : Slow dispatch took 108ms android.fg app=system_server main=false group=FOREGROUND h=android.os.Handler c=com.android.server.net.NetworkManagementService$NetdUnsolicitedEventListener$$ExternalSyntheticLambda3@f61669 m=0
+07-07 22:25:11.522  4700  4700 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+07-07 22:25:15.597 15552 15552 W dumpsys : Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: package
+07-07 22:25:16.633  1806  2109 I bdee    : (REDACTED) getHotwordActive::active query: %s, watch: %s, devices connected: %s
+07-07 22:25:16.773  4700  4700 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+07-07 22:25:17.540   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:17.553   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_AdsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:17.559   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_CronetDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:17.579   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteLoader_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:17.597   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesA_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:17.606   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_DynamiteModulesC_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:17.621   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_GoogleCertificates_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:17.633   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MapsDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:17.643   954  7164 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~Anv1wIwz5Q9hJttQ9F7_Fw==/com.google.android.gms-xZ4BYH2GAP9ldZsbWMrUNQ==/oat/arm64/split_MeasurementDynamite_installtime.odex) is kOatUpToDate with filter 'speed' executable 'false'
+07-07 22:25:17.652   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000011/dl-PlayCloudSearch.optional_262031100000.apk has no usable artifacts
+07-07 22:25:17.653   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.apk has no usable artifacts
+07-07 22:25:17.654   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:17.655   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.apk has no usable artifacts
+07-07 22:25:17.657   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000015/dl-MlkitOcrCommon.optional_262031100400.apk has no usable artifacts
+07-07 22:25:17.664   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.apk has no usable artifacts
+07-07 22:25:17.667   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:17.681   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000010/dl-TfliteDynamiteDynamite.integ_260580502100400.apk has no usable artifacts
+07-07 22:25:17.686   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:17.694   954  7164 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/9D5BCED7935D64431BF672B8BBD597199833CA19/the.apk has no usable artifacts
+07-07 22:25:17.695   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:17.755   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/5833371D1ACC412507A92815B074897510CCCEDD/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:25:17.775   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:17.803   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:18.179   954  7164 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/10FF5D5C646CC9E2F04BD9D73A072BD012EF1A7A/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:25:18.181   954  7164 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:18.431   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000016/dl-MlkitBarcodeUi.optional_262031100400.apk has no usable artifacts
+07-07 22:25:18.644   954  7164 I artd    : GetBestInfo: /data/user/0/com.google.android.gms/app_dg_cache/729D45471C06B554246842057AC1D981DDFFE340/the.apk has no usable artifacts
+07-07 22:25:18.698   954  7164 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000013/dl-Appsearch.optional_262031100400.apk has no usable artifacts
+07-07 22:25:18.781  5427  5653 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+07-07 22:25:18.788   954   956 I artd    : GetBestInfo: vdex next to the dex file (/data/user/0/com.google.android.gms/app_dg_cache/7C26F94942E0B3DC400FC8F3A2AF71B87FD5F04D/oat/arm64/the.vdex) is kOatUpToDate with filter 'verify' executable 'false'
+07-07 22:25:18.806   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:18.846   954   956 W artd    : Could not get dex checksums for location /data/app/~~0IRMGLV8DTYT39ZvHuD7OA==/com.google.android.gms-t6ts4gLL-ShdaQ3JVRRS6Q==/base.apk, fd=-1
+07-07 22:25:18.906   954   956 W artd    : Could not get dex checksums for location /data/app/~~5n0V5TtqTHlJ_gqIm4S3yg==/com.android.vending-tKXrlUIP5yMb1nSAd67i5A==/base.apk, fd=-1
+07-07 22:25:18.972   954   956 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000012/dl-VisionOcr.optional_262031100000.apk has no usable artifacts

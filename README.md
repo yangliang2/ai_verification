@@ -41,13 +41,12 @@ run-spec.yaml
 截至 2026-07-07：
 
 - GitHub PRD #1 已完成并关闭：<https://github.com/yangliang2/ai_verification/issues/1>
-- 已完成并关闭：#2-#15
-- 当前 open / ready-for-agent：#16 M2 navigation back-button Goldset seed
+- 已完成并关闭：#2-#16
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
-- M2 seed run record: [`docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/`](docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/README.md)
-- 本地测试：`.venv/bin/pytest` -> `230 passed, 2 warnings`
+- Latest M2 seed run record: [`docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/`](docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/README.md)
+- 本地测试：`.venv/bin/pytest` -> `234 passed, 2 warnings`
 
 Wikipedia host 实测：
 
@@ -139,6 +138,6 @@ PYTHONPATH=src python -m aiverify.runner \
 - #13：M2 scoping 已给出第一轮范围，作为 M2-alpha 的决策记录。
 - #9：M1 five-Goldset report 已完成并关闭。
 - #1：父 PRD 已完成并关闭。
-- #16：navigation back-button Goldset seed 已创建，覆盖“Back 被吞掉 / 需要额外返回一次”的非崩溃导航状态缺陷。
+- #16：navigation back-button Goldset seed 已完成；baseline L2 pass、defect L2 fail，覆盖“Back 被吞掉 / 需要额外返回一次”的非崩溃导航状态缺陷。
 
-推荐下一步执行 **#16**。
+推荐下一步决定新的 M2 seed，或先 review #16 evidence 后再扩展。

@@ -1,0 +1,30 @@
+diff --git a/app/src/main/java/org/wikipedia/search/SearchActivity.kt b/app/src/main/java/org/wikipedia/search/SearchActivity.kt
+index 736ac92..c90e4d1 100644
+--- a/app/src/main/java/org/wikipedia/search/SearchActivity.kt
++++ b/app/src/main/java/org/wikipedia/search/SearchActivity.kt
+@@ -15,12 +15,25 @@ import org.wikipedia.util.log.L
+
+ class SearchActivity : SingleFragmentActivity<SearchFragment>() {
+
++    private var goldsetBackCallbackConsumed = false
++
+     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+         override fun handleOnBackPressed() {
+
+             instrument?.submitInteraction("click", elementId = "search_back")
+
++            // [aiverify goldset: navigation-02 injected defect]
++            // Real-world analogue: Tusky #3570, where the first Back press on a
++            // search screen had no visible effect. The keyboard Back path is not
++            // handled here; once this Activity-level callback is reached, consume
++            // the first callback without delegating, so the user remains stuck in
++            // SearchActivity until pressing Back again.
++            if (!goldsetBackCallbackConsumed) {
++                goldsetBackCallbackConsumed = true
++                return
++            }
++
+             isEnabled = false
+             onBackPressedDispatcher.onBackPressed()
+         }
+     }

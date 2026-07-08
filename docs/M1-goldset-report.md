@@ -183,6 +183,34 @@ duplicated restored state:
   empty/non-JSON dumps, and screenshot/logcat capture has bounded timeouts so evidence
   collection fails with an explicit harness error instead of hanging indefinitely.
 
+## Beyond M1 — Seed 8, navigation-02 (L2 / swallowed Back, issue #16)
+
+Second M2 seed expansion beyond the original M1 matrix. This complements the M1
+navigation seed, which was an L1 crash, with a non-crashing navigation-state defect:
+
+- Defect: `SearchActivity`'s `OnBackPressedCallback` consumes the first
+  Activity-level Back callback without delegating to `onBackPressedDispatcher`.
+  The keyboard Back path still works; the user must press Back again to leave the
+  search screen. This mirrors Tusky #3570, where the first hardware/system Back
+  press after search had no visible effect.
+- Scenario: open the Wikipedia Search tab, enter SearchActivity via `search_card`,
+  type sentinel `zznavbackqx`, press Back once to hide the keyboard, press Back a
+  second time to navigate out, inject `dark_mode` as the L2 observation boundary,
+  and assert `search_card.resource-id == "search_card"`.
+- Matched pair, both halves end-to-end via the CLI on Android API 36:
+  baseline **L2 pass** (second Back returns to Search tab; `search_card` remains
+  visible), defect **L2 fail** (still in SearchActivity; `search_src_text` remains
+  visible and `search_card` is absent). Current L2 verdict schema reports the
+  mismatch as `state_loss`; the run/spec preserve that this is a navigation
+  swallowed-Back seed.
+- Patch `bench/goldset/patches/wikipedia-navigation-02-back-button-swallowed.patch`;
+  run record `docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/`;
+  test `tests/bench/test_goldset_navigation_02_back_button_swallowed.py`.
+- Device note: the first defect setup after `pm clear` hit a startup ANR before
+  the runner began; that attempt is retained in the run record and was not used as
+  evidence. The valid defect run relaunched the same installed defect APK, confirmed
+  `nav_tab_search`, cleared logcat, and then ran the assembled runner.
+
 ## Notes / findings carried forward
 
 - `SearchActivity` declares `configChanges="orientation|screenSize"`, so **rotation

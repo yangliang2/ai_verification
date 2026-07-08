@@ -1,0 +1,110 @@
+{
+  "scenario": "wikipedia-navigation-02-back-button-swallowed",
+  "l1": {
+    "verdict_id": "L1-0a1a3860",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity.",
+      "Tap search_src_text, type sentinel text 'zznavbackqx', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity. Then press system Back a second time; this is the navigation Back and should return to the Search tab where search_card is visible.",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-b646bd56",
+    "level": "L2",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity.",
+      "Tap search_src_text, type sentinel text 'zznavbackqx', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity. Then press system Back a second time; this is the navigation Back and should return to the Search tab where search_card is visible.",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "已校验 1 条断言，全部通过",
+        "note": "L2 状态断言全部满足"
+      }
+    ],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "wikipedia-navigation-02-back-button-swallowed-segment-0",
+      "results": [
+        {
+          "action": "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity.",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 302",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Main feed was visible without onboarding. Tapped nav_tab_search at [540,2232], then search_card at [540,302]. SearchActivity opened with search_src_text visible/focused at [542,146]."
+        },
+        {
+          "action": "Tap search_src_text, type sentinel text 'zznavbackqx', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity. Then press system Back a second time; this is the navigation Back and should return to the Search tab where search_card is visible.",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 542 146",
+            "adb -s emulator-5554 shell input text \"zznavbackqx\"",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "search_src_text showed zznavbackqx. After the first Back press, SearchActivity remained visible with the sentinel in search_src_text. After the second Back press, the app returned to the Search tab and search_card was visible at [540,302]."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0"
+  ],
+  "injected_events": [
+    {
+      "event": "dark_mode",
+      "args": {
+        "night": "yes"
+      }
+    }
+  ],
+  "timing": {
+    "started_at": "2026-07-07T14:13:15+00:00",
+    "finished_at": "2026-07-07T14:17:08+00:00",
+    "total_seconds": 233.191,
+    "phases": [
+      {
+        "phase": "wikipedia-navigation-02-back-button-swallowed-segment-0",
+        "kind": "journey",
+        "seconds": 200.294
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 17.391
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "seconds": 0.346,
+        "event": "dark_mode"
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 14.741
+      }
+    ]
+  }
+}
