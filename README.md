@@ -32,7 +32,8 @@ run-spec.yaml
 - M2/M3 级别的多种子检测率基准。
 - ColorOS 一方应用迁移。
 - 完全无人值守的 LLM UI driver。
-- 对外可信的抓取率、误报率、L3 稳定性或全基准吞吐指标。
+- 对外可信的抓取率、误报率或全基准吞吐指标。
+- 视觉/多模态 L3 稳定性或全基准吞吐指标。
 
 这些仍是后续方向，但不是当前已验证的 MVP 状态。
 
@@ -41,9 +42,10 @@ run-spec.yaml
 截至 2026-07-08：
 
 - GitHub PRD #1 已完成并关闭：<https://github.com/yangliang2/ai_verification/issues/1>
-- 已完成并关闭：#2-#18
+- 已完成并关闭：#2-#19
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
+- M2 text-layout L3 summary: [`docs/M2-l3-text-layout-summary.md`](docs/M2-l3-text-layout-summary.md)
 - L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
 - Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
 - Latest L3 repeatability run record: [`docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/`](docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md)
@@ -142,5 +144,6 @@ PYTHONPATH=src python -m aiverify.runner \
 - #16：navigation back-button Goldset seed 已完成；baseline L2 pass、defect L2 fail，覆盖“Back 被吞掉 / 需要额外返回一次”的非崩溃导航状态缺陷。
 - #17：第二个 L3 text-layout semantic seed 已完成；Search tab `search_card` baseline L3 pass、defect L3 fail/ui_rendering。
 - #18：`ui-rendering-02` 的 L3 repeatability 已完成；fixed evidence 下 baseline 5/5 pass、defect 5/5 fail/ui_rendering。
+- #19：M2 text-layout L3 小结已完成；记录两个 repeatability-gated seed 的可用范围和限制。
 
-推荐下一步继续扩展新的 M2 seed，或先整理 M2 text-layout semantic L3 的小结边界。
+推荐下一步继续扩展新的 M2 seed，或开始把 M2 seed 结果整理成更正式的 scoped milestone。

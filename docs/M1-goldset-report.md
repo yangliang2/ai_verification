@@ -241,6 +241,8 @@ from the bottom-nav label swap:
   `search_empty_message` was not visible in the final accessibility layout, so L3
   correctly returned inconclusive. The committed seed uses the stable Search tab
   `search_card` surface instead.
+- Consolidated M2 text-layout L3 evidence summary:
+  `docs/M2-l3-text-layout-summary.md`.
 
 ## Notes / findings carried forward
 

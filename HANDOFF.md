@@ -8,10 +8,11 @@
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18
+- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18, #19
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
+- M2 text-layout L3 summary: [`docs/M2-l3-text-layout-summary.md`](docs/M2-l3-text-layout-summary.md)
 - Retrospective #11 timing run record: [`docs/runs/2026-07-06-runner-timing-instrumentation/README.md`](docs/runs/2026-07-06-runner-timing-instrumentation/README.md)
 - Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
 - Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
@@ -64,7 +65,8 @@ Do not claim these are complete yet:
 
 - Full defect-injected end-to-end benchmark.
 - 100+ AI-generated source-level defects.
-- Detection rate, false-positive rate, L3 repeatability, or full-benchmark throughput beyond the M1 seed-count demonstration.
+- Detection rate, false-positive rate, visual/multimodal L3 repeatability, or
+  full-benchmark throughput beyond the bounded M2 text-layout L3 summary.
 - Fully unattended Android Journey execution.
 - ColorOS internal app/build migration.
 - Multimodal/visual-only L3 judgment.
@@ -302,6 +304,28 @@ Interpretation: both current text-layout semantic L3 seeds (`ui-rendering-01` an
 not support visual-only/multimodal L3 claims or benchmark-wide detection/false-positive
 rates.
 
+## Progress Update (2026-07-08) — #19 COMPLETE: M2 text-layout L3 evidence summarized
+
+The two repeatability-gated text-layout semantic L3 seeds are consolidated in
+`docs/M2-l3-text-layout-summary.md`:
+
+- `ui-rendering-01`: #12 live matched pair, #14 repeatability.
+- `ui-rendering-02`: #17 live matched pair, #18 repeatability.
+- Aggregate fixed-evidence repeatability across the two seeds: 20 total calls,
+  20 valid verdicts, 0 errors; baselines 10/10 pass; defects 10/10 fail /
+  `ui_rendering`; confidence range 0.96-0.98.
+- The summary records the judge boundary: `scenario.l3_spec` + observed evidence only,
+  not `expected_behavior`, patches, issue text, or frozen verdict fixtures.
+- Test coverage:
+  `tests/bench/test_m2_l3_text_layout_summary.py` checks summary table values against
+  the committed repeatability `summary.json` files and asserts the key limitations are
+  present.
+
+Interpretation: the current L3 claim can be stated narrowly as two Wikipedia
+text-layout semantic L3 seeds passing fixed-evidence repeatability under Codex CLI
+judging. It still does not support visual-only/multimodal L3 reliability or
+benchmark-wide detection/false-positive rates.
+
 ## Next Issue
 
 Open tracker state:
@@ -314,14 +338,16 @@ Open tracker state:
 - **#16 is complete/closed** — navigation Back-button seed has matched baseline/defect L2 evidence.
 - **#17 is complete/closed** — second L3 text-layout semantic seed has matched baseline/defect L3 evidence.
 - **#18 is complete/closed** — `ui-rendering-02` L3 repeatability is stable 5x/5x per half.
+- **#19 is complete/closed** — M2 text-layout L3 summary records both repeatability-gated seeds and limits.
 
 Recommended execution order:
 
-1. Pick the next M2 seed deliberately: another L2 state/navigation seed, another
-   text-layout L3 semantic seed, or a small M2 text-layout L3 summary that records the
-   two repeatability-gated seeds and their limits.
-2. Do not start broader seed expansion, fully unattended Journey execution, or public
-   detection-rate reporting until the #17/#18 evidence is reviewed.
+1. Pick the next M2 seed deliberately: another L2 state/navigation seed or another
+   text-layout L3 semantic seed.
+2. Alternatively, draft a scoped M2 milestone note that separates seed-count evidence,
+   text-layout L3 repeatability evidence, and remaining benchmark gaps.
+3. Do not start broader seed expansion, fully unattended Journey execution, or public
+   detection-rate reporting until the #17/#18/#19 evidence is reviewed.
 
 ## Next Implementation Issue Discipline
 
