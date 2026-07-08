@@ -43,7 +43,7 @@ defect.
 
 1. Launch `org.wikipedia.dev`; if onboarding appears, advance to the main feed.
 2. Tap the Search tab, then tap `search_card` to open `SearchActivity`.
-3. Type sentinel text `zzoversizeqx` into `search_src_text`.
+3. Type sentinel text `zzoversize` into `search_src_text`.
 4. Press Back once to hide the soft keyboard while staying on SearchActivity.
 5. At the boundary, inject `dark_mode` with `night=yes`.
 6. Evaluate logcat with L1. L2 may also run as a baseline sanity assertion, but

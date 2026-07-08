@@ -48,9 +48,9 @@ def test_run_spec_parses_with_dark_mode_boundary_patch_and_metric_context() -> N
     event = spec.scenario.system_events[0]
     assert event.event == "dark_mode"
     assert event.args == {"night": "yes"}
-    assert "zzoversizeqx" in spec.scenario.user_actions[1]
+    assert "zzoversize" in spec.scenario.user_actions[1]
     assert [(a.resource_id, a.attr, a.expected) for a in spec.scenario.assertions] == [
-        ("search_src_text", "text", "zzoversizeqx")
+        ("search_src_text", "text", "zzoversize")
     ]
     assert spec.scenario.metric_context.seed_kind == "injected_defect"
     assert spec.scenario.metric_context.taxonomy_category == "process-death"
