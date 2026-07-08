@@ -10,13 +10,26 @@ _NOTE = _ROOT / "docs" / "M2-scoped-milestone-note.md"
 def test_m2_scoped_milestone_note_links_source_evidence() -> None:
     text = _NOTE.read_text(encoding="utf-8")
 
-    for issue in ("#9", "#10", "#12", "#14", "#15", "#16", "#17", "#18", "#19", "#21"):
+    for issue in (
+        "#9",
+        "#10",
+        "#12",
+        "#14",
+        "#15",
+        "#16",
+        "#17",
+        "#18",
+        "#19",
+        "#21",
+        "#22",
+    ):
         assert issue in text
 
     for evidence_path in (
         "docs/M1-goldset-report.md",
         "docs/M2-l3-text-layout-summary.md",
         "docs/M2-metric-schema.md",
+        "capture-manifest.json",
         "docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/",
         "docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/",
         "docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/",
@@ -66,7 +79,7 @@ def test_m2_scoped_milestone_note_preserves_scope_boundaries() -> None:
     for next_decision in (
         "Add another M2 seed deliberately",
         "Use the metric context contract",
-        "Harden automation",
+        "Continue hardening automation",
         "M2-beta milestone",
     ):
         assert next_decision in text

@@ -77,6 +77,19 @@ def test_capture_checkpoint_writes_evidence_files(tmp_path: Path) -> None:
     assert checkpoint.annotated_screenshot_path.read_bytes() == b"png"
     assert checkpoint.logcat_path.read_text(encoding="utf-8") == "log line\n"
     assert checkpoint.commands_path.is_file()
+    assert checkpoint.manifest_path is not None
+    manifest = json.loads(checkpoint.manifest_path.read_text(encoding="utf-8"))
+    assert manifest["checkpoint"] == "before"
+    assert manifest["status"] == "passed"
+    assert manifest["failed_phase"] is None
+    assert manifest["error"] is None
+    assert manifest["command_count"] == 4
+    assert manifest["artifacts"]["layout"] == str(checkpoint.layout_path)
+    assert manifest["artifacts"]["screen"] == str(checkpoint.screenshot_path)
+    assert manifest["artifacts"]["screen_annotated"] == str(
+        checkpoint.annotated_screenshot_path
+    )
+    assert manifest["artifacts"]["logcat"] == str(checkpoint.logcat_path)
     assert ["adb", "-s", "emulator-5554", "logcat", "-d"] in runner.calls
 
 
@@ -85,6 +98,20 @@ def test_capture_checkpoint_raises_on_command_failure(tmp_path: Path) -> None:
 
     with pytest.raises(EvidenceCaptureError, match="Command failed"):
         collector.capture_checkpoint(name="bad", output_dir=tmp_path)
+
+    checkpoint_dir = tmp_path / "bad"
+    commands = json.loads((checkpoint_dir / "commands.json").read_text(encoding="utf-8"))
+    manifest = json.loads(
+        (checkpoint_dir / "capture-manifest.json").read_text(encoding="utf-8")
+    )
+
+    assert manifest["status"] == "failed"
+    assert manifest["failed_phase"] == "layout"
+    assert "Command failed" in manifest["error"]["message"]
+    assert commands[-1]["phase"] == "layout"
+    assert commands[-1]["status"] == "failed"
+    assert commands[-1]["returncode"] == 1
+    assert commands[-1]["stderr"] == "failed"
 
 
 def test_capture_checkpoint_retries_transient_empty_layout(tmp_path: Path) -> None:
@@ -107,6 +134,7 @@ def test_capture_checkpoint_retries_transient_empty_layout(tmp_path: Path) -> No
         if item["args"][:2] == ["android", "layout"]
     ]
     assert [item["stdout"] for item in layout_results] == ["", '[{"text":"Home"}]']
+    assert [item["status"] for item in layout_results] == ["invalid_output", "passed"]
 
 
 def test_capture_checkpoint_applies_timeouts_to_screens_and_logcat(tmp_path: Path) -> None:
@@ -140,3 +168,17 @@ def test_capture_checkpoint_wraps_command_timeout(tmp_path: Path) -> None:
 
     with pytest.raises(EvidenceCaptureError, match="Command timed out after 3s"):
         collector.capture_checkpoint(name="timeout", output_dir=tmp_path)
+
+    checkpoint_dir = tmp_path / "timeout"
+    commands = json.loads((checkpoint_dir / "commands.json").read_text(encoding="utf-8"))
+    manifest = json.loads(
+        (checkpoint_dir / "capture-manifest.json").read_text(encoding="utf-8")
+    )
+
+    assert manifest["status"] == "failed"
+    assert manifest["failed_phase"] == "annotated_screenshot"
+    assert "timed out" in manifest["error"]["message"]
+    assert commands[-1]["phase"] == "annotated_screenshot"
+    assert commands[-1]["status"] == "timeout"
+    assert commands[-1]["timeout_seconds"] == 3
+    assert "--annotate" in commands[-1]["args"]

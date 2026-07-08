@@ -26,6 +26,7 @@ class EvidenceCheckpoint:
     annotated_screenshot_path: Path | None
     logcat_path: Path
     commands_path: Path
+    manifest_path: Path | None = None
 
 
 class AndroidEvidenceCollector:
@@ -67,51 +68,97 @@ class AndroidEvidenceCollector:
         annotated_path = checkpoint_dir / "screen-annotated.png" if annotated else None
         logcat_path = checkpoint_dir / "logcat.txt"
         commands_path = checkpoint_dir / "commands.json"
+        manifest_path = checkpoint_dir / "capture-manifest.json"
         command_results: list[dict[str, object]] = []
+        failed_phase: str | None = None
 
-        layout_cmd = [self.android_bin, "layout", "--pretty"]
-        if device:
-            layout_cmd += ["--device", device]
-        layout = self._capture_layout(layout_cmd, command_results=command_results)
-        layout_path.write_text(layout.stdout, encoding="utf-8")
+        def _write_metadata(
+            status: str,
+            *,
+            error: dict[str, str] | None = None,
+        ) -> None:
+            commands_path.write_text(
+                json.dumps(command_results, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            manifest = _capture_manifest(
+                checkpoint=name,
+                status=status,
+                failed_phase=failed_phase,
+                error=error,
+                layout_path=layout_path,
+                screenshot_path=screenshot_path,
+                annotated_path=annotated_path,
+                logcat_path=logcat_path,
+                commands_path=commands_path,
+                command_count=len(command_results),
+            )
+            manifest_path.write_text(
+                json.dumps(manifest, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
 
-        screenshot_cmd = [self.android_bin, "screen", "capture", "-o", str(screenshot_path)]
-        screenshot = self._run_required(
-            screenshot_cmd,
-            timeout_seconds=self.screen_capture_timeout_seconds,
-        )
-        command_results.append(_command_to_dict(screenshot))
+        try:
+            failed_phase = "layout"
+            layout_cmd = [self.android_bin, "layout", "--pretty"]
+            if device:
+                layout_cmd += ["--device", device]
+            layout = self._capture_layout(layout_cmd, command_results=command_results)
+            layout_path.write_text(layout.stdout, encoding="utf-8")
 
-        if annotated_path is not None:
-            annotated_cmd = [
+            failed_phase = "screenshot"
+            screenshot_cmd = [
                 self.android_bin,
                 "screen",
                 "capture",
-                "--annotate",
                 "-o",
-                str(annotated_path),
+                str(screenshot_path),
             ]
-            annotated_result = self._run_required(
-                annotated_cmd,
+            self._run_checkpoint_command(
+                screenshot_cmd,
+                phase="screenshot",
+                command_results=command_results,
                 timeout_seconds=self.screen_capture_timeout_seconds,
             )
-            command_results.append(_command_to_dict(annotated_result))
 
-        logcat_cmd = [self.adb_bin]
-        if device:
-            logcat_cmd += ["-s", device]
-        logcat_cmd += ["logcat", "-d"]
-        logcat = self._run_required(
-            logcat_cmd,
-            timeout_seconds=self.logcat_timeout_seconds,
-        )
-        command_results.append(_command_to_dict(logcat))
-        logcat_path.write_text(logcat.stdout, encoding="utf-8")
+            if annotated_path is not None:
+                failed_phase = "annotated_screenshot"
+                annotated_cmd = [
+                    self.android_bin,
+                    "screen",
+                    "capture",
+                    "--annotate",
+                    "-o",
+                    str(annotated_path),
+                ]
+                self._run_checkpoint_command(
+                    annotated_cmd,
+                    phase="annotated_screenshot",
+                    command_results=command_results,
+                    timeout_seconds=self.screen_capture_timeout_seconds,
+                )
 
-        commands_path.write_text(
-            json.dumps(command_results, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
+            failed_phase = "logcat"
+            logcat_cmd = [self.adb_bin]
+            if device:
+                logcat_cmd += ["-s", device]
+            logcat_cmd += ["logcat", "-d"]
+            logcat = self._run_checkpoint_command(
+                logcat_cmd,
+                phase="logcat",
+                command_results=command_results,
+                timeout_seconds=self.logcat_timeout_seconds,
+            )
+            logcat_path.write_text(logcat.stdout, encoding="utf-8")
+        except EvidenceCaptureError as exc:
+            _write_metadata(
+                "failed",
+                error={"type": type(exc).__name__, "message": str(exc)},
+            )
+            raise
+
+        failed_phase = None
+        _write_metadata("passed")
 
         return EvidenceCheckpoint(
             name=name,
@@ -121,24 +168,51 @@ class AndroidEvidenceCollector:
             annotated_screenshot_path=annotated_path,
             logcat_path=logcat_path,
             commands_path=commands_path,
+            manifest_path=manifest_path,
         )
 
-    def _run_required(
+    def _run_checkpoint_command(
         self,
         args: list[str],
         *,
+        phase: str,
+        command_results: list[dict[str, object]],
         timeout_seconds: int | None = None,
     ) -> CommandResult:
         try:
             result = self.runner.run(args, timeout_seconds=timeout_seconds)
         except subprocess.TimeoutExpired as exc:
-            raise EvidenceCaptureError(
-                f"Command timed out after {exc.timeout}s: {' '.join(args)}"
-            ) from exc
-        if result.returncode != 0:
-            raise EvidenceCaptureError(
-                f"Command failed ({result.returncode}): {' '.join(args)}\n{result.stderr.strip()}"
+            message = f"Command timed out after {exc.timeout}s: {' '.join(args)}"
+            command_results.append(
+                _command_entry(
+                    args=args,
+                    phase=phase,
+                    status="timeout",
+                    timeout_seconds=timeout_seconds,
+                    error=message,
+                )
             )
+            raise EvidenceCaptureError(message) from exc
+
+        status = "passed"
+        error: str | None = None
+        if result.returncode != 0:
+            status = "failed"
+            error = (
+                f"Command failed ({result.returncode}): {' '.join(args)}\n"
+                f"{result.stderr.strip()}"
+            )
+        command_results.append(
+            _command_entry(
+                result=result,
+                phase=phase,
+                status=status,
+                timeout_seconds=timeout_seconds,
+                error=error,
+            )
+        )
+        if error is not None:
+            raise EvidenceCaptureError(error)
         return result
 
     def _capture_layout(
@@ -151,10 +225,15 @@ class AndroidEvidenceCollector:
         last_result: CommandResult | None = None
         attempts = max(1, self.layout_attempts)
         for attempt in range(1, attempts + 1):
-            result = self._run_required(args)
-            command_results.append(_command_to_dict(result))
+            result = self._run_checkpoint_command(
+                args,
+                phase="layout",
+                command_results=command_results,
+            )
             if _is_json_list(result.stdout):
                 return result
+            command_results[-1]["status"] = "invalid_output"
+            command_results[-1]["error"] = "layout stdout was not a JSON list"
             last_result = result
             if attempt < attempts:
                 time.sleep(self.layout_retry_sleep_seconds)
@@ -168,6 +247,41 @@ class AndroidEvidenceCollector:
         )
 
 
+def _capture_manifest(
+    *,
+    checkpoint: str,
+    status: str,
+    failed_phase: str | None,
+    error: dict[str, str] | None,
+    layout_path: Path,
+    screenshot_path: Path,
+    annotated_path: Path | None,
+    logcat_path: Path,
+    commands_path: Path,
+    command_count: int,
+) -> dict[str, object]:
+    artifacts = {
+        "layout": str(layout_path),
+        "screen": str(screenshot_path),
+        "screen_annotated": str(annotated_path) if annotated_path is not None else None,
+        "logcat": str(logcat_path),
+        "commands": str(commands_path),
+    }
+    artifact_exists = {
+        key: Path(value).exists() if value is not None else False
+        for key, value in artifacts.items()
+    }
+    return {
+        "checkpoint": checkpoint,
+        "status": status,
+        "failed_phase": failed_phase,
+        "error": error,
+        "command_count": command_count,
+        "artifacts": artifacts,
+        "artifact_exists": artifact_exists,
+    }
+
+
 def _command_to_dict(result: CommandResult) -> dict[str, object]:
     return {
         "args": result.args,
@@ -175,6 +289,33 @@ def _command_to_dict(result: CommandResult) -> dict[str, object]:
         "stdout": result.stdout,
         "stderr": result.stderr,
     }
+
+
+def _command_entry(
+    *,
+    phase: str,
+    status: str,
+    timeout_seconds: int | None,
+    error: str | None,
+    result: CommandResult | None = None,
+    args: list[str] | None = None,
+) -> dict[str, object]:
+    if result is not None:
+        entry = _command_to_dict(result)
+    elif args is not None:
+        entry = {"args": list(args), "returncode": None, "stdout": "", "stderr": ""}
+    else:
+        raise ValueError("result or args is required")
+
+    entry.update(
+        {
+            "phase": phase,
+            "status": status,
+            "timeout_seconds": timeout_seconds,
+            "error": error,
+        }
+    )
+    return entry
 
 
 def _is_json_list(text: str) -> bool:

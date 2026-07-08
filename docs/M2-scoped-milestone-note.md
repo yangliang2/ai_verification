@@ -12,6 +12,7 @@ separate.
 | L3 path bring-up and repeatability | #12, #14, #17, #18, #19 | `docs/M2-l3-text-layout-summary.md`; `docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`; `docs/runs/2026-07-07-l3-repeatability-ui-rendering-01/`; `docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`; `docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/` |
 | M2 seed expansion | #15, #16, #17 | `docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/`; `docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/`; `docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/` |
 | M2 metric/schema cleanup | #21 | `docs/M2-metric-schema.md`; `scenario.metric_context` in selected M2 run specs; top-level `verdict.json.metric_context` for new runs |
+| Evidence recovery hardening | #22 | `capture-manifest.json` and persisted `commands.json` for successful and failed `AndroidEvidenceCollector` checkpoints |
 
 ## What Is Proven
 
@@ -54,6 +55,14 @@ and taxonomy/root-cause category. The current L1/L2/L3 `defect_class_hypothesis`
 schema is unchanged; new runs can use top-level `verdict.json.metric_context` to
 carry seed metadata and computed `caught` / `missed` outcomes. See
 `docs/M2-metric-schema.md`.
+
+### Evidence Recovery Boundary
+
+Checkpoint capture hardening (#22) makes successful and failed
+`AndroidEvidenceCollector` attempts leave checkpoint-local `capture-manifest.json`
+and `commands.json` artifacts. This improves auditability when layout, screenshot,
+annotated screenshot, or logcat capture fails. It does not make Journey execution
+fully unattended.
 
 ### Text-Layout L3 Repeatability
 
@@ -100,9 +109,9 @@ repeatability under Codex CLI judging.**
      separate fields.
    - backfill `scenario.metric_context` into older run specs only when they are pulled
      into a new aggregate report.
-3. Harden automation:
+3. Continue hardening automation:
    - reduce Agent-In-The-Loop assumptions in Journey execution;
    - keep intent-free navigation constraints;
-   - expand recovery and evidence capture around transient Android CLI layout dumps.
+   - expand recovery beyond checkpoint-local command manifests.
 4. Only after the above, decide whether to define a larger M2-beta milestone with
    explicit sample size, false-positive controls, and reporting rules.

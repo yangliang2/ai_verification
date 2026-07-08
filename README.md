@@ -42,7 +42,7 @@ run-spec.yaml
 截至 2026-07-08：
 
 - GitHub PRD #1 已完成并关闭：<https://github.com/yangliang2/ai_verification/issues/1>
-- 已完成并关闭：#2-#21
+- 已完成并关闭：#2-#22
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - M2 text-layout L3 summary: [`docs/M2-l3-text-layout-summary.md`](docs/M2-l3-text-layout-summary.md)
@@ -149,5 +149,6 @@ PYTHONPATH=src python -m aiverify.runner \
 - #19：M2 text-layout L3 小结已完成；记录两个 repeatability-gated seed 的可用范围和限制。
 - #20：M2 scoped milestone note 已完成；把 M1 seed-count、M2 seed expansion、text-layout L3 repeatability 和剩余 benchmark gap 分开记录。
 - #21：M2 metric/schema cleanup 已完成；新增 `scenario.metric_context` 和顶层 `verdict.json.metric_context`，把 seed outcome、oracle symptom class、taxonomy category 分开。
+- #22：checkpoint evidence recovery hardening 已完成；成功/失败的 evidence capture 都会写 `capture-manifest.json`，失败时也保留 `commands.json`。
 
-推荐下一步继续扩展新的 M2 seed，或处理 Journey automation / evidence recovery hardening。
+推荐下一步继续扩展新的 M2 seed，或用 `metric_context` 做一个 aggregate M2 report。

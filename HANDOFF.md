@@ -8,7 +8,7 @@
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18, #19, #20, #21
+- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18, #19, #20, #21, #22
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -52,7 +52,8 @@ Wikipedia host:
 - `src/aiverify/runner/run_spec.py`: `run-spec.yaml` parsing, validation, dry-run plan.
 - `src/aiverify/runner/codex_backend.py`: Codex CLI Verification Agent Backend contract.
 - `src/aiverify/runner/journey_result_schema.json`: structured Journey result schema.
-- `src/aiverify/runner/evidence.py`: Android CLI layout/screenshot/checkpoint evidence capture.
+- `src/aiverify/runner/evidence.py`: Android CLI layout/screenshot/checkpoint
+  evidence capture, including checkpoint-local success/failure manifests.
 - `src/aiverify/runner/journey.py`: Journey segment boundary orchestration.
 - `src/aiverify/runner/system_events.py`: system-event injection at boundaries.
 - `src/aiverify/runner/verdict.py`: Android CLI layout JSON to L2Oracle verdict.
@@ -373,6 +374,23 @@ per-seed caught/missed reporting, `metric_context.oracle_defect_classes` for ora
 symptom classes, and `metric_context.taxonomy_category` / `taxonomy_pattern_id` for
 seed grouping.
 
+## Progress Update (2026-07-08) — #22 COMPLETE: checkpoint evidence recovery hardened
+
+`AndroidEvidenceCollector` now writes checkpoint-local capture metadata for both
+successful and failed checkpoint attempts:
+
+- successful captures write `capture-manifest.json` with checkpoint name, status,
+  artifact paths, artifact existence, command count, and no error.
+- failed captures still raise `EvidenceCaptureError`, but first persist
+  `commands.json` and `capture-manifest.json`.
+- failed command entries include phase, args, return code when available, stdout,
+  stderr, timeout when applicable, status, and error text.
+- layout retries now preserve per-attempt command status, including
+  `invalid_output` for transient empty/non-JSON layout dumps.
+
+Interpretation: this improves auditability of evidence-capture failures before more
+M2 seed work. It does not make Journey execution fully unattended.
+
 ## Next Issue
 
 Open tracker state:
@@ -388,6 +406,7 @@ Open tracker state:
 - **#19 is complete/closed** — M2 text-layout L3 summary records both repeatability-gated seeds and limits.
 - **#20 is complete/closed** — M2 scoped milestone note records proven claims, non-claims, and next decisions.
 - **#21 is complete/closed** — M2 metric context separates seed outcome, oracle symptom class, and taxonomy category.
+- **#22 is complete/closed** — checkpoint evidence capture now leaves success/failure manifests and persisted command trails.
 
 Recommended execution order:
 
@@ -395,10 +414,10 @@ Recommended execution order:
    text-layout L3 semantic seed.
 2. Use `scenario.metric_context` and top-level `verdict.json.metric_context` for any
    new aggregate M2 report.
-3. Or harden Journey automation and evidence recovery before adding more expensive
-   L3 seeds.
+3. Or continue hardening Journey automation beyond checkpoint-local evidence
+   manifests before adding more expensive L3 seeds.
 4. Do not start broader seed expansion, fully unattended Journey execution, or public
-   detection-rate reporting until the #17/#18/#19/#20/#21 evidence is reviewed.
+   detection-rate reporting until the #17/#18/#19/#20/#21/#22 evidence is reviewed.
 
 ## Next Implementation Issue Discipline
 
