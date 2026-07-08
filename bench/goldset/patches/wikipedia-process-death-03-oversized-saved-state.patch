@@ -1,0 +1,35 @@
+diff --git a/app/src/main/java/org/wikipedia/search/SearchActivity.kt b/app/src/main/java/org/wikipedia/search/SearchActivity.kt
+--- a/app/src/main/java/org/wikipedia/search/SearchActivity.kt
++++ b/app/src/main/java/org/wikipedia/search/SearchActivity.kt
+@@ -35,7 +35,16 @@ class SearchActivity : SingleFragmentActivity<SearchFragment>() {
+             .setExperiment(TestKitchenAdapter.getExperiment(HybridSearchAbCTest()))
+     }
+-
+-    public override fun createFragment(): SearchFragment {
++    override fun onSaveInstanceState(outState: Bundle) {
++        super.onSaveInstanceState(outState)
++        // [aiverify goldset: process-death-03 injected defect]
++        // Model Tusky #419: an image/Bitmap-sized object is written into the
++        // saved-state Bundle. Android must marshal this Bundle through Binder
++        // when the Activity is saved, which can crash with
++        // TransactionTooLargeException only at the save-state boundary.
++        outState.putByteArray(AIVERIFY_OVERSIZED_STATE_KEY, ByteArray(AIVERIFY_OVERSIZED_STATE_BYTES))
++    }
++
++    public override fun createFragment(): SearchFragment {
+         var source = intent.getSerializableExtra(Constants.INTENT_EXTRA_INVOKE_SOURCE) as InvokeSource?
+         if (source == null) {
+             when {
+@@ -67,7 +76,9 @@ class SearchActivity : SingleFragmentActivity<SearchFragment>() {
+         const val RESULT_LINK_SUCCESS = 97
+         const val EXTRA_SHOW_SNACKBAR_MESSAGE = "showSnackbarMessage"
+         const val EXTRA_SHOW_HYBRID_SEARCH = "showHybridSearch"
+-
+-        fun newIntent(context: Context, source: InvokeSource, query: String?, returnLink: Boolean = false, title: String? = null, initiateHybridSearch: Boolean = false): Intent {
++        private const val AIVERIFY_OVERSIZED_STATE_KEY = "aiverifyOversizedSavedState"
++        private const val AIVERIFY_OVERSIZED_STATE_BYTES = 2 * 1024 * 1024
++
++        fun newIntent(context: Context, source: InvokeSource, query: String?, returnLink: Boolean = false, title: String? = null, initiateHybridSearch: Boolean = false): Intent {
+             if (HybridSearchAbCTest().shouldShowOnboarding(WikipediaApp.instance.languageState.appLanguageCode)) {
+                 Prefs.isHybridSearchOnboardingShown = true
+                 return HybridSearchOnboardingActivity.newIntent(context, source)

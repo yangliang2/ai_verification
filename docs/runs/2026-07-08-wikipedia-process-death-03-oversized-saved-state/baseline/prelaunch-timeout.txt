@@ -1,0 +1,18 @@
+Prelaunch readiness failed before runner invocation.
+
+The setup script started org.wikipedia.dev with:
+
+adb -s emulator-5554 shell am start -W -a android.intent.action.MAIN \
+  -c android.intent.category.LAUNCHER -n org.wikipedia.dev/org.wikipedia.DefaultIcon
+
+The first Android CLI readiness layout returned a null root:
+
+Failed to retrieve UI dump: ERROR: null root node returned by UiTestAutomationBridge.
+
+A subsequent `android layout --pretty --device emulator-5554` call timed out
+after 90 seconds in the Python prelaunch loop:
+
+subprocess.TimeoutExpired: Command '['android', 'layout', '--pretty',
+'--device', 'emulator-5554']' timed out after 90 seconds
+
+No `aiverify.runner` invocation was started for this baseline attempt.

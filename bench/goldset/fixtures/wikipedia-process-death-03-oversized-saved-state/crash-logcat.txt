@@ -1,0 +1,13 @@
+--------- beginning of crash
+07-08 22:45:12.345 12345 12345 E AndroidRuntime: FATAL EXCEPTION: main
+07-08 22:45:12.345 12345 12345 E AndroidRuntime: Process: org.wikipedia.dev, PID: 12345
+07-08 22:45:12.345 12345 12345 E AndroidRuntime: java.lang.RuntimeException: android.os.TransactionTooLargeException: data parcel size 2098456 bytes
+07-08 22:45:12.345 12345 12345 E AndroidRuntime:     at android.app.ActivityThread$StopInfo.run(ActivityThread.java:5900)
+07-08 22:45:12.345 12345 12345 E AndroidRuntime:     at android.os.Handler.handleCallback(Handler.java:995)
+07-08 22:45:12.345 12345 12345 E AndroidRuntime:     at android.os.Handler.dispatchMessage(Handler.java:103)
+07-08 22:45:12.345 12345 12345 E AndroidRuntime: Caused by: android.os.TransactionTooLargeException: data parcel size 2098456 bytes
+07-08 22:45:12.345 12345 12345 E AndroidRuntime:     at android.os.BinderProxy.transactNative(Native Method)
+07-08 22:45:12.345 12345 12345 E AndroidRuntime:     at android.os.BinderProxy.transact(BinderProxy.java:662)
+07-08 22:45:12.345 12345 12345 E AndroidRuntime:     at android.app.IActivityClientController$Stub$Proxy.activityStopped(IActivityClientController.java:1576)
+07-08 22:45:12.345 12345 12345 E AndroidRuntime:     at android.app.ActivityClient.activityStopped(ActivityClient.java:96)
+07-08 22:45:12.345 12345 12345 E AndroidRuntime:     at android.app.ActivityThread$StopInfo.run(ActivityThread.java:5882)
