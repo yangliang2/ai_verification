@@ -5,6 +5,7 @@ from pathlib import Path
 
 from aiverify.bench.l3_repeatability import (
     L3RepeatabilityCase,
+    _default_cases,
     confidence_stats,
     run_repeatability,
     summarize_repeatability,
@@ -121,6 +122,28 @@ def test_run_repeatability_uses_fixed_layout_evidence_and_records_artifact_dirs(
     assert [c["iteration"] for c in calls] == [1, 2]
     assert calls[0]["artifact_dir"].name == "iteration-01"
     assert "nav_tab_search" in summary["calls"][0]["trace_summary_preview"]
+
+
+def test_default_cases_derive_journey_result_path_from_scenario_id() -> None:
+    source_run_dir = Path("docs/runs/example")
+
+    cases = _default_cases(
+        source_run_dir,
+        "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+    )
+
+    assert [case.half for case in cases] == ["baseline", "defect"]
+    assert cases[0].layout_path == (
+        source_run_dir / "baseline/artifacts/after-segment-0/layout.json"
+    )
+    assert cases[0].journey_result_path == (
+        source_run_dir
+        / "baseline/artifacts/wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0/codex-journey-result.json"
+    )
+    assert cases[1].journey_result_path == (
+        source_run_dir
+        / "defect/artifacts/wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0/codex-journey-result.json"
+    )
 
 
 def test_write_markdown_report_renders_summary_table(tmp_path: Path) -> None:

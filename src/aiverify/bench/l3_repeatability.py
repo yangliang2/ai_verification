@@ -234,8 +234,7 @@ def write_markdown_report(summary: dict[str, Any], path: Path) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def _default_cases(source_run_dir: Path) -> list[L3RepeatabilityCase]:
-    scenario = "wikipedia-ui-rendering-01-nav-label-swap"
+def _default_cases(source_run_dir: Path, scenario_id: str) -> list[L3RepeatabilityCase]:
     cases: list[L3RepeatabilityCase] = []
     for half in ("baseline", "defect"):
         half_dir = source_run_dir / half / "artifacts"
@@ -246,7 +245,7 @@ def _default_cases(source_run_dir: Path) -> list[L3RepeatabilityCase]:
                 layout_path=checkpoint / "layout.json",
                 screenshot_refs=(str(checkpoint / "screen.png"),),
                 journey_result_path=(
-                    half_dir / f"{scenario}-segment-0" / "codex-journey-result.json"
+                    half_dir / f"{scenario_id}-segment-0" / "codex-journey-result.json"
                 ),
             )
         )
@@ -286,7 +285,7 @@ def main(argv: list[str] | None = None) -> int:
 
     spec = load_run_spec(args.run_spec)
     summary = run_repeatability(
-        cases=_default_cases(args.source_run_dir),
+        cases=_default_cases(args.source_run_dir, spec.scenario.id),
         l3_spec=spec.scenario.l3_spec,
         repetitions=args.repetitions,
         artifact_dir=args.artifact_dir,

@@ -1,0 +1,430 @@
+{
+  "generated_at": "2026-07-08T07:33:26+00:00",
+  "total_iterations": 10,
+  "total_errors": 0,
+  "by_half": {
+    "baseline": {
+      "iterations": 5,
+      "valid_verdicts": 5,
+      "error_count": 0,
+      "outcomes": {
+        "pass": 5
+      },
+      "defect_class_hypotheses": {
+        "null": 5
+      },
+      "confidence": {
+        "min": 0.96,
+        "median": 0.96,
+        "max": 0.98
+      },
+      "timing_seconds": {
+        "min": 14.564,
+        "median": 16.018,
+        "max": 19.849,
+        "total": 82.689
+      },
+      "errors": []
+    },
+    "defect": {
+      "iterations": 5,
+      "valid_verdicts": 5,
+      "error_count": 0,
+      "outcomes": {
+        "fail": 5
+      },
+      "defect_class_hypotheses": {
+        "ui_rendering": 5
+      },
+      "confidence": {
+        "min": 0.96,
+        "median": 0.97,
+        "max": 0.98
+      },
+      "timing_seconds": {
+        "min": 16.071,
+        "median": 19.071,
+        "max": 21.092,
+        "total": 92.855
+      },
+      "errors": []
+    }
+  },
+  "calls": [
+    {
+      "half": "baseline",
+      "iteration": 1,
+      "duration_seconds": 16.018,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/baseline/iteration-01",
+      "verdict": {
+        "verdict_id": "L3-a3f9c1b2",
+        "level": "L3",
+        "outcome": "pass",
+        "defect_class_hypothesis": null,
+        "trigger_steps": [
+          "应用已处于主界面，无需启动器或 intent",
+          "点击底部 Search 标签 nav_tab_search，坐标 [540,2232]",
+          "最终布局确认 nav_tab_search 处于 selected 状态，search_card 可见，未进入 SearchActivity"
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "final_layout: nav_tab_search",
+            "note": "Search 底部标签存在且 state 包含 selected，满足可判定前提。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "final_layout: search_card",
+            "note": "resource-id 为 search_card 的节点可见，中心点为 [540,302]，满足规格要求的入口卡片可见条件。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "final_layout: search_text_view/search_icon",
+            "note": "search_text_view 文本为 \"Search Wikipedia\"，search_icon content-desc 也为 \"Search Wikipedia\"，明确邀请用户搜索 Wikipedia，未将搜索卡片描述为历史、已保存页面、编辑活动或其他非搜索功能。"
+          }
+        ],
+        "confidence": 0.96
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\nbaseline\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search"
+    },
+    {
+      "half": "baseline",
+      "iteration": 2,
+      "duration_seconds": 14.564,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/baseline/iteration-02",
+      "verdict": {
+        "verdict_id": "L3-4f9a2c8b",
+        "level": "L3",
+        "outcome": "pass",
+        "defect_class_hypothesis": null,
+        "trigger_steps": [
+          "应用已在主 Feed 启动，初始底部 Home tab 选中",
+          "点击底部 Search tab，坐标 [540,2232]",
+          "最终布局中 nav_tab_search 处于 selected 状态，search_card 可见且未进入 SearchActivity"
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: nav_tab_search selected; search_card visible at [540,302]; search_text_view text is \"Search Wikipedia\"; search_icon content-desc is \"Search Wikipedia\"",
+            "note": "Search tab 和 search_card 均可见，搜索卡片文案明确邀请用户搜索 Wikipedia，符合功能规格。未发现其描述阅读历史、最近浏览、保存页面、编辑活动或其他非搜索功能。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Driver journey result JSON status PASSED",
+            "note": "执行轨迹确认只切换到底部 Search tab，并停留在搜索入口卡片可见状态，没有额外点击 search_card 或进入搜索页。"
+          }
+        ],
+        "confidence": 0.98
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\nbaseline\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search"
+    },
+    {
+      "half": "baseline",
+      "iteration": 3,
+      "duration_seconds": 16.649,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/baseline/iteration-03",
+      "verdict": {
+        "verdict_id": "L3-7a9c2f1b",
+        "level": "L3",
+        "outcome": "pass",
+        "defect_class_hypothesis": null,
+        "trigger_steps": [
+          "应用已在主 Feed 启动，底部 Home tab 初始选中",
+          "点击底部 Search tab，坐标 [540,2232]",
+          "最终布局中 nav_tab_search 处于 selected 状态",
+          "最终布局中 search_card 可见，中心点 [540,302]"
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: nav_tab_search",
+            "note": "Search tab 可见且处于 selected 状态，满足可判定前提。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: search_card",
+            "note": "resource-id 为 search_card 的节点可见且可点击，中心点为 [540,302]。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: search_text_view/search_icon",
+            "note": "search_text_view 文本为 “Search Wikipedia”，search_icon content-desc 也为 “Search Wikipedia”，明确邀请用户搜索 Wikipedia，符合功能规格。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: history_empty_title/history_empty_message",
+            "note": "页面下方存在 History/No recently viewed articles 等历史区域文本，但它们不是 search_card 的子搜索入口文案；搜索卡片本身未描述阅读历史、保存页面或编辑活动。"
+          }
+        ],
+        "confidence": 0.97
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\nbaseline\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search"
+    },
+    {
+      "half": "baseline",
+      "iteration": 4,
+      "duration_seconds": 19.849,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/baseline/iteration-04",
+      "verdict": {
+        "verdict_id": "L3-7a9c2e10",
+        "level": "L3",
+        "outcome": "pass",
+        "defect_class_hypothesis": null,
+        "trigger_steps": [
+          "应用已在主 Feed 启动，未使用 launcher search 或 intents",
+          "点击底部 Search 标签 nav_tab_search",
+          "停留在 Search 标签页，未点击 search_card 或进入 SearchActivity",
+          "最终布局确认 nav_tab_search 处于 selected 状态且 search_card 可见"
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: nav_tab_search, search_card, search_icon, search_text_view",
+            "note": "Search 标签处于 selected 状态，search_card 可见且可聚焦/可点击，中心位置为 [540,302]。search_card 的相关子节点 search_text_view 文本为 \"Search Wikipedia\"，search_icon 的 content-desc 也为 \"Search Wikipedia\"，明确邀请用户搜索 Wikipedia，符合功能规格。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: history_empty_title/history_empty_message/history_title",
+            "note": "页面下方存在 History、No recently viewed articles 等阅读历史区域文本，但这些不是 search_card 的描述文本；搜索入口卡片本身没有描述阅读历史、保存页、编辑活动或其他非搜索功能，因此不构成缺陷。"
+          }
+        ],
+        "confidence": 0.96
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\nbaseline\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search"
+    },
+    {
+      "half": "baseline",
+      "iteration": 5,
+      "duration_seconds": 15.609,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/baseline/iteration-05",
+      "verdict": {
+        "verdict_id": "L3-4f9a2c1b",
+        "level": "L3",
+        "outcome": "pass",
+        "defect_class_hypothesis": null,
+        "trigger_steps": [
+          "应用已在主 Feed 启动，未使用 launcher search 或 intents",
+          "点击底部 Search tab（nav_tab_search）",
+          "停留在 Search tab，未点击 search_card 或进入 SearchActivity",
+          "检查最终布局中 Search tab 处于 selected 状态且 search_card 可见"
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: nav_tab_search",
+            "note": "resource-id 为 nav_tab_search 的底部标签存在，content-desc 为 Search，并带有 selected 状态，说明当前处于 Search tab。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: search_card/search_text_view/search_icon",
+            "note": "resource-id 为 search_card 的节点可见且可点击；其子节点 search_text_view 文本为 \"Search Wikipedia\"，search_icon 的 content-desc 也是 \"Search Wikipedia\"，明确邀请用户搜索 Wikipedia，符合功能规格。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: history_* nodes",
+            "note": "页面下方存在 History、No recently viewed articles 等阅读历史空状态文案，但这些不是 search_card 的描述内容；search_card 本身未错误描述阅读历史、保存页、编辑活动或非搜索功能。"
+          }
+        ],
+        "confidence": 0.96
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\nbaseline\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search"
+    },
+    {
+      "half": "defect",
+      "iteration": 1,
+      "duration_seconds": 16.071,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/defect/iteration-01",
+      "verdict": {
+        "verdict_id": "L3-a7c4e19b",
+        "level": "L3",
+        "outcome": "fail",
+        "defect_class_hypothesis": "ui_rendering",
+        "trigger_steps": [
+          "App was already launched on the main feed.",
+          "Tapped the bottom Search tab at nav_tab_search.",
+          "Final layout confirmed nav_tab_search is selected and search_card is visible without entering SearchActivity."
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/defect/artifacts/after-segment-0/layout.json",
+            "note": "The Search tab is selected and the node with resource-id search_card is visible, so the specification can be evaluated rather than marked inconclusive."
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "search_text_view and search_icon nodes in final checkpoint layout",
+            "note": "The search card child text and icon content description both say \"Track what you've been reading here.\", which describes reading history rather than inviting the user to search Wikipedia or search/ask anything. This violates the Search tab copy requirement."
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/defect/artifacts/after-segment-0/screen.png",
+            "note": "The screenshot reference corresponds to the same final checkpoint where the Search tab is active and the visible search entry card copy is mismatched with a history-related message."
+          }
+        ],
+        "confidence": 0.96
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\ndefect\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_c"
+    },
+    {
+      "half": "defect",
+      "iteration": 2,
+      "duration_seconds": 19.071,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/defect/iteration-02",
+      "verdict": {
+        "verdict_id": "L3-a1c9f02e",
+        "level": "L3",
+        "outcome": "fail",
+        "defect_class_hypothesis": "ui_rendering",
+        "trigger_steps": [
+          "org.wikipedia.dev 已由 runner/setup 启动，停留在主 feed",
+          "点击底部 Search tab（nav_tab_search）",
+          "确认 Search tab 处于 selected 状态且 search_card 可见，未进入 SearchActivity"
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: nav_tab_search",
+            "note": "底部 Search tab 的节点 resource-id 为 nav_tab_search，状态包含 selected，说明当前确实位于 Search tab。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: search_card/search_text_view/search_icon",
+            "note": "search_card 可见且可聚焦/可点击；其子节点 search_text_view 文案为 “Track what you've been reading here.”，search_icon 的 content-desc 也是 “Track what you've been reading here.”。该文案描述阅读历史，而不是邀请用户搜索 Wikipedia 或搜索/提问。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "功能规格",
+            "note": "规格明确要求 Search tab 上的搜索入口卡片必须描述搜索功能，且不得描述 reading history、recently viewed articles 等非搜索功能；当前可见文案违反该要求。"
+          }
+        ],
+        "confidence": 0.97
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\ndefect\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_c"
+    },
+    {
+      "half": "defect",
+      "iteration": 3,
+      "duration_seconds": 21.092,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/defect/iteration-03",
+      "verdict": {
+        "verdict_id": "L3-a4f91c2e",
+        "level": "L3",
+        "outcome": "fail",
+        "defect_class_hypothesis": "ui_rendering",
+        "trigger_steps": [
+          "应用已在主界面启动，未使用 launcher search 或 intent",
+          "从底部导航点击 Search tab（nav_tab_search）",
+          "停止在 Search tab，未点击 search_card 或进入 SearchActivity",
+          "最终布局确认 nav_tab_search 为 selected，search_card 可见"
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: nav_tab_search",
+            "note": "底部 Search tab 可见且处于 selected 状态，因此满足规格中可判定的前提条件，不应返回 inconclusive。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout JSON: search_card/search_text_view/search_icon",
+            "note": "search_card 可见，center 为 [540,302]；其子节点 search_text_view 文本为 \"Track what you've been reading here.\"，search_icon 的 content-desc 也为 \"Track what you've been reading here.\"。该文案描述阅读历史，而不是邀请用户搜索 Wikipedia 或搜索/提问。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "功能规格",
+            "note": "规格明确要求 Search tab 上的 search_card 必须描述 Search 功能，且不得描述 reading history、recently viewed articles、saved pages、edit activity 或其他非搜索功能。当前文案违反该要求。"
+          }
+        ],
+        "confidence": 0.97
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\ndefect\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_c"
+    },
+    {
+      "half": "defect",
+      "iteration": 4,
+      "duration_seconds": 19.878,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/defect/iteration-04",
+      "verdict": {
+        "verdict_id": "L3-a4f92c1b",
+        "level": "L3",
+        "outcome": "fail",
+        "defect_class_hypothesis": "ui_rendering",
+        "trigger_steps": [
+          "org.wikipedia.dev 已由 runner/setup 启动，停留在主 feed",
+          "点击底部 Search 标签 nav_tab_search",
+          "确认 Search 标签处于 selected 状态",
+          "确认 search_card 可见且未进入 SearchActivity"
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/defect/artifacts/after-segment-0/layout.json",
+            "note": "最终布局中 nav_tab_search 处于 selected 状态，search_card 位于 [540,302] 且可点击/可聚焦，满足判定前提，不应返回 inconclusive。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/defect/artifacts/after-segment-0/layout.json",
+            "note": "search_text_view 的文本为 “Track what you've been reading here.”，search_icon 的 content-desc 也是 “Track what you've been reading here.”，该文案描述阅读历史而非搜索 Wikipedia 或搜索/提问入口。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "功能规格",
+            "note": "规格明确要求 Search tab 的 search_card 必须描述搜索功能，且不得描述 reading history、recently viewed articles、saved pages、edit activity 或其他非搜索功能；当前文案违反该要求。"
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/defect/artifacts/after-segment-0/screen.png",
+            "note": "截图引用与布局证据对应，可用于人工复核 Search 页面顶部搜索卡片显示了非搜索相关文案。"
+          }
+        ],
+        "confidence": 0.98
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\ndefect\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_c"
+    },
+    {
+      "half": "defect",
+      "iteration": 5,
+      "duration_seconds": 16.743,
+      "artifact_dir": "docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/artifacts/defect/iteration-05",
+      "verdict": {
+        "verdict_id": "L3-a4f29c7e",
+        "level": "L3",
+        "outcome": "fail",
+        "defect_class_hypothesis": "ui_rendering",
+        "trigger_steps": [
+          "App already launched; from main feed tap bottom Search tab (nav_tab_search).",
+          "Stop on Search tab without tapping search_card or entering SearchActivity.",
+          "Verify nav_tab_search is selected and search_card is visible."
+        ],
+        "evidence": [
+          {
+            "type": "llm_reasoning",
+            "ref": "Final checkpoint layout: nav_tab_search/search_card/search_text_view/search_icon",
+            "note": "Search tab is selected and search_card is visible, so the oracle can evaluate the visible search entry copy. The search_text_view text is \"Track what you've been reading here.\" and search_icon content-desc is also \"Track what you've been reading here.\", which describes reading history rather than inviting the user to search Wikipedia or search/ask anything."
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "功能规格",
+            "note": "The specification explicitly says the Search tab entry card must not describe reading history, recently viewed articles, saved pages, edit activity, or any non-search feature. The observed copy violates this requirement."
+          },
+          {
+            "type": "llm_reasoning",
+            "ref": "Screenshot reference docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/defect/artifacts/after-segment-0/screen.png",
+            "note": "The referenced checkpoint corresponds to the layout state where Search is selected and the search card copy is mismatched with the Search feature."
+          }
+        ],
+        "confidence": 0.97
+      },
+      "error": null,
+      "trace_summary_preview": "### Fixed evidence half\ndefect\n\n### Driver journey result JSON\n{\"journey\":\"wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0\",\"results\":[{\"action\":\"org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_c"
+    }
+  ]
+}

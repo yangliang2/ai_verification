@@ -8,14 +8,15 @@
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
 - 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17
+- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - Retrospective #11 timing run record: [`docs/runs/2026-07-06-runner-timing-instrumentation/README.md`](docs/runs/2026-07-06-runner-timing-instrumentation/README.md)
 - Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
 - Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
-- Test status: `.venv/bin/pytest` -> `238 passed, 2 warnings`
+- Latest L3 repeatability run record: [`docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md`](docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md)
+- Test status: `.venv/bin/pytest` -> `239 passed, 2 warnings`
 
 ### 已实测
 
@@ -282,6 +283,25 @@ layout after opening SearchActivity, so L3 correctly returned inconclusive. That
 attempt is retained under the run record's discarded probing directory and was not
 used as matched-pair evidence.
 
+## Progress Update (2026-07-08) — #18 COMPLETE: L3 repeatability measured for ui-rendering-02
+
+M2 L3 repeatability on `ui-rendering-02` is measured using fixed evidence from the
+#17 matched pair and live Codex CLI judge calls:
+
+- Baseline: **5/5 L3 pass**, `defect_class_hypothesis=null`.
+- Defect: **5/5 L3 fail / ui_rendering**.
+- Errors/retries/inconclusive verdicts: **0**.
+- Confidence range: baseline 0.96-0.98; defect 0.96-0.98.
+- Run record: `docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/`.
+- Runner improvement: `src/aiverify/bench/l3_repeatability.py` now derives the
+  fixed-evidence Journey result path from the loaded run spec `scenario.id` instead
+  of hard-coding `ui-rendering-01`.
+
+Interpretation: both current text-layout semantic L3 seeds (`ui-rendering-01` and
+`ui-rendering-02`) have passed the fixed-evidence repeatability gate. This still does
+not support visual-only/multimodal L3 claims or benchmark-wide detection/false-positive
+rates.
+
 ## Next Issue
 
 Open tracker state:
@@ -293,15 +313,15 @@ Open tracker state:
 - **#15 is complete/closed** — config-change duplicated-state seed has matched baseline/defect L2 evidence.
 - **#16 is complete/closed** — navigation Back-button seed has matched baseline/defect L2 evidence.
 - **#17 is complete/closed** — second L3 text-layout semantic seed has matched baseline/defect L3 evidence.
+- **#18 is complete/closed** — `ui-rendering-02` L3 repeatability is stable 5x/5x per half.
 
 Recommended execution order:
 
-1. Decide whether `ui-rendering-02` needs a repeatability measurement like #14 before
-   being used in any M2 aggregate L3 metric.
-2. Otherwise pick the next M2 seed deliberately: another L2 state/navigation seed or
-   another text-layout L3 semantic seed.
-3. Do not start broader seed expansion, fully unattended Journey execution, or public
-   detection-rate reporting until #17 evidence is reviewed.
+1. Pick the next M2 seed deliberately: another L2 state/navigation seed, another
+   text-layout L3 semantic seed, or a small M2 text-layout L3 summary that records the
+   two repeatability-gated seeds and their limits.
+2. Do not start broader seed expansion, fully unattended Journey execution, or public
+   detection-rate reporting until the #17/#18 evidence is reviewed.
 
 ## Next Implementation Issue Discipline
 

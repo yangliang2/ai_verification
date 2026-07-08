@@ -41,12 +41,13 @@ run-spec.yaml
 截至 2026-07-08：
 
 - GitHub PRD #1 已完成并关闭：<https://github.com/yangliang2/ai_verification/issues/1>
-- 已完成并关闭：#2-#17
+- 已完成并关闭：#2-#18
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
 - Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
-- 本地测试：`.venv/bin/pytest` -> `238 passed, 2 warnings`
+- Latest L3 repeatability run record: [`docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/`](docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md)
+- 本地测试：`.venv/bin/pytest` -> `239 passed, 2 warnings`
 
 Wikipedia host 实测：
 
@@ -140,5 +141,6 @@ PYTHONPATH=src python -m aiverify.runner \
 - #1：父 PRD 已完成并关闭。
 - #16：navigation back-button Goldset seed 已完成；baseline L2 pass、defect L2 fail，覆盖“Back 被吞掉 / 需要额外返回一次”的非崩溃导航状态缺陷。
 - #17：第二个 L3 text-layout semantic seed 已完成；Search tab `search_card` baseline L3 pass、defect L3 fail/ui_rendering。
+- #18：`ui-rendering-02` 的 L3 repeatability 已完成；fixed evidence 下 baseline 5/5 pass、defect 5/5 fail/ui_rendering。
 
-推荐下一步决定是否给 `ui-rendering-02` 做 repeatability 测量，或继续扩展新的 M2 seed。
+推荐下一步继续扩展新的 M2 seed，或先整理 M2 text-layout semantic L3 的小结边界。

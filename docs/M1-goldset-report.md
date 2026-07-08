@@ -231,6 +231,12 @@ from the bottom-nav label swap:
 - Patch `bench/goldset/patches/wikipedia-ui-rendering-02-search-card-copy-mismatch.patch`;
   run record `docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`;
   test `tests/bench/test_goldset_ui_rendering_02_search_card_copy_mismatch.py`.
+- M2 repeatability follow-up (#18): the same fixed baseline/defect evidence was judged
+  5 times per half. Baseline was **5/5 L3 pass**, defect was **5/5 L3 fail /
+  ui_rendering**, with 0 judge errors and confidence 0.96-0.98. Run record:
+  `docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/`. Together with #14, this
+  supports using the current text-layout semantic L3 seeds under repeatability
+  discipline; it still does not prove visual-only or multimodal L3 reliability.
 - Boundary note: an initial SearchActivity empty-state surface was discarded because
   `search_empty_message` was not visible in the final accessibility layout, so L3
   correctly returned inconclusive. The committed seed uses the stable Search tab
