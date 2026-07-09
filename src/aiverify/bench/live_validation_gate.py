@@ -6,6 +6,7 @@ import argparse
 import json
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -58,6 +59,9 @@ class GateResult:
     device: str
     status: str
     checks: tuple[GateCheckResult, ...]
+    app_package: str | None = None
+    app_activity: str | None = None
+    target_surface: dict[str, str] | None = None
 
     @property
     def failed_checks(self) -> tuple[str, ...]:
@@ -68,13 +72,20 @@ class GateResult:
     def to_dict(self) -> dict[str, object]:
         """Serialize this gate result into the committed JSON format."""
 
-        return {
+        payload: dict[str, object] = {
             "schema_version": _SCHEMA_VERSION,
             "status": self.status,
             "device": self.device,
             "failed_checks": list(self.failed_checks),
             "checks": [check.to_dict() for check in self.checks],
         }
+        if self.app_package is not None:
+            payload["app"] = {
+                "package": self.app_package,
+                "activity": self.app_activity,
+                "target_surface": self.target_surface or {},
+            }
+        return payload
 
 
 def run_live_validation_gate(
@@ -85,8 +96,26 @@ def run_live_validation_gate(
     adb_bin: str = "adb",
     timeout_seconds: int = _DEFAULT_TIMEOUT_SECONDS,
     snippet_chars: int = _DEFAULT_SNIPPET_CHARS,
+    app_package: str | None = None,
+    app_activity: str | None = None,
+    target_resource_id: str | None = None,
+    target_text: str | None = None,
+    target_content_desc: str | None = None,
+    app_settle_seconds: float = 3.0,
 ) -> GateResult:
     """Run the required Android live environment checks."""
+
+    target_surface = _target_surface(
+        resource_id=target_resource_id,
+        text=target_text,
+        content_desc=target_content_desc,
+    )
+    if any([app_package, app_activity, target_surface]):
+        _validate_app_smoke_args(
+            app_package=app_package,
+            app_activity=app_activity,
+            target_surface=target_surface,
+        )
 
     command_runner = runner if runner is not None else SubprocessCommandRunner()
     checks = [
@@ -138,8 +167,30 @@ def run_live_validation_gate(
             snippet_chars=snippet_chars,
         ),
     ]
+    if app_package is not None and app_activity is not None:
+        checks.extend(
+            _run_app_smoke_checks(
+                device=device,
+                app_package=app_package,
+                app_activity=app_activity,
+                target_surface=target_surface,
+                runner=command_runner,
+                android_bin=android_bin,
+                adb_bin=adb_bin,
+                timeout_seconds=timeout_seconds,
+                snippet_chars=snippet_chars,
+                app_settle_seconds=app_settle_seconds,
+            )
+        )
     status = "passed" if all(check.status == "passed" for check in checks) else "failed"
-    return GateResult(device=device, status=status, checks=tuple(checks))
+    return GateResult(
+        device=device,
+        status=status,
+        checks=tuple(checks),
+        app_package=app_package,
+        app_activity=app_activity,
+        target_surface=target_surface or None,
+    )
 
 
 def main(argv: list[str] | None = None, *, runner: CommandRunner | None = None) -> int:
@@ -154,6 +205,17 @@ def main(argv: list[str] | None = None, *, runner: CommandRunner | None = None) 
     parser.add_argument("--output", type=Path, help="optional JSON output path")
     parser.add_argument("--android-bin", default="android", help="Android CLI binary")
     parser.add_argument("--adb-bin", default="adb", help="adb binary")
+    parser.add_argument("--app-package", help="optional app package for app-level smoke")
+    parser.add_argument("--app-activity", help="optional launcher activity for app-level smoke")
+    parser.add_argument("--target-resource-id", help="target resource-id required in app layout")
+    parser.add_argument("--target-text", help="target text required in app layout")
+    parser.add_argument("--target-content-desc", help="target content-desc required in app layout")
+    parser.add_argument(
+        "--app-settle-seconds",
+        type=float,
+        default=3.0,
+        help="sleep after app launch before foreground/layout checks",
+    )
     parser.add_argument(
         "--timeout-seconds",
         type=int,
@@ -168,14 +230,23 @@ def main(argv: list[str] | None = None, *, runner: CommandRunner | None = None) 
     )
     args = parser.parse_args(argv)
 
-    result = run_live_validation_gate(
-        device=args.device,
-        runner=runner,
-        android_bin=args.android_bin,
-        adb_bin=args.adb_bin,
-        timeout_seconds=args.timeout_seconds,
-        snippet_chars=args.snippet_chars,
-    )
+    try:
+        result = run_live_validation_gate(
+            device=args.device,
+            runner=runner,
+            android_bin=args.android_bin,
+            adb_bin=args.adb_bin,
+            timeout_seconds=args.timeout_seconds,
+            snippet_chars=args.snippet_chars,
+            app_package=args.app_package,
+            app_activity=args.app_activity,
+            target_resource_id=args.target_resource_id,
+            target_text=args.target_text,
+            target_content_desc=args.target_content_desc,
+            app_settle_seconds=args.app_settle_seconds,
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
     payload = json.dumps(result.to_dict(), ensure_ascii=False, indent=2) + "\n"
     if args.output is not None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -295,6 +366,153 @@ def _check_returncode_zero(
     )
 
 
+def _run_app_smoke_checks(
+    *,
+    device: str,
+    app_package: str,
+    app_activity: str,
+    target_surface: dict[str, str],
+    runner: CommandRunner,
+    android_bin: str,
+    adb_bin: str,
+    timeout_seconds: int,
+    snippet_chars: int,
+    app_settle_seconds: float,
+) -> list[GateCheckResult]:
+    launch = _check_app_launch(
+        device=device,
+        app_package=app_package,
+        app_activity=app_activity,
+        runner=runner,
+        adb_bin=adb_bin,
+        timeout_seconds=timeout_seconds,
+        snippet_chars=snippet_chars,
+    )
+    if app_settle_seconds > 0:
+        time.sleep(app_settle_seconds)
+    return [
+        launch,
+        _check_foreground_package(
+            device=device,
+            app_package=app_package,
+            runner=runner,
+            adb_bin=adb_bin,
+            timeout_seconds=timeout_seconds,
+            snippet_chars=snippet_chars,
+        ),
+        _check_app_target_surface(
+            device=device,
+            target_surface=target_surface,
+            runner=runner,
+            android_bin=android_bin,
+            timeout_seconds=timeout_seconds,
+            snippet_chars=snippet_chars,
+        ),
+    ]
+
+
+def _check_app_launch(
+    *,
+    device: str,
+    app_package: str,
+    app_activity: str,
+    runner: CommandRunner,
+    adb_bin: str,
+    timeout_seconds: int,
+    snippet_chars: int,
+) -> GateCheckResult:
+    result = _run_gate_command(
+        name="app-launch",
+        args=[
+            adb_bin,
+            "-s",
+            device,
+            "shell",
+            "am",
+            "start",
+            "-W",
+            "-a",
+            "android.intent.action.MAIN",
+            "-c",
+            "android.intent.category.LAUNCHER",
+            "-n",
+            f"{app_package}/{app_activity}",
+        ],
+        runner=runner,
+        timeout_seconds=timeout_seconds,
+        snippet_chars=snippet_chars,
+    )
+    if result.status != "passed":
+        return result
+    if "Status: ok" in result.raw_stdout:
+        return result
+    return _replace_status(result, status="failed", error="app launch did not report Status: ok")
+
+
+def _check_foreground_package(
+    *,
+    device: str,
+    app_package: str,
+    runner: CommandRunner,
+    adb_bin: str,
+    timeout_seconds: int,
+    snippet_chars: int,
+) -> GateCheckResult:
+    result = _run_gate_command(
+        name="app-foreground-package",
+        args=[adb_bin, "-s", device, "shell", "dumpsys", "window"],
+        runner=runner,
+        timeout_seconds=timeout_seconds,
+        snippet_chars=snippet_chars,
+    )
+    if result.status != "passed":
+        return result
+    if app_package in result.raw_stdout:
+        return result
+    return _replace_status(
+        result,
+        status="failed",
+        error=f"{app_package} was not found in dumpsys window output",
+    )
+
+
+def _check_app_target_surface(
+    *,
+    device: str,
+    target_surface: dict[str, str],
+    runner: CommandRunner,
+    android_bin: str,
+    timeout_seconds: int,
+    snippet_chars: int,
+) -> GateCheckResult:
+    result = _run_gate_command(
+        name="app-target-surface",
+        args=[android_bin, "layout", "--pretty", "--device", device],
+        runner=runner,
+        timeout_seconds=timeout_seconds,
+        snippet_chars=snippet_chars,
+    )
+    if result.status != "passed":
+        return result
+    try:
+        layout = json.loads(result.raw_stdout)
+    except json.JSONDecodeError as exc:
+        return _replace_status(
+            result,
+            status="failed",
+            error=f"app layout stdout was not JSON: {exc}",
+        )
+    if not isinstance(layout, list):
+        return _replace_status(result, status="failed", error="app layout was not a JSON list")
+    if any(_node_matches_target(node, target_surface) for node in layout):
+        return result
+    return _replace_status(
+        result,
+        status="failed",
+        error=f"target surface not found: {target_surface}",
+    )
+
+
 def _run_gate_command(
     *,
     name: str,
@@ -381,6 +599,68 @@ def _snippet(text: str, limit: int) -> tuple[str, bool]:
     if len(text) <= limit:
         return text, False
     return text[:limit], True
+
+
+def _target_surface(
+    *,
+    resource_id: str | None,
+    text: str | None,
+    content_desc: str | None,
+) -> dict[str, str]:
+    target: dict[str, str] = {}
+    if resource_id:
+        target["resource_id"] = resource_id
+    if text:
+        target["text"] = text
+    if content_desc:
+        target["content_desc"] = content_desc
+    return target
+
+
+def _validate_app_smoke_args(
+    *,
+    app_package: str | None,
+    app_activity: str | None,
+    target_surface: dict[str, str],
+) -> None:
+    if not app_package:
+        raise ValueError("app smoke requires app_package")
+    if not app_activity:
+        raise ValueError("app smoke requires app_activity")
+    if not target_surface:
+        raise ValueError("app smoke requires at least one target surface criterion")
+
+
+def _node_matches_target(node: object, target_surface: dict[str, str]) -> bool:
+    if not isinstance(node, dict):
+        return False
+    resource_id = target_surface.get("resource_id")
+    if resource_id and not _resource_id_matches(
+        _first_str(node, "resource-id", "resourceId"),
+        resource_id,
+    ):
+        return False
+    text = target_surface.get("text")
+    if text and _first_str(node, "text") != text:
+        return False
+    content_desc = target_surface.get("content_desc")
+    if content_desc and _first_str(node, "content-desc", "contentDesc") != content_desc:
+        return False
+    return True
+
+
+def _first_str(node: dict[object, object], *keys: str) -> str | None:
+    for key in keys:
+        value = node.get(key)
+        if isinstance(value, str):
+            return value
+    return None
+
+
+def _resource_id_matches(actual: str | None, expected: str) -> bool:
+    if actual is None:
+        return False
+    return actual == expected or actual.endswith(f":id/{expected}")
 
 
 if __name__ == "__main__":

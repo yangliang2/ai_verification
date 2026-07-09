@@ -33,6 +33,25 @@ PYTHONPATH=src python -m aiverify.bench.live_validation_gate \
 The command exits `0` when the gate passes and `2` when any check fails. The JSON
 payload is written to stdout and to `--output` when provided.
 
+Run an app-level Wikipedia smoke gate by adding the app package, launcher
+activity, and target surface criteria:
+
+```bash
+PYTHONPATH=src python -m aiverify.bench.live_validation_gate \
+  --device emulator-5554 \
+  --app-package org.wikipedia.dev \
+  --app-activity org.wikipedia.DefaultIcon \
+  --target-resource-id nav_tab_search \
+  --target-content-desc Search \
+  --output docs/runs/<date>-wikipedia-app-smoke-gate/live-validation-gate.json
+```
+
+The app-level smoke first runs the generic gate, then launches the app with an
+explicit launcher intent, checks that the package appears in foreground window
+state, and verifies that one Android CLI layout node matches all supplied target
+surface criteria. This is still a gate, not a seed journey: it proves the app
+entry surface is healthy enough to start seed-specific baseline/defect work.
+
 ## Artifact Contract
 
 The gate JSON contains:
@@ -40,6 +59,7 @@ The gate JSON contains:
 - `schema_version`
 - overall `status`
 - target `device`
+- optional `app` package, activity, and target surface metadata
 - `failed_checks`
 - per-check command args, status, return code, stdout/stderr snippets, timeout,
   truncation flags, and error reason
@@ -58,3 +78,7 @@ Any future live retry of #23 or another Android seed must link a passing gate
 record before collecting baseline/defect matched-pair evidence. If the gate
 fails, keep the seed open or quarantined and record the failed gate as the
 evidence.
+
+A passing generic gate permits app-level smoke work to start. A passing
+Wikipedia app-level smoke permits seed-specific matched-pair execution to start.
+Neither gate by itself counts as a benchmark seed outcome.
