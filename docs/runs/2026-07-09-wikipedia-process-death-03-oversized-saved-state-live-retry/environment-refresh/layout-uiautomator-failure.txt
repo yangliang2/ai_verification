@@ -1,0 +1,12 @@
+After foreground2 boot_completed=1 / bootanim=stopped, Android CLI layout remained unusable.
+Observed command results before stopping emulator:
+
+android layout --pretty --device emulator-5554
+=> Error: Could not read file contents: /sdcard/window_dump.xml
+=> Failed to retrieve UI dump
+
+adb -s emulator-5554 shell uiautomator dump /sdcard/window_dump.xml
+=> command hung for 15 seconds and was interrupted
+
+android layout --pretty --device emulator-5554 -o docs/runs/.../environment-refresh/layout-after-unlock.json
+=> command hung for 15 seconds and was interrupted
