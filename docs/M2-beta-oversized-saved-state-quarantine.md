@@ -13,6 +13,17 @@ This does not close #23. The seed remains implemented and can still become
 M2-beta evidence later, but only after a valid baseline/defect matched pair is
 captured on a stable emulator or real device.
 
+As of 2026-07-09, the live validation gates have been added and both required
+pre-seed gates pass on `emulator-5554`:
+
+- generic Android environment gate:
+  `docs/runs/2026-07-09-live-validation-gate-current-environment/README.md`;
+- Wikipedia app-level smoke gate:
+  `docs/runs/2026-07-09-wikipedia-app-smoke-gate/README.md`.
+
+These gates unblock a future #23 matched-pair retry, but they are not seed
+outcomes and do not change M2-beta accounting by themselves.
+
 For the current M2-beta aggregate:
 
 - accounting state: `candidate` and `blocked`;
@@ -45,6 +56,19 @@ That retry did not produce valid benchmark evidence:
 - Android CLI layout / UIAutomator remained unstable after emulator refresh;
 - no defect lane was run.
 
+The later live validation gate evidence is:
+
+- `docs/runs/2026-07-09-live-validation-gate-current-environment/README.md`
+  - generic gate passed: adb device, boot completion, boot animation,
+    Android CLI layout JSON, and direct UIAutomator dump;
+- `docs/runs/2026-07-09-wikipedia-app-smoke-gate/README.md`
+  - app-level smoke passed: explicit Wikipedia launch, foreground package, and
+    `nav_tab_search` / `Search` target surface.
+
+This changes the next-action state from "environment not proven" to "ready for
+seed-specific matched-pair retry." It does not backfill a baseline verdict,
+defect verdict, or matched pair for #23.
+
 ## Inclusion-Rule Application
 
 The M2-beta inclusion rules require a valid baseline/defect matched pair before
@@ -66,12 +90,15 @@ seed.
 Future work may move #23 from quarantined candidate to included seed only if it
 produces durable evidence with all of the following:
 
-1. baseline/control build installs and reaches the target SearchActivity surface;
-2. baseline/control run captures an interpretable oracle result;
-3. defect build runs the same scenario and boundary;
-4. defect run captures an interpretable L1/L2/L3 oracle result;
-5. both halves are linked from a durable run record and GitHub issue evidence;
-6. the matched pair satisfies `docs/M2-beta-inclusion-rules.md`.
+1. a passing generic live validation gate is linked from the issue evidence;
+2. a passing Wikipedia app-level smoke gate is linked from the issue evidence;
+3. baseline/control build installs and reaches the target SearchActivity
+   surface;
+4. baseline/control run captures an interpretable oracle result;
+5. defect build runs the same scenario and boundary;
+6. defect run captures an interpretable L1/L2/L3 oracle result;
+7. both halves are linked from a durable run record and GitHub issue evidence;
+8. the matched pair satisfies `docs/M2-beta-inclusion-rules.md`.
 
 Until then, #23 must remain outside M2-beta caught/missed accounting.
 
