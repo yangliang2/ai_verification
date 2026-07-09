@@ -30,6 +30,12 @@ diff: ../patches/wikipedia-config-change-01-search-query-loss.patch
 
 scenario:
   id: wikipedia-config-change-01-defect
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: config-change
+    taxonomy_pattern_id: config-change-01
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
   user_actions:
     - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
     - "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'"

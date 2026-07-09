@@ -89,14 +89,26 @@ For `seed_kind: unspecified`, the runner uses the neutral outcomes `detected` or
 
 ## Current Cleanup Coverage
 
-The following M2 run specs now carry metric context:
+The following run specs now carry metric context for M2-beta aggregation:
 
-- `wikipedia-config-change-02-query-duplication`: taxonomy category
-  `config-change`, pattern `config-change-02`, expected oracle `L2/state_loss`.
-- `wikipedia-navigation-02-back-button-swallowed`: taxonomy category
-  `navigation`, pattern `navigation-02`, expected oracle `L2/state_loss`.
-- `wikipedia-ui-rendering-02-search-card-copy-mismatch`: taxonomy category
-  `ui-rendering`, pattern `ui-rendering-02`, expected oracle `L3/ui_rendering`.
+| Run spec | Taxonomy category | Pattern | Expected oracle |
+|---|---|---|---|
+| `wikipedia-config-change-01-defect` | `config-change` | `config-change-01` | `L2/state_loss` |
+| `wikipedia-lifecycle-04-recreation-crash` | `lifecycle` | `lifecycle-04` | `L1/crash_stability` |
+| `wikipedia-coroutine-concurrency-03-main-thread-anr` | `coroutine-concurrency` | `coroutine-concurrency-03` | `L1/crash_stability` |
+| `wikipedia-navigation-01-double-open-crash` | `navigation` | `navigation-01` | `L1/crash_stability` |
+| `wikipedia-process-death-02-tab-state-loss` | `process-death` | `process-death-02` | `L2/state_loss` |
+| `wikipedia-config-change-02-query-duplication` | `config-change` | `config-change-02` | `L2/state_loss` |
+| `wikipedia-navigation-02-back-button-swallowed` | `navigation` | `navigation-02` | `L2/state_loss` |
+| `wikipedia-ui-rendering-01-nav-label-swap` | `ui-rendering` | `ui-rendering-01` | `L3/ui_rendering` |
+| `wikipedia-ui-rendering-02-search-card-copy-mismatch` | `ui-rendering` | `ui-rendering-02` | `L3/ui_rendering` |
+| `wikipedia-process-death-03-oversized-saved-state` | `process-death` | `process-death-03` | `L1/crash_stability` |
 
-This cleanup is schema/documentation work only. It does not reinterpret historical
-run records, and it does not change L1/L2/L3 oracle behavior.
+`wikipedia-process-death-03-oversized-saved-state` carries metric metadata for
+candidate accounting, but M2-beta inclusion is governed by
+`docs/M2-beta-inclusion-rules.md`. It remains outside the M2-beta numerator and
+denominator until a valid baseline/defect matched pair exists.
+
+This cleanup is schema/documentation work only. It does not reinterpret
+historical run records, decide inclusion by itself, or change L1/L2/L3 oracle
+behavior.

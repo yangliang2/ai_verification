@@ -21,6 +21,12 @@ diff: ../patches/wikipedia-coroutine-concurrency-03-main-thread-anr.patch
 
 scenario:
   id: wikipedia-coroutine-concurrency-03-main-thread-anr
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: coroutine-concurrency
+    taxonomy_pattern_id: coroutine-concurrency-03
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
   user_actions:
     - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
     - "点搜索输入框 search_src_text，输入文本 'anrtest'"

@@ -23,6 +23,12 @@ diff: ../patches/wikipedia-navigation-01-double-open-crash.patch
 
 scenario:
   id: wikipedia-navigation-01-double-open-crash
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: navigation
+    taxonomy_pattern_id: navigation-01
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
   user_actions:
     - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部导航栏的 More tab（resource-id nav_tab_more）"
   system_events: []

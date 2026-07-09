@@ -37,6 +37,12 @@ diff: ../patches/wikipedia-process-death-02-tab-state-loss.patch
 
 scenario:
   id: wikipedia-process-death-02-tab-state-loss
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: process-death
+    taxonomy_pattern_id: process-death-02
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
   user_actions:
     - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入，输入 'Cat'，点击搜索结果 'Cat' 打开文章页，等待文章加载完成（底部出现 Save/Language 工具栏）"
     - "点文章页右上角的 tabs 按钮（resource-id=page_toolbar_button_tabs，content-desc='Show tabs'）进入标签页列表，点新建标签页按钮（content-desc 含 'new tab'/'New tab'）新建标签页，在出现的搜索界面输入 'Dog'，点击搜索结果 'Dog' 打开文章页，等待文章加载完成且右上角 tabsCountText 显示 2"

@@ -26,6 +26,12 @@ diff: ../patches/wikipedia-ui-rendering-01-nav-label-swap.patch
 
 scenario:
   id: wikipedia-ui-rendering-01-nav-label-swap
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: ui-rendering
+    taxonomy_pattern_id: ui-rendering-01
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
   user_actions:
     - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，确认底部导航栏完整可见（不要点击任何底部 tab）"
   system_events: []
