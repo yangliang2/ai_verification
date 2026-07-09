@@ -115,6 +115,8 @@ Therefore #23 is not an M2-beta `included` seed today. It must remain outside
 the M2-beta numerator and denominator unless a future run captures a valid
 baseline/defect matched pair on a stable emulator or real device.
 
+M2-beta quarantine note: `docs/M2-beta-oversized-saved-state-quarantine.md`.
+
 ## Out-of-Scope Claims
 
 M2-beta inclusion must not be used to claim:
