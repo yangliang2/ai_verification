@@ -1,0 +1,138 @@
+version: 1
+description: M2-beta audited benchmark slice seed inventory.
+
+seeds:
+  - id: wikipedia-config-change-01-defect
+    run_spec: run-specs/wikipedia-config-change-01-defect.yaml
+    accounting_state: included
+    candidate: false
+    evidence_type: live_matched_pair
+    defect_outcome: caught
+    control_outcome: passed_control
+    source_issues: ["#8", "#9"]
+    run_records:
+      - docs/runs/2026-07-05-wikipedia-config-change-smoke/
+      - docs/runs/2026-07-05-wikipedia-config-change-01-defect/
+      - docs/runs/2026-07-05-end-to-end-cli-codex/
+
+  - id: wikipedia-lifecycle-04-recreation-crash
+    run_spec: run-specs/wikipedia-lifecycle-04-recreation-crash.yaml
+    accounting_state: included
+    candidate: false
+    evidence_type: live_matched_pair
+    defect_outcome: caught
+    control_outcome: passed_control
+    source_issues: ["#9"]
+    run_records:
+      - docs/runs/2026-07-05-wikipedia-lifecycle-04-recreation-crash/
+
+  - id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    run_spec: run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    accounting_state: included
+    candidate: false
+    evidence_type: live_matched_pair
+    defect_outcome: caught
+    control_outcome: passed_control
+    source_issues: ["#9"]
+    run_records:
+      - docs/runs/2026-07-05-wikipedia-coroutine-concurrency-03-anr/
+
+  - id: wikipedia-navigation-01-double-open-crash
+    run_spec: run-specs/wikipedia-navigation-01-double-open-crash.yaml
+    accounting_state: included
+    candidate: false
+    evidence_type: live_matched_pair
+    defect_outcome: caught
+    control_outcome: passed_control
+    source_issues: ["#9"]
+    run_records:
+      - docs/runs/2026-07-05-wikipedia-navigation-01-double-open-crash/
+
+  - id: wikipedia-process-death-02-tab-state-loss
+    run_spec: run-specs/wikipedia-process-death-02-tab-state-loss.yaml
+    accounting_state: included
+    candidate: false
+    evidence_type: live_matched_pair
+    defect_outcome: caught
+    control_outcome: passed_control
+    source_issues: ["#9", "#10"]
+    run_records:
+      - docs/runs/2026-07-06-wikipedia-process-death-02-tab-state-loss/
+
+  - id: wikipedia-config-change-02-query-duplication
+    run_spec: run-specs/wikipedia-config-change-02-query-duplication.yaml
+    accounting_state: included
+    candidate: false
+    evidence_type: live_matched_pair
+    defect_outcome: caught
+    control_outcome: passed_control
+    source_issues: ["#15"]
+    run_records:
+      - docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/
+
+  - id: wikipedia-navigation-02-back-button-swallowed
+    run_spec: run-specs/wikipedia-navigation-02-back-button-swallowed.yaml
+    accounting_state: included
+    candidate: false
+    evidence_type: live_matched_pair
+    defect_outcome: caught
+    control_outcome: passed_control
+    source_issues: ["#16"]
+    run_records:
+      - docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/
+
+  - id: wikipedia-ui-rendering-01-nav-label-swap
+    run_spec: run-specs/wikipedia-ui-rendering-01-nav-label-swap.yaml
+    accounting_state: included
+    candidate: false
+    evidence_type: live_matched_pair
+    defect_outcome: caught
+    control_outcome: passed_control
+    source_issues: ["#12", "#14"]
+    run_records:
+      - docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/
+
+  - id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    run_spec: run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    accounting_state: included
+    candidate: false
+    evidence_type: live_matched_pair
+    defect_outcome: caught
+    control_outcome: passed_control
+    source_issues: ["#17", "#18"]
+    run_records:
+      - docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/
+
+  - id: wikipedia-process-death-03-oversized-saved-state
+    run_spec: run-specs/wikipedia-process-death-03-oversized-saved-state.yaml
+    accounting_state: blocked
+    candidate: true
+    evidence_type: blocked_live_retry
+    defect_outcome: null
+    control_outcome: null
+    source_issues: ["#23", "#27"]
+    run_records:
+      - docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-live-retry/
+      - docs/M2-beta-oversized-saved-state-quarantine.md
+    reason: No valid baseline/defect matched pair; Android execution environment blocked the live retry.
+
+repeatability_packages:
+  - id: ui-rendering-01-l3-repeatability
+    seed_id: wikipedia-ui-rendering-01-nav-label-swap
+    evidence_type: fixed_evidence_repeatability
+    source_issues: ["#14"]
+    run_record: docs/runs/2026-07-07-l3-repeatability-ui-rendering-01/
+    total_calls: 10
+    baseline_passes: 5
+    defect_fails: 5
+    errors: 0
+
+  - id: ui-rendering-02-l3-repeatability
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    evidence_type: fixed_evidence_repeatability
+    source_issues: ["#18"]
+    run_record: docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/
+    total_calls: 10
+    baseline_passes: 5
+    defect_fails: 5
+    errors: 0
