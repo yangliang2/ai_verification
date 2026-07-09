@@ -34,10 +34,11 @@ Surface: `SearchActivity`, reached from the bottom Search tab and `search_card`.
 The visible assertion target is `resource-id="search_src_text"`, but the expected
 detector for the injected build is L1 crash evidence, not L2 state comparison.
 
-The seed uses `dark_mode` (`uiMode`) as the boundary because prior M1/M2 seeds
-proved that this host recreates `SearchActivity` on that boundary. Recreation
-forces the Activity state-save path and therefore exercises the oversized Bundle
-defect.
+The seed uses `app_to_background` as the boundary because it mirrors the source
+failure: Android saves Activity state while moving the task behind launcher. A
+2026-07-09 live probe showed that `dark_mode` recreates `SearchActivity` but
+does not send a Binder transaction large enough to surface this defect, while
+pressing Home does.
 
 ## Scenario
 
@@ -45,7 +46,7 @@ defect.
 2. Tap the Search tab, then tap `search_card` to open `SearchActivity`.
 3. Type sentinel text `zzoversize` into `search_src_text`.
 4. Press Back once to hide the soft keyboard while staying on SearchActivity.
-5. At the boundary, inject `dark_mode` with `night=yes`.
+5. At the boundary, inject `app_to_background` by pressing Home.
 6. Evaluate logcat with L1. L2 may also run as a baseline sanity assertion, but
    this seed's expected oracle is L1.
 
@@ -63,7 +64,9 @@ Patch:
 
 The patch adds `SearchActivity.onSaveInstanceState()` and writes a 2 MiB byte
 array to the outgoing `Bundle`. This models a full image/Bitmap-like state save
-without adding host dependencies or network preconditions.
+without adding host dependencies or network preconditions. The post-boundary
+surface is the launcher, so the run spec intentionally keeps L2 state
+assertions empty and relies on L1 crash evidence.
 
 ## Boundary
 

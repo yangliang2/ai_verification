@@ -1,0 +1,7 @@
+45:    override fun onSaveInstanceState(outState: Bundle) {
+46:        super.onSaveInstanceState(outState)
+47:        // [aiverify goldset: process-death-03 injected defect]
+51:        // TransactionTooLargeException only at the save-state boundary.
+52:        outState.putByteArray(AIVERIFY_OVERSIZED_STATE_KEY, ByteArray(AIVERIFY_OVERSIZED_STATE_BYTES))
+84:        private const val AIVERIFY_OVERSIZED_STATE_KEY = "aiverifyOversizedSavedState"
+85:        private const val AIVERIFY_OVERSIZED_STATE_BYTES = 2 * 1024 * 1024

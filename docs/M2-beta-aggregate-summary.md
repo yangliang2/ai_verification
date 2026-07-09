@@ -7,28 +7,28 @@ Generated from `bench/goldset/m2-beta-slice.yaml` and run-spec
 
 | Bucket | Count |
 |---|---:|
-| Included injected-defect seeds | 9 |
-| Blocked seeds | 1 |
-| Candidate seeds | 1 |
+| Included injected-defect seeds | 10 |
+| Blocked seeds | 0 |
+| Candidate seeds | 0 |
 | Repeatability-only packages | 2 |
 
 ## Included Injected-Defect Outcomes
 
 | Outcome | Count |
 |---|---:|
-| `caught` | 9 |
+| `caught` | 10 |
 
 ## Baseline Control Outcomes
 
 | Outcome | Count |
 |---|---:|
-| `passed_control` | 9 |
+| `passed_control` | 10 |
 
 ## Expected Oracle Levels
 
 | Oracle level | Count |
 |---|---:|
-| `L1` | 3 |
+| `L1` | 4 |
 | `L2` | 4 |
 | `L3` | 2 |
 
@@ -40,14 +40,14 @@ Generated from `bench/goldset/m2-beta-slice.yaml` and run-spec
 | `coroutine-concurrency` | 1 |
 | `lifecycle` | 1 |
 | `navigation` | 2 |
-| `process-death` | 1 |
+| `process-death` | 2 |
 | `ui-rendering` | 2 |
 
 ## Oracle Defect-Class Coverage
 
 | Oracle defect class | Count |
 |---|---:|
-| `crash_stability` | 3 |
+| `crash_stability` | 4 |
 | `state_loss` | 4 |
 | `ui_rendering` | 2 |
 
@@ -55,7 +55,7 @@ Generated from `bench/goldset/m2-beta-slice.yaml` and run-spec
 
 | Seed | State | Candidate | Reason |
 |---|---|---:|---|
-| `wikipedia-process-death-03-oversized-saved-state` | `blocked` | true | No valid baseline/defect matched pair; Android execution environment blocked the live retry. |
+| None | - | - | - |
 
 ## Fixed-Evidence L3 Repeatability
 

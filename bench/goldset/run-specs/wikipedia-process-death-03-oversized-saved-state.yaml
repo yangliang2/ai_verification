@@ -6,16 +6,17 @@
 # a real process death.
 #
 # Injection: SearchActivity.onSaveInstanceState() writes a 2 MiB byte array into
-# the saved-state Bundle. When Android saves state at the uiMode boundary, Binder
-# rejects the oversized transaction and reports TransactionTooLargeException.
+# the saved-state Bundle. When Android sends the Activity to the background and
+# saves state, Binder rejects the oversized transaction and reports
+# TransactionTooLargeException.
 #
 # Real-world source pattern: candidates.md P2 (Tusky #419 saved a full Bitmap in
 # onSaveInstanceState and crashed with TransactionTooLargeException when the app
 # was backgrounded).
 #
-# Use dark_mode as the boundary because it already exercises SearchActivity state
-# save/restore on this host. The defect is caught by L1 crash_stability; L2 is
-# present only as a baseline sanity assertion when no crash happens.
+# Use app_to_background as the boundary because this mirrors the source failure:
+# Android saves Activity state while moving the task behind launcher. The defect
+# is caught by L1 crash_stability; this seed is intentionally L1-only.
 
 host_project: /Users/80268204/hosts/wikipedia
 apk_glob: app/build/outputs/apk/dev/debug/*.apk
@@ -37,18 +38,14 @@ scenario:
     - "Tap search_src_text, type sentinel text 'zzoversize', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity."
   system_events:
     - step_index: 1
-      event: dark_mode
-      args:
-        night: "yes"
-  assertions:
-    - resource_id: search_src_text
-      attr: text
-      expected: zzoversize
+      event: app_to_background
+  assertions: []
   expected_behavior: >
     With the injected defect, SearchActivity writes an oversized byte array into
-    the saved-state Bundle during the dark-mode uiMode boundary. Android rejects
+    the saved-state Bundle while the Activity is backgrounded. Android rejects
     the oversized saved-state Binder transaction with TransactionTooLargeException
     or the platform fatal wrapper around it. Expected L1 outcome=fail with
     defect_class_hypothesis=crash_stability. The baseline build does not write
     the oversized payload, so it should not emit an L1 crash signal under the
-    same boundary.
+    same boundary. L2 state assertions are intentionally empty because the
+    post-boundary surface is the launcher rather than SearchActivity.

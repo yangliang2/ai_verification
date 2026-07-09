@@ -12,7 +12,7 @@ Source issues:
 
 - Parent PRD: #24
 - Inclusion-rules slice: #25
-- Open oversized saved-state candidate: #23
+- Oversized saved-state seed: #23
 - Existing scoped milestone evidence: #13, #20, #21, #22
 
 ## Status Vocabulary
@@ -98,24 +98,35 @@ above.
 | M1 five-seed report | eligible for `included` after metadata audit | Counts only through one row per injected-defect seed, not through every artifact. |
 | Completed M2 expansion seeds | eligible for `included` after metadata audit | Includes config-change duplicated state, navigation swallowed Back, and search-card copy mismatch. |
 | Text-layout L3 repeatability packages | `repeatability-only` | Supports L3 repeatability; does not add denominator rows. |
-| Oversized saved-state process-death seed (#23) | `candidate` and currently `blocked` | Excluded from caught/missed counts until a valid baseline/defect matched pair exists. |
+| Oversized saved-state process-death seed (#23) | `included` after 2026-07-09 matched-pair retry | Counts once as an L1 `caught` injected-defect seed with `passed_control` baseline evidence. |
 
-## Oversized Saved-State Candidate Boundary
+## Oversized Saved-State Resolution
 
 The `wikipedia-process-death-03-oversized-saved-state` seed has committed seed
-artifacts, but the 2026-07-09 live retry did not produce valid benchmark
-evidence:
+artifacts. An earlier 2026-07-09 live retry did not produce valid benchmark
+evidence because the baseline run did not reach the target surface and no defect
+lane ran:
 
 - baseline build and install succeeded;
 - the app failed before reaching `nav_tab_search`;
 - Android CLI layout / UIAutomator remained unstable after emulator refresh;
 - no defect lane was run.
 
-Therefore #23 is not an M2-beta `included` seed today. It must remain outside
-the M2-beta numerator and denominator unless a future run captures a valid
-baseline/defect matched pair on a stable emulator or real device.
+The later matched-pair retry in
+`docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/`
+changed the seed boundary from `dark_mode` to `app_to_background`, matching the
+source failure mode. It produced:
 
-M2-beta quarantine note: `docs/M2-beta-oversized-saved-state-quarantine.md`.
+- baseline/control: runner exit `0`, L1 `inconclusive`, L2 `pass`;
+- defect: runner exit `1`, L1 `fail`, `crash_stability`, with
+  `TransactionTooLargeException`;
+- matched accounting: `defect_outcome=caught`,
+  `control_outcome=passed_control`.
+
+Therefore #23 is now an M2-beta `included` seed.
+
+Historical quarantine/resolution note:
+`docs/M2-beta-oversized-saved-state-quarantine.md`.
 
 ## Out-of-Scope Claims
 

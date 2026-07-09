@@ -31,13 +31,13 @@ def test_m2_beta_report_summarizes_accounting_counts() -> None:
     text = _REPORT.read_text(encoding="utf-8")
 
     for expected in (
-        "included injected-defect seeds: 9",
-        "blocked seeds: 1",
-        "candidate seeds: 1",
+        "included injected-defect seeds: 10",
+        "blocked seeds: 0",
+        "candidate seeds: 0",
         "repeatability-only packages: 2",
-        "included defect outcomes: `caught: 9`",
-        "baseline-control outcomes: `passed_control: 9`",
-        "`L1`: 3",
+        "included defect outcomes: `caught: 10`",
+        "baseline-control outcomes: `passed_control: 10`",
+        "`L1`: 4",
         "`L2`: 4",
         "`L3`: 2",
     ):
@@ -49,11 +49,11 @@ def test_m2_beta_report_preserves_oversized_saved_state_boundary() -> None:
     normalized_text = " ".join(text.split())
 
     assert "#23" in text
-    assert "remains implemented but is not included in M2-beta counts" in normalized_text
-    assert "accounting state: `candidate` and `blocked`" in text
-    assert "denominator impact: 0" in text
-    assert "caught/missed outcome: none" in text
-    assert "no defect lane was run" in text
+    assert "is now included in M2-beta counts" in normalized_text
+    assert "accounting state: `included`" in text
+    assert "denominator impact: 1" in text
+    assert "defect outcome: `caught`" in text
+    assert "TransactionTooLargeException" in text
 
 
 def test_m2_beta_report_states_supported_and_out_of_scope_claims() -> None:
@@ -63,7 +63,7 @@ def test_m2_beta_report_states_supported_and_out_of_scope_claims() -> None:
         "the MVP verification chain is live and audited",
         "M1 caught five of five seeded defects",
         "M2-beta has a reproducible aggregate summary",
-        "#23 is quarantined from M2-beta counts",
+        "#23 has a durable live matched-pair run",
     ):
         assert supported in text
 
@@ -84,5 +84,5 @@ def test_readme_points_to_m2_beta_report() -> None:
     assert "截至 2026-07-09" in text
     assert "docs/M2-beta-benchmark-slice-report.md" in text
     assert "docs/M2-beta-aggregate-summary.md" in text
-    assert "9 included injected-defect seeds, 1 blocked/candidate seed" in text
-    assert "#23 oversized saved-state seed 已 quarantine 出 M2-beta denominator" in text
+    assert "10 included injected-defect seeds, 0 blocked/candidate seeds" in text
+    assert "#23 oversized saved-state seed 已通过 matched pair 纳入 M2-beta denominator" in text

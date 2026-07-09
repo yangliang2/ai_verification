@@ -109,7 +109,7 @@ def test_m2_beta_metric_schema_lists_backfilled_specs() -> None:
         assert f"`{oracle_level}/{oracle_class}`" in text
 
 
-def test_candidate_metadata_does_not_override_inclusion_rules() -> None:
+def test_metric_metadata_does_not_override_inclusion_rules() -> None:
     schema_text = _METRIC_SCHEMA.read_text(encoding="utf-8")
     rules_text = _INCLUSION_RULES.read_text(encoding="utf-8")
 
@@ -117,6 +117,6 @@ def test_candidate_metadata_does_not_override_inclusion_rules() -> None:
         "`wikipedia-process-death-03-oversized-saved-state` carries metric metadata"
         in schema_text
     )
-    assert "It remains outside the M2-beta numerator and" in schema_text
-    assert "denominator until a valid baseline/defect matched pair exists" in schema_text
-    assert "not an M2-beta `included` seed today" in rules_text
+    assert "matched-pair retry produced valid baseline/control and defect evidence" in schema_text
+    assert "metadata alone does not decide inclusion" in schema_text
+    assert "Therefore #23 is now an M2-beta `included` seed." in rules_text

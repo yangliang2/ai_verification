@@ -1,0 +1,30 @@
+{
+  "checkpoint": "after-event-0",
+  "status": "failed",
+  "failed_phase": "screenshot",
+  "error": {
+    "type": "EvidenceCaptureError",
+    "message": "Command failed (1): android screen capture -o docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/baseline/artifacts/after-event-0/screen.png\njava.nio.channels.InterruptedByTimeoutException: <elided>\n\tat _COROUTINE._BOUNDARY._(CoroutineDebugging.kt:42)\n\tat com.android.adblib.impl.channels.ChannelReadOrWriteHandler.runExactly(ChannelReadOrWriteHandler.kt:186)\n\tat com.android.adblib.impl.services.AdbServiceRunner.consumeOkayFailResponse(AdbServiceRunner.kt:435)\n\tat com.android.adblib.impl.services.AdbServiceRunner.startDaemonService(AdbServiceRunner.kt:257)\n\tat com.android.adblib.impl.services.AdbServiceRunner.runDaemonService(AdbServiceRunner.kt:240)\n\tat com.android.adblib.impl.AdbDeviceServicesImpl$runServiceWithShellV2Collector$1.invokeSuspend(AdbDeviceServicesImpl.kt:187)\n\tat kotlinx.coroutines.flow.internal.ChannelFlow$collectToFun$1.invokeSuspend(ChannelFlow.kt:56)\n\tat com.android.adblib.impl.ShellCommandImpl$execute$1.invokeSuspend(ShellCommandImpl.kt:160)\n\tat kotlinx.coroutines.flow.AbstractFlow.collect(Flow.kt:226)\n\tat kotlinx.coroutines.flow.FlowKt__ReduceKt.first(Reduce.kt:179)\n\tat com.android.cli.ui.services.AdbServiceImpl$AdbConnectedDeviceImpl$screenCapAsBufferedImage$1.invokeSuspend(AdbServiceImpl.kt:150)\n\tat com.android.cli.ui.RunBlockingExtKt.runBlockingFillInStackTrace(RunBlockingExt.kt:16)\n\tat com.android.cli.ui.services.AdbServiceImpl$AdbConnectedDeviceImpl.screenCapAsBufferedImage(AdbServiceImpl.kt:150)\n\tat com.android.cli.interact.commands.ScreenCommand.execute(ScreenCommand.kt:60)\n\tat com.android.cli.ui.commands.Screen.run(Screen.java:80)\n\tat com.android.cli.ui.AndroidCLI.run(AndroidCLI.kt:166)\n\tat com.android.cli.ui.AndroidCLI.access$run(AndroidCLI.kt:16)\n\tat com.android.cli.ui.AndroidCLI$execute$4.execute(AndroidCLI.kt:101)\n\tat com.android.cli.CommandLine.execute(CommandLine.java:2174)\n\tat com.android.cli.ui.AndroidCLI.execute(AndroidCLI.kt:109)\n\tat com.android.cli.ui.AndroidCLI.run(AndroidCLI.kt:30)\n\tat com.android.cli.Android.main(Android.java:54)\nCaused by: java.nio.channels.InterruptedByTimeoutException: <elided>\n\tat java.base/sun.nio.ch.UnixAsynchronousSocketChannelImpl$1.run(Unknown Source)\n\tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source)\n\tat java.base/java.util.concurrent.FutureTask.run(Unknown Source)\n\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(Unknown Source)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)\n\tat java.base/java.lang.Thread.run(Unknown Source)\nCrash report stored at /Users/80268204/.android/cli/analytics/crash_reports/29222-1-1.0.15498356.crash"
+  },
+  "command_count": 3,
+  "artifacts": {
+    "layout": "docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/baseline/artifacts/after-event-0/layout.json",
+    "screen": "docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/baseline/artifacts/after-event-0/screen.png",
+    "screen_annotated": "docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/baseline/artifacts/after-event-0/screen-annotated.png",
+    "logcat": "docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/baseline/artifacts/after-event-0/logcat.txt",
+    "commands": "docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/baseline/artifacts/after-event-0/commands.json"
+  },
+  "artifact_exists": {
+    "layout": true,
+    "screen": false,
+    "screen_annotated": false,
+    "logcat": false,
+    "commands": false
+  },
+  "pruned_artifacts": {
+    "screen": "captured during run, pruned before commit after git push failed on large evidence artifacts; summarized evidence retained in README/verdict/critical extracts",
+    "screen_annotated": "captured during run, pruned before commit after git push failed on large evidence artifacts; summarized evidence retained in README/verdict/critical extracts",
+    "commands": "captured during run, pruned before commit after git push failed on large evidence artifacts; summarized evidence retained in README/verdict/critical extracts",
+    "logcat": "captured during run, pruned before commit after git push failed on large evidence artifacts; summarized evidence retained in README/verdict/critical extracts"
+  }
+}

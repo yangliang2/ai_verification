@@ -32,16 +32,16 @@ benchmark-wide detection-rate claim.
 
 M2-beta currently has:
 
-- included injected-defect seeds: 9;
-- blocked seeds: 1;
-- candidate seeds: 1;
+- included injected-defect seeds: 10;
+- blocked seeds: 0;
+- candidate seeds: 0;
 - repeatability-only packages: 2;
-- included defect outcomes: `caught: 9`;
-- baseline-control outcomes: `passed_control: 9`.
+- included defect outcomes: `caught: 10`;
+- baseline-control outcomes: `passed_control: 10`.
 
 Expected oracle distribution among included seeds:
 
-- `L1`: 3;
+- `L1`: 4;
 - `L2`: 4;
 - `L3`: 2.
 
@@ -51,12 +51,12 @@ Taxonomy/root-cause distribution among included seeds:
 - `coroutine-concurrency`: 1;
 - `lifecycle`: 1;
 - `navigation`: 2;
-- `process-death`: 1;
+- `process-death`: 2;
 - `ui-rendering`: 2.
 
 Oracle defect-class distribution among included seeds:
 
-- `crash_stability`: 3;
+- `crash_stability`: 4;
 - `state_loss`: 4;
 - `ui_rendering`: 2.
 
@@ -70,20 +70,20 @@ Fixed-evidence L3 repeatability remains separate from caught/missed accounting:
 
 ## Oversized Saved-State Status
 
-#23, `wikipedia-process-death-03-oversized-saved-state`, remains implemented but
-is not included in M2-beta counts.
+#23, `wikipedia-process-death-03-oversized-saved-state`, is now included in
+M2-beta counts after the 2026-07-09 matched-pair retry.
 
 Current M2-beta status:
 
-- accounting state: `candidate` and `blocked`;
-- denominator impact: 0;
-- caught/missed outcome: none;
-- control outcome: none.
+- accounting state: `included`;
+- denominator impact: 1;
+- defect outcome: `caught`;
+- control outcome: `passed_control`.
 
-Reason: the 2026-07-09 live retry did not reach a valid baseline UI state, no
-valid baseline verdict was produced, and no defect lane was run. The quarantine
-note defines the criteria for future inclusion if a stable emulator or real
-device produces a valid baseline/defect matched pair.
+Reason: the successful retry changed the boundary from `dark_mode` to
+`app_to_background`, matching the Tusky source failure mode. Baseline/control
+returned runner exit `0` with L1 `inconclusive`; defect returned runner exit `1`
+with L1 `fail`, `crash_stability`, and `TransactionTooLargeException`.
 
 ## Supported Claims
 
@@ -96,7 +96,8 @@ The project can now claim:
 - M2-beta has a reproducible aggregate summary over committed repo artifacts;
 - M2-beta explicitly separates included, blocked, candidate, and
   repeatability-only evidence;
-- #23 is quarantined from M2-beta counts without closing future execution work.
+- #23 has a durable live matched-pair run and now contributes one L1 caught
+  process-death seed.
 
 ## Out Of Scope
 
@@ -120,5 +121,6 @@ project should choose one of two directions:
 2. plan M3 around execution reliability, false-positive controls, and larger
    benchmark reporting.
 
-#23 remains the only known open seed-execution candidate and should be retried
-only when a stable emulator or real device is available.
+The next milestone should build from this closed M2-beta accounting baseline:
+10 included injected-defect seeds, all currently caught, with 10 passed baseline
+controls and two repeatability-only L3 packages.

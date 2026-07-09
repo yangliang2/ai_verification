@@ -48,14 +48,14 @@ run-spec.yaml
 - M2-beta report: [`docs/M2-beta-benchmark-slice-report.md`](docs/M2-beta-benchmark-slice-report.md)
 - M2-beta aggregate summary: [`docs/M2-beta-aggregate-summary.md`](docs/M2-beta-aggregate-summary.md)
 - M2-beta inclusion rules: [`docs/M2-beta-inclusion-rules.md`](docs/M2-beta-inclusion-rules.md)
-- M2-beta #23 quarantine note: [`docs/M2-beta-oversized-saved-state-quarantine.md`](docs/M2-beta-oversized-saved-state-quarantine.md)
+- M2-beta #23 quarantine/resolution note: [`docs/M2-beta-oversized-saved-state-quarantine.md`](docs/M2-beta-oversized-saved-state-quarantine.md)
 - M2 text-layout L3 summary: [`docs/M2-l3-text-layout-summary.md`](docs/M2-l3-text-layout-summary.md)
 - M2 scoped milestone note: [`docs/M2-scoped-milestone-note.md`](docs/M2-scoped-milestone-note.md)
 - M2 metric schema: [`docs/M2-metric-schema.md`](docs/M2-metric-schema.md)
 - L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
 - Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
 - Latest L3 repeatability run record: [`docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/`](docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md)
-- 当前 M2-beta aggregate：9 included injected-defect seeds, 1 blocked/candidate seed, 2 repeatability-only packages。
+- 当前 M2-beta aggregate：10 included injected-defect seeds, 0 blocked/candidate seeds, 2 repeatability-only packages。
 - 本地测试：`.venv/bin/pytest` -> `281 collected, exit 0, 2 warnings`
 
 Wikipedia host 实测：
@@ -146,7 +146,7 @@ PYTHONPATH=src python -m aiverify.runner \
 - #24：M2-beta audited aggregate benchmark slice PRD。
 - #25：M2-beta inclusion rules 已完成；定义 included/control/repeatability-only/candidate/blocked/excluded accounting。
 - #26：M2-beta metric context backfill 已完成；M1/M2 seed run specs 可被 aggregate 读取。
-- #27：#23 oversized saved-state seed 已 quarantine 出 M2-beta denominator；#23 本身保持 open，等待稳定设备 matched pair。
+- #27：#23 oversized saved-state seed 已通过 matched pair 纳入 M2-beta denominator。
 - #28：M2-beta aggregate summary path 已完成；`python -m aiverify.bench.m2_beta_summary` 可生成汇总。
 - #29：M2-beta final benchmark-slice report 已完成。
 

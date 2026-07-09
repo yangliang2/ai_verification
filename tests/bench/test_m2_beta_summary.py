@@ -12,18 +12,18 @@ _SUMMARY_DOC = _ROOT / "docs" / "M2-beta-aggregate-summary.md"
 def test_m2_beta_summary_counts_seed_accounting() -> None:
     summary = build_summary(_ROOT)
 
-    assert summary.state_counts == {"blocked": 1, "included": 9}
-    assert summary.candidate_count == 1
-    assert summary.defect_outcomes == {"caught": 9}
-    assert summary.control_outcomes == {"passed_control": 9}
+    assert summary.state_counts == {"included": 10}
+    assert summary.candidate_count == 0
+    assert summary.defect_outcomes == {"caught": 10}
+    assert summary.control_outcomes == {"passed_control": 10}
 
 
 def test_m2_beta_summary_separates_oracle_and_taxonomy_counts() -> None:
     summary = build_summary(_ROOT)
 
-    assert summary.expected_oracle_levels == {"L1": 3, "L2": 4, "L3": 2}
+    assert summary.expected_oracle_levels == {"L1": 4, "L2": 4, "L3": 2}
     assert summary.oracle_defect_classes == {
-        "crash_stability": 3,
+        "crash_stability": 4,
         "state_loss": 4,
         "ui_rendering": 2,
     }
@@ -32,21 +32,23 @@ def test_m2_beta_summary_separates_oracle_and_taxonomy_counts() -> None:
         "coroutine-concurrency": 1,
         "lifecycle": 1,
         "navigation": 2,
-        "process-death": 1,
+        "process-death": 2,
         "ui-rendering": 2,
     }
 
 
-def test_m2_beta_summary_keeps_blocked_candidate_out_of_counts() -> None:
+def test_m2_beta_summary_includes_resolved_oversized_saved_state() -> None:
     summary = build_summary(_ROOT)
-    blocked = [seed for seed in summary.seeds if seed.accounting_state == "blocked"]
+    seed = next(
+        seed for seed in summary.seeds
+        if seed.seed_id == "wikipedia-process-death-03-oversized-saved-state"
+    )
 
-    assert len(blocked) == 1
-    assert blocked[0].seed_id == "wikipedia-process-death-03-oversized-saved-state"
-    assert blocked[0].candidate is True
-    assert blocked[0].defect_outcome is None
-    assert blocked[0].control_outcome is None
-    assert "No valid baseline/defect matched pair" in (blocked[0].reason or "")
+    assert seed.accounting_state == "included"
+    assert seed.candidate is False
+    assert seed.defect_outcome == "caught"
+    assert seed.control_outcome == "passed_control"
+    assert seed.reason is None
 
 
 def test_m2_beta_summary_reports_repeatability_separately() -> None:
@@ -67,5 +69,6 @@ def test_m2_beta_summary_doc_matches_renderer() -> None:
 
     assert _SUMMARY_DOC.read_text(encoding="utf-8") == rendered
     assert "Blocked And Candidate Seeds" in rendered
+    assert "| None | - | - | - |" in rendered
     assert "Fixed-Evidence L3 Repeatability" in rendered
     assert "It does not add extra caught, missed, or control outcomes." in rendered

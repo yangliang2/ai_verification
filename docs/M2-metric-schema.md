@@ -105,9 +105,10 @@ The following run specs now carry metric context for M2-beta aggregation:
 | `wikipedia-process-death-03-oversized-saved-state` | `process-death` | `process-death-03` | `L1/crash_stability` |
 
 `wikipedia-process-death-03-oversized-saved-state` carries metric metadata for
-candidate accounting, but M2-beta inclusion is governed by
-`docs/M2-beta-inclusion-rules.md`. It remains outside the M2-beta numerator and
-denominator until a valid baseline/defect matched pair exists.
+M2-beta accounting, but inclusion is still governed by
+`docs/M2-beta-inclusion-rules.md`. It is included only because the 2026-07-09
+matched-pair retry produced valid baseline/control and defect evidence; metric
+metadata alone does not decide inclusion.
 
 This cleanup is schema/documentation work only. It does not reinterpret
 historical run records, decide inclusion by itself, or change L1/L2/L3 oracle

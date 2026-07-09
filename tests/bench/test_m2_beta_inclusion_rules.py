@@ -44,12 +44,11 @@ def test_m2_beta_inclusion_rules_keep_repeatability_separate() -> None:
     assert "Text-layout L3 repeatability packages | `repeatability-only`" in text
 
 
-def test_m2_beta_inclusion_rules_quarantine_oversized_saved_state_candidate() -> None:
+def test_m2_beta_inclusion_rules_include_resolved_oversized_saved_state_seed() -> None:
     text = _RULES.read_text(encoding="utf-8")
-    normalized_text = " ".join(text.split())
 
     assert "#23" in text
-    assert "Oversized saved-state process-death seed (#23) | `candidate` and currently `blocked`" in text
-    assert "Excluded from caught/missed counts until a valid baseline/defect matched pair exists" in text
-    assert "not an M2-beta `included` seed today" in text
-    assert "must remain outside the M2-beta numerator and denominator" in normalized_text
+    assert "Oversized saved-state process-death seed (#23) | `included`" in text
+    assert "defect_outcome=caught" in text
+    assert "control_outcome=passed_control" in text
+    assert "Therefore #23 is now an M2-beta `included` seed." in text
