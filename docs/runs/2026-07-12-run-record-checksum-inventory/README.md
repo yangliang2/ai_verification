@@ -11,9 +11,9 @@ self-referential verification failure.
 ## Public Commands
 
 ```bash
-PYTHONPATH=src python -m aiverify.bench.run_record_checksums \
+PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums \
   docs/runs/2026-07-12-run-record-checksum-inventory
-PYTHONPATH=src python -m aiverify.bench.run_record_checksums --verify \
+PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums --verify \
   docs/runs/2026-07-12-run-record-checksum-inventory
 ```
 

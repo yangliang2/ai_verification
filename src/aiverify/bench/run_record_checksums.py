@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
 from pathlib import Path
 
 
@@ -31,8 +32,16 @@ def verify_manifest(run_record: Path) -> list[str]:
         return [f"missing manifest: {_MANIFEST}"]
     errors: list[str] = []
     for line in manifest.read_text(encoding="utf-8").splitlines():
-        digest, relative = line.split("  ", 1)
-        path = run_record / relative
+        match = re.fullmatch(r"([0-9a-f]{64})  (.+)", line)
+        if match is None:
+            errors.append(f"malformed manifest entry: {line}")
+            continue
+        digest, relative = match.groups()
+        candidate = Path(relative)
+        path = (run_record / candidate).resolve()
+        if candidate.is_absolute() or not path.is_relative_to(run_record.resolve()):
+            errors.append(f"artifact outside run record: {relative}")
+            continue
         if not path.is_file():
             errors.append(f"missing artifact: {relative}")
         elif _sha256(path) != digest:

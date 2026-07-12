@@ -71,9 +71,9 @@ and known gaps.
 Generate and verify a run-record checksum inventory with:
 
 ```bash
-PYTHONPATH=src python -m aiverify.bench.run_record_checksums \
+PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums \
   docs/runs/<date>-<slug>
-PYTHONPATH=src python -m aiverify.bench.run_record_checksums --verify \
+PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums --verify \
   docs/runs/<date>-<slug>
 ```
 
