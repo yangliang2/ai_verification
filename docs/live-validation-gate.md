@@ -68,6 +68,19 @@ For non-trivial validation work, store the JSON under `docs/runs/` with a README
 that records tool versions, command transcript, artifact inventory, checksums,
 and known gaps.
 
+Generate and verify a run-record checksum inventory with:
+
+```bash
+PYTHONPATH=src python -m aiverify.bench.run_record_checksums \
+  docs/runs/<date>-<slug>
+PYTHONPATH=src python -m aiverify.bench.run_record_checksums --verify \
+  docs/runs/<date>-<slug>
+```
+
+The generated `checksums.sha256` covers every file under the run record except
+itself. Verification exits `0` only when every listed artifact is present and
+unchanged.
+
 ## Benchmark Accounting Rule
 
 A failed live validation gate blocks benchmark outcome accounting. It is an
