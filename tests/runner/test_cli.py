@@ -9,7 +9,13 @@ from aiverify.providers.base import MockProvider
 from aiverify.runner.codex_backend import JourneyExecutionResult
 from aiverify.runner.evidence import EvidenceCheckpoint
 from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentFlow
-from aiverify.runner.run_spec import MetricContextSpec, RunSpec, ScenarioSpec
+from aiverify.runner.run_spec import (
+    AssertionSpec,
+    MetricContextSpec,
+    RunSpec,
+    ScenarioSpec,
+    SystemEventSpec,
+)
 
 
 def _spec(
@@ -60,6 +66,24 @@ def _oracle_verdict(outcome: str, level: str) -> dict:
         "defect_class_hypothesis": None, "trigger_steps": [],
         "evidence": [], "confidence": 0.5,
     }
+
+
+def _l2_checkpoint(tmp_path, name: str, text: str) -> EvidenceCheckpoint:
+    directory = tmp_path / name
+    directory.mkdir()
+    layout = directory / "layout.json"
+    layout.write_text(
+        json.dumps([{"resource-id": "sentinel", "text": text}]), encoding="utf-8"
+    )
+    return EvidenceCheckpoint(
+        name=name,
+        directory=directory,
+        layout_path=layout,
+        screenshot_path=directory / "screen.png",
+        annotated_screenshot_path=None,
+        logcat_path=directory / "logcat.txt",
+        commands_path=directory / "commands.json",
+    )
 
 
 _VALID_L3_JSON = json.dumps({
@@ -315,3 +339,80 @@ def test_main_returns_distinct_status_for_non_accountable_run(tmp_path, monkeypa
     )
 
     assert status == 2
+
+
+def test_l2_is_inconclusive_for_ambiguous_multiple_boundaries(tmp_path):
+    scenario = ScenarioSpec(
+        id="two-boundaries",
+        system_events=[
+            SystemEventSpec(step_index=0, event="rotate"),
+            SystemEventSpec(step_index=1, event="dark_mode"),
+        ],
+    )
+
+    verdict = cli._judge_l2_from_checkpoints(scenario, {}, steps=[])
+
+    assert verdict["outcome"] == "inconclusive"
+    assert "multiple system-event boundaries" in verdict["evidence"][0]["note"]
+
+
+def test_l2_keeps_eventless_scenarios_inconclusive(tmp_path):
+    verdict = cli._judge_l2_from_checkpoints(ScenarioSpec(id="eventless"), {}, steps=[])
+
+    assert verdict["outcome"] == "inconclusive"
+    assert verdict["evidence"][0]["ref"] == "no boundary system event"
+
+
+def test_l2_keeps_single_boundary_default_selection(tmp_path):
+    scenario = ScenarioSpec(
+        id="one-boundary",
+        system_events=[SystemEventSpec(step_index=0, event="rotate")],
+        assertions=[AssertionSpec(resource_id="sentinel", attr="text", expected="kept")],
+    )
+    checkpoints = {
+        "after-segment-0": _l2_checkpoint(tmp_path, "after-segment-0", "kept"),
+        "after-event-0": _l2_checkpoint(tmp_path, "after-event-0", "kept"),
+    }
+
+    verdict = cli._judge_l2_from_checkpoints(scenario, checkpoints, steps=[])
+
+    assert verdict["outcome"] == "pass"
+
+
+def test_l2_uses_explicitly_selected_boundary(tmp_path):
+    scenario = ScenarioSpec(
+        id="two-boundaries",
+        system_events=[
+            SystemEventSpec(step_index=0, event="rotate"),
+            SystemEventSpec(step_index=1, event="dark_mode"),
+        ],
+        l2_boundary_index=1,
+        assertions=[AssertionSpec(resource_id="sentinel", attr="text", expected="kept")],
+    )
+    checkpoints = {
+        "after-segment-0": _l2_checkpoint(tmp_path, "after-segment-0", "lost"),
+        "after-event-0": _l2_checkpoint(tmp_path, "after-event-0", "lost"),
+        "after-segment-1": _l2_checkpoint(tmp_path, "after-segment-1", "kept"),
+        "after-event-1": _l2_checkpoint(tmp_path, "after-event-1", "kept"),
+    }
+
+    verdict = cli._judge_l2_from_checkpoints(scenario, checkpoints, steps=[])
+
+    assert verdict["outcome"] == "pass"
+
+
+def test_l2_selection_supports_tenth_boundary_without_lexical_sorting(tmp_path):
+    scenario = ScenarioSpec(
+        id="many-boundaries",
+        system_events=[SystemEventSpec(step_index=index, event="rotate") for index in range(11)],
+        l2_boundary_index=10,
+        assertions=[AssertionSpec(resource_id="sentinel", attr="text", expected="kept")],
+    )
+    checkpoints = {
+        "after-segment-10": _l2_checkpoint(tmp_path, "after-segment-10", "kept"),
+        "after-event-10": _l2_checkpoint(tmp_path, "after-event-10", "kept"),
+    }
+
+    verdict = cli._judge_l2_from_checkpoints(scenario, checkpoints, steps=[])
+
+    assert verdict["outcome"] == "pass"

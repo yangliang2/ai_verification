@@ -32,7 +32,7 @@ from aiverify.harness.device.controller import DeviceController
 from aiverify.runner.codex_backend import CodexCliBackend, _DEFAULT_SCHEMA_PATH
 from aiverify.runner.evidence import AndroidEvidenceCollector
 from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentRunner
-from aiverify.runner.run_spec import RunSpec, load_run_spec
+from aiverify.runner.run_spec import RunSpec, ScenarioSpec, load_run_spec
 from aiverify.runner.system_events import DeviceSystemEventInjector
 from aiverify.runner.verdict import judge_l2_from_android_layout
 
@@ -140,6 +140,81 @@ def _trigger_steps(spec: RunSpec) -> list[str]:
     for ev in spec.scenario.system_events:
         steps.append(f"[boundary] inject {ev.event} {ev.args}")
     return steps
+
+
+def _l2_inconclusive(*, steps: list[str], ref: str, note: str) -> dict:
+    verdict = {
+        "verdict_id": "L2-na",
+        "level": "L2",
+        "outcome": "inconclusive",
+        "defect_class_hypothesis": None,
+        "trigger_steps": steps,
+        "evidence": [{"type": "state_diff", "ref": ref, "note": note}],
+        "confidence": 0.0,
+    }
+    validate_verdict(verdict)
+    return verdict
+
+
+def _judge_l2_from_checkpoints(
+    scenario: ScenarioSpec,
+    checkpoints: dict,
+    *,
+    steps: list[str],
+) -> dict:
+    """Evaluate L2 at the selected Journey Segment Boundary, if unambiguous."""
+    event_count = len(scenario.system_events)
+    if event_count == 0:
+        return _l2_inconclusive(
+            steps=steps,
+            ref="no boundary system event",
+            note="scenario has no system event; L2 state assertion not applicable",
+        )
+
+    if event_count == 1:
+        boundary_index = 0
+    elif scenario.l2_boundary_index is None:
+        return _l2_inconclusive(
+            steps=steps,
+            ref="ambiguous system-event boundaries",
+            note=(
+                "scenario has multiple system-event boundaries; set "
+                "scenario.l2_boundary_index to select L2 state evidence"
+            ),
+        )
+    else:
+        boundary_index = scenario.l2_boundary_index
+
+    if boundary_index >= event_count:
+        return _l2_inconclusive(
+            steps=steps,
+            ref="invalid L2 boundary selection",
+            note=(
+                f"scenario.l2_boundary_index={boundary_index} does not select one of "
+                f"{event_count} system-event boundaries"
+            ),
+        )
+
+    before_name = f"after-segment-{boundary_index}"
+    after_name = f"after-event-{boundary_index}"
+    before_cp = checkpoints.get(before_name)
+    after_cp = checkpoints.get(after_name)
+    if before_cp is None or after_cp is None:
+        return _l2_inconclusive(
+            steps=steps,
+            ref="missing selected L2 checkpoints",
+            note=(
+                f"selected boundary {boundary_index} requires {before_name} and "
+                f"{after_name} checkpoints"
+            ),
+        )
+
+    return judge_l2_from_android_layout(
+        before_cp.layout_path.read_text(encoding="utf-8"),
+        after_cp.layout_path.read_text(encoding="utf-8"),
+        scenario.assertions,
+        trigger_steps=steps,
+    )
 
 
 def _build_metric_context(spec: RunSpec, *, l1: dict, l2: dict, l3: dict | None) -> dict:
@@ -315,28 +390,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
     all_logcat = "\n".join(cp.logcat_path.read_text(encoding="utf-8") for cp in flow.checkpoints)
     l1 = L1Oracle().judge(all_logcat, trigger_steps=steps)
 
-    # L2 needs a before/after pair around a boundary event; scenarios without a system
-    # event (e.g. a crash/ANR triggered by a user action) are not L2-assertable.
-    event_names = sorted(n for n in checkpoints if n.startswith("after-event-"))
-    if event_names:
-        idx = event_names[0].rsplit("-", 1)[1]
-        before_cp = checkpoints[f"after-segment-{idx}"]
-        after_cp = checkpoints[f"after-event-{idx}"]
-        l2 = judge_l2_from_android_layout(
-            before_cp.layout_path.read_text(encoding="utf-8"),
-            after_cp.layout_path.read_text(encoding="utf-8"),
-            spec.scenario.assertions,
-            trigger_steps=steps,
-        )
-    else:
-        l2 = {
-            "verdict_id": "L2-na", "level": "L2", "outcome": "inconclusive",
-            "defect_class_hypothesis": None, "trigger_steps": steps,
-            "evidence": [{"type": "state_diff", "ref": "no boundary system event",
-                          "note": "scenario has no system event; L2 state assertion not applicable"}],
-            "confidence": 0.0,
-        }
-        validate_verdict(l2)
+    l2 = _judge_l2_from_checkpoints(spec.scenario, checkpoints, steps=steps)
 
     l3 = _judge_l3(
         spec, flow, l1=l1, l2=l2, steps=steps,

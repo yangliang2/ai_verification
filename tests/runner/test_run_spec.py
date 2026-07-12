@@ -60,6 +60,44 @@ def test_parse_run_spec_metric_context(tmp_path: Path) -> None:
     assert spec.scenario.metric_context.expected_oracle_defect_class == "state_loss"
 
 
+def test_parse_run_spec_l2_boundary_selection(tmp_path: Path) -> None:
+    data = _valid_spec()
+    data["scenario"]["l2_boundary_index"] = 0
+
+    spec = parse_run_spec(data, base_dir=tmp_path)
+
+    assert spec.scenario.l2_boundary_index == 0
+
+
+def test_invalid_l2_boundary_selection_fails() -> None:
+    data = _valid_spec()
+    data["scenario"]["l2_boundary_index"] = -1
+
+    with pytest.raises(RunSpecError, match="l2_boundary_index"):
+        parse_run_spec(data)
+
+
+def test_out_of_range_l2_boundary_selection_fails() -> None:
+    data = _valid_spec()
+    data["scenario"]["l2_boundary_index"] = 1
+
+    with pytest.raises(RunSpecError, match="does not select"):
+        parse_run_spec(data)
+
+
+def test_l2_boundary_selection_uses_step_index_order_not_yaml_order(tmp_path: Path) -> None:
+    data = _valid_spec()
+    data["scenario"]["system_events"] = [
+        {"step_index": 1, "event": "dark_mode"},
+        {"step_index": 0, "event": "rotate"},
+    ]
+    data["scenario"]["l2_boundary_index"] = 0
+
+    spec = parse_run_spec(data, base_dir=tmp_path)
+
+    assert [event.event for event in spec.scenario.system_events] == ["rotate", "dark_mode"]
+
+
 def test_invalid_metric_context_fails() -> None:
     data = _valid_spec()
     data["scenario"]["metric_context"] = {

@@ -82,6 +82,8 @@ class ScenarioSpec:
     user_actions: list[str] = field(default_factory=list)
     system_events: list[SystemEventSpec] = field(default_factory=list)
     assertions: list[AssertionSpec] = field(default_factory=list)
+    # Zero-based Journey Segment Boundary order, normalized by system-event step_index.
+    l2_boundary_index: int | None = None
     expected_behavior: str = ""
     metric_context: MetricContextSpec = field(default_factory=MetricContextSpec)
     # L3 语义判定用的"正确行为规格"。与 expected_behavior 不同：expected_behavior
@@ -176,13 +178,24 @@ def _parse_scenario(raw: dict[str, Any]) -> ScenarioSpec:
     expected_behavior = _optional_str(raw, "expected_behavior") or ""
     metric_context = _parse_metric_context(raw.get("metric_context"))
     l3_spec = _optional_str(raw, "l3_spec") or ""
+    l2_boundary_index = _optional_nonnegative_int(raw, "l2_boundary_index")
 
     raw_events = raw.get("system_events", [])
     if raw_events is None:
         raw_events = []
     if not isinstance(raw_events, list):
         raise RunSpecError("scenario.system_events 必须是列表")
-    system_events = [_parse_system_event(e) for e in raw_events]
+    system_events = sorted(
+        (_parse_system_event(e) for e in raw_events),
+        key=lambda event: event.step_index,
+    )
+    if (
+        l2_boundary_index is not None
+        and l2_boundary_index >= len(system_events)
+    ):
+        raise RunSpecError(
+            "scenario.l2_boundary_index does not select a configured system event"
+        )
 
     raw_assertions = raw.get("assertions", [])
     if raw_assertions is None:
@@ -196,6 +209,7 @@ def _parse_scenario(raw: dict[str, Any]) -> ScenarioSpec:
         user_actions=user_actions,
         system_events=system_events,
         assertions=assertions,
+        l2_boundary_index=l2_boundary_index,
         expected_behavior=expected_behavior,
         metric_context=metric_context,
         l3_spec=l3_spec,
@@ -299,6 +313,15 @@ def _optional_nonempty_str(data: dict[str, Any], key: str) -> str | None:
         return None
     if not isinstance(value, str) or not value.strip():
         raise RunSpecError(f"字段 {key} 必须是非空字符串")
+    return value
+
+
+def _optional_nonnegative_int(data: dict[str, Any], key: str) -> int | None:
+    value = data.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, int) or value < 0:
+        raise RunSpecError(f"字段 {key} 必须是非负整数")
     return value
 
 
