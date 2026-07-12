@@ -8,7 +8,7 @@ import aiverify.runner.cli as cli
 from aiverify.providers.base import MockProvider
 from aiverify.runner.codex_backend import JourneyExecutionResult
 from aiverify.runner.evidence import EvidenceCheckpoint
-from aiverify.runner.journey import JourneySegmentFlow
+from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentFlow
 from aiverify.runner.run_spec import MetricContextSpec, RunSpec, ScenarioSpec
 
 
@@ -200,3 +200,118 @@ def test_metric_context_marks_missed_injected_seed(tmp_path):
 
     assert context["seed_outcome"] == "missed"
     assert context["failed_oracles"] == []
+
+
+def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeypatch):
+    flow = _flow(tmp_path)
+
+    class FakeController:
+        def __init__(self, serial):
+            self.serial = serial
+
+        def logcat_clear(self):
+            return None
+
+        def launch(self, package, activity):
+            return None
+
+    class InterruptedRunner:
+        def __init__(self, **kwargs):
+            pass
+
+        def run(self, **kwargs):
+            raise JourneyExecutionInterrupted(
+                reason="journey_action_failed",
+                message="Search card was unavailable",
+                journey_results=flow.journey_results,
+                checkpoints=flow.checkpoints,
+                injected_events=[],
+                timings=flow.timings,
+                backend_diagnostics=[
+                    {
+                        "result": None,
+                        "events": str(tmp_path / "codex-events.jsonl"),
+                        "command": ["codex", "exec"],
+                    }
+                ],
+            )
+
+    monkeypatch.setattr(cli, "DeviceController", FakeController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", InterruptedRunner)
+
+    artifact_dir = tmp_path / "run" / "artifacts"
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+    )
+
+    assert verdict["execution"] == {
+        "status": "non_accountable",
+        "accounting_eligible": False,
+        "reason": "journey_action_failed",
+        "message": "Search card was unavailable",
+    }
+    assert verdict["metric_context"]["seed_outcome"] == "not_accountable"
+    assert verdict["l1"] is None
+    assert verdict["l2"] is None
+    assert verdict["l3"] is None
+    assert verdict["diagnostic_artifacts"]["journey_results"] == [
+        {
+            "result": str(flow.journey_results[0].result_path),
+            "events": str(flow.journey_results[0].events_path),
+        }
+    ]
+    assert verdict["diagnostic_artifacts"]["checkpoints"] == [
+        {
+            "name": "after-segment-0",
+            "directory": str(flow.checkpoints[0].directory),
+            "layout": str(flow.checkpoints[0].layout_path),
+            "screenshot": str(flow.checkpoints[0].screenshot_path),
+            "annotated_screenshot": None,
+            "logcat": str(flow.checkpoints[0].logcat_path),
+            "commands": str(flow.checkpoints[0].commands_path),
+            "manifest": None,
+        }
+    ]
+    assert verdict["diagnostic_artifacts"]["backend_errors"] == [
+        {
+            "result": None,
+            "events": str(tmp_path / "codex-events.jsonl"),
+            "command": ["codex", "exec"],
+        }
+    ]
+    persisted = json.loads((artifact_dir.parent / "verdict.json").read_text(encoding="utf-8"))
+    assert persisted == verdict
+
+
+def test_main_returns_distinct_status_for_non_accountable_run(tmp_path, monkeypatch):
+    monkeypatch.setattr(cli, "load_run_spec", lambda path: object())
+    monkeypatch.setattr(
+        cli,
+        "run",
+        lambda *args, **kwargs: {
+            "scenario": "interrupted",
+            "execution": {
+                "status": "non_accountable",
+                "reason": "journey_action_failed",
+                "message": "Search card was unavailable",
+            },
+            "l1": None,
+            "l2": None,
+            "l3": None,
+        },
+    )
+
+    status = cli.main(
+        [
+            "run-spec.yaml",
+            "--device",
+            "emulator-5554",
+            "--artifact-dir",
+            str(tmp_path / "artifacts"),
+        ]
+    )
+
+    assert status == 2

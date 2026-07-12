@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from aiverify.runner.codex_backend import (
+    CodexCliError,
     JourneyExecutionRequest,
     JourneyExecutionResult,
 )
@@ -38,6 +39,31 @@ class JourneySegmentFlow:
     checkpoints: list[EvidenceCheckpoint]
     injected_events: list[SystemEventSpec] = field(default_factory=list)
     timings: list[dict[str, Any]] = field(default_factory=list)
+
+
+class JourneyExecutionInterrupted(RuntimeError):
+    """A Journey cannot continue without contaminating benchmark evidence."""
+
+    def __init__(
+        self,
+        *,
+        reason: str,
+        message: str,
+        journey_results: list[JourneyExecutionResult],
+        checkpoints: list[EvidenceCheckpoint],
+        injected_events: list[SystemEventSpec],
+        timings: list[dict[str, Any]],
+        backend_diagnostics: list[dict[str, str | list[str] | None]] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.reason = reason
+        self.flow = JourneySegmentFlow(
+            journey_results=list(journey_results),
+            checkpoints=list(checkpoints),
+            injected_events=list(injected_events),
+            timings=list(timings),
+        )
+        self.backend_diagnostics = list(backend_diagnostics or [])
 
 
 class JourneyBackend(Protocol):
@@ -161,64 +187,149 @@ class JourneySegmentRunner:
 
         def _timed(phase: str, kind: str, fn, **extra: Any):
             start = time.monotonic()
-            value = fn()
             entry: dict[str, Any] = {
                 "phase": phase,
                 "kind": kind,
-                "seconds": round(time.monotonic() - start, 3),
             }
             entry.update(extra)
+            try:
+                value = fn()
+            except Exception:
+                entry["status"] = "failed"
+                entry["seconds"] = round(time.monotonic() - start, 3)
+                timings.append(entry)
+                raise
+            entry["seconds"] = round(time.monotonic() - start, 3)
             timings.append(entry)
             return value
+
+        def _interrupt(reason: str, exc: Exception) -> JourneyExecutionInterrupted:
+            backend_diagnostics: list[dict[str, str | list[str] | None]] = []
+            if isinstance(exc, CodexCliError):
+                backend_diagnostics.append(
+                    {
+                        "result": str(exc.result_path) if exc.result_path is not None else None,
+                        "events": str(exc.events_path) if exc.events_path is not None else None,
+                        "command": exc.command,
+                    }
+                )
+            return JourneyExecutionInterrupted(
+                reason=reason,
+                message=f"{type(exc).__name__}: {exc}",
+                journey_results=journey_results,
+                checkpoints=checkpoints,
+                injected_events=injected_events,
+                timings=timings,
+                backend_diagnostics=backend_diagnostics,
+            )
 
         for index, segment in enumerate(scenario_to_segments(scenario)):
             journey_xml = instruction_prefix + segment_to_journey_xml(segment)
             segment_dir = artifact_dir / segment.id
-            result = _timed(
-                segment.id,
-                "journey",
-                lambda: self.backend.execute(
-                    JourneyExecutionRequest(
-                        journey_instructions=journey_xml,
-                        workdir=workdir,
-                        artifact_dir=segment_dir,
-                        output_schema=output_schema,
-                    )
-                ),
-            )
-            journey_results.append(result)
-            checkpoints.append(
-                _timed(
-                    f"after-segment-{index}",
-                    "checkpoint",
-                    lambda: self.checkpoint_collector.capture_checkpoint(
-                        name=f"after-segment-{index}",
-                        output_dir=artifact_dir,
-                        device=device,
+            try:
+                result = _timed(
+                    segment.id,
+                    "journey",
+                    lambda: self.backend.execute(
+                        JourneyExecutionRequest(
+                            journey_instructions=journey_xml,
+                            workdir=workdir,
+                            artifact_dir=segment_dir,
+                            output_schema=output_schema,
+                        )
                     ),
                 )
-            )
-
-            if segment.system_event_after is not None:
-                event = segment.system_event_after
-                _timed(
-                    f"event-{index}",
-                    "system_event",
-                    lambda: self.system_event_injector.inject(event),
-                    event=event.event,
-                )
-                injected_events.append(event)
+            except Exception as exc:
+                raise _interrupt("journey_backend_error", exc) from exc
+            journey_results.append(result)
+            try:
                 checkpoints.append(
                     _timed(
-                        f"after-event-{index}",
+                        f"after-segment-{index}",
                         "checkpoint",
                         lambda: self.checkpoint_collector.capture_checkpoint(
-                            name=f"after-event-{index}",
+                            name=f"after-segment-{index}",
                             output_dir=artifact_dir,
                             device=device,
                         ),
                     )
                 )
+            except Exception as exc:
+                raise _interrupt("checkpoint_capture_error", exc) from exc
+
+            reported_actions = result.data.get("results", [])
+            if len(reported_actions) != len(segment.actions):
+                raise JourneyExecutionInterrupted(
+                    reason="journey_action_incomplete",
+                    message=(
+                        f"Journey segment {segment.id} reported {len(reported_actions)} "
+                        f"of {len(segment.actions)} requested action result(s)"
+                    ),
+                    journey_results=journey_results,
+                    checkpoints=checkpoints,
+                    injected_events=injected_events,
+                    timings=timings,
+                )
+
+            reported_action_names = [item.get("action") for item in reported_actions]
+            if reported_action_names != segment.actions:
+                raise JourneyExecutionInterrupted(
+                    reason="journey_action_incomplete",
+                    message=(
+                        f"Journey segment {segment.id} reported action names that do not "
+                        "match the requested action order"
+                    ),
+                    journey_results=journey_results,
+                    checkpoints=checkpoints,
+                    injected_events=injected_events,
+                    timings=timings,
+                )
+
+            failed_actions = [
+                item
+                for item in reported_actions
+                if item.get("status") in {"FAILED", "SKIPPED"}
+            ]
+            if failed_actions:
+                statuses = ", ".join(item["status"] for item in failed_actions)
+                raise JourneyExecutionInterrupted(
+                    reason="journey_action_failed",
+                    message=(
+                        f"Journey segment {segment.id} reported non-passing action "
+                        f"status(es): {statuses}"
+                    ),
+                    journey_results=journey_results,
+                    checkpoints=checkpoints,
+                    injected_events=injected_events,
+                    timings=timings,
+                )
+
+            if segment.system_event_after is not None:
+                event = segment.system_event_after
+                try:
+                    _timed(
+                        f"event-{index}",
+                        "system_event",
+                        lambda: self.system_event_injector.inject(event),
+                        event=event.event,
+                    )
+                except Exception as exc:
+                    raise _interrupt("system_event_injection_error", exc) from exc
+                injected_events.append(event)
+                try:
+                    checkpoints.append(
+                        _timed(
+                            f"after-event-{index}",
+                            "checkpoint",
+                            lambda: self.checkpoint_collector.capture_checkpoint(
+                                name=f"after-event-{index}",
+                                output_dir=artifact_dir,
+                                device=device,
+                            ),
+                        )
+                    )
+                except Exception as exc:
+                    raise _interrupt("checkpoint_capture_error", exc) from exc
 
         return JourneySegmentFlow(
             journey_results=journey_results,

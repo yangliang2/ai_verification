@@ -31,7 +31,7 @@ from aiverify.providers.codex_cli import CodexCliProvider, CodexCliProviderError
 from aiverify.harness.device.controller import DeviceController
 from aiverify.runner.codex_backend import CodexCliBackend, _DEFAULT_SCHEMA_PATH
 from aiverify.runner.evidence import AndroidEvidenceCollector
-from aiverify.runner.journey import JourneySegmentRunner
+from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentRunner
 from aiverify.runner.run_spec import RunSpec, load_run_spec
 from aiverify.runner.system_events import DeviceSystemEventInjector
 from aiverify.runner.verdict import judge_l2_from_android_layout
@@ -181,6 +181,96 @@ def _build_metric_context(spec: RunSpec, *, l1: dict, l2: dict, l3: dict | None)
     }
 
 
+def _non_accountable_metric_context(spec: RunSpec) -> dict:
+    """Describe a seed that has no eligible oracle outcome."""
+    metric = spec.scenario.metric_context
+    return {
+        "seed_id": spec.scenario.id,
+        "seed_kind": metric.seed_kind,
+        "seed_outcome": "not_accountable",
+        "taxonomy_category": metric.taxonomy_category,
+        "taxonomy_pattern_id": metric.taxonomy_pattern_id,
+        "expected_oracle_level": metric.expected_oracle_level,
+        "expected_oracle_defect_class": metric.expected_oracle_defect_class,
+        "oracle_outcomes": {"L1": "not_run", "L2": "not_run", "L3": "not_run"},
+        "oracle_defect_classes": {"L1": None, "L2": None, "L3": None},
+        "failed_oracles": [],
+    }
+
+
+def _write_non_accountable_verdict(
+    *,
+    spec: RunSpec,
+    error: JourneyExecutionInterrupted,
+    artifact_dir: Path,
+    started_at: str,
+    run_start: float,
+) -> dict:
+    """Persist a diagnostic run result that cannot enter benchmark accounting."""
+    flow = error.flow
+    diagnostic_artifacts = {
+        "journey_results": [
+            {
+                "result": str(result.result_path),
+                "events": str(result.events_path),
+            }
+            for result in flow.journey_results
+        ],
+        "checkpoints": [
+            {
+                "name": checkpoint.name,
+                "directory": str(checkpoint.directory),
+                "layout": str(checkpoint.layout_path),
+                "screenshot": str(checkpoint.screenshot_path),
+                "annotated_screenshot": (
+                    str(checkpoint.annotated_screenshot_path)
+                    if checkpoint.annotated_screenshot_path is not None
+                    else None
+                ),
+                "logcat": str(checkpoint.logcat_path),
+                "commands": str(checkpoint.commands_path),
+                "manifest": (
+                    str(checkpoint.manifest_path)
+                    if checkpoint.manifest_path is not None
+                    else None
+                ),
+            }
+            for checkpoint in flow.checkpoints
+        ],
+        "backend_errors": error.backend_diagnostics,
+    }
+    verdict = {
+        "scenario": spec.scenario.id,
+        "execution": {
+            "status": "non_accountable",
+            "accounting_eligible": False,
+            "reason": error.reason,
+            "message": str(error),
+        },
+        "metric_context": _non_accountable_metric_context(spec),
+        "l1": None,
+        "l2": None,
+        "l3": None,
+        "diagnostic_artifacts": diagnostic_artifacts,
+        "journey_results": [result.data for result in flow.journey_results],
+        "checkpoints": [checkpoint.name for checkpoint in flow.checkpoints],
+        "injected_events": [
+            {"event": event.event, "args": event.args} for event in flow.injected_events
+        ],
+        "timing": {
+            "started_at": started_at,
+            "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "total_seconds": round(time.monotonic() - run_start, 3),
+            "phases": flow.timings,
+        },
+    }
+    artifact_dir.parent.mkdir(parents=True, exist_ok=True)
+    (artifact_dir.parent / "verdict.json").write_text(
+        json.dumps(verdict, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    return verdict
+
+
 def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         launch: bool = True, model: str | None = None,
         l3_model: str | None = None) -> dict:
@@ -199,14 +289,23 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             device=controller, package=spec.package, activity=spec.activity
         ),
     )
-    flow = runner.run(
-        scenario=spec.scenario,
-        workdir=workdir,
-        artifact_dir=artifact_dir,
-        output_schema=_DEFAULT_SCHEMA_PATH,
-        device=device,
-        instruction_prefix=build_instruction_prefix(device),
-    )
+    try:
+        flow = runner.run(
+            scenario=spec.scenario,
+            workdir=workdir,
+            artifact_dir=artifact_dir,
+            output_schema=_DEFAULT_SCHEMA_PATH,
+            device=device,
+            instruction_prefix=build_instruction_prefix(device),
+        )
+    except JourneyExecutionInterrupted as error:
+        return _write_non_accountable_verdict(
+            spec=spec,
+            error=error,
+            artifact_dir=artifact_dir,
+            started_at=started_at,
+            run_start=run_start,
+        )
 
     checkpoints = {c.name: c for c in flow.checkpoints}
     steps = _trigger_steps(spec)
@@ -246,6 +345,12 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
 
     verdict = {
         "scenario": spec.scenario.id,
+        "execution": {
+            "status": "completed",
+            "accounting_eligible": True,
+            "reason": None,
+            "message": None,
+        },
         "metric_context": _build_metric_context(spec, l1=l1, l2=l2, l3=l3),
         "l1": l1,
         "l2": l2,
@@ -287,6 +392,13 @@ def main(argv: list[str] | None = None) -> int:
         model=args.model,
         l3_model=args.l3_model,
     )
+    if verdict["execution"]["status"] != "completed":
+        execution = verdict["execution"]
+        print(
+            f"scenario: {verdict['scenario']}\n"
+            f"execution: {execution['status']} ({execution['reason']})"
+        )
+        return 2
     l1_class = verdict["l1"]["defect_class_hypothesis"]
     l2_class = verdict["l2"]["defect_class_hypothesis"]
     print(f"scenario: {verdict['scenario']}")

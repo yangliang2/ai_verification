@@ -18,6 +18,19 @@ _DEFAULT_SCHEMA_PATH = Path(__file__).with_name("journey_result_schema.json")
 class CodexCliError(RuntimeError):
     """Raised when Codex CLI execution fails or emits invalid structured output."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        result_path: Path | None = None,
+        events_path: Path | None = None,
+        command: list[str] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.result_path = result_path
+        self.events_path = events_path
+        self.command = list(command) if command is not None else None
+
 
 @dataclass(frozen=True)
 class JourneyExecutionRequest:
@@ -94,21 +107,38 @@ class CodexCliBackend:
         events_path.write_text(result.stdout, encoding="utf-8")
         if result.returncode != 0:
             raise CodexCliError(
-                f"Codex CLI failed with exit code {result.returncode}: {result.stderr.strip()}"
+                f"Codex CLI failed with exit code {result.returncode}: {result.stderr.strip()}",
+                result_path=result_path if result_path.is_file() else None,
+                events_path=events_path,
+                command=args,
             )
         if not result_path.is_file():
-            raise CodexCliError(f"Codex CLI did not write result file: {result_path}")
+            raise CodexCliError(
+                f"Codex CLI did not write result file: {result_path}",
+                events_path=events_path,
+                command=args,
+            )
 
         try:
             data = json.loads(result_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
-            raise CodexCliError(f"Codex CLI result is not JSON: {exc}") from exc
+            raise CodexCliError(
+                f"Codex CLI result is not JSON: {exc}",
+                result_path=result_path,
+                events_path=events_path,
+                command=args,
+            ) from exc
 
         schema = json.loads(request.output_schema.read_text(encoding="utf-8"))
         try:
             jsonschema.validate(data, schema)
         except jsonschema.ValidationError as exc:
-            raise CodexCliError(f"Codex CLI result failed schema validation: {exc.message}") from exc
+            raise CodexCliError(
+                f"Codex CLI result failed schema validation: {exc.message}",
+                result_path=result_path,
+                events_path=events_path,
+                command=args,
+            ) from exc
 
         metadata = self._metadata()
         return JourneyExecutionResult(
