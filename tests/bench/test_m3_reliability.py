@@ -3,10 +3,17 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
+import aiverify.bench.m3_audit as m3_audit
+from aiverify.bench.m3_audit import (
+    audited_report_to_dict,
+    build_audited_report,
+    render_audited_markdown,
+)
 from aiverify.bench.m3_reliability import (
     build_summary,
     load_manifest,
@@ -23,6 +30,7 @@ from aiverify.runner.run_spec import load_run_spec
 
 _ROOT = Path(__file__).resolve().parents[2]
 _MANIFEST = _ROOT / "bench" / "goldset" / "m3-reliability-slice.yaml"
+_FINAL_RUN = _ROOT / "docs" / "runs" / "2026-07-13-m3-final-reliability-baseline"
 
 
 class VerdictWritingRunner(CommandRunner):
@@ -728,6 +736,288 @@ def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
     assert summary.retry_count == 6
     assert summary.control_outcomes == {"passed_control": 15}
     assert summary.defect_outcomes == {"caught": 12}
+
+
+def test_final_audit_derives_thresholds_oracle_breakdown_and_lane_results() -> None:
+    manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
+
+    report = build_audited_report(
+        manifest,
+        environment_path=_FINAL_RUN / "environment.json",
+    )
+
+    assert report.inventory == {
+        "selected_seeds": 5,
+        "lane_roles": 2,
+        "repetitions_per_role": 3,
+        "planned_lanes": 30,
+        "formal_attempts": 36,
+        "evidence_packages": 5,
+    }
+    assert report.criteria == {
+        "eventual_accountability": {
+            "status": "failed",
+            "actual": 27,
+            "required_minimum": 29,
+        },
+        "zero_accountable_baseline_false_positives": {
+            "status": "passed",
+            "actual": 0,
+            "required_maximum": 0,
+        },
+        "accountable_defect_consistency": {
+            "status": "passed",
+            "actual": 12,
+            "required": 12,
+        },
+        "m3_overall": {"status": "failed"},
+    }
+    assert report.oracle_breakdown == {
+        "L1": {
+            "planned": 12,
+            "eventual_accountable": 10,
+            "passed_controls": 6,
+            "caught_defects": 4,
+            "non_accountable": 2,
+        },
+        "L2": {
+            "planned": 12,
+            "eventual_accountable": 12,
+            "passed_controls": 6,
+            "caught_defects": 6,
+            "non_accountable": 0,
+        },
+        "L3": {
+            "planned": 6,
+            "eventual_accountable": 5,
+            "passed_controls": 3,
+            "caught_defects": 2,
+            "non_accountable": 1,
+        },
+    }
+    assert len(report.lane_results) == 30
+    assert {row["lane_id"] for row in report.lane_results} == {
+        lane.lane_id for lane in manifest.lanes
+    }
+    assert report.execution_identity["devices"] == ["emulator-5554"]
+    assert report.execution_identity["preflight_statuses"] == {
+        "failed": 2,
+        "passed": 34,
+    }
+    assert len(report.evidence_packages) == 5
+    assert all(row["checksum_status"] == "verified" for row in report.evidence_packages)
+
+
+def test_committed_final_audit_documents_are_generated_from_one_model() -> None:
+    manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
+    report = build_audited_report(
+        manifest,
+        environment_path=_FINAL_RUN / "environment.json",
+    )
+
+    assert json.loads((_FINAL_RUN / "summary.json").read_text(encoding="utf-8")) == (
+        audited_report_to_dict(report)
+    )
+    assert (_FINAL_RUN / "report.md").read_text(encoding="utf-8") == (
+        render_audited_markdown(report)
+    )
+    markdown = render_audited_markdown(report)
+    assert "M3 overall | **FAILED**" in markdown
+    assert "27 / 30" in markdown
+    assert "Wikipedia" in markdown
+    assert "five-seed, 30-lane" in markdown
+    assert "fully unattended" in markdown
+    assert "benchmark-wide" in markdown
+
+
+def test_final_audit_fails_closed_on_environment_device_mismatch(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
+    environment = json.loads(
+        (_FINAL_RUN / "environment.json").read_text(encoding="utf-8")
+    )
+    environment["device"]["serial"] = "different-device"
+    environment_path = tmp_path / "environment.json"
+    environment_path.write_text(json.dumps(environment), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="device does not match"):
+        build_audited_report(manifest, environment_path=environment_path)
+
+
+def test_final_audit_fails_closed_on_root_evidence_checksum_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
+    verified = verify_manifest
+
+    def fail_anr_package(path: Path) -> list[str]:
+        if Path(path).name == "2026-07-13-m3-anr-reliability":
+            return ["checksum mismatch: retained evidence"]
+        return verified(path)
+
+    monkeypatch.setattr(m3_audit, "verify_manifest", fail_anr_package)
+
+    with pytest.raises(ValueError, match="artifact_integrity for evidence package"):
+        build_audited_report(
+            manifest,
+            environment_path=_FINAL_RUN / "environment.json",
+        )
+
+
+def test_final_report_renders_passed_decision_from_model() -> None:
+    manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
+    failed = build_audited_report(
+        manifest,
+        environment_path=_FINAL_RUN / "environment.json",
+    )
+    passed_summary = replace(
+        failed.summary,
+        first_attempt_accountable=30,
+        eventual_accountable=30,
+    )
+    passed = replace(
+        failed,
+        summary=passed_summary,
+        criteria={
+            **failed.criteria,
+            "eventual_accountability": {
+                "status": "passed",
+                "actual": 30,
+                "required_minimum": 29,
+            },
+            "m3_overall": {"status": "passed"},
+        },
+    )
+
+    markdown = render_audited_markdown(passed)
+
+    assert "M3 overall | **PASSED**" in markdown
+    assert "All required M3 criteria passed" in markdown
+    assert "criterion is unmet" not in markdown
+
+
+@pytest.mark.parametrize(
+    ("gate_status", "reason", "message"),
+    [
+        ("failed", None, "failed gate cannot have accountable verdict"),
+        ("passed", "live_validation_preflight_failed", "preflight reason mismatch"),
+    ],
+)
+def test_final_audit_fails_closed_on_gate_verdict_contradiction(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    gate_status: str,
+    reason: str | None,
+    message: str,
+) -> None:
+    manifest = load_manifest(_write_fixture_manifest(tmp_path), repo_root=tmp_path)
+    verdict = (
+        _completed_verdict()
+        if reason is None
+        else _non_accountable_verdict(reason)
+    )
+    verdict["preflight"] = {"live_validation_gate": {"status": gate_status}}
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(verdict, returncode=0 if reason is None else 2),
+    )
+    (attempt.directory / "live-validation-gate.json").write_text(
+        json.dumps({"device": "emulator-5554", "status": gate_status}),
+        encoding="utf-8",
+    )
+    write_manifest(attempt.directory)
+    environment = json.loads(
+        (_FINAL_RUN / "environment.json").read_text(encoding="utf-8")
+    )
+    environment_path = tmp_path / "environment.json"
+    environment_path.write_text(json.dumps(environment), encoding="utf-8")
+    monkeypatch.setattr(m3_audit, "_validate_final_inventory", lambda _: None)
+    monkeypatch.setattr(
+        m3_audit,
+        "_verified_evidence_packages",
+        lambda _: [{"path": "fixture", "checksum_entries": 1, "checksum_status": "verified"}],
+    )
+
+    with pytest.raises(ValueError, match=message):
+        build_audited_report(manifest, environment_path=environment_path)
+
+
+@pytest.mark.parametrize(
+    ("oracle_verdicts", "runner_exit", "expected_outcome"),
+    [
+        ({}, 0, "missed"),
+        ({"l2": {"outcome": "fail", "defect_class_hypothesis": "state_loss"}}, 1, "wrong_oracle"),
+        (
+            {"l1": {"outcome": "fail", "defect_class_hypothesis": "state_loss"}},
+            1,
+            "wrong_defect_class",
+        ),
+    ],
+)
+def test_final_audit_keeps_accountable_defect_mismatch_visible(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    oracle_verdicts: dict,
+    runner_exit: int,
+    expected_outcome: str,
+) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, role="defect"), repo_root=tmp_path
+    )
+    verdict = _completed_verdict()
+    verdict.update(oracle_verdicts)
+    verdict["preflight"] = {"live_validation_gate": {"status": "passed"}}
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-defect-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(verdict, returncode=runner_exit),
+    )
+    (attempt.directory / "live-validation-gate.json").write_text(
+        json.dumps({"device": "emulator-5554", "status": "passed"}),
+        encoding="utf-8",
+    )
+    write_manifest(attempt.directory)
+    environment = json.loads(
+        (_FINAL_RUN / "environment.json").read_text(encoding="utf-8")
+    )
+    environment_path = tmp_path / "environment.json"
+    environment_path.write_text(json.dumps(environment), encoding="utf-8")
+    monkeypatch.setattr(m3_audit, "_validate_final_inventory", lambda _: None)
+    monkeypatch.setattr(
+        m3_audit,
+        "_verified_evidence_packages",
+        lambda _: [{"path": "fixture", "checksum_entries": 1, "checksum_status": "verified"}],
+    )
+
+    report = build_audited_report(manifest, environment_path=environment_path)
+
+    assert report.lane_results[0]["outcome"] == expected_outcome
+    assert report.criteria["accountable_defect_consistency"] == {
+        "status": "failed",
+        "actual": 0,
+        "required": 1,
+    }
+    isolated_defect_failure = replace(
+        report,
+        criteria={
+            **report.criteria,
+            "eventual_accountability": {
+                "status": "passed",
+                "actual": 1,
+                "required_minimum": 1,
+            },
+            "m3_overall": {"status": "failed"},
+        },
+    )
+    markdown = render_audited_markdown(isolated_defect_failure)
+    assert "accountable defect consistency (0 / 1)" in markdown
+    assert "because eventual accountability" not in markdown
 
 
 def test_committed_oversized_state_defects_contain_expected_l1_signal() -> None:

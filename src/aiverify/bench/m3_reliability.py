@@ -76,6 +76,7 @@ class ReliabilitySummary:
     operational_interventions: int
 
 
+
 def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
     """Load and validate the public M3 reliability manifest contract."""
     path = Path(path)
@@ -192,12 +193,12 @@ def plan_lanes(manifest: ReliabilityManifest) -> list[dict]:
         status = "pending"
         attempts = raw_attempts
         try:
-            attempts = _attempt_directories(lane)
+            attempts = attempt_directories(lane)
             if attempts:
-                _, verdict = _load_verified_attempt(
+                _, verdict = load_verified_attempt(
                     attempts[-1], lane=lane, attempt_number=len(attempts)
                 )
-                if _is_accountable(verdict):
+                if is_accountable(verdict):
                     status = "accountable_complete"
                 elif len(attempts) < manifest.max_attempts_per_lane:
                     status = "retryable"
@@ -234,7 +235,7 @@ def build_summary(manifest: ReliabilityManifest) -> ReliabilitySummary:
     interventions = 0
 
     for lane in manifest.lanes:
-        attempts = _attempt_directories(lane)
+        attempts = attempt_directories(lane)
         if not attempts:
             raise ValueError(f"lane {lane.lane_id} has no attempt evidence")
         if len(attempts) > manifest.max_attempts_per_lane:
@@ -243,7 +244,7 @@ def build_summary(manifest: ReliabilityManifest) -> ReliabilitySummary:
 
         loaded: list[tuple[dict, dict]] = []
         for number, attempt_dir in enumerate(attempts, start=1):
-            metadata, verdict = _load_verified_attempt(
+            metadata, verdict = load_verified_attempt(
                 attempt_dir, lane=lane, attempt_number=number
             )
             total_seconds += _timing_seconds(verdict, lane=lane)
@@ -254,20 +255,20 @@ def build_summary(manifest: ReliabilityManifest) -> ReliabilitySummary:
             interventions += len(raw_interventions)
             loaded.append((metadata, verdict))
 
-        if _is_accountable(loaded[0][1]):
+        if is_accountable(loaded[0][1]):
             first_accountable += 1
-        if len(loaded) == 2 and _is_accountable(loaded[0][1]):
+        if len(loaded) == 2 and is_accountable(loaded[0][1]):
             raise ValueError(f"lane {lane.lane_id} retries an accountable outcome")
 
         for _, verdict in loaded:
-            if not _is_accountable(verdict):
-                failures[_failure_class(verdict)] += 1
+            if not is_accountable(verdict):
+                failures[failure_class(verdict)] += 1
 
         eventual = loaded[-1][1]
-        if not _is_accountable(eventual):
+        if not is_accountable(eventual):
             continue
         eventual_accountable += 1
-        outcome = _lane_outcome(lane, eventual)
+        outcome = lane_outcome(lane, eventual)
         if lane.role == "baseline":
             controls[outcome] += 1
         else:
@@ -333,6 +334,7 @@ def render_markdown(summary: ReliabilitySummary, *, slice_id: str) -> str:
     return "\n".join(lines)
 
 
+
 def main(argv: list[str] | None = None) -> int:
     """Plan, execute, or summarize the public M3 reliability seam."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -351,6 +353,10 @@ def main(argv: list[str] | None = None) -> int:
     summary_parser = commands.add_parser("summary")
     summary_parser.add_argument("--json-output", type=Path)
     summary_parser.add_argument("--markdown-output", type=Path)
+    audit_parser = commands.add_parser("audit")
+    audit_parser.add_argument("--environment", type=Path, required=True)
+    audit_parser.add_argument("--json-output", type=Path)
+    audit_parser.add_argument("--markdown-output", type=Path)
     args = parser.parse_args(argv)
 
     repo_root = args.repo_root.resolve()
@@ -386,9 +392,26 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
 
-    summary = build_summary(manifest)
-    payload = summary_to_dict(summary)
-    markdown = render_markdown(summary, slice_id=manifest.slice_id)
+    if args.command == "audit":
+        from aiverify.bench.m3_audit import (
+            audited_report_to_dict,
+            build_audited_report,
+            render_audited_markdown,
+        )
+
+        environment_path = args.environment
+        if not environment_path.is_absolute():
+            environment_path = repo_root / environment_path
+        report = build_audited_report(
+            manifest,
+            environment_path=environment_path,
+        )
+        payload = audited_report_to_dict(report)
+        markdown = render_audited_markdown(report)
+    else:
+        summary = build_summary(manifest)
+        payload = summary_to_dict(summary)
+        markdown = render_markdown(summary, slice_id=manifest.slice_id)
     if args.json_output is not None:
         args.json_output.parent.mkdir(parents=True, exist_ok=True)
         args.json_output.write_text(
@@ -448,12 +471,12 @@ def _lane_by_id(manifest: ReliabilityManifest, lane_id: str) -> ReliabilityLane:
 def _next_attempt_number(
     lane: ReliabilityLane, *, manifest: ReliabilityManifest
 ) -> int:
-    attempts = _attempt_directories(lane)
+    attempts = attempt_directories(lane)
     if not attempts:
         return 1
     if len(attempts) >= manifest.max_attempts_per_lane:
         raise ValueError(f"lane {lane.lane_id} exhausted its bounded retry")
-    _, verdict = _load_verified_attempt(
+    _, verdict = load_verified_attempt(
         attempts[-1], lane=lane, attempt_number=len(attempts)
     )
     execution = verdict["execution"]
@@ -464,7 +487,8 @@ def _next_attempt_number(
     return len(attempts) + 1
 
 
-def _attempt_directories(lane: ReliabilityLane) -> list[Path]:
+def attempt_directories(lane: ReliabilityLane) -> list[Path]:
+    """Return a lane's contiguous preserved attempt directories."""
     attempts = sorted(lane.evidence_dir.glob("attempt-*"))
     expected = [
         lane.evidence_dir / f"attempt-{number}"
@@ -475,9 +499,10 @@ def _attempt_directories(lane: ReliabilityLane) -> list[Path]:
     return attempts
 
 
-def _load_verified_attempt(
+def load_verified_attempt(
     attempt_dir: Path, *, lane: ReliabilityLane, attempt_number: int
 ) -> tuple[dict, dict]:
+    """Load one checksummed attempt after validating its authoritative contracts."""
     errors = verify_manifest(attempt_dir)
     if errors:
         raise ValueError(
@@ -558,7 +583,7 @@ def _validate_verdict(verdict: dict, *, lane: ReliabilityLane) -> None:
             raise ValueError(
                 f"lane {lane.lane_id} non-accountable verdict contains oracle outcome"
             )
-        _failure_class(verdict)
+        failure_class(verdict)
     elif seed_outcome == "not_accountable":
         raise ValueError(
             f"lane {lane.lane_id} accountable verdict cannot use "
@@ -574,7 +599,7 @@ def _validate_runner_exit(
     actual = metadata.get("runner_exit_code")
     if not isinstance(actual, int) or isinstance(actual, bool):
         raise ValueError(f"lane {lane.lane_id} runner exit code is invalid")
-    if _is_accountable(verdict):
+    if is_accountable(verdict):
         detected = any(
             isinstance(value, dict) and value.get("outcome") == "fail"
             for value in (verdict.get("l1"), verdict.get("l2"), verdict.get("l3"))
@@ -591,7 +616,7 @@ def _validate_runner_exit(
 def _validate_l3_judge_artifacts(
     attempt_dir: Path, *, verdict: dict, lane: ReliabilityLane
 ) -> None:
-    if lane.expected_oracle_level != "L3" or not _is_accountable(verdict):
+    if lane.expected_oracle_level != "L3" or not is_accountable(verdict):
         return
 
     spec = load_run_spec(lane.run_spec)
@@ -678,14 +703,16 @@ def _validate_l3_judge_artifacts(
         )
 
 
-def _is_accountable(verdict: dict) -> bool:
+def is_accountable(verdict: dict) -> bool:
+    """Return whether a runner verdict is eligible for oracle accounting."""
     execution = verdict["execution"]
     return execution.get("status") == "completed" and execution.get(
         "accounting_eligible"
     ) is True
 
 
-def _lane_outcome(lane: ReliabilityLane, verdict: dict) -> str:
+def lane_outcome(lane: ReliabilityLane, verdict: dict) -> str:
+    """Classify an accountable lane without hiding benchmark inconsistencies."""
     oracle_verdicts = [
         value for key in ("l1", "l2", "l3")
         if isinstance((value := verdict.get(key)), dict)
@@ -698,20 +725,16 @@ def _lane_outcome(lane: ReliabilityLane, verdict: dict) -> str:
     expected = verdict.get(expected_key)
     if not isinstance(expected, dict) or expected.get("outcome") != "fail":
         if failures:
-            raise ValueError(
-                f"lane {lane.lane_id} failed an unexpected oracle instead of "
-                f"{lane.expected_oracle_level}"
-            )
+            return "wrong_oracle"
         return "missed"
     actual_class = expected.get("defect_class_hypothesis")
     if actual_class != lane.expected_oracle_defect_class:
-        raise ValueError(
-            f"lane {lane.lane_id} expected class mismatch: {actual_class!r}"
-        )
+        return "wrong_defect_class"
     return "caught"
 
 
-def _failure_class(verdict: dict) -> str:
+def failure_class(verdict: dict) -> str:
+    """Map a non-accountable runner reason to its audited failure class."""
     reason = verdict["execution"].get("reason")
     mapping = {
         "live_validation_preflight_failed": "preflight_environment",
@@ -756,13 +779,13 @@ def _judge_timing_seconds(verdict: dict, *, lane: ReliabilityLane) -> float:
     ]
     if lane.expected_oracle_level != "L3" and judge_phases:
         raise ValueError(f"lane {lane.lane_id} has contradictory L3 judge timing")
-    if not _is_accountable(verdict) and judge_phases:
+    if not is_accountable(verdict) and judge_phases:
         raise ValueError(
             f"lane {lane.lane_id} non-accountable attempt has L3 judge timing"
         )
     if (
         lane.expected_oracle_level == "L3"
-        and _is_accountable(verdict)
+        and is_accountable(verdict)
         and len(judge_phases) != 1
     ):
         raise ValueError(f"lane {lane.lane_id} L3 judge timing is missing or duplicated")
@@ -780,6 +803,7 @@ def _judge_timing_seconds(verdict: dict, *, lane: ReliabilityLane) -> float:
             raise ValueError(f"lane {lane.lane_id} L3 judge timing is invalid")
         total += float(value)
     return total
+
 
 
 def _required_str(raw: dict, key: str) -> str:

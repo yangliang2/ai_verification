@@ -7,9 +7,9 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- GitHub Issues #1-#40、#42-#46 已完成并关闭；M3 PRD #41 和子 issue
-  #47 保持 open，open PRs = 0。下一项推荐从 ready-for-agent 的 #47
-  “M3: publish the audited reliability baseline” 开始。
+- GitHub Issues #1-#47（含 M3 PRD #41）已完成并关闭；open PRs = 0。
+  M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
+  未达到 29/30 而明确失败。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -27,6 +27,7 @@
 - Latest runner contract run record: [`docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md`](docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md)
 - Latest accounting run record: [`docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md`](docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md)
 - Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md`](docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md)
+- Final M3 audited baseline: [`docs/runs/2026-07-13-m3-final-reliability-baseline/README.md`](docs/runs/2026-07-13-m3-final-reliability-baseline/README.md)
 - M2-beta current audited slice: 10 included injected-defect seeds, 10 caught,
   10 baseline controls passed; expected oracle split L1=4, L2=4, L3=2.
 - Fixed-evidence L3 repeatability remains separate: 2 packages, 20 calls,
@@ -47,10 +48,11 @@
   accountable, 1 bounded retry, 3/3 controls passed, and both accountable defects
   caught by L3 as `ui_rendering`; defect repetition 3 exhausted non-accountable
   after two Journey action-name mismatches.
-  Current cross-seed aggregate: 30 planned, 27 eventually accountable, 15/15
-  controls passed, and 12/15 planned defects caught. This misses the PRD's 29/30
-  eventual-accountability threshold and must be published honestly by #47.
-- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `374 passed`.
+  Final cross-seed aggregate: 30 planned, 24 first-attempt and 27 eventually
+  accountable, 6 retries, 15/15 controls passed, and 12/12 accountable defects
+  caught at the expected level/class. The audited M3 result is **FAILED** because
+  27/30 misses the PRD's 29/30 eventual-accountability threshold.
+- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `384 passed`.
 
 ### 已实测
 
@@ -104,7 +106,9 @@ Wikipedia host:
   inventory generation and verification, excluding the manifest itself.
 - `src/aiverify/bench/m3_reliability.py`: versioned multi-seed M3 lane orchestration,
   bounded attempt lineage, authoritative evidence validation, fail-closed failure
-  classification, and deterministic structured/Markdown summary generation.
+  classification, and deterministic partial-summary generation.
+- `src/aiverify/bench/m3_audit.py`: final evidence-derived audit model with
+  criteria, oracle, lane, identity, package-integrity, and Markdown breakdowns.
 
 ## Current Boundary
 
