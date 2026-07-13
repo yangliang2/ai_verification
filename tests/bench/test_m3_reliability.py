@@ -57,7 +57,7 @@ def test_manifest_defines_six_lanes_per_m3_seed() -> None:
 
     assert manifest.slice_id == "m3-verification-agent-reliability"
     assert manifest.max_attempts_per_lane == 2
-    assert len(manifest.lanes) == 12
+    assert len(manifest.lanes) == 18
     assert {
         seed_id: [
             (lane.role, lane.repetition)
@@ -82,10 +82,19 @@ def test_manifest_defines_six_lanes_per_m3_seed() -> None:
             ("defect", 2),
             ("defect", 3),
         ],
+        "wikipedia-config-change-02-query-duplication": [
+            ("baseline", 1),
+            ("baseline", 2),
+            ("baseline", 3),
+            ("defect", 1),
+            ("defect", 2),
+            ("defect", 3),
+        ],
     }
-    assert {lane.expected_oracle_level for lane in manifest.lanes} == {"L1"}
+    assert {lane.expected_oracle_level for lane in manifest.lanes} == {"L1", "L2"}
     assert {lane.expected_oracle_defect_class for lane in manifest.lanes} == {
-        "crash_stability"
+        "crash_stability",
+        "state_loss",
     }
     assert all(lane.run_spec.is_file() for lane in manifest.lanes)
 
@@ -509,7 +518,7 @@ def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
         _ROOT
         / "docs"
         / "runs"
-        / "2026-07-13-m3-oversized-saved-state-reliability"
+        / "2026-07-13-m3-query-duplication-reliability"
     )
 
     assert json.loads((run_record / "summary.json").read_text(encoding="utf-8")) == (
@@ -518,12 +527,12 @@ def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
     assert (run_record / "summary.md").read_text(encoding="utf-8") == render_markdown(
         summary, slice_id=manifest.slice_id
     )
-    assert summary.planned_lanes == 12
-    assert summary.first_attempt_accountable == 9
-    assert summary.eventual_accountable == 10
-    assert summary.retry_count == 3
-    assert summary.control_outcomes == {"passed_control": 6}
-    assert summary.defect_outcomes == {"caught": 4}
+    assert summary.planned_lanes == 18
+    assert summary.first_attempt_accountable == 14
+    assert summary.eventual_accountable == 16
+    assert summary.retry_count == 4
+    assert summary.control_outcomes == {"passed_control": 9}
+    assert summary.defect_outcomes == {"caught": 7}
 
 
 def test_committed_oversized_state_defects_contain_expected_l1_signal() -> None:
@@ -548,6 +557,39 @@ def test_committed_oversized_state_defects_contain_expected_l1_signal() -> None:
             "TransactionTooLargeException" in evidence["ref"]
             for evidence in verdict["l1"]["evidence"]
         )
+
+
+def test_committed_query_duplication_lanes_match_the_l2_contract() -> None:
+    manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
+    lanes = [
+        lane
+        for lane in manifest.lanes
+        if lane.seed_id == "wikipedia-config-change-02-query-duplication"
+    ]
+
+    assert len(lanes) == 6
+    assert {lane.run_spec for lane in lanes} == {
+        _ROOT
+        / "bench"
+        / "goldset"
+        / "run-specs"
+        / "wikipedia-config-change-02-query-duplication.yaml"
+    }
+    for lane in lanes:
+        final_attempt = sorted(lane.evidence_dir.glob("attempt-*"))[-1]
+        verdict = json.loads(
+            (final_attempt / "verdict.json").read_text(encoding="utf-8")
+        )
+        assert verdict["execution"]["accounting_eligible"] is True
+        assert verdict["l1"]["outcome"] == "inconclusive"
+        if lane.role == "baseline":
+            assert verdict["l2"]["outcome"] == "pass"
+        else:
+            assert verdict["l2"]["outcome"] == "fail"
+            assert verdict["l2"]["defect_class_hypothesis"] == "state_loss"
+            assert "zzsentinelqxzzsentinelqx" in verdict["l2"]["evidence"][0][
+                "ref"
+            ]
 
 
 def _write_fixture_manifest(tmp_path: Path, *, role: str = "baseline") -> Path:

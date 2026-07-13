@@ -1,0 +1,105 @@
+{
+  "scenario": "wikipedia-config-change-02-query-duplication",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_action_failed",
+    "message": "Journey segment wikipedia-config-change-02-query-duplication-segment-0 reported non-passing action status(es): SKIPPED, SKIPPED"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-config-change-02-query-duplication",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": "config-change",
+    "taxonomy_pattern_id": "config-change-02",
+    "expected_oracle_level": "L2",
+    "expected_oracle_defect_class": "state_loss",
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "journey_results": [
+      {
+        "result": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/artifacts/wikipedia-config-change-02-query-duplication-segment-0/codex-journey-result.json",
+        "events": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/artifacts/wikipedia-config-change-02-query-duplication-segment-0/codex-events.jsonl"
+      }
+    ],
+    "checkpoints": [
+      {
+        "name": "after-segment-0",
+        "directory": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/artifacts/after-segment-0",
+        "layout": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/artifacts/after-segment-0/layout.json",
+        "screenshot": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/artifacts/after-segment-0/screen.png",
+        "annotated_screenshot": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/artifacts/after-segment-0/screen-annotated.png",
+        "logcat": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/artifacts/after-segment-0/logcat.txt",
+        "commands": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/artifacts/after-segment-0/commands.json",
+        "manifest": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2/attempt-1/artifacts/after-segment-0/capture-manifest.json"
+      }
+    ],
+    "backend_errors": []
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-config-change-02-query-duplication-segment-0",
+      "results": [
+        {
+          "action": "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+          "status": "SKIPPED",
+          "commands": [],
+          "comment": "Execution not started."
+        },
+        {
+          "action": "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+          "status": "SKIPPED",
+          "commands": [],
+          "comment": "Execution not started."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-13T15:13:06+00:00",
+    "finished_at": "2026-07-13T15:13:47+00:00",
+    "total_seconds": 41.126,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.722
+      },
+      {
+        "phase": "wikipedia-config-change-02-query-duplication-segment-0",
+        "kind": "journey",
+        "seconds": 30.713
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.559
+      }
+    ]
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "scenario": "wikipedia-config-change-02-query-duplication",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-baseline-3/attempt-1/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-config-change-02-query-duplication",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "missed",
+    "taxonomy_category": "config-change",
+    "taxonomy_pattern_id": "config-change-02",
+    "expected_oracle_level": "L2",
+    "expected_oracle_defect_class": "state_loss",
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "pass",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-61ceb7b7",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-b4b49258",
+    "level": "L2",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "已校验 1 条断言，全部通过",
+        "note": "L2 状态断言全部满足"
+      }
+    ],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "wikipedia-config-change-02-query-duplication-segment-0",
+      "results": [
+        {
+          "action": "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 371",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "应用已在主 feed，无 onboarding。通过 nav_tab_search 和 search_card 进入搜索页，search_src_text 可见。"
+        },
+        {
+          "action": "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页",
+          "status": "PASSED",
+          "commands": [
+            "adb -s emulator-5554 shell input tap 542 215",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input text \"zzsentinelqx\"",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input keyevent BACK",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "已确认 search_src_text 显示 zzsentinelqx。按 Back 后键盘收起，查询文本保留且仍在 SearchActivity 搜索页。"
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0"
+  ],
+  "injected_events": [
+    {
+      "event": "dark_mode",
+      "args": {
+        "night": "yes"
+      }
+    }
+  ],
+  "timing": {
+    "started_at": "2026-07-13T15:08:34+00:00",
+    "finished_at": "2026-07-13T15:10:15+00:00",
+    "total_seconds": 100.712,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.707
+      },
+      {
+        "phase": "wikipedia-config-change-02-query-duplication-segment-0",
+        "kind": "journey",
+        "seconds": 85.881
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 4.879
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "dark_mode",
+        "seconds": 0.03
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 5.08
+      }
+    ]
+  }
+}

@@ -99,3 +99,51 @@ lanes:
     evidence_dir: docs/runs/2026-07-13-m3-oversized-saved-state-reliability/lanes/oversized-state-defect-3
     expected_oracle_level: L1
     expected_oracle_defect_class: crash_stability
+  - id: query-duplication-baseline-1
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: baseline
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-baseline-1
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: query-duplication-baseline-2
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: baseline
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-baseline-2
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: query-duplication-baseline-3
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: baseline
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-baseline-3
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: query-duplication-defect-1
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: defect
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-1
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: query-duplication-defect-2
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: defect
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-2
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: query-duplication-defect-3
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: defect
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-query-duplication-reliability/lanes/query-duplication-defect-3
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
