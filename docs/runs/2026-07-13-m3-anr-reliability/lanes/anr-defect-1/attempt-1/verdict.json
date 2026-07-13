@@ -1,0 +1,60 @@
+{
+  "scenario": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "live_validation_preflight_failed",
+    "message": "live-validation preflight failed: android-layout-json, uiautomator-dump"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "failed",
+      "artifact": "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-defect-1/attempt-1/live-validation-gate.json",
+      "failed_checks": [
+        "android-layout-json",
+        "uiautomator-dump"
+      ]
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": "coroutine-concurrency",
+    "taxonomy_pattern_id": "coroutine-concurrency-03",
+    "expected_oracle_level": "L1",
+    "expected_oracle_defect_class": "crash_stability",
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "live_validation_gate": "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-defect-1/attempt-1/live-validation-gate.json"
+  },
+  "journey_results": [],
+  "checkpoints": [],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-13T11:31:45+00:00",
+    "finished_at": "2026-07-13T11:32:52+00:00",
+    "total_seconds": 67.045,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 67.045
+      }
+    ]
+  }
+}

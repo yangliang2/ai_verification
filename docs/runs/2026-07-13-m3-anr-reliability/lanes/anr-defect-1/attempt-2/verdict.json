@@ -1,0 +1,100 @@
+{
+  "scenario": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "checkpoint_capture_error",
+    "message": "EvidenceCaptureError: Android layout did not return a JSON list after 6 attempt(s): android layout --pretty --device emulator-5554\nstdout=''\nstderr='Failed to retrieve UI dump: \\n'"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-defect-1/attempt-2/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": "coroutine-concurrency",
+    "taxonomy_pattern_id": "coroutine-concurrency-03",
+    "expected_oracle_level": "L1",
+    "expected_oracle_defect_class": "crash_stability",
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "journey_results": [
+      {
+        "result": "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-defect-1/attempt-2/artifacts/wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0/codex-journey-result.json",
+        "events": "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-defect-1/attempt-2/artifacts/wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0/codex-events.jsonl"
+      }
+    ],
+    "checkpoints": [],
+    "backend_errors": []
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+      "results": [
+        {
+          "action": "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入",
+          "status": "FAILED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "android layout --device=emulator-5554 --pretty",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "主 feed 已显示，成功按 nav_tab_search 的中心 [540,2232] 点击 Search。此后一次布局读取无输出，另两次均因 InterruptedByTimeoutException 超时，无法找到并点击 search_card；界面被判定为无响应。"
+        },
+        {
+          "action": "点搜索输入框 search_src_text，输入文本 'anrtest'",
+          "status": "SKIPPED",
+          "commands": [],
+          "comment": "上一 action 失败后终止 journey，未执行文本输入。"
+        }
+      ]
+    }
+  ],
+  "checkpoints": [],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-13T11:58:59+00:00",
+    "finished_at": "2026-07-13T12:07:31+00:00",
+    "total_seconds": 511.766,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 13.229
+      },
+      {
+        "phase": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+        "kind": "journey",
+        "seconds": 395.119
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "status": "failed",
+        "seconds": 102.327
+      }
+    ]
+  }
+}

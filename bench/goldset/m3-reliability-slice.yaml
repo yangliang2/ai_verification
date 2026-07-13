@@ -1,0 +1,53 @@
+schema_version: 1
+slice_id: m3-verification-agent-reliability
+max_attempts_per_lane: 2
+
+lanes:
+  - id: anr-baseline-1
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: baseline
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-baseline-1
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: anr-baseline-2
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: baseline
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-baseline-2
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: anr-baseline-3
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: baseline
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-baseline-3
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: anr-defect-1
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: defect
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-defect-1
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: anr-defect-2
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: defect
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-defect-2
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: anr-defect-3
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: defect
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-anr-reliability/lanes/anr-defect-3
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability

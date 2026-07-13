@@ -7,24 +7,38 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- 已关闭 agent-ready issues: #2, #3, #4, #5, #6, #7
-- 已关闭 implementation/follow-up issues: #8, #9, #10, #11, #12, #14, #15, #16, #17, #18, #19, #20, #21, #22
+- GitHub Issues #1-#40 全部已关闭；M3 PRD #41 和子 issues #42-#47
+  已创建并保持 open，open PRs = 0。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
 - M2 text-layout L3 summary: [`docs/M2-l3-text-layout-summary.md`](docs/M2-l3-text-layout-summary.md)
 - M2 scoped milestone note: [`docs/M2-scoped-milestone-note.md`](docs/M2-scoped-milestone-note.md)
 - M2 metric schema: [`docs/M2-metric-schema.md`](docs/M2-metric-schema.md)
+- M2-beta audited report: [`docs/M2-beta-benchmark-slice-report.md`](docs/M2-beta-benchmark-slice-report.md)
+- M2-beta evidence-derived aggregate: [`docs/M2-beta-aggregate-summary.md`](docs/M2-beta-aggregate-summary.md)
+- Live-validation contract: [`docs/live-validation-gate.md`](docs/live-validation-gate.md)
 - Retrospective #11 timing run record: [`docs/runs/2026-07-06-runner-timing-instrumentation/README.md`](docs/runs/2026-07-06-runner-timing-instrumentation/README.md)
 - Latest L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
 - Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
 - Latest L3 repeatability run record: [`docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md`](docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md)
-- Test status: `.venv/bin/pytest` -> `247 passed, 2 warnings`
+- Latest live matched-pair run record: [`docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/`](docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/)
+- Latest runner contract run record: [`docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md`](docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md)
+- Latest accounting run record: [`docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md`](docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md)
+- Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-anr-reliability/README.md`](docs/runs/2026-07-13-m3-anr-reliability/README.md)
+- M2-beta current audited slice: 10 included injected-defect seeds, 10 caught,
+  10 baseline controls passed; expected oracle split L1=4, L2=4, L3=2.
+- Fixed-evidence L3 repeatability remains separate: 2 packages, 20 calls,
+  baseline 10/10 pass, defect 10/10 fail, 0 errors.
+- M3 ANR tracer result: 6 planned lanes, 4 first-attempt/eventually accountable,
+  2 bounded retries, 3/3 accountable controls passed, and 1/1 accountable defect
+  caught by L1 as `crash_stability`; two defect lanes exhausted non-accountable.
+- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `360 passed, 2 warnings`.
 
 ### 已实测
 
 Android CLI:
-- Installed command: `/Users/peter/.local/bin/android`
+- Installed command: `/Users/80268204/.local/bin/android`
 - Version: `1.0.15498356`
 - SDK path from `android info`: `/opt/homebrew/share/android-commandlinetools`
 - Confirmed commands: `android update`, `android init`, `android info`, `android layout`, `android layout --diff`, `android screen capture`, `android screen capture --annotate`, `android screen resolve --screenshot`, `android docs`, `android skills`
@@ -32,17 +46,18 @@ Android CLI:
 - Caveat: `android run` deploys/checks APKs; it does not build missing APKs
 
 Codex CLI:
-- Version: `codex-cli 0.139.0`
+- Version: `codex-cli 0.144.1`
 - Driver backend uses `codex exec --json --output-schema --output-last-message --skip-git-repo-check --cd ... --dangerously-bypass-approvals-and-sandbox` because it must operate Android CLI / adb outside the workspace.
 - L3 judge backend uses `codex exec --json --output-last-message --skip-git-repo-check --sandbox read-only --cd ...` because it only reads evidence artifacts.
 
 Wikipedia host:
-- Path: `/Users/peter/hosts/wikipedia`
-- Commit: `6ccb8d85a21a8e34b96e4813d3caee5c690ece9b`
+- Current path: `/Users/80268204/hosts/wikipedia` (extracted tree; no `.git` metadata)
 - Build command: `./gradlew assembleDevDebug --no-daemon`
-- Build result: `BUILD SUCCESSFUL in 9m 48s`
-- APK: `/Users/peter/hosts/wikipedia/app/build/outputs/apk/dev/debug/app-dev-debug.apk`
-- APK SHA-256: `cf882666ecab7b4ad3362e5580ef3e692062d3958045b103e0c43a6014ee32e9`
+- Latest M3 build results: baseline `BUILD SUCCESSFUL in 6m 11s`; defect
+  `BUILD SUCCESSFUL in 57s`.
+- Preserved APKs: `/Users/80268204/hosts/wikipedia/aiverify-builds/m3-anr/`
+- Baseline/defect APK SHA-256: `12e0705ce900bdbce3b653a6cdfe85d90b3b22d207b3c206981f808752d975a1` /
+  `0770fe4d419003820ef642131c91259645c3b11a3c4cc5c57f6cb82cc8a30260`.
 - Package: `org.wikipedia.dev`
 - Launch component used by Android CLI: `org.wikipedia.DefaultIcon`
 - Evidence confirms Wikipedia onboarding screen.
@@ -56,11 +71,23 @@ Wikipedia host:
   evidence capture, including checkpoint-local success/failure manifests.
 - `src/aiverify/runner/journey.py`: Journey segment boundary orchestration.
 - `src/aiverify/runner/system_events.py`: system-event injection at boundaries.
-- `src/aiverify/runner/verdict.py`: Android CLI layout JSON to L2Oracle verdict.
-- `src/aiverify/runner/cli.py`: end-to-end Run Spec runner, timing, L1/L2/L3 gating, non-zero exit on oracle fail.
+- `src/aiverify/runner/verdict.py`: Android CLI layout JSON to L2Oracle verdict;
+  Run Specs can select a numeric `scenario.l2_boundary_index` for multi-boundary runs.
+- `src/aiverify/runner/cli.py`: end-to-end Run Spec runner, mandatory live-validation
+  preflight, execution-accountability envelope, timing, L1/L2/L3 gating, and
+  non-zero exit on oracle fail.
 - `src/aiverify/providers/codex_cli.py`: Codex CLI-backed `LLMProvider` for L3 semantic judging.
 - `src/aiverify/agent/oracle/l1.py`, `l2.py`, `l3.py`: crash/ANR, state assertion, and semantic oracle paths now all exercised live.
 - `src/aiverify/harness/device/controller.py`: includes public `press_home()` for backgrounding.
+- `src/aiverify/bench/live_validation_gate.py`: generic Android environment gate
+  plus explicit host-neutral app-smoke validation.
+- `src/aiverify/bench/m2_beta_summary.py`: fail-closed, evidence-derived M2-beta
+  outcome accounting over committed verdict and repeatability artifacts.
+- `src/aiverify/bench/run_record_checksums.py`: deterministic run-record checksum
+  inventory generation and verification, excluding the manifest itself.
+- `src/aiverify/bench/m3_reliability.py`: versioned six-lane M3 orchestration,
+  bounded attempt lineage, authoritative evidence validation, fail-closed failure
+  classification, and deterministic structured/Markdown summary generation.
 
 ## Current Boundary
 
@@ -68,13 +95,18 @@ Do not claim these are complete yet:
 
 - Full defect-injected end-to-end benchmark.
 - 100+ AI-generated source-level defects.
-- Detection rate, false-positive rate, visual/multimodal L3 repeatability, or
-  full-benchmark throughput beyond the bounded M2 text-layout L3 summary.
+- Benchmark-wide detection rate, benchmark-wide false-positive rate,
+  visual/multimodal L3 repeatability, or full-benchmark throughput beyond the
+  bounded 10-seed M2-beta slice and text-layout L3 repeatability packages.
 - Fully unattended Android Journey execution.
 - ColorOS internal app/build migration.
 - Multimodal/visual-only L3 judgment.
 
-The current value is concrete but still bounded: the repo has a tested end-to-end runner, real Android host build/deploy proof, M1 5/5 Goldset detection evidence, live L1/L2/L3 oracle coverage, and durable evidence discipline.
+The current value is concrete but still bounded: the repo has a tested end-to-end
+runner, real Android host build/deploy proof, M1 5/5 Goldset detection evidence,
+an audited 10-seed M2-beta slice with 10/10 caught and 10/10 passed controls,
+live L1/L2/L3 oracle coverage, runner-enforced preflight, fail-closed accounting,
+and durable evidence discipline.
 
 ## Progress Update (2026-07-05) — #8 COMPLETE (both halves)
 
@@ -391,37 +423,96 @@ successful and failed checkpoint attempts:
 Interpretation: this improves auditability of evidence-capture failures before more
 M2 seed work. It does not make Journey execution fully unattended.
 
-## Next Issue
+## Progress Update (2026-07-09) — #23-#34 COMPLETE: M2-beta and live-validation gate
 
-Open tracker state:
+The oversized saved-state seed and the first audited M2-beta slice are complete:
 
-- **#1 parent PRD is complete/closed** — smoke/M1/L3 progress is recorded with durable evidence.
-- **#9 is complete/closed** — M1 report complete, 5/5 caught.
-- **#13 M2 scoping** produced the M2-alpha scope and is closed.
-- **#14 is complete** — L3 repeatability on the existing `ui-rendering-01` seed is stable 5x/5x per half.
-- **#15 is complete/closed** — config-change duplicated-state seed has matched baseline/defect L2 evidence.
-- **#16 is complete/closed** — navigation Back-button seed has matched baseline/defect L2 evidence.
-- **#17 is complete/closed** — second L3 text-layout semantic seed has matched baseline/defect L3 evidence.
-- **#18 is complete/closed** — `ui-rendering-02` L3 repeatability is stable 5x/5x per half.
-- **#19 is complete/closed** — M2 text-layout L3 summary records both repeatability-gated seeds and limits.
-- **#20 is complete/closed** — M2 scoped milestone note records proven claims, non-claims, and next decisions.
-- **#21 is complete/closed** — M2 metric context separates seed outcome, oracle symptom class, and taxonomy category.
-- **#22 is complete/closed** — checkpoint evidence capture now leaves success/failure manifests and persisted command trails.
+- #23 `process-death-03` changed its observation boundary from `dark_mode` to
+  `app_to_background`, matching the source failure mode. The valid matched pair
+  produced baseline L1 inconclusive / L2 pass and defect L1 fail /
+  `crash_stability` with `TransactionTooLargeException`.
+- #24-#29 defined M2-beta inclusion rules, backfilled metric context, resolved the
+  temporary #23 quarantine, generated the aggregate summary, and published the
+  audited benchmark-slice report.
+- The resulting slice contains 10 included injected-defect seeds: 10 `caught`,
+  10 `passed_control`; L1=4, L2=4, L3=2. Two fixed-evidence L3 repeatability
+  packages remain outside the live seed denominator.
+- #30-#34 added the generic Android environment gate, an explicit Wikipedia
+  target-surface app smoke, a durable current-environment gate run, and the retry
+  policy used to safely resume #23.
 
-Recommended execution order:
+Durable sources:
 
-1. Pick the next M2 seed deliberately: another L2 state/navigation seed or another
-   text-layout L3 semantic seed.
-2. Use `scenario.metric_context` and top-level `verdict.json.metric_context` for any
-   new aggregate M2 report.
-3. Or continue hardening Journey automation beyond checkpoint-local evidence
-   manifests before adding more expensive L3 seeds.
-4. Do not start broader seed expansion, fully unattended Journey execution, or public
-   detection-rate reporting until the #17/#18/#19/#20/#21/#22 evidence is reviewed.
+- `docs/M2-beta-benchmark-slice-report.md`
+- `docs/M2-beta-inclusion-rules.md`
+- `docs/runs/2026-07-09-live-validation-gate-current-environment/`
+- `docs/runs/2026-07-09-wikipedia-app-smoke-gate/`
+- `docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/`
+
+## Progress Update (2026-07-13) — #35-#40 COMPLETE: execution reliability and evidence accounting
+
+#35 and all child issues are closed:
+
+- #36 makes failed, skipped, incomplete, interrupted, duplicated, reordered, or
+  mismatched Journey execution explicitly `non_accountable`; L1/L2/L3 and seed
+  outcome accounting do not run for those executions.
+- #37 makes live-validation preflight mandatory in the runner before logcat clear,
+  host launch, Journey driving, or oracle evaluation. A failure persists gate
+  evidence and returns `execution.reason=live_validation_preflight_failed` with
+  `seed_outcome=not_accountable`.
+- #38 adds deterministic numeric Journey Segment Boundary ordering and optional
+  zero-based `scenario.l2_boundary_index`; ambiguous multi-boundary L2 evaluation
+  returns explained `inconclusive`.
+- #39 replaces manifest-declared M2-beta outcomes with fail-closed accounting from
+  committed control/defect verdicts and repeatability summaries. Missing,
+  contradictory, mismatched, or non-accountable evidence is rejected.
+- #40 adds public run-record checksum generation and verification. The inventory
+  covers every retained artifact except `checksums.sha256` itself.
+
+Latest recorded verification after #39: `331 passed`, `0 failed`, with 2 existing
+Element truth-value deprecation warnings from `src/aiverify/agent/oracle/l2.py:123`.
+
+## Current Tracker And Next Milestone Decision
+
+GitHub tracker state after the local #42 implementation (issue closure follows the
+durable commit):
+
+- #42 implementation and six live lanes are complete locally; run record is linked
+  above and final verification is 360 passed with 2 pre-existing warnings;
+- open pull requests: **0**;
+- #43-#46 become the next independently executable seed tracers after #42 closes.
+
+The next milestone direction is now fixed as **M3 Verification Agent execution
+reliability and false-positive baseline**:
+
+- #41 — parent PRD;
+- #42 — ANR reliability tracer implemented; close after commit/evidence comment;
+- #43 — oversized saved-state L1 reliability; next candidate;
+- #44 — query-duplication L2 reliability; next candidate;
+- #45 — swallowed-Back L2 reliability; next candidate;
+- #46 — Search-card semantic L3 reliability; next candidate;
+- #47 — publish the audited 30-lane baseline; blocked by #42-#46.
+
+Execution order: close #42, then #43-#46 may proceed independently, then complete
+#47. The planned slice is five seeds × baseline/defect × three
+repetitions = 30 live lanes. Its completion thresholds are at least 29/30
+eventually accountable lanes, zero false positives among accountable baselines,
+and the expected oracle failure/class on every accountable defect lane.
+
+For all M3 work:
+
+- new live evidence must use runner-enforced live-validation preflight;
+- interrupted or unhealthy runs remain non-accountable;
+- M3 outcomes must be derived from committed evidence, not entered manually;
+- new or updated run records should generate and verify `checksums.sha256`;
+- preserve first-attempt results separately from eventual results after the
+  single bounded retry;
+- do not turn the M3 five-seed/30-lane slice into a benchmark-wide
+  detection-rate or false-positive-rate claim.
 
 ## Next Implementation Issue Discipline
 
-For any new M2 implementation issue:
+For any M3 implementation issue:
 
 - create or triage the GitHub issue before starting;
 - keep one category role and one state role from `docs/agents/triage-labels.md`;

@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "device": "emulator-5554",
+  "failed_checks": [],
+  "checks": [
+    {
+      "name": "adb-device-present",
+      "args": [
+        "adb",
+        "devices",
+        "-l"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "List of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:3\n\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-completed",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "1\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-animation-stopped",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "init.svc.bootanim"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "stopped\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "android-layout-json",
+      "args": [
+        "android",
+        "layout",
+        "--pretty",
+        "--device",
+        "emulator-5554"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "[\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,790]\",\n    \"resource-id\": \"search_container\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Navigate up\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[73,146]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"focusable\"\n    ],\n    \"center\": \"[542,146]\",\n    \"resource-id\": \"search_cab_view\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Wikipedia languages\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[1006,146]\",\n    \"resource-id\": \"search_lang_button\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"EN\",\n    \"center\": \"[1005,146]\",\n    \"resource-id\": \"langCodeText\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"scrollable\"\n    ],\n    \"center\": \"[540,874]\",\n    \"bounds\": \"[0,231][1080,1517]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,346]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,569]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,792]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,1023]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,1278]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,1467]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Giannis Antetokounmpo\",\n    \"center\": \"[280,312]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Nigerian-Greek basketball player (born 1994)\",\n    \"center\": \"[427,380]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Ancestry.com\",\n    \"center\": \"[178,535]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"American online genealogy company\",\n    \"center\": \"[360,603]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Thanasis Antetokounmpo\",\n    \"center\": \"[297,758]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Greek basketball player (born 1992)\",\n    \"center\": \"[349,826]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Anger\",\n    \"center\": \"[100,989]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Intense hostile emotional state of mind\",\n    \"center\": \"[383,1057]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Anesthesia\",\n    \"center\": \"[152,1212]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"State of medically-controlled temporary loss of sensation or awareness\",\n    \"center\": \"[445,1312]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Kostas Antetokounmpo\",\n    \"center\": \"[275,1492]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"anrtest\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"state\": [\n      \"focused\"\n    ],\n    \"center\": \"[490,146]\",\n    \"resource-id\": \"search_src_text\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Clear query\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[864,145]\",\n    \"resource-id\": \"search_close_btn\",\n    \"key\": 3506402\n  }\n]\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "uiautomator-dump",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/window_dump.xml"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "UI hierchary dumped to: /sdcard/window_dump.xml\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    }
+  ]
+}
