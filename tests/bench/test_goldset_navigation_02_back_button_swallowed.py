@@ -44,6 +44,8 @@ def test_run_spec_parses_with_back_path_dark_mode_boundary_and_patch() -> None:
     assert event.args == {"night": "yes"}
     assert "zznavbackqx" in spec.scenario.user_actions[1]
     assert "second time" in spec.scenario.user_actions[1]
+    assert "should return" not in spec.scenario.user_actions[1]
+    assert "finish the segment" in spec.scenario.user_actions[1]
     assert [(a.resource_id, a.attr, a.expected) for a in spec.scenario.assertions] == [
         ("search_card", "resource-id", "search_card")
     ]

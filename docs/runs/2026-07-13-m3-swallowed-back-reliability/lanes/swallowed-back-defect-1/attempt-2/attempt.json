@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "lane_id": "swallowed-back-defect-1",
+  "seed_id": "wikipedia-navigation-02-back-button-swallowed",
+  "role": "defect",
+  "repetition": 1,
+  "attempt_number": 2,
+  "started_at": "2026-07-13T15:48:54+00:00",
+  "finished_at": "2026-07-13T15:51:00+00:00",
+  "runner_command": [
+    "/Users/peter/projects/ai_verfication/.venv/bin/python",
+    "-m",
+    "aiverify.runner",
+    "/Users/peter/projects/ai_verfication/bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml",
+    "--device",
+    "emulator-5554",
+    "--artifact-dir",
+    "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-swallowed-back-reliability/lanes/swallowed-back-defect-1/attempt-2/artifacts",
+    "--workdir",
+    "/Users/peter/hosts/wikipedia"
+  ],
+  "runner_exit_code": 1,
+  "verdict": "verdict.json",
+  "operational_interventions": [
+    "Made the Journey action observation-neutral so L2 owns the expected-destination assertion, reset app state, and confirmed a fresh independent passing gate before the single policy retry"
+  ]
+}

@@ -7,9 +7,9 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- GitHub Issues #1-#40、#42-#44 已完成并关闭；M3 PRD #41 和子 issues
-  #45-#47 保持 open，open PRs = 0。下一项推荐从 ready-for-agent 的 #45
-  “M3: measure swallowed-Back L2 reliability” 开始。
+- GitHub Issues #1-#40、#42-#45 已完成并关闭；M3 PRD #41 和子 issues
+  #46-#47 保持 open，open PRs = 0。下一项推荐从 ready-for-agent 的 #46
+  “M3: measure Search-card semantic L3 reliability” 开始。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -26,7 +26,7 @@
 - Latest live matched-pair run record: [`docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/`](docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/)
 - Latest runner contract run record: [`docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md`](docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md)
 - Latest accounting run record: [`docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md`](docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md)
-- Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-query-duplication-reliability/README.md`](docs/runs/2026-07-13-m3-query-duplication-reliability/README.md)
+- Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-swallowed-back-reliability/README.md`](docs/runs/2026-07-13-m3-swallowed-back-reliability/README.md)
 - M2-beta current audited slice: 10 included injected-defect seeds, 10 caught,
   10 baseline controls passed; expected oracle split L1=4, L2=4, L3=2.
 - Fixed-evidence L3 repeatability remains separate: 2 packages, 20 calls,
@@ -40,9 +40,12 @@
   M3 query-duplication increment: 6 planned lanes, 5 first-attempt and 6
   eventually accountable, 1 bounded retry, 3/3 controls passed, and 3/3 defects
   caught by L2 as `state_loss` with duplicated query evidence.
-  Current cross-seed partial aggregate: 18 planned, 16 eventually accountable,
-  9/9 controls passed, and 7/9 planned defects caught.
-- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `361 passed, 2 warnings`.
+  M3 swallowed-Back increment: 6 planned lanes, 5 first-attempt and 6 eventually
+  accountable, 1 bounded retry, 3/3 controls passed, and 3/3 defects caught by
+  L2 as `state_loss` with SearchActivity-vs-Search-tab layout evidence.
+  Current cross-seed partial aggregate: 24 planned, 22 eventually accountable,
+  12/12 controls passed, and 10/12 planned defects caught.
+- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `363 passed`.
 
 ### 已实测
 

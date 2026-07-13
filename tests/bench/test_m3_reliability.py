@@ -18,6 +18,7 @@ from aiverify.bench.m3_reliability import (
 )
 from aiverify.bench.run_record_checksums import verify_manifest
 from aiverify.runner.command import CommandResult, CommandRunner
+from aiverify.runner.run_spec import load_run_spec
 
 
 _ROOT = Path(__file__).resolve().parents[2]
@@ -57,7 +58,7 @@ def test_manifest_defines_six_lanes_per_m3_seed() -> None:
 
     assert manifest.slice_id == "m3-verification-agent-reliability"
     assert manifest.max_attempts_per_lane == 2
-    assert len(manifest.lanes) == 18
+    assert len(manifest.lanes) == 24
     assert {
         seed_id: [
             (lane.role, lane.repetition)
@@ -83,6 +84,14 @@ def test_manifest_defines_six_lanes_per_m3_seed() -> None:
             ("defect", 3),
         ],
         "wikipedia-config-change-02-query-duplication": [
+            ("baseline", 1),
+            ("baseline", 2),
+            ("baseline", 3),
+            ("defect", 1),
+            ("defect", 2),
+            ("defect", 3),
+        ],
+        "wikipedia-navigation-02-back-button-swallowed": [
             ("baseline", 1),
             ("baseline", 2),
             ("baseline", 3),
@@ -518,7 +527,7 @@ def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
         _ROOT
         / "docs"
         / "runs"
-        / "2026-07-13-m3-query-duplication-reliability"
+        / "2026-07-13-m3-swallowed-back-reliability"
     )
 
     assert json.loads((run_record / "summary.json").read_text(encoding="utf-8")) == (
@@ -527,12 +536,12 @@ def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
     assert (run_record / "summary.md").read_text(encoding="utf-8") == render_markdown(
         summary, slice_id=manifest.slice_id
     )
-    assert summary.planned_lanes == 18
-    assert summary.first_attempt_accountable == 14
-    assert summary.eventual_accountable == 16
-    assert summary.retry_count == 4
-    assert summary.control_outcomes == {"passed_control": 9}
-    assert summary.defect_outcomes == {"caught": 7}
+    assert summary.planned_lanes == 24
+    assert summary.first_attempt_accountable == 19
+    assert summary.eventual_accountable == 22
+    assert summary.retry_count == 5
+    assert summary.control_outcomes == {"passed_control": 12}
+    assert summary.defect_outcomes == {"caught": 10}
 
 
 def test_committed_oversized_state_defects_contain_expected_l1_signal() -> None:
@@ -590,6 +599,69 @@ def test_committed_query_duplication_lanes_match_the_l2_contract() -> None:
             assert "zzsentinelqxzzsentinelqx" in verdict["l2"]["evidence"][0][
                 "ref"
             ]
+
+
+def test_committed_swallowed_back_lanes_match_the_l2_contract() -> None:
+    manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
+    run_spec = load_run_spec(
+        _ROOT
+        / "bench"
+        / "goldset"
+        / "run-specs"
+        / "wikipedia-navigation-02-back-button-swallowed.yaml"
+    )
+    expected_action = run_spec.scenario.user_actions[1]
+    lanes = [
+        lane
+        for lane in manifest.lanes
+        if lane.seed_id == "wikipedia-navigation-02-back-button-swallowed"
+    ]
+
+    assert len(lanes) == 6
+    assert {lane.run_spec for lane in lanes} == {
+        _ROOT
+        / "bench"
+        / "goldset"
+        / "run-specs"
+        / "wikipedia-navigation-02-back-button-swallowed.yaml"
+    }
+    for lane in lanes:
+        final_attempt = sorted(lane.evidence_dir.glob("attempt-*"))[-1]
+        verdict = json.loads(
+            (final_attempt / "verdict.json").read_text(encoding="utf-8")
+        )
+        journey = json.loads(
+            next(
+                final_attempt.glob(
+                    "artifacts/*/codex-journey-result.json"
+                )
+            ).read_text(encoding="utf-8")
+        )
+        layout = json.loads(
+            (
+                final_attempt / "artifacts" / "after-event-0" / "layout.json"
+            ).read_text(encoding="utf-8")
+        )
+        nodes_by_resource_id = {
+            node["resource-id"]: node
+            for node in layout
+            if isinstance(node, dict) and node.get("resource-id")
+        }
+        terminal_action = journey["results"][-1]
+        assert terminal_action["action"] == expected_action
+        assert terminal_action["commands"][-1].endswith(
+            "shell input keyevent KEYCODE_BACK"
+        )
+        assert verdict["execution"]["accounting_eligible"] is True
+        assert verdict["l1"]["outcome"] == "inconclusive"
+        if lane.role == "baseline":
+            assert verdict["l2"]["outcome"] == "pass"
+            assert "search_card" in nodes_by_resource_id
+        else:
+            assert verdict["l2"]["outcome"] == "fail"
+            assert verdict["l2"]["defect_class_hypothesis"] == "state_loss"
+            assert "search_card" not in nodes_by_resource_id
+            assert nodes_by_resource_id["search_src_text"]["text"] == "zznavbackqx"
 
 
 def _write_fixture_manifest(tmp_path: Path, *, role: str = "baseline") -> Path:
