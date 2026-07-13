@@ -43,8 +43,8 @@ class CodexCliProvider(LLMProvider):
         workdir:
             codex --cd 的工作目录；judge 需要读取证据文件时应指向仓库根。
         artifact_dir:
-            若给定，每次调用的最终回答与事件流落盘到该目录
-            （l3-judge-call-<n>.md / .events.jsonl），作为可审计证据。
+            若给定，每次调用的完整输入、最终回答与事件流落盘到该目录
+            （l3-judge-call-<n>.prompt.md / .md / .events.jsonl），作为可审计证据。
         """
         self.codex_bin = codex_bin
         self.workdir = workdir
@@ -63,6 +63,8 @@ class CodexCliProvider(LLMProvider):
             self.artifact_dir.mkdir(parents=True, exist_ok=True)
             result_path = self.artifact_dir / f"l3-judge-call-{self._call_index}.md"
             events_path = self.artifact_dir / f"l3-judge-call-{self._call_index}.events.jsonl"
+            prompt_path = self.artifact_dir / f"l3-judge-call-{self._call_index}.prompt.md"
+            prompt_path.write_text(full_prompt, encoding="utf-8")
         else:
             tmpdir = Path(tempfile.mkdtemp(prefix="codex-provider-"))
             result_path = tmpdir / "last-message.md"

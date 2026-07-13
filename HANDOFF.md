@@ -7,9 +7,9 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- GitHub Issues #1-#40、#42-#45 已完成并关闭；M3 PRD #41 和子 issues
-  #46-#47 保持 open，open PRs = 0。下一项推荐从 ready-for-agent 的 #46
-  “M3: measure Search-card semantic L3 reliability” 开始。
+- GitHub Issues #1-#40、#42-#46 已完成并关闭；M3 PRD #41 和子 issue
+  #47 保持 open，open PRs = 0。下一项推荐从 ready-for-agent 的 #47
+  “M3: publish the audited reliability baseline” 开始。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -26,7 +26,7 @@
 - Latest live matched-pair run record: [`docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/`](docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/)
 - Latest runner contract run record: [`docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md`](docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md)
 - Latest accounting run record: [`docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md`](docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md)
-- Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-swallowed-back-reliability/README.md`](docs/runs/2026-07-13-m3-swallowed-back-reliability/README.md)
+- Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md`](docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md)
 - M2-beta current audited slice: 10 included injected-defect seeds, 10 caught,
   10 baseline controls passed; expected oracle split L1=4, L2=4, L3=2.
 - Fixed-evidence L3 repeatability remains separate: 2 packages, 20 calls,
@@ -43,14 +43,19 @@
   M3 swallowed-Back increment: 6 planned lanes, 5 first-attempt and 6 eventually
   accountable, 1 bounded retry, 3/3 controls passed, and 3/3 defects caught by
   L2 as `state_loss` with SearchActivity-vs-Search-tab layout evidence.
-  Current cross-seed partial aggregate: 24 planned, 22 eventually accountable,
-  12/12 controls passed, and 10/12 planned defects caught.
-- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `363 passed`.
+  M3 Search-card L3 increment: 6 planned lanes, 5 first-attempt/eventually
+  accountable, 1 bounded retry, 3/3 controls passed, and both accountable defects
+  caught by L3 as `ui_rendering`; defect repetition 3 exhausted non-accountable
+  after two Journey action-name mismatches.
+  Current cross-seed aggregate: 30 planned, 27 eventually accountable, 15/15
+  controls passed, and 12/15 planned defects caught. This misses the PRD's 29/30
+  eventual-accountability threshold and must be published honestly by #47.
+- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `374 passed`.
 
 ### 已实测
 
 Android CLI:
-- Installed command: `/Users/80268204/.local/bin/android`
+- Installed command: `/Users/peter/.local/bin/android`
 - Version: `1.0.15498356`
 - SDK path from `android info`: `/opt/homebrew/share/android-commandlinetools`
 - Confirmed commands: `android update`, `android init`, `android info`, `android layout`, `android layout --diff`, `android screen capture`, `android screen capture --annotate`, `android screen resolve --screenshot`, `android docs`, `android skills`
@@ -63,13 +68,13 @@ Codex CLI:
 - L3 judge backend uses `codex exec --json --output-last-message --skip-git-repo-check --sandbox read-only --cd ...` because it only reads evidence artifacts.
 
 Wikipedia host:
-- Current path: `/Users/80268204/hosts/wikipedia` (extracted tree; no `.git` metadata)
+- Current path: `/Users/peter/hosts/wikipedia` (clean git checkout at `6ccb8d85a21a8e34b96e4813d3caee5c690ece9b`)
 - Build command: `./gradlew assembleDevDebug --no-daemon`
-- Latest M3 build results: baseline `BUILD SUCCESSFUL in 2m 13s`; defect
-  `BUILD SUCCESSFUL in 2m 7s`.
-- Preserved APKs: `/Users/80268204/hosts/wikipedia/aiverify-builds/m3-oversized-state/`
-- Baseline/defect APK SHA-256: `b89edc28d16955bd9d9980090e217127863c2691eb4549c2151d2fb6f5632029` /
-  `c7270130e27a6109c28d12160e52bb353ecff27da7d317691c5f1b4494b3e119`.
+- Latest M3 build results: Search-card baseline `BUILD SUCCESSFUL in 6s`; defect
+  `BUILD SUCCESSFUL in 37s`.
+- Preserved APKs: `/Users/peter/hosts/wikipedia/aiverify-builds/m3-search-card-l3/`
+- Baseline/defect APK SHA-256: `8e52dce057377b6f1bebb21128af4064c69f9717e5484d084724668bbe66d548` /
+  `6711e911634b22e6ce6ccbed5b740b5f347589840c2741a565e028307c17ff8e`.
 - Package: `org.wikipedia.dev`
 - Launch component used by Android CLI: `org.wikipedia.DefaultIcon`
 - Evidence confirms Wikipedia onboarding screen.

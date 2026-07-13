@@ -75,6 +75,8 @@ def test_artifact_dir_persists_answer_and_events_per_call(tmp_path):
     assert (art / "l3-judge-call-1.md").read_text(encoding="utf-8") == "verdict-1"
     assert (art / "l3-judge-call-2.md").read_text(encoding="utf-8") == "verdict-2"
     assert (art / "l3-judge-call-1.events.jsonl").read_text(encoding="utf-8") == '{"event":"x"}\n'
+    assert (art / "l3-judge-call-1.prompt.md").read_text(encoding="utf-8") == "first"
+    assert (art / "l3-judge-call-2.prompt.md").read_text(encoding="utf-8") == "second"
 
 
 def test_nonzero_exit_raises(tmp_path):

@@ -16,7 +16,7 @@ from aiverify.bench.m3_reliability import (
     run_lane,
     summary_to_dict,
 )
-from aiverify.bench.run_record_checksums import verify_manifest
+from aiverify.bench.run_record_checksums import verify_manifest, write_manifest
 from aiverify.runner.command import CommandResult, CommandRunner
 from aiverify.runner.run_spec import load_run_spec
 
@@ -58,7 +58,7 @@ def test_manifest_defines_six_lanes_per_m3_seed() -> None:
 
     assert manifest.slice_id == "m3-verification-agent-reliability"
     assert manifest.max_attempts_per_lane == 2
-    assert len(manifest.lanes) == 24
+    assert len(manifest.lanes) == 30
     assert {
         seed_id: [
             (lane.role, lane.repetition)
@@ -99,11 +99,24 @@ def test_manifest_defines_six_lanes_per_m3_seed() -> None:
             ("defect", 2),
             ("defect", 3),
         ],
+        "wikipedia-ui-rendering-02-search-card-copy-mismatch": [
+            ("baseline", 1),
+            ("baseline", 2),
+            ("baseline", 3),
+            ("defect", 1),
+            ("defect", 2),
+            ("defect", 3),
+        ],
     }
-    assert {lane.expected_oracle_level for lane in manifest.lanes} == {"L1", "L2"}
+    assert {lane.expected_oracle_level for lane in manifest.lanes} == {
+        "L1",
+        "L2",
+        "L3",
+    }
     assert {lane.expected_oracle_defect_class for lane in manifest.lanes} == {
         "crash_stability",
         "state_loss",
+        "ui_rendering",
     }
     assert all(lane.run_spec.is_file() for lane in manifest.lanes)
 
@@ -202,6 +215,27 @@ def test_summary_derives_passed_control_from_runner_evidence(tmp_path: Path) -> 
     assert summary.defect_outcomes == {}
     assert summary.failure_classes == {}
     assert summary.total_seconds == 12.5
+    assert summary.judge_seconds == 0.0
+
+
+def test_summary_derives_l3_judge_time_from_runner_evidence(tmp_path: Path) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, oracle_level="L3"), repo_root=tmp_path
+    )
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(_completed_l3_verdict()),
+    )
+    _write_l3_judge_artifacts(
+        attempt.directory,
+        prompt="PRODUCT_L3_SPEC\nobserved-layout",
+    )
+    write_manifest(attempt.directory)
+
+    assert build_summary(manifest).judge_seconds == 2.5
 
 
 def test_summary_preserves_non_accountable_first_attempt_before_retry(
@@ -335,6 +369,82 @@ def test_summary_fails_closed_on_runner_exit_contradiction(tmp_path: Path) -> No
         build_summary(manifest)
 
 
+def test_summary_fails_closed_on_leaked_l3_expected_behavior(tmp_path: Path) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, oracle_level="L3"), repo_root=tmp_path
+    )
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(_completed_l3_verdict()),
+    )
+    _write_l3_judge_artifacts(
+        attempt.directory,
+        prompt="PRODUCT_L3_SPEC\nobserved-layout\nSECRET_EXPECTED_BEHAVIOR",
+    )
+    write_manifest(attempt.directory)
+
+    with pytest.raises(ValueError, match="leaks expected_behavior"):
+        build_summary(manifest)
+
+
+def test_summary_fails_closed_on_mismatched_l3_call_lineage(tmp_path: Path) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, oracle_level="L3"), repo_root=tmp_path
+    )
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(_completed_l3_verdict()),
+    )
+    _write_l3_judge_artifacts(
+        attempt.directory,
+        prompt="PRODUCT_L3_SPEC\nobserved-layout",
+    )
+    judge = attempt.directory / "artifacts" / "l3-judge"
+    (judge / "l3-judge-call-1.md").rename(judge / "l3-judge-call-2.md")
+    write_manifest(attempt.directory)
+
+    with pytest.raises(ValueError, match="input/output inventory is invalid"):
+        build_summary(manifest)
+
+
+def test_summary_fails_closed_when_l3_judge_output_contradicts_verdict(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, oracle_level="L3"), repo_root=tmp_path
+    )
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(_completed_l3_verdict()),
+    )
+    _write_l3_judge_artifacts(
+        attempt.directory,
+        prompt="PRODUCT_L3_SPEC\nobserved-layout",
+    )
+    contradictory = _completed_l3_verdict()["l3"]
+    contradictory["outcome"] = "fail"
+    contradictory["defect_class_hypothesis"] = "ui_rendering"
+    (
+        attempt.directory
+        / "artifacts"
+        / "l3-judge"
+        / "l3-judge-call-1.md"
+    ).write_text(json.dumps(contradictory), encoding="utf-8")
+    write_manifest(attempt.directory)
+
+    with pytest.raises(ValueError, match="contradicts runner verdict"):
+        build_summary(manifest)
+
+
 @pytest.mark.parametrize(
     ("mutate", "message"),
     [
@@ -418,6 +528,80 @@ def test_summary_fails_closed_on_invalid_timing(
         build_summary(manifest)
 
 
+@pytest.mark.parametrize("seconds", [None, "2.5", -1, float("inf")])
+def test_summary_fails_closed_on_invalid_l3_judge_timing(
+    tmp_path: Path, seconds: object
+) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, oracle_level="L3"), repo_root=tmp_path
+    )
+    verdict = _completed_l3_verdict()
+    if seconds is None:
+        verdict["timing"]["phases"] = []
+    else:
+        verdict["timing"]["phases"][0]["seconds"] = seconds
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(verdict),
+    )
+    _write_l3_judge_artifacts(
+        attempt.directory,
+        prompt="PRODUCT_L3_SPEC\nobserved-layout",
+    )
+    write_manifest(attempt.directory)
+
+    with pytest.raises(ValueError, match="L3 judge timing"):
+        build_summary(manifest)
+
+
+def test_summary_fails_closed_on_duplicate_l3_judge_timing(tmp_path: Path) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, oracle_level="L3"), repo_root=tmp_path
+    )
+    verdict = _completed_l3_verdict()
+    verdict["timing"]["phases"].append(dict(verdict["timing"]["phases"][0]))
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(verdict),
+    )
+    _write_l3_judge_artifacts(
+        attempt.directory,
+        prompt="PRODUCT_L3_SPEC\nobserved-layout",
+    )
+    write_manifest(attempt.directory)
+
+    with pytest.raises(ValueError, match="L3 judge timing is missing or duplicated"):
+        build_summary(manifest)
+
+
+def test_summary_fails_closed_when_non_accountable_attempt_has_judge_timing(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, oracle_level="L3"), repo_root=tmp_path
+    )
+    verdict = _non_accountable_verdict("oracle_execution_error")
+    verdict["timing"]["phases"] = [
+        {"phase": "l3-judge", "kind": "oracle", "seconds": 2.5}
+    ]
+    run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(verdict, returncode=2),
+    )
+
+    with pytest.raises(ValueError, match="non-accountable.*L3 judge timing"):
+        build_summary(manifest)
+
+
 def test_summary_fails_closed_on_unknown_failure_reason(tmp_path: Path) -> None:
     manifest = load_manifest(_write_fixture_manifest(tmp_path), repo_root=tmp_path)
     run_lane(
@@ -457,12 +641,14 @@ def test_summary_renders_structured_and_markdown_outputs(tmp_path: Path) -> None
         "defect_outcomes": {},
         "failure_classes": {},
         "total_seconds": 12.5,
+        "judge_seconds": 0.0,
         "operational_interventions": 0,
     }
     assert "# M3 Verification Agent Reliability Summary" in markdown
     assert "| Planned lanes | 1 |" in markdown
     assert "| First-attempt accountable | 1 |" in markdown
     assert "| Eventual accountable | 1 |" in markdown
+    assert "| L3 judge time (seconds) | 0.0 |" in markdown
     assert "| `passed_control` | 1 |" in markdown
     assert "benchmark-wide detection-rate claim" in markdown
 
@@ -527,7 +713,7 @@ def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
         _ROOT
         / "docs"
         / "runs"
-        / "2026-07-13-m3-swallowed-back-reliability"
+        / "2026-07-13-m3-search-card-l3-reliability"
     )
 
     assert json.loads((run_record / "summary.json").read_text(encoding="utf-8")) == (
@@ -536,12 +722,12 @@ def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
     assert (run_record / "summary.md").read_text(encoding="utf-8") == render_markdown(
         summary, slice_id=manifest.slice_id
     )
-    assert summary.planned_lanes == 24
-    assert summary.first_attempt_accountable == 19
-    assert summary.eventual_accountable == 22
-    assert summary.retry_count == 5
-    assert summary.control_outcomes == {"passed_control": 12}
-    assert summary.defect_outcomes == {"caught": 10}
+    assert summary.planned_lanes == 30
+    assert summary.first_attempt_accountable == 24
+    assert summary.eventual_accountable == 27
+    assert summary.retry_count == 6
+    assert summary.control_outcomes == {"passed_control": 15}
+    assert summary.defect_outcomes == {"caught": 12}
 
 
 def test_committed_oversized_state_defects_contain_expected_l1_signal() -> None:
@@ -664,9 +850,102 @@ def test_committed_swallowed_back_lanes_match_the_l2_contract() -> None:
             assert nodes_by_resource_id["search_src_text"]["text"] == "zznavbackqx"
 
 
-def _write_fixture_manifest(tmp_path: Path, *, role: str = "baseline") -> Path:
+def test_committed_search_card_lanes_match_the_live_l3_contract() -> None:
+    manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
+    run_spec = load_run_spec(
+        _ROOT
+        / "bench"
+        / "goldset"
+        / "run-specs"
+        / "wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml"
+    )
+    lanes = [
+        lane
+        for lane in manifest.lanes
+        if lane.seed_id == "wikipedia-ui-rendering-02-search-card-copy-mismatch"
+    ]
+
+    assert len(lanes) == 6
+    assert {lane.expected_oracle_level for lane in lanes} == {"L3"}
+    assert {lane.expected_oracle_defect_class for lane in lanes} == {"ui_rendering"}
+    assert all("l3-repeatability" not in str(lane.evidence_dir) for lane in lanes)
+    for lane in lanes:
+        attempts = sorted(lane.evidence_dir.glob("attempt-*"))
+        final_attempt = attempts[-1]
+        verdict = json.loads(
+            (final_attempt / "verdict.json").read_text(encoding="utf-8")
+        )
+        if lane.lane_id == "search-card-defect-3":
+            assert len(attempts) == 2
+            assert verdict["execution"]["accounting_eligible"] is False
+            assert verdict["execution"]["reason"] == "journey_action_incomplete"
+            assert verdict["l3"] is None
+            continue
+
+        layout_path = final_attempt / "artifacts" / "after-segment-0" / "layout.json"
+        layout = json.loads(layout_path.read_text(encoding="utf-8"))
+        nodes = {
+            node["resource-id"]: node
+            for node in layout
+            if isinstance(node, dict) and node.get("resource-id")
+        }
+        prompt = (
+            final_attempt
+            / "artifacts"
+            / "l3-judge"
+            / "l3-judge-call-1.prompt.md"
+        ).read_text(encoding="utf-8")
+        journey = json.loads(
+            next(
+                final_attempt.glob("artifacts/*/codex-journey-result.json")
+            ).read_text(encoding="utf-8")
+        )
+        assert verdict["execution"]["accounting_eligible"] is True
+        assert verdict["l1"]["outcome"] == "inconclusive"
+        assert verdict["l2"]["outcome"] == "inconclusive"
+        assert any(
+            phase["phase"] == "l3-judge" and phase["seconds"] > 0
+            for phase in verdict["timing"]["phases"]
+        )
+        assert "search_card" in nodes
+        assert run_spec.scenario.l3_spec in prompt
+        assert layout_path.read_text(encoding="utf-8") in prompt
+        assert run_spec.scenario.expected_behavior not in prompt
+        assert run_spec.diff is not None
+        assert run_spec.diff.read_text(encoding="utf-8") not in prompt
+        assert journey["results"][-1]["action"] == run_spec.scenario.user_actions[0]
+        if lane.role == "baseline":
+            assert verdict["l3"]["outcome"] == "pass"
+            assert verdict["l3"]["defect_class_hypothesis"] is None
+            assert nodes["search_text_view"]["text"].startswith("Search")
+        else:
+            assert verdict["l3"]["outcome"] == "fail"
+            assert verdict["l3"]["defect_class_hypothesis"] == "ui_rendering"
+            assert nodes["search_text_view"]["text"] == (
+                "Track what you've been reading here."
+            )
+
+
+def _write_fixture_manifest(
+    tmp_path: Path, *, role: str = "baseline", oracle_level: str = "L1"
+) -> Path:
     run_spec = tmp_path / "run-spec.yaml"
-    run_spec.write_text("scenario: {}\n", encoding="utf-8")
+    run_spec.write_text(
+        """\
+host_project: .
+apk_glob: "*.apk"
+package: fixture.package
+scenario:
+  id: fixture-seed
+  user_actions:
+    - observe fixture
+  system_events: []
+  assertions: []
+  l3_spec: PRODUCT_L3_SPEC
+  expected_behavior: SECRET_EXPECTED_BEHAVIOR
+""",
+        encoding="utf-8",
+    )
     manifest = tmp_path / "manifest.yaml"
     manifest.write_text(
         f"""\
@@ -680,8 +959,8 @@ lanes:
     repetition: 1
     run_spec: run-spec.yaml
     evidence_dir: evidence/fixture-{role}-1
-    expected_oracle_level: L1
-    expected_oracle_defect_class: crash_stability
+    expected_oracle_level: {oracle_level}
+    expected_oracle_defect_class: {"ui_rendering" if oracle_level == "L3" else "crash_stability"}
 """,
         encoding="utf-8",
     )
@@ -709,6 +988,51 @@ def _completed_verdict() -> dict:
         "l3": None,
         "timing": {"total_seconds": 12.5, "phases": []},
     }
+
+
+def _completed_l3_verdict() -> dict:
+    verdict = _completed_verdict()
+    verdict["metric_context"]["seed_outcome"] = "passed_control"
+    verdict["l2"] = {
+        "level": "L2",
+        "outcome": "inconclusive",
+        "defect_class_hypothesis": None,
+    }
+    verdict["l3"] = {
+        "verdict_id": "L3-deadbeef",
+        "level": "L3",
+        "outcome": "pass",
+        "defect_class_hypothesis": None,
+        "trigger_steps": ["observe fixture"],
+        "evidence": [
+            {
+                "type": "llm_reasoning",
+                "ref": "observed-layout",
+                "note": "fixture matches product spec",
+            }
+        ],
+        "confidence": 0.9,
+    }
+    verdict["checkpoints"] = ["after-segment-0"]
+    verdict["timing"]["phases"] = [
+        {"phase": "l3-judge", "kind": "oracle", "seconds": 2.5}
+    ]
+    return verdict
+
+
+def _write_l3_judge_artifacts(attempt_dir: Path, *, prompt: str) -> None:
+    checkpoint = attempt_dir / "artifacts" / "after-segment-0"
+    checkpoint.mkdir(parents=True)
+    (checkpoint / "layout.json").write_text("observed-layout", encoding="utf-8")
+    judge = attempt_dir / "artifacts" / "l3-judge"
+    judge.mkdir()
+    (judge / "l3-judge-call-1.prompt.md").write_text(prompt, encoding="utf-8")
+    (judge / "l3-judge-call-1.md").write_text(
+        json.dumps(_completed_l3_verdict()["l3"]), encoding="utf-8"
+    )
+    (judge / "l3-judge-call-1.events.jsonl").write_text(
+        '{"type":"turn.completed"}\n', encoding="utf-8"
+    )
 
 
 def _non_accountable_verdict(reason: str) -> dict:

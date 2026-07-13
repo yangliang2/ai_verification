@@ -1,0 +1,103 @@
+{
+  "scenario": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_action_incomplete",
+    "message": "Journey segment wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0 reported action names that do not match the requested action order"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": "ui-rendering",
+    "taxonomy_pattern_id": "ui-rendering-02",
+    "expected_oracle_level": "L3",
+    "expected_oracle_defect_class": "ui_rendering",
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "journey_results": [
+      {
+        "result": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/artifacts/wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0/codex-journey-result.json",
+        "events": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/artifacts/wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0/codex-events.jsonl"
+      }
+    ],
+    "checkpoints": [
+      {
+        "name": "after-segment-0",
+        "directory": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/artifacts/after-segment-0",
+        "layout": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/artifacts/after-segment-0/layout.json",
+        "screenshot": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/artifacts/after-segment-0/screen.png",
+        "annotated_screenshot": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/artifacts/after-segment-0/screen-annotated.png",
+        "logcat": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/artifacts/after-segment-0/logcat.txt",
+        "commands": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/artifacts/after-segment-0/commands.json",
+        "manifest": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3/attempt-2/artifacts/after-segment-0/capture-manifest.json"
+      }
+    ],
+    "backend_errors": []
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+      "results": [
+        {
+          "action": "Navigate from the main feed to the bottom Search tab and confirm Search is selected with search_card visible.",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Main feed was already visible, so onboarding was unnecessary. Tapped nav_tab_search at [540,2232]. The fresh layout confirmed nav_tab_search is selected and search_card is visible at [540,371]. Did not tap search_card or enter SearchActivity."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-13T16:37:05+00:00",
+    "finished_at": "2026-07-13T16:38:02+00:00",
+    "total_seconds": 57.599,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.779
+      },
+      {
+        "phase": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+        "kind": "journey",
+        "seconds": 47.712
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 4.989
+      }
+    ]
+  }
+}

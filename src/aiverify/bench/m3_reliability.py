@@ -13,8 +13,11 @@ from pathlib import Path
 
 import yaml
 
+from aiverify.agent.oracle.schema import VerdictValidationError, validate_verdict
 from aiverify.bench.run_record_checksums import verify_manifest, write_manifest
+from aiverify.providers.parsing import extract_json_block
 from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
+from aiverify.runner.run_spec import load_run_spec
 
 
 _LANE_ROLES = frozenset({"baseline", "defect"})
@@ -69,6 +72,7 @@ class ReliabilitySummary:
     defect_outcomes: dict[str, int]
     failure_classes: dict[str, int]
     total_seconds: float
+    judge_seconds: float
     operational_interventions: int
 
 
@@ -226,6 +230,7 @@ def build_summary(manifest: ReliabilityManifest) -> ReliabilitySummary:
     defects: Counter[str] = Counter()
     failures: Counter[str] = Counter()
     total_seconds = 0.0
+    judge_seconds = 0.0
     interventions = 0
 
     for lane in manifest.lanes:
@@ -242,6 +247,7 @@ def build_summary(manifest: ReliabilityManifest) -> ReliabilitySummary:
                 attempt_dir, lane=lane, attempt_number=number
             )
             total_seconds += _timing_seconds(verdict, lane=lane)
+            judge_seconds += _judge_timing_seconds(verdict, lane=lane)
             raw_interventions = metadata.get("operational_interventions", [])
             if not isinstance(raw_interventions, list):
                 raise ValueError(f"lane {lane.lane_id} interventions must be a list")
@@ -276,6 +282,7 @@ def build_summary(manifest: ReliabilityManifest) -> ReliabilitySummary:
         defect_outcomes=dict(sorted(defects.items())),
         failure_classes=dict(sorted(failures.items())),
         total_seconds=round(total_seconds, 3),
+        judge_seconds=round(judge_seconds, 3),
         operational_interventions=interventions,
     )
 
@@ -302,6 +309,7 @@ def render_markdown(summary: ReliabilitySummary, *, slice_id: str) -> str:
         f"| Retries | {summary.retry_count} |",
         f"| Operational interventions | {summary.operational_interventions} |",
         f"| Total attempt time (seconds) | {summary.total_seconds} |",
+        f"| L3 judge time (seconds) | {summary.judge_seconds} |",
         "",
         "## Baseline Control Outcomes",
         "",
@@ -480,6 +488,7 @@ def _load_verified_attempt(
     verdict = _load_json(attempt_dir / "verdict.json", label="runner verdict")
     _validate_attempt(metadata, lane=lane, attempt_number=attempt_number)
     _validate_verdict(verdict, lane=lane)
+    _validate_l3_judge_artifacts(attempt_dir, verdict=verdict, lane=lane)
     _validate_runner_exit(metadata, verdict=verdict, lane=lane)
     return metadata, verdict
 
@@ -579,6 +588,96 @@ def _validate_runner_exit(
         )
 
 
+def _validate_l3_judge_artifacts(
+    attempt_dir: Path, *, verdict: dict, lane: ReliabilityLane
+) -> None:
+    if lane.expected_oracle_level != "L3" or not _is_accountable(verdict):
+        return
+
+    spec = load_run_spec(lane.run_spec)
+    judge_dir = attempt_dir / "artifacts" / "l3-judge"
+    prompts = sorted(judge_dir.glob("l3-judge-call-*.prompt.md"))
+    outputs = sorted(
+        path
+        for path in judge_dir.glob("l3-judge-call-*.md")
+        if not path.name.endswith(".prompt.md")
+    )
+    events = sorted(judge_dir.glob("l3-judge-call-*.events.jsonl"))
+    prompt_ids = [
+        path.name.removeprefix("l3-judge-call-").removesuffix(".prompt.md")
+        for path in prompts
+    ]
+    output_ids = [
+        path.name.removeprefix("l3-judge-call-").removesuffix(".md")
+        for path in outputs
+    ]
+    event_ids = [
+        path.name.removeprefix("l3-judge-call-").removesuffix(".events.jsonl")
+        for path in events
+    ]
+    expected_ids = [str(index) for index in range(1, len(prompts) + 1)]
+    if not 1 <= len(prompts) <= 2 or not (
+        len(prompts) == len(outputs) == len(events)
+        and prompt_ids == output_ids == event_ids == expected_ids
+    ):
+        raise ValueError(
+            f"lane {lane.lane_id} L3 judge input/output inventory is invalid"
+        )
+
+    checkpoints = verdict.get("checkpoints")
+    if (
+        not isinstance(checkpoints, list)
+        or not checkpoints
+        or not isinstance(checkpoints[-1], str)
+    ):
+        raise ValueError(f"lane {lane.lane_id} L3 checkpoint lineage is invalid")
+    layout_path = attempt_dir / "artifacts" / checkpoints[-1] / "layout.json"
+    if not layout_path.is_file():
+        raise ValueError(f"lane {lane.lane_id} L3 final layout is missing")
+    layout_text = layout_path.read_text(encoding="utf-8")
+
+    leaked_values = [spec.scenario.expected_behavior.strip()]
+    if spec.diff is not None and spec.diff.is_file():
+        leaked_values.append(spec.diff.read_text(encoding="utf-8").strip())
+
+    for prompt_path, output_path, events_path in zip(prompts, outputs, events):
+        prompt = prompt_path.read_text(encoding="utf-8")
+        output = output_path.read_text(encoding="utf-8").strip()
+        events_text = events_path.read_text(encoding="utf-8").strip()
+        if spec.scenario.l3_spec not in prompt or layout_text not in prompt:
+            raise ValueError(
+                f"lane {lane.lane_id} L3 judge input omits spec or observed layout"
+            )
+        if any(value and value in prompt for value in leaked_values):
+            raise ValueError(
+                f"lane {lane.lane_id} L3 judge input leaks expected_behavior or patch"
+            )
+        if output and output in prompt:
+            raise ValueError(
+                f"lane {lane.lane_id} L3 judge input leaks a frozen answer"
+            )
+        if not output or not events_text:
+            raise ValueError(
+                f"lane {lane.lane_id} L3 judge output evidence is incomplete"
+            )
+
+    try:
+        final_output = json.loads(
+            extract_json_block(outputs[-1].read_text(encoding="utf-8"))
+        )
+        if not isinstance(final_output, dict):
+            raise ValueError("final L3 judge output is not an object")
+        validate_verdict(final_output)
+    except (json.JSONDecodeError, VerdictValidationError, ValueError) as error:
+        raise ValueError(
+            f"lane {lane.lane_id} final L3 judge output is invalid: {error}"
+        ) from error
+    if final_output != verdict.get("l3"):
+        raise ValueError(
+            f"lane {lane.lane_id} final L3 judge output contradicts runner verdict"
+        )
+
+
 def _is_accountable(verdict: dict) -> bool:
     execution = verdict["execution"]
     return execution.get("status") == "completed" and execution.get(
@@ -642,6 +741,45 @@ def _timing_seconds(verdict: dict, *, lane: ReliabilityLane) -> float:
     ):
         raise ValueError(f"lane {lane.lane_id} timing.total_seconds is invalid")
     return float(value)
+
+
+def _judge_timing_seconds(verdict: dict, *, lane: ReliabilityLane) -> float:
+    timing = verdict.get("timing")
+    phases = timing.get("phases") if isinstance(timing, dict) else None
+    if not isinstance(phases, list):
+        raise ValueError(f"lane {lane.lane_id} timing.phases is invalid")
+
+    judge_phases = [
+        phase
+        for phase in phases
+        if isinstance(phase, dict) and phase.get("phase") == "l3-judge"
+    ]
+    if lane.expected_oracle_level != "L3" and judge_phases:
+        raise ValueError(f"lane {lane.lane_id} has contradictory L3 judge timing")
+    if not _is_accountable(verdict) and judge_phases:
+        raise ValueError(
+            f"lane {lane.lane_id} non-accountable attempt has L3 judge timing"
+        )
+    if (
+        lane.expected_oracle_level == "L3"
+        and _is_accountable(verdict)
+        and len(judge_phases) != 1
+    ):
+        raise ValueError(f"lane {lane.lane_id} L3 judge timing is missing or duplicated")
+
+    total = 0.0
+    for phase in judge_phases:
+        value = phase.get("seconds")
+        if (
+            phase.get("kind") != "oracle"
+            or not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not math.isfinite(value)
+            or value < 0
+        ):
+            raise ValueError(f"lane {lane.lane_id} L3 judge timing is invalid")
+        total += float(value)
+    return total
 
 
 def _required_str(raw: dict, key: str) -> str:

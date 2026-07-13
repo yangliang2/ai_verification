@@ -195,3 +195,51 @@ lanes:
     evidence_dir: docs/runs/2026-07-13-m3-swallowed-back-reliability/lanes/swallowed-back-defect-3
     expected_oracle_level: L2
     expected_oracle_defect_class: state_loss
+  - id: search-card-baseline-1
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: baseline
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-baseline-1
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: search-card-baseline-2
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: baseline
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-baseline-2
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: search-card-baseline-3
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: baseline
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-baseline-3
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: search-card-defect-1
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: defect
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-1
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: search-card-defect-2
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: defect
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-2
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: search-card-defect-3
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: defect
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-13-m3-search-card-l3-reliability/lanes/search-card-defect-3
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
