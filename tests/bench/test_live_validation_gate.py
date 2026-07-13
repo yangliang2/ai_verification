@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -32,6 +33,18 @@ class FakeRunner(CommandRunner):
             stderr=str(response.get("stderr", "")),
             returncode=int(response.get("returncode", 0)),
         )
+
+
+class TimeoutRunner(CommandRunner):
+    def run(
+        self,
+        args: list[str],
+        *,
+        cwd: Path | None = None,
+        timeout_seconds: int | None = None,
+        input_text: str | None = None,
+    ) -> CommandResult:
+        raise subprocess.TimeoutExpired(args, timeout_seconds)
 
 
 def _passing_responses() -> list[dict[str, object]]:
@@ -73,6 +86,28 @@ def test_live_validation_gate_fails_when_device_is_missing() -> None:
     assert "adb-device-present" in result.failed_checks
     first_check = result.checks[0]
     assert first_check.error == "emulator-5554 was not listed by adb devices -l"
+
+
+def test_live_validation_gate_records_command_timeout() -> None:
+    result = run_live_validation_gate(
+        device="emulator-5554",
+        runner=TimeoutRunner(),
+        timeout_seconds=7,
+    )
+
+    assert result.status == "failed"
+    assert result.failed_checks == (
+        "adb-device-present",
+        "boot-completed",
+        "boot-animation-stopped",
+        "android-layout-json",
+        "uiautomator-dump",
+    )
+    first = result.checks[0]
+    assert first.status == "timeout"
+    assert first.returncode is None
+    assert first.timeout_seconds == 7
+    assert first.error == "command timed out after 7s"
 
 
 def test_live_validation_gate_fails_on_invalid_android_layout() -> None:
@@ -164,6 +199,39 @@ def test_live_validation_gate_app_smoke_passes_on_target_surface() -> None:
         "app-foreground-package",
         "app-target-surface",
     ]
+
+
+def test_live_validation_gate_skips_app_smoke_when_generic_gate_fails() -> None:
+    responses = _passing_responses()
+    responses[3] = {"stdout": "not json"}
+    runner = FakeRunner(
+        responses
+        + [
+            {"stdout": "Status: ok\n"},
+            {"stdout": "mCurrentFocus=Window org.wikipedia.dev/org.wikipedia.main.MainActivity\n"},
+            {"stdout": '[{"resource-id":"nav_tab_search","content-desc":"Search"}]'},
+        ]
+    )
+
+    result = run_live_validation_gate(
+        device="emulator-5554",
+        runner=runner,
+        app_package="org.wikipedia.dev",
+        app_activity="org.wikipedia.DefaultIcon",
+        target_resource_id="nav_tab_search",
+        app_settle_seconds=0,
+    )
+
+    assert result.status == "failed"
+    assert result.failed_checks == ("android-layout-json",)
+    assert [check.name for check in result.checks] == [
+        "adb-device-present",
+        "boot-completed",
+        "boot-animation-stopped",
+        "android-layout-json",
+        "uiautomator-dump",
+    ]
+    assert all("am" not in call for call in runner.calls)
 
 
 def test_live_validation_gate_app_smoke_fails_when_target_surface_is_missing() -> None:

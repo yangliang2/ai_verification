@@ -1,16 +1,21 @@
 """runner CLI 的 L3 门控与降级逻辑单测（不触真机）。"""
 
 import json
+import subprocess
+from pathlib import Path
 
 import pytest
 
 import aiverify.runner.cli as cli
+from aiverify.runner.command import CommandResult, CommandRunner
 from aiverify.providers.base import MockProvider
 from aiverify.runner.codex_backend import JourneyExecutionResult
 from aiverify.runner.evidence import EvidenceCheckpoint
 from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentFlow
 from aiverify.runner.run_spec import (
     AssertionSpec,
+    AppSmokeSpec,
+    LiveValidationSpec,
     MetricContextSpec,
     RunSpec,
     ScenarioSpec,
@@ -46,10 +51,14 @@ def _flow(tmp_path) -> JourneySegmentFlow:
     layout.write_text('[{"resource-id": "nav_tab_home", "content-desc": "Home"}]', encoding="utf-8")
     screenshot = cp_dir / "screen.png"
     screenshot.write_bytes(b"png")
+    logcat = cp_dir / "logcat.txt"
+    logcat.write_text("", encoding="utf-8")
+    commands = cp_dir / "commands.json"
+    commands.write_text("[]", encoding="utf-8")
     cp = EvidenceCheckpoint(
         name="after-segment-0", directory=cp_dir, layout_path=layout,
         screenshot_path=screenshot, annotated_screenshot_path=None,
-        logcat_path=cp_dir / "logcat.txt", commands_path=cp_dir / "commands.json",
+        logcat_path=logcat, commands_path=commands,
     )
     jr = JourneyExecutionResult(
         data={"journey": "seg-0", "results": [{"action": "a", "status": "PASSED"}]},
@@ -93,6 +102,43 @@ _VALID_L3_JSON = json.dumps({
     "evidence": [{"type": "llm_reasoning", "ref": "layout", "note": "labels swapped"}],
     "confidence": 0.9,
 })
+
+
+class FakePreflightRunner(CommandRunner):
+    def __init__(self, responses: list[dict[str, object]]) -> None:
+        self.responses = list(responses)
+        self.calls: list[list[str]] = []
+        self.timeouts: list[int | None] = []
+
+    def run(
+        self,
+        args: list[str],
+        *,
+        cwd: Path | None = None,
+        timeout_seconds: int | None = None,
+        input_text: str | None = None,
+    ) -> CommandResult:
+        self.calls.append(args)
+        self.timeouts.append(timeout_seconds)
+        response = self.responses.pop(0)
+        if response.get("timeout"):
+            raise subprocess.TimeoutExpired(args, timeout_seconds)
+        return CommandResult(
+            args=args,
+            stdout=str(response.get("stdout", "")),
+            stderr=str(response.get("stderr", "")),
+            returncode=int(response.get("returncode", 0)),
+        )
+
+
+def _passing_preflight_responses() -> list[dict[str, object]]:
+    return [
+        {"stdout": "List of devices attached\nemulator-5554 device product:sdk\n"},
+        {"stdout": "1\n"},
+        {"stdout": "stopped\n"},
+        {"stdout": '[{"resource-id":"launcher"}]'},
+        {"stdout": "UI hierchary dumped to: /sdcard/window_dump.xml\n"},
+    ]
 
 
 @pytest.fixture
@@ -269,6 +315,7 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
         device="emulator-5554",
         artifact_dir=artifact_dir,
         workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
     )
 
     assert verdict["execution"] == {
@@ -308,6 +355,173 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
     ]
     persisted = json.loads((artifact_dir.parent / "verdict.json").read_text(encoding="utf-8"))
     assert persisted == verdict
+
+
+def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, monkeypatch):
+    flow = _flow(tmp_path)
+    controller_calls: list[object] = []
+
+    class FakeController:
+        def __init__(self, serial):
+            controller_calls.append(("init", serial))
+
+        def logcat_clear(self):
+            controller_calls.append("logcat_clear")
+
+        def launch(self, package, activity):
+            controller_calls.append(("launch", package, activity))
+
+    class SuccessfulRunner:
+        def __init__(self, **kwargs):
+            pass
+
+        def run(self, **kwargs):
+            return flow
+
+    monkeypatch.setattr(cli, "DeviceController", FakeController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", SuccessfulRunner)
+
+    artifact_dir = tmp_path / "run" / "artifacts"
+    preflight_runner = FakePreflightRunner(_passing_preflight_responses())
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=preflight_runner,
+    )
+
+    gate_path = artifact_dir.parent / "live-validation-gate.json"
+    assert gate_path.is_file()
+    assert json.loads(gate_path.read_text(encoding="utf-8"))["status"] == "passed"
+    assert verdict["execution"]["status"] == "completed"
+    assert verdict["preflight"]["live_validation_gate"] == {
+        "status": "passed",
+        "artifact": str(gate_path),
+        "failed_checks": [],
+    }
+    assert verdict["metric_context"]["seed_outcome"] == "not_detected"
+    assert controller_calls == [
+        ("init", "emulator-5554"),
+        "logcat_clear",
+        ("launch", "org.wikipedia.dev", None),
+    ]
+    assert [call[0:2] for call in preflight_runner.calls] == [
+        ["adb", "devices"],
+        ["adb", "-s"],
+        ["adb", "-s"],
+        ["android", "layout"],
+        ["adb", "-s"],
+    ]
+
+
+def test_failed_live_validation_preflight_is_non_accountable_and_blocks_launch(
+    tmp_path, monkeypatch
+):
+    class UnexpectedController:
+        def __init__(self, serial):
+            raise AssertionError("DeviceController must not be constructed")
+
+    class UnexpectedRunner:
+        def __init__(self, **kwargs):
+            raise AssertionError("JourneySegmentRunner must not be constructed")
+
+    monkeypatch.setattr(cli, "DeviceController", UnexpectedController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", UnexpectedRunner)
+    responses = _passing_preflight_responses()
+    responses[3] = {"stdout": "not json"}
+    preflight_runner = FakePreflightRunner(responses)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=preflight_runner,
+    )
+
+    gate_path = artifact_dir.parent / "live-validation-gate.json"
+    gate = json.loads(gate_path.read_text(encoding="utf-8"))
+    assert gate["status"] == "failed"
+    assert gate["failed_checks"] == ["android-layout-json"]
+    assert verdict["execution"] == {
+        "status": "non_accountable",
+        "accounting_eligible": False,
+        "reason": "live_validation_preflight_failed",
+        "message": "live-validation preflight failed: android-layout-json",
+    }
+    assert verdict["metric_context"]["seed_outcome"] == "not_accountable"
+    assert verdict["l1"] is None
+    assert verdict["l2"] is None
+    assert verdict["l3"] is None
+    assert verdict["preflight"]["live_validation_gate"]["artifact"] == str(gate_path)
+    assert verdict["diagnostic_artifacts"]["live_validation_gate"] == str(gate_path)
+
+
+def test_app_smoke_preflight_uses_explicit_run_spec_configuration(tmp_path, monkeypatch):
+    flow = _flow(tmp_path)
+    captured_preflight_kwargs: dict[str, object] = {}
+
+    class FakeController:
+        def __init__(self, serial):
+            pass
+
+        def logcat_clear(self):
+            return None
+
+        def launch(self, package, activity):
+            return None
+
+    class SuccessfulRunner:
+        def __init__(self, **kwargs):
+            pass
+
+        def run(self, **kwargs):
+            return flow
+
+    def fake_gate(**kwargs):
+        captured_preflight_kwargs.update(kwargs)
+        return cli.GateResult(device=kwargs["device"], status="passed", checks=())
+
+    monkeypatch.setattr(cli, "DeviceController", FakeController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", SuccessfulRunner)
+    monkeypatch.setattr(cli, "run_live_validation_gate", fake_gate)
+
+    spec = _spec(tmp_path, l3_spec="")
+    spec = RunSpec(
+        host_project=spec.host_project,
+        apk_glob=spec.apk_glob,
+        package="com.example.host",
+        activity="com.example.host.MainActivity",
+        diff=spec.diff,
+        spec=spec.spec,
+        scenario=spec.scenario,
+        live_validation=LiveValidationSpec(
+            timeout_seconds=11,
+            app_smoke=AppSmokeSpec(
+                target_text="Dashboard",
+                target_content_desc="Main dashboard",
+                app_settle_seconds=0,
+            ),
+        ),
+    )
+
+    cli.run(
+        spec,
+        device="emulator-5554",
+        artifact_dir=tmp_path / "run" / "artifacts",
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner([]),
+    )
+
+    assert captured_preflight_kwargs["app_package"] == "com.example.host"
+    assert captured_preflight_kwargs["app_activity"] == "com.example.host.MainActivity"
+    assert captured_preflight_kwargs["target_text"] == "Dashboard"
+    assert captured_preflight_kwargs["target_content_desc"] == "Main dashboard"
+    assert captured_preflight_kwargs["app_settle_seconds"] == 0
+    assert captured_preflight_kwargs["timeout_seconds"] == 11
 
 
 def test_main_returns_distinct_status_for_non_accountable_run(tmp_path, monkeypatch):

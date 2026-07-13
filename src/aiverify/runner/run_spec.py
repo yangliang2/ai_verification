@@ -75,6 +75,29 @@ class MetricContextSpec:
 
 
 @dataclass(frozen=True)
+class AppSmokeSpec:
+    """Optional host-specific app surface validation for live preflight."""
+
+    package: str | None = None
+    activity: str | None = None
+    target_resource_id: str | None = None
+    target_text: str | None = None
+    target_content_desc: str | None = None
+    app_settle_seconds: float = 3.0
+
+
+@dataclass(frozen=True)
+class LiveValidationSpec:
+    """Runner-enforced live-validation preflight configuration."""
+
+    android_bin: str = "android"
+    adb_bin: str = "adb"
+    timeout_seconds: int = 30
+    snippet_chars: int = 4000
+    app_smoke: AppSmokeSpec | None = None
+
+
+@dataclass(frozen=True)
 class ScenarioSpec:
     """Scenario portion of a Run Spec."""
 
@@ -113,6 +136,7 @@ class RunSpec:
     diff: Path | None
     spec: Path | None
     scenario: ScenarioSpec
+    live_validation: LiveValidationSpec = field(default_factory=LiveValidationSpec)
 
     def dry_run_plan(self, artifact_root: Path) -> DryRunPlan:
         """Return a dry-run action plan without touching host projects or devices."""
@@ -125,6 +149,7 @@ class RunSpec:
             f"build host project {self.host_project}",
             f"locate APKs with glob {self.apk_glob}",
             f"deploy package {self.package}",
+            "run live-validation preflight",
             "execute Journey segments",
             f"evaluate {len(self.scenario.assertions)} assertion(s)",
             "write verdict JSON",
@@ -155,6 +180,12 @@ def parse_run_spec(data: object, *, base_dir: Path | None = None) -> RunSpec:
     activity = _optional_str(data, "activity")
     diff = _optional_path(data, "diff", base_dir=base_dir)
     spec = _optional_path(data, "spec", base_dir=base_dir)
+    live_validation = _parse_live_validation(data.get("live_validation"))
+    _validate_live_validation_context(
+        live_validation,
+        package=package,
+        activity=activity,
+    )
 
     raw_scenario = data.get("scenario")
     if not isinstance(raw_scenario, dict):
@@ -169,7 +200,69 @@ def parse_run_spec(data: object, *, base_dir: Path | None = None) -> RunSpec:
         diff=diff,
         spec=spec,
         scenario=scenario,
+        live_validation=live_validation,
     )
+
+
+def _parse_live_validation(raw: object) -> LiveValidationSpec:
+    if raw is None:
+        return LiveValidationSpec()
+    if not isinstance(raw, dict):
+        raise RunSpecError("live_validation 必须是映射")
+
+    return LiveValidationSpec(
+        android_bin=_optional_nonempty_str(raw, "android_bin") or "android",
+        adb_bin=_optional_nonempty_str(raw, "adb_bin") or "adb",
+        timeout_seconds=_optional_positive_int(raw, "timeout_seconds", default=30),
+        snippet_chars=_optional_positive_int(raw, "snippet_chars", default=4000),
+        app_smoke=_parse_app_smoke(raw.get("app_smoke")),
+    )
+
+
+def _parse_app_smoke(raw: object) -> AppSmokeSpec | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise RunSpecError("live_validation.app_smoke 必须是映射")
+
+    target_resource_id = _optional_nonempty_str(raw, "target_resource_id")
+    target_text = _optional_nonempty_str(raw, "target_text")
+    target_content_desc = _optional_nonempty_str(raw, "target_content_desc")
+    if not any([target_resource_id, target_text, target_content_desc]):
+        raise RunSpecError(
+            "live_validation.app_smoke requires at least one target surface criterion"
+        )
+
+    return AppSmokeSpec(
+        package=_optional_nonempty_str(raw, "package"),
+        activity=_optional_nonempty_str(raw, "activity"),
+        target_resource_id=target_resource_id,
+        target_text=target_text,
+        target_content_desc=target_content_desc,
+        app_settle_seconds=_optional_nonnegative_float(
+            raw,
+            "app_settle_seconds",
+            default=3.0,
+        ),
+    )
+
+
+def _validate_live_validation_context(
+    live_validation: LiveValidationSpec,
+    *,
+    package: str,
+    activity: str | None,
+) -> None:
+    app_smoke = live_validation.app_smoke
+    if app_smoke is None:
+        return
+    if not (app_smoke.package or package):
+        raise RunSpecError("live_validation.app_smoke.package is required")
+    if not (app_smoke.activity or activity):
+        raise RunSpecError(
+            "live_validation.app_smoke.activity requires app_smoke.activity "
+            "or top-level activity"
+        )
 
 
 def _parse_scenario(raw: dict[str, Any]) -> ScenarioSpec:
@@ -323,6 +416,29 @@ def _optional_nonnegative_int(data: dict[str, Any], key: str) -> int | None:
     if not isinstance(value, int) or value < 0:
         raise RunSpecError(f"字段 {key} 必须是非负整数")
     return value
+
+
+def _optional_positive_int(data: dict[str, Any], key: str, *, default: int) -> int:
+    value = data.get(key, default)
+    if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+        raise RunSpecError(f"字段 {key} 必须是正整数")
+    return value
+
+
+def _optional_nonnegative_float(
+    data: dict[str, Any],
+    key: str,
+    *,
+    default: float,
+) -> float:
+    value = data.get(key, default)
+    if (
+        not isinstance(value, int | float)
+        or isinstance(value, bool)
+        or value < 0
+    ):
+        raise RunSpecError(f"字段 {key} 必须是非负数字")
+    return float(value)
 
 
 def _optional_str_list(data: dict[str, Any], key: str) -> list[str]:

@@ -27,9 +27,11 @@ from pathlib import Path
 from aiverify.agent.oracle import L1Oracle
 from aiverify.agent.oracle.l3 import L3Oracle
 from aiverify.agent.oracle.schema import VerdictValidationError, validate_verdict
+from aiverify.bench.live_validation_gate import GateResult, run_live_validation_gate
 from aiverify.providers.codex_cli import CodexCliProvider, CodexCliProviderError
 from aiverify.harness.device.controller import DeviceController
 from aiverify.runner.codex_backend import CodexCliBackend, _DEFAULT_SCHEMA_PATH
+from aiverify.runner.command import CommandRunner
 from aiverify.runner.evidence import AndroidEvidenceCollector
 from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentRunner
 from aiverify.runner.run_spec import RunSpec, ScenarioSpec, load_run_spec
@@ -273,6 +275,126 @@ def _non_accountable_metric_context(spec: RunSpec) -> dict:
     }
 
 
+def _write_live_validation_gate(result: GateResult, *, artifact_dir: Path) -> Path:
+    """Persist runner preflight evidence next to the run verdict."""
+    evidence_dir = artifact_dir.parent
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    path = evidence_dir / "live-validation-gate.json"
+    path.write_text(
+        json.dumps(result.to_dict(), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def _live_validation_gate_summary(result: GateResult, *, path: Path) -> dict:
+    summary = {
+        "status": result.status,
+        "artifact": str(path),
+        "failed_checks": list(result.failed_checks),
+    }
+    payload = result.to_dict()
+    if "app" in payload:
+        summary["app"] = payload["app"]
+    return summary
+
+
+def _run_live_validation_preflight(
+    spec: RunSpec,
+    *,
+    device: str,
+    artifact_dir: Path,
+    runner: CommandRunner | None,
+) -> tuple[GateResult, Path, dict, dict]:
+    """Run and persist the mandatory live-validation gate before app driving."""
+    preflight_start = time.monotonic()
+    live_validation = spec.live_validation
+    app_smoke = live_validation.app_smoke
+    app_package = None
+    app_activity = None
+    target_resource_id = None
+    target_text = None
+    target_content_desc = None
+    app_settle_seconds = 3.0
+    if app_smoke is not None:
+        app_package = app_smoke.package or spec.package
+        app_activity = app_smoke.activity or spec.activity
+        target_resource_id = app_smoke.target_resource_id
+        target_text = app_smoke.target_text
+        target_content_desc = app_smoke.target_content_desc
+        app_settle_seconds = app_smoke.app_settle_seconds
+
+    result = run_live_validation_gate(
+        device=device,
+        runner=runner,
+        android_bin=live_validation.android_bin,
+        adb_bin=live_validation.adb_bin,
+        timeout_seconds=live_validation.timeout_seconds,
+        snippet_chars=live_validation.snippet_chars,
+        app_package=app_package,
+        app_activity=app_activity,
+        target_resource_id=target_resource_id,
+        target_text=target_text,
+        target_content_desc=target_content_desc,
+        app_settle_seconds=app_settle_seconds,
+    )
+    path = _write_live_validation_gate(result, artifact_dir=artifact_dir)
+    timing = {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": round(time.monotonic() - preflight_start, 3),
+    }
+    return result, path, _live_validation_gate_summary(result, path=path), timing
+
+
+def _write_preflight_non_accountable_verdict(
+    *,
+    spec: RunSpec,
+    gate_result: GateResult,
+    gate_path: Path,
+    preflight_summary: dict,
+    preflight_timing: dict,
+    artifact_dir: Path,
+    started_at: str,
+    run_start: float,
+) -> dict:
+    failed_checks = ", ".join(gate_result.failed_checks)
+    message = (
+        f"live-validation preflight failed: {failed_checks}"
+        if failed_checks
+        else "live-validation preflight failed"
+    )
+    verdict = {
+        "scenario": spec.scenario.id,
+        "execution": {
+            "status": "non_accountable",
+            "accounting_eligible": False,
+            "reason": "live_validation_preflight_failed",
+            "message": message,
+        },
+        "preflight": {"live_validation_gate": preflight_summary},
+        "metric_context": _non_accountable_metric_context(spec),
+        "l1": None,
+        "l2": None,
+        "l3": None,
+        "diagnostic_artifacts": {"live_validation_gate": str(gate_path)},
+        "journey_results": [],
+        "checkpoints": [],
+        "injected_events": [],
+        "timing": {
+            "started_at": started_at,
+            "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "total_seconds": round(time.monotonic() - run_start, 3),
+            "phases": [preflight_timing],
+        },
+    }
+    artifact_dir.parent.mkdir(parents=True, exist_ok=True)
+    (artifact_dir.parent / "verdict.json").write_text(
+        json.dumps(verdict, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    return verdict
+
+
 def _write_non_accountable_verdict(
     *,
     spec: RunSpec,
@@ -280,6 +402,8 @@ def _write_non_accountable_verdict(
     artifact_dir: Path,
     started_at: str,
     run_start: float,
+    preflight_summary: dict,
+    preflight_timing: dict,
 ) -> dict:
     """Persist a diagnostic run result that cannot enter benchmark accounting."""
     flow = error.flow
@@ -322,6 +446,7 @@ def _write_non_accountable_verdict(
             "reason": error.reason,
             "message": str(error),
         },
+        "preflight": {"live_validation_gate": preflight_summary},
         "metric_context": _non_accountable_metric_context(spec),
         "l1": None,
         "l2": None,
@@ -336,7 +461,7 @@ def _write_non_accountable_verdict(
             "started_at": started_at,
             "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "total_seconds": round(time.monotonic() - run_start, 3),
-            "phases": flow.timings,
+            "phases": [preflight_timing, *flow.timings],
         },
     }
     artifact_dir.parent.mkdir(parents=True, exist_ok=True)
@@ -348,9 +473,33 @@ def _write_non_accountable_verdict(
 
 def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         launch: bool = True, model: str | None = None,
-        l3_model: str | None = None) -> dict:
+        l3_model: str | None = None,
+        preflight_command_runner: CommandRunner | None = None) -> dict:
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     run_start = time.monotonic()
+    (
+        preflight_result,
+        preflight_path,
+        preflight_summary,
+        preflight_timing,
+    ) = _run_live_validation_preflight(
+        spec,
+        device=device,
+        artifact_dir=artifact_dir,
+        runner=preflight_command_runner,
+    )
+    if preflight_result.status != "passed":
+        return _write_preflight_non_accountable_verdict(
+            spec=spec,
+            gate_result=preflight_result,
+            gate_path=preflight_path,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            artifact_dir=artifact_dir,
+            started_at=started_at,
+            run_start=run_start,
+        )
+
     controller = DeviceController(serial=device)
     # clear logcat so L1 only sees this run's events, not stale crashes from prior runs
     controller.logcat_clear()
@@ -380,6 +529,8 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             artifact_dir=artifact_dir,
             started_at=started_at,
             run_start=run_start,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
         )
 
     checkpoints = {c.name: c for c in flow.checkpoints}
@@ -405,6 +556,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             "reason": None,
             "message": None,
         },
+        "preflight": {"live_validation_gate": preflight_summary},
         "metric_context": _build_metric_context(spec, l1=l1, l2=l2, l3=l3),
         "l1": l1,
         "l2": l2,
@@ -416,7 +568,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             "started_at": started_at,
             "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "total_seconds": round(time.monotonic() - run_start, 3),
-            "phases": flow.timings,
+            "phases": [preflight_timing, *flow.timings],
         },
     }
     (artifact_dir.parent / "verdict.json").write_text(

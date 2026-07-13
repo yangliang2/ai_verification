@@ -167,7 +167,11 @@ def run_live_validation_gate(
             snippet_chars=snippet_chars,
         ),
     ]
-    if app_package is not None and app_activity is not None:
+    if (
+        app_package is not None
+        and app_activity is not None
+        and all(check.status == "passed" for check in checks)
+    ):
         checks.extend(
             _run_app_smoke_checks(
                 device=device,
