@@ -7,8 +7,13 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        verdict: docs/runs/2026-07-05-wikipedia-config-change-01-defect/verdict.json
+        selector: baseline_control
+      defect:
+        verdict: docs/runs/2026-07-05-wikipedia-config-change-01-defect/verdict.json
+        selector: defect
     source_issues: ["#8", "#9"]
     run_records:
       - docs/runs/2026-07-05-wikipedia-config-change-smoke/
@@ -20,8 +25,12 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        legacy_document: docs/M1-goldset-report.md
+        outcome: passed_control
+      defect:
+        verdict: docs/runs/2026-07-05-wikipedia-lifecycle-04-recreation-crash/verdict.json
     source_issues: ["#9"]
     run_records:
       - docs/runs/2026-07-05-wikipedia-lifecycle-04-recreation-crash/
@@ -31,8 +40,12 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        legacy_document: docs/M1-goldset-report.md
+        outcome: passed_control
+      defect:
+        verdict: docs/runs/2026-07-05-wikipedia-coroutine-concurrency-03-anr/verdict.json
     source_issues: ["#9"]
     run_records:
       - docs/runs/2026-07-05-wikipedia-coroutine-concurrency-03-anr/
@@ -42,8 +55,12 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        legacy_document: docs/M1-goldset-report.md
+        outcome: passed_control
+      defect:
+        verdict: docs/runs/2026-07-05-wikipedia-navigation-01-double-open-crash/verdict.json
     source_issues: ["#9"]
     run_records:
       - docs/runs/2026-07-05-wikipedia-navigation-01-double-open-crash/
@@ -53,8 +70,11 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        verdict: docs/runs/2026-07-06-wikipedia-process-death-02-tab-state-loss/baseline/verdict.json
+      defect:
+        verdict: docs/runs/2026-07-06-wikipedia-process-death-02-tab-state-loss/defect/verdict.json
     source_issues: ["#9", "#10"]
     run_records:
       - docs/runs/2026-07-06-wikipedia-process-death-02-tab-state-loss/
@@ -64,8 +84,11 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        verdict: docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/baseline/verdict.json
+      defect:
+        verdict: docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/defect/verdict.json
     source_issues: ["#15"]
     run_records:
       - docs/runs/2026-07-07-wikipedia-config-change-02-query-duplication/
@@ -75,8 +98,11 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        verdict: docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/baseline/verdict.json
+      defect:
+        verdict: docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/defect/verdict.json
     source_issues: ["#16"]
     run_records:
       - docs/runs/2026-07-07-wikipedia-navigation-02-back-button-swallowed/
@@ -86,8 +112,11 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        verdict: docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/baseline/verdict.json
+      defect:
+        verdict: docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/defect/verdict.json
     source_issues: ["#12", "#14"]
     run_records:
       - docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/
@@ -97,8 +126,11 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        verdict: docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/baseline/verdict.json
+      defect:
+        verdict: docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/defect/verdict.json
     source_issues: ["#17", "#18"]
     run_records:
       - docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/
@@ -108,8 +140,11 @@ seeds:
     accounting_state: included
     candidate: false
     evidence_type: live_matched_pair
-    defect_outcome: caught
-    control_outcome: passed_control
+    evidence:
+      control:
+        verdict: docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/background-baseline/verdict.json
+      defect:
+        verdict: docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/background-defect/verdict.json
     source_issues: ["#23", "#27"]
     run_records:
       - docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/
@@ -122,17 +157,9 @@ repeatability_packages:
     evidence_type: fixed_evidence_repeatability
     source_issues: ["#14"]
     run_record: docs/runs/2026-07-07-l3-repeatability-ui-rendering-01/
-    total_calls: 10
-    baseline_passes: 5
-    defect_fails: 5
-    errors: 0
 
   - id: ui-rendering-02-l3-repeatability
     seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
     evidence_type: fixed_evidence_repeatability
     source_issues: ["#18"]
     run_record: docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/
-    total_calls: 10
-    baseline_passes: 5
-    defect_fails: 5
-    errors: 0

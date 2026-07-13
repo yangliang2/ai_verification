@@ -1,7 +1,8 @@
 # M2-beta Aggregate Summary
 
-Generated from `bench/goldset/m2-beta-slice.yaml` and run-spec
-`scenario.metric_context` metadata.
+Generated from `bench/goldset/m2-beta-slice.yaml`, run-spec
+`scenario.metric_context` metadata, committed lane verdicts, and
+fixed-evidence repeatability summaries.
 
 ## Accounting Summary
 
@@ -50,6 +51,19 @@ Generated from `bench/goldset/m2-beta-slice.yaml` and run-spec
 | `crash_stability` | 4 |
 | `state_loss` | 4 |
 | `ui_rendering` | 2 |
+
+## Evidence Contracts
+
+| Evidence contract | Count |
+|---|---:|
+| `legacy_control_document` | 3 |
+| `verdict` | 7 |
+
+Standard `verdict` lanes derive caught/missed and control outcomes from
+committed baseline/defect `verdict.json` files. `legacy_control_document`
+marks pre-runner-contract control evidence that is explicitly documented
+but does not have a standalone control verdict; it remains a legacy
+historical classification.
 
 ## Blocked And Candidate Seeds
 

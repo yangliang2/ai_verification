@@ -70,6 +70,21 @@ Baseline controls are reported beside injected-defect outcomes, but they do not
 increase the injected-defect seed denominator. They protect the interpretation
 of caught/missed counts.
 
+M2-beta outcome counts are evidence-derived. The inventory manifest may name a
+seed, run spec, source issues, run records, and evidence pointers, but it must
+not declare `defect_outcome` or `control_outcome` fields. The aggregate
+renderer resolves those outcomes from committed baseline/control and defect
+verdict lanes. If committed evidence is missing, non-accountable,
+contradictory with metric context, or mismatched to the seed, aggregation must
+fail closed with an actionable error.
+
+`legacy_control_document` is an explicit historical classification for
+pre-runner-contract control evidence. It can keep an audited M1 baseline control
+in the M2-beta accounting table only when the manifest points at the durable
+source document and declares the control result there. It is not equivalent to a
+modern standalone control `verdict.json`, and reports must show it separately
+from the standard `verdict` contract.
+
 ## Live Evidence vs Fixed-Evidence Repeatability
 
 Live matched-pair evidence answers whether the verification chain can catch a
@@ -120,8 +135,8 @@ source failure mode. It produced:
 - baseline/control: runner exit `0`, L1 `inconclusive`, L2 `pass`;
 - defect: runner exit `1`, L1 `fail`, `crash_stability`, with
   `TransactionTooLargeException`;
-- matched accounting: `defect_outcome=caught`,
-  `control_outcome=passed_control`.
+- evidence-derived matched accounting: defect verdict resolves to `caught`;
+  background baseline/control verdict resolves to `passed_control`.
 
 Therefore #23 is now an M2-beta `included` seed.
 

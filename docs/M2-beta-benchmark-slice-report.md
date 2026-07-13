@@ -39,6 +39,14 @@ M2-beta currently has:
 - included defect outcomes: `caught: 10`;
 - baseline-control outcomes: `passed_control: 10`.
 
+Outcome accounting is evidence-derived. The manifest identifies seeds and
+evidence locations; the aggregate renderer resolves caught/missed and
+passed-control/false-positive counts from committed baseline/control and defect
+verdict lanes. Current included evidence contracts are:
+
+- standard `verdict` lanes: 7;
+- explicit `legacy_control_document` controls: 3.
+
 Expected oracle distribution among included seeds:
 
 - `L1`: 4;
@@ -84,6 +92,8 @@ Reason: the successful retry changed the boundary from `dark_mode` to
 `app_to_background`, matching the Tusky source failure mode. Baseline/control
 returned runner exit `0` with L1 `inconclusive`; defect returned runner exit `1`
 with L1 `fail`, `crash_stability`, and `TransactionTooLargeException`.
+Those outcomes are resolved from the committed background baseline/control and
+background defect verdicts under the evidence-derived contract.
 
 ## Supported Claims
 
@@ -94,6 +104,8 @@ The project can now claim:
 - M2-alpha added post-M1 seed expansion and two repeatability-gated text-layout
   L3 seeds;
 - M2-beta has a reproducible aggregate summary over committed repo artifacts;
+- M2-beta derives outcomes from committed evidence instead of manifest-declared
+  result fields;
 - M2-beta explicitly separates included, blocked, candidate, and
   repeatability-only evidence;
 - #23 has a durable live matched-pair run and now contributes one L1 caught

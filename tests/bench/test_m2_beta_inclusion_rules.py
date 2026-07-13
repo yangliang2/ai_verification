@@ -26,6 +26,7 @@ def test_m2_beta_inclusion_rules_define_counting_states() -> None:
 
 def test_m2_beta_inclusion_rules_require_matched_pair_for_counts() -> None:
     text = _RULES.read_text(encoding="utf-8")
+    normalized_text = " ".join(text.split())
 
     assert "A seed without a valid baseline/defect matched pair cannot count as caught or" in text
     assert "missed. It must be marked `candidate`, `blocked`, or `excluded`." in text
@@ -33,6 +34,10 @@ def test_m2_beta_inclusion_rules_require_matched_pair_for_counts() -> None:
     assert "`missed` means no oracle returns `fail` on the defect path" in text
     assert "`passed_control` means no oracle returns `fail`" in text
     assert "`false_positive` means any oracle returns `fail`" in text
+    assert "M2-beta outcome counts are evidence-derived" in text
+    assert "must not declare `defect_outcome` or `control_outcome` fields" in normalized_text
+    assert "fail closed with an actionable error" in text
+    assert "`legacy_control_document` is an explicit historical classification" in text
 
 
 def test_m2_beta_inclusion_rules_keep_repeatability_separate() -> None:
@@ -49,6 +54,6 @@ def test_m2_beta_inclusion_rules_include_resolved_oversized_saved_state_seed() -
 
     assert "#23" in text
     assert "Oversized saved-state process-death seed (#23) | `included`" in text
-    assert "defect_outcome=caught" in text
-    assert "control_outcome=passed_control" in text
+    assert "defect verdict resolves to `caught`" in text
+    assert "background baseline/control verdict resolves to `passed_control`" in text
     assert "Therefore #23 is now an M2-beta `included` seed." in text

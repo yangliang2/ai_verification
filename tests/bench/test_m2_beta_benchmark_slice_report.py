@@ -37,6 +37,9 @@ def test_m2_beta_report_summarizes_accounting_counts() -> None:
         "repeatability-only packages: 2",
         "included defect outcomes: `caught: 10`",
         "baseline-control outcomes: `passed_control: 10`",
+        "Outcome accounting is evidence-derived",
+        "standard `verdict` lanes: 7",
+        "explicit `legacy_control_document` controls: 3",
         "`L1`: 4",
         "`L2`: 4",
         "`L3`: 2",
@@ -53,6 +56,7 @@ def test_m2_beta_report_preserves_oversized_saved_state_boundary() -> None:
     assert "accounting state: `included`" in text
     assert "denominator impact: 1" in text
     assert "defect outcome: `caught`" in text
+    assert "background defect verdicts under the evidence-derived contract" in text
     assert "TransactionTooLargeException" in text
 
 
@@ -63,6 +67,7 @@ def test_m2_beta_report_states_supported_and_out_of_scope_claims() -> None:
         "the MVP verification chain is live and audited",
         "M1 caught five of five seeded defects",
         "M2-beta has a reproducible aggregate summary",
+        "M2-beta derives outcomes from committed evidence",
         "#23 has a durable live matched-pair run",
     ):
         assert supported in text
