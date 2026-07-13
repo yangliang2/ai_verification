@@ -52,22 +52,36 @@ class VerdictWritingRunner(CommandRunner):
         )
 
 
-def test_manifest_defines_six_anr_lanes() -> None:
+def test_manifest_defines_six_lanes_per_m3_seed() -> None:
     manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
 
     assert manifest.slice_id == "m3-verification-agent-reliability"
     assert manifest.max_attempts_per_lane == 2
-    assert len(manifest.lanes) == 6
-    assert {(lane.role, lane.repetition) for lane in manifest.lanes} == {
-        ("baseline", 1),
-        ("baseline", 2),
-        ("baseline", 3),
-        ("defect", 1),
-        ("defect", 2),
-        ("defect", 3),
-    }
-    assert {lane.seed_id for lane in manifest.lanes} == {
-        "wikipedia-coroutine-concurrency-03-main-thread-anr"
+    assert len(manifest.lanes) == 12
+    assert {
+        seed_id: [
+            (lane.role, lane.repetition)
+            for lane in manifest.lanes
+            if lane.seed_id == seed_id
+        ]
+        for seed_id in {lane.seed_id for lane in manifest.lanes}
+    } == {
+        "wikipedia-coroutine-concurrency-03-main-thread-anr": [
+            ("baseline", 1),
+            ("baseline", 2),
+            ("baseline", 3),
+            ("defect", 1),
+            ("defect", 2),
+            ("defect", 3),
+        ],
+        "wikipedia-process-death-03-oversized-saved-state": [
+            ("baseline", 1),
+            ("baseline", 2),
+            ("baseline", 3),
+            ("defect", 1),
+            ("defect", 2),
+            ("defect", 3),
+        ],
     }
     assert {lane.expected_oracle_level for lane in manifest.lanes} == {"L1"}
     assert {lane.expected_oracle_defect_class for lane in manifest.lanes} == {
@@ -491,7 +505,12 @@ def test_cli_plan_prints_machine_readable_schedule(
 def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
     manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
     summary = build_summary(manifest)
-    run_record = _ROOT / "docs" / "runs" / "2026-07-13-m3-anr-reliability"
+    run_record = (
+        _ROOT
+        / "docs"
+        / "runs"
+        / "2026-07-13-m3-oversized-saved-state-reliability"
+    )
 
     assert json.loads((run_record / "summary.json").read_text(encoding="utf-8")) == (
         summary_to_dict(summary)
@@ -499,6 +518,36 @@ def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
     assert (run_record / "summary.md").read_text(encoding="utf-8") == render_markdown(
         summary, slice_id=manifest.slice_id
     )
+    assert summary.planned_lanes == 12
+    assert summary.first_attempt_accountable == 9
+    assert summary.eventual_accountable == 10
+    assert summary.retry_count == 3
+    assert summary.control_outcomes == {"passed_control": 6}
+    assert summary.defect_outcomes == {"caught": 4}
+
+
+def test_committed_oversized_state_defects_contain_expected_l1_signal() -> None:
+    manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
+    defect_lanes = [
+        lane
+        for lane in manifest.lanes
+        if lane.seed_id == "wikipedia-process-death-03-oversized-saved-state"
+        and lane.role == "defect"
+    ]
+
+    assert len(defect_lanes) == 3
+    for lane in defect_lanes:
+        final_attempt = sorted(lane.evidence_dir.glob("attempt-*"))[-1]
+        verdict = json.loads(
+            (final_attempt / "verdict.json").read_text(encoding="utf-8")
+        )
+        assert verdict["execution"]["accounting_eligible"] is True
+        assert verdict["l1"]["outcome"] == "fail"
+        assert verdict["l1"]["defect_class_hypothesis"] == "crash_stability"
+        assert any(
+            "TransactionTooLargeException" in evidence["ref"]
+            for evidence in verdict["l1"]["evidence"]
+        )
 
 
 def _write_fixture_manifest(tmp_path: Path, *, role: str = "baseline") -> Path:

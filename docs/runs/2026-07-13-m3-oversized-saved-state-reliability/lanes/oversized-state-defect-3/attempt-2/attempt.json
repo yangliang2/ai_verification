@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "lane_id": "oversized-state-defect-3",
+  "seed_id": "wikipedia-process-death-03-oversized-saved-state",
+  "role": "defect",
+  "repetition": 3,
+  "attempt_number": 2,
+  "started_at": "2026-07-13T13:25:47+00:00",
+  "finished_at": "2026-07-13T13:28:00+00:00",
+  "runner_command": [
+    "/Users/80268204/Projects/ai_verification/.venv/bin/python",
+    "-m",
+    "aiverify.runner",
+    "/Users/80268204/Projects/ai_verification/bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml",
+    "--device",
+    "emulator-5554",
+    "--artifact-dir",
+    "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-13-m3-oversized-saved-state-reliability/lanes/oversized-state-defect-3/attempt-2/artifacts",
+    "--workdir",
+    "/Users/80268204/hosts/wikipedia"
+  ],
+  "runner_exit_code": 1,
+  "verdict": "verdict.json",
+  "operational_interventions": [
+    "Force-stopped defect app and returned Home after preflight layout failure; fresh independent gate passed"
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "scenario": "wikipedia-process-death-03-oversized-saved-state",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-13-m3-oversized-saved-state-reliability/lanes/oversized-state-defect-3/attempt-2/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-process-death-03-oversized-saved-state",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "caught",
+    "taxonomy_category": "process-death",
+    "taxonomy_pattern_id": "process-death-03",
+    "expected_oracle_level": "L1",
+    "expected_oracle_defect_class": "crash_stability",
+    "oracle_outcomes": {
+      "L1": "fail",
+      "L2": "pass",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": "crash_stability",
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": [
+      "L1"
+    ]
+  },
+  "l1": {
+    "verdict_id": "L1-641e2f89",
+    "level": "L1",
+    "outcome": "fail",
+    "defect_class_hypothesis": "crash_stability",
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity.",
+      "Tap search_src_text, type sentinel text 'zzoversize', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity.",
+      "[boundary] inject app_to_background {}"
+    ],
+    "evidence": [
+      {
+        "type": "logcat_line",
+        "ref": "07-13 21:27:49.629  6819  6819 E AndroidRuntime: FATAL EXCEPTION: main",
+        "note": "检测到 FATAL EXCEPTION——JVM 未捕获异常导致进程崩溃"
+      },
+      {
+        "type": "logcat_line",
+        "ref": "07-13 21:27:49.629  6819  6819 E AndroidRuntime: java.lang.RuntimeException: android.os.TransactionTooLargeException: data parcel size 2110592 bytes",
+        "note": "检测到 AndroidRuntime 未捕获致命异常"
+      }
+    ],
+    "confidence": 0.95
+  },
+  "l2": {
+    "verdict_id": "L2-1052637c",
+    "level": "L2",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity.",
+      "Tap search_src_text, type sentinel text 'zzoversize', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity.",
+      "[boundary] inject app_to_background {}"
+    ],
+    "evidence": [],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "wikipedia-process-death-03-oversized-saved-state-segment-0",
+      "results": [
+        {
+          "action": "org.wikipedia.dev is already launched by the runner or setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity.",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 302",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "The main feed was already visible. Tapped nav_tab_search and search_card using their current centers; SearchActivity opened."
+        },
+        {
+          "action": "Tap search_src_text, type sentinel text 'zzoversize', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity.",
+          "status": "PASSED",
+          "commands": [
+            "adb -s emulator-5554 shell input tap 542 146",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input text \"zzoversize\"",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input keyevent 4",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "search_src_text was focused and displayed 'zzoversize'. One Back key press hid the keyboard while SearchActivity and the sentinel text remained visible."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0"
+  ],
+  "injected_events": [
+    {
+      "event": "app_to_background",
+      "args": {}
+    }
+  ],
+  "timing": {
+    "started_at": "2026-07-13T13:25:47+00:00",
+    "finished_at": "2026-07-13T13:28:00+00:00",
+    "total_seconds": 132.699,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 7.16
+      },
+      {
+        "phase": "wikipedia-process-death-03-oversized-saved-state-segment-0",
+        "kind": "journey",
+        "seconds": 105.177
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 8.272
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "app_to_background",
+        "seconds": 0.062
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 11.76
+      }
+    ]
+  }
+}

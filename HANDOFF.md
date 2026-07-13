@@ -7,8 +7,8 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- GitHub Issues #1-#40 全部已关闭；M3 PRD #41 和子 issues #42-#47
-  已创建并保持 open，open PRs = 0。
+- GitHub Issues #1-#40、#42 已关闭；M3 PRD #41 和子 issues #43-#47
+  保持 open，open PRs = 0。#43 的本地实现与 live evidence 已完成，待提交并关闭。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -25,7 +25,7 @@
 - Latest live matched-pair run record: [`docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/`](docs/runs/2026-07-09-wikipedia-process-death-03-oversized-saved-state-matched-pair-retry/)
 - Latest runner contract run record: [`docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md`](docs/runs/2026-07-13-runner-enforced-live-validation-preflight/README.md)
 - Latest accounting run record: [`docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md`](docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md)
-- Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-anr-reliability/README.md`](docs/runs/2026-07-13-m3-anr-reliability/README.md)
+- Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-oversized-saved-state-reliability/README.md`](docs/runs/2026-07-13-m3-oversized-saved-state-reliability/README.md)
 - M2-beta current audited slice: 10 included injected-defect seeds, 10 caught,
   10 baseline controls passed; expected oracle split L1=4, L2=4, L3=2.
 - Fixed-evidence L3 repeatability remains separate: 2 packages, 20 calls,
@@ -33,7 +33,12 @@
 - M3 ANR tracer result: 6 planned lanes, 4 first-attempt/eventually accountable,
   2 bounded retries, 3/3 accountable controls passed, and 1/1 accountable defect
   caught by L1 as `crash_stability`; two defect lanes exhausted non-accountable.
-- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `360 passed, 2 warnings`.
+- M3 oversized saved-state increment: 6 planned lanes, 5 first-attempt and 6
+  eventually accountable, 1 bounded retry, 3/3 controls passed, and 3/3 defects
+  caught by L1 as `crash_stability` with `TransactionTooLargeException` evidence.
+  Current cross-seed partial aggregate: 12 planned, 10 eventually accountable,
+  6/6 controls passed, and 4/6 planned defects caught.
+- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `361 passed, 2 warnings`.
 
 ### 已实测
 
@@ -53,11 +58,11 @@ Codex CLI:
 Wikipedia host:
 - Current path: `/Users/80268204/hosts/wikipedia` (extracted tree; no `.git` metadata)
 - Build command: `./gradlew assembleDevDebug --no-daemon`
-- Latest M3 build results: baseline `BUILD SUCCESSFUL in 6m 11s`; defect
-  `BUILD SUCCESSFUL in 57s`.
-- Preserved APKs: `/Users/80268204/hosts/wikipedia/aiverify-builds/m3-anr/`
-- Baseline/defect APK SHA-256: `12e0705ce900bdbce3b653a6cdfe85d90b3b22d207b3c206981f808752d975a1` /
-  `0770fe4d419003820ef642131c91259645c3b11a3c4cc5c57f6cb82cc8a30260`.
+- Latest M3 build results: baseline `BUILD SUCCESSFUL in 2m 13s`; defect
+  `BUILD SUCCESSFUL in 2m 7s`.
+- Preserved APKs: `/Users/80268204/hosts/wikipedia/aiverify-builds/m3-oversized-state/`
+- Baseline/defect APK SHA-256: `b89edc28d16955bd9d9980090e217127863c2691eb4549c2151d2fb6f5632029` /
+  `c7270130e27a6109c28d12160e52bb353ecff27da7d317691c5f1b4494b3e119`.
 - Package: `org.wikipedia.dev`
 - Launch component used by Android CLI: `org.wikipedia.DefaultIcon`
 - Evidence confirms Wikipedia onboarding screen.
@@ -85,7 +90,7 @@ Wikipedia host:
   outcome accounting over committed verdict and repeatability artifacts.
 - `src/aiverify/bench/run_record_checksums.py`: deterministic run-record checksum
   inventory generation and verification, excluding the manifest itself.
-- `src/aiverify/bench/m3_reliability.py`: versioned six-lane M3 orchestration,
+- `src/aiverify/bench/m3_reliability.py`: versioned multi-seed M3 lane orchestration,
   bounded attempt lineage, authoritative evidence validation, fail-closed failure
   classification, and deterministic structured/Markdown summary generation.
 
