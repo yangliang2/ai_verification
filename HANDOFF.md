@@ -7,8 +7,9 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- GitHub Issues #1-#40、#42 已关闭；M3 PRD #41 和子 issues #43-#47
-  保持 open，open PRs = 0。#43 的本地实现与 live evidence 已完成，待提交并关闭。
+- GitHub Issues #1-#40、#42、#43 已完成并关闭；M3 PRD #41 和子 issues
+  #44-#47 保持 open，open PRs = 0。下一项推荐从 ready-for-agent 的 #44
+  “M3: measure query-duplication L2 reliability” 开始。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
