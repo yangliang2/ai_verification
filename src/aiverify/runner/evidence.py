@@ -14,6 +14,15 @@ from aiverify.runner.command import CommandResult, CommandRunner, SubprocessComm
 class EvidenceCaptureError(RuntimeError):
     """Raised when checkpoint evidence cannot be captured."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        checkpoint: EvidenceCheckpoint | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.checkpoint = checkpoint
+
 
 @dataclass(frozen=True)
 class EvidenceCheckpoint:
@@ -69,7 +78,33 @@ class AndroidEvidenceCollector:
         logcat_path = checkpoint_dir / "logcat.txt"
         commands_path = checkpoint_dir / "commands.json"
         manifest_path = checkpoint_dir / "capture-manifest.json"
+        owned_artifacts = [
+            layout_path,
+            screenshot_path,
+            checkpoint_dir / "screen-annotated.png",
+            logcat_path,
+            commands_path,
+            manifest_path,
+        ]
+        existing_artifacts = [path for path in owned_artifacts if path.exists()]
+        if existing_artifacts:
+            paths = ", ".join(str(path) for path in existing_artifacts)
+            raise EvidenceCaptureError(
+                "Checkpoint contains existing capture artifacts; refusing to "
+                f"overwrite contradictory evidence: {paths}"
+            )
+        checkpoint = EvidenceCheckpoint(
+            name=name,
+            directory=checkpoint_dir,
+            layout_path=layout_path,
+            screenshot_path=screenshot_path,
+            annotated_screenshot_path=annotated_path,
+            logcat_path=logcat_path,
+            commands_path=commands_path,
+            manifest_path=manifest_path,
+        )
         command_results: list[dict[str, object]] = []
+        phase_errors: list[tuple[str, EvidenceCaptureError]] = []
         failed_phase: str | None = None
 
         def _write_metadata(
@@ -82,94 +117,148 @@ class AndroidEvidenceCollector:
                 encoding="utf-8",
             )
             manifest = _capture_manifest(
-                checkpoint=name,
+                evidence=checkpoint,
                 status=status,
                 failed_phase=failed_phase,
                 error=error,
-                layout_path=layout_path,
-                screenshot_path=screenshot_path,
-                annotated_path=annotated_path,
-                logcat_path=logcat_path,
-                commands_path=commands_path,
                 command_count=len(command_results),
+                phase_errors=[
+                    {
+                        "phase": phase,
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                    }
+                    for phase, exc in phase_errors
+                ],
             )
             manifest_path.write_text(
                 json.dumps(manifest, ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
 
-        try:
-            failed_phase = "layout"
-            layout_cmd = [self.android_bin, "layout", "--pretty"]
-            if device:
-                layout_cmd += ["--device", device]
-            layout = self._capture_layout(layout_cmd, command_results=command_results)
+        def _capture_phase_best_effort(phase: str, operation):
+            nonlocal failed_phase
+            failed_phase = phase
+            try:
+                return operation()
+            except EvidenceCaptureError as exc:
+                phase_errors.append((phase, exc))
+                return None
+
+        layout_cmd = [self.android_bin, "layout", "--pretty"]
+        if device:
+            layout_cmd += ["--device", device]
+        layout = _capture_phase_best_effort(
+            "layout",
+            lambda: self._capture_layout(
+                layout_cmd,
+                command_results=command_results,
+            ),
+        )
+        if layout is not None:
             layout_path.write_text(layout.stdout, encoding="utf-8")
 
-            failed_phase = "screenshot"
-            screenshot_cmd = [
-                self.android_bin,
-                "screen",
-                "capture",
-                "-o",
-                str(screenshot_path),
-            ]
-            self._run_checkpoint_command(
+        screenshot_cmd = [
+            self.android_bin,
+            "screen",
+            "capture",
+            "-o",
+            str(screenshot_path),
+        ]
+        _capture_phase_best_effort(
+            "screenshot",
+            lambda: self._run_checkpoint_command(
                 screenshot_cmd,
                 phase="screenshot",
                 command_results=command_results,
                 timeout_seconds=self.screen_capture_timeout_seconds,
-            )
+            ),
+        )
+        self._record_missing_artifact(
+            phase="screenshot",
+            path=screenshot_path,
+            command_results=command_results,
+            phase_errors=phase_errors,
+        )
 
-            if annotated_path is not None:
-                failed_phase = "annotated_screenshot"
-                annotated_cmd = [
-                    self.android_bin,
-                    "screen",
-                    "capture",
-                    "--annotate",
-                    "-o",
-                    str(annotated_path),
-                ]
-                self._run_checkpoint_command(
+        if annotated_path is not None:
+            annotated_cmd = [
+                self.android_bin,
+                "screen",
+                "capture",
+                "--annotate",
+                "-o",
+                str(annotated_path),
+            ]
+            _capture_phase_best_effort(
+                "annotated_screenshot",
+                lambda: self._run_checkpoint_command(
                     annotated_cmd,
                     phase="annotated_screenshot",
                     command_results=command_results,
                     timeout_seconds=self.screen_capture_timeout_seconds,
-                )
+                ),
+            )
+            self._record_missing_artifact(
+                phase="annotated_screenshot",
+                path=annotated_path,
+                command_results=command_results,
+                phase_errors=phase_errors,
+            )
 
-            failed_phase = "logcat"
-            logcat_cmd = [self.adb_bin]
-            if device:
-                logcat_cmd += ["-s", device]
-            logcat_cmd += ["logcat", "-d"]
-            logcat = self._run_checkpoint_command(
+        logcat_cmd = [self.adb_bin]
+        if device:
+            logcat_cmd += ["-s", device]
+        logcat_cmd += ["logcat", "-d"]
+        logcat = _capture_phase_best_effort(
+            "logcat",
+            lambda: self._run_checkpoint_command(
                 logcat_cmd,
                 phase="logcat",
                 command_results=command_results,
                 timeout_seconds=self.logcat_timeout_seconds,
-            )
+            ),
+        )
+        if logcat is not None:
             logcat_path.write_text(logcat.stdout, encoding="utf-8")
-        except EvidenceCaptureError as exc:
+
+        if phase_errors:
+            failed_phase = phase_errors[0][0]
+            message = "; ".join(
+                f"{phase}: {exc}" for phase, exc in phase_errors
+            )
+            error = EvidenceCaptureError(message, checkpoint=checkpoint)
             _write_metadata(
                 "failed",
-                error={"type": type(exc).__name__, "message": str(exc)},
+                error={"type": type(error).__name__, "message": str(error)},
             )
-            raise
+            raise error from phase_errors[0][1]
 
         failed_phase = None
         _write_metadata("passed")
 
-        return EvidenceCheckpoint(
-            name=name,
-            directory=checkpoint_dir,
-            layout_path=layout_path,
-            screenshot_path=screenshot_path,
-            annotated_screenshot_path=annotated_path,
-            logcat_path=logcat_path,
-            commands_path=commands_path,
-            manifest_path=manifest_path,
-        )
+        return checkpoint
+
+    @staticmethod
+    def _record_missing_artifact(
+        *,
+        phase: str,
+        path: Path,
+        command_results: list[dict[str, object]],
+        phase_errors: list[tuple[str, EvidenceCaptureError]],
+    ) -> None:
+        matching_commands = [
+            entry for entry in command_results if entry["phase"] == phase
+        ]
+        if not matching_commands or matching_commands[-1]["status"] != "passed":
+            return
+        if path.is_file() and path.stat().st_size > 0:
+            return
+
+        message = f"{phase} command did not create a non-empty artifact: {path}"
+        matching_commands[-1]["status"] = "missing_artifact"
+        matching_commands[-1]["error"] = message
+        phase_errors.append((phase, EvidenceCaptureError(message)))
 
     def _run_checkpoint_command(
         self,
@@ -249,33 +338,34 @@ class AndroidEvidenceCollector:
 
 def _capture_manifest(
     *,
-    checkpoint: str,
+    evidence: EvidenceCheckpoint,
     status: str,
     failed_phase: str | None,
     error: dict[str, str] | None,
-    layout_path: Path,
-    screenshot_path: Path,
-    annotated_path: Path | None,
-    logcat_path: Path,
-    commands_path: Path,
     command_count: int,
+    phase_errors: list[dict[str, str]],
 ) -> dict[str, object]:
     artifacts = {
-        "layout": str(layout_path),
-        "screen": str(screenshot_path),
-        "screen_annotated": str(annotated_path) if annotated_path is not None else None,
-        "logcat": str(logcat_path),
-        "commands": str(commands_path),
+        "layout": str(evidence.layout_path),
+        "screen": str(evidence.screenshot_path),
+        "screen_annotated": (
+            str(evidence.annotated_screenshot_path)
+            if evidence.annotated_screenshot_path is not None
+            else None
+        ),
+        "logcat": str(evidence.logcat_path),
+        "commands": str(evidence.commands_path),
     }
     artifact_exists = {
         key: Path(value).exists() if value is not None else False
         for key, value in artifacts.items()
     }
     return {
-        "checkpoint": checkpoint,
+        "checkpoint": evidence.name,
         "status": status,
         "failed_phase": failed_phase,
         "error": error,
+        "phase_errors": phase_errors,
         "command_count": command_count,
         "artifacts": artifacts,
         "artifact_exists": artifact_exists,

@@ -10,7 +10,7 @@ import aiverify.runner.cli as cli
 from aiverify.runner.command import CommandResult, CommandRunner
 from aiverify.providers.base import MockProvider
 from aiverify.runner.codex_backend import JourneyExecutionResult
-from aiverify.runner.evidence import EvidenceCheckpoint
+from aiverify.runner.evidence import AndroidEvidenceCollector, EvidenceCheckpoint
 from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentFlow
 from aiverify.runner.run_spec import (
     AssertionSpec,
@@ -355,6 +355,102 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
     ]
     persisted = json.loads((artifact_dir.parent / "verdict.json").read_text(encoding="utf-8"))
     assert persisted == verdict
+
+
+def test_public_run_retains_failed_anr_checkpoint_diagnostics(tmp_path, monkeypatch):
+    class FakeController:
+        def __init__(self, serial):
+            self.serial = serial
+
+        def logcat_clear(self):
+            return None
+
+        def launch(self, package, activity):
+            return None
+
+    class SuccessfulBackend:
+        def execute(self, request):
+            request.artifact_dir.mkdir(parents=True, exist_ok=True)
+            result_path = request.artifact_dir / "result.json"
+            events_path = request.artifact_dir / "events.jsonl"
+            result_path.write_text("{}", encoding="utf-8")
+            events_path.write_text("", encoding="utf-8")
+            return JourneyExecutionResult(
+                data={
+                    "journey": "anr-defect-1-segment-0",
+                    "results": [
+                        {
+                            "action": "走完 onboarding 到主 feed，观察底部导航栏",
+                            "status": "PASSED",
+                            "commands": [],
+                            "comment": "completed before checkpoint failure",
+                        }
+                    ],
+                },
+                result_path=result_path,
+                events_path=events_path,
+                command=["codex"],
+            )
+
+    class AnrCaptureCommandRunner(CommandRunner):
+        def run(
+            self,
+            args,
+            *,
+            cwd=None,
+            timeout_seconds=None,
+            input_text=None,
+        ):
+            if args[:2] == ["android", "layout"]:
+                return CommandResult(
+                    args=args,
+                    stdout="",
+                    stderr="Failed to retrieve UI dump: \n",
+                    returncode=0,
+                )
+            if args[:3] == ["android", "screen", "capture"]:
+                output = Path(args[args.index("-o") + 1])
+                output.write_bytes(b"diagnostic png")
+                return CommandResult(args=args, stdout=str(output), stderr="", returncode=0)
+            if args[-2:] == ["logcat", "-d"]:
+                return CommandResult(
+                    args=args,
+                    stdout="ANR in org.wikipedia.dev\n",
+                    stderr="",
+                    returncode=0,
+                )
+            raise AssertionError(f"unexpected command: {args}")
+
+    collector = AndroidEvidenceCollector(
+        runner=AnrCaptureCommandRunner(),
+        layout_attempts=2,
+        layout_retry_sleep_seconds=0,
+    )
+    monkeypatch.setattr(cli, "DeviceController", FakeController)
+    monkeypatch.setattr(cli, "CodexCliBackend", SuccessfulBackend)
+    monkeypatch.setattr(cli, "AndroidEvidenceCollector", lambda: collector)
+
+    artifact_dir = tmp_path / "run" / "artifacts"
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"]["status"] == "non_accountable"
+    assert verdict["execution"]["accounting_eligible"] is False
+    assert verdict["execution"]["reason"] == "checkpoint_capture_error"
+    assert verdict["metric_context"]["seed_outcome"] == "not_accountable"
+    assert verdict["l1"] is None
+    checkpoint = verdict["diagnostic_artifacts"]["checkpoints"][0]
+    assert checkpoint["name"] == "after-segment-0"
+    assert Path(checkpoint["manifest"]).is_file()
+    assert Path(checkpoint["screenshot"]).read_bytes() == b"diagnostic png"
+    assert Path(checkpoint["logcat"]).read_text(encoding="utf-8") == (
+        "ANR in org.wikipedia.dev\n"
+    )
 
 
 def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, monkeypatch):

@@ -17,12 +17,14 @@ class FakeRunner(CommandRunner):
         fail_on: str = "",
         timeout_on: str = "",
         bad_layouts_before_success: int = 0,
+        omit_screen_output: bool = False,
     ) -> None:
         self.calls: list[list[str]] = []
         self.timeouts: list[int | None] = []
         self.fail_on = fail_on
         self.timeout_on = timeout_on
         self.bad_layouts_before_success = bad_layouts_before_success
+        self.omit_screen_output = omit_screen_output
 
     def run(
         self,
@@ -54,7 +56,8 @@ class FakeRunner(CommandRunner):
             return CommandResult(args=args, stdout='[{"text":"Home"}]', stderr="", returncode=0)
         if args[:3] == ["android", "screen", "capture"]:
             out = Path(args[args.index("-o") + 1])
-            out.write_bytes(b"png")
+            if not self.omit_screen_output:
+                out.write_bytes(b"png")
             return CommandResult(args=args, stdout=f"Screenshot written to {out}", stderr="", returncode=0)
         if args[-2:] == ["logcat", "-d"]:
             return CommandResult(args=args, stdout="log line\n", stderr="", returncode=0)
@@ -108,10 +111,16 @@ def test_capture_checkpoint_raises_on_command_failure(tmp_path: Path) -> None:
     assert manifest["status"] == "failed"
     assert manifest["failed_phase"] == "layout"
     assert "Command failed" in manifest["error"]["message"]
-    assert commands[-1]["phase"] == "layout"
-    assert commands[-1]["status"] == "failed"
-    assert commands[-1]["returncode"] == 1
-    assert commands[-1]["stderr"] == "failed"
+    failed = next(item for item in commands if item["phase"] == "layout")
+    assert failed["status"] == "failed"
+    assert failed["returncode"] == 1
+    assert failed["stderr"] == "failed"
+    assert [item["phase"] for item in commands[1:]] == [
+        "screenshot",
+        "annotated_screenshot",
+        "logcat",
+    ]
+    assert manifest["artifact_exists"]["logcat"] is True
 
 
 def test_capture_checkpoint_retries_transient_empty_layout(tmp_path: Path) -> None:
@@ -178,7 +187,60 @@ def test_capture_checkpoint_wraps_command_timeout(tmp_path: Path) -> None:
     assert manifest["status"] == "failed"
     assert manifest["failed_phase"] == "annotated_screenshot"
     assert "timed out" in manifest["error"]["message"]
-    assert commands[-1]["phase"] == "annotated_screenshot"
-    assert commands[-1]["status"] == "timeout"
-    assert commands[-1]["timeout_seconds"] == 3
-    assert "--annotate" in commands[-1]["args"]
+    timed_out = next(
+        item for item in commands if item["phase"] == "annotated_screenshot"
+    )
+    assert timed_out["status"] == "timeout"
+    assert timed_out["timeout_seconds"] == 3
+    assert "--annotate" in timed_out["args"]
+    assert commands[-1]["phase"] == "logcat"
+    assert commands[-1]["status"] == "passed"
+    assert manifest["artifact_exists"]["logcat"] is True
+
+
+def test_capture_checkpoint_fails_closed_when_screen_command_writes_no_artifact(
+    tmp_path: Path,
+) -> None:
+    collector = AndroidEvidenceCollector(runner=FakeRunner(omit_screen_output=True))
+
+    with pytest.raises(EvidenceCaptureError, match="did not create a non-empty artifact"):
+        collector.capture_checkpoint(name="missing-screen", output_dir=tmp_path)
+
+    checkpoint_dir = tmp_path / "missing-screen"
+    commands = json.loads((checkpoint_dir / "commands.json").read_text(encoding="utf-8"))
+    manifest = json.loads(
+        (checkpoint_dir / "capture-manifest.json").read_text(encoding="utf-8")
+    )
+
+    assert manifest["status"] == "failed"
+    assert manifest["failed_phase"] == "screenshot"
+    assert [item["phase"] for item in manifest["phase_errors"]] == [
+        "screenshot",
+        "annotated_screenshot",
+    ]
+    assert [item["status"] for item in commands[1:3]] == [
+        "missing_artifact",
+        "missing_artifact",
+    ]
+    assert manifest["artifact_exists"]["screen"] is False
+    assert manifest["artifact_exists"]["screen_annotated"] is False
+    assert manifest["artifact_exists"]["logcat"] is True
+
+
+def test_capture_checkpoint_refuses_contradictory_stale_artifacts(
+    tmp_path: Path,
+) -> None:
+    checkpoint_dir = tmp_path / "reused"
+    checkpoint_dir.mkdir()
+    stale_layout = checkpoint_dir / "layout.json"
+    stale_layout.write_text('[{"text":"stale"}]', encoding="utf-8")
+    runner = FakeRunner()
+    collector = AndroidEvidenceCollector(runner=runner)
+
+    with pytest.raises(EvidenceCaptureError, match="refusing to overwrite"):
+        collector.capture_checkpoint(name="reused", output_dir=tmp_path)
+
+    assert runner.calls == []
+    assert stale_layout.read_text(encoding="utf-8") == '[{"text":"stale"}]'
+    assert not (checkpoint_dir / "commands.json").exists()
+    assert not (checkpoint_dir / "capture-manifest.json").exists()

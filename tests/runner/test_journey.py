@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import html
+import json
 import re
 from pathlib import Path
 
 import pytest
 
 from aiverify.runner.codex_backend import CodexCliError, JourneyExecutionRequest, JourneyExecutionResult
-from aiverify.runner.evidence import EvidenceCheckpoint
+from aiverify.runner.command import CommandResult, CommandRunner
+from aiverify.runner.evidence import AndroidEvidenceCollector, EvidenceCheckpoint
 from aiverify.runner.journey import (
     JourneyExecutionInterrupted,
     JourneySegmentRunner,
@@ -213,6 +215,42 @@ class RaisingCollector(FakeCollector):
 class RaisingInjector(FakeInjector):
     def inject(self, event: SystemEventSpec) -> None:
         raise RuntimeError("Unable to rotate device")
+
+
+class HistoricalAnrCaptureRunner(CommandRunner):
+    """Reproduce defect-1 attempt-2's rc=0/empty-layout failure shape."""
+
+    def __init__(self) -> None:
+        self.calls: list[list[str]] = []
+
+    def run(
+        self,
+        args: list[str],
+        *,
+        cwd: Path | None = None,
+        timeout_seconds: int | None = None,
+        input_text: str | None = None,
+    ) -> CommandResult:
+        self.calls.append(args)
+        if args[:2] == ["android", "layout"]:
+            return CommandResult(
+                args=args,
+                stdout="",
+                stderr="Failed to retrieve UI dump: \n",
+                returncode=0,
+            )
+        if args[:3] == ["android", "screen", "capture"]:
+            output = Path(args[args.index("-o") + 1])
+            output.write_bytes(b"diagnostic png")
+            return CommandResult(args=args, stdout=str(output), stderr="", returncode=0)
+        if args[-2:] == ["logcat", "-d"]:
+            return CommandResult(
+                args=args,
+                stdout="ANR in org.wikipedia.dev\n",
+                stderr="",
+                returncode=0,
+            )
+        raise AssertionError(f"unexpected command: {args}")
 
 
 def test_journey_segment_runner_orders_segments_events_and_checkpoints(tmp_path: Path) -> None:
@@ -502,6 +540,59 @@ def test_checkpoint_failure_keeps_completed_journey_for_diagnostics(tmp_path: Pa
     assert len(raised.value.flow.journey_results) == 1
     assert raised.value.flow.checkpoints == []
     assert raised.value.flow.timings[-1]["status"] == "failed"
+
+
+def test_anr_layout_failure_retains_bounded_checkpoint_diagnostics(tmp_path: Path) -> None:
+    command_runner = HistoricalAnrCaptureRunner()
+    runner = JourneySegmentRunner(
+        backend=FakeBackend(),
+        checkpoint_collector=AndroidEvidenceCollector(
+            runner=command_runner,
+            layout_attempts=2,
+            layout_retry_sleep_seconds=0,
+        ),
+        system_event_injector=FakeInjector(),
+    )
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}", encoding="utf-8")
+
+    with pytest.raises(JourneyExecutionInterrupted) as raised:
+        runner.run(
+            scenario=ScenarioSpec(id="anr-defect-1", user_actions=["Trigger ANR"]),
+            workdir=tmp_path,
+            artifact_dir=tmp_path / "artifacts",
+            output_schema=schema,
+            device="emulator-5554",
+        )
+
+    assert raised.value.reason == "checkpoint_capture_error"
+    assert raised.value.flow.journey_results[0].data["results"][0]["status"] == "PASSED"
+    assert [checkpoint.name for checkpoint in raised.value.flow.checkpoints] == [
+        "after-segment-0"
+    ]
+    checkpoint = raised.value.flow.checkpoints[0]
+    manifest = json.loads(checkpoint.manifest_path.read_text(encoding="utf-8"))
+    commands = json.loads(checkpoint.commands_path.read_text(encoding="utf-8"))
+
+    assert manifest["status"] == "failed"
+    assert manifest["failed_phase"] == "layout"
+    assert manifest["artifact_exists"] == {
+        "layout": False,
+        "screen": True,
+        "screen_annotated": True,
+        "logcat": True,
+        "commands": True,
+    }
+    assert [entry["phase"] for entry in commands] == [
+        "layout",
+        "layout",
+        "screenshot",
+        "annotated_screenshot",
+        "logcat",
+    ]
+    assert checkpoint.logcat_path.read_text(encoding="utf-8") == (
+        "ANR in org.wikipedia.dev\n"
+    )
 
 
 def test_system_event_failure_keeps_pre_event_checkpoint(tmp_path: Path) -> None:

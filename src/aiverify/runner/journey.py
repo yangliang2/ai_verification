@@ -13,7 +13,7 @@ from aiverify.runner.codex_backend import (
     JourneyExecutionRequest,
     JourneyExecutionResult,
 )
-from aiverify.runner.evidence import EvidenceCheckpoint
+from aiverify.runner.evidence import EvidenceCaptureError, EvidenceCheckpoint
 from aiverify.runner.run_spec import ScenarioSpec, SystemEventSpec
 
 
@@ -204,6 +204,12 @@ class JourneySegmentRunner:
             return value
 
         def _interrupt(reason: str, exc: Exception) -> JourneyExecutionInterrupted:
+            if (
+                isinstance(exc, EvidenceCaptureError)
+                and exc.checkpoint is not None
+                and exc.checkpoint not in checkpoints
+            ):
+                checkpoints.append(exc.checkpoint)
             backend_diagnostics: list[dict[str, str | list[str] | None]] = []
             if isinstance(exc, CodexCliError):
                 backend_diagnostics.append(
