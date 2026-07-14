@@ -58,7 +58,7 @@ def test_codex_backend_invokes_exec_and_parses_result(tmp_path: Path) -> None:
             "journey": "smoke",
             "results": [
                 {
-                    "action": "Open search",
+                    "action_id": "action-1",
                     "status": "PASSED",
                     "commands": ["android layout --device=emulator-5554 --pretty"],
                     "comment": "search opened",
@@ -93,6 +93,32 @@ def test_codex_backend_raises_on_nonzero_exit(tmp_path: Path) -> None:
 
 def test_codex_backend_raises_on_invalid_schema(tmp_path: Path) -> None:
     backend = CodexCliBackend(runner=FakeRunner(result_json={"journey": "smoke"}))
+
+    with pytest.raises(CodexCliError, match="schema"):
+        backend.execute(_request(tmp_path))
+
+
+def test_codex_backend_rejects_historical_action_text_without_action_id(
+    tmp_path: Path,
+) -> None:
+    backend = CodexCliBackend(
+        runner=FakeRunner(
+            result_json={
+                "journey": "smoke",
+                "results": [
+                    {
+                        "action": (
+                            "Navigate from the main feed to the bottom Search tab and "
+                            "confirm it is selected with search_card visible."
+                        ),
+                        "status": "PASSED",
+                        "commands": [],
+                        "comment": "completed",
+                    }
+                ],
+            }
+        )
+    )
 
     with pytest.raises(CodexCliError, match="schema"):
         backend.execute(_request(tmp_path))

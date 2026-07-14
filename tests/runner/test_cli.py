@@ -1,6 +1,7 @@
 """runner CLI 的 L3 门控与降级逻辑单测（不触真机）。"""
 
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -131,6 +132,93 @@ class FakePreflightRunner(CommandRunner):
         )
 
 
+class StaticCheckpointCollector:
+    def __init__(self, *, logcat_text: str = "") -> None:
+        self.logcat_text = logcat_text
+
+    def capture_checkpoint(
+        self,
+        *,
+        name: str,
+        output_dir: Path,
+        device: str | None = None,
+        annotated: bool = True,
+    ) -> EvidenceCheckpoint:
+        directory = output_dir / name
+        directory.mkdir(parents=True, exist_ok=True)
+        layout = directory / "layout.json"
+        layout.write_text('[{"resource-id":"search_card"}]', encoding="utf-8")
+        screenshot = directory / "screen.png"
+        screenshot.write_bytes(b"png")
+        logcat = directory / "logcat.txt"
+        logcat.write_text(self.logcat_text, encoding="utf-8")
+        commands = directory / "commands.json"
+        commands.write_text("[]", encoding="utf-8")
+        return EvidenceCheckpoint(
+            name=name,
+            directory=directory,
+            layout_path=layout,
+            screenshot_path=screenshot,
+            annotated_screenshot_path=None,
+            logcat_path=logcat,
+            commands_path=commands,
+        )
+
+
+class HistoricalLineageBackend:
+    def __init__(
+        self,
+        *,
+        status: str,
+        commands: list[str],
+        comment: str,
+    ) -> None:
+        self.status = status
+        self.commands = commands
+        self.comment = comment
+
+    def execute(self, request) -> JourneyExecutionResult:
+        request.artifact_dir.mkdir(parents=True, exist_ok=True)
+        journey = re.search(
+            r'<journey name="([^"]+)">', request.journey_instructions
+        ).group(1)
+        action_id = re.search(
+            r'<action id="([^"]+)">', request.journey_instructions
+        ).group(1)
+        data = {
+            "journey": journey,
+            "results": [
+                {
+                    "action_id": action_id,
+                    "status": self.status,
+                    "commands": self.commands,
+                    "comment": self.comment,
+                }
+            ],
+        }
+        result_path = request.artifact_dir / "codex-journey-result.json"
+        events_path = request.artifact_dir / "codex-events.jsonl"
+        result_path.write_text(json.dumps(data), encoding="utf-8")
+        events_path.write_text(json.dumps(data) + "\n", encoding="utf-8")
+        return JourneyExecutionResult(
+            data=data,
+            result_path=result_path,
+            events_path=events_path,
+            command=["codex", "exec"],
+        )
+
+
+class FakeDeviceController:
+    def __init__(self, serial: str) -> None:
+        self.serial = serial
+
+    def logcat_clear(self) -> None:
+        return None
+
+    def launch(self, package: str, activity: str | None) -> None:
+        return None
+
+
 def _passing_preflight_responses() -> list[dict[str, object]]:
     return [
         {"stdout": "List of devices attached\nemulator-5554 device product:sdk\n"},
@@ -139,6 +227,15 @@ def _passing_preflight_responses() -> list[dict[str, object]]:
         {"stdout": '[{"resource-id":"launcher"}]'},
         {"stdout": "UI hierchary dumped to: /sdcard/window_dump.xml\n"},
     ]
+
+
+def test_instruction_prefix_separates_action_dispatch_from_product_outcome() -> None:
+    prefix = " ".join(cli.build_instruction_prefix("emulator-5554").split())
+
+    assert "copy its stable id into action_id" in prefix
+    assert "PASSED means the requested UI interaction was dispatched" in prefix
+    assert "A crash, ANR, or incorrect UI after that dispatch is product evidence" in prefix
+    assert "Do not infer dispatch from apparent UI side effects" in prefix
 
 
 @pytest.fixture
@@ -451,6 +548,179 @@ def test_public_run_retains_failed_anr_checkpoint_diagnostics(tmp_path, monkeypa
     assert Path(checkpoint["logcat"]).read_text(encoding="utf-8") == (
         "ANR in org.wikipedia.dev\n"
     )
+
+
+def test_public_run_restores_search_card_action_from_stable_id(
+    tmp_path, monkeypatch
+):
+    requested = (
+        "Navigate from the main feed to the bottom Search tab and confirm the Search "
+        "tab is selected with search_card visible."
+    )
+    spec = RunSpec(
+        host_project=tmp_path,
+        apk_glob="*.apk",
+        package="org.wikipedia.dev",
+        activity=None,
+        diff=None,
+        spec=None,
+        scenario=ScenarioSpec(id="search-card", user_actions=[requested]),
+    )
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(
+        cli,
+        "CodexCliBackend",
+        lambda: HistoricalLineageBackend(
+            status="PASSED",
+            commands=["android layout", "adb shell input tap 540 2232"],
+            comment="Search is selected and search_card is visible.",
+        ),
+    )
+    monkeypatch.setattr(
+        cli, "AndroidEvidenceCollector", lambda: StaticCheckpointCollector()
+    )
+
+    verdict = cli.run(
+        spec,
+        device="emulator-5554",
+        artifact_dir=tmp_path / "run" / "artifacts",
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"]["status"] == "completed"
+    assert verdict["execution"]["accounting_eligible"] is True
+    assert verdict["journey_results"][0]["results"][0] == {
+        "action_id": "action-1",
+        "action": requested,
+        "status": "PASSED",
+        "commands": ["android layout", "adb shell input tap 540 2232"],
+        "comment": "Search is selected and search_card is visible.",
+    }
+    segment_dir = tmp_path / "run" / "artifacts" / "search-card-segment-0"
+    assert (segment_dir / "codex-journey-result.json").is_file()
+    assert (segment_dir / "codex-journey-result.normalized.json").is_file()
+    assert (segment_dir / "codex-events.jsonl").is_file()
+
+
+def test_public_run_keeps_dispatched_anr_trigger_accountable_for_l1(
+    tmp_path, monkeypatch
+):
+    requested = "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    spec = RunSpec(
+        host_project=tmp_path,
+        apk_glob="*.apk",
+        package="org.wikipedia.dev",
+        activity=None,
+        diff=None,
+        spec=None,
+        scenario=ScenarioSpec(
+            id="anr-trigger",
+            user_actions=[requested],
+            metric_context=MetricContextSpec(
+                seed_kind="injected_defect",
+                taxonomy_category="coroutine-concurrency",
+                taxonomy_pattern_id="coroutine-concurrency-03",
+                expected_oracle_level="L1",
+                expected_oracle_defect_class="crash_stability",
+            ),
+        ),
+    )
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(
+        cli,
+        "CodexCliBackend",
+        lambda: HistoricalLineageBackend(
+            status="PASSED",
+            commands=[
+                "adb -s emulator-5554 shell input tap 542 146",
+                'adb -s emulator-5554 shell input text "anrtest"',
+            ],
+            comment=(
+                "The input command was dispatched; the app then stopped responding, "
+                "which is retained as product evidence."
+            ),
+        ),
+    )
+    monkeypatch.setattr(
+        cli,
+        "AndroidEvidenceCollector",
+        lambda: StaticCheckpointCollector(
+            logcat_text="ActivityManager: ANR in org.wikipedia.dev\n"
+        ),
+    )
+
+    verdict = cli.run(
+        spec,
+        device="emulator-5554",
+        artifact_dir=tmp_path / "run" / "artifacts",
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"]["status"] == "completed"
+    assert verdict["execution"]["accounting_eligible"] is True
+    assert verdict["l1"]["outcome"] == "fail"
+    assert verdict["l1"]["defect_class_hypothesis"] == "crash_stability"
+    assert verdict["metric_context"]["seed_outcome"] == "caught"
+    assert verdict["journey_results"][0]["results"][0]["status"] == "PASSED"
+
+
+def test_public_run_reproduces_historical_anr_failed_status(
+    tmp_path, monkeypatch
+):
+    requested = "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    spec = RunSpec(
+        host_project=tmp_path,
+        apk_glob="*.apk",
+        package="org.wikipedia.dev",
+        activity=None,
+        diff=None,
+        spec=None,
+        scenario=ScenarioSpec(id="historical-anr-failed", user_actions=[requested]),
+    )
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(
+        cli,
+        "CodexCliBackend",
+        lambda: HistoricalLineageBackend(
+            status="FAILED",
+            commands=[
+                "adb -s emulator-5554 shell input tap 542 146",
+                'adb -s emulator-5554 shell input text "anrtest"',
+            ],
+            comment=(
+                "search_src_text was focused before typing, but the text command "
+                "stalled and the app returned to the Search tab."
+            ),
+        ),
+    )
+    monkeypatch.setattr(
+        cli,
+        "AndroidEvidenceCollector",
+        lambda: StaticCheckpointCollector(
+            logcat_text="ActivityManager: ANR in org.wikipedia.dev\n"
+        ),
+    )
+
+    verdict = cli.run(
+        spec,
+        device="emulator-5554",
+        artifact_dir=tmp_path / "run" / "artifacts",
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"]["status"] == "non_accountable"
+    assert verdict["execution"]["reason"] == "journey_action_failed"
+    assert verdict["l1"] is None
+    diagnostic = verdict["diagnostic_artifacts"]["journey_results"][0]
+    assert Path(diagnostic["result"]).name == "codex-journey-result.normalized.json"
+    assert Path(diagnostic["raw_result"]).name == "codex-journey-result.json"
+    assert Path(diagnostic["action_lineage"]).name == (
+        "codex-journey-action-lineage.json"
+    )
+    assert all(Path(path).is_file() for path in diagnostic.values())
 
 
 def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, monkeypatch):

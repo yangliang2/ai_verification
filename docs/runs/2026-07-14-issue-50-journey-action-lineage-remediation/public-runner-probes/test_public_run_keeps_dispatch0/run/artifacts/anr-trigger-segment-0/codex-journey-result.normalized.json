@@ -1,0 +1,15 @@
+{
+  "journey": "anr-trigger-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "adb -s emulator-5554 shell input tap 542 146",
+        "adb -s emulator-5554 shell input text \"anrtest\""
+      ],
+      "comment": "The input command was dispatched; the app then stopped responding, which is retained as product evidence.",
+      "action": "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    }
+  ]
+}

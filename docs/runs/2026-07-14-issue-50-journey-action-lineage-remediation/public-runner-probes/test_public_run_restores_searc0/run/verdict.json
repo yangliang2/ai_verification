@@ -1,0 +1,108 @@
+{
+  "scenario": "search-card",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-14-issue-50-journey-action-lineage-remediation/public-runner-probes/test_public_run_restores_searc0/run/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "search-card",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_detected",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "inconclusive",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-dc84625e",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Navigate from the main feed to the bottom Search tab and confirm the Search tab is selected with search_card visible."
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Navigate from the main feed to the bottom Search tab and confirm the Search tab is selected with search_card visible."
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "search-card-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout",
+            "adb shell input tap 540 2232"
+          ],
+          "comment": "Search is selected and search_card is visible.",
+          "action": "Navigate from the main feed to the bottom Search tab and confirm the Search tab is selected with search_card visible."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-14T06:27:47+00:00",
+    "finished_at": "2026-07-14T06:27:47+00:00",
+    "total_seconds": 0.006,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 0.001
+      },
+      {
+        "phase": "search-card-segment-0",
+        "kind": "journey",
+        "seconds": 0.001
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 0.002
+      }
+    ]
+  }
+}

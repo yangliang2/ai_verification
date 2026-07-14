@@ -8,12 +8,13 @@
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
 - GitHub Issues #1-#47（含原 M3 PRD #41）和 remediation #49 已完成并关闭；
-  open PRs = 0。新的 remediation/re-baseline PRD #48 及 #50-#57 保持 open，
-  均为 `ready-for-agent`。
+  #50 实现与证据已完成，正等待提交和关闭。open PRs = 0；#48 及 #50-#57
+  保持 open，均为 `ready-for-agent`。
 - 原 M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
   未达到 29/30 而明确失败；该历史 evidence package 保持不可变。
-- #49 已加固 ANR evidence capture。当前应先推进 #50 Journey action lineage；
-  #51 仍被 #50 阻塞，#52-#56 依赖 #51，#57 依赖五个新 seed package。
+- #49 已加固 ANR evidence capture，#50 的 Journey action-lineage 加固已实现、
+  待关闭。#50 关闭后推荐推进解除阻塞的 #51；#52-#56 依赖 #51，#57
+  依赖五个新 seed package。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -33,6 +34,7 @@
 - Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md`](docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md)
 - Final M3 audited baseline: [`docs/runs/2026-07-13-m3-final-reliability-baseline/README.md`](docs/runs/2026-07-13-m3-final-reliability-baseline/README.md)
 - Latest M3 remediation record: [`docs/runs/2026-07-13-issue-49-anr-evidence-capture-remediation/README.md`](docs/runs/2026-07-13-issue-49-anr-evidence-capture-remediation/README.md)
+- Latest Journey lineage remediation record: [`docs/runs/2026-07-14-issue-50-journey-action-lineage-remediation/README.md`](docs/runs/2026-07-14-issue-50-journey-action-lineage-remediation/README.md)
 - M2-beta current audited slice: 10 included injected-defect seeds, 10 caught,
   10 baseline controls passed; expected oracle split L1=4, L2=4, L3=2.
 - Fixed-evidence L3 repeatability remains separate: 2 packages, 20 calls,
@@ -61,7 +63,12 @@
   annotated screenshot, logcat, ordered phase errors, and partial checkpoint
   diagnostics without inventing layout evidence or weakening accountability. The
   historical 27/30 package and exhausted attempt lineage remain unchanged.
-- Latest recorded full-suite status: `.venv/bin/pytest` -> `388 passed in 6.78s`.
+- #50 Journey action-lineage remediation now uses strict stable action IDs, rejects
+  natural-language action text from the backend, deterministically restores exact
+  requested text, retains raw/normalized/lineage artifacts, and distinguishes driver
+  dispatch from product ANR outcomes without changing historical evidence.
+- Latest recorded full-suite status: `.venv/bin/pytest -o addopts="" -q` ->
+  `402 passed, 2 warnings in 11.63s`.
 
 ### 已实测
 
@@ -94,11 +101,12 @@ Wikipedia host:
 
 - `src/aiverify/runner/run_spec.py`: `run-spec.yaml` parsing, validation, dry-run plan.
 - `src/aiverify/runner/codex_backend.py`: Codex CLI Verification Agent Backend contract.
-- `src/aiverify/runner/journey_result_schema.json`: structured Journey result schema.
+- `src/aiverify/runner/journey_result_schema.json`: strict ID-only structured Journey result schema.
 - `src/aiverify/runner/evidence.py`: Android CLI layout/screenshot/checkpoint
   evidence capture, including checkpoint-local success/failure manifests and
   bounded retained diagnostics after layout exhaustion.
-- `src/aiverify/runner/journey.py`: Journey segment boundary orchestration and
+- `src/aiverify/runner/journey.py`: Journey segment boundary orchestration, stable
+  action-ID lineage normalization, retained raw/normalized/lineage artifacts, and
   propagation of partial failed checkpoints into interruption diagnostics.
 - `src/aiverify/runner/system_events.py`: system-event injection at boundaries.
 - `src/aiverify/runner/verdict.py`: Android CLI layout JSON to L2Oracle verdict;

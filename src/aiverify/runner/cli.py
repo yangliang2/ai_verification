@@ -62,9 +62,19 @@ a screen — the app under test may not support that intent and could crash, whi
 contaminate the crash oracle. If a screen seems unreachable, keep tapping through the
 UI; report FAILED for the action rather than falling back to intents.
 
+ACTION RESULT CONTRACT: Each <action> has a stable id; copy its stable id into action_id
+and keep one result per requested action in the same order. PASSED means the requested
+UI interaction was dispatched and any required precondition was observed. A crash, ANR,
+or incorrect UI after that dispatch is product evidence for the harness oracles, not a
+reason to mark the driver action FAILED. Use FAILED only when the requested interaction
+could not be dispatched; use SKIPPED only when a prior failure prevented the attempt.
+Record the exact commands and observed product behavior in the comment.
+Do not infer dispatch from apparent UI side effects and do not claim a command that was
+not run.
+
 FINAL OUTPUT: a JSON object matching the provided schema — a "journey" name and a
-"results" array with one entry per <action> ("action", "status" PASSED/FAILED/SKIPPED,
-the "commands" you ran, and a short "comment").
+"results" array with one entry per <action> ("action_id", "status"
+PASSED/FAILED/SKIPPED, the "commands" you ran, and a short "comment").
 
 --- JOURNEY SEGMENT TO EXECUTE ---
 """
@@ -412,6 +422,16 @@ def _write_non_accountable_verdict(
             {
                 "result": str(result.result_path),
                 "events": str(result.events_path),
+                **(
+                    {"raw_result": result.metadata["raw_result_path"]}
+                    if "raw_result_path" in result.metadata
+                    else {}
+                ),
+                **(
+                    {"action_lineage": result.metadata["action_lineage_path"]}
+                    if "action_lineage_path" in result.metadata
+                    else {}
+                ),
             }
             for result in flow.journey_results
         ],

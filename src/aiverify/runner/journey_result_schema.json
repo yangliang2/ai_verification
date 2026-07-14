@@ -11,10 +11,18 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["action", "status", "commands", "comment"],
+        "required": ["action_id", "status", "commands", "comment"],
         "properties": {
-          "action": { "type": "string" },
-          "status": { "type": "string", "enum": ["PASSED", "FAILED", "SKIPPED"] },
+          "action_id": {
+            "type": "string",
+            "pattern": "^action-[1-9][0-9]*$",
+            "description": "Copy the stable id attribute from the corresponding requested action."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PASSED", "FAILED", "SKIPPED"],
+            "description": "PASSED means the requested driver interaction was dispatched, not that the app behaved correctly."
+          },
           "commands": {
             "type": "array",
             "items": { "type": "string" }

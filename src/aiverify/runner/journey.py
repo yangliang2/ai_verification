@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import html
+import json
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -94,6 +95,11 @@ class SystemEventInjector(Protocol):
         """Inject a system event."""
 
 
+def _action_id(index: int) -> str:
+    """Return the stable one-based ID for an action within one Journey segment."""
+    return f"action-{index}"
+
+
 def scenario_to_segments(scenario: ScenarioSpec) -> list[JourneySegment]:
     """Split scenario actions into segments around system event boundaries.
 
@@ -139,7 +145,8 @@ def scenario_to_segments(scenario: ScenarioSpec) -> list[JourneySegment]:
 def segment_to_journey_xml(segment: JourneySegment) -> str:
     """Render one segment as Journey XML understood by an agent."""
     actions = "\n".join(
-        f"    <action>{html.escape(action)}</action>" for action in segment.actions
+        f'    <action id="{_action_id(index)}">{html.escape(action)}</action>'
+        for index, action in enumerate(segment.actions, start=1)
     )
     return (
         f'<journey name="{html.escape(segment.id)}">\n'
@@ -277,12 +284,16 @@ class JourneySegmentRunner:
                     timings=timings,
                 )
 
-            reported_action_names = [item.get("action") for item in reported_actions]
-            if reported_action_names != segment.actions:
+            expected_action_ids = [
+                _action_id(action_index)
+                for action_index in range(1, len(segment.actions) + 1)
+            ]
+            reported_action_ids = [item.get("action_id") for item in reported_actions]
+            if reported_action_ids != expected_action_ids:
                 raise JourneyExecutionInterrupted(
                     reason="journey_action_incomplete",
                     message=(
-                        f"Journey segment {segment.id} reported action names that do not "
+                        f"Journey segment {segment.id} reported action IDs that do not "
                         "match the requested action order"
                     ),
                     journey_results=journey_results,
@@ -290,6 +301,106 @@ class JourneySegmentRunner:
                     injected_events=injected_events,
                     timings=timings,
                 )
+
+            if result.data.get("journey") != segment.id:
+                raise JourneyExecutionInterrupted(
+                    reason="journey_action_incomplete",
+                    message=(
+                        f"Journey result {result.data.get('journey')!r} does not match "
+                        f"requested segment {segment.id!r}"
+                    ),
+                    journey_results=journey_results,
+                    checkpoints=checkpoints,
+                    injected_events=injected_events,
+                    timings=timings,
+                )
+
+            invalid_statuses = [
+                item.get("status")
+                for item in reported_actions
+                if item.get("status") not in {"PASSED", "FAILED", "SKIPPED"}
+            ]
+            if invalid_statuses:
+                raise JourneyExecutionInterrupted(
+                    reason="journey_action_incomplete",
+                    message=(
+                        f"Journey segment {segment.id} reported invalid status "
+                        f"value(s): {', '.join(map(str, invalid_statuses))}"
+                    ),
+                    journey_results=journey_results,
+                    checkpoints=checkpoints,
+                    injected_events=injected_events,
+                    timings=timings,
+                )
+
+            if any("action" in item for item in reported_actions):
+                raise JourneyExecutionInterrupted(
+                    reason="journey_action_incomplete",
+                    message=(
+                        f"Journey segment {segment.id} reported action text outside "
+                        "the stable action-ID contract"
+                    ),
+                    journey_results=journey_results,
+                    checkpoints=checkpoints,
+                    injected_events=injected_events,
+                    timings=timings,
+                )
+
+            normalized_actions: list[dict[str, Any]] = []
+            for requested_action, reported_action in zip(
+                segment.actions, reported_actions, strict=True
+            ):
+                normalized_actions.append(
+                    {
+                        **reported_action,
+                        "action": requested_action,
+                    }
+                )
+
+            normalized_data = {**result.data, "results": normalized_actions}
+            normalized_path = result.result_path.with_name(
+                "codex-journey-result.normalized.json"
+            )
+            normalized_path.write_text(
+                json.dumps(normalized_data, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            lineage_path = result.result_path.with_name(
+                "codex-journey-action-lineage.json"
+            )
+            lineage_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "journey": segment.id,
+                        "raw_result": str(result.result_path),
+                        "events": str(result.events_path),
+                        "results": [
+                            {
+                                "action_id": item["action_id"],
+                                "requested_action": item["action"],
+                                "status": item["status"],
+                            }
+                            for item in normalized_actions
+                        ],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            result = replace(
+                result,
+                data=normalized_data,
+                result_path=normalized_path,
+                metadata={
+                    **result.metadata,
+                    "raw_result_path": str(result.result_path),
+                    "action_lineage_path": str(lineage_path),
+                },
+            )
+            journey_results[-1] = result
 
             failed_actions = [
                 item

@@ -58,6 +58,17 @@ def test_segment_to_journey_xml_escapes_actions() -> None:
     assert "Tap A &amp; B" in xml
 
 
+def test_segment_to_journey_xml_assigns_stable_action_ids() -> None:
+    xml = segment_to_journey_xml(
+        scenario_to_segments(
+            ScenarioSpec(id="smoke", user_actions=["Open search", "Type text"])
+        )[0]
+    )
+
+    assert '<action id="action-1">Open search</action>' in xml
+    assert '<action id="action-2">Type text</action>' in xml
+
+
 class FakeBackend:
     def __init__(self) -> None:
         self.requests: list[JourneyExecutionRequest] = []
@@ -68,24 +79,31 @@ class FakeBackend:
         result_path = request.artifact_dir / "result.json"
         events_path = request.artifact_dir / "events.jsonl"
         actions = [
-            html.unescape(action)
-            for action in re.findall(r"<action>(.*?)</action>", request.journey_instructions)
+            (action_id, html.unescape(action))
+            for action_id, action in re.findall(
+                r'<action id="([^"]+)">(.*?)</action>',
+                request.journey_instructions,
+            )
         ]
         results = [
             {
-                "action": action,
+                "action_id": action_id,
                 "status": "PASSED",
                 "commands": [],
                 "comment": "completed",
             }
-            for action in actions
+            for action_id, action in actions
         ]
+        journey = re.search(
+            r'<journey name="([^"]+)">', request.journey_instructions
+        ).group(1)
+        data = {"journey": journey, "results": results}
         result_path.write_text(
-            str({"journey": "x", "results": results}), encoding="utf-8"
+            json.dumps(data), encoding="utf-8"
         )
         events_path.write_text("", encoding="utf-8")
         return JourneyExecutionResult(
-            data={"journey": "x", "results": results},
+            data=data,
             result_path=result_path,
             events_path=events_path,
             command=["codex"],
@@ -95,22 +113,9 @@ class FakeBackend:
 class FailedActionBackend(FakeBackend):
     def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
         result = super().execute(request)
-        return JourneyExecutionResult(
-            data={
-                "journey": "x",
-                "results": [
-                    {
-                        "action": "Open search",
-                        "status": "FAILED",
-                        "commands": [],
-                        "comment": "target surface was unavailable",
-                    }
-                ],
-            },
-            result_path=result.result_path,
-            events_path=result.events_path,
-            command=result.command,
-        )
+        result.data["results"][0]["status"] = "FAILED"
+        result.data["results"][0]["comment"] = "target surface was unavailable"
+        return result
 
 
 class RaisingBackend(FakeBackend):
@@ -160,8 +165,83 @@ class MissingActionBackend(FakeBackend):
 class WrongActionBackend(FakeBackend):
     def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
         result = super().execute(request)
-        result.data["results"][0]["action"] = "Open an unrelated screen"
+        result.data["results"][0]["action_id"] = "action-99"
         return result
+
+
+class UnknownStatusBackend(FakeBackend):
+    def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
+        result = super().execute(request)
+        result.data["results"][0]["status"] = "OBSERVED"
+        return result
+
+
+class MissingActionIdBackend(FakeBackend):
+    def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
+        result = super().execute(request)
+        result.data["results"][0].pop("action_id")
+        return result
+
+
+class UnrelatedActionTextBackend(FakeBackend):
+    def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
+        result = super().execute(request)
+        result.data["results"][0]["action"] = "Delete the account"
+        return result
+
+
+class DuplicateActionIdBackend(FakeBackend):
+    def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
+        result = super().execute(request)
+        result.data["results"][1]["action_id"] = "action-1"
+        return result
+
+
+class ReorderedActionBackend(FakeBackend):
+    def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
+        result = super().execute(request)
+        result.data["results"].reverse()
+        return result
+
+
+class ContradictoryActionBackend(FakeBackend):
+    def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
+        result = super().execute(request)
+        result.data["results"][0]["action"] = "Type text"
+        return result
+
+
+class WrongJourneyBackend(FakeBackend):
+    def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
+        result = super().execute(request)
+        result.data["journey"] = "another-segment"
+        return result
+
+
+class StableActionIdBackend(FakeBackend):
+    def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
+        request.artifact_dir.mkdir(parents=True, exist_ok=True)
+        result_path = request.artifact_dir / "codex-journey-result.json"
+        events_path = request.artifact_dir / "codex-events.jsonl"
+        data = {
+            "journey": "search-card-segment-0",
+            "results": [
+                {
+                    "action_id": "action-1",
+                    "status": "PASSED",
+                    "commands": ["android layout", "adb shell input tap 540 2232"],
+                    "comment": "Search is selected and search_card is visible.",
+                }
+            ],
+        }
+        result_path.write_text(json.dumps(data), encoding="utf-8")
+        events_path.write_text('{"type":"turn.completed"}\n', encoding="utf-8")
+        return JourneyExecutionResult(
+            data=data,
+            result_path=result_path,
+            events_path=events_path,
+            command=["codex"],
+        )
 
 
 class FakeCollector:
@@ -435,6 +515,124 @@ def test_mismatched_action_result_is_non_accountable(tmp_path: Path) -> None:
         )
 
     assert raised.value.reason == "journey_action_incomplete"
+
+
+def test_stable_action_id_restores_exact_requested_action(
+    tmp_path: Path,
+) -> None:
+    requested = (
+        "Navigate from the main feed to the bottom Search tab and confirm the Search "
+        "tab is selected with search_card visible."
+    )
+    runner = JourneySegmentRunner(
+        backend=StableActionIdBackend(),
+        checkpoint_collector=FakeCollector(),
+        system_event_injector=FakeInjector(),
+    )
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}", encoding="utf-8")
+
+    flow = runner.run(
+        scenario=ScenarioSpec(id="search-card", user_actions=[requested]),
+        workdir=tmp_path,
+        artifact_dir=tmp_path / "artifacts",
+        output_schema=schema,
+    )
+
+    result = flow.journey_results[0]
+    assert result.data["results"] == [
+        {
+            "action_id": "action-1",
+            "action": requested,
+            "status": "PASSED",
+            "commands": ["android layout", "adb shell input tap 540 2232"],
+            "comment": "Search is selected and search_card is visible.",
+        }
+    ]
+    assert result.result_path.name == "codex-journey-result.normalized.json"
+    assert json.loads(result.result_path.read_text(encoding="utf-8")) == result.data
+    assert Path(result.metadata["raw_result_path"]).name == "codex-journey-result.json"
+    lineage_path = Path(result.metadata["action_lineage_path"])
+    assert lineage_path.name == "codex-journey-action-lineage.json"
+    assert json.loads(lineage_path.read_text(encoding="utf-8")) == {
+        "schema_version": 1,
+        "journey": "search-card-segment-0",
+        "raw_result": str(Path(result.metadata["raw_result_path"])),
+        "events": str(result.events_path),
+        "results": [
+            {
+                "action_id": "action-1",
+                "requested_action": requested,
+                "status": "PASSED",
+            }
+        ],
+    }
+
+
+def test_unknown_action_status_fails_closed_when_backend_bypasses_schema(
+    tmp_path: Path,
+) -> None:
+    runner = JourneySegmentRunner(
+        backend=UnknownStatusBackend(),
+        checkpoint_collector=FakeCollector(),
+        system_event_injector=FakeInjector(),
+    )
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}", encoding="utf-8")
+
+    with pytest.raises(JourneyExecutionInterrupted) as raised:
+        runner.run(
+            scenario=ScenarioSpec(id="smoke", user_actions=["Open search"]),
+            workdir=tmp_path,
+            artifact_dir=tmp_path / "artifacts",
+            output_schema=schema,
+        )
+
+    assert raised.value.reason == "journey_action_incomplete"
+    assert "invalid status" in str(raised.value)
+
+
+@pytest.mark.parametrize(
+    "backend",
+    [
+        MissingActionIdBackend(),
+        UnrelatedActionTextBackend(),
+        DuplicateActionIdBackend(),
+        ReorderedActionBackend(),
+        ContradictoryActionBackend(),
+        WrongJourneyBackend(),
+    ],
+    ids=[
+        "missing-id",
+        "unrelated-action-text",
+        "duplicated-id",
+        "reordered-results",
+        "contradictory-action-text",
+        "wrong-journey",
+    ],
+)
+def test_invalid_action_lineage_fails_closed(tmp_path: Path, backend: FakeBackend) -> None:
+    runner = JourneySegmentRunner(
+        backend=backend,
+        checkpoint_collector=FakeCollector(),
+        system_event_injector=FakeInjector(),
+    )
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}", encoding="utf-8")
+
+    with pytest.raises(JourneyExecutionInterrupted) as raised:
+        runner.run(
+            scenario=ScenarioSpec(
+                id="smoke", user_actions=["Open search", "Type text"]
+            ),
+            workdir=tmp_path,
+            artifact_dir=tmp_path / "artifacts",
+            output_schema=schema,
+        )
+
+    assert raised.value.reason == "journey_action_incomplete"
+    assert not list((tmp_path / "artifacts").rglob("*normalized.json"))
+    assert not list((tmp_path / "artifacts").rglob("*action-lineage.json"))
 
 
 def test_multi_segment_interruption_keeps_completed_prior_boundary_evidence(tmp_path: Path) -> None:
