@@ -7,9 +7,13 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- GitHub Issues #1-#47（含 M3 PRD #41）已完成并关闭；open PRs = 0。
-  M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
-  未达到 29/30 而明确失败。
+- GitHub Issues #1-#47（含原 M3 PRD #41）和 remediation #49 已完成并关闭；
+  open PRs = 0。新的 remediation/re-baseline PRD #48 及 #50-#57 保持 open，
+  均为 `ready-for-agent`。
+- 原 M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
+  未达到 29/30 而明确失败；该历史 evidence package 保持不可变。
+- #49 已加固 ANR evidence capture。当前应先推进 #50 Journey action lineage；
+  #51 仍被 #50 阻塞，#52-#56 依赖 #51，#57 依赖五个新 seed package。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -28,6 +32,7 @@
 - Latest accounting run record: [`docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md`](docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md)
 - Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md`](docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md)
 - Final M3 audited baseline: [`docs/runs/2026-07-13-m3-final-reliability-baseline/README.md`](docs/runs/2026-07-13-m3-final-reliability-baseline/README.md)
+- Latest M3 remediation record: [`docs/runs/2026-07-13-issue-49-anr-evidence-capture-remediation/README.md`](docs/runs/2026-07-13-issue-49-anr-evidence-capture-remediation/README.md)
 - M2-beta current audited slice: 10 included injected-defect seeds, 10 caught,
   10 baseline controls passed; expected oracle split L1=4, L2=4, L3=2.
 - Fixed-evidence L3 repeatability remains separate: 2 packages, 20 calls,
@@ -52,7 +57,11 @@
   accountable, 6 retries, 15/15 controls passed, and 12/12 accountable defects
   caught at the expected level/class. The audited M3 result is **FAILED** because
   27/30 misses the PRD's 29/30 eventual-accountability threshold.
-- Latest recorded full-suite status: `.venv/bin/pytest -q` -> `384 passed`.
+- #49 ANR evidence-capture remediation now retains bounded best-effort screenshot,
+  annotated screenshot, logcat, ordered phase errors, and partial checkpoint
+  diagnostics without inventing layout evidence or weakening accountability. The
+  historical 27/30 package and exhausted attempt lineage remain unchanged.
+- Latest recorded full-suite status: `.venv/bin/pytest` -> `388 passed in 6.78s`.
 
 ### 已实测
 
@@ -87,8 +96,10 @@ Wikipedia host:
 - `src/aiverify/runner/codex_backend.py`: Codex CLI Verification Agent Backend contract.
 - `src/aiverify/runner/journey_result_schema.json`: structured Journey result schema.
 - `src/aiverify/runner/evidence.py`: Android CLI layout/screenshot/checkpoint
-  evidence capture, including checkpoint-local success/failure manifests.
-- `src/aiverify/runner/journey.py`: Journey segment boundary orchestration.
+  evidence capture, including checkpoint-local success/failure manifests and
+  bounded retained diagnostics after layout exhaustion.
+- `src/aiverify/runner/journey.py`: Journey segment boundary orchestration and
+  propagation of partial failed checkpoints into interruption diagnostics.
 - `src/aiverify/runner/system_events.py`: system-event injection at boundaries.
 - `src/aiverify/runner/verdict.py`: Android CLI layout JSON to L2Oracle verdict;
   Run Specs can select a numeric `scenario.l2_boundary_index` for multi-boundary runs.
