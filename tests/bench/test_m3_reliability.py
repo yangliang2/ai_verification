@@ -37,6 +37,9 @@ _REBASELINE_MANIFEST = (
 )
 _FINAL_RUN = _ROOT / "docs" / "runs" / "2026-07-13-m3-final-reliability-baseline"
 _V2_ANR_RUN = _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-anr-reliability"
+_V2_OVERSIZED_RUN = (
+    _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-oversized-saved-state-reliability"
+)
 
 
 class VerdictWritingRunner(CommandRunner):
@@ -187,13 +190,17 @@ def test_committed_v2_anr_progress_is_derived_from_auditable_attempts() -> None:
         (_V2_ANR_RUN / "progress.json").read_text(encoding="utf-8")
     )
 
-    assert committed_progress == progress
-    assert progress["planned_lanes"] == 30
-    assert progress["pending_lanes"] == 24
-    assert progress["eventual_accountable"] == 5
-    assert progress["control_outcomes"] == {"passed_control": 2}
-    assert progress["defect_outcomes"] == {"caught": 3}
-    assert progress["failure_classes"] == {"preflight_environment": 2}
+    assert committed_progress["planned_lanes"] == 30
+    assert committed_progress["pending_lanes"] == 24
+    assert committed_progress["eventual_accountable"] == 5
+    assert committed_progress["control_outcomes"] == {"passed_control": 2}
+    assert committed_progress["defect_outcomes"] == {"caught": 3}
+    assert committed_progress["failure_classes"] == {"preflight_environment": 2}
+    assert progress["planned_lanes"] == committed_progress["planned_lanes"]
+    assert progress["pending_lanes"] <= committed_progress["pending_lanes"]
+    assert progress["eventual_accountable"] >= committed_progress[
+        "eventual_accountable"
+    ]
 
     anr_lanes = [lane for lane in manifest.lanes if lane.lane_id.startswith("v2-anr")]
     assert len(anr_lanes) == 6
@@ -250,6 +257,78 @@ def test_committed_v2_anr_progress_is_derived_from_auditable_attempts() -> None:
     assert "#49" in readme
     assert "#50" in readme
     assert verify_manifest(_V2_ANR_RUN) == []
+
+
+def test_committed_v2_oversized_state_progress_has_matched_auditable_attempts() -> None:
+    manifest = load_manifest(_REBASELINE_MANIFEST, repo_root=_ROOT)
+    progress = progress_to_dict(build_progress(manifest))
+    committed_progress = json.loads(
+        (_V2_OVERSIZED_RUN / "progress.json").read_text(encoding="utf-8")
+    )
+
+    assert committed_progress["planned_lanes"] == 30
+    assert committed_progress["pending_lanes"] == 18
+    assert committed_progress["eventual_accountable"] == 11
+    assert committed_progress["control_outcomes"] == {"passed_control": 5}
+    assert committed_progress["defect_outcomes"] == {"caught": 6}
+    assert committed_progress["failure_classes"] == {"preflight_environment": 2}
+    assert progress["planned_lanes"] == committed_progress["planned_lanes"]
+    assert progress["pending_lanes"] <= committed_progress["pending_lanes"]
+    assert progress["eventual_accountable"] >= committed_progress[
+        "eventual_accountable"
+    ]
+
+    lanes = [
+        lane
+        for lane in manifest.lanes
+        if lane.lane_id.startswith("v2-oversized-state")
+    ]
+    assert len(lanes) == 6
+    for lane in lanes:
+        attempt_dirs = sorted(lane.evidence_dir.glob("attempt-*"))
+        assert len(attempt_dirs) == 1
+        attempt_dir = attempt_dirs[0]
+        assert verify_manifest(attempt_dir) == []
+
+        gate = json.loads(
+            (attempt_dir / "live-validation-gate.json").read_text(encoding="utf-8")
+        )
+        verdict = json.loads(
+            (attempt_dir / "verdict.json").read_text(encoding="utf-8")
+        )
+        assert gate["status"] == "passed"
+        assert verdict["execution"]["accounting_eligible"] is True
+        assert verdict["injected_events"] == [
+            {"event": "app_to_background", "args": {}}
+        ]
+        assert verdict["checkpoints"] == ["after-segment-0", "after-event-0"]
+        assert [
+            result["status"]
+            for result in verdict["journey_results"][0]["results"]
+        ] == ["PASSED", "PASSED"]
+
+        if lane.role == "baseline":
+            assert verdict["metric_context"]["failed_oracles"] == []
+            assert verdict["metric_context"]["oracle_outcomes"]["L1"] == (
+                "inconclusive"
+            )
+        else:
+            assert verdict["metric_context"]["seed_outcome"] == "caught"
+            assert verdict["l1"]["outcome"] == "fail"
+            assert verdict["l1"]["defect_class_hypothesis"] == "crash_stability"
+            assert any(
+                "TransactionTooLargeException: data parcel size 2110592 bytes"
+                in evidence["ref"]
+                for evidence in verdict["l1"]["evidence"]
+            )
+            assert "TransactionTooLargeException: data parcel size 2110592 bytes" in (
+                attempt_dir / "artifacts" / "after-event-0" / "logcat.txt"
+            ).read_text(encoding="utf-8")
+
+    readme = (_V2_OVERSIZED_RUN / "README.md").read_text(encoding="utf-8")
+    assert "#53" in readme
+    assert "app_to_background" in readme
+    assert verify_manifest(_V2_OVERSIZED_RUN) == []
 
 
 @pytest.mark.parametrize(
