@@ -12,7 +12,8 @@
 - 原 M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
   未达到 29/30 而明确失败；该历史 evidence package 保持不可变。
 - #49 已加固 ANR evidence capture，#50 已加固 Journey action lineage。
-  当前推荐推进已解除阻塞的 #51；#52-#56 依赖 #51，#57 依赖五个新 seed package。
+  #51 的版本化 30-lane tracer 与 setup evidence 已实现，待评审、提交和关闭；
+  完成后 #52-#56 可执行五个新 seed package，#57 依赖它们全部完成。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -33,6 +34,7 @@
 - Final M3 audited baseline: [`docs/runs/2026-07-13-m3-final-reliability-baseline/README.md`](docs/runs/2026-07-13-m3-final-reliability-baseline/README.md)
 - Latest M3 remediation record: [`docs/runs/2026-07-13-issue-49-anr-evidence-capture-remediation/README.md`](docs/runs/2026-07-13-issue-49-anr-evidence-capture-remediation/README.md)
 - Latest Journey lineage remediation record: [`docs/runs/2026-07-14-issue-50-journey-action-lineage-remediation/README.md`](docs/runs/2026-07-14-issue-50-journey-action-lineage-remediation/README.md)
+- Latest M3 v2 tracer setup record: [`docs/runs/2026-07-15-issue-51-m3-v2-tracer-setup/README.md`](docs/runs/2026-07-15-issue-51-m3-v2-tracer-setup/README.md)
 - M2-beta current audited slice: 10 included injected-defect seeds, 10 caught,
   10 baseline controls passed; expected oracle split L1=4, L2=4, L3=2.
 - Fixed-evidence L3 repeatability remains separate: 2 packages, 20 calls,
@@ -65,8 +67,12 @@
   natural-language action text from the backend, deterministically restores exact
   requested text, retains raw/normalized/lineage artifacts, and distinguishes driver
   dispatch from product ANR outcomes without changing historical evidence.
+- #51 M3 v2 tracer setup defines 30 fresh pending lanes under schema v2, pins the
+  historical comparison manifest, preserves identical population/Run Spec/oracle
+  metadata, rejects stale or overlapping evidence namespaces, and retains the
+  existing two-attempt public reliability-runner policy.
 - Latest recorded full-suite status: `.venv/bin/pytest -o addopts="" -q` ->
-  `402 passed, 2 warnings in 11.63s`.
+  `413 passed, 2 warnings in 12.44s`.
 
 ### 已实测
 

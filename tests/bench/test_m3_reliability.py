@@ -15,10 +15,12 @@ from aiverify.bench.m3_audit import (
     render_audited_markdown,
 )
 from aiverify.bench.m3_reliability import (
+    build_progress,
     build_summary,
     load_manifest,
     main,
     plan_lanes,
+    progress_to_dict,
     render_markdown,
     run_lane,
     summary_to_dict,
@@ -30,6 +32,9 @@ from aiverify.runner.run_spec import load_run_spec
 
 _ROOT = Path(__file__).resolve().parents[2]
 _MANIFEST = _ROOT / "bench" / "goldset" / "m3-reliability-slice.yaml"
+_REBASELINE_MANIFEST = (
+    _ROOT / "bench" / "goldset" / "m3-reliability-slice-v2.yaml"
+)
 _FINAL_RUN = _ROOT / "docs" / "runs" / "2026-07-13-m3-final-reliability-baseline"
 
 
@@ -127,6 +132,106 @@ def test_manifest_defines_six_lanes_per_m3_seed() -> None:
         "ui_rendering",
     }
     assert all(lane.run_spec.is_file() for lane in manifest.lanes)
+
+
+def test_rebaseline_manifest_plans_thirty_fresh_pending_lanes() -> None:
+    historical = load_manifest(_MANIFEST, repo_root=_ROOT)
+    rebaseline = load_manifest(_REBASELINE_MANIFEST, repo_root=_ROOT)
+
+    plan = plan_lanes(rebaseline)
+
+    assert rebaseline.schema_version == 2
+    assert rebaseline.slice_id == "m3-verification-agent-reliability-v2"
+    assert rebaseline.comparison_manifest == _MANIFEST
+    assert len(rebaseline.lanes) == 30
+    assert len({lane.lane_id for lane in rebaseline.lanes}) == 30
+    assert {lane.lane_id for lane in rebaseline.lanes}.isdisjoint(
+        lane.lane_id for lane in historical.lanes
+    )
+    assert {lane.evidence_dir for lane in rebaseline.lanes}.isdisjoint(
+        lane.evidence_dir for lane in historical.lanes
+    )
+    assert {row["status"] for row in plan} == {"pending"}
+    assert {row["attempts"] for row in plan} == {0}
+
+
+def test_rebaseline_progress_keeps_old_and_new_denominators_isolated() -> None:
+    historical = load_manifest(_MANIFEST, repo_root=_ROOT)
+    rebaseline = load_manifest(_REBASELINE_MANIFEST, repo_root=_ROOT)
+
+    historical_summary = build_summary(historical)
+    progress = progress_to_dict(build_progress(rebaseline))
+
+    assert historical_summary.planned_lanes == 30
+    assert historical_summary.eventual_accountable == 27
+    assert progress["planned_lanes"] == 30
+    assert progress["pending_lanes"] == 30
+    assert len(progress["pending_lane_ids"]) == 30
+    assert progress["eventual_accountable"] == 0
+    assert progress["control_outcomes"] == {}
+    assert progress["defect_outcomes"] == {}
+    assert progress["failure_classes"] == {}
+
+
+@pytest.mark.parametrize(
+    ("old", "new", "message"),
+    [
+        (
+            "id: v2-fixture-baseline-1",
+            "id: fixture-baseline-1",
+            "stale lane identities",
+        ),
+        (
+            "evidence_dir: evidence/v2-fixture-baseline-1",
+            "evidence_dir: evidence/fixture-baseline-1",
+            "stale evidence directories",
+        ),
+        (
+            "expected_oracle_defect_class: crash_stability",
+            "expected_oracle_defect_class: state_loss",
+            "matched metadata changed",
+        ),
+    ],
+)
+def test_rebaseline_manifest_rejects_version_or_metadata_drift(
+    tmp_path: Path, old: str, new: str, message: str
+) -> None:
+    _, rebaseline_path = _write_versioned_fixture_manifests(tmp_path)
+    rebaseline_path.write_text(
+        rebaseline_path.read_text(encoding="utf-8").replace(old, new),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match=message):
+        load_manifest(rebaseline_path, repo_root=tmp_path)
+
+
+def test_rebaseline_manifest_rejects_nested_historical_evidence_namespace(
+    tmp_path: Path,
+) -> None:
+    _, rebaseline_path = _write_versioned_fixture_manifests(tmp_path)
+    rebaseline_path.write_text(
+        rebaseline_path.read_text(encoding="utf-8").replace(
+            "evidence/v2-fixture-baseline-1",
+            "evidence/fixture-baseline-1/rebaseline",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="stale evidence directories"):
+        load_manifest(rebaseline_path, repo_root=tmp_path)
+
+
+def test_manifest_rejects_duplicate_evidence_directories(tmp_path: Path) -> None:
+    _, rebaseline_path = _write_versioned_fixture_manifests(tmp_path)
+    text = rebaseline_path.read_text(encoding="utf-8")
+    duplicate = text[text.index("  - id:") :].replace(
+        "v2-fixture-baseline-1", "v2-fixture-baseline-2", 1
+    ).replace("repetition: 1", "repetition: 2", 1)
+    rebaseline_path.write_text(text + duplicate, encoding="utf-8")
+
+    with pytest.raises(ValueError, match="duplicate evidence directories"):
+        load_manifest(rebaseline_path, repo_root=tmp_path)
 
 
 def test_run_lane_invokes_public_runner_and_preserves_attempt(tmp_path: Path) -> None:
@@ -714,6 +819,132 @@ def test_cli_plan_prints_machine_readable_schedule(
     assert payload[0]["status"] == "pending"
 
 
+def test_cli_plan_writes_durable_machine_readable_schedule(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    manifest_path = _write_fixture_manifest(tmp_path)
+    output_path = tmp_path / "plan.json"
+
+    assert main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--manifest",
+            str(manifest_path),
+            "plan",
+            "--json-output",
+            str(output_path),
+        ]
+    ) == 0
+
+    assert capsys.readouterr().out == ""
+    assert json.loads(output_path.read_text(encoding="utf-8")) == [
+        {
+            "lane_id": "fixture-baseline-1",
+            "role": "baseline",
+            "repetition": 1,
+            "attempts": 0,
+            "status": "pending",
+        }
+    ]
+
+
+def test_cli_plan_rejects_stale_evidence_in_rebaseline_namespace(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _, rebaseline_path = _write_versioned_fixture_manifests(tmp_path)
+    stale_dir = tmp_path / "evidence" / "v2-fixture-baseline-1"
+    stale_dir.mkdir(parents=True)
+    (stale_dir / "foreign-attempt.json").write_text("{}", encoding="utf-8")
+
+    assert main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--manifest",
+            str(rebaseline_path),
+            "plan",
+        ]
+    ) == 2
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload[0]["status"] == "invalid_evidence"
+
+
+def test_cli_progress_writes_pending_rebaseline_aggregate(tmp_path: Path) -> None:
+    output_path = tmp_path / "progress.json"
+
+    assert main(
+        [
+            "--repo-root",
+            str(_ROOT),
+            "--manifest",
+            str(_REBASELINE_MANIFEST),
+            "progress",
+            "--json-output",
+            str(output_path),
+        ]
+    ) == 0
+
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload["planned_lanes"] == 30
+    assert payload["pending_lanes"] == 30
+    assert payload["eventual_accountable"] == 0
+
+
+def test_partial_progress_keeps_outcomes_and_execution_failures_separate(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(
+        _write_progress_fixture_manifest(tmp_path), repo_root=tmp_path
+    )
+    verdicts = {
+        "progress-baseline-1": (_completed_verdict(), 0),
+        "progress-baseline-2": (
+            _completed_verdict_with_failure("l1", "crash_stability"),
+            1,
+        ),
+        "progress-defect-1": (_completed_verdict(), 0),
+        "progress-defect-2": (
+            _completed_verdict_with_failure("l2", "state_loss"),
+            1,
+        ),
+        "progress-defect-3": (
+            _completed_verdict_with_failure("l1", "state_loss"),
+            1,
+        ),
+        "progress-defect-4": (
+            _non_accountable_verdict("journey_action_failed"),
+            2,
+        ),
+    }
+    for lane_id, (verdict, exit_code) in verdicts.items():
+        run_lane(
+            manifest,
+            lane_id=lane_id,
+            device="emulator-5554",
+            workdir=tmp_path,
+            runner=VerdictWritingRunner(verdict, returncode=exit_code),
+        )
+
+    payload = progress_to_dict(build_progress(manifest))
+
+    assert payload["planned_lanes"] == 7
+    assert payload["pending_lanes"] == 1
+    assert payload["pending_lane_ids"] == ["progress-defect-5"]
+    assert payload["eventual_accountable"] == 5
+    assert payload["control_outcomes"] == {
+        "false_positive": 1,
+        "passed_control": 1,
+    }
+    assert payload["defect_outcomes"] == {
+        "missed": 1,
+        "wrong_defect_class": 1,
+        "wrong_oracle": 1,
+    }
+    assert payload["failure_classes"] == {"verification_agent_journey": 1}
+
+
 def test_committed_summary_is_derived_from_committed_attempt_evidence() -> None:
     manifest = load_manifest(_MANIFEST, repo_root=_ROOT)
     summary = build_summary(manifest)
@@ -1257,6 +1488,71 @@ lanes:
     return manifest
 
 
+def _write_versioned_fixture_manifests(tmp_path: Path) -> tuple[Path, Path]:
+    historical = _write_fixture_manifest(tmp_path)
+    rebaseline = tmp_path / "manifest-v2.yaml"
+    rebaseline.write_text(
+        """\
+schema_version: 2
+slice_id: fixture-reliability-v2
+comparison_manifest: manifest.yaml
+max_attempts_per_lane: 2
+lanes:
+  - id: v2-fixture-baseline-1
+    seed_id: fixture-seed
+    role: baseline
+    repetition: 1
+    run_spec: run-spec.yaml
+    evidence_dir: evidence/v2-fixture-baseline-1
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+""",
+        encoding="utf-8",
+    )
+    return historical, rebaseline
+
+
+def _write_progress_fixture_manifest(tmp_path: Path) -> Path:
+    _write_fixture_manifest(tmp_path)
+    lanes = []
+    for role, repetition in (
+        ("baseline", 1),
+        ("baseline", 2),
+        ("defect", 1),
+        ("defect", 2),
+        ("defect", 3),
+        ("defect", 4),
+        ("defect", 5),
+    ):
+        lane_id = f"progress-{role}-{repetition}"
+        lanes.append(
+            f"""\
+  - id: {lane_id}
+    seed_id: fixture-seed
+    role: {role}
+    repetition: {repetition}
+    run_spec: run-spec.yaml
+    evidence_dir: evidence/{lane_id}
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability"""
+        )
+    manifest = tmp_path / "progress-manifest.yaml"
+    manifest.write_text(
+        "\n".join(
+            [
+                "schema_version: 1",
+                "slice_id: progress-fixture",
+                "max_attempts_per_lane: 2",
+                "lanes:",
+                *lanes,
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return manifest
+
+
 def _completed_verdict() -> dict:
     return {
         "scenario": "fixture-seed",
@@ -1278,6 +1574,16 @@ def _completed_verdict() -> dict:
         "l3": None,
         "timing": {"total_seconds": 12.5, "phases": []},
     }
+
+
+def _completed_verdict_with_failure(level: str, defect_class: str) -> dict:
+    verdict = _completed_verdict()
+    verdict[level] = {
+        "level": level.upper(),
+        "outcome": "fail",
+        "defect_class_hypothesis": defect_class,
+    }
+    return verdict
 
 
 def _completed_l3_verdict() -> dict:

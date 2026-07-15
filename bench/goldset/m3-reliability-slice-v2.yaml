@@ -1,0 +1,246 @@
+schema_version: 2
+slice_id: m3-verification-agent-reliability-v2
+comparison_manifest: bench/goldset/m3-reliability-slice.yaml
+max_attempts_per_lane: 2
+
+lanes:
+  - id: v2-anr-baseline-1
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: baseline
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-anr-reliability/lanes/v2-anr-baseline-1
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-anr-baseline-2
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: baseline
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-anr-reliability/lanes/v2-anr-baseline-2
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-anr-baseline-3
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: baseline
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-anr-reliability/lanes/v2-anr-baseline-3
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-anr-defect-1
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: defect
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-anr-reliability/lanes/v2-anr-defect-1
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-anr-defect-2
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: defect
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-anr-reliability/lanes/v2-anr-defect-2
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-anr-defect-3
+    seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr
+    role: defect
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-anr-reliability/lanes/v2-anr-defect-3
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-oversized-state-baseline-1
+    seed_id: wikipedia-process-death-03-oversized-saved-state
+    role: baseline
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-oversized-saved-state-reliability/lanes/v2-oversized-state-baseline-1
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-oversized-state-baseline-2
+    seed_id: wikipedia-process-death-03-oversized-saved-state
+    role: baseline
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-oversized-saved-state-reliability/lanes/v2-oversized-state-baseline-2
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-oversized-state-baseline-3
+    seed_id: wikipedia-process-death-03-oversized-saved-state
+    role: baseline
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-oversized-saved-state-reliability/lanes/v2-oversized-state-baseline-3
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-oversized-state-defect-1
+    seed_id: wikipedia-process-death-03-oversized-saved-state
+    role: defect
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-oversized-saved-state-reliability/lanes/v2-oversized-state-defect-1
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-oversized-state-defect-2
+    seed_id: wikipedia-process-death-03-oversized-saved-state
+    role: defect
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-oversized-saved-state-reliability/lanes/v2-oversized-state-defect-2
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-oversized-state-defect-3
+    seed_id: wikipedia-process-death-03-oversized-saved-state
+    role: defect
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-oversized-saved-state-reliability/lanes/v2-oversized-state-defect-3
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  - id: v2-query-duplication-baseline-1
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: baseline
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-query-duplication-reliability/lanes/v2-query-duplication-baseline-1
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-query-duplication-baseline-2
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: baseline
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-query-duplication-reliability/lanes/v2-query-duplication-baseline-2
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-query-duplication-baseline-3
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: baseline
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-query-duplication-reliability/lanes/v2-query-duplication-baseline-3
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-query-duplication-defect-1
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: defect
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-query-duplication-reliability/lanes/v2-query-duplication-defect-1
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-query-duplication-defect-2
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: defect
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-query-duplication-reliability/lanes/v2-query-duplication-defect-2
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-query-duplication-defect-3
+    seed_id: wikipedia-config-change-02-query-duplication
+    role: defect
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-query-duplication-reliability/lanes/v2-query-duplication-defect-3
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-swallowed-back-baseline-1
+    seed_id: wikipedia-navigation-02-back-button-swallowed
+    role: baseline
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-swallowed-back-reliability/lanes/v2-swallowed-back-baseline-1
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-swallowed-back-baseline-2
+    seed_id: wikipedia-navigation-02-back-button-swallowed
+    role: baseline
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-swallowed-back-reliability/lanes/v2-swallowed-back-baseline-2
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-swallowed-back-baseline-3
+    seed_id: wikipedia-navigation-02-back-button-swallowed
+    role: baseline
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-swallowed-back-reliability/lanes/v2-swallowed-back-baseline-3
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-swallowed-back-defect-1
+    seed_id: wikipedia-navigation-02-back-button-swallowed
+    role: defect
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-swallowed-back-reliability/lanes/v2-swallowed-back-defect-1
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-swallowed-back-defect-2
+    seed_id: wikipedia-navigation-02-back-button-swallowed
+    role: defect
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-swallowed-back-reliability/lanes/v2-swallowed-back-defect-2
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-swallowed-back-defect-3
+    seed_id: wikipedia-navigation-02-back-button-swallowed
+    role: defect
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-swallowed-back-reliability/lanes/v2-swallowed-back-defect-3
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  - id: v2-search-card-baseline-1
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: baseline
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-search-card-l3-reliability/lanes/v2-search-card-baseline-1
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: v2-search-card-baseline-2
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: baseline
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-search-card-l3-reliability/lanes/v2-search-card-baseline-2
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: v2-search-card-baseline-3
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: baseline
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-search-card-l3-reliability/lanes/v2-search-card-baseline-3
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: v2-search-card-defect-1
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: defect
+    repetition: 1
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-search-card-l3-reliability/lanes/v2-search-card-defect-1
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: v2-search-card-defect-2
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: defect
+    repetition: 2
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-search-card-l3-reliability/lanes/v2-search-card-defect-2
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  - id: v2-search-card-defect-3
+    seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+    role: defect
+    repetition: 3
+    run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml
+    evidence_dir: docs/runs/2026-07-15-m3-v2-search-card-l3-reliability/lanes/v2-search-card-defect-3
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering

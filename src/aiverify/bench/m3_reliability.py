@@ -47,6 +47,7 @@ class ReliabilityManifest:
     slice_id: str
     max_attempts_per_lane: int
     lanes: tuple[ReliabilityLane, ...]
+    comparison_manifest: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -76,6 +77,23 @@ class ReliabilitySummary:
     operational_interventions: int
 
 
+@dataclass(frozen=True)
+class ReliabilityProgress:
+    """Partial aggregate that keeps unexecuted lanes outside attempt outcomes."""
+
+    summary: ReliabilitySummary
+    pending_lane_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class _LaneComparisonMetadata:
+    """Matched metadata that must remain stable across M3 slice versions."""
+
+    run_spec: Path
+    expected_oracle_level: str
+    expected_oracle_defect_class: str
+
+
 
 def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
     """Load and validate the public M3 reliability manifest contract."""
@@ -86,7 +104,7 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
         raise ValueError("M3 reliability manifest must be a mapping")
 
     schema_version = _required_int(raw, "schema_version")
-    if schema_version != 1:
+    if schema_version not in {1, 2}:
         raise ValueError(f"unsupported M3 reliability schema_version: {schema_version}")
     slice_id = _required_str(raw, "slice_id")
     max_attempts = _required_int(raw, "max_attempts_per_lane")
@@ -104,13 +122,72 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
     identities = [(lane.seed_id, lane.role, lane.repetition) for lane in lanes]
     if len(identities) != len(set(identities)):
         raise ValueError("M3 reliability manifest contains duplicate lane identity")
+    evidence_dirs = [lane.evidence_dir for lane in lanes]
+    if len(evidence_dirs) != len(set(evidence_dirs)):
+        raise ValueError("M3 reliability manifest contains duplicate evidence directories")
 
-    return ReliabilityManifest(
+    comparison_manifest = None
+    if schema_version == 2:
+        comparison_manifest = repo_root / _required_str(raw, "comparison_manifest")
+        if comparison_manifest.resolve() == path.resolve():
+            raise ValueError("M3 reliability comparison manifest cannot reference itself")
+
+    manifest = ReliabilityManifest(
         schema_version=schema_version,
         slice_id=slice_id,
         max_attempts_per_lane=max_attempts,
         lanes=lanes,
+        comparison_manifest=comparison_manifest,
     )
+    if comparison_manifest is not None:
+        historical = load_manifest(comparison_manifest, repo_root=repo_root)
+        if historical.schema_version != 1:
+            raise ValueError("M3 reliability comparison manifest must be schema_version 1")
+        _validate_version_separation(manifest, historical=historical)
+    return manifest
+
+
+def _validate_version_separation(
+    manifest: ReliabilityManifest, *, historical: ReliabilityManifest
+) -> None:
+    """Require a comparable population with fresh slice, lane, and evidence identities."""
+    if manifest.slice_id == historical.slice_id:
+        raise ValueError("M3 re-baseline slice_id collides with comparison history")
+
+    lane_ids = {lane.lane_id for lane in manifest.lanes}
+    historical_lane_ids = {lane.lane_id for lane in historical.lanes}
+    if not lane_ids.isdisjoint(historical_lane_ids):
+        raise ValueError("M3 re-baseline contains stale lane identities")
+
+    evidence_dirs = {lane.evidence_dir.resolve() for lane in manifest.lanes}
+    historical_evidence_dirs = {
+        lane.evidence_dir.resolve() for lane in historical.lanes
+    }
+    if any(
+        current == prior
+        or current in prior.parents
+        or prior in current.parents
+        for current in evidence_dirs
+        for prior in historical_evidence_dirs
+    ):
+        raise ValueError("M3 re-baseline contains stale evidence directories")
+
+    def comparable_rows(
+        source: ReliabilityManifest,
+    ) -> dict[tuple[str, str, int], _LaneComparisonMetadata]:
+        return {
+            (lane.seed_id, lane.role, lane.repetition): _LaneComparisonMetadata(
+                run_spec=lane.run_spec.resolve(),
+                expected_oracle_level=lane.expected_oracle_level,
+                expected_oracle_defect_class=lane.expected_oracle_defect_class,
+            )
+            for lane in source.lanes
+        }
+
+    if comparable_rows(manifest) != comparable_rows(historical):
+        raise ValueError("M3 re-baseline population or matched metadata changed")
+    if manifest.max_attempts_per_lane != historical.max_attempts_per_lane:
+        raise ValueError("M3 re-baseline bounded retry policy changed")
 
 
 def run_lane(
@@ -193,6 +270,17 @@ def plan_lanes(manifest: ReliabilityManifest) -> list[dict]:
         status = "pending"
         attempts = raw_attempts
         try:
+            if lane.evidence_dir.exists():
+                unexpected = sorted(
+                    path
+                    for path in lane.evidence_dir.iterdir()
+                    if path not in raw_attempts
+                )
+                if unexpected:
+                    raise ValueError(
+                        f"lane {lane.lane_id} contains stale evidence: "
+                        + ", ".join(path.name for path in unexpected)
+                    )
             attempts = attempt_directories(lane)
             if attempts:
                 _, verdict = load_verified_attempt(
@@ -224,6 +312,17 @@ def plan_lanes(manifest: ReliabilityManifest) -> list[dict]:
 
 def build_summary(manifest: ReliabilityManifest) -> ReliabilitySummary:
     """Derive reliability outcomes from checksummed runner attempts."""
+    return _build_progress(manifest, allow_pending=False).summary
+
+
+def build_progress(manifest: ReliabilityManifest) -> ReliabilityProgress:
+    """Derive a partial aggregate while retaining explicit pending lane identities."""
+    return _build_progress(manifest, allow_pending=True)
+
+
+def _build_progress(
+    manifest: ReliabilityManifest, *, allow_pending: bool
+) -> ReliabilityProgress:
     first_accountable = 0
     eventual_accountable = 0
     retry_count = 0
@@ -233,11 +332,15 @@ def build_summary(manifest: ReliabilityManifest) -> ReliabilitySummary:
     total_seconds = 0.0
     judge_seconds = 0.0
     interventions = 0
+    pending_lane_ids: list[str] = []
 
     for lane in manifest.lanes:
         attempts = attempt_directories(lane)
         if not attempts:
-            raise ValueError(f"lane {lane.lane_id} has no attempt evidence")
+            if not allow_pending:
+                raise ValueError(f"lane {lane.lane_id} has no attempt evidence")
+            pending_lane_ids.append(lane.lane_id)
+            continue
         if len(attempts) > manifest.max_attempts_per_lane:
             raise ValueError(f"lane {lane.lane_id} exceeds bounded retry policy")
         retry_count += len(attempts) - 1
@@ -274,23 +377,35 @@ def build_summary(manifest: ReliabilityManifest) -> ReliabilitySummary:
         else:
             defects[outcome] += 1
 
-    return ReliabilitySummary(
-        planned_lanes=len(manifest.lanes),
-        first_attempt_accountable=first_accountable,
-        eventual_accountable=eventual_accountable,
-        retry_count=retry_count,
-        control_outcomes=dict(sorted(controls.items())),
-        defect_outcomes=dict(sorted(defects.items())),
-        failure_classes=dict(sorted(failures.items())),
-        total_seconds=round(total_seconds, 3),
-        judge_seconds=round(judge_seconds, 3),
-        operational_interventions=interventions,
+    return ReliabilityProgress(
+        summary=ReliabilitySummary(
+            planned_lanes=len(manifest.lanes),
+            first_attempt_accountable=first_accountable,
+            eventual_accountable=eventual_accountable,
+            retry_count=retry_count,
+            control_outcomes=dict(sorted(controls.items())),
+            defect_outcomes=dict(sorted(defects.items())),
+            failure_classes=dict(sorted(failures.items())),
+            total_seconds=round(total_seconds, 3),
+            judge_seconds=round(judge_seconds, 3),
+            operational_interventions=interventions,
+        ),
+        pending_lane_ids=tuple(pending_lane_ids),
     )
 
 
 def summary_to_dict(summary: ReliabilitySummary) -> dict:
     """Return the stable machine-readable M3 summary payload."""
     return asdict(summary)
+
+
+def progress_to_dict(progress: ReliabilityProgress) -> dict:
+    """Return a partial aggregate without merging pending lanes into outcomes."""
+    return {
+        **summary_to_dict(progress.summary),
+        "pending_lanes": len(progress.pending_lane_ids),
+        "pending_lane_ids": list(progress.pending_lane_ids),
+    }
 
 
 def render_markdown(summary: ReliabilitySummary, *, slice_id: str) -> str:
@@ -341,7 +456,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--manifest", type=Path, default=_DEFAULT_MANIFEST)
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("plan")
+    plan_parser = commands.add_parser("plan")
+    plan_parser.add_argument("--json-output", type=Path)
 
     run_parser = commands.add_parser("run-lane")
     run_parser.add_argument("lane_id")
@@ -353,6 +469,8 @@ def main(argv: list[str] | None = None) -> int:
     summary_parser = commands.add_parser("summary")
     summary_parser.add_argument("--json-output", type=Path)
     summary_parser.add_argument("--markdown-output", type=Path)
+    progress_parser = commands.add_parser("progress")
+    progress_parser.add_argument("--json-output", type=Path)
     audit_parser = commands.add_parser("audit")
     audit_parser.add_argument("--environment", type=Path, required=True)
     audit_parser.add_argument("--json-output", type=Path)
@@ -366,8 +484,21 @@ def main(argv: list[str] | None = None) -> int:
     manifest = load_manifest(manifest_path, repo_root=repo_root)
 
     if args.command == "plan":
-        print(json.dumps(plan_lanes(manifest), ensure_ascii=False, indent=2))
-        return 0
+        plan = plan_lanes(manifest)
+        payload = json.dumps(plan, ensure_ascii=False, indent=2) + "\n"
+        if args.json_output is None:
+            print(payload, end="")
+        else:
+            args.json_output.parent.mkdir(parents=True, exist_ok=True)
+            args.json_output.write_text(payload, encoding="utf-8")
+        return (
+            2
+            if any(
+                row["status"] in {"artifact_integrity_failure", "invalid_evidence"}
+                for row in plan
+            )
+            else 0
+        )
     if args.command == "run-lane":
         attempt = run_lane(
             manifest,
@@ -390,6 +521,16 @@ def main(argv: list[str] | None = None) -> int:
                 indent=2,
             )
         )
+        return 0
+
+    if args.command == "progress":
+        payload = progress_to_dict(build_progress(manifest))
+        output = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+        if args.json_output is None:
+            print(output, end="")
+        else:
+            args.json_output.parent.mkdir(parents=True, exist_ok=True)
+            args.json_output.write_text(output, encoding="utf-8")
         return 0
 
     if args.command == "audit":
