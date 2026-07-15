@@ -7,13 +7,15 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- GitHub Issues #1-#47（含原 M3 PRD #41）和 remediation #49-#50 已完成并关闭；
-  open PRs = 0。#48 及 #51-#57 保持 open，均为 `ready-for-agent`。
+- GitHub Issues #1-#47（含原 M3 PRD #41）和 remediation/re-baseline #49-#51
+  已完成并关闭；open PRs = 0。#48 及 #52-#57 保持 open，均为
+  `ready-for-agent`。
 - 原 M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
   未达到 29/30 而明确失败；该历史 evidence package 保持不可变。
 - #49 已加固 ANR evidence capture，#50 已加固 Journey action lineage。
-  #51 的版本化 30-lane tracer 与 setup evidence 已实现，待评审、提交和关闭；
-  完成后 #52-#56 可执行五个新 seed package，#57 依赖它们全部完成。
+  #51 的版本化 30-lane tracer 与 setup evidence 已完成并关闭。当前推荐推进
+  #52 ANR L1 re-baseline；#52-#56 可执行五个新 seed package，#57 依赖它们
+  全部完成。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
