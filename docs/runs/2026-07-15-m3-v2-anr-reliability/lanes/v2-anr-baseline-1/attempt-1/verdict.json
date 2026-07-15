@@ -1,0 +1,124 @@
+{
+  "scenario": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-15-m3-v2-anr-reliability/lanes/v2-anr-baseline-1/attempt-1/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "missed",
+    "taxonomy_category": "coroutine-concurrency",
+    "taxonomy_pattern_id": "coroutine-concurrency-03",
+    "expected_oracle_level": "L1",
+    "expected_oracle_defect_class": "crash_stability",
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "inconclusive",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-60fd9609",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 302"
+          ],
+          "comment": "Main feed was already visible, so onboarding was unnecessary. Observed nav_tab_search at [540,2232], tapped it, then observed search_card at [540,302] and tapped it. Search input screen opened.",
+          "action": "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
+        },
+        {
+          "action_id": "action-2",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 542 146",
+            "adb -s emulator-5554 shell input text \"anrtest\"",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Observed search_src_text at [542,146], tapped it, and dispatched text input. Final layout showed focused search_src_text containing \"anrtest\" and search results remained visible.",
+          "action": "点搜索输入框 search_src_text，输入文本 'anrtest'"
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-15T02:46:51+00:00",
+    "finished_at": "2026-07-15T02:48:42+00:00",
+    "total_seconds": 111.695,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 13.234
+      },
+      {
+        "phase": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+        "kind": "journey",
+        "seconds": 85.662
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 12.111
+      }
+    ]
+  }
+}

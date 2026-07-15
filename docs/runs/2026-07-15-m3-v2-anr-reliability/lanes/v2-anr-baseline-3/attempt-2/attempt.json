@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "lane_id": "v2-anr-baseline-3",
+  "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+  "role": "baseline",
+  "repetition": 3,
+  "attempt_number": 2,
+  "started_at": "2026-07-15T10:05:50+00:00",
+  "finished_at": "2026-07-15T10:05:56+00:00",
+  "runner_command": [
+    "/Users/80268204/Projects/ai_verification/.venv/bin/python",
+    "-m",
+    "aiverify.runner",
+    "/Users/80268204/Projects/ai_verification/bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml",
+    "--device",
+    "emulator-5554",
+    "--artifact-dir",
+    "/Users/80268204/Projects/ai_verification/docs/runs/2026-07-15-m3-v2-anr-reliability/lanes/v2-anr-baseline-3/attempt-2/artifacts",
+    "--workdir",
+    "/Users/80268204/hosts/wikipedia"
+  ],
+  "runner_exit_code": 2,
+  "verdict": "verdict.json",
+  "operational_interventions": [
+    "Pre-retry recovery: terminated stalled Android CLI deployment; adb fallback still failed independent android-layout-json with null root; Android CLI cold start timed out after 300s; snapshot start exited before adb enumeration; direct same-AVD headless cold boot plus adb reinstall restored app focus and independent layout gate (38 nodes, 5272 bytes)."
+  ]
+}

@@ -36,6 +36,7 @@ _REBASELINE_MANIFEST = (
     _ROOT / "bench" / "goldset" / "m3-reliability-slice-v2.yaml"
 )
 _FINAL_RUN = _ROOT / "docs" / "runs" / "2026-07-13-m3-final-reliability-baseline"
+_V2_ANR_RUN = _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-anr-reliability"
 
 
 class VerdictWritingRunner(CommandRunner):
@@ -134,7 +135,7 @@ def test_manifest_defines_six_lanes_per_m3_seed() -> None:
     assert all(lane.run_spec.is_file() for lane in manifest.lanes)
 
 
-def test_rebaseline_manifest_plans_thirty_fresh_pending_lanes() -> None:
+def test_rebaseline_manifest_plans_thirty_fresh_isolated_lanes() -> None:
     historical = load_manifest(_MANIFEST, repo_root=_ROOT)
     rebaseline = load_manifest(_REBASELINE_MANIFEST, repo_root=_ROOT)
 
@@ -151,8 +152,15 @@ def test_rebaseline_manifest_plans_thirty_fresh_pending_lanes() -> None:
     assert {lane.evidence_dir for lane in rebaseline.lanes}.isdisjoint(
         lane.evidence_dir for lane in historical.lanes
     )
-    assert {row["status"] for row in plan} == {"pending"}
-    assert {row["attempts"] for row in plan} == {0}
+    assert len(plan) == 30
+    assert {row["status"] for row in plan} <= {
+        "pending",
+        "retryable",
+        "accountable_complete",
+        "non_accountable_exhausted",
+        "invalid_evidence",
+    }
+    assert all(0 <= row["attempts"] <= rebaseline.max_attempts_per_lane for row in plan)
 
 
 def test_rebaseline_progress_keeps_old_and_new_denominators_isolated() -> None:
@@ -165,12 +173,83 @@ def test_rebaseline_progress_keeps_old_and_new_denominators_isolated() -> None:
     assert historical_summary.planned_lanes == 30
     assert historical_summary.eventual_accountable == 27
     assert progress["planned_lanes"] == 30
-    assert progress["pending_lanes"] == 30
-    assert len(progress["pending_lane_ids"]) == 30
-    assert progress["eventual_accountable"] == 0
-    assert progress["control_outcomes"] == {}
-    assert progress["defect_outcomes"] == {}
-    assert progress["failure_classes"] == {}
+    assert 0 <= progress["pending_lanes"] <= progress["planned_lanes"]
+    assert len(progress["pending_lane_ids"]) == progress["pending_lanes"]
+    assert set(progress["pending_lane_ids"]).isdisjoint(
+        lane.lane_id for lane in historical.lanes
+    )
+
+
+def test_committed_v2_anr_progress_is_derived_from_auditable_attempts() -> None:
+    manifest = load_manifest(_REBASELINE_MANIFEST, repo_root=_ROOT)
+    progress = progress_to_dict(build_progress(manifest))
+    committed_progress = json.loads(
+        (_V2_ANR_RUN / "progress.json").read_text(encoding="utf-8")
+    )
+
+    assert committed_progress == progress
+    assert progress["planned_lanes"] == 30
+    assert progress["pending_lanes"] == 24
+    assert progress["eventual_accountable"] == 5
+    assert progress["control_outcomes"] == {"passed_control": 2}
+    assert progress["defect_outcomes"] == {"caught": 3}
+    assert progress["failure_classes"] == {"preflight_environment": 2}
+
+    anr_lanes = [lane for lane in manifest.lanes if lane.lane_id.startswith("v2-anr")]
+    assert len(anr_lanes) == 6
+    for lane in anr_lanes:
+        attempt_dirs = sorted(lane.evidence_dir.glob("attempt-*"))
+        assert 1 <= len(attempt_dirs) <= manifest.max_attempts_per_lane
+        assert all(verify_manifest(attempt_dir) == [] for attempt_dir in attempt_dirs)
+
+        verdicts = [
+            json.loads((attempt_dir / "verdict.json").read_text(encoding="utf-8"))
+            for attempt_dir in attempt_dirs
+        ]
+        accountable = [
+            verdict
+            for verdict in verdicts
+            if verdict["execution"]["accounting_eligible"]
+        ]
+        if accountable:
+            assert len(attempt_dirs) == 1
+
+        if lane.role == "defect":
+            assert len(accountable) == 1
+            verdict = accountable[0]
+            assert verdict["metric_context"]["seed_outcome"] == "caught"
+            assert verdict["l1"]["outcome"] == "fail"
+            assert verdict["l1"]["defect_class_hypothesis"] == "crash_stability"
+            assert any(
+                "ANR in org.wikipedia.dev" in evidence["ref"]
+                for evidence in verdict["l1"]["evidence"]
+            )
+            lineage = json.loads(
+                next(
+                    attempt_dirs[0].glob(
+                        "artifacts/*/codex-journey-action-lineage.json"
+                    )
+                ).read_text(encoding="utf-8")
+            )
+            assert [row["status"] for row in lineage["results"]] == [
+                "PASSED",
+                "PASSED",
+            ]
+
+    baseline_3 = next(lane for lane in anr_lanes if lane.lane_id == "v2-anr-baseline-3")
+    assert len(list(baseline_3.evidence_dir.glob("attempt-*"))) == 2
+    assert all(
+        json.loads((attempt / "verdict.json").read_text(encoding="utf-8"))[
+            "execution"
+        ]["reason"]
+        == "live_validation_preflight_failed"
+        for attempt in baseline_3.evidence_dir.glob("attempt-*")
+    )
+
+    readme = (_V2_ANR_RUN / "README.md").read_text(encoding="utf-8")
+    assert "#49" in readme
+    assert "#50" in readme
+    assert verify_manifest(_V2_ANR_RUN) == []
 
 
 @pytest.mark.parametrize(
@@ -871,7 +950,7 @@ def test_cli_plan_rejects_stale_evidence_in_rebaseline_namespace(
     assert payload[0]["status"] == "invalid_evidence"
 
 
-def test_cli_progress_writes_pending_rebaseline_aggregate(tmp_path: Path) -> None:
+def test_cli_progress_writes_partial_rebaseline_aggregate(tmp_path: Path) -> None:
     output_path = tmp_path / "progress.json"
 
     assert main(
@@ -887,9 +966,8 @@ def test_cli_progress_writes_pending_rebaseline_aggregate(tmp_path: Path) -> Non
     ) == 0
 
     payload = json.loads(output_path.read_text(encoding="utf-8"))
-    assert payload["planned_lanes"] == 30
-    assert payload["pending_lanes"] == 30
-    assert payload["eventual_accountable"] == 0
+    manifest = load_manifest(_REBASELINE_MANIFEST, repo_root=_ROOT)
+    assert payload == progress_to_dict(build_progress(manifest))
 
 
 def test_partial_progress_keeps_outcomes_and_execution_failures_separate(
