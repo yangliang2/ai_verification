@@ -43,6 +43,9 @@ _V2_OVERSIZED_RUN = (
 _V2_QUERY_RUN = (
     _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-query-duplication-reliability"
 )
+_V2_SWALLOWED_BACK_RUN = (
+    _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-swallowed-back-reliability"
+)
 
 
 class VerdictWritingRunner(CommandRunner):
@@ -428,6 +431,149 @@ def test_committed_v2_query_progress_has_matched_auditable_attempts() -> None:
     assert "#54" in readme
     assert "aiverify_api35" in readme
     assert verify_manifest(_V2_QUERY_RUN) == []
+
+
+def test_committed_v2_swallowed_back_progress_has_matched_auditable_attempts() -> None:
+    manifest = load_manifest(_REBASELINE_MANIFEST, repo_root=_ROOT)
+    progress = progress_to_dict(build_progress(manifest))
+    committed_progress = json.loads(
+        (_V2_SWALLOWED_BACK_RUN / "progress.json").read_text(encoding="utf-8")
+    )
+    run_spec = load_run_spec(
+        _ROOT
+        / "bench"
+        / "goldset"
+        / "run-specs"
+        / "wikipedia-navigation-02-back-button-swallowed.yaml"
+    )
+
+    assert committed_progress["planned_lanes"] == 30
+    assert committed_progress["pending_lanes"] == 6
+    assert committed_progress["first_attempt_accountable"] == 23
+    assert committed_progress["eventual_accountable"] == 23
+    assert committed_progress["retry_count"] == 1
+    assert committed_progress["control_outcomes"] == {"passed_control": 11}
+    assert committed_progress["defect_outcomes"] == {"caught": 12}
+    assert committed_progress["failure_classes"] == {"preflight_environment": 2}
+    assert progress["planned_lanes"] == committed_progress["planned_lanes"]
+    assert progress["pending_lanes"] <= committed_progress["pending_lanes"]
+    assert progress["eventual_accountable"] >= committed_progress[
+        "eventual_accountable"
+    ]
+
+    lanes = [
+        lane
+        for lane in manifest.lanes
+        if lane.lane_id.startswith("v2-swallowed-back")
+    ]
+    assert len(lanes) == 6
+    for lane in lanes:
+        attempt_dirs = sorted(lane.evidence_dir.glob("attempt-*"))
+        assert 1 <= len(attempt_dirs) <= manifest.max_attempts_per_lane
+        assert all(verify_manifest(attempt_dir) == [] for attempt_dir in attempt_dirs)
+
+        verdicts = [
+            json.loads((attempt_dir / "verdict.json").read_text(encoding="utf-8"))
+            for attempt_dir in attempt_dirs
+        ]
+        accountable_indexes = [
+            index
+            for index, verdict in enumerate(verdicts)
+            if verdict["execution"]["accounting_eligible"]
+        ]
+        assert accountable_indexes == [len(attempt_dirs) - 1]
+        attempt_dir = attempt_dirs[-1]
+        verdict = verdicts[-1]
+        attempt = json.loads(
+            (attempt_dir / "attempt.json").read_text(encoding="utf-8")
+        )
+        gate = json.loads(
+            (attempt_dir / "live-validation-gate.json").read_text(encoding="utf-8")
+        )
+        lineage = json.loads(
+            next(
+                attempt_dir.glob("artifacts/*/codex-journey-action-lineage.json")
+            ).read_text(encoding="utf-8")
+        )
+        before_layout = json.loads(
+            (attempt_dir / "artifacts" / "after-segment-0" / "layout.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        after_layout = json.loads(
+            (attempt_dir / "artifacts" / "after-event-0" / "layout.json").read_text(
+                encoding="utf-8"
+            )
+        )
+
+        assert gate["status"] == "passed"
+        assert verdict["execution"]["accounting_eligible"] is True
+        assert verdict["injected_events"] == [
+            {"event": "dark_mode", "args": {"night": "yes"}}
+        ]
+        assert verdict["checkpoints"] == ["after-segment-0", "after-event-0"]
+        assert [
+            result["action"]
+            for result in verdict["journey_results"][0]["results"]
+        ] == run_spec.scenario.user_actions
+        assert [
+            result["requested_action"] for result in lineage["results"]
+        ] == run_spec.scenario.user_actions
+        assert [result["status"] for result in lineage["results"]] == [
+            "PASSED",
+            "PASSED",
+        ]
+        terminal_commands = verdict["journey_results"][0]["results"][-1][
+            "commands"
+        ]
+
+        def is_back_command(command: str) -> bool:
+            return command.endswith(
+                ("shell input keyevent BACK", "shell input keyevent KEYCODE_BACK")
+            )
+
+        assert sum(is_back_command(command) for command in terminal_commands) == 2
+        assert is_back_command(terminal_commands[-1])
+        assert verdict["l1"]["outcome"] == "inconclusive"
+
+        def nodes_by_resource_id(layout: list[dict]) -> dict[str, dict]:
+            return {
+                node["resource-id"]: node
+                for node in layout
+                if isinstance(node, dict) and node.get("resource-id")
+            }
+
+        before_nodes = nodes_by_resource_id(before_layout)
+        after_nodes = nodes_by_resource_id(after_layout)
+        if lane.role == "baseline":
+            assert attempt["runner_exit_code"] == 0
+            assert verdict["l2"]["outcome"] == "pass"
+            assert verdict["l2"]["defect_class_hypothesis"] is None
+            assert "search_card" in before_nodes
+            assert "search_card" in after_nodes
+            assert "search_src_text" not in before_nodes
+            assert "search_src_text" not in after_nodes
+            assert "selected" in before_nodes["nav_tab_search"]["state"]
+            assert "selected" in after_nodes["nav_tab_search"]["state"]
+        else:
+            assert attempt["runner_exit_code"] == 1
+            assert verdict["metric_context"]["seed_outcome"] == "caught"
+            assert verdict["l2"]["outcome"] == "fail"
+            assert verdict["l2"]["defect_class_hypothesis"] == "state_loss"
+            assert "search_card" not in before_nodes
+            assert "search_card" not in after_nodes
+            assert before_nodes["search_src_text"]["text"] == "zznavbackqx"
+            assert after_nodes["search_src_text"]["text"] == "zznavbackqx"
+            assert any(
+                "search_card" in evidence["ref"]
+                for evidence in verdict["l2"]["evidence"]
+            )
+
+    readme = (_V2_SWALLOWED_BACK_RUN / "README.md").read_text(encoding="utf-8")
+    assert "#55" in readme
+    assert "superseded-protocol-evidence" in readme
+    assert "aiverify_api35" in readme
+    assert verify_manifest(_V2_SWALLOWED_BACK_RUN) == []
 
 
 @pytest.mark.parametrize(
