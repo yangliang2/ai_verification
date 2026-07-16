@@ -40,6 +40,9 @@ _V2_ANR_RUN = _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-anr-reliability"
 _V2_OVERSIZED_RUN = (
     _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-oversized-saved-state-reliability"
 )
+_V2_QUERY_RUN = (
+    _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-query-duplication-reliability"
+)
 
 
 class VerdictWritingRunner(CommandRunner):
@@ -329,6 +332,102 @@ def test_committed_v2_oversized_state_progress_has_matched_auditable_attempts() 
     assert "#53" in readme
     assert "app_to_background" in readme
     assert verify_manifest(_V2_OVERSIZED_RUN) == []
+
+
+def test_committed_v2_query_progress_has_matched_auditable_attempts() -> None:
+    manifest = load_manifest(_REBASELINE_MANIFEST, repo_root=_ROOT)
+    progress = progress_to_dict(build_progress(manifest))
+    committed_progress = json.loads(
+        (_V2_QUERY_RUN / "progress.json").read_text(encoding="utf-8")
+    )
+
+    assert committed_progress["planned_lanes"] == 30
+    assert committed_progress["pending_lanes"] == 12
+    assert committed_progress["eventual_accountable"] == 17
+    assert committed_progress["control_outcomes"] == {"passed_control": 8}
+    assert committed_progress["defect_outcomes"] == {"caught": 9}
+    assert committed_progress["failure_classes"] == {"preflight_environment": 2}
+    assert progress["planned_lanes"] == committed_progress["planned_lanes"]
+    assert progress["pending_lanes"] <= committed_progress["pending_lanes"]
+    assert progress["eventual_accountable"] >= committed_progress[
+        "eventual_accountable"
+    ]
+
+    lanes = [
+        lane
+        for lane in manifest.lanes
+        if lane.lane_id.startswith("v2-query-duplication")
+    ]
+    assert len(lanes) == 6
+    for lane in lanes:
+        attempt_dirs = sorted(lane.evidence_dir.glob("attempt-*"))
+        assert len(attempt_dirs) == 1
+        attempt_dir = attempt_dirs[0]
+        assert verify_manifest(attempt_dir) == []
+
+        attempt = json.loads(
+            (attempt_dir / "attempt.json").read_text(encoding="utf-8")
+        )
+        gate = json.loads(
+            (attempt_dir / "live-validation-gate.json").read_text(encoding="utf-8")
+        )
+        verdict = json.loads(
+            (attempt_dir / "verdict.json").read_text(encoding="utf-8")
+        )
+        before_layout = json.loads(
+            (
+                attempt_dir
+                / "artifacts"
+                / "after-segment-0"
+                / "layout.json"
+            ).read_text(encoding="utf-8")
+        )
+        after_layout = json.loads(
+            (attempt_dir / "artifacts" / "after-event-0" / "layout.json").read_text(
+                encoding="utf-8"
+            )
+        )
+
+        def search_text(layout: list[dict]) -> str:
+            return next(
+                item["text"]
+                for item in layout
+                if item.get("resource-id") == "search_src_text"
+            )
+
+        assert gate["status"] == "passed"
+        assert verdict["execution"]["accounting_eligible"] is True
+        assert verdict["injected_events"] == [
+            {"event": "dark_mode", "args": {"night": "yes"}}
+        ]
+        assert verdict["checkpoints"] == ["after-segment-0", "after-event-0"]
+        assert [
+            result["status"]
+            for result in verdict["journey_results"][0]["results"]
+        ] == ["PASSED", "PASSED"]
+        assert verdict["l1"]["outcome"] == "inconclusive"
+        assert search_text(before_layout) == "zzsentinelqx"
+
+        if lane.role == "baseline":
+            assert attempt["runner_exit_code"] == 0
+            assert verdict["l2"]["outcome"] == "pass"
+            assert verdict["l2"]["defect_class_hypothesis"] is None
+            assert search_text(after_layout) == "zzsentinelqx"
+        else:
+            assert attempt["runner_exit_code"] == 1
+            assert verdict["metric_context"]["seed_outcome"] == "caught"
+            assert verdict["l2"]["outcome"] == "fail"
+            assert verdict["l2"]["defect_class_hypothesis"] == "state_loss"
+            assert search_text(after_layout) == "zzsentinelqxzzsentinelqx"
+            assert any(
+                "实际='zzsentinelqxzzsentinelqx'" in evidence["ref"]
+                for evidence in verdict["l2"]["evidence"]
+            )
+
+    readme = (_V2_QUERY_RUN / "README.md").read_text(encoding="utf-8")
+    assert "#54" in readme
+    assert "aiverify_api35" in readme
+    assert verify_manifest(_V2_QUERY_RUN) == []
 
 
 @pytest.mark.parametrize(

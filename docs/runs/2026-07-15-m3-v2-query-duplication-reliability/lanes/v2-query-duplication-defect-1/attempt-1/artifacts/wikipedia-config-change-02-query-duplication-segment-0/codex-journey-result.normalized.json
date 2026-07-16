@@ -1,0 +1,32 @@
+{
+  "journey": "wikipedia-config-change-02-query-duplication-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 2232",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 371"
+      ],
+      "comment": "已在主 feed，无 onboarding。观察到 nav_tab_search 位于 [540,2232] 并完成点击；随后观察到 search_card 位于 [540,371] 并完成点击。",
+      "action": "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入"
+    },
+    {
+      "action_id": "action-2",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 542 215",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input text \"zzsentinelqx\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "观察到 search_src_text 位于 [542,215] 且已聚焦，完成点击和文本输入。随后确认其显示 zzsentinelqx，再按一次系统 Back。最终仍显示 SearchActivity 搜索界面及原查询文本，search_src_text 已不再聚焦，软键盘已收起。",
+      "action": "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页"
+    }
+  ]
+}
