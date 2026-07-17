@@ -7,15 +7,15 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- GitHub Issues #1-#47（含原 M3 PRD #41）和 remediation/re-baseline #49-#51
-  已完成并关闭；open PRs = 0。#48 及 #52-#57 保持 open，均为
-  `ready-for-agent`。
+- GitHub Issues #1-#56（含原 M3 PRD #41、remediation PRD #48 的
+  #49-#56）已完成；open PRs = 0。#57 的实现、最终审计和 durable run
+  record 已完成，等待本提交发布后关闭 #57 与父 PRD #48。
 - 原 M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
   未达到 29/30 而明确失败；该历史 evidence package 保持不可变。
-- #49 已加固 ANR evidence capture，#50 已加固 Journey action lineage。
-  #51 的版本化 30-lane tracer 与 setup evidence 已完成并关闭。当前推荐推进
-  #52 ANR L1 re-baseline；#52-#56 可执行五个新 seed package，#57 依赖它们
-  全部完成。
+- #49 已加固 ANR evidence capture，#50 已加固 Journey action lineage，#51
+  建立版本化 30-lane tracer；#52-#56 五个 fresh seed package 已全部完成。
+  #57 独立审计得到 v2 结果 29/30，三项未变 M3 标准全部通过，同时保留原
+  27/30 FAILED baseline，不合并 30+30 分母。
 - Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
 - Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
 - M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
@@ -34,6 +34,7 @@
 - Latest accounting run record: [`docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md`](docs/runs/2026-07-13-m2-beta-evidence-derived-accounting/README.md)
 - Latest M3 reliability tracer run record: [`docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md`](docs/runs/2026-07-13-m3-search-card-l3-reliability/README.md)
 - Final M3 audited baseline: [`docs/runs/2026-07-13-m3-final-reliability-baseline/README.md`](docs/runs/2026-07-13-m3-final-reliability-baseline/README.md)
+- Final M3 v2 audited comparison: [`docs/runs/2026-07-16-m3-v2-final-audited-comparison/README.md`](docs/runs/2026-07-16-m3-v2-final-audited-comparison/README.md)
 - Latest M3 remediation record: [`docs/runs/2026-07-13-issue-49-anr-evidence-capture-remediation/README.md`](docs/runs/2026-07-13-issue-49-anr-evidence-capture-remediation/README.md)
 - Latest Journey lineage remediation record: [`docs/runs/2026-07-14-issue-50-journey-action-lineage-remediation/README.md`](docs/runs/2026-07-14-issue-50-journey-action-lineage-remediation/README.md)
 - Latest M3 v2 tracer setup record: [`docs/runs/2026-07-15-issue-51-m3-v2-tracer-setup/README.md`](docs/runs/2026-07-15-issue-51-m3-v2-tracer-setup/README.md)
@@ -73,8 +74,15 @@
   historical comparison manifest, preserves identical population/Run Spec/oracle
   metadata, rejects stale or overlapping evidence namespaces, and retains the
   existing two-attempt public reliability-runner policy.
+- Final v2 aggregate: 30 planned / 31 formal attempts, 29 first-attempt and
+  eventual accountable, 1 bounded retry, 14/14 accountable controls passed with
+  zero false positives, and 15/15 accountable defects caught at the expected
+  level/class. The unchanged M3 criteria are **PASSED**, exactly at the 29/30
+  accountability threshold. One ANR baseline remains exhausted non-accountable.
+  Execution identity is intentionally mixed (API 36 + API 35); model identity is
+  explicitly retained for only 1/5 packages and is not backfilled.
 - Latest recorded full-suite status: `.venv/bin/pytest -o addopts="" -q` ->
-  `413 passed, 2 warnings in 12.44s`.
+  `429 passed in 12.82s` (real 12.94s).
 
 ### 已实测
 

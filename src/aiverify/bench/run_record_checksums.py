@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
+from collections import Counter
 from pathlib import Path
 
 
@@ -31,12 +32,14 @@ def verify_manifest(run_record: Path) -> list[str]:
     if not manifest.is_file():
         return [f"missing manifest: {_MANIFEST}"]
     errors: list[str] = []
+    listed: list[str] = []
     for line in manifest.read_text(encoding="utf-8").splitlines():
         match = re.fullmatch(r"([0-9a-f]{64})  (.+)", line)
         if match is None:
             errors.append(f"malformed manifest entry: {line}")
             continue
         digest, relative = match.groups()
+        listed.append(relative)
         candidate = Path(relative)
         path = (run_record / candidate).resolve()
         if candidate.is_absolute() or not path.is_relative_to(run_record.resolve()):
@@ -46,6 +49,19 @@ def verify_manifest(run_record: Path) -> list[str]:
             errors.append(f"missing artifact: {relative}")
         elif _sha256(path) != digest:
             errors.append(f"checksum mismatch: {relative}")
+    errors.extend(
+        f"duplicate manifest entry: {relative}"
+        for relative, count in sorted(Counter(listed).items())
+        if count > 1
+    )
+    actual = {
+        path.relative_to(run_record).as_posix()
+        for path in run_record.rglob("*")
+        if path.is_file() and path != manifest
+    }
+    errors.extend(
+        f"unlisted artifact: {relative}" for relative in sorted(actual - set(listed))
+    )
     return errors
 
 

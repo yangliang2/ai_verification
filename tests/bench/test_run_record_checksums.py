@@ -20,6 +20,27 @@ def test_checksum_verification_reports_changed_artifact(tmp_path: Path) -> None:
     assert verify_manifest(tmp_path) == ["checksum mismatch: artifact.txt"]
 
 
+def test_checksum_verification_reports_unlisted_artifact(tmp_path: Path) -> None:
+    (tmp_path / "listed.txt").write_text("listed", encoding="utf-8")
+    write_manifest(tmp_path)
+    (tmp_path / "unlisted.txt").write_text("unlisted", encoding="utf-8")
+
+    assert verify_manifest(tmp_path) == ["unlisted artifact: unlisted.txt"]
+
+
+def test_checksum_verification_reports_duplicate_manifest_entry(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "artifact.txt").write_text("evidence", encoding="utf-8")
+    manifest = write_manifest(tmp_path)
+    entry = manifest.read_text(encoding="utf-8")
+    manifest.write_text(entry + entry, encoding="utf-8")
+
+    assert verify_manifest(tmp_path) == [
+        "duplicate manifest entry: artifact.txt"
+    ]
+
+
 def test_checksum_verification_rejects_path_outside_run_record(tmp_path: Path) -> None:
     (tmp_path / "checksums.sha256").write_text(
         "0" * 64 + "  ../outside.txt\n", encoding="utf-8"
