@@ -7,9 +7,9 @@
 ### 已完成
 
 - GitHub PRD #1 已完成并关闭: <https://github.com/yangliang2/ai_verification/issues/1>
-- GitHub Issues #1-#56（含原 M3 PRD #41、remediation PRD #48 的
-  #49-#56）已完成；open PRs = 0。#57 的实现、最终审计和 durable run
-  record 已完成，等待本提交发布后关闭 #57 与父 PRD #48。
+- GitHub Issues #1-#57（含原 M3 PRD #41、remediation PRD #48 及其
+  #49-#57 子任务）已完成并关闭；open PRs = 0。#57 的实现、最终审计、
+  durable run record 与 GitHub evidence comment 均已发布。
 - 原 M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
   未达到 29/30 而明确失败；该历史 evidence package 保持不可变。
 - #49 已加固 ANR evidence capture，#50 已加固 Journey action lineage，#51
