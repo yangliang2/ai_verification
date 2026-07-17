@@ -26,6 +26,7 @@ from aiverify.bench.m3_reliability import (
     summary_to_dict,
 )
 from aiverify.bench.run_record_checksums import verify_manifest, write_manifest
+from aiverify.providers.parsing import extract_json_block
 from aiverify.runner.command import CommandResult, CommandRunner
 from aiverify.runner.run_spec import load_run_spec
 
@@ -45,6 +46,9 @@ _V2_QUERY_RUN = (
 )
 _V2_SWALLOWED_BACK_RUN = (
     _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-swallowed-back-reliability"
+)
+_V2_SEARCH_CARD_RUN = (
+    _ROOT / "docs" / "runs" / "2026-07-15-m3-v2-search-card-l3-reliability"
 )
 
 
@@ -574,6 +578,298 @@ def test_committed_v2_swallowed_back_progress_has_matched_auditable_attempts() -
     assert "superseded-protocol-evidence" in readme
     assert "aiverify_api35" in readme
     assert verify_manifest(_V2_SWALLOWED_BACK_RUN) == []
+
+
+def test_committed_v2_search_card_progress_has_fresh_auditable_l3_attempts() -> None:
+    manifest = load_manifest(_REBASELINE_MANIFEST, repo_root=_ROOT)
+    run_spec = load_run_spec(
+        _ROOT
+        / "bench"
+        / "goldset"
+        / "run-specs"
+        / "wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml"
+    )
+    progress = progress_to_dict(build_progress(manifest))
+    committed_progress = json.loads(
+        (_V2_SEARCH_CARD_RUN / "progress.json").read_text(encoding="utf-8")
+    )
+    committed_plan = json.loads(
+        (_V2_SEARCH_CARD_RUN / "plan-after-search-card.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert committed_progress == progress
+    assert committed_progress["planned_lanes"] == 30
+    assert committed_progress["pending_lanes"] == 0
+    assert committed_progress["pending_lane_ids"] == []
+    assert committed_progress["eventual_accountable"] == 29
+    assert committed_progress["control_outcomes"] == {"passed_control": 14}
+    assert committed_progress["defect_outcomes"] == {"caught": 15}
+    assert summary_to_dict(build_summary(manifest)) == {
+        key: value
+        for key, value in committed_progress.items()
+        if key not in {"pending_lanes", "pending_lane_ids"}
+    }
+    assert committed_plan == plan_lanes(manifest)
+    assert [entry["status"] for entry in committed_plan].count(
+        "accountable_complete"
+    ) == 29
+    assert [entry["status"] for entry in committed_plan].count(
+        "non_accountable_exhausted"
+    ) == 1
+    assert all(
+        entry["status"] not in {"pending", "retryable", "invalid_evidence"}
+        for entry in committed_plan
+    )
+
+    lanes = [
+        lane
+        for lane in manifest.lanes
+        if lane.lane_id.startswith("v2-search-card-")
+    ]
+    assert len(lanes) == 6
+    assert {lane.expected_oracle_level for lane in lanes} == {"L3"}
+    assert {lane.expected_oracle_defect_class for lane in lanes} == {
+        "ui_rendering"
+    }
+    assert all("l3-repeatability" not in str(lane.evidence_dir) for lane in lanes)
+
+    search_card_judge_seconds = 0.0
+    for lane in lanes:
+        assert lane.evidence_dir.is_relative_to(_V2_SEARCH_CARD_RUN / "lanes")
+        attempt_dirs = sorted(lane.evidence_dir.glob("attempt-*"))
+        assert 1 <= len(attempt_dirs) <= manifest.max_attempts_per_lane
+
+        verdicts = []
+        for number, attempt_dir in enumerate(attempt_dirs, start=1):
+            assert attempt_dir.name == f"attempt-{number}"
+            assert verify_manifest(attempt_dir) == []
+            _assert_complete_checksum_inventory(attempt_dir)
+            attempt = json.loads(
+                (attempt_dir / "attempt.json").read_text(encoding="utf-8")
+            )
+            verdict = json.loads(
+                (attempt_dir / "verdict.json").read_text(encoding="utf-8")
+            )
+            verdicts.append(verdict)
+            assert attempt["lane_id"] == lane.lane_id
+            assert attempt["seed_id"] == lane.seed_id
+            assert attempt["role"] == lane.role
+            assert attempt["repetition"] == lane.repetition
+            assert attempt["attempt_number"] == number
+            search_card_judge_seconds += sum(
+                phase["seconds"]
+                for phase in verdict["timing"]["phases"]
+                if phase["phase"] == "l3-judge"
+            )
+
+        accountable_indexes = [
+            index
+            for index, verdict in enumerate(verdicts)
+            if verdict["execution"]["accounting_eligible"]
+        ]
+        assert accountable_indexes == [len(attempt_dirs) - 1]
+        attempt_dir = attempt_dirs[-1]
+        attempt = json.loads(
+            (attempt_dir / "attempt.json").read_text(encoding="utf-8")
+        )
+        verdict = verdicts[-1]
+        gate = json.loads(
+            (attempt_dir / "live-validation-gate.json").read_text(encoding="utf-8")
+        )
+        journey_dir = next(
+            attempt_dir.glob(
+                "artifacts/"
+                "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0"
+            )
+        )
+        raw_journey = json.loads(
+            (journey_dir / "codex-journey-result.json").read_text(encoding="utf-8")
+        )
+        normalized_journey = json.loads(
+            (journey_dir / "codex-journey-result.normalized.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        lineage = json.loads(
+            (journey_dir / "codex-journey-action-lineage.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        checkpoint_dir = attempt_dir / "artifacts" / "after-segment-0"
+        capture = json.loads(
+            (checkpoint_dir / "capture-manifest.json").read_text(encoding="utf-8")
+        )
+        layout_path = checkpoint_dir / "layout.json"
+        raw_layout = layout_path.read_text(encoding="utf-8")
+        layout = json.loads(raw_layout)
+        nodes = {
+            node["resource-id"]: node
+            for node in layout
+            if isinstance(node, dict) and node.get("resource-id")
+        }
+
+        assert gate["status"] == "passed"
+        assert gate["failed_checks"] == []
+        assert [check["name"] for check in gate["checks"]] == [
+            "adb-device-present",
+            "boot-completed",
+            "boot-animation-stopped",
+            "android-layout-json",
+            "uiautomator-dump",
+        ]
+        assert all(check["status"] == "passed" for check in gate["checks"])
+        assert verdict["execution"] == {
+            "status": "completed",
+            "accounting_eligible": True,
+            "reason": None,
+            "message": None,
+        }
+        assert verdict["checkpoints"] == ["after-segment-0"]
+        assert verdict["injected_events"] == []
+        assert not list((attempt_dir / "artifacts").glob("after-event-*"))
+
+        expected_journey = (
+            "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0"
+        )
+        assert raw_journey["journey"] == expected_journey
+        assert normalized_journey["journey"] == expected_journey
+        assert lineage["schema_version"] == 1
+        assert lineage["journey"] == expected_journey
+        assert len(raw_journey["results"]) == 1
+        assert set(raw_journey["results"][0]) == {
+            "action_id",
+            "status",
+            "commands",
+            "comment",
+        }
+        assert raw_journey["results"][0]["action_id"] == "action-1"
+        assert raw_journey["results"][0]["status"] == "PASSED"
+        assert normalized_journey["results"][0]["action"] == (
+            run_spec.scenario.user_actions[0]
+        )
+        assert lineage["results"] == [
+            {
+                "action_id": "action-1",
+                "requested_action": run_spec.scenario.user_actions[0],
+                "status": "PASSED",
+            }
+        ]
+        assert verdict["journey_results"] == [normalized_journey]
+
+        assert capture["status"] == "passed"
+        assert capture["artifact_exists"] == {
+            "layout": True,
+            "screen": True,
+            "screen_annotated": True,
+            "logcat": True,
+            "commands": True,
+        }
+        checkpoint_files = {
+            "layout": "layout.json",
+            "screen": "screen.png",
+            "screen_annotated": "screen-annotated.png",
+            "logcat": "logcat.txt",
+            "commands": "commands.json",
+        }
+        assert set(capture["artifacts"]) == set(checkpoint_files)
+        assert all(
+            (checkpoint_dir / filename).is_file()
+            for filename in checkpoint_files.values()
+        )
+        assert "selected" in nodes["nav_tab_search"]["state"]
+        assert {"search_card", "search_text_view", "search_icon"} <= nodes.keys()
+        assert "search_src_text" not in nodes
+        assert verdict["l1"]["outcome"] == "inconclusive"
+        assert verdict["l2"]["outcome"] == "inconclusive"
+
+        judge_dir = attempt_dir / "artifacts" / "l3-judge"
+        prompts = sorted(judge_dir.glob("l3-judge-call-*.prompt.md"))
+        outputs = sorted(
+            path
+            for path in judge_dir.glob("l3-judge-call-*.md")
+            if not path.name.endswith(".prompt.md")
+        )
+        events = sorted(judge_dir.glob("l3-judge-call-*.events.jsonl"))
+
+        def call_ids(paths: list[Path]) -> list[int]:
+            return [int(path.name.split("-call-")[1].split(".")[0]) for path in paths]
+
+        assert 1 <= len(prompts) <= 2
+        assert call_ids(prompts) == list(range(1, len(prompts) + 1))
+        assert call_ids(outputs) == call_ids(prompts)
+        assert call_ids(events) == call_ids(prompts)
+        for prompt_path, output_path, events_path in zip(
+            prompts, outputs, events, strict=True
+        ):
+            prompt = prompt_path.read_text(encoding="utf-8")
+            output = output_path.read_text(encoding="utf-8")
+            assert run_spec.scenario.l3_spec in prompt
+            assert raw_layout in prompt
+            assert capture["artifacts"]["screen"] in prompt
+            assert run_spec.scenario.expected_behavior not in prompt
+            assert run_spec.diff is not None
+            assert run_spec.diff.read_text(encoding="utf-8") not in prompt
+            assert output.strip()
+            assert output.strip() not in prompt
+            assert events_path.read_text(encoding="utf-8").strip()
+        assert json.loads(extract_json_block(outputs[-1].read_text(encoding="utf-8"))) == (
+            verdict["l3"]
+        )
+        judge_phases = [
+            phase
+            for phase in verdict["timing"]["phases"]
+            if phase["phase"] == "l3-judge"
+        ]
+        assert len(judge_phases) == 1
+        assert judge_phases[0]["kind"] == "oracle"
+        assert judge_phases[0]["seconds"] > 0
+
+        if lane.role == "baseline":
+            assert attempt["runner_exit_code"] == 0
+            assert verdict["l3"]["outcome"] == "pass"
+            assert verdict["l3"]["defect_class_hypothesis"] is None
+            assert verdict["metric_context"]["failed_oracles"] == []
+            assert "search" in nodes["search_text_view"]["text"].lower()
+            assert "search" in nodes["search_icon"]["content-desc"].lower()
+        else:
+            expected_copy = "Track what you've been reading here."
+            assert attempt["runner_exit_code"] == 1
+            assert verdict["metric_context"]["seed_outcome"] == "caught"
+            assert verdict["l3"]["outcome"] == "fail"
+            assert verdict["l3"]["defect_class_hypothesis"] == "ui_rendering"
+            assert verdict["metric_context"]["failed_oracles"] == ["L3"]
+            assert nodes["search_text_view"]["text"] == expected_copy
+            assert nodes["search_icon"]["content-desc"] == expected_copy
+            assert verdict["l3"]["evidence"]
+            assert all(
+                evidence["type"] == "llm_reasoning"
+                for evidence in verdict["l3"]["evidence"]
+            )
+
+    assert round(search_card_judge_seconds, 3) == committed_progress["judge_seconds"]
+    readme = (_V2_SEARCH_CARD_RUN / "README.md").read_text(encoding="utf-8")
+    assert "#56" in readme
+    assert "fixed-evidence repeatability" in readme
+    assert "aiverify_api35" in readme
+    assert verify_manifest(_V2_SEARCH_CARD_RUN) == []
+    _assert_complete_checksum_inventory(_V2_SEARCH_CARD_RUN)
+
+
+def _assert_complete_checksum_inventory(run_record: Path) -> None:
+    manifest = run_record / "checksums.sha256"
+    listed = [
+        line.split("  ", maxsplit=1)[1]
+        for line in manifest.read_text(encoding="utf-8").splitlines()
+    ]
+    actual = [
+        path.relative_to(run_record).as_posix()
+        for path in sorted(run_record.rglob("*"))
+        if path.is_file() and path != manifest
+    ]
+    assert len(listed) == len(set(listed))
+    assert set(listed) == set(actual)
 
 
 @pytest.mark.parametrize(

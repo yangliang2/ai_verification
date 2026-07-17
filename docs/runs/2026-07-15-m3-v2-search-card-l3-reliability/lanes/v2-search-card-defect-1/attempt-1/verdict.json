@@ -1,0 +1,149 @@
+{
+  "scenario": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-15-m3-v2-search-card-l3-reliability/lanes/v2-search-card-defect-1/attempt-1/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "caught",
+    "taxonomy_category": "ui-rendering",
+    "taxonomy_pattern_id": "ui-rendering-02",
+    "expected_oracle_level": "L3",
+    "expected_oracle_defect_class": "ui_rendering",
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "inconclusive",
+      "L3": "fail"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": "ui_rendering"
+    },
+    "failed_oracles": [
+      "L3"
+    ]
+  },
+  "l1": {
+    "verdict_id": "L1-2e1e83b9",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": {
+    "verdict_id": "L3-a1c9e4f2",
+    "level": "L3",
+    "outcome": "fail",
+    "defect_class_hypothesis": "ui_rendering",
+    "trigger_steps": [
+      "应用已处于主信息流页面",
+      "点击底部导航栏的 Search 标签（nav_tab_search）",
+      "停留在 Search 标签并检查 search_card 的可见文案"
+    ],
+    "evidence": [
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0: nav_tab_search",
+        "note": "nav_tab_search 处于 selected 状态，确认已成功进入底部 Search 标签。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0: search_card",
+        "note": "search_card 可见且可交互，因此满足作出明确通过或失败判断的前提，不属于 inconclusive。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0: search_text_view, search_icon",
+        "note": "search_text_view 文本和 search_icon 内容描述均为“Track what you've been reading here.”，描述的是阅读历史，而非邀请用户搜索 Wikipedia 或搜索/询问内容。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "功能规格",
+        "note": "规格明确禁止 Search 卡片描述阅读历史或最近浏览内容；当前文案直接违反该要求，属于可见的界面文案渲染缺陷。"
+      }
+    ],
+    "confidence": 0.99
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Main feed was already visible with Home selected. Tapped nav_tab_search at its observed center. The final layout showed nav_tab_search selected and search_card visible; search_text_view displayed \"Track what you've been reading here.\" No further interaction was performed.",
+          "action": "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-17T00:41:41+00:00",
+    "finished_at": "2026-07-17T00:43:25+00:00",
+    "total_seconds": 103.769,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.693
+      },
+      {
+        "phase": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+        "kind": "journey",
+        "seconds": 71.163
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 4.916
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 22.873
+      }
+    ]
+  }
+}
