@@ -519,19 +519,359 @@ def test_inject_kill_background_fails_closed_when_process_survives() -> None:
         injector.inject(SystemEventSpec(step_index=0, event="kill_background"))
 
 
-def test_inject_app_to_background_presses_home() -> None:
+def test_inject_app_to_background_waits_until_another_package_is_resumed() -> None:
     injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{123 u0 "
+                    "com.android.launcher3/.QuickstepLauncher t4}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
 
     injector.inject(SystemEventSpec(step_index=0, event="app_to_background"))
 
-    assert fake.commands[-1] == [
-        "-s",
-        "emulator-5554",
-        "shell",
-        "input",
-        "keyevent",
-        "HOME",
+    assert fake.commands[-2:] == [
+        ["-s", "emulator-5554", "shell", "input", "keyevent", "HOME"],
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "dumpsys",
+            "activity",
+            "activities",
+        ],
     ]
+
+
+def test_inject_app_to_background_polls_through_transient_resumed_state() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{123 u0 "
+                    "org.example/.MainActivity t9}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{456 u0 "
+                    "com.android.launcher3/.QuickstepLauncher t4}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="app_to_background",
+            args={
+                "postcondition_timeout_seconds": "0.05",
+                "postcondition_poll_interval_seconds": "0.001",
+            },
+        )
+    )
+
+    assert sum("dumpsys" in command for command in fake.commands) == 2
+
+
+def test_inject_app_to_foreground_uses_explicit_activity_and_confirms_resumed() -> None:
+    fake = FakeAdbRunner()
+    device = DeviceController(serial="emulator-5554", runner=fake)
+    injector = DeviceSystemEventInjector(
+        device=device,
+        package="org.example",
+        activity="org.example.DefaultIcon",
+    )
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="Starting: Intent", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "  ResumedActivity: ActivityRecord{456 u0 "
+                    "org.example/org.example.DefaultIcon t9}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    injector.inject(SystemEventSpec(step_index=0, event="app_to_foreground"))
+
+    assert fake.commands[-2:] == [
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "am",
+            "start",
+            "-n",
+            "org.example/org.example.DefaultIcon",
+        ],
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "dumpsys",
+            "activity",
+            "activities",
+        ],
+    ]
+
+
+def test_app_to_foreground_prefers_api35_top_resumed_activity() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="Events injected: 1", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "mResumedActivity: ActivityRecord{123 u0 "
+                    "com.android.launcher3/.QuickstepLauncher t4}\n"
+                    "topResumedActivity=ActivityRecord{456 u0 "
+                    "org.example/.MainActivity t9}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="app_to_foreground",
+            args={"postcondition_timeout_seconds": "0"},
+        )
+    )
+
+
+def test_inject_app_to_foreground_polls_through_transient_resumed_state() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="Events injected: 1", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{123 u0 "
+                    "com.android.launcher3/.QuickstepLauncher t4}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{456 u0 "
+                    "org.example/.MainActivity t9}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="app_to_foreground",
+            args={
+                "postcondition_timeout_seconds": "0.05",
+                "postcondition_poll_interval_seconds": "0.001",
+            },
+        )
+    )
+
+    assert [command[3:6] for command in fake.commands[-2:]] == [
+        ["dumpsys", "activity", "activities"],
+        ["dumpsys", "activity", "activities"],
+    ]
+
+
+def test_app_to_foreground_polls_through_transient_unobservable_state() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="Events injected: 1", stderr="", returncode=0),
+            AdbResult(
+                stdout="ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{456 u0 "
+                    "org.example/.MainActivity t9}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="app_to_foreground",
+            args={
+                "postcondition_timeout_seconds": "0.05",
+                "postcondition_poll_interval_seconds": "0.001",
+            },
+        )
+    )
+
+    assert sum("dumpsys" in command for command in fake.commands) == 2
+
+
+@pytest.mark.parametrize("event", ["app_to_background", "app_to_foreground"])
+def test_app_lifecycle_events_fail_closed_when_resumed_activity_query_fails(
+    event: str,
+) -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="activity service unavailable", returncode=9),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=rf"{event}.*return code 9.*activity service unavailable",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event=event,
+                args={"postcondition_timeout_seconds": "0"},
+            )
+        )
+
+    assert fake.commands[-1][3:6] == ["dumpsys", "activity", "activities"]
+
+
+def test_app_to_background_fails_closed_when_resumed_activity_stays_unobservable() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout="ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)\n",
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=(
+            "app_to_background postcondition timed out: "
+            "resumed activity remained unobservable"
+        ),
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="app_to_background",
+                args={"postcondition_timeout_seconds": "0"},
+            )
+        )
+
+
+@pytest.mark.parametrize(
+    ("event", "resumed_package", "expected_message"),
+    [
+        (
+            "app_to_background",
+            "org.example",
+            "expected a resumed package other than org.example, observed org.example",
+        ),
+        (
+            "app_to_foreground",
+            "com.android.launcher3",
+            "expected resumed package org.example, observed com.android.launcher3",
+        ),
+    ],
+)
+def test_app_lifecycle_events_fail_closed_on_postcondition_timeout(
+    event: str,
+    resumed_package: str,
+    expected_message: str,
+) -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{123 u0 "
+                    f"{resumed_package}/.MainActivity t4}}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=rf"{event} postcondition timed out: {expected_message}",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event=event,
+                args={"postcondition_timeout_seconds": "0"},
+            )
+        )
+
+
+@pytest.mark.parametrize(
+    ("event", "args"),
+    [
+        ("app_to_background", {"postcondition_timeout_seconds": "forever"}),
+        ("app_to_background", {"postcondition_timeout_seconds": "-1"}),
+        (
+            "app_to_foreground",
+            {"postcondition_poll_interval_seconds": "0"},
+        ),
+        (
+            "app_to_foreground",
+            {"postcondition_poll_interval_seconds": "inf"},
+        ),
+    ],
+)
+def test_app_lifecycle_events_reject_invalid_polling_args_before_dispatch(
+    event: str,
+    args: dict[str, str],
+) -> None:
+    injector, fake = _injector()
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=(
+            rf"{event} requires finite non-negative "
+            "postcondition_timeout_seconds and positive "
+            "postcondition_poll_interval_seconds"
+        ),
+    ):
+        injector.inject(SystemEventSpec(step_index=0, event=event, args=args))
+
+    assert fake.commands == []
 
 
 def test_inject_dark_mode_defaults_to_night_on() -> None:

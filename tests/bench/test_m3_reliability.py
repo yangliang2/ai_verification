@@ -62,11 +62,13 @@ class VerdictWritingRunner(CommandRunner):
         returncode: int = 0,
         lifecycle_state: str | None = None,
         write_verdict: bool = True,
+        attempt_id: str | None = None,
     ) -> None:
         self.verdict = verdict
         self.returncode = returncode
         self.lifecycle_state = lifecycle_state
         self.write_verdict = write_verdict
+        self.attempt_id = attempt_id
         self.calls: list[list[str]] = []
 
     def run(
@@ -80,7 +82,9 @@ class VerdictWritingRunner(CommandRunner):
         self.calls.append(args)
         artifact_dir = Path(args[args.index("--artifact-dir") + 1])
         attempt_dir = artifact_dir.parent
-        attempt_id = f"fixture-attempt-{len(self.calls)}"
+        attempt_id = self.attempt_id or (
+            f"fixture-{attempt_dir.parent.name}-{attempt_dir.name}"
+        )
         verdict, execution_record = _fixture_execution_record(
             deepcopy(self.verdict),
             attempt_id=attempt_id,
@@ -1340,6 +1344,108 @@ def test_summary_preserves_non_accountable_first_attempt_before_retry(
     assert summary.failure_classes == {"preflight_environment": 1}
     assert summary.total_seconds == 13.5
     assert summary.operational_interventions == 1
+
+
+def test_run_lane_retry_preserves_a_distinct_execution_attempt_id(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(_write_fixture_manifest(tmp_path), repo_root=tmp_path)
+    first = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(
+            _non_accountable_verdict("live_validation_preflight_failed"),
+            returncode=2,
+        ),
+    )
+    second = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(_completed_verdict()),
+    )
+
+    assert first.attempt_id != second.attempt_id
+
+
+@pytest.mark.parametrize("aggregate", [build_summary, build_progress])
+def test_aggregate_fails_closed_on_duplicate_schema_v2_attempt_id_in_retry(
+    tmp_path: Path, aggregate
+) -> None:
+    manifest = load_manifest(_write_fixture_manifest(tmp_path), repo_root=tmp_path)
+    run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(
+            _non_accountable_verdict("live_validation_preflight_failed"),
+            returncode=2,
+            attempt_id="duplicate-attempt-id",
+        ),
+    )
+    run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(
+            _completed_verdict(), attempt_id="duplicate-attempt-id"
+        ),
+    )
+
+    with pytest.raises(ValueError, match="duplicate schema-v2 attempt_id"):
+        aggregate(manifest)
+
+
+@pytest.mark.parametrize("aggregate", [build_summary, build_progress])
+def test_aggregate_fails_closed_on_duplicate_schema_v2_attempt_id_across_lanes(
+    tmp_path: Path, aggregate
+) -> None:
+    manifest = load_manifest(
+        _write_progress_fixture_manifest(tmp_path), repo_root=tmp_path
+    )
+    manifest = replace(manifest, lanes=manifest.lanes[:2])
+    for lane in manifest.lanes:
+        run_lane(
+            manifest,
+            lane_id=lane.lane_id,
+            device="emulator-5554",
+            workdir=tmp_path,
+            runner=VerdictWritingRunner(
+                _completed_verdict(), attempt_id="duplicate-attempt-id"
+            ),
+        )
+
+    with pytest.raises(ValueError, match="duplicate schema-v2 attempt_id"):
+        aggregate(manifest)
+
+
+def test_plan_reports_duplicate_schema_v2_attempt_lineage_as_invalid_evidence(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(
+        _write_progress_fixture_manifest(tmp_path), repo_root=tmp_path
+    )
+    manifest = replace(manifest, lanes=manifest.lanes[:2])
+    for lane in manifest.lanes:
+        run_lane(
+            manifest,
+            lane_id=lane.lane_id,
+            device="emulator-5554",
+            workdir=tmp_path,
+            runner=VerdictWritingRunner(
+                _completed_verdict(), attempt_id="duplicate-attempt-id"
+            ),
+        )
+
+    assert [row["status"] for row in plan_lanes(manifest)] == [
+        "invalid_evidence",
+        "invalid_evidence",
+    ]
 
 
 def test_summary_derives_expected_defect_catch(tmp_path: Path) -> None:

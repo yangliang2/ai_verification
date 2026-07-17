@@ -215,11 +215,11 @@ class FakeDeviceController:
     def __init__(self, serial: str) -> None:
         self.serial = serial
 
-    def logcat_clear(self) -> None:
-        return None
+    def logcat_clear(self) -> AdbResult:
+        return AdbResult(stdout="", stderr="", returncode=0)
 
-    def launch(self, package: str, activity: str | None) -> None:
-        return None
+    def launch(self, package: str, activity: str | None) -> AdbResult:
+        return AdbResult(stdout="", stderr="", returncode=0)
 
 
 def _passing_preflight_responses() -> list[dict[str, object]]:
@@ -380,10 +380,10 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
             self.serial = serial
 
         def logcat_clear(self):
-            return None
+            return AdbResult(stdout="", stderr="", returncode=0)
 
         def launch(self, package, activity):
-            return None
+            return AdbResult(stdout="", stderr="", returncode=0)
 
     class InterruptedRunner:
         def __init__(self, **kwargs):
@@ -486,10 +486,10 @@ def test_public_run_retains_failed_anr_checkpoint_diagnostics(tmp_path, monkeypa
             self.serial = serial
 
         def logcat_clear(self):
-            return None
+            return AdbResult(stdout="", stderr="", returncode=0)
 
         def launch(self, package, activity):
-            return None
+            return AdbResult(stdout="", stderr="", returncode=0)
 
     class SuccessfulBackend:
         def execute(self, request):
@@ -835,9 +835,11 @@ def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, mo
 
         def logcat_clear(self):
             controller_calls.append("logcat_clear")
+            return AdbResult(stdout="", stderr="", returncode=0)
 
         def launch(self, package, activity):
             controller_calls.append(("launch", package, activity))
+            return AdbResult(stdout="", stderr="", returncode=0)
 
     class SuccessfulRunner:
         def __init__(self, **kwargs):
@@ -961,6 +963,35 @@ def test_public_run_rejects_reused_attempt_directory_before_preflight(tmp_path):
         )
 
     assert prior_verdict.read_text(encoding="utf-8") == '{"prior": true}\n'
+    assert not (run_dir / "execution-record.json").exists()
+
+
+def test_public_run_rejects_preexisting_custom_artifact_directory_before_preflight(
+    tmp_path,
+):
+    run_dir = tmp_path / "run"
+    artifact_dir = run_dir / "evidence"
+    artifact_dir.mkdir(parents=True)
+    prior_artifact = artifact_dir / "prior-checkpoint.json"
+    prior_artifact.write_text('{"prior": true}\n', encoding="utf-8")
+
+    class UnexpectedPreflightRunner(CommandRunner):
+        def run(self, *args, **kwargs):
+            raise AssertionError("preflight must not run with existing artifact output")
+
+    with pytest.raises(
+        ExecutionRecordStorageError,
+        match="existing runner output: evidence",
+    ):
+        cli.run(
+            _spec(tmp_path, l3_spec=""),
+            device="emulator-5554",
+            artifact_dir=artifact_dir,
+            workdir=tmp_path,
+            preflight_command_runner=UnexpectedPreflightRunner(),
+        )
+
+    assert prior_artifact.read_text(encoding="utf-8") == '{"prior": true}\n'
     assert not (run_dir / "execution-record.json").exists()
 
 
@@ -1250,6 +1281,119 @@ def test_runner_setup_failure_finalizes_record_before_journey_or_oracles(
     )
 
 
+def test_runner_setup_nonzero_logcat_exit_is_non_accountable_and_blocks_journey(
+    tmp_path, monkeypatch
+):
+    class FailingController:
+        def __init__(self, serial):
+            self.serial = serial
+
+        def logcat_clear(self):
+            return AdbResult(
+                stdout="",
+                stderr="logcat transport closed",
+                returncode=13,
+            )
+
+        def launch(self, package, activity):
+            raise AssertionError("launch must not follow failed logcat clear")
+
+    class UnexpectedJourneyRunner:
+        def __init__(self, **kwargs):
+            raise AssertionError("Journey must not start after runner setup failure")
+
+    monkeypatch.setattr(cli, "DeviceController", FailingController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", UnexpectedJourneyRunner)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"] == {
+        "status": "non_accountable",
+        "accounting_eligible": False,
+        "reason": "runner_setup_error",
+        "message": (
+            "RuntimeError: logcat_clear command returned return code 13: "
+            "logcat transport closed"
+        ),
+    }
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["phase_errors"] == [
+        {
+            "phase": "runner-setup",
+            "kind": "runner",
+            "reason": "runner_setup_error",
+            "message": verdict["execution"]["message"],
+        }
+    ]
+
+
+def test_runner_setup_nonzero_launch_exit_is_non_accountable_and_blocks_journey(
+    tmp_path, monkeypatch
+):
+    class FailingController:
+        def __init__(self, serial):
+            self.serial = serial
+
+        def logcat_clear(self):
+            return AdbResult(stdout="", stderr="", returncode=0)
+
+        def launch(self, package, activity):
+            return AdbResult(
+                stdout="Error type 3",
+                stderr="",
+                returncode=1,
+            )
+
+    class UnexpectedJourneyRunner:
+        def __init__(self, **kwargs):
+            raise AssertionError("Journey must not start after failed app launch")
+
+    monkeypatch.setattr(cli, "DeviceController", FailingController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", UnexpectedJourneyRunner)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"] == {
+        "status": "non_accountable",
+        "accounting_eligible": False,
+        "reason": "runner_setup_error",
+        "message": "RuntimeError: launch command returned return code 1: Error type 3",
+    }
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["phase_errors"] == [
+        {
+            "phase": "runner-setup",
+            "kind": "runner",
+            "reason": "runner_setup_error",
+            "message": verdict["execution"]["message"],
+        }
+    ]
+
+
 def test_oracle_exception_preserves_flow_evidence_but_skips_oracle_accounting(
     tmp_path, monkeypatch
 ):
@@ -1460,10 +1604,10 @@ def test_app_smoke_preflight_uses_explicit_run_spec_configuration(tmp_path, monk
             pass
 
         def logcat_clear(self):
-            return None
+            return AdbResult(stdout="", stderr="", returncode=0)
 
         def launch(self, package, activity):
-            return None
+            return AdbResult(stdout="", stderr="", returncode=0)
 
     class SuccessfulRunner:
         def __init__(self, **kwargs):

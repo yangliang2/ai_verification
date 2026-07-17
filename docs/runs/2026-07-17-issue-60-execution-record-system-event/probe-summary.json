@@ -4,6 +4,23 @@
   "accepted_success_attempt": "success-attempt-4",
   "primary_visual_success_attempt": "success-attempt-3",
   "forced_failure_attempt": "failed-attempt",
+  "lifecycle_postcondition_probe": {
+    "device": "emulator-5554",
+    "timeout_seconds": 5.0,
+    "poll_interval_seconds": 0.1,
+    "initial_top_resumed": "org.wikipedia.dev/org.wikipedia.DefaultIcon",
+    "app_to_background": {
+      "status": "passed",
+      "seconds": 0.06,
+      "observed_top_resumed": "com.google.android.apps.nexuslauncher/.NexusLauncherActivity"
+    },
+    "app_to_foreground": {
+      "status": "passed",
+      "seconds": 0.099,
+      "observed_top_resumed": "org.wikipedia.dev/org.wikipedia.DefaultIcon"
+    },
+    "final_state_restored": true
+  },
   "attempts": [
     {
       "directory": "success-attempt",

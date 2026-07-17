@@ -93,14 +93,84 @@ retained `after-segment-0`, created no `after-event-0`, wrote no L1/L2/L3
 outcome, and finalized attempt `498b3cba-1515-4ba5-97d7-02d6d454cf2a` as
 `interrupted / system_event_error / exit 2`.
 
+## Foreground/background postcondition probe
+
+The post-review API-35 probe exercised the production injector with its default
+5.0-second timeout and 0.1-second polling interval. The initial state was Wikipedia
+foreground, and the final foreground state was restored:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python - <<'PY'
+import time
+from aiverify.harness.device.controller import DeviceController
+from aiverify.runner.run_spec import SystemEventSpec
+from aiverify.runner.system_events import DeviceSystemEventInjector
+
+serial = "emulator-5554"
+package = "org.wikipedia.dev"
+activity = "org.wikipedia.DefaultIcon"
+device = DeviceController(serial=serial)
+injector = DeviceSystemEventInjector(
+    device=device,
+    package=package,
+    activity=activity,
+)
+
+def resumed_line() -> str:
+    result = device.get_resumed_activity()
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr or result.stdout)
+    lines = [
+        line.strip()
+        for line in result.stdout.splitlines()
+        if "topResumedActivity" in line
+    ]
+    if not lines:
+        raise RuntimeError("topResumedActivity was not observable")
+    return lines[0]
+
+print(f"initial: {resumed_line()}")
+for event_name in ("app_to_background", "app_to_foreground"):
+    started = time.monotonic()
+    injector.inject(SystemEventSpec(step_index=0, event=event_name))
+    elapsed = time.monotonic() - started
+    print(f"{event_name}: passed in {elapsed:.3f}s")
+    print(f"observed: {resumed_line()}")
+print("lifecycle postcondition probe: passed")
+PY
+```
+
+```text
+initial: topResumedActivity=ActivityRecord{4347385 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon t109}
+app_to_background: passed in 0.060s
+observed: topResumedActivity=ActivityRecord{9e7ff29 u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t44}
+app_to_foreground: passed in 0.099s
+observed: topResumedActivity=ActivityRecord{c6cf977 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon t109}
+lifecycle postcondition probe: passed
+```
+
 ## Device restoration
 
 After all probes, the exact initial state was restored and re-read:
 
-```text
-accelerometer_rotation=1
-user_rotation=0
-Night mode: no
-wifi_on=1
-mobile_data=1
+```bash
+adb -s emulator-5554 shell settings get system accelerometer_rotation
+adb -s emulator-5554 shell settings get system user_rotation
+adb -s emulator-5554 shell cmd uimode night
+adb -s emulator-5554 shell settings get global wifi_on
+adb -s emulator-5554 shell settings get global mobile_data
+adb -s emulator-5554 shell dumpsys activity activities | \
+  rg -m 1 'topResumedActivity'
 ```
+
+```text
+1
+0
+Night mode: no
+1
+1
+topResumedActivity=ActivityRecord{c6cf977 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon t109}
+```
+
+In command order these are `accelerometer_rotation=1`, `user_rotation=0`, night
+mode `no`, `wifi_on=1`, and `mobile_data=1`.

@@ -284,6 +284,7 @@ def run_lane(
 def plan_lanes(manifest: ReliabilityManifest) -> list[dict]:
     """Report the next valid action for every planned M3 lane."""
     plan: list[dict] = []
+    schema_v2_attempt_lanes: dict[str, list[str]] = {}
     for lane in manifest.lanes:
         raw_attempts = sorted(lane.evidence_dir.glob("attempt-*"))
         status = "pending"
@@ -302,9 +303,18 @@ def plan_lanes(manifest: ReliabilityManifest) -> list[dict]:
                     )
             attempts = attempt_directories(lane)
             if attempts:
-                _, verdict = load_verified_attempt(
-                    attempts[-1], lane=lane, attempt_number=len(attempts)
-                )
+                loaded = [
+                    load_verified_attempt(
+                        attempt_dir, lane=lane, attempt_number=number
+                    )
+                    for number, attempt_dir in enumerate(attempts, start=1)
+                ]
+                for metadata, _ in loaded:
+                    if metadata["schema_version"] == 2:
+                        schema_v2_attempt_lanes.setdefault(
+                            metadata["attempt_id"], []
+                        ).append(lane.lane_id)
+                _, verdict = loaded[-1]
                 if is_accountable(verdict):
                     status = "accountable_complete"
                 elif len(attempts) < manifest.max_attempts_per_lane:
@@ -326,6 +336,15 @@ def plan_lanes(manifest: ReliabilityManifest) -> list[dict]:
                 "status": status,
             }
         )
+    duplicate_lane_ids = {
+        lane_id
+        for lane_ids in schema_v2_attempt_lanes.values()
+        if len(lane_ids) > 1
+        for lane_id in lane_ids
+    }
+    for row in plan:
+        if row["lane_id"] in duplicate_lane_ids:
+            row["status"] = "invalid_evidence"
     return plan
 
 
@@ -352,6 +371,7 @@ def _build_progress(
     judge_seconds = 0.0
     interventions = 0
     pending_lane_ids: list[str] = []
+    schema_v2_attempt_ids: dict[str, tuple[str, int]] = {}
 
     for lane in manifest.lanes:
         attempts = attempt_directories(lane)
@@ -369,6 +389,17 @@ def _build_progress(
             metadata, verdict = load_verified_attempt(
                 attempt_dir, lane=lane, attempt_number=number
             )
+            if metadata["schema_version"] == 2:
+                attempt_id = metadata["attempt_id"]
+                previous = schema_v2_attempt_ids.get(attempt_id)
+                if previous is not None:
+                    previous_lane, previous_number = previous
+                    raise ValueError(
+                        f"duplicate schema-v2 attempt_id {attempt_id!r}: "
+                        f"lane {previous_lane} attempt {previous_number} and "
+                        f"lane {lane.lane_id} attempt {number}"
+                    )
+                schema_v2_attempt_ids[attempt_id] = (lane.lane_id, number)
             total_seconds += _timing_seconds(verdict, lane=lane)
             judge_seconds += _judge_timing_seconds(verdict, lane=lane)
             raw_interventions = metadata.get("operational_interventions", [])

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import math
 import re
+import time
 from collections.abc import Iterable
 from dataclasses import dataclass
 
@@ -18,8 +20,9 @@ class SystemEventInjectionError(ValueError):
 class DeviceSystemEventInjector:
     """Inject Run Spec system events through DeviceController.
 
-    activity: launcher activity（或 alias）完整类名，process_death 恢复拉起用；
-    debug 构建常有多个 LAUNCHER activity，缺省的 monkey 拉起不确定。
+    activity: launcher activity（或 alias）完整类名，process_death 恢复及
+    app_to_foreground 显式拉起使用；debug 构建常有多个 LAUNCHER activity，
+    缺省的 monkey 拉起不确定。
     """
 
     device: DeviceController
@@ -145,7 +148,16 @@ class DeviceSystemEventInjector:
                 )
             return
         if event.event == "app_to_background":
+            timeout_seconds, poll_interval_seconds = self._postcondition_polling(
+                event
+            )
             self._require_success(event.event, self.device.press_home())
+            self._wait_for_resumed_package(
+                event.event,
+                expect_target=False,
+                timeout_seconds=timeout_seconds,
+                poll_interval_seconds=poll_interval_seconds,
+            )
             return
         if event.event == "process_death":
             # 真实进程死亡：后台化 → am kill → launcher 重新拉起。
@@ -177,7 +189,18 @@ class DeviceSystemEventInjector:
                 )
             return
         if event.event == "app_to_foreground":
-            self._require_success(event.event, self.device.launch(self.package))
+            timeout_seconds, poll_interval_seconds = self._postcondition_polling(
+                event
+            )
+            self._require_success(
+                event.event, self.device.launch(self.package, self.activity)
+            )
+            self._wait_for_resumed_package(
+                event.event,
+                expect_target=True,
+                timeout_seconds=timeout_seconds,
+                poll_interval_seconds=poll_interval_seconds,
+            )
             return
         if event.event == "dark_mode":
             # config-change: toggling uiMode night forces recreation on activities
@@ -229,3 +252,82 @@ class DeviceSystemEventInjector:
                 f"{result.stdout.strip()!r}"
             )
         return pids
+
+    def _read_resumed_package(self, event: str) -> str | None:
+        observed = self.device.get_resumed_activity()
+        self._require_success(event, observed)
+        for field in (
+            "topResumedActivity",
+            "mResumedActivity",
+            "ResumedActivity",
+        ):
+            match = re.search(
+                rf"^\s*{field}\s*[:=]\s*"
+                r"ActivityRecord\{[^}\n]*\bu\d+\s+"
+                r"(?P<package>[A-Za-z0-9_.]+)/[^\s}]+",
+                observed.stdout,
+                flags=re.MULTILINE,
+            )
+            if match is not None:
+                return match.group("package")
+        return None
+
+    @staticmethod
+    def _postcondition_polling(event: SystemEventSpec) -> tuple[float, float]:
+        raw_timeout = event.args.get("postcondition_timeout_seconds", "5.0")
+        raw_interval = event.args.get(
+            "postcondition_poll_interval_seconds", "0.1"
+        )
+        try:
+            timeout_seconds = float(raw_timeout)
+            poll_interval_seconds = float(raw_interval)
+        except (TypeError, ValueError) as error:
+            raise SystemEventInjectionError(
+                f"{event.event} requires finite non-negative "
+                "postcondition_timeout_seconds and positive "
+                "postcondition_poll_interval_seconds"
+            ) from error
+        if (
+            not math.isfinite(timeout_seconds)
+            or timeout_seconds < 0
+            or not math.isfinite(poll_interval_seconds)
+            or poll_interval_seconds <= 0
+        ):
+            raise SystemEventInjectionError(
+                f"{event.event} requires finite non-negative "
+                "postcondition_timeout_seconds and positive "
+                "postcondition_poll_interval_seconds"
+            )
+        return timeout_seconds, poll_interval_seconds
+
+    def _wait_for_resumed_package(
+        self,
+        event: str,
+        *,
+        expect_target: bool,
+        timeout_seconds: float,
+        poll_interval_seconds: float,
+    ) -> None:
+        deadline = time.monotonic() + timeout_seconds
+        while True:
+            resumed_package = self._read_resumed_package(event)
+            target_is_resumed = resumed_package == self.package
+            if resumed_package is not None and target_is_resumed is expect_target:
+                return
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                if resumed_package is None:
+                    raise SystemEventInjectionError(
+                        f"{event} postcondition timed out: "
+                        "resumed activity remained unobservable"
+                    )
+                expected = (
+                    f"resumed package {self.package}"
+                    if expect_target
+                    else f"a resumed package other than {self.package}"
+                )
+                raise SystemEventInjectionError(
+                    f"{event} postcondition timed out: expected {expected}, "
+                    f"observed {resumed_package}"
+                )
+            time.sleep(min(poll_interval_seconds, remaining))

@@ -13,14 +13,17 @@
 - M3.1 parent #58 已拆为 #60-#62。#60 已实现并验证：公共 Run Spec runner
   在任何外部副作用前建立唯一持久 `ExecutionRecord`，所有 handled terminal
   path 原子终结；系统事件 exception/timeout/non-zero/postcondition mismatch
-  统一 fail closed 为 `system_event_error`；M3 新 attempt 以记录为权威，历史
-  schema-v1 evidence 保持兼容且不可变。#61（effective identity/provenance）是
-  下一依赖，完成后才能执行 #62 fresh immutable v3 30-lane audit。
+  统一 fail closed 为 `system_event_error`；前后台事件以有界 resumed-activity
+  轮询确认状态，runner setup 的 adb 非零退出同样不可进入 Journey；M3 新
+  attempt 以记录为权威并强制全局唯一 ID，历史 schema-v1 evidence 保持兼容
+  且不可变。#61（effective identity/provenance）是下一依赖，完成后才能执行
+  #62 fresh immutable v3 30-lane audit。
 - #60 durable run record：
   [`docs/runs/2026-07-17-issue-60-execution-record-system-event/README.md`](docs/runs/2026-07-17-issue-60-execution-record-system-event/README.md)。
   API 35 公共 seam 实测 rotate success（exit 0）与 forced permission failure
   （adb 255 → `system_event_error`, exit 2, pre-event evidence only, no oracle
-  accounting），并保留每次 retry 的独立 attempt identity。
+  accounting），另实测 Wikipedia → Launcher → Wikipedia 的前后台 postcondition
+  轮询，并保留每次 retry 的独立 attempt identity。
 - 原 M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
   未达到 29/30 而明确失败；该历史 evidence package 保持不可变。
 - #49 已加固 ANR evidence capture，#50 已加固 Journey action lineage，#51
@@ -94,7 +97,7 @@
   explicitly retained for only 1/5 packages and is not backfilled.
 - Latest recorded full-suite status:
   `PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -p no:cacheprovider -o addopts="" -q`
-  -> `479 passed in 12.12s` (real 12.28s).
+  -> `503 passed in 13.41s` (real 13.58s).
 
 ### 已实测
 
@@ -139,7 +142,7 @@ Wikipedia host:
   propagation of partial failed checkpoints into interruption diagnostics.
 - `src/aiverify/runner/system_events.py`: fail-closed system-event injection at
   boundaries, including adb timeout/non-zero detection and stable event-specific
-  postconditions where available.
+  postconditions, with bounded resumed-activity polling for foreground/background.
 - `src/aiverify/runner/verdict.py`: Android CLI layout JSON to L2Oracle verdict;
   Run Specs can select a numeric `scenario.l2_boundary_index` for multi-boundary runs.
 - `src/aiverify/runner/cli.py`: end-to-end Run Spec runner, mandatory live-validation
@@ -147,7 +150,8 @@ Wikipedia host:
   non-zero exit on oracle fail.
 - `src/aiverify/providers/codex_cli.py`: Codex CLI-backed `LLMProvider` for L3 semantic judging.
 - `src/aiverify/agent/oracle/l1.py`, `l2.py`, `l3.py`: crash/ANR, state assertion, and semantic oracle paths now all exercised live.
-- `src/aiverify/harness/device/controller.py`: includes public `press_home()` for backgrounding.
+- `src/aiverify/harness/device/controller.py`: includes public `press_home()` and
+  resumed-activity inspection for bounded lifecycle postconditions.
 - `src/aiverify/bench/live_validation_gate.py`: generic Android environment gate
   plus explicit host-neutral app-smoke validation.
 - `src/aiverify/bench/m2_beta_summary.py`: fail-closed, evidence-derived M2-beta
@@ -156,8 +160,9 @@ Wikipedia host:
   inventory generation and verification, excluding the manifest itself.
 - `src/aiverify/bench/m3_reliability.py`: versioned multi-seed M3 lane orchestration,
   bounded attempt lineage, schema-v2 `attempt_id + execution-record.json` authority
-  with historical schema-v1 verdict compatibility, fail-closed contradiction/failure
-  classification, and deterministic partial-summary generation.
+  with population-wide attempt-ID uniqueness and historical schema-v1 verdict
+  compatibility, fail-closed contradiction/failure classification, and deterministic
+  partial-summary generation.
 - `src/aiverify/bench/m3_audit.py`: final evidence-derived audit model with
   criteria, oracle, lane, identity, package-integrity, and Markdown breakdowns.
 

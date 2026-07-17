@@ -33,17 +33,22 @@ class ExecutionRecordStore:
         cls,
         run_dir: Path,
         *,
+        artifact_dir: Path | None = None,
         scenario: str,
         started_at: str,
     ) -> ExecutionRecordStore:
         """Create one non-terminal record without replacing an earlier attempt."""
+        run_dir = Path(run_dir)
+        owned_artifact_dir = (
+            Path(artifact_dir) if artifact_dir is not None else run_dir / "artifacts"
+        )
         attempt_id = str(uuid.uuid4())
         path = run_dir / "execution-record.json"
         owned_outputs = [
             run_dir / "execution-record.json",
             run_dir / "verdict.json",
             run_dir / "live-validation-gate.json",
-            run_dir / "artifacts",
+            owned_artifact_dir,
         ]
         existing = [candidate for candidate in owned_outputs if candidate.exists()]
         if existing:

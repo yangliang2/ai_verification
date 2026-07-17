@@ -28,8 +28,9 @@ from aiverify.agent.oracle import L1Oracle
 from aiverify.agent.oracle.l3 import L3Oracle
 from aiverify.agent.oracle.schema import VerdictValidationError, validate_verdict
 from aiverify.bench.live_validation_gate import GateResult, run_live_validation_gate
-from aiverify.providers.codex_cli import CodexCliProvider, CodexCliProviderError
+from aiverify.harness.device import AdbResult
 from aiverify.harness.device.controller import DeviceController
+from aiverify.providers.codex_cli import CodexCliProvider, CodexCliProviderError
 from aiverify.runner.codex_backend import CodexCliBackend, _DEFAULT_SCHEMA_PATH
 from aiverify.runner.command import CommandRunner
 from aiverify.runner.evidence import AndroidEvidenceCollector
@@ -362,6 +363,17 @@ def _run_live_validation_preflight(
         "seconds": round(time.monotonic() - preflight_start, 3),
     }
     return result, path, _live_validation_gate_summary(result, path=path), timing
+
+
+def _require_runner_setup_success(operation: str, result: AdbResult) -> None:
+    """Reject a setup command whose ADB process reported a non-zero exit."""
+    if not isinstance(result, AdbResult):
+        raise RuntimeError(f"{operation} command did not return an AdbResult")
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip() or "no output"
+        raise RuntimeError(
+            f"{operation} command returned return code {result.returncode}: {detail}"
+        )
 
 
 def _write_preflight_non_accountable_verdict(
@@ -906,6 +918,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
     run_start = time.monotonic()
     execution_record = ExecutionRecordStore.establish(
         artifact_dir.parent,
+        artifact_dir=artifact_dir,
         scenario=spec.scenario.id,
         started_at=started_at,
     )
@@ -958,9 +971,11 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
     try:
         controller = DeviceController(serial=device)
         # clear logcat so L1 only sees this run's events, not stale crashes from prior runs
-        controller.logcat_clear()
+        _require_runner_setup_success("logcat_clear", controller.logcat_clear())
         if launch:
-            controller.launch(spec.package, spec.activity)
+            _require_runner_setup_success(
+                "launch", controller.launch(spec.package, spec.activity)
+            )
 
         runner = JourneySegmentRunner(
             backend=CodexCliBackend(),

@@ -11,6 +11,9 @@ and treats a durable `in_progress` record as abandoned and non-accountable.
 System-event exceptions, subprocess timeouts, non-zero exits, and stable
 event-specific postcondition failures all converge on canonical
 `system_event_error`; later Journey segments and L1/L2/L3 accounting stop.
+Runner setup also rejects normal non-zero adb results, actual custom artifact
+directories are protected from reuse, and schema-v2 reliability aggregation rejects
+duplicate attempt identities across retries and lanes.
 
 The controlled API 35 emulator probes passed the required pair:
 
@@ -57,11 +60,12 @@ verdict, gate, or artifact directory was overwritten.
 - `src/aiverify/runner/system_events.py`, `src/aiverify/harness/device/{adb.py,controller.py}`:
   bounded adb subprocesses, non-zero checking, and stable postconditions for
   rotation, dark mode, network requested state, permission revocation,
-  background kill, and process death.
+  background kill, process death, and foreground/background state. Lifecycle state
+  uses bounded `topResumedActivity` polling with compatible fallback fields.
 - `src/aiverify/bench/m3_reliability.py`: schema-v2 attempt metadata binds
   `attempt_id + execution-record.json`; the record is authoritative, terminal
-  contradictions fail closed, and schema-v1 historical evidence remains
-  verdict-compatible.
+  contradictions and duplicate population IDs fail closed, and schema-v1 historical
+  evidence remains verdict-compatible.
 - `src/aiverify/runner/codex_backend.py`: resolves output paths before moving the
   subprocess into the host workdir.
 - Tests: `tests/runner/test_execution_record.py`, `test_cli.py`,
@@ -87,8 +91,8 @@ PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p \
 ```
 
 ```text
-235 passed in 7.06s
-real 7.26
+259 passed in 7.18s
+real 7.34
 ```
 
 Complete suite:
@@ -99,8 +103,8 @@ PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p \
 ```
 
 ```text
-479 passed in 12.12s
-real 12.28
+503 passed in 13.41s
+real 13.58
 ```
 
 Static and immutability checks:
@@ -124,11 +128,12 @@ PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums \
   --verify docs/runs/2026-07-17-issue-60-execution-record-system-event
 ```
 
-All exited 0. The focused M3 reliability/rebaseline subset was also independently
-run by the integration agent: 82 passed in 6.83s. Historical M3 and M3 v2
-manifests/evidence have no diff from the fixed point. Raw generated logcat and
-JSONL evidence is preserved byte-for-byte and checksummed; it is intentionally
-excluded from the whitespace-only source/document check above.
+All exited 0. Independent review-fix subsets also passed: M3 reliability plus
+rebaseline audit, 88 passed in 6.77s; lifecycle/system-event, controller, Journey,
+and CLI, 159 passed in 0.21s (real 0.31s). Historical M3 and M3 v2
+manifests/evidence have no diff from the fixed point. Raw generated logcat and JSONL
+evidence is preserved byte-for-byte and checksummed; it is intentionally excluded
+from the whitespace-only source/document check above.
 
 The exact public runner commands and process outputs are in
 [`process-results.md`](process-results.md). No host build or install ran for this
@@ -165,8 +170,32 @@ explicitly deferred to #61.
 - API-35 network postcondition probe captured original `wifi_on=1` and
   `mobile_data=1`, observed `0/0` after `svc ... disable`, observed `1/1` after
   enable, and restored the captured original state.
+- API-35 lifecycle postcondition probe used the production default 5.0-second /
+  0.1-second polling contract. Wikipedia moved to Nexus Launcher in 0.060s, then
+  explicit `org.wikipedia.DefaultIcon` launch resumed Wikipedia in 0.099s. The
+  original Wikipedia-foreground state was restored.
 - Final device restoration re-read: `accelerometer_rotation=1`,
-  `user_rotation=0`, night mode `no`, `wifi_on=1`, `mobile_data=1`.
+  `user_rotation=0`, night mode `no`, `wifi_on=1`, `mobile_data=1`, with
+  `org.wikipedia.dev/org.wikipedia.DefaultIcon` top-resumed.
+
+## Formal review and resolutions
+
+- Standards high: non-zero `logcat_clear` and launch results were previously
+  ignored. Both now finalize `runner_setup_error` and block Journey/oracles, with
+  public-seam regressions.
+- Standards medium: attempt ownership assumed an artifact directory named
+  `artifacts`. Establishment now checks the actual public `artifact_dir`, including
+  a nonstandard `evidence` regression.
+- Spec high: foreground/background events previously checked only process exit.
+  They now use bounded resumed-activity polling, deterministic timeout/query/error
+  coverage, and the API-35 probe above.
+- Spec medium: audit previously checked attempt IDs only within one metadata/record
+  pair. Summary, progress, and planning now fail closed on duplicate schema-v2 IDs
+  across retries or lanes, while schema-v1 history remains compatible.
+- Standards low: terminal failure envelope construction remains duplicated in the
+  CLI. This is recorded as maintainability debt; it does not weaken the validated
+  storage, lifecycle, accountability, or exit invariants, and a broad refactor was
+  kept outside this trust-closure change.
 
 ## Artifact inventory and checksums
 
@@ -180,11 +209,11 @@ is verified with the repository checksum tool.
 
 - This is one controlled API 35 emulator pair, not a physical-device,
   cross-application, ColorOS, or benchmark-wide reliability claim.
-- `app_to_background` and `app_to_foreground` currently validate process exit
-  only. A stable foreground-state contract needs bounded polling instead of a
-  one-shot parse of transient `dumpsys activity` internals.
 - Network postconditions prove synchronous requested settings (`wifi_on` and
   `mobile_data`), not carrier reachability or Internet connectivity.
+- Terminal non-accountable verdict/record envelopes are assembled in several CLI
+  branches; future schema changes should first consolidate that duplicated builder
+  logic. Current branches are covered by the public-seam failure matrix.
 - The successful L2 verdict intentionally has zero product assertions; this
   probe verifies event dispatch/postcondition/evidence/accountability, not a
   Wikipedia behavior claim.

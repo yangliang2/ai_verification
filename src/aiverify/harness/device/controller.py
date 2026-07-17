@@ -158,6 +158,10 @@ class DeviceController:
         """Read the main process id used by lifecycle-event postconditions."""
         return self._shell(["pidof", package])
 
+    def get_resumed_activity(self) -> AdbResult:
+        """Read ActivityManager state used by foreground postconditions."""
+        return self._shell(["dumpsys", "activity", "activities"])
+
     def clear_data(self, package: str) -> AdbResult:
         """清除应用数据（等同用户在设置中"清除数据"）。
 

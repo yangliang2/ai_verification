@@ -145,6 +145,20 @@ class TestForceStopAndKill:
         ctrl.press_home()
         assert fake.commands[-1] == ["shell", "input", "keyevent", "HOME"]
 
+    def test_get_resumed_activity_uses_activity_manager_state(self):
+        ctrl, fake = _ctrl(serial="emulator-5554")
+
+        ctrl.get_resumed_activity()
+
+        assert fake.commands[-1] == [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "dumpsys",
+            "activity",
+            "activities",
+        ]
+
 
 # ---------------------------------------------------------------------------
 # 权限管理
