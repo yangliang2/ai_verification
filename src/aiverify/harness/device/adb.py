@@ -56,13 +56,17 @@ class AdbRunner(abc.ABC):
 class SubprocessAdbRunner(AdbRunner):
     """生产级 ADB 运行器，通过 subprocess 调用系统中的 ``adb`` 可执行文件。"""
 
-    def __init__(self, adb_path: str = "adb") -> None:
+    def __init__(self, adb_path: str = "adb", *, timeout_seconds: float = 30.0) -> None:
         """初始化。
 
         Args:
             adb_path: adb 可执行文件路径，默认从 PATH 中查找。
+            timeout_seconds: 每条 adb 命令的最长运行时间。
         """
+        if timeout_seconds <= 0:
+            raise ValueError("timeout_seconds must be positive")
         self._adb_path = adb_path
+        self._timeout_seconds = timeout_seconds
 
     def _build_cmd(self, args: list[str], serial: str | None) -> list[str]:
         cmd = [self._adb_path]
@@ -74,7 +78,12 @@ class SubprocessAdbRunner(AdbRunner):
     def run(self, args: list[str], *, serial: str | None = None) -> AdbResult:
         """执行 adb 命令，捕获 stdout/stderr，不抛出异常（由调用方检查 returncode）。"""
         cmd = self._build_cmd(args, serial)
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=self._timeout_seconds,
+        )
         return AdbResult(stdout=proc.stdout, stderr=proc.stderr, returncode=proc.returncode)
 
     def pull(self, remote: str, local: str, *, serial: str | None = None) -> AdbResult:

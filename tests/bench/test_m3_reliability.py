@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import math
+from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
 
@@ -53,9 +55,18 @@ _V2_SEARCH_CARD_RUN = (
 
 
 class VerdictWritingRunner(CommandRunner):
-    def __init__(self, verdict: dict, *, returncode: int = 0) -> None:
+    def __init__(
+        self,
+        verdict: dict,
+        *,
+        returncode: int = 0,
+        lifecycle_state: str | None = None,
+        write_verdict: bool = True,
+    ) -> None:
         self.verdict = verdict
         self.returncode = returncode
+        self.lifecycle_state = lifecycle_state
+        self.write_verdict = write_verdict
         self.calls: list[list[str]] = []
 
     def run(
@@ -68,16 +79,150 @@ class VerdictWritingRunner(CommandRunner):
     ) -> CommandResult:
         self.calls.append(args)
         artifact_dir = Path(args[args.index("--artifact-dir") + 1])
-        artifact_dir.mkdir(parents=True)
-        (artifact_dir.parent / "verdict.json").write_text(
-            json.dumps(self.verdict), encoding="utf-8"
+        attempt_dir = artifact_dir.parent
+        attempt_id = f"fixture-attempt-{len(self.calls)}"
+        verdict, execution_record = _fixture_execution_record(
+            deepcopy(self.verdict),
+            attempt_id=attempt_id,
+            returncode=self.returncode,
+            lifecycle_state=self.lifecycle_state,
         )
+        (attempt_dir / "execution-record.json").write_text(
+            json.dumps(execution_record), encoding="utf-8"
+        )
+        if self.write_verdict:
+            (attempt_dir / "verdict.json").write_text(
+                json.dumps(verdict), encoding="utf-8"
+            )
         return CommandResult(
             args=args,
             stdout="runner result\n",
             stderr="",
             returncode=self.returncode,
         )
+
+
+def _fixture_execution_record(
+    verdict: dict,
+    *,
+    attempt_id: str,
+    returncode: int,
+    lifecycle_state: str | None,
+) -> tuple[dict, dict]:
+    started_at = "2026-07-17T12:00:00+00:00"
+    finished_at = "2026-07-17T12:00:01+00:00"
+    scenario = verdict.get("scenario", "fixture-seed")
+    execution_record = {
+        "schema_version": 1,
+        "attempt_id": attempt_id,
+        "scenario": scenario,
+        "started_at": started_at,
+        "evidence_refs": {},
+    }
+
+    if lifecycle_state == "in_progress":
+        execution_record.update(
+            {
+                "lifecycle_state": "in_progress",
+                "finished_at": None,
+                "execution": {
+                    "status": "non_accountable",
+                    "accounting_eligible": False,
+                    "reason": None,
+                    "message": None,
+                },
+                "process_outcome": None,
+                "timing": {
+                    "started_at": started_at,
+                    "finished_at": None,
+                    "total_seconds": None,
+                    "phases": [],
+                },
+                "phase_errors": [],
+            },
+        )
+        return verdict, execution_record
+
+    raw_timing = verdict.get("timing")
+    total_seconds = (
+        raw_timing.get("total_seconds") if isinstance(raw_timing, dict) else None
+    )
+    timing_is_valid = (
+        isinstance(raw_timing, dict)
+        and isinstance(total_seconds, (int, float))
+        and not isinstance(total_seconds, bool)
+        and math.isfinite(total_seconds)
+        and total_seconds >= 0
+        and isinstance(raw_timing.get("phases"), list)
+    )
+    if timing_is_valid:
+        verdict["timing"] = {
+            "started_at": started_at,
+            "finished_at": finished_at,
+            **raw_timing,
+        }
+        timing = deepcopy(verdict["timing"])
+    else:
+        timing = {
+            "started_at": started_at,
+            "finished_at": finished_at,
+            "total_seconds": 0.0,
+            "phases": [],
+        }
+
+    raw_execution = verdict.get("execution")
+    completed = (
+        isinstance(raw_execution, dict)
+        and raw_execution.get("status") == "completed"
+        and raw_execution.get("accounting_eligible") is True
+        and raw_execution.get("reason") is None
+    )
+    non_accountable = (
+        isinstance(raw_execution, dict)
+        and raw_execution.get("status") == "non_accountable"
+        and raw_execution.get("accounting_eligible") is False
+        and isinstance(raw_execution.get("reason"), str)
+        and bool(raw_execution["reason"])
+    )
+    if completed:
+        lifecycle = "completed"
+        execution = deepcopy(raw_execution)
+        process_exit_code = returncode if returncode in {0, 1} else 0
+        phase_errors = []
+    elif non_accountable:
+        lifecycle = lifecycle_state or "failed"
+        execution = deepcopy(raw_execution)
+        process_exit_code = 2
+        phase_errors = [
+            {
+                "phase": "fixture",
+                "kind": "fixture",
+                "reason": execution["reason"],
+                "message": execution.get("message") or "fixture failure",
+            }
+        ]
+    else:
+        lifecycle = "completed"
+        execution = {
+            "status": "completed",
+            "accounting_eligible": True,
+            "reason": None,
+            "message": None,
+        }
+        process_exit_code = 0
+        phase_errors = []
+
+    execution_record.update(
+        {
+            "lifecycle_state": lifecycle,
+            "finished_at": finished_at,
+            "execution": execution,
+            "process_outcome": {"exit_code": process_exit_code},
+            "timing": timing,
+            "phase_errors": phase_errors,
+        }
+    )
+    return verdict, execution_record
 
 
 def test_manifest_defines_six_lanes_per_m3_seed() -> None:
@@ -954,7 +1099,121 @@ def test_run_lane_invokes_public_runner_and_preserves_attempt(tmp_path: Path) ->
     assert attempt.runner_exit_code == 0
     assert attempt.verdict_path.is_file()
     assert (attempt.directory / "attempt.json").is_file()
+    metadata = json.loads(
+        (attempt.directory / "attempt.json").read_text(encoding="utf-8")
+    )
+    execution_record = json.loads(
+        attempt.execution_record_path.read_text(encoding="utf-8")
+    )
+    assert metadata["schema_version"] == 2
+    assert metadata["execution_record"] == "execution-record.json"
+    assert (
+        metadata["attempt_id"]
+        == execution_record["attempt_id"]
+        == attempt.attempt_id
+    )
     assert verify_manifest(attempt.directory) == []
+
+
+def test_summary_treats_in_progress_record_as_authoritative_abandonment(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(_write_fixture_manifest(tmp_path), repo_root=tmp_path)
+    run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(
+            _completed_verdict(),
+            returncode=-9,
+            lifecycle_state="in_progress",
+        ),
+    )
+
+    summary = build_summary(manifest)
+
+    assert summary.first_attempt_accountable == 0
+    assert summary.eventual_accountable == 0
+    assert summary.failure_classes == {"execution_abandoned": 1}
+    assert summary.total_seconds == 0.0
+    assert plan_lanes(manifest)[0]["status"] == "retryable"
+
+
+def test_summary_rejects_abandoned_record_with_successful_outer_exit(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(_write_fixture_manifest(tmp_path), repo_root=tmp_path)
+    run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(
+            _completed_verdict(),
+            lifecycle_state="in_progress",
+        ),
+    )
+
+    with pytest.raises(ValueError, match="abandoned.*cannot have runner exit code 0"):
+        build_summary(manifest)
+
+
+def test_summary_accounts_for_output_failure_record_without_verdict(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, oracle_level="L3"), repo_root=tmp_path
+    )
+    verdict = _non_accountable_verdict("output_finalization_error")
+    verdict["timing"] = {
+        "total_seconds": 3.5,
+        "phases": [{"phase": "l3-judge", "kind": "oracle", "seconds": 2.5}],
+    }
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(
+            verdict,
+            returncode=2,
+            write_verdict=False,
+        ),
+    )
+
+    summary = build_summary(manifest)
+
+    assert not attempt.verdict_path.exists()
+    assert summary.eventual_accountable == 0
+    assert summary.failure_classes == {"output_finalization": 1}
+    assert summary.total_seconds == 3.5
+    assert summary.judge_seconds == 2.5
+    assert plan_lanes(manifest)[0]["status"] == "retryable"
+
+
+def test_summary_fails_closed_when_terminal_record_contradicts_verdict_timing(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(_write_fixture_manifest(tmp_path), repo_root=tmp_path)
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(_completed_verdict()),
+    )
+    execution_record = json.loads(
+        attempt.execution_record_path.read_text(encoding="utf-8")
+    )
+    execution_record["timing"]["total_seconds"] = 99.0
+    attempt.execution_record_path.write_text(
+        json.dumps(execution_record), encoding="utf-8"
+    )
+    write_manifest(attempt.directory)
+
+    with pytest.raises(ValueError, match="timing contradicts ExecutionRecord"):
+        build_summary(manifest)
 
 
 def test_run_lane_refuses_to_retry_accountable_outcome(tmp_path: Path) -> None:

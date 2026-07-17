@@ -1,0 +1,20 @@
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+
+scenario:
+  id: issue-60-rotate-success
+  user_actions:
+    - >-
+      Inspect the current Wikipedia screen with android layout and report PASSED
+      when at least one visible UI element is present; no navigation is required.
+  system_events:
+    - step_index: 0
+      event: rotate
+      args:
+        rotation: "1"
+  expected_behavior: >-
+    The public runner captures pre-event evidence, successfully rotates to
+    user_rotation=1, verifies the postcondition, captures post-event evidence,
+    runs the oracles, and finalizes an accountable ExecutionRecord.

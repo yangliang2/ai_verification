@@ -33,7 +33,17 @@ from aiverify.harness.device.controller import DeviceController
 from aiverify.runner.codex_backend import CodexCliBackend, _DEFAULT_SCHEMA_PATH
 from aiverify.runner.command import CommandRunner
 from aiverify.runner.evidence import AndroidEvidenceCollector
-from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentRunner
+from aiverify.runner.execution_record import (
+    ArtifactStorageError,
+    ExecutionRecordStorageError,
+    ExecutionRecordStore,
+    write_json_artifact,
+)
+from aiverify.runner.journey import (
+    JourneyExecutionInterrupted,
+    JourneySegmentFlow,
+    JourneySegmentRunner,
+)
 from aiverify.runner.run_spec import RunSpec, ScenarioSpec, load_run_spec
 from aiverify.runner.system_events import DeviceSystemEventInjector
 from aiverify.runner.verdict import judge_l2_from_android_layout
@@ -290,10 +300,7 @@ def _write_live_validation_gate(result: GateResult, *, artifact_dir: Path) -> Pa
     evidence_dir = artifact_dir.parent
     evidence_dir.mkdir(parents=True, exist_ok=True)
     path = evidence_dir / "live-validation-gate.json"
-    path.write_text(
-        json.dumps(result.to_dict(), ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    write_json_artifact(path, result.to_dict())
     return path
 
 
@@ -367,6 +374,7 @@ def _write_preflight_non_accountable_verdict(
     artifact_dir: Path,
     started_at: str,
     run_start: float,
+    execution_record: ExecutionRecordStore,
 ) -> dict:
     failed_checks = ", ".join(gate_result.failed_checks)
     message = (
@@ -397,10 +405,350 @@ def _write_preflight_non_accountable_verdict(
             "total_seconds": round(time.monotonic() - run_start, 3),
             "phases": [preflight_timing],
         },
+        "execution_record": str(execution_record.path),
     }
     artifact_dir.parent.mkdir(parents=True, exist_ok=True)
-    (artifact_dir.parent / "verdict.json").write_text(
-        json.dumps(verdict, ensure_ascii=False, indent=2), encoding="utf-8"
+    phase_errors = [
+        {
+            "phase": "live-validation-preflight",
+            "kind": "preflight",
+            "reason": "live_validation_preflight_failed",
+            "message": message,
+        }
+    ]
+    try:
+        write_json_artifact(artifact_dir.parent / "verdict.json", verdict)
+    except Exception as error:
+        return _finalize_output_failure(
+            spec=spec,
+            error=error,
+            started_at=started_at,
+            run_start=run_start,
+            execution_record=execution_record,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            prior_phase_errors=phase_errors,
+        )
+    execution_record.finalize(
+        lifecycle_state="preflight_rejected",
+        execution=verdict["execution"],
+        process_exit_code=2,
+        timing=verdict["timing"],
+        phase_errors=phase_errors,
+        evidence_refs={
+            "live_validation_gate": str(gate_path),
+            "verdict": str(artifact_dir.parent / "verdict.json"),
+        },
+    )
+    return verdict
+
+
+def _write_preflight_exception_verdict(
+    *,
+    spec: RunSpec,
+    error: Exception,
+    artifact_dir: Path,
+    started_at: str,
+    run_start: float,
+    preflight_start: float,
+    execution_record: ExecutionRecordStore,
+) -> dict:
+    message = f"{type(error).__name__}: {error}"
+    timing = {
+        "started_at": started_at,
+        "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "total_seconds": round(time.monotonic() - run_start, 3),
+        "phases": [
+            {
+                "phase": "live-validation-preflight",
+                "kind": "preflight",
+                "status": "failed",
+                "seconds": round(time.monotonic() - preflight_start, 3),
+            }
+        ],
+    }
+    execution = {
+        "status": "non_accountable",
+        "accounting_eligible": False,
+        "reason": "live_validation_preflight_failed",
+        "message": message,
+    }
+    verdict = {
+        "scenario": spec.scenario.id,
+        "execution": execution,
+        "preflight": {"live_validation_gate": None},
+        "metric_context": _non_accountable_metric_context(spec),
+        "l1": None,
+        "l2": None,
+        "l3": None,
+        "diagnostic_artifacts": {},
+        "journey_results": [],
+        "checkpoints": [],
+        "injected_events": [],
+        "timing": timing,
+        "execution_record": str(execution_record.path),
+    }
+    verdict_path = artifact_dir.parent / "verdict.json"
+    phase_errors = [
+        {
+            "phase": "live-validation-preflight",
+            "kind": "preflight",
+            "reason": "live_validation_preflight_failed",
+            "message": message,
+        }
+    ]
+    try:
+        write_json_artifact(verdict_path, verdict)
+    except Exception as output_error:
+        return _finalize_output_failure(
+            spec=spec,
+            error=output_error,
+            started_at=started_at,
+            run_start=run_start,
+            execution_record=execution_record,
+            preflight_timing=timing["phases"][0],
+            prior_phase_errors=phase_errors,
+        )
+    execution_record.finalize(
+        lifecycle_state="failed",
+        execution=execution,
+        process_exit_code=2,
+        timing=timing,
+        phase_errors=phase_errors,
+        evidence_refs={"verdict": str(verdict_path)},
+    )
+    return verdict
+
+
+def _write_failed_run_verdict(
+    *,
+    spec: RunSpec,
+    reason: str,
+    phase: str,
+    kind: str,
+    error: Exception,
+    artifact_dir: Path,
+    started_at: str,
+    run_start: float,
+    phase_start: float,
+    preflight_summary: dict,
+    preflight_timing: dict,
+    execution_record: ExecutionRecordStore,
+    flow: JourneySegmentFlow | None = None,
+    lifecycle_state: str = "failed",
+) -> dict:
+    message = f"{type(error).__name__}: {error}"
+    failed_timing = {
+        "phase": phase,
+        "kind": kind,
+        "status": "failed",
+        "seconds": round(time.monotonic() - phase_start, 3),
+    }
+    timing = {
+        "started_at": started_at,
+        "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "total_seconds": round(time.monotonic() - run_start, 3),
+        "phases": [
+            preflight_timing,
+            *(flow.timings if flow is not None else []),
+            failed_timing,
+        ],
+    }
+    execution = {
+        "status": "non_accountable",
+        "accounting_eligible": False,
+        "reason": reason,
+        "message": message,
+    }
+    verdict = {
+        "scenario": spec.scenario.id,
+        "execution": execution,
+        "preflight": {"live_validation_gate": preflight_summary},
+        "metric_context": _non_accountable_metric_context(spec),
+        "l1": None,
+        "l2": None,
+        "l3": None,
+        "diagnostic_artifacts": {
+            "live_validation_gate": preflight_summary["artifact"],
+            "journey_results": (
+                [str(result.result_path) for result in flow.journey_results]
+                if flow is not None
+                else []
+            ),
+            "checkpoints": (
+                [str(checkpoint.directory) for checkpoint in flow.checkpoints]
+                if flow is not None
+                else []
+            ),
+        },
+        "journey_results": (
+            [result.data for result in flow.journey_results]
+            if flow is not None
+            else []
+        ),
+        "checkpoints": (
+            [checkpoint.name for checkpoint in flow.checkpoints]
+            if flow is not None
+            else []
+        ),
+        "injected_events": (
+            [
+                {"event": event.event, "args": event.args}
+                for event in flow.injected_events
+            ]
+            if flow is not None
+            else []
+        ),
+        "timing": timing,
+        "execution_record": str(execution_record.path),
+    }
+    verdict_path = artifact_dir.parent / "verdict.json"
+    phase_errors = [
+        {
+            "phase": phase,
+            "kind": kind,
+            "reason": reason,
+            "message": message,
+        }
+    ]
+    try:
+        write_json_artifact(verdict_path, verdict)
+    except Exception as output_error:
+        return _finalize_output_failure(
+            spec=spec,
+            error=output_error,
+            started_at=started_at,
+            run_start=run_start,
+            execution_record=execution_record,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            flow=flow,
+            additional_timings=[failed_timing],
+            prior_phase_errors=phase_errors,
+        )
+    evidence_refs: dict[str, object] = {
+        "live_validation_gate": preflight_summary["artifact"],
+        "verdict": str(verdict_path),
+    }
+    if flow is not None:
+        evidence_refs.update(
+            {
+                "journey_results": [
+                    str(result.result_path) for result in flow.journey_results
+                ],
+                "checkpoints": [
+                    str(checkpoint.directory) for checkpoint in flow.checkpoints
+                ],
+            }
+        )
+    execution_record.finalize(
+        lifecycle_state=lifecycle_state,
+        execution=execution,
+        process_exit_code=2,
+        timing=timing,
+        phase_errors=phase_errors,
+        evidence_refs=evidence_refs,
+    )
+    return verdict
+
+
+def _finalize_output_failure(
+    *,
+    spec: RunSpec,
+    error: Exception,
+    started_at: str,
+    run_start: float,
+    execution_record: ExecutionRecordStore,
+    output_phase: str = "verdict-output",
+    preflight_summary: dict | None = None,
+    preflight_timing: dict | None = None,
+    flow: JourneySegmentFlow | None = None,
+    additional_timings: list[dict] | None = None,
+    prior_phase_errors: list[dict] | None = None,
+) -> dict:
+    message = f"{type(error).__name__}: {error}"
+    output_timing = {
+        "phase": output_phase,
+        "kind": "output",
+        "status": "failed",
+        "seconds": 0.0,
+    }
+    phase_timings: list[dict] = []
+    if preflight_timing is not None:
+        phase_timings.append(preflight_timing)
+    if flow is not None:
+        phase_timings.extend(flow.timings)
+    phase_timings.extend(additional_timings or [])
+    phase_timings.append(output_timing)
+    timing = {
+        "started_at": started_at,
+        "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "total_seconds": round(time.monotonic() - run_start, 3),
+        "phases": phase_timings,
+    }
+    execution = {
+        "status": "non_accountable",
+        "accounting_eligible": False,
+        "reason": "output_finalization_error",
+        "message": message,
+    }
+    verdict = {
+        "scenario": spec.scenario.id,
+        "execution": execution,
+        "preflight": {"live_validation_gate": preflight_summary},
+        "metric_context": _non_accountable_metric_context(spec),
+        "l1": None,
+        "l2": None,
+        "l3": None,
+        "diagnostic_artifacts": {},
+        "journey_results": (
+            [result.data for result in flow.journey_results]
+            if flow is not None
+            else []
+        ),
+        "checkpoints": (
+            [checkpoint.name for checkpoint in flow.checkpoints]
+            if flow is not None
+            else []
+        ),
+        "injected_events": [
+            {"event": event.event, "args": event.args}
+            for event in (flow.injected_events if flow is not None else [])
+        ],
+        "timing": timing,
+        "execution_record": str(execution_record.path),
+    }
+    evidence_refs: dict[str, object] = {}
+    if preflight_summary is not None:
+        gate_path = preflight_summary["artifact"]
+        verdict["diagnostic_artifacts"]["live_validation_gate"] = gate_path
+        evidence_refs["live_validation_gate"] = gate_path
+    if flow is not None:
+        journey_refs = [
+            str(result.result_path) for result in flow.journey_results
+        ]
+        checkpoint_refs = [
+            str(checkpoint.directory) for checkpoint in flow.checkpoints
+        ]
+        verdict["diagnostic_artifacts"].update(
+            {"journey_results": journey_refs, "checkpoints": checkpoint_refs}
+        )
+        evidence_refs.update(
+            {"journey_results": journey_refs, "checkpoints": checkpoint_refs}
+        )
+    output_error = {
+        "phase": output_phase,
+        "kind": "output",
+        "reason": "output_finalization_error",
+        "message": message,
+    }
+    execution_record.finalize(
+        lifecycle_state="failed",
+        execution=execution,
+        process_exit_code=2,
+        timing=timing,
+        phase_errors=[*(prior_phase_errors or []), output_error],
+        evidence_refs=evidence_refs,
     )
     return verdict
 
@@ -414,6 +762,7 @@ def _write_non_accountable_verdict(
     run_start: float,
     preflight_summary: dict,
     preflight_timing: dict,
+    execution_record: ExecutionRecordStore,
 ) -> dict:
     """Persist a diagnostic run result that cannot enter benchmark accounting."""
     flow = error.flow
@@ -483,10 +832,68 @@ def _write_non_accountable_verdict(
             "total_seconds": round(time.monotonic() - run_start, 3),
             "phases": [preflight_timing, *flow.timings],
         },
+        "execution_record": str(execution_record.path),
     }
+    failed_timings = [
+        timing for timing in flow.timings if timing.get("status") == "failed"
+    ]
+    if failed_timings:
+        phase_errors = [
+            {
+                "phase": timing["phase"],
+                "kind": timing["kind"],
+                "reason": error.reason,
+                "message": str(error),
+            }
+            for timing in failed_timings
+        ]
+    else:
+        kind = (
+            "checkpoint"
+            if error.reason == "checkpoint_capture_error"
+            else "system_event"
+            if error.reason == "system_event_error"
+            else "journey"
+        )
+        phase_errors = [
+            {
+                "phase": kind,
+                "kind": kind,
+                "reason": error.reason,
+                "message": str(error),
+            }
+        ]
     artifact_dir.parent.mkdir(parents=True, exist_ok=True)
-    (artifact_dir.parent / "verdict.json").write_text(
-        json.dumps(verdict, ensure_ascii=False, indent=2), encoding="utf-8"
+    try:
+        write_json_artifact(artifact_dir.parent / "verdict.json", verdict)
+    except Exception as output_error:
+        return _finalize_output_failure(
+            spec=spec,
+            error=output_error,
+            started_at=started_at,
+            run_start=run_start,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            flow=flow,
+            execution_record=execution_record,
+            prior_phase_errors=phase_errors,
+        )
+    execution_record.finalize(
+        lifecycle_state="interrupted",
+        execution=verdict["execution"],
+        process_exit_code=2,
+        timing=verdict["timing"],
+        phase_errors=phase_errors,
+        evidence_refs={
+            "live_validation_gate": preflight_summary["artifact"],
+            "verdict": str(artifact_dir.parent / "verdict.json"),
+            "journey_results": [
+                str(result.result_path) for result in flow.journey_results
+            ],
+            "checkpoints": [
+                str(checkpoint.directory) for checkpoint in flow.checkpoints
+            ],
+        },
     )
     return verdict
 
@@ -497,17 +904,43 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         preflight_command_runner: CommandRunner | None = None) -> dict:
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     run_start = time.monotonic()
-    (
-        preflight_result,
-        preflight_path,
-        preflight_summary,
-        preflight_timing,
-    ) = _run_live_validation_preflight(
-        spec,
-        device=device,
-        artifact_dir=artifact_dir,
-        runner=preflight_command_runner,
+    execution_record = ExecutionRecordStore.establish(
+        artifact_dir.parent,
+        scenario=spec.scenario.id,
+        started_at=started_at,
     )
+    preflight_start = time.monotonic()
+    try:
+        (
+            preflight_result,
+            preflight_path,
+            preflight_summary,
+            preflight_timing,
+        ) = _run_live_validation_preflight(
+            spec,
+            device=device,
+            artifact_dir=artifact_dir,
+            runner=preflight_command_runner,
+        )
+    except ArtifactStorageError as error:
+        return _finalize_output_failure(
+            spec=spec,
+            error=error,
+            started_at=started_at,
+            run_start=run_start,
+            execution_record=execution_record,
+            output_phase="live-validation-gate-output",
+        )
+    except Exception as error:
+        return _write_preflight_exception_verdict(
+            spec=spec,
+            error=error,
+            artifact_dir=artifact_dir,
+            started_at=started_at,
+            run_start=run_start,
+            preflight_start=preflight_start,
+            execution_record=execution_record,
+        )
     if preflight_result.status != "passed":
         return _write_preflight_non_accountable_verdict(
             spec=spec,
@@ -518,21 +951,40 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             artifact_dir=artifact_dir,
             started_at=started_at,
             run_start=run_start,
+            execution_record=execution_record,
         )
 
-    controller = DeviceController(serial=device)
-    # clear logcat so L1 only sees this run's events, not stale crashes from prior runs
-    controller.logcat_clear()
-    if launch:
-        controller.launch(spec.package, spec.activity)
+    setup_start = time.monotonic()
+    try:
+        controller = DeviceController(serial=device)
+        # clear logcat so L1 only sees this run's events, not stale crashes from prior runs
+        controller.logcat_clear()
+        if launch:
+            controller.launch(spec.package, spec.activity)
 
-    runner = JourneySegmentRunner(
-        backend=CodexCliBackend(),
-        checkpoint_collector=AndroidEvidenceCollector(),
-        system_event_injector=DeviceSystemEventInjector(
-            device=controller, package=spec.package, activity=spec.activity
-        ),
-    )
+        runner = JourneySegmentRunner(
+            backend=CodexCliBackend(),
+            checkpoint_collector=AndroidEvidenceCollector(),
+            system_event_injector=DeviceSystemEventInjector(
+                device=controller, package=spec.package, activity=spec.activity
+            ),
+        )
+    except Exception as error:
+        return _write_failed_run_verdict(
+            spec=spec,
+            reason="runner_setup_error",
+            phase="runner-setup",
+            kind="runner",
+            error=error,
+            artifact_dir=artifact_dir,
+            started_at=started_at,
+            run_start=run_start,
+            phase_start=setup_start,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            execution_record=execution_record,
+        )
+    journey_start = time.monotonic()
     try:
         flow = runner.run(
             scenario=spec.scenario,
@@ -551,22 +1003,65 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             run_start=run_start,
             preflight_summary=preflight_summary,
             preflight_timing=preflight_timing,
+            execution_record=execution_record,
+        )
+    except Exception as error:
+        return _write_failed_run_verdict(
+            spec=spec,
+            reason="journey_execution_error",
+            phase="journey-execution",
+            kind="journey",
+            error=error,
+            artifact_dir=artifact_dir,
+            started_at=started_at,
+            run_start=run_start,
+            phase_start=journey_start,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            execution_record=execution_record,
+            lifecycle_state="interrupted",
         )
 
-    checkpoints = {c.name: c for c in flow.checkpoints}
-    steps = _trigger_steps(spec)
+    oracle_start = time.monotonic()
+    try:
+        checkpoints = {c.name: c for c in flow.checkpoints}
+        steps = _trigger_steps(spec)
 
-    # L1 scans every checkpoint's logcat, so a crash/ANR during any segment or after any
-    # event is caught — not only the post-event checkpoint (e.g. an ANR while typing).
-    all_logcat = "\n".join(cp.logcat_path.read_text(encoding="utf-8") for cp in flow.checkpoints)
-    l1 = L1Oracle().judge(all_logcat, trigger_steps=steps)
+        # L1 scans every checkpoint's logcat, so a crash/ANR during any segment or after any
+        # event is caught — not only the post-event checkpoint (e.g. an ANR while typing).
+        all_logcat = "\n".join(
+            cp.logcat_path.read_text(encoding="utf-8") for cp in flow.checkpoints
+        )
+        l1 = L1Oracle().judge(all_logcat, trigger_steps=steps)
 
-    l2 = _judge_l2_from_checkpoints(spec.scenario, checkpoints, steps=steps)
+        l2 = _judge_l2_from_checkpoints(spec.scenario, checkpoints, steps=steps)
 
-    l3 = _judge_l3(
-        spec, flow, l1=l1, l2=l2, steps=steps,
-        workdir=workdir, artifact_dir=artifact_dir, model=l3_model,
-    )
+        l3 = _judge_l3(
+            spec,
+            flow,
+            l1=l1,
+            l2=l2,
+            steps=steps,
+            workdir=workdir,
+            artifact_dir=artifact_dir,
+            model=l3_model,
+        )
+    except Exception as error:
+        return _write_failed_run_verdict(
+            spec=spec,
+            reason="oracle_execution_error",
+            phase="oracle-evaluation",
+            kind="oracle",
+            error=error,
+            artifact_dir=artifact_dir,
+            started_at=started_at,
+            run_start=run_start,
+            phase_start=oracle_start,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            execution_record=execution_record,
+            flow=flow,
+        )
 
     verdict = {
         "scenario": spec.scenario.id,
@@ -590,9 +1085,41 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             "total_seconds": round(time.monotonic() - run_start, 3),
             "phases": [preflight_timing, *flow.timings],
         },
+        "execution_record": str(execution_record.path),
     }
-    (artifact_dir.parent / "verdict.json").write_text(
-        json.dumps(verdict, ensure_ascii=False, indent=2), encoding="utf-8"
+    try:
+        write_json_artifact(artifact_dir.parent / "verdict.json", verdict)
+    except Exception as error:
+        return _finalize_output_failure(
+            spec=spec,
+            error=error,
+            started_at=started_at,
+            run_start=run_start,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            flow=flow,
+            execution_record=execution_record,
+        )
+    process_exit_code = 1 if any(
+        value is not None and value["outcome"] == "fail"
+        for value in (l1, l2, l3)
+    ) else 0
+    execution_record.finalize(
+        lifecycle_state="completed",
+        execution=verdict["execution"],
+        process_exit_code=process_exit_code,
+        timing=verdict["timing"],
+        phase_errors=[],
+        evidence_refs={
+            "live_validation_gate": str(preflight_path),
+            "verdict": str(artifact_dir.parent / "verdict.json"),
+            "journey_results": [
+                str(result.result_path) for result in flow.journey_results
+            ],
+            "checkpoints": [
+                str(checkpoint.directory) for checkpoint in flow.checkpoints
+            ],
+        },
     )
     return verdict
 
@@ -609,15 +1136,19 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     spec = load_run_spec(args.run_spec)
-    verdict = run(
-        spec,
-        device=args.device,
-        artifact_dir=args.artifact_dir,
-        workdir=args.workdir,
-        launch=not args.no_launch,
-        model=args.model,
-        l3_model=args.l3_model,
-    )
+    try:
+        verdict = run(
+            spec,
+            device=args.device,
+            artifact_dir=args.artifact_dir,
+            workdir=args.workdir,
+            launch=not args.no_launch,
+            model=args.model,
+            l3_model=args.l3_model,
+        )
+    except ExecutionRecordStorageError as error:
+        print(f"ExecutionRecord storage failed: {error}", file=sys.stderr)
+        return 2
     if verdict["execution"]["status"] != "completed":
         execution = verdict["execution"]
         print(

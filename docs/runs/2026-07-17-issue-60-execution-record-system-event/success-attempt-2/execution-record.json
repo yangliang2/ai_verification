@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "attempt_id": "54b53211-be1a-4eab-aa24-82fa63555ce2",
+  "scenario": "issue-60-rotate-success",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-17T17:11:47+00:00",
+  "finished_at": "2026-07-17T17:13:14+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-17T17:11:47+00:00",
+    "finished_at": "2026-07-17T17:13:14+00:00",
+    "total_seconds": 87.552,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.81
+      },
+      {
+        "phase": "issue-60-rotate-success-segment-0",
+        "kind": "journey",
+        "seconds": 72.334
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.091
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.111
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 5.059
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-2/live-validation-gate.json",
+    "verdict": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-2/verdict.json"
+  }
+}

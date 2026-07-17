@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "attempt_id": "498b3cba-1515-4ba5-97d7-02d6d454cf2a",
+  "scenario": "issue-60-forced-event-failure",
+  "lifecycle_state": "interrupted",
+  "started_at": "2026-07-17T17:16:57+00:00",
+  "finished_at": "2026-07-17T17:18:09+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "system_event_error",
+    "message": "SystemEventInjectionError: revoke_permission command returned return code 255: Exception occurred while executing 'revoke':\njava.lang.IllegalArgumentException: Unknown permission android.permission.DOES_NOT_EXIST\n\tat com.android.server.permission.access.permission.PermissionService.setRuntimePermissionGranted(PermissionService.kt:911)\n\tat com.android.server.permission.access.permission.PermissionService.access$setRuntimePermissionGranted(PermissionService.kt:108)\n\tat com.android.server.permission.access.permission.PermissionService.setRuntimePermissionGranted(PermissionService.kt:809)\n\tat com.android.server.permission.access.permission.PermissionService.setRuntimePermissionGranted$default(PermissionService.kt:714)\n\tat com.android.server.permission.access.permission.PermissionService.revokeRuntimePermission(PermissionService.kt:686)\n\tat com.android.server.pm.permission.PermissionManagerService.revokeRuntimePermission(PermissionManagerService.java:592)\n\tat android.permission.PermissionManager.revokeRuntimePermissionInternal(PermissionManager.java:757)\n\tat android.permission.PermissionManager.revokeRuntimePermission(PermissionManager.java:715)\n\tat com.android.server.pm.PackageManagerShellCommand.runGrantRevokePermission(PackageManagerShellCommand.java:2702)\n\tat com.android.server.pm.PackageManagerShellCommand.onCommand(PackageManagerShellCommand.java:318)\n\tat com.android.modules.utils.BasicShellCommandHandler.exec(BasicShellCommandHandler.java:97)\n\tat android.os.ShellCommand.exec(ShellCommand.java:38)\n\tat com.android.server.pm.PackageManagerService$IPackageManagerImpl.onShellCommand(PackageManagerService.java:6561)\n\tat android.os.Binder.shellCommand(Binder.java:1230)\n\tat android.os.Binder.onTransact(Binder.java:1043)\n\tat android.content.pm.IPackageManager$Stub.onTransact(IPackageManager.java:4620)\n\tat com.android.server.pm.PackageManagerService$IPackageManagerImpl.onTransact(PackageManagerService.java:6545)\n\tat android.os.Binder.execTransactInternal(Binder.java:1505)\n\tat android.os.Binder.execTransact(Binder.java:1444)"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-07-17T17:16:57+00:00",
+    "finished_at": "2026-07-17T17:18:09+00:00",
+    "total_seconds": 72.009,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.708
+      },
+      {
+        "phase": "issue-60-forced-event-failure-segment-0",
+        "kind": "journey",
+        "seconds": 62.083
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.06
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "revoke_permission",
+        "status": "failed",
+        "seconds": 0.022
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "event-0",
+      "kind": "system_event",
+      "reason": "system_event_error",
+      "message": "SystemEventInjectionError: revoke_permission command returned return code 255: Exception occurred while executing 'revoke':\njava.lang.IllegalArgumentException: Unknown permission android.permission.DOES_NOT_EXIST\n\tat com.android.server.permission.access.permission.PermissionService.setRuntimePermissionGranted(PermissionService.kt:911)\n\tat com.android.server.permission.access.permission.PermissionService.access$setRuntimePermissionGranted(PermissionService.kt:108)\n\tat com.android.server.permission.access.permission.PermissionService.setRuntimePermissionGranted(PermissionService.kt:809)\n\tat com.android.server.permission.access.permission.PermissionService.setRuntimePermissionGranted$default(PermissionService.kt:714)\n\tat com.android.server.permission.access.permission.PermissionService.revokeRuntimePermission(PermissionService.kt:686)\n\tat com.android.server.pm.permission.PermissionManagerService.revokeRuntimePermission(PermissionManagerService.java:592)\n\tat android.permission.PermissionManager.revokeRuntimePermissionInternal(PermissionManager.java:757)\n\tat android.permission.PermissionManager.revokeRuntimePermission(PermissionManager.java:715)\n\tat com.android.server.pm.PackageManagerShellCommand.runGrantRevokePermission(PackageManagerShellCommand.java:2702)\n\tat com.android.server.pm.PackageManagerShellCommand.onCommand(PackageManagerShellCommand.java:318)\n\tat com.android.modules.utils.BasicShellCommandHandler.exec(BasicShellCommandHandler.java:97)\n\tat android.os.ShellCommand.exec(ShellCommand.java:38)\n\tat com.android.server.pm.PackageManagerService$IPackageManagerImpl.onShellCommand(PackageManagerService.java:6561)\n\tat android.os.Binder.shellCommand(Binder.java:1230)\n\tat android.os.Binder.onTransact(Binder.java:1043)\n\tat android.content.pm.IPackageManager$Stub.onTransact(IPackageManager.java:4620)\n\tat com.android.server.pm.PackageManagerService$IPackageManagerImpl.onTransact(PackageManagerService.java:6545)\n\tat android.os.Binder.execTransactInternal(Binder.java:1505)\n\tat android.os.Binder.execTransact(Binder.java:1444)"
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/failed-attempt/live-validation-gate.json",
+    "verdict": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/failed-attempt/verdict.json",
+    "journey_results": [
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/failed-attempt/artifacts/issue-60-forced-event-failure-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/failed-attempt/artifacts/after-segment-0"
+    ]
+  }
+}

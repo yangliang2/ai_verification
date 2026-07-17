@@ -154,6 +154,10 @@ class DeviceController:
         """
         return self._shell(["am", "kill", package])
 
+    def get_pid(self, package: str) -> AdbResult:
+        """Read the main process id used by lifecycle-event postconditions."""
+        return self._shell(["pidof", package])
+
     def clear_data(self, package: str) -> AdbResult:
         """清除应用数据（等同用户在设置中"清除数据"）。
 
@@ -177,7 +181,7 @@ class DeviceController:
         background_wait: float = 2.0,
         kill_wait: float = 2.0,
         restore_wait: float = 8.0,
-    ) -> AdbResult:
+    ) -> tuple[AdbResult, AdbResult, AdbResult]:
         """模拟真实进程死亡并恢复：后台化 → am kill → 从 launcher 重新拉起。
 
         关键语义（实测于 emulator-5554 / API 35，见 issue #10）：
@@ -202,12 +206,12 @@ class DeviceController:
             restore_wait: 重新拉起后等待秒数（让 Activity 栈恢复完成）。
 
         Returns:
-            重新拉起应用的 AdbResult。
+            HOME、后台进程终止、重新拉起三次 adb 调用的结果。
         """
-        self.press_home()
+        background_result = self.press_home()
         if background_wait > 0:
             time.sleep(background_wait)
-        self.kill_background(package)
+        kill_result = self.kill_background(package)
         if kill_wait > 0:
             time.sleep(kill_wait)
         if activity:
@@ -221,7 +225,7 @@ class DeviceController:
             result = self.launch(package)
         if restore_wait > 0:
             time.sleep(restore_wait)
-        return result
+        return background_result, kill_result, result
 
     # ------------------------------------------------------------------
     # 权限管理
@@ -251,6 +255,10 @@ class DeviceController:
         """
         return self._shell(["pm", "revoke", package, permission])
 
+    def dump_package_state(self, package: str) -> AdbResult:
+        """Return package-manager state used to verify runtime permissions."""
+        return self._shell(["dumpsys", "package", package])
+
     # ------------------------------------------------------------------
     # 系统设置
     # ------------------------------------------------------------------
@@ -270,6 +278,16 @@ class DeviceController:
         r1 = self._shell(["settings", "put", "system", "accelerometer_rotation", "0"])
         r2 = self._shell(["settings", "put", "system", "user_rotation", str(rotation)])
         return r1, r2
+
+    def get_user_rotation(self) -> AdbResult:
+        """Read the effective forced screen rotation for event postconditions."""
+        return self._shell(["settings", "get", "system", "user_rotation"])
+
+    def get_accelerometer_rotation(self) -> AdbResult:
+        """Read whether Android's automatic rotation remains enabled."""
+        return self._shell([
+            "settings", "get", "system", "accelerometer_rotation",
+        ])
 
     def set_wifi(self, *, enabled: bool) -> AdbResult:
         """开启或关闭 Wi-Fi。
@@ -295,6 +313,14 @@ class DeviceController:
         state = "enable" if enabled else "disable"
         return self._shell(["svc", "data", state])
 
+    def get_wifi_setting(self) -> AdbResult:
+        """Read Android's requested Wi-Fi enabled setting."""
+        return self._shell(["settings", "get", "global", "wifi_on"])
+
+    def get_mobile_data_setting(self) -> AdbResult:
+        """Read Android's requested mobile-data enabled setting."""
+        return self._shell(["settings", "get", "global", "mobile_data"])
+
     def set_night_mode(self, *, enabled: bool) -> AdbResult:
         """开启或关闭系统深色模式（uiMode night 配置变更）。
 
@@ -313,6 +339,10 @@ class DeviceController:
         """
         state = "yes" if enabled else "no"
         return self._shell(["cmd", "uimode", "night", state])
+
+    def get_night_mode(self) -> AdbResult:
+        """Read the effective uiMode night setting for event postconditions."""
+        return self._shell(["cmd", "uimode", "night"])
 
     # ------------------------------------------------------------------
     # 截图

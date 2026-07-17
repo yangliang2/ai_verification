@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "attempt_id": "ab86e8c1-fe25-43b4-bcc8-fc4349cfefae",
+  "scenario": "issue-60-rotate-success",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-17T17:14:40+00:00",
+  "finished_at": "2026-07-17T17:16:16+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-17T17:14:40+00:00",
+    "finished_at": "2026-07-17T17:16:16+00:00",
+    "total_seconds": 95.423,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 5.013
+      },
+      {
+        "phase": "issue-60-rotate-success-segment-0",
+        "kind": "journey",
+        "seconds": 79.995
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.127
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.107
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 5.03
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-3/live-validation-gate.json",
+    "verdict": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-3/verdict.json",
+    "journey_results": [
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-3/artifacts/issue-60-rotate-success-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-3/artifacts/after-segment-0",
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-3/artifacts/after-event-0"
+    ]
+  }
+}

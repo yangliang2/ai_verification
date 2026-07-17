@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "issue": 60,
+  "accepted_success_attempt": "success-attempt-4",
+  "primary_visual_success_attempt": "success-attempt-3",
+  "forced_failure_attempt": "failed-attempt",
+  "attempts": [
+    {
+      "directory": "success-attempt",
+      "attempt_id": "cff4d1b1-5cc4-4c11-9e67-a33248472dac",
+      "lifecycle_state": "interrupted",
+      "reason": "journey_backend_error",
+      "outer_exit_code": 2,
+      "total_seconds": 54.934,
+      "note": "Preserved discovery attempt: a relative Codex output path was interpreted after changing to the host workdir."
+    },
+    {
+      "directory": "success-attempt-2",
+      "attempt_id": "54b53211-be1a-4eab-aa24-82fa63555ce2",
+      "lifecycle_state": "completed",
+      "reason": null,
+      "outer_exit_code": 0,
+      "total_seconds": 87.552
+    },
+    {
+      "directory": "success-attempt-3",
+      "attempt_id": "ab86e8c1-fe25-43b4-bcc8-fc4349cfefae",
+      "lifecycle_state": "completed",
+      "reason": null,
+      "outer_exit_code": 0,
+      "total_seconds": 95.423,
+      "visual_result": "portrait and landscape Wikipedia frames are complete and visually coherent"
+    },
+    {
+      "directory": "failed-attempt",
+      "attempt_id": "498b3cba-1515-4ba5-97d7-02d6d454cf2a",
+      "lifecycle_state": "interrupted",
+      "reason": "system_event_error",
+      "outer_exit_code": 2,
+      "event_process_returncode": 255,
+      "total_seconds": 72.009,
+      "oracle_outcomes": {
+        "L1": "not_run",
+        "L2": "not_run",
+        "L3": "not_run"
+      },
+      "retained_checkpoints": [
+        "after-segment-0"
+      ],
+      "post_event_checkpoint_exists": false
+    },
+    {
+      "directory": "success-attempt-4",
+      "attempt_id": "23d392d5-b9e5-4b60-8bf5-08c399c4e66d",
+      "lifecycle_state": "completed",
+      "reason": null,
+      "outer_exit_code": 0,
+      "total_seconds": 88.284,
+      "relative_artifact_path": true,
+      "rotation_postcondition": {
+        "accelerometer_rotation": "0",
+        "user_rotation": "1"
+      },
+      "screenshot_dimensions": {
+        "before": "1080x2400",
+        "after": "2400x1080"
+      },
+      "oracle_outcomes": {
+        "L1": "inconclusive",
+        "L2": "pass",
+        "L3": "not_run"
+      },
+      "retained_checkpoints": [
+        "after-segment-0",
+        "after-event-0"
+      ]
+    }
+  ]
+}

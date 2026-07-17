@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 import json
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -295,6 +296,14 @@ class RaisingCollector(FakeCollector):
 class RaisingInjector(FakeInjector):
     def inject(self, event: SystemEventSpec) -> None:
         raise RuntimeError("Unable to rotate device")
+
+
+class TimingOutInjector(FakeInjector):
+    def inject(self, event: SystemEventSpec) -> None:
+        raise subprocess.TimeoutExpired(
+            ["adb", "shell", "settings", "put", "system", "user_rotation", "1"],
+            30,
+        )
 
 
 class HistoricalAnrCaptureRunner(CommandRunner):
@@ -815,8 +824,39 @@ def test_system_event_failure_keeps_pre_event_checkpoint(tmp_path: Path) -> None
             output_schema=schema,
         )
 
-    assert raised.value.reason == "system_event_injection_error"
+    assert raised.value.reason == "system_event_error"
     assert [checkpoint.name for checkpoint in raised.value.flow.checkpoints] == [
         "after-segment-0"
     ]
     assert raised.value.flow.injected_events == []
+
+
+def test_system_event_timeout_uses_canonical_reason_and_keeps_pre_event_evidence(
+    tmp_path: Path,
+) -> None:
+    runner = JourneySegmentRunner(
+        backend=FakeBackend(),
+        checkpoint_collector=FakeCollector(),
+        system_event_injector=TimingOutInjector(),
+    )
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}", encoding="utf-8")
+
+    with pytest.raises(JourneyExecutionInterrupted) as raised:
+        runner.run(
+            scenario=ScenarioSpec(
+                id="timeout",
+                user_actions=["Open search"],
+                system_events=[SystemEventSpec(step_index=0, event="rotate")],
+            ),
+            workdir=tmp_path,
+            artifact_dir=tmp_path / "artifacts",
+            output_schema=schema,
+        )
+
+    assert raised.value.reason == "system_event_error"
+    assert [checkpoint.name for checkpoint in raised.value.flow.checkpoints] == [
+        "after-segment-0"
+    ]
+    assert raised.value.flow.timings[-1]["status"] == "failed"
+    assert "timed out after 30 seconds" in str(raised.value)

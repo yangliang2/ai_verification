@@ -1,10 +1,12 @@
 """DeviceController 单测：验证所有 adb 命令序列通过 FakeAdbRunner 正确生成。"""
 
+import subprocess
 
 from aiverify.harness.device import (
     AdbResult,
     DeviceController,
     FakeAdbRunner,
+    SubprocessAdbRunner,
 )
 
 
@@ -380,3 +382,31 @@ class TestFakeAdbRunner:
         fake.enqueue_many(results)
         for i in range(3):
             assert fake.run(["x"]).stdout == str(i)
+
+
+def test_subprocess_adb_runner_enforces_a_bounded_command_timeout(monkeypatch):
+    observed: dict[str, object] = {}
+
+    def fake_run(args, **kwargs):
+        observed["args"] = args
+        observed.update(kwargs)
+        return subprocess.CompletedProcess(args=args, returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    SubprocessAdbRunner(timeout_seconds=7).run(
+        ["shell", "cmd", "uimode", "night", "yes"],
+        serial="emulator-5554",
+    )
+
+    assert observed["args"] == [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "cmd",
+        "uimode",
+        "night",
+        "yes",
+    ]
+    assert observed["timeout"] == 7

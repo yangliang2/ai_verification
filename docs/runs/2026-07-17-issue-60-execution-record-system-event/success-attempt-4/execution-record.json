@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "attempt_id": "23d392d5-b9e5-4b60-8bf5-08c399c4e66d",
+  "scenario": "issue-60-rotate-success",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-17T17:20:55+00:00",
+  "finished_at": "2026-07-17T17:22:23+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-17T17:20:55+00:00",
+    "finished_at": "2026-07-17T17:22:23+00:00",
+    "total_seconds": 88.284,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.741
+      },
+      {
+        "phase": "issue-60-rotate-success-segment-0",
+        "kind": "journey",
+        "seconds": 73.121
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.129
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.09
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 5.057
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-4/live-validation-gate.json",
+    "verdict": "docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-4/verdict.json",
+    "journey_results": [
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-4/artifacts/issue-60-rotate-success-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-4/artifacts/after-segment-0",
+      "docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-4/artifacts/after-event-0"
+    ]
+  }
+}

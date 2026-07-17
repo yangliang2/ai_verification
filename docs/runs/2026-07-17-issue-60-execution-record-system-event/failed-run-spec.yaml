@@ -1,0 +1,21 @@
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+
+scenario:
+  id: issue-60-forced-event-failure
+  user_actions:
+    - >-
+      Inspect the current Wikipedia screen with android layout and report PASSED
+      when at least one visible UI element is present; no navigation is required.
+  system_events:
+    - step_index: 0
+      event: revoke_permission
+      args:
+        permission: android.permission.DOES_NOT_EXIST
+  expected_behavior: >-
+    The deliberately invalid permission makes adb return non-zero. The public
+    runner must preserve only available pre-event evidence, emit canonical
+    system_event_error, skip L1/L2/L3 accounting, return 2, and atomically
+    finalize a non-accountable ExecutionRecord.

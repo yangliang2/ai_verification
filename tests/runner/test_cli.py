@@ -8,10 +8,13 @@ from pathlib import Path
 import pytest
 
 import aiverify.runner.cli as cli
+import aiverify.runner.execution_record as execution_record_module
+from aiverify.harness.device import AdbResult
 from aiverify.runner.command import CommandResult, CommandRunner
 from aiverify.providers.base import MockProvider
 from aiverify.runner.codex_backend import JourneyExecutionResult
 from aiverify.runner.evidence import AndroidEvidenceCollector, EvidenceCheckpoint
+from aiverify.runner.execution_record import ExecutionRecordStorageError
 from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentFlow
 from aiverify.runner.run_spec import (
     AssertionSpec,
@@ -452,6 +455,29 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
     ]
     persisted = json.loads((artifact_dir.parent / "verdict.json").read_text(encoding="utf-8"))
     assert persisted == verdict
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "interrupted"
+    assert record["execution"] == verdict["execution"]
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["phase_errors"] == [
+        {
+            "phase": "journey",
+            "kind": "journey",
+            "reason": "journey_action_failed",
+            "message": "Search card was unavailable",
+        }
+    ]
+    assert record["evidence_refs"]["checkpoints"] == [
+        str(flow.checkpoints[0].directory)
+    ]
+    assert record["evidence_refs"]["journey_results"] == [
+        str(flow.journey_results[0].result_path)
+    ]
+    assert verdict["execution_record"] == str(
+        artifact_dir.parent / "execution-record.json"
+    )
 
 
 def test_public_run_retains_failed_anr_checkpoint_diagnostics(tmp_path, monkeypatch):
@@ -666,6 +692,82 @@ def test_public_run_keeps_dispatched_anr_trigger_accountable_for_l1(
     assert verdict["journey_results"][0]["results"][0]["status"] == "PASSED"
 
 
+def test_public_run_system_event_failure_is_canonical_and_skips_all_oracles(
+    tmp_path, monkeypatch
+):
+    class FailingRotateController(FakeDeviceController):
+        def rotate(self, rotation):
+            return (
+                AdbResult(stdout="", stderr="", returncode=0),
+                AdbResult(
+                    stdout="", stderr="settings service unavailable", returncode=13
+                ),
+            )
+
+    spec = RunSpec(
+        host_project=tmp_path,
+        apk_glob="*.apk",
+        package="org.wikipedia.dev",
+        activity=None,
+        diff=None,
+        spec=None,
+        scenario=ScenarioSpec(
+            id="rotate-failure",
+            user_actions=["Open search"],
+            system_events=[SystemEventSpec(step_index=0, event="rotate")],
+        ),
+    )
+    monkeypatch.setattr(cli, "DeviceController", FailingRotateController)
+    monkeypatch.setattr(
+        cli,
+        "CodexCliBackend",
+        lambda: HistoricalLineageBackend(
+            status="PASSED", commands=["android layout"], comment="Search opened."
+        ),
+    )
+    monkeypatch.setattr(
+        cli, "AndroidEvidenceCollector", lambda: StaticCheckpointCollector()
+    )
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        spec,
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"]["reason"] == "system_event_error"
+    assert verdict["execution"]["accounting_eligible"] is False
+    assert verdict["metric_context"]["oracle_outcomes"] == {
+        "L1": "not_run",
+        "L2": "not_run",
+        "L3": "not_run",
+    }
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    assert verdict["checkpoints"] == ["after-segment-0"]
+    assert verdict["injected_events"] == []
+    assert not (artifact_dir / "after-event-0").exists()
+
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "interrupted"
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["phase_errors"] == [
+        {
+            "phase": "event-0",
+            "kind": "system_event",
+            "reason": "system_event_error",
+            "message": (
+                "SystemEventInjectionError: rotate command returned return code 13: "
+                "settings service unavailable"
+            ),
+        }
+    ]
+
+
 def test_public_run_reproduces_historical_anr_failed_status(
     tmp_path, monkeypatch
 ):
@@ -782,6 +884,86 @@ def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, mo
     ]
 
 
+def test_public_run_establishes_one_execution_record_before_preflight_and_finalizes_it(
+    tmp_path, monkeypatch
+):
+    flow = _flow(tmp_path)
+    artifact_dir = tmp_path / "run" / "artifacts"
+    record_path = artifact_dir.parent / "execution-record.json"
+    observed_record: dict[str, object] = {}
+
+    class InspectingPreflightRunner(FakePreflightRunner):
+        def run(self, *args, **kwargs):
+            if not observed_record:
+                observed_record.update(
+                    json.loads(record_path.read_text(encoding="utf-8"))
+                )
+            return super().run(*args, **kwargs)
+
+    class SuccessfulRunner:
+        def __init__(self, **kwargs):
+            pass
+
+        def run(self, **kwargs):
+            return flow
+
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", SuccessfulRunner)
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=InspectingPreflightRunner(
+            _passing_preflight_responses()
+        ),
+    )
+
+    assert observed_record["lifecycle_state"] == "in_progress"
+    assert observed_record["finished_at"] is None
+    attempt_id = observed_record["attempt_id"]
+    assert isinstance(attempt_id, str) and attempt_id
+
+    record = json.loads(record_path.read_text(encoding="utf-8"))
+    assert record["attempt_id"] == attempt_id
+    assert record["lifecycle_state"] == "completed"
+    assert record["execution"] == verdict["execution"]
+    assert record["process_outcome"] == {"exit_code": 0}
+    assert record["phase_errors"] == []
+    assert record["evidence_refs"] == {
+        "live_validation_gate": str(artifact_dir.parent / "live-validation-gate.json"),
+        "verdict": str(artifact_dir.parent / "verdict.json"),
+        "journey_results": [str(flow.journey_results[0].result_path)],
+        "checkpoints": [str(flow.checkpoints[0].directory)],
+    }
+    assert verdict["execution_record"] == str(record_path)
+    assert not list(artifact_dir.parent.glob(".execution-record.*.tmp"))
+
+
+def test_public_run_rejects_reused_attempt_directory_before_preflight(tmp_path):
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    prior_verdict = run_dir / "verdict.json"
+    prior_verdict.write_text('{"prior": true}\n', encoding="utf-8")
+
+    class UnexpectedPreflightRunner(CommandRunner):
+        def run(self, *args, **kwargs):
+            raise AssertionError("preflight must not run without fresh record storage")
+
+    with pytest.raises(ExecutionRecordStorageError, match="existing runner output"):
+        cli.run(
+            _spec(tmp_path, l3_spec=""),
+            device="emulator-5554",
+            artifact_dir=run_dir / "artifacts",
+            workdir=tmp_path,
+            preflight_command_runner=UnexpectedPreflightRunner(),
+        )
+
+    assert prior_verdict.read_text(encoding="utf-8") == '{"prior": true}\n'
+    assert not (run_dir / "execution-record.json").exists()
+
+
 def test_failed_live_validation_preflight_is_non_accountable_and_blocks_launch(
     tmp_path, monkeypatch
 ):
@@ -824,6 +1006,449 @@ def test_failed_live_validation_preflight_is_non_accountable_and_blocks_launch(
     assert verdict["l3"] is None
     assert verdict["preflight"]["live_validation_gate"]["artifact"] == str(gate_path)
     assert verdict["diagnostic_artifacts"]["live_validation_gate"] == str(gate_path)
+    record_path = artifact_dir.parent / "execution-record.json"
+    record = json.loads(record_path.read_text(encoding="utf-8"))
+    assert record["lifecycle_state"] == "preflight_rejected"
+    assert record["execution"] == verdict["execution"]
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["phase_errors"] == [
+        {
+            "phase": "live-validation-preflight",
+            "kind": "preflight",
+            "reason": "live_validation_preflight_failed",
+            "message": "live-validation preflight failed: android-layout-json",
+        }
+    ]
+    assert record["evidence_refs"] == {
+        "live_validation_gate": str(gate_path),
+        "verdict": str(artifact_dir.parent / "verdict.json"),
+    }
+    assert verdict["execution_record"] == str(record_path)
+
+
+def test_live_validation_gate_output_failure_finalizes_as_non_accountable(
+    tmp_path, monkeypatch
+):
+    artifact_dir = tmp_path / "run" / "artifacts"
+    gate_path = artifact_dir.parent / "live-validation-gate.json"
+
+    class GateBlockingPreflightRunner(FakePreflightRunner):
+        def run(self, *args, **kwargs):
+            result = super().run(*args, **kwargs)
+            if not self.responses:
+                gate_path.mkdir()
+            return result
+
+    class UnexpectedController:
+        def __init__(self, serial):
+            raise AssertionError("device setup must not follow gate output failure")
+
+    monkeypatch.setattr(cli, "DeviceController", UnexpectedController)
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=GateBlockingPreflightRunner(
+            _passing_preflight_responses()
+        ),
+    )
+
+    assert verdict["execution"]["reason"] == "output_finalization_error"
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert record["phase_errors"][0]["phase"] == "live-validation-gate-output"
+    assert "ArtifactStorageError" in record["phase_errors"][0]["message"]
+    assert record["evidence_refs"] == {}
+
+
+def test_preflight_rejection_verdict_output_failure_preserves_ordered_errors(
+    tmp_path, monkeypatch
+):
+    artifact_dir = tmp_path / "run" / "artifacts"
+    verdict_path = artifact_dir.parent / "verdict.json"
+    responses = _passing_preflight_responses()
+    responses[3] = {"stdout": "not json"}
+
+    class VerdictBlockingPreflightRunner(FakePreflightRunner):
+        def run(self, *args, **kwargs):
+            result = super().run(*args, **kwargs)
+            if not self.responses:
+                verdict_path.mkdir()
+            return result
+
+    class UnexpectedController:
+        def __init__(self, serial):
+            raise AssertionError("device setup must not follow rejected preflight")
+
+    monkeypatch.setattr(cli, "DeviceController", UnexpectedController)
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=VerdictBlockingPreflightRunner(responses),
+    )
+
+    assert verdict["execution"]["reason"] == "output_finalization_error"
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert [error["reason"] for error in record["phase_errors"]] == [
+        "live_validation_preflight_failed",
+        "output_finalization_error",
+    ]
+    assert record["evidence_refs"] == {
+        "live_validation_gate": str(
+            artifact_dir.parent / "live-validation-gate.json"
+        )
+    }
+
+
+def test_preflight_timeout_finalizes_non_accountable_execution_record(
+    tmp_path, monkeypatch
+):
+    class UnexpectedController:
+        def __init__(self, serial):
+            raise AssertionError("device setup must not run after preflight exception")
+
+    class TimeoutPreflightRunner(CommandRunner):
+        def run(
+            self,
+            args,
+            *,
+            cwd=None,
+            timeout_seconds=None,
+            input_text=None,
+        ):
+            raise subprocess.TimeoutExpired(args, timeout_seconds)
+
+    monkeypatch.setattr(cli, "DeviceController", UnexpectedController)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=TimeoutPreflightRunner(),
+    )
+
+    assert verdict["execution"]["status"] == "non_accountable"
+    assert verdict["execution"]["reason"] == "live_validation_preflight_failed"
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "preflight_rejected"
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["phase_errors"][0]["phase"] == "live-validation-preflight"
+    assert record["phase_errors"][0]["reason"] == "live_validation_preflight_failed"
+    gate = json.loads(
+        (artifact_dir.parent / "live-validation-gate.json").read_text(encoding="utf-8")
+    )
+    assert gate["checks"][0]["status"] == "timeout"
+    assert "timed out" in gate["checks"][0]["error"]
+    assert record["evidence_refs"]["live_validation_gate"] == str(
+        artifact_dir.parent / "live-validation-gate.json"
+    )
+
+
+def test_unhandled_preflight_exception_becomes_a_terminal_non_accountable_run(
+    tmp_path, monkeypatch
+):
+    class UnexpectedController:
+        def __init__(self, serial):
+            raise AssertionError("device setup must not run after preflight exception")
+
+    class BrokenPreflightRunner(CommandRunner):
+        def run(self, *args, **kwargs):
+            raise OSError("adb binary vanished")
+
+    monkeypatch.setattr(cli, "DeviceController", UnexpectedController)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=BrokenPreflightRunner(),
+    )
+
+    assert verdict["execution"]["reason"] == "live_validation_preflight_failed"
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["phase_errors"] == [
+        {
+            "phase": "live-validation-preflight",
+            "kind": "preflight",
+            "reason": "live_validation_preflight_failed",
+            "message": "OSError: adb binary vanished",
+        }
+    ]
+    assert record["evidence_refs"] == {
+        "verdict": str(artifact_dir.parent / "verdict.json")
+    }
+
+
+def test_runner_setup_failure_finalizes_record_before_journey_or_oracles(
+    tmp_path, monkeypatch
+):
+    class FailingController:
+        def __init__(self, serial):
+            self.serial = serial
+
+        def logcat_clear(self):
+            raise OSError("logcat transport closed")
+
+        def launch(self, package, activity):
+            raise AssertionError("launch must not follow failed logcat clear")
+
+    class UnexpectedJourneyRunner:
+        def __init__(self, **kwargs):
+            raise AssertionError("Journey must not start after runner setup failure")
+
+    monkeypatch.setattr(cli, "DeviceController", FailingController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", UnexpectedJourneyRunner)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"]["reason"] == "runner_setup_error"
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert record["phase_errors"] == [
+        {
+            "phase": "runner-setup",
+            "kind": "runner",
+            "reason": "runner_setup_error",
+            "message": "OSError: logcat transport closed",
+        }
+    ]
+    assert record["evidence_refs"]["live_validation_gate"] == str(
+        artifact_dir.parent / "live-validation-gate.json"
+    )
+
+
+def test_oracle_exception_preserves_flow_evidence_but_skips_oracle_accounting(
+    tmp_path, monkeypatch
+):
+    flow = _flow(tmp_path)
+
+    class SuccessfulRunner:
+        def __init__(self, **kwargs):
+            pass
+
+        def run(self, **kwargs):
+            return flow
+
+    class FailingL1Oracle:
+        def judge(self, *args, **kwargs):
+            raise RuntimeError("oracle parser exploded")
+
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", SuccessfulRunner)
+    monkeypatch.setattr(cli, "L1Oracle", FailingL1Oracle)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"]["reason"] == "oracle_execution_error"
+    assert verdict["metric_context"]["seed_outcome"] == "not_accountable"
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    assert verdict["checkpoints"] == ["after-segment-0"]
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert record["phase_errors"] == [
+        {
+            "phase": "oracle-evaluation",
+            "kind": "oracle",
+            "reason": "oracle_execution_error",
+            "message": "RuntimeError: oracle parser exploded",
+        }
+    ]
+    assert record["evidence_refs"]["checkpoints"] == [
+        str(flow.checkpoints[0].directory)
+    ]
+    assert record["evidence_refs"]["journey_results"] == [
+        str(flow.journey_results[0].result_path)
+    ]
+
+
+def test_unexpected_journey_exception_becomes_an_interrupted_attempt(
+    tmp_path, monkeypatch
+):
+    class BrokenJourneyRunner:
+        def __init__(self, **kwargs):
+            pass
+
+        def run(self, **kwargs):
+            raise ValueError("invalid segment boundary")
+
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", BrokenJourneyRunner)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"]["reason"] == "journey_execution_error"
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "interrupted"
+    assert record["phase_errors"] == [
+        {
+            "phase": "journey-execution",
+            "kind": "journey",
+            "reason": "journey_execution_error",
+            "message": "ValueError: invalid segment boundary",
+        }
+    ]
+
+
+def test_verdict_output_failure_finalizes_record_without_oracle_accounting(
+    tmp_path, monkeypatch
+):
+    flow = _flow(tmp_path)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    class OutputBlockingRunner:
+        def __init__(self, **kwargs):
+            pass
+
+        def run(self, **kwargs):
+            (artifact_dir.parent / "verdict.json").mkdir()
+            return flow
+
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", OutputBlockingRunner)
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"]["reason"] == "output_finalization_error"
+    assert verdict["metric_context"]["seed_outcome"] == "not_accountable"
+    assert verdict["l1"] is verdict["l2"] is verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["phase_errors"][0]["phase"] == "verdict-output"
+    assert record["phase_errors"][0]["reason"] == "output_finalization_error"
+    assert "ArtifactStorageError" in record["phase_errors"][0]["message"]
+    assert "verdict.json" in record["phase_errors"][0]["message"]
+    assert "verdict" not in record["evidence_refs"]
+    assert record["evidence_refs"]["checkpoints"] == [
+        str(flow.checkpoints[0].directory)
+    ]
+
+
+def test_record_finalization_failure_leaves_original_nonterminal_record(
+    tmp_path, monkeypatch
+):
+    flow = _flow(tmp_path)
+
+    class SuccessfulRunner:
+        def __init__(self, **kwargs):
+            pass
+
+        def run(self, **kwargs):
+            return flow
+
+    def fail_replace(source, target):
+        raise OSError("atomic replace denied")
+
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", SuccessfulRunner)
+    monkeypatch.setattr(execution_record_module.os, "replace", fail_replace)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    with pytest.raises(ExecutionRecordStorageError, match="atomic replace denied"):
+        cli.run(
+            _spec(tmp_path, l3_spec=""),
+            device="emulator-5554",
+            artifact_dir=artifact_dir,
+            workdir=tmp_path,
+            preflight_command_runner=FakePreflightRunner(
+                _passing_preflight_responses()
+            ),
+        )
+
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "in_progress"
+    assert record["finished_at"] is None
+    assert record["process_outcome"] is None
+    assert (artifact_dir.parent / "verdict.json").is_file()
+    assert not list(artifact_dir.parent.glob(".execution-record.*.tmp"))
+
+
+def test_main_returns_nonzero_when_execution_record_storage_fails(
+    tmp_path, monkeypatch, capsys
+):
+    monkeypatch.setattr(cli, "load_run_spec", lambda path: object())
+    monkeypatch.setattr(
+        cli,
+        "run",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            ExecutionRecordStorageError("record fsync failed")
+        ),
+    )
+
+    status = cli.main(
+        [
+            "run-spec.yaml",
+            "--device",
+            "emulator-5554",
+            "--artifact-dir",
+            str(tmp_path / "artifacts"),
+        ]
+    )
+
+    assert status == 2
+    assert "ExecutionRecord storage failed: record fsync failed" in capsys.readouterr().err
 
 
 def test_app_smoke_preflight_uses_explicit_run_spec_configuration(tmp_path, monkeypatch):

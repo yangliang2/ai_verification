@@ -71,9 +71,10 @@ class CodexCliBackend:
 
     def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
         """Run Codex CLI and parse its schema-constrained final response."""
-        request.artifact_dir.mkdir(parents=True, exist_ok=True)
-        result_path = request.artifact_dir / "codex-journey-result.json"
-        events_path = request.artifact_dir / "codex-events.jsonl"
+        artifact_dir = request.artifact_dir.resolve()
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        result_path = artifact_dir / "codex-journey-result.json"
+        events_path = artifact_dir / "codex-events.jsonl"
 
         args = [
             self.codex_bin,

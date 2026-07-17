@@ -431,7 +431,7 @@ class JourneySegmentRunner:
                         event=event.event,
                     )
                 except Exception as exc:
-                    raise _interrupt("system_event_injection_error", exc) from exc
+                    raise _interrupt("system_event_error", exc) from exc
                 injected_events.append(event)
                 try:
                     checkpoints.append(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from aiverify.harness.device import FakeAdbRunner
+from aiverify.harness.device import AdbResult, FakeAdbRunner
 from aiverify.harness.device.controller import DeviceController
 from aiverify.runner.run_spec import SystemEventSpec
 from aiverify.runner.system_events import (
@@ -19,17 +19,131 @@ def _injector() -> tuple[DeviceSystemEventInjector, FakeAdbRunner]:
 
 def test_inject_rotate_uses_device_controller_rotation() -> None:
     injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="0\n", stderr="", returncode=0),
+            AdbResult(stdout="3\n", stderr="", returncode=0),
+        ]
+    )
 
     injector.inject(SystemEventSpec(step_index=0, event="rotate", args={"rotation": "3"}))
 
-    assert fake.commands[-2:] == [
+    assert fake.commands[-4:] == [
         ["-s", "emulator-5554", "shell", "settings", "put", "system", "accelerometer_rotation", "0"],
         ["-s", "emulator-5554", "shell", "settings", "put", "system", "user_rotation", "3"],
+        ["-s", "emulator-5554", "shell", "settings", "get", "system", "accelerometer_rotation"],
+        ["-s", "emulator-5554", "shell", "settings", "get", "system", "user_rotation"],
     ]
+
+
+def test_inject_rotate_fails_closed_on_nonzero_process_exit() -> None:
+    injector, fake = _injector()
+    fake.enqueue(AdbResult(stdout="", stderr="permission denied", returncode=1))
+
+    with pytest.raises(
+        SystemEventInjectionError, match="rotate.*return code 1.*permission denied"
+    ):
+        injector.inject(
+            SystemEventSpec(step_index=0, event="rotate", args={"rotation": "3"})
+        )
+
+    assert fake.commands == [
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "settings",
+            "put",
+            "system",
+            "accelerometer_rotation",
+            "0",
+        ],
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "settings",
+            "put",
+            "system",
+            "user_rotation",
+            "3",
+        ],
+    ]
+
+
+def test_inject_rotate_fails_closed_when_postcondition_does_not_match() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="0\n", stderr="", returncode=0),
+            AdbResult(stdout="1\n", stderr="", returncode=0),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="rotate postcondition failed.*expected user_rotation=3.*observed '1'",
+    ):
+        injector.inject(
+            SystemEventSpec(step_index=0, event="rotate", args={"rotation": "3"})
+        )
+
+
+def test_inject_rotate_fails_closed_when_auto_rotation_remains_enabled() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="1\n", stderr="", returncode=0),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="rotate postcondition failed.*expected accelerometer_rotation=0.*observed '1'",
+    ):
+        injector.inject(
+            SystemEventSpec(step_index=0, event="rotate", args={"rotation": "3"})
+        )
+
+
+@pytest.mark.parametrize("rotation", ["-1", "4", "portrait"])
+def test_inject_rotate_rejects_values_outside_android_rotation_domain(
+    rotation: str,
+) -> None:
+    injector, fake = _injector()
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=rf"rotate requires args.rotation to be one of 0, 1, 2, 3; got {rotation!r}",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="rotate",
+                args={"rotation": rotation},
+            )
+        )
+
+    assert fake.commands == []
 
 
 def test_inject_process_death_home_kill_relaunch() -> None:
     injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="111\n", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="Events injected: 1", stderr="", returncode=0),
+            AdbResult(stdout="222\n", stderr="", returncode=0),
+        ]
+    )
 
     injector.inject(
         SystemEventSpec(
@@ -39,13 +153,15 @@ def test_inject_process_death_home_kill_relaunch() -> None:
         )
     )
 
-    assert fake.commands[-3:] == [
+    assert fake.commands[-5:] == [
+        ["-s", "emulator-5554", "shell", "pidof", "org.example"],
         ["-s", "emulator-5554", "shell", "input", "keyevent", "HOME"],
         ["-s", "emulator-5554", "shell", "am", "kill", "org.example"],
         [
             "-s", "emulator-5554", "shell", "monkey", "-p", "org.example",
             "-c", "android.intent.category.LAUNCHER", "1",
         ],
+        ["-s", "emulator-5554", "shell", "pidof", "org.example"],
     ]
 
 
@@ -57,6 +173,15 @@ def test_inject_process_death_relaunches_via_explicit_launcher_activity() -> Non
     injector = DeviceSystemEventInjector(
         device=device, package="org.example", activity="org.example.DefaultIcon"
     )
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="111\n", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="Starting: Intent", stderr="", returncode=0),
+            AdbResult(stdout="222\n", stderr="", returncode=0),
+        ]
+    )
 
     injector.inject(
         SystemEventSpec(
@@ -66,7 +191,7 @@ def test_inject_process_death_relaunches_via_explicit_launcher_activity() -> Non
         )
     )
 
-    assert fake.commands[-1] == [
+    assert fake.commands[-2] == [
         "-s", "emulator-5554", "shell", "am", "start",
         "-a", "android.intent.action.MAIN",
         "-c", "android.intent.category.LAUNCHER",
@@ -74,15 +199,156 @@ def test_inject_process_death_relaunches_via_explicit_launcher_activity() -> Non
     ]
 
 
+def test_inject_process_death_checks_every_phase_process_exit() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="111\n", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="HOME dispatch failed", returncode=3),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="Events injected: 1", stderr="", returncode=0),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="process_death.*return code 3.*HOME dispatch failed",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="process_death",
+                args={
+                    "background_wait": "0",
+                    "kill_wait": "0",
+                    "restore_wait": "0",
+                },
+            )
+        )
+
+
+def test_inject_process_death_fails_closed_when_process_identity_is_unchanged() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="4242\n", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="Events injected: 1", stderr="", returncode=0),
+            AdbResult(stdout="4242\n", stderr="", returncode=0),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="process_death postcondition failed.*process 4242 survived",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="process_death",
+                args={
+                    "background_wait": "0",
+                    "kill_wait": "0",
+                    "restore_wait": "0",
+                },
+            )
+        )
+
+
 def test_inject_network_off_toggles_wifi_and_data() -> None:
     injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="0\n", stderr="", returncode=0),
+            AdbResult(stdout="0\n", stderr="", returncode=0),
+        ]
+    )
 
     injector.inject(SystemEventSpec(step_index=0, event="network_off"))
 
-    assert fake.commands[-2:] == [
+    assert fake.commands[-4:] == [
         ["-s", "emulator-5554", "shell", "svc", "wifi", "disable"],
         ["-s", "emulator-5554", "shell", "svc", "data", "disable"],
+        ["-s", "emulator-5554", "shell", "settings", "get", "global", "wifi_on"],
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "settings",
+            "get",
+            "global",
+            "mobile_data",
+        ],
     ]
+
+
+def test_inject_network_on_confirms_wifi_and_mobile_data_settings() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="1\n", stderr="", returncode=0),
+            AdbResult(stdout="1\n", stderr="", returncode=0),
+        ]
+    )
+
+    injector.inject(SystemEventSpec(step_index=0, event="network_on"))
+
+    assert fake.commands[-4:] == [
+        ["-s", "emulator-5554", "shell", "svc", "wifi", "enable"],
+        ["-s", "emulator-5554", "shell", "svc", "data", "enable"],
+        ["-s", "emulator-5554", "shell", "settings", "get", "global", "wifi_on"],
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "settings",
+            "get",
+            "global",
+            "mobile_data",
+        ],
+    ]
+
+
+def test_inject_network_off_fails_closed_when_wifi_remains_enabled() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="1\n", stderr="", returncode=0),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="network_off postcondition failed.*expected wifi_on=0.*observed '1'",
+    ):
+        injector.inject(SystemEventSpec(step_index=0, event="network_off"))
+
+
+def test_inject_network_on_fails_closed_when_mobile_data_remains_disabled() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="1\n", stderr="", returncode=0),
+            AdbResult(stdout="0\n", stderr="", returncode=0),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=(
+            "network_on postcondition failed.*expected mobile_data=1.*observed '0'"
+        ),
+    ):
+        injector.inject(SystemEventSpec(step_index=0, event="network_on"))
 
 
 def test_inject_revoke_permission_requires_permission_arg() -> None:
@@ -92,19 +358,165 @@ def test_inject_revoke_permission_requires_permission_arg() -> None:
         injector.inject(SystemEventSpec(step_index=0, event="revoke_permission"))
 
 
+def test_inject_revoke_permission_fails_closed_when_permission_remains_granted() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "runtime permissions:\n"
+                    "  android.permission.CAMERA: granted=true, flags=[ USER_SET]\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=(
+            "revoke_permission postcondition failed.*"
+            "android.permission.CAMERA remains granted"
+        ),
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="revoke_permission",
+                args={"permission": "android.permission.CAMERA"},
+            )
+        )
+
+
+def test_inject_revoke_permission_confirms_runtime_grant_is_denied() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "runtime permissions:\n"
+                    "  android.permission.CAMERA: granted=false, flags=[ USER_SET]\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="revoke_permission",
+            args={"permission": "android.permission.CAMERA"},
+        )
+    )
+
+    assert fake.commands[-2:] == [
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "pm",
+            "revoke",
+            "org.example",
+            "android.permission.CAMERA",
+        ],
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "dumpsys",
+            "package",
+            "org.example",
+        ],
+    ]
+
+
+def test_inject_revoke_permission_fails_closed_when_state_is_unobservable() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="runtime permissions:\n", stderr="", returncode=0),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=(
+            "revoke_permission postcondition failed.*could not find runtime permission "
+            "android.permission.CAMERA"
+        ),
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="revoke_permission",
+                args={"permission": "android.permission.CAMERA"},
+            )
+        )
+
+
 def test_inject_kill_background_uses_package() -> None:
     injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="4242\n", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=1),
+        ]
+    )
 
     injector.inject(SystemEventSpec(step_index=0, event="kill_background"))
 
-    assert fake.commands[-1] == [
-        "-s",
-        "emulator-5554",
-        "shell",
-        "am",
-        "kill",
-        "org.example",
+    assert fake.commands[-3:] == [
+        ["-s", "emulator-5554", "shell", "pidof", "org.example"],
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "am",
+            "kill",
+            "org.example",
+        ],
+        ["-s", "emulator-5554", "shell", "pidof", "org.example"],
     ]
+
+
+def test_inject_kill_background_fails_closed_on_nonzero_process_exit() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="4242\n", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="device offline", returncode=1),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="kill_background.*return code 1.*device offline",
+    ):
+        injector.inject(SystemEventSpec(step_index=0, event="kill_background"))
+
+
+def test_inject_kill_background_fails_closed_when_process_survives() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="4242\n", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="4242\n", stderr="", returncode=0),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="kill_background postcondition failed.*process remains running.*4242",
+    ):
+        injector.inject(SystemEventSpec(step_index=0, event="kill_background"))
 
 
 def test_inject_app_to_background_presses_home() -> None:
@@ -124,19 +536,103 @@ def test_inject_app_to_background_presses_home() -> None:
 
 def test_inject_dark_mode_defaults_to_night_on() -> None:
     injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="Night mode: yes\n", stderr="", returncode=0),
+        ]
+    )
 
     injector.inject(SystemEventSpec(step_index=0, event="dark_mode"))
 
-    assert fake.commands[-1] == [
-        "-s", "emulator-5554", "shell", "cmd", "uimode", "night", "yes",
+    assert fake.commands[-2:] == [
+        ["-s", "emulator-5554", "shell", "cmd", "uimode", "night", "yes"],
+        ["-s", "emulator-5554", "shell", "cmd", "uimode", "night"],
     ]
 
 
 def test_inject_dark_mode_night_off_via_args() -> None:
     injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="Night mode: no\n", stderr="", returncode=0),
+        ]
+    )
 
     injector.inject(SystemEventSpec(step_index=0, event="dark_mode", args={"night": "no"}))
 
-    assert fake.commands[-1] == [
-        "-s", "emulator-5554", "shell", "cmd", "uimode", "night", "no",
+    assert fake.commands[-2:] == [
+        ["-s", "emulator-5554", "shell", "cmd", "uimode", "night", "no"],
+        ["-s", "emulator-5554", "shell", "cmd", "uimode", "night"],
     ]
+
+
+def test_inject_dark_mode_fails_closed_when_postcondition_does_not_match() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="Night mode: no\n", stderr="", returncode=0),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="dark_mode postcondition failed.*expected night=yes.*Night mode: no",
+    ):
+        injector.inject(SystemEventSpec(step_index=0, event="dark_mode"))
+
+
+def test_inject_dark_mode_rejects_unknown_night_value_before_dispatch() -> None:
+    injector, fake = _injector()
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="dark_mode requires args.night to be 'yes' or 'no'; got 'maybe'",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="dark_mode",
+                args={"night": "maybe"},
+            )
+        )
+
+    assert fake.commands == []
+
+
+@pytest.mark.parametrize(
+    ("event", "args"),
+    [
+        ("revoke_permission", {"permission": "android.permission.CAMERA"}),
+        ("app_to_background", {}),
+        ("app_to_foreground", {}),
+        ("dark_mode", {"night": "yes"}),
+    ],
+)
+def test_single_command_events_fail_closed_on_nonzero_process_exit(
+    event: str, args: dict[str, str]
+) -> None:
+    injector, fake = _injector()
+    fake.enqueue(AdbResult(stdout="", stderr="transport failure", returncode=17))
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=rf"{event}.*return code 17.*transport failure",
+    ):
+        injector.inject(SystemEventSpec(step_index=0, event=event, args=args))
+
+
+@pytest.mark.parametrize("event", ["network_off", "network_on"])
+def test_network_events_stop_after_the_first_nonzero_process_exit(event: str) -> None:
+    injector, fake = _injector()
+    fake.enqueue(AdbResult(stdout="", stderr="svc unavailable", returncode=9))
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match=rf"{event}.*return code 9.*svc unavailable",
+    ):
+        injector.inject(SystemEventSpec(step_index=0, event=event))
+
+    assert len(fake.commands) == 1

@@ -44,6 +44,10 @@ _Avoid_: Internal click index, low-level action step
 A single-file input contract for one reproducible verification run, containing the host project, APK/package launch metadata, diff/spec inputs, scenario selection, and assertions.
 _Avoid_: Benchmark manifest, CLI flags, test case
 
+**ExecutionRecord**:
+The durable attempt-level accountability envelope established before a public Run Spec runner causes external side effects and atomically finalized with lifecycle, process outcome, canonical failure reason, timing, ordered phase errors, and evidence references. A non-terminal ExecutionRecord is abandoned and cannot enter oracle accounting.
+_Avoid_: Verdict, run record, summary JSON
+
 **Agent-In-The-Loop Execution**:
 A verification run where the runner generates structured Journey instructions and checkpoints, while the current coding agent performs UI navigation using Android CLI layout/screenshot tools and adb input.
 _Avoid_: Fully unattended execution, manual testing

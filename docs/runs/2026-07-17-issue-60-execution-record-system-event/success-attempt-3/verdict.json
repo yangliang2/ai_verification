@@ -1,0 +1,123 @@
+{
+  "scenario": "issue-60-rotate-success",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-3/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "issue-60-rotate-success",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_detected",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "pass",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-cf136249",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Inspect the current Wikipedia screen with android layout and report PASSED when at least one visible UI element is present; no navigation is required.",
+      "[boundary] inject rotate {'rotation': '1'}"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-c89b81ee",
+    "level": "L2",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Inspect the current Wikipedia screen with android layout and report PASSED when at least one visible UI element is present; no navigation is required.",
+      "[boundary] inject rotate {'rotation': '1'}"
+    ],
+    "evidence": [],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "issue-60-rotate-success-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "The layout returned a non-empty visible UI on the Wikipedia Home feed, including the selected Home tab and other bottom-navigation elements.",
+          "action": "Inspect the current Wikipedia screen with android layout and report PASSED when at least one visible UI element is present; no navigation is required."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0"
+  ],
+  "injected_events": [
+    {
+      "event": "rotate",
+      "args": {
+        "rotation": "1"
+      }
+    }
+  ],
+  "timing": {
+    "started_at": "2026-07-17T17:14:40+00:00",
+    "finished_at": "2026-07-17T17:16:16+00:00",
+    "total_seconds": 95.423,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 5.013
+      },
+      {
+        "phase": "issue-60-rotate-success-segment-0",
+        "kind": "journey",
+        "seconds": 79.995
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.127
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.107
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 5.03
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt-3/execution-record.json"
+}

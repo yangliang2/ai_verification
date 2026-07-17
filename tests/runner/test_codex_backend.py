@@ -84,6 +84,41 @@ def test_codex_backend_invokes_exec_and_parses_result(tmp_path: Path) -> None:
     assert result.metadata["codex_version"] == "codex-cli 0.139.0"
 
 
+def test_codex_backend_resolves_artifact_paths_before_changing_to_host_workdir(
+    tmp_path: Path, monkeypatch
+) -> None:
+    host_workdir = tmp_path / "host"
+    host_workdir.mkdir()
+    monkeypatch.chdir(tmp_path)
+    runner = FakeRunner(
+        result_json={
+            "journey": "smoke",
+            "results": [
+                {
+                    "action_id": "action-1",
+                    "status": "PASSED",
+                    "commands": ["android layout --device=emulator-5554 --pretty"],
+                    "comment": "visible UI found",
+                }
+            ],
+        }
+    )
+
+    result = CodexCliBackend(runner=runner).execute(
+        JourneyExecutionRequest(
+            journey_instructions='<journey name="smoke" />',
+            workdir=host_workdir,
+            artifact_dir=Path("run/artifacts"),
+        )
+    )
+
+    command = runner.calls[0]
+    output_path = Path(command[command.index("--output-last-message") + 1])
+    assert output_path == (tmp_path / "run/artifacts/codex-journey-result.json")
+    assert output_path.is_absolute()
+    assert result.result_path == output_path
+
+
 def test_codex_backend_raises_on_nonzero_exit(tmp_path: Path) -> None:
     backend = CodexCliBackend(runner=FakeRunner(returncode=2))
 

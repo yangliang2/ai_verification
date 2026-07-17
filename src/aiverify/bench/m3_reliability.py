@@ -17,6 +17,11 @@ from aiverify.agent.oracle.schema import VerdictValidationError, validate_verdic
 from aiverify.bench.run_record_checksums import verify_manifest, write_manifest
 from aiverify.providers.parsing import extract_json_block
 from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
+from aiverify.runner.execution_record import (
+    execution_record_reason,
+    is_execution_record_accountable,
+    load_execution_record,
+)
 from aiverify.runner.run_spec import load_run_spec
 
 
@@ -58,6 +63,8 @@ class AttemptRecord:
     attempt_number: int
     directory: Path
     verdict_path: Path
+    execution_record_path: Path
+    attempt_id: str
     runner_exit_code: int
 
 
@@ -235,8 +242,16 @@ def run_lane(
         command_result.stderr, encoding="utf-8"
     )
     verdict_path = attempt_dir / "verdict.json"
+    execution_record_path = attempt_dir / "execution-record.json"
+    try:
+        execution_record = load_execution_record(execution_record_path)
+    except ValueError as error:
+        raise ValueError(
+            f"lane {lane.lane_id} runner did not produce a valid ExecutionRecord: "
+            f"{error}"
+        ) from error
     metadata = {
-        "schema_version": 1,
+        "schema_version": 2,
         "lane_id": lane.lane_id,
         "seed_id": lane.seed_id,
         "role": lane.role,
@@ -247,6 +262,8 @@ def run_lane(
         "runner_command": command,
         "runner_exit_code": command_result.returncode,
         "verdict": "verdict.json",
+        "execution_record": "execution-record.json",
+        "attempt_id": execution_record["attempt_id"],
         "operational_interventions": interventions,
     }
     (attempt_dir / "attempt.json").write_text(
@@ -258,6 +275,8 @@ def run_lane(
         attempt_number=attempt_number,
         directory=attempt_dir,
         verdict_path=verdict_path,
+        execution_record_path=execution_record_path,
+        attempt_id=execution_record["attempt_id"],
         runner_exit_code=command_result.returncode,
     )
 
@@ -515,6 +534,8 @@ def main(argv: list[str] | None = None) -> int:
                     "attempt_number": attempt.attempt_number,
                     "directory": str(attempt.directory),
                     "verdict": str(attempt.verdict_path),
+                    "execution_record": str(attempt.execution_record_path),
+                    "attempt_id": attempt.attempt_id,
                     "runner_exit_code": attempt.runner_exit_code,
                 },
                 ensure_ascii=False,
@@ -651,12 +672,123 @@ def load_verified_attempt(
             + "; ".join(errors)
         )
     metadata = _load_json(attempt_dir / "attempt.json", label="attempt metadata")
-    verdict = _load_json(attempt_dir / "verdict.json", label="runner verdict")
     _validate_attempt(metadata, lane=lane, attempt_number=attempt_number)
-    _validate_verdict(verdict, lane=lane)
+    execution_record = None
+    if metadata["schema_version"] == 1:
+        verdict = _load_json(attempt_dir / "verdict.json", label="runner verdict")
+        _validate_verdict(verdict, lane=lane)
+    else:
+        execution_record_path = _bound_execution_record_path(
+            attempt_dir, metadata=metadata, lane=lane
+        )
+        try:
+            execution_record = load_execution_record(execution_record_path)
+        except ValueError as error:
+            raise ValueError(
+                f"lane {lane.lane_id} ExecutionRecord is invalid: {error}"
+            ) from error
+        if execution_record["attempt_id"] != metadata["attempt_id"]:
+            raise ValueError(
+                f"lane {lane.lane_id} ExecutionRecord attempt_id mismatch"
+            )
+        if execution_record["scenario"] != lane.seed_id:
+            raise ValueError(
+                f"lane {lane.lane_id} ExecutionRecord scenario mismatch"
+            )
+        verdict = _load_record_authoritative_verdict(
+            attempt_dir,
+            lane=lane,
+            execution_record=execution_record,
+        )
     _validate_l3_judge_artifacts(attempt_dir, verdict=verdict, lane=lane)
-    _validate_runner_exit(metadata, verdict=verdict, lane=lane)
+    _validate_runner_exit(
+        metadata,
+        verdict=verdict,
+        lane=lane,
+        execution_record=execution_record,
+    )
     return metadata, verdict
+
+
+def _bound_execution_record_path(
+    attempt_dir: Path, *, metadata: dict, lane: ReliabilityLane
+) -> Path:
+    relative = metadata.get("execution_record")
+    if relative != "execution-record.json":
+        raise ValueError(
+            f"lane {lane.lane_id} attempt metadata execution_record is invalid"
+        )
+    return attempt_dir / relative
+
+
+def _load_record_authoritative_verdict(
+    attempt_dir: Path, *, lane: ReliabilityLane, execution_record: dict
+) -> dict:
+    """Return the accounting view dictated by a v2 attempt's ExecutionRecord."""
+    reason = execution_record_reason(execution_record)
+    lifecycle = execution_record["lifecycle_state"]
+    verdict_path = attempt_dir / "verdict.json"
+
+    if lifecycle == "in_progress":
+        verdict = _record_only_verdict(execution_record)
+        _validate_verdict(verdict, lane=lane)
+        return verdict
+
+    if not verdict_path.is_file():
+        if (
+            is_execution_record_accountable(execution_record)
+            or reason != "output_finalization_error"
+        ):
+            raise ValueError(f"missing runner verdict: {verdict_path}")
+        verdict = _record_only_verdict(execution_record)
+        _validate_verdict(verdict, lane=lane)
+        return verdict
+
+    verdict = _load_json(verdict_path, label="runner verdict")
+    _validate_verdict(verdict, lane=lane)
+    if verdict.get("scenario") != execution_record["scenario"]:
+        raise ValueError(
+            f"lane {lane.lane_id} verdict scenario contradicts ExecutionRecord"
+        )
+    if verdict.get("execution") != execution_record["execution"]:
+        raise ValueError(
+            f"lane {lane.lane_id} verdict execution contradicts ExecutionRecord"
+        )
+    if verdict.get("timing") != execution_record["timing"]:
+        raise ValueError(
+            f"lane {lane.lane_id} verdict timing contradicts ExecutionRecord"
+        )
+    if is_accountable(verdict) != is_execution_record_accountable(execution_record):
+        raise ValueError(
+            f"lane {lane.lane_id} verdict accountability contradicts ExecutionRecord"
+        )
+    return verdict
+
+
+def _record_only_verdict(execution_record: dict) -> dict:
+    execution = dict(execution_record["execution"])
+    if execution_record["lifecycle_state"] == "in_progress":
+        execution.update(
+            {
+                "status": "non_accountable",
+                "accounting_eligible": False,
+                "reason": execution_record_reason(execution_record),
+                "message": "ExecutionRecord remained in progress",
+            }
+        )
+    return {
+        "scenario": execution_record["scenario"],
+        "execution": execution,
+        "metric_context": {
+            "seed_id": execution_record["scenario"],
+            "seed_outcome": "not_accountable",
+        },
+        "l1": None,
+        "l2": None,
+        "l3": None,
+        "timing": execution_record["timing"],
+        "execution_record": "execution-record.json",
+    }
 
 
 def _load_json(path: Path, *, label: str) -> dict:
@@ -674,6 +806,12 @@ def _load_json(path: Path, *, label: str) -> dict:
 def _validate_attempt(
     metadata: dict, *, lane: ReliabilityLane, attempt_number: int
 ) -> None:
+    schema_version = metadata.get("schema_version")
+    if schema_version not in {1, 2}:
+        raise ValueError(
+            f"lane {lane.lane_id} attempt metadata schema_version is unsupported: "
+            f"{schema_version!r}"
+        )
     expected = {
         "lane_id": lane.lane_id,
         "seed_id": lane.seed_id,
@@ -686,6 +824,12 @@ def _validate_attempt(
             raise ValueError(
                 f"lane {lane.lane_id} attempt metadata {key} mismatch: "
                 f"{metadata.get(key)!r}"
+            )
+    if schema_version == 2:
+        attempt_id = metadata.get("attempt_id")
+        if not isinstance(attempt_id, str) or not attempt_id:
+            raise ValueError(
+                f"lane {lane.lane_id} attempt metadata attempt_id is invalid"
             )
 
 
@@ -735,11 +879,29 @@ def _validate_verdict(verdict: dict, *, lane: ReliabilityLane) -> None:
 
 
 def _validate_runner_exit(
-    metadata: dict, *, verdict: dict, lane: ReliabilityLane
+    metadata: dict,
+    *,
+    verdict: dict,
+    lane: ReliabilityLane,
+    execution_record: dict | None = None,
 ) -> None:
     actual = metadata.get("runner_exit_code")
     if not isinstance(actual, int) or isinstance(actual, bool):
         raise ValueError(f"lane {lane.lane_id} runner exit code is invalid")
+    if execution_record is not None:
+        if execution_record["lifecycle_state"] == "in_progress":
+            if actual == 0:
+                raise ValueError(
+                    f"lane {lane.lane_id} abandoned ExecutionRecord cannot have "
+                    "runner exit code 0"
+                )
+            return
+        record_exit = execution_record["process_outcome"]["exit_code"]
+        if actual != record_exit:
+            raise ValueError(
+                f"lane {lane.lane_id} runner exit mismatch with ExecutionRecord: "
+                f"expected {record_exit}, got {actual}"
+            )
     if is_accountable(verdict):
         detected = any(
             isinstance(value, dict) and value.get("outcome") == "fail"
@@ -885,6 +1047,10 @@ def failure_class(verdict: dict) -> str:
         "checkpoint_capture_error": "evidence_capture",
         "system_event_error": "system_event",
         "oracle_execution_error": "oracle_execution",
+        "runner_setup_error": "verification_agent_journey",
+        "journey_execution_error": "verification_agent_journey",
+        "output_finalization_error": "output_finalization",
+        "execution_abandoned": "execution_abandoned",
     }
     failure_class = mapping.get(str(reason))
     if failure_class is None:
@@ -897,6 +1063,10 @@ def failure_class(verdict: dict) -> str:
 def _timing_seconds(verdict: dict, *, lane: ReliabilityLane) -> float:
     timing = verdict.get("timing")
     value = timing.get("total_seconds") if isinstance(timing, dict) else None
+    if value is None and verdict.get("execution", {}).get("reason") == (
+        "execution_abandoned"
+    ):
+        return 0.0
     if (
         not isinstance(value, (int, float))
         or isinstance(value, bool)
@@ -920,7 +1090,11 @@ def _judge_timing_seconds(verdict: dict, *, lane: ReliabilityLane) -> float:
     ]
     if lane.expected_oracle_level != "L3" and judge_phases:
         raise ValueError(f"lane {lane.lane_id} has contradictory L3 judge timing")
-    if not is_accountable(verdict) and judge_phases:
+    if (
+        not is_accountable(verdict)
+        and judge_phases
+        and verdict["execution"].get("reason") != "output_finalization_error"
+    ):
         raise ValueError(
             f"lane {lane.lane_id} non-accountable attempt has L3 judge timing"
         )

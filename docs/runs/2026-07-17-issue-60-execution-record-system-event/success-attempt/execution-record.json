@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "attempt_id": "cff4d1b1-5cc4-4c11-9e67-a33248472dac",
+  "scenario": "issue-60-rotate-success",
+  "lifecycle_state": "interrupted",
+  "started_at": "2026-07-17T17:09:51+00:00",
+  "finished_at": "2026-07-17T17:10:46+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_backend_error",
+    "message": "CodexCliError: Codex CLI did not write result file: docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt/artifacts/issue-60-rotate-success-segment-0/codex-journey-result.json"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-07-17T17:09:51+00:00",
+    "finished_at": "2026-07-17T17:10:46+00:00",
+    "total_seconds": 54.934,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 5.031
+      },
+      {
+        "phase": "issue-60-rotate-success-segment-0",
+        "kind": "journey",
+        "status": "failed",
+        "seconds": 49.742
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "issue-60-rotate-success-segment-0",
+      "kind": "journey",
+      "reason": "journey_backend_error",
+      "message": "CodexCliError: Codex CLI did not write result file: docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt/artifacts/issue-60-rotate-success-segment-0/codex-journey-result.json"
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt/live-validation-gate.json",
+    "verdict": "docs/runs/2026-07-17-issue-60-execution-record-system-event/success-attempt/verdict.json",
+    "journey_results": [],
+    "checkpoints": []
+  }
+}

@@ -10,6 +10,17 @@
 - GitHub Issues #1-#57（含原 M3 PRD #41、remediation PRD #48 及其
   #49-#57 子任务）已完成并关闭；open PRs = 0。#57 的实现、最终审计、
   durable run record 与 GitHub evidence comment 均已发布。
+- M3.1 parent #58 已拆为 #60-#62。#60 已实现并验证：公共 Run Spec runner
+  在任何外部副作用前建立唯一持久 `ExecutionRecord`，所有 handled terminal
+  path 原子终结；系统事件 exception/timeout/non-zero/postcondition mismatch
+  统一 fail closed 为 `system_event_error`；M3 新 attempt 以记录为权威，历史
+  schema-v1 evidence 保持兼容且不可变。#61（effective identity/provenance）是
+  下一依赖，完成后才能执行 #62 fresh immutable v3 30-lane audit。
+- #60 durable run record：
+  [`docs/runs/2026-07-17-issue-60-execution-record-system-event/README.md`](docs/runs/2026-07-17-issue-60-execution-record-system-event/README.md)。
+  API 35 公共 seam 实测 rotate success（exit 0）与 forced permission failure
+  （adb 255 → `system_event_error`, exit 2, pre-event evidence only, no oracle
+  accounting），并保留每次 retry 的独立 attempt identity。
 - 原 M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
   未达到 29/30 而明确失败；该历史 evidence package 保持不可变。
 - #49 已加固 ANR evidence capture，#50 已加固 Journey action lineage，#51
@@ -81,8 +92,9 @@
   accountability threshold. One ANR baseline remains exhausted non-accountable.
   Execution identity is intentionally mixed (API 36 + API 35); model identity is
   explicitly retained for only 1/5 packages and is not backfilled.
-- Latest recorded full-suite status: `.venv/bin/pytest -o addopts="" -q` ->
-  `429 passed in 12.82s` (real 12.94s).
+- Latest recorded full-suite status:
+  `PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -p no:cacheprovider -o addopts="" -q`
+  -> `479 passed in 12.12s` (real 12.28s).
 
 ### 已实测
 
@@ -95,7 +107,7 @@ Android CLI:
 - Caveat: `android run` deploys/checks APKs; it does not build missing APKs
 
 Codex CLI:
-- Version: `codex-cli 0.144.1`
+- Version: `codex-cli 0.144.5`
 - Driver backend uses `codex exec --json --output-schema --output-last-message --skip-git-repo-check --cd ... --dangerously-bypass-approvals-and-sandbox` because it must operate Android CLI / adb outside the workspace.
 - L3 judge backend uses `codex exec --json --output-last-message --skip-git-repo-check --sandbox read-only --cd ...` because it only reads evidence artifacts.
 
@@ -113,6 +125,9 @@ Wikipedia host:
 
 ### Implemented runner contracts
 
+- `src/aiverify/runner/execution_record.py`: durable attempt identity,
+  create-exclusive initial record, validated atomic terminal replacement,
+  create-only JSON artifacts, and non-terminal abandonment semantics.
 - `src/aiverify/runner/run_spec.py`: `run-spec.yaml` parsing, validation, dry-run plan.
 - `src/aiverify/runner/codex_backend.py`: Codex CLI Verification Agent Backend contract.
 - `src/aiverify/runner/journey_result_schema.json`: strict ID-only structured Journey result schema.
@@ -122,7 +137,9 @@ Wikipedia host:
 - `src/aiverify/runner/journey.py`: Journey segment boundary orchestration, stable
   action-ID lineage normalization, retained raw/normalized/lineage artifacts, and
   propagation of partial failed checkpoints into interruption diagnostics.
-- `src/aiverify/runner/system_events.py`: system-event injection at boundaries.
+- `src/aiverify/runner/system_events.py`: fail-closed system-event injection at
+  boundaries, including adb timeout/non-zero detection and stable event-specific
+  postconditions where available.
 - `src/aiverify/runner/verdict.py`: Android CLI layout JSON to L2Oracle verdict;
   Run Specs can select a numeric `scenario.l2_boundary_index` for multi-boundary runs.
 - `src/aiverify/runner/cli.py`: end-to-end Run Spec runner, mandatory live-validation
@@ -138,7 +155,8 @@ Wikipedia host:
 - `src/aiverify/bench/run_record_checksums.py`: deterministic run-record checksum
   inventory generation and verification, excluding the manifest itself.
 - `src/aiverify/bench/m3_reliability.py`: versioned multi-seed M3 lane orchestration,
-  bounded attempt lineage, authoritative evidence validation, fail-closed failure
+  bounded attempt lineage, schema-v2 `attempt_id + execution-record.json` authority
+  with historical schema-v1 verdict compatibility, fail-closed contradiction/failure
   classification, and deterministic partial-summary generation.
 - `src/aiverify/bench/m3_audit.py`: final evidence-derived audit model with
   criteria, oracle, lane, identity, package-integrity, and Markdown breakdowns.
