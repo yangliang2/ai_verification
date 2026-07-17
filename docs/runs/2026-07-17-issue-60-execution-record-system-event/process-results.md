@@ -93,6 +93,69 @@ retained `after-segment-0`, created no `after-event-0`, wrote no L1/L2/L3
 outcome, and finalized attempt `498b3cba-1515-4ba5-97d7-02d6d454cf2a` as
 `interrupted / system_event_error / exit 2`.
 
+## Network requested-state postcondition probe
+
+The post-review API-35 probe exercised the production injector for both network
+events, re-read both requested settings after each event, and restored the exact
+captured initial state in a `finally` block:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python - <<'PY'
+from aiverify.harness.device.controller import DeviceController
+from aiverify.runner.run_spec import SystemEventSpec
+from aiverify.runner.system_events import DeviceSystemEventInjector
+
+serial = "emulator-5554"
+package = "org.wikipedia.dev"
+activity = "org.wikipedia.DefaultIcon"
+device = DeviceController(serial=serial)
+injector = DeviceSystemEventInjector(
+    device=device,
+    package=package,
+    activity=activity,
+)
+
+def setting(name, result):
+    if result.returncode != 0:
+        raise RuntimeError(f"{name}: {result.stderr or result.stdout}")
+    return result.stdout.strip()
+
+def observed():
+    return (
+        setting("wifi_on", device.get_wifi_setting()),
+        setting("mobile_data", device.get_mobile_data_setting()),
+    )
+
+original_wifi, original_mobile = observed()
+print(f"original: wifi_on={original_wifi} mobile_data={original_mobile}")
+try:
+    injector.inject(SystemEventSpec(step_index=0, event="network_off"))
+    wifi, mobile = observed()
+    print(f"network_off: passed; wifi_on={wifi} mobile_data={mobile}")
+    injector.inject(SystemEventSpec(step_index=1, event="network_on"))
+    wifi, mobile = observed()
+    print(f"network_on: passed; wifi_on={wifi} mobile_data={mobile}")
+finally:
+    restore_wifi = device.set_wifi(enabled=original_wifi == "1")
+    restore_mobile = device.set_mobile_data(enabled=original_mobile == "1")
+    if restore_wifi.returncode != 0 or restore_mobile.returncode != 0:
+        raise RuntimeError("network restoration command failed")
+    wifi, mobile = observed()
+    print(f"restored: wifi_on={wifi} mobile_data={mobile}")
+    if (wifi, mobile) != (original_wifi, original_mobile):
+        raise RuntimeError("network restoration postcondition failed")
+print("network postcondition probe: passed")
+PY
+```
+
+```text
+original: wifi_on=1 mobile_data=1
+network_off: passed; wifi_on=0 mobile_data=0
+network_on: passed; wifi_on=1 mobile_data=1
+restored: wifi_on=1 mobile_data=1
+network postcondition probe: passed
+```
+
 ## Foreground/background postcondition probe
 
 The post-review API-35 probe exercised the production injector with its default

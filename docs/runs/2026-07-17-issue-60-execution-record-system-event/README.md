@@ -28,10 +28,13 @@ The controlled API 35 emulator probes passed the required pair:
 
 `success-attempt-3` is the primary visual success evidence because both its
 portrait and landscape frames are complete and coherent. The final attempt 4
-proves the relative artifact-path regression fix; its post-event frame is
-normal, while its pre-event screenshot contains a transient black/partially
-rendered app frame. That visual anomaly is disclosed rather than hidden and did
-not affect the layout-based action, rotation postcondition, or event accounting.
+proves the relative artifact-path regression fix; its raw pre-event and
+post-event `screen.png` frames are complete and coherent. Its pre-event
+`screen-annotated.png` has black-backed regions in the generated annotation
+rendering. The same distinction exists in the failed attempt: the raw
+`screen.png` is complete, while the annotation rendering contains black-backed
+regions. These are properties of the annotated visualization, not evidence that
+the application displayed a black or partially rendered frame.
 
 ## Attempt lineage
 
@@ -160,16 +163,22 @@ explicitly deferred to #61.
 
 ## Manual and API-35 verification
 
-- Visually inspected success attempt 3 portrait and landscape screenshots:
+- Visually inspected success attempt 3 raw portrait and landscape `screen.png`
+  screenshots:
   Wikipedia Community/Home feed remained coherent; dimensions changed from
   1080×2400 to 2400×1080.
-- Visually inspected failure pre-event screenshot: coherent portrait Wikipedia
-  Community/Home feed. Confirmed there is no post-event checkpoint directory.
-- Visually inspected final relative-path success attempt 4; disclosed its
-  transient pre-event black/partial frame and normal post-event landscape frame.
+- Visually inspected the failure pre-event raw `screen.png`: coherent portrait
+  Wikipedia Community/Home feed. Its `screen-annotated.png` has black-backed
+  annotation regions; this is an annotation-renderer characteristic, not an app
+  black frame. Confirmed there is no post-event checkpoint directory.
+- Visually inspected final relative-path success attempt 4 raw pre-event and
+  post-event `screen.png` files: both are coherent. Its pre-event
+  `screen-annotated.png` has the same black-backed annotation rendering, which
+  is not used as evidence of the app's displayed background.
 - API-35 network postcondition probe captured original `wifi_on=1` and
   `mobile_data=1`, observed `0/0` after `svc ... disable`, observed `1/1` after
-  enable, and restored the captured original state.
+  enable, and restored the captured original state. The exact production-injector
+  command and output are retained in [`process-results.md`](process-results.md).
 - API-35 lifecycle postcondition probe used the production default 5.0-second /
   0.1-second polling contract. Wikipedia moved to Nexus Launcher in 0.060s, then
   explicit `org.wikipedia.DefaultIcon` launch resumed Wikipedia in 0.099s. The
