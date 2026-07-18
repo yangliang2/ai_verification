@@ -1,6 +1,6 @@
 schema_version: 3
 slice_id: m3-verification-agent-reliability-v9-query-rebuilt
-comparison_manifest: bench/goldset/m3-reliability-slice-v9-audited.yaml
+comparison_manifest: bench/goldset/m3-reliability-slice-v8-audited.yaml
 preregistration:
   frozen_at: "2026-07-18T00:30:00-04:00"
   source_revision: 569d9c4
@@ -72,7 +72,6 @@ lanes:
   - {<<: *search, id: v9-search-card-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-search-card-reliability/lanes/v9-search-card-defect-1}
   - {<<: *search, id: v9-search-card-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-search-card-reliability/lanes/v9-search-card-defect-2}
   - {<<: *search, id: v9-search-card-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-search-card-reliability/lanes/v9-search-card-defect-3}
-
 
 
 
