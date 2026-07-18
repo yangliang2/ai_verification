@@ -102,21 +102,31 @@ def build_audited_report(
             metadata, verdict = load_verified_attempt(
                 attempt_dir, lane=lane, attempt_number=number
             )
-            gate = _load_json(
-                attempt_dir / "live-validation-gate.json",
-                label="live-validation gate",
-            )
-            gate_device = gate.get("device")
-            gate_status = gate.get("status")
-            if not isinstance(gate_device, str) or not gate_device:
-                raise ValueError(f"lane {lane.lane_id} gate device is invalid")
-            if gate_status not in {"passed", "failed"}:
-                raise ValueError(f"lane {lane.lane_id} gate status is invalid")
-            _validate_gate_verdict_consistency(
-                gate_status=gate_status,
-                verdict=verdict,
-                lane=lane,
-            )
+            gate_path = attempt_dir / "live-validation-gate.json"
+            if gate_path.is_file():
+                gate = _load_json(gate_path, label="live-validation gate")
+                gate_device = gate.get("device")
+                gate_status = gate.get("status")
+                if not isinstance(gate_device, str) or not gate_device:
+                    raise ValueError(f"lane {lane.lane_id} gate device is invalid")
+                if gate_status not in {"passed", "failed"}:
+                    raise ValueError(f"lane {lane.lane_id} gate status is invalid")
+                _validate_gate_verdict_consistency(
+                    gate_status=gate_status,
+                    verdict=verdict,
+                    lane=lane,
+                )
+            elif (
+                manifest.schema_version >= 3
+                and verdict["execution"].get("reason")
+                == "execution_identity_error"
+            ):
+                gate_device = _command_value(
+                    metadata["runner_command"], "--device", lane=lane
+                )
+                gate_status = "not_run"
+            else:
+                raise ValueError(f"missing live-validation gate: {gate_path}")
             if package_context is not None:
                 _validate_attempt_package_identity(
                     metadata=metadata,
@@ -278,6 +288,17 @@ def build_audited_report(
         execution_identity=execution_identity,
         evidence_packages=evidence_packages,
         scope_limitations=(
+            [
+                "Wikipedia host only",
+                "Codex CLI Verification Agent Backend only",
+                "Android CLI on one Android 15/API 35 aiverify_api35 emulator only",
+                "versioned five-seed, 30-lane live v3 slice only",
+                "not a fully unattended Journey measurement",
+                "not a benchmark-wide detection or false-positive rate",
+                "not a physical-device, ColorOS, or visual-only/multimodal claim",
+            ]
+            if manifest.schema_version >= 3
+            else
             [
                 "Wikipedia host only",
                 "Codex CLI Verification Agent Backend only",
