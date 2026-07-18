@@ -1,0 +1,14 @@
+{
+  "schema": "m4-prospective-real-change-aggregate-v1",
+  "classification": "prospective_real_change",
+  "denominator": {"planned": 3, "admitted": 3, "excluded": 1, "replaced": 1},
+  "raw_counts": {"accountable": 2, "locally_supported": 2, "locally_rejected": 0, "non_accountable": 1},
+  "cases": [
+    {"task":"T426553","issue":63,"base":"6ccb8d85a21a8e34b96e4813d3caee5c690ece9b","candidate":"eeb74c820cab750187492f4c68791442da42c8f5","apk_sha256":"2c281135efe47d9742cbd9089bde1e446cb2020aff3abe5232179e12b5603819","package":"org.wikipedia","version":"50594-fdroid-2026-07-18","journey":"debug intent encoded external URI","oracle":"encoded query preserved","conclusion":"locally_supported","evidence":"../2026-07-18-m4-t426553/README.md"},
+    {"task":"T426989","issue":64,"base":"6ccb8d85a21a8e34b96e4813d3caee5c690ece9b","candidate":"03fc1c45bd63e5780ab19c19f04de94f26df6152","apk_sha256":"f92d792dcae5dc939b224af42a2e4476b084bd4114768003f8712bcf10af6a7c","package":"org.wikipedia","version":"50594-fdroid-2026-07-18","journey":"six page-type VIEW intents","oracle":"Read more absent on non-article pages","conclusion":"locally_supported","evidence":"../2026-07-18-m4-t426989/README.md"},
+    {"task":"T409797","issue":65,"base":"6ccb8d85a21a8e34b96e4813d3caee5c690ece9b","candidate":"cd57c06f0804c8411ec182e99751fceb5cf7a86f","apk_sha256":"a67fb37b68847ded17c975410d81d27078f8ba17582d9b476f8bd70556179dfe","package":"org.wikipedia","version":"50594-fdroid-2026-07-18","journey":"first-run setup then Activity tab","oracle":"target labels rendered with Activity data","conclusion":"non_accountable","evidence":"../2026-07-18-m4-t409797/README.md"}
+  ],
+  "excluded": [{"task":"T337177","reason":"three attempts could not produce a valid image/theme oracle; replaced by T409797","evidence":"../2026-07-18-m4-t337177-exclusion/README.md"}],
+  "limitations": ["No upstream claims, comments, pull requests, or acceptance claims were made.","These cases are not a Goldset and do not support a detection-rate or false-positive-rate calculation.","T409797 requires an authenticated Activity fixture for a future accountable rerun."],
+  "m5_recommendation": {"route":"additional_real_change_cases","gate":"obtain a stable fixture and independently accountable Journey before attempting historical-pair or controlled-mutation claims","reason":"Two cases were locally supported, while the replacement case was non-accountable; the pilot lacks three accountable observations."}
+}
