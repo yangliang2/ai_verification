@@ -1,0 +1,21 @@
+{
+  "oracle_id": "t426989-page-type-read-more-v1",
+  "observation": "uiautomator_ui_dump",
+  "selector": "text matches /^(?i:read more|more to read|mehr lesen)$/",
+  "expected": {
+    "article": {"read_more_present": false},
+    "user": {"read_more_present": false},
+    "project": {"read_more_present": false},
+    "talk": {"read_more_present": false},
+    "special": {"read_more_present": false},
+    "category": {"read_more_present": false}
+  },
+  "admission_observation": {
+    "article": false,
+    "user": true,
+    "project": true,
+    "talk": true,
+    "special": true,
+    "category": true
+  }
+}
