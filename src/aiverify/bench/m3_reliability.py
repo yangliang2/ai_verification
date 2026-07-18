@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 from collections import Counter
 from dataclasses import asdict, dataclass
@@ -822,7 +823,12 @@ def load_verified_attempt(
             lane=lane,
             execution_record=execution_record,
         )
-    _validate_l3_judge_artifacts(attempt_dir, verdict=verdict, lane=lane)
+    _validate_l3_judge_artifacts(
+        attempt_dir,
+        verdict=verdict,
+        lane=lane,
+        wikipedia_source=os.environ.get("WIKIPEDIA_SOURCE", "/__portable__"),
+    )
     _validate_runner_exit(
         metadata,
         verdict=verdict,
@@ -1055,12 +1061,19 @@ def _validate_runner_exit(
 
 
 def _validate_l3_judge_artifacts(
-    attempt_dir: Path, *, verdict: dict, lane: ReliabilityLane
+    attempt_dir: Path,
+    *,
+    verdict: dict,
+    lane: ReliabilityLane,
+    wikipedia_source: str,
 ) -> None:
     if lane.expected_oracle_level != "L3" or not is_accountable(verdict):
         return
 
-    spec = load_run_spec(lane.run_spec)
+    spec = load_run_spec(
+        lane.run_spec,
+        environ={"WIKIPEDIA_SOURCE": wikipedia_source},
+    )
     judge_dir = attempt_dir / "artifacts" / "l3-judge"
     prompts = sorted(judge_dir.glob("l3-judge-call-*.prompt.md"))
     outputs = sorted(
