@@ -39,7 +39,7 @@ evidence. No #62 input, attempt, report, or checksum was modified.
   tests/runner/test_run_spec.py \
   tests/runner/test_execution_identity.py \
   tests/runner/test_cli.py
-# 60 passed in 0.54s
+# 60 passed in 0.72s
 
 .venv/bin/pytest -o addopts='' \
   tests/bench/test_m3_v3_audit.py \
@@ -48,7 +48,7 @@ evidence. No #62 input, attempt, report, or checksum was modified.
 # 97 passed in 8.04s
 
 TIMEFMT='wall_seconds=%E'; time .venv/bin/pytest
-# 525 passed in 14.40s; wall_seconds=14.52s
+# 525 passed in 15.44s; wall_seconds=15.58s
 
 PYTHONPATH=src .venv/bin/python -m aiverify.runner --help | \
   rg -- '--host-project|--workdir'
