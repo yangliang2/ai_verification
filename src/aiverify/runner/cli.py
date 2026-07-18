@@ -34,6 +34,9 @@ from aiverify.providers.codex_cli import CodexCliProvider, CodexCliProviderError
 from aiverify.runner.codex_backend import CodexCliBackend, _DEFAULT_SCHEMA_PATH
 from aiverify.runner.command import CommandRunner
 from aiverify.runner.evidence import AndroidEvidenceCollector
+from aiverify.runner.execution_identity import (
+    ExecutionIdentityCollector,
+)
 from aiverify.runner.execution_record import (
     ArtifactStorageError,
     ExecutionRecordStorageError,
@@ -381,8 +384,8 @@ def _write_preflight_non_accountable_verdict(
     spec: RunSpec,
     gate_result: GateResult,
     gate_path: Path,
-    preflight_summary: dict,
-    preflight_timing: dict,
+    preflight_summary: dict | None,
+    preflight_timing: dict | None,
     artifact_dir: Path,
     started_at: str,
     run_start: float,
@@ -561,7 +564,7 @@ def _write_failed_run_verdict(
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "total_seconds": round(time.monotonic() - run_start, 3),
         "phases": [
-            preflight_timing,
+            *([preflight_timing] if preflight_timing is not None else []),
             *(flow.timings if flow is not None else []),
             failed_timing,
         ],
@@ -581,7 +584,11 @@ def _write_failed_run_verdict(
         "l2": None,
         "l3": None,
         "diagnostic_artifacts": {
-            "live_validation_gate": preflight_summary["artifact"],
+            **(
+                {"live_validation_gate": preflight_summary["artifact"]}
+                if preflight_summary is not None
+                else {}
+            ),
             "journey_results": (
                 [str(result.result_path) for result in flow.journey_results]
                 if flow is not None
@@ -638,10 +645,9 @@ def _write_failed_run_verdict(
             additional_timings=[failed_timing],
             prior_phase_errors=phase_errors,
         )
-    evidence_refs: dict[str, object] = {
-        "live_validation_gate": preflight_summary["artifact"],
-        "verdict": str(verdict_path),
-    }
+    evidence_refs: dict[str, object] = {"verdict": str(verdict_path)}
+    if preflight_summary is not None:
+        evidence_refs["live_validation_gate"] = preflight_summary["artifact"]
     if flow is not None:
         evidence_refs.update(
             {
@@ -913,7 +919,10 @@ def _write_non_accountable_verdict(
 def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         launch: bool = True, model: str | None = None,
         l3_model: str | None = None,
-        preflight_command_runner: CommandRunner | None = None) -> dict:
+        preflight_command_runner: CommandRunner | None = None,
+        run_spec_path: Path | None = None,
+        identity_command_runner: CommandRunner | None = None,
+        identity_collector: ExecutionIdentityCollector | None = None) -> dict:
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     run_start = time.monotonic()
     execution_record = ExecutionRecordStore.establish(
@@ -922,6 +931,43 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         scenario=spec.scenario.id,
         started_at=started_at,
     )
+    identity_start = time.monotonic()
+    if identity_collector is None:
+        identity_collector = ExecutionIdentityCollector(
+            run_dir=artifact_dir.parent,
+            artifact_dir=artifact_dir,
+            attempt_id=execution_record.attempt_id,
+            spec=spec,
+            run_spec_path=(
+                Path(run_spec_path)
+                if run_spec_path is not None
+                else spec.source_path or Path("<programmatic-run-spec>")
+            ),
+            workdir=workdir,
+            device=device,
+            requested_driver_model=model,
+            requested_l3_model=l3_model,
+            command_runner=identity_command_runner,
+            android_bin=spec.live_validation.android_bin,
+            adb_bin=spec.live_validation.adb_bin,
+        )
+    try:
+        identity_collector.capture_static()
+    except Exception as error:
+        return _write_failed_run_verdict(
+            spec=spec,
+            reason="execution_identity_error",
+            phase="execution-identity-capture",
+            kind="identity",
+            error=error,
+            artifact_dir=artifact_dir,
+            started_at=started_at,
+            run_start=run_start,
+            phase_start=identity_start,
+            preflight_summary=None,
+            preflight_timing=None,
+            execution_record=execution_record,
+        )
     preflight_start = time.monotonic()
     try:
         (
@@ -967,6 +1013,25 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             execution_record=execution_record,
         )
 
+    deployment_start = time.monotonic()
+    try:
+        identity_collector.deploy()
+    except Exception as error:
+        return _write_failed_run_verdict(
+            spec=spec,
+            reason="execution_identity_error",
+            phase="deployment-identity",
+            kind="identity",
+            error=error,
+            artifact_dir=artifact_dir,
+            started_at=started_at,
+            run_start=run_start,
+            phase_start=deployment_start,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            execution_record=execution_record,
+        )
+
     setup_start = time.monotonic()
     try:
         controller = DeviceController(serial=device)
@@ -1008,6 +1073,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             output_schema=_DEFAULT_SCHEMA_PATH,
             device=device,
             instruction_prefix=build_instruction_prefix(device),
+            model=model,
         )
     except JourneyExecutionInterrupted as error:
         return _write_non_accountable_verdict(
@@ -1078,6 +1144,31 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             flow=flow,
         )
 
+    identity_finalize_start = time.monotonic()
+    try:
+        execution_provenance = identity_collector.finalize(
+            l1=l1,
+            l2=l2,
+            l3=l3,
+            l3_configured=bool(spec.scenario.l3_spec),
+        )
+    except Exception as error:
+        return _write_failed_run_verdict(
+            spec=spec,
+            reason="execution_identity_error",
+            phase="execution-identity-finalize",
+            kind="identity",
+            error=error,
+            artifact_dir=artifact_dir,
+            started_at=started_at,
+            run_start=run_start,
+            phase_start=identity_finalize_start,
+            preflight_summary=preflight_summary,
+            preflight_timing=preflight_timing,
+            execution_record=execution_record,
+            flow=flow,
+        )
+
     verdict = {
         "scenario": spec.scenario.id,
         "execution": {
@@ -1101,6 +1192,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             "phases": [preflight_timing, *flow.timings],
         },
         "execution_record": str(execution_record.path),
+        "execution_provenance": execution_provenance,
     }
     try:
         write_json_artifact(artifact_dir.parent / "verdict.json", verdict)
@@ -1134,6 +1226,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             "checkpoints": [
                 str(checkpoint.directory) for checkpoint in flow.checkpoints
             ],
+            "execution_provenance": execution_provenance,
         },
     )
     return verdict
@@ -1160,6 +1253,7 @@ def main(argv: list[str] | None = None) -> int:
             launch=not args.no_launch,
             model=args.model,
             l3_model=args.l3_model,
+            run_spec_path=Path(args.run_spec),
         )
     except ExecutionRecordStorageError as error:
         print(f"ExecutionRecord storage failed: {error}", file=sys.stderr)

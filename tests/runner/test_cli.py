@@ -1,5 +1,6 @@
 """runner CLI 的 L3 门控与降级逻辑单测（不触真机）。"""
 
+import hashlib
 import json
 import re
 import subprocess
@@ -15,6 +16,7 @@ from aiverify.providers.base import MockProvider
 from aiverify.runner.codex_backend import JourneyExecutionResult
 from aiverify.runner.evidence import AndroidEvidenceCollector, EvidenceCheckpoint
 from aiverify.runner.execution_record import ExecutionRecordStorageError
+from aiverify.runner.execution_identity import ExecutionIdentityError
 from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentFlow
 from aiverify.runner.run_spec import (
     AssertionSpec,
@@ -220,6 +222,35 @@ class FakeDeviceController:
 
     def launch(self, package: str, activity: str | None) -> AdbResult:
         return AdbResult(stdout="", stderr="", returncode=0)
+
+
+@pytest.fixture(autouse=True)
+def _controlled_execution_identity(monkeypatch):
+    """Keep existing public-runner tests at their controlled identity seam."""
+
+    class ControlledIdentityCollector:
+        def __init__(self, **kwargs):
+            self.run_dir = Path(kwargs["run_dir"])
+            self.calls: list[str] = []
+
+        def capture_static(self):
+            self.calls.append("capture_static")
+
+        def deploy(self):
+            self.calls.append("deploy")
+            return {"status": "passed"}
+
+        def finalize(self, **kwargs):
+            self.calls.append("finalize")
+            path = self.run_dir / "execution-provenance.json"
+            payload = b'{"schema_version":1,"controlled":true}\n'
+            path.write_bytes(payload)
+            return {
+                "path": str(path),
+                "sha256": hashlib.sha256(payload).hexdigest(),
+            }
+
+    monkeypatch.setattr(cli, "ExecutionIdentityCollector", ControlledIdentityCollector)
 
 
 def _passing_preflight_responses() -> list[dict[str, object]]:
@@ -828,6 +859,7 @@ def test_public_run_reproduces_historical_anr_failed_status(
 def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, monkeypatch):
     flow = _flow(tmp_path)
     controller_calls: list[object] = []
+    journey_run_kwargs: dict[str, object] = {}
 
     class FakeController:
         def __init__(self, serial):
@@ -846,6 +878,7 @@ def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, mo
             pass
 
         def run(self, **kwargs):
+            journey_run_kwargs.update(kwargs)
             return flow
 
     monkeypatch.setattr(cli, "DeviceController", FakeController)
@@ -859,6 +892,7 @@ def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, mo
         device="emulator-5554",
         artifact_dir=artifact_dir,
         workdir=tmp_path,
+        model="gpt-5.1-codex",
         preflight_command_runner=preflight_runner,
     )
 
@@ -877,6 +911,7 @@ def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, mo
         "logcat_clear",
         ("launch", "org.wikipedia.dev", None),
     ]
+    assert journey_run_kwargs["model"] == "gpt-5.1-codex"
     assert [call[0:2] for call in preflight_runner.calls] == [
         ["adb", "devices"],
         ["adb", "-s"],
@@ -923,6 +958,7 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
     )
 
     assert observed_record["lifecycle_state"] == "in_progress"
+    assert observed_record["schema_version"] == 2
     assert observed_record["finished_at"] is None
     attempt_id = observed_record["attempt_id"]
     assert isinstance(attempt_id, str) and attempt_id
@@ -938,6 +974,7 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
         "verdict": str(artifact_dir.parent / "verdict.json"),
         "journey_results": [str(flow.journey_results[0].result_path)],
         "checkpoints": [str(flow.checkpoints[0].directory)],
+        "execution_provenance": verdict["execution_provenance"],
     }
     assert verdict["execution_record"] == str(record_path)
     assert not list(artifact_dir.parent.glob(".execution-record.*.tmp"))
@@ -964,6 +1001,89 @@ def test_public_run_rejects_reused_attempt_directory_before_preflight(tmp_path):
 
     assert prior_verdict.read_text(encoding="utf-8") == '{"prior": true}\n'
     assert not (run_dir / "execution-record.json").exists()
+
+
+def test_missing_static_identity_fails_before_preflight_or_device_action(
+    tmp_path, monkeypatch
+):
+    class MissingIdentityCollector:
+        def capture_static(self):
+            raise ExecutionIdentityError("Run Spec source identity is unavailable")
+
+    class UnexpectedPreflightRunner(CommandRunner):
+        def run(self, *args, **kwargs):
+            raise AssertionError("preflight must not run after identity capture failure")
+
+    class UnexpectedController:
+        def __init__(self, serial):
+            raise AssertionError("device action must not run after identity capture failure")
+
+    monkeypatch.setattr(cli, "DeviceController", UnexpectedController)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=UnexpectedPreflightRunner(),
+        identity_collector=MissingIdentityCollector(),
+    )
+
+    assert verdict["execution"]["reason"] == "execution_identity_error"
+    assert verdict["l1"] is None and verdict["l2"] is None and verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert record["phase_errors"][-1]["phase"] == "execution-identity-capture"
+
+
+def test_identity_finalization_failure_discards_oracle_accounting(
+    tmp_path, monkeypatch
+):
+    flow = _flow(tmp_path)
+
+    class InvalidFinalIdentityCollector:
+        def capture_static(self):
+            pass
+
+        def deploy(self):
+            pass
+
+        def finalize(self, **kwargs):
+            raise ExecutionIdentityError("effective model contradicts requested model")
+
+    class SuccessfulRunner:
+        def __init__(self, **kwargs):
+            pass
+
+        def run(self, **kwargs):
+            return flow
+
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(cli, "JourneySegmentRunner", SuccessfulRunner)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+        identity_collector=InvalidFinalIdentityCollector(),
+    )
+
+    assert verdict["execution"]["reason"] == "execution_identity_error"
+    assert verdict["l1"] is None and verdict["l2"] is None and verdict["l3"] is None
+    assert verdict["diagnostic_artifacts"]["journey_results"] == [
+        str(flow.journey_results[0].result_path)
+    ]
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["lifecycle_state"] == "failed"
+    assert record["execution"]["accounting_eligible"] is False
 
 
 def test_public_run_rejects_preexisting_custom_artifact_directory_before_preflight(

@@ -181,6 +181,7 @@ class JourneySegmentRunner:
         output_schema: Path,
         device: str | None = None,
         instruction_prefix: str = "",
+        model: str | None = None,
     ) -> JourneySegmentFlow:
         """Run all segments and capture checkpoints around boundary events.
 
@@ -249,6 +250,7 @@ class JourneySegmentRunner:
                             workdir=workdir,
                             artifact_dir=segment_dir,
                             output_schema=output_schema,
+                            model=model,
                         )
                     ),
                 )

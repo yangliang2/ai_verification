@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import hashlib
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -137,6 +138,8 @@ class RunSpec:
     spec: Path | None
     scenario: ScenarioSpec
     live_validation: LiveValidationSpec = field(default_factory=LiveValidationSpec)
+    source_path: Path | None = None
+    source_sha256: str | None = None
 
     def dry_run_plan(self, artifact_root: Path) -> DryRunPlan:
         """Return a dry-run action plan without touching host projects or devices."""
@@ -159,12 +162,19 @@ class RunSpec:
 
 def load_run_spec(path: str | Path) -> RunSpec:
     """Load and validate a Run Spec YAML file."""
-    src = Path(path)
+    src = Path(path).resolve()
     try:
-        data = yaml.safe_load(src.read_text(encoding="utf-8"))
+        source_bytes = src.read_bytes()
+        data = yaml.safe_load(source_bytes.decode("utf-8"))
+    except (OSError, UnicodeDecodeError) as exc:
+        raise RunSpecError(f"Run Spec 读取失败：{exc}") from exc
     except yaml.YAMLError as exc:
         raise RunSpecError(f"Run Spec YAML 解析失败：{exc}") from exc
-    return parse_run_spec(data, base_dir=src.parent)
+    return replace(
+        parse_run_spec(data, base_dir=src.parent),
+        source_path=src,
+        source_sha256=hashlib.sha256(source_bytes).hexdigest(),
+    )
 
 
 def parse_run_spec(data: object, *, base_dir: Path | None = None) -> RunSpec:

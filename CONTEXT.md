@@ -48,6 +48,10 @@ _Avoid_: Benchmark manifest, CLI flags, test case
 The durable attempt-level accountability envelope established before a public Run Spec runner causes external side effects and atomically finalized with lifecycle, process outcome, canonical failure reason, timing, ordered phase errors, and evidence references. A non-terminal ExecutionRecord is abandoned and cannot enter oracle accounting.
 _Avoid_: Verdict, run record, summary JSON
 
+**Effective Execution Identity**:
+The checksum-bound provenance of what actually executed for one attempt: consumed Run Spec bytes; host origin, commit, and worktree; complete local and installed APK hashes; deployment target and device profile; critical tool binaries and versions; and each invoked agent role's backend, requested model, effective model, and authoritative observation source. Missing, unknown, drifted, or contradictory identity makes the attempt non-accountable.
+_Avoid_: Requested configuration, model label, environment summary
+
 **Agent-In-The-Loop Execution**:
 A verification run where the runner generates structured Journey instructions and checkpoints, while the current coding agent performs UI navigation using Android CLI layout/screenshot tools and adb input.
 _Avoid_: Fully unattended execution, manual testing

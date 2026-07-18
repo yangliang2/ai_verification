@@ -31,6 +31,41 @@ def test_nonterminal_execution_record_is_always_abandoned_and_non_accountable(
     assert execution_record_reason(record) == "execution_abandoned"
 
 
+def test_schema_v2_completed_record_requires_provenance_binding(tmp_path) -> None:
+    store = ExecutionRecordStore.establish(
+        tmp_path,
+        scenario="fixture-scenario",
+        started_at="2026-07-17T12:00:00+00:00",
+    )
+    assert load_execution_record(store.path)["schema_version"] == 2
+
+    record = store.finalize(
+        lifecycle_state="completed",
+        execution={
+            "status": "completed",
+            "accounting_eligible": True,
+            "reason": None,
+            "message": None,
+        },
+        process_exit_code=0,
+        timing={
+            "started_at": "2026-07-17T12:00:00+00:00",
+            "finished_at": "2026-07-17T12:00:01+00:00",
+            "total_seconds": 1.0,
+            "phases": [],
+        },
+        phase_errors=[],
+        evidence_refs={
+            "execution_provenance": {
+                "path": str(tmp_path / "execution-provenance.json"),
+                "sha256": "a" * 64,
+            }
+        },
+    )
+
+    assert record["evidence_refs"]["execution_provenance"]["sha256"] == "a" * 64
+
+
 def test_execution_record_loader_rejects_accountable_nonterminal_contradiction(
     tmp_path,
 ) -> None:

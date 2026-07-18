@@ -365,9 +365,14 @@ def test_journey_segment_runner_orders_segments_events_and_checkpoints(tmp_path:
         artifact_dir=tmp_path / "artifacts",
         output_schema=schema,
         device="emulator-5554",
+        model="gpt-5.1-codex",
     )
 
     assert len(backend.requests) == 2
+    assert [request.model for request in backend.requests] == [
+        "gpt-5.1-codex",
+        "gpt-5.1-codex",
+    ]
     assert [event.event for event in injector.events] == ["rotate"]
     assert collector.names == ["after-segment-0", "after-event-0", "after-segment-1"]
     assert len(flow.checkpoints) == 3

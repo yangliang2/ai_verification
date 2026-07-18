@@ -1474,6 +1474,7 @@ def test_summary_derives_expected_defect_catch(tmp_path: Path) -> None:
         ("system_event_error", "system_event"),
         ("checkpoint_capture_error", "evidence_capture"),
         ("oracle_execution_error", "oracle_execution"),
+        ("execution_identity_error", "execution_identity"),
     ],
 )
 def test_summary_classifies_non_accountable_failures(

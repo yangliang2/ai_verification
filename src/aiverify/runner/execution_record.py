@@ -57,7 +57,7 @@ class ExecutionRecordStore:
                 f"cannot establish ExecutionRecord: existing runner output: {names}"
             )
         record = {
-            "schema_version": 1,
+            "schema_version": 2,
             "attempt_id": attempt_id,
             "scenario": scenario,
             "lifecycle_state": "in_progress",
@@ -156,7 +156,8 @@ def validate_execution_record(record: object) -> None:
     """Reject structural and cross-field accountability contradictions."""
     if not isinstance(record, dict):
         raise ExecutionRecordValidationError("ExecutionRecord must be an object")
-    if record.get("schema_version") != 1:
+    schema_version = record.get("schema_version")
+    if schema_version not in {1, 2}:
         raise ExecutionRecordValidationError("unsupported ExecutionRecord schema_version")
     for key in ("attempt_id", "scenario", "started_at"):
         value = record.get(key)
@@ -253,6 +254,24 @@ def validate_execution_record(record: object) -> None:
             raise ExecutionRecordValidationError(
                 "completed ExecutionRecord cannot contain phase errors"
             )
+        if schema_version == 2:
+            provenance = record["evidence_refs"].get("execution_provenance")
+            if not isinstance(provenance, dict):
+                raise ExecutionRecordValidationError(
+                    "schema-v2 completed ExecutionRecord requires execution provenance"
+                )
+            path = provenance.get("path")
+            digest = provenance.get("sha256")
+            if (
+                not isinstance(path, str)
+                or not path
+                or not isinstance(digest, str)
+                or len(digest) != 64
+                or any(character not in "0123456789abcdef" for character in digest)
+            ):
+                raise ExecutionRecordValidationError(
+                    "schema-v2 execution provenance binding is invalid"
+                )
         return
 
     if status != "non_accountable" or eligible is not False:
@@ -315,15 +334,30 @@ def write_json_artifact(path: Path, payload: dict) -> None:
         ) from error
 
 
+def write_bytes_artifact(path: Path, payload: bytes) -> None:
+    """Durably create one arbitrary evidence artifact without replacement."""
+    path = Path(path)
+    try:
+        _create_exclusive_bytes(path, payload)
+    except OSError as error:
+        raise ArtifactStorageError(
+            f"cannot persist artifact at {path}: {type(error).__name__}: {error}"
+        ) from error
+
+
 def _encoded_json(payload: dict) -> bytes:
     return (json.dumps(payload, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
 
 
 def _create_exclusive_json(path: Path, payload: dict) -> None:
+    _create_exclusive_bytes(path, _encoded_json(payload))
+
+
+def _create_exclusive_bytes(path: Path, payload: bytes) -> None:
     temp_path = path.parent / f".{path.name}.{uuid.uuid4()}.tmp"
     try:
         with temp_path.open("xb") as stream:
-            stream.write(_encoded_json(payload))
+            stream.write(payload)
             stream.flush()
             os.fsync(stream.fileno())
         os.link(temp_path, path)

@@ -15,6 +15,11 @@ import tempfile
 from pathlib import Path
 
 from aiverify.providers.base import CompletionResult, LLMProvider
+from aiverify.runner.codex_identity import (
+    CodexIdentityError,
+    capture_codex_invocation_identity,
+    default_codex_session_root,
+)
 from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
 
 
@@ -36,6 +41,7 @@ class CodexCliProvider(LLMProvider):
         timeout_seconds: int = 600,
         artifact_dir: Path | None = None,
         runner: CommandRunner | None = None,
+        session_root: Path | None = None,
     ) -> None:
         """
         参数
@@ -52,7 +58,9 @@ class CodexCliProvider(LLMProvider):
         self.timeout_seconds = timeout_seconds
         self.artifact_dir = artifact_dir
         self.runner = runner if runner is not None else SubprocessCommandRunner()
+        self.session_root = session_root or default_codex_session_root()
         self._call_index = 0
+        self.identity_receipts: list[Path] = []
 
     def complete(self, prompt: str, *, system: str = "") -> CompletionResult:
         # codex exec 没有独立 system 通道，system 前置拼接进同一 prompt。
@@ -103,8 +111,40 @@ class CodexCliProvider(LLMProvider):
             raise CodexCliProviderError(f"codex exec 未写出最终回答文件：{result_path}")
 
         text = result_path.read_text(encoding="utf-8")
+        identity_path: Path | None = None
+        effective_model = self.model or "codex-default"
+        if events_path is not None:
+            identity_path = (
+                self.artifact_dir
+                / f"l3-judge-call-{self._call_index}.identity.json"
+            )
+            try:
+                identity = capture_codex_invocation_identity(
+                    role="l3_semantic_judge",
+                    requested_model=self.model,
+                    command=args,
+                    codex_bin=self.codex_bin,
+                    runner=self.runner,
+                    events_path=events_path,
+                    receipt_path=identity_path,
+                    session_root=self.session_root,
+                )
+            except CodexIdentityError as error:
+                raise CodexCliProviderError(
+                    f"codex exec identity capture failed: {error}"
+                ) from error
+            effective_model = identity["effective_model"]
+            self.identity_receipts.append(identity_path)
         return CompletionResult(
             text=text,
-            model=self.model or "codex-default",
-            raw={"command": args, "returncode": result.returncode},
+            model=effective_model,
+            raw={
+                "command": args,
+                "returncode": result.returncode,
+                **(
+                    {"identity_receipt_path": str(identity_path)}
+                    if identity_path is not None
+                    else {}
+                ),
+            },
         )

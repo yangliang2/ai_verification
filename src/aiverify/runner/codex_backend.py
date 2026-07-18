@@ -10,6 +10,11 @@ from typing import Any
 import jsonschema
 
 from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
+from aiverify.runner.codex_identity import (
+    CodexIdentityError,
+    capture_codex_invocation_identity,
+    default_codex_session_root,
+)
 
 
 _DEFAULT_SCHEMA_PATH = Path(__file__).with_name("journey_result_schema.json")
@@ -65,9 +70,11 @@ class CodexCliBackend:
         *,
         codex_bin: str = "codex",
         runner: CommandRunner | None = None,
+        session_root: Path | None = None,
     ) -> None:
         self.codex_bin = codex_bin
         self.runner = runner if runner is not None else SubprocessCommandRunner()
+        self.session_root = session_root or default_codex_session_root()
 
     def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
         """Run Codex CLI and parse its schema-constrained final response."""
@@ -141,7 +148,30 @@ class CodexCliBackend:
                 command=args,
             ) from exc
 
-        metadata = self._metadata()
+        identity_path = artifact_dir / "codex-invocation-identity.json"
+        try:
+            identity = capture_codex_invocation_identity(
+                role="journey_driver",
+                requested_model=request.model,
+                command=args,
+                codex_bin=self.codex_bin,
+                runner=self.runner,
+                events_path=events_path,
+                receipt_path=identity_path,
+                session_root=self.session_root,
+            )
+        except CodexIdentityError as exc:
+            raise CodexCliError(
+                f"Codex CLI identity capture failed: {exc}",
+                result_path=result_path,
+                events_path=events_path,
+                command=args,
+            ) from exc
+        metadata = {
+            "codex_version": identity["binary"]["version"],
+            "effective_model": identity["effective_model"],
+            "identity_receipt_path": str(identity_path),
+        }
         return JourneyExecutionResult(
             data=data,
             result_path=result_path,
@@ -149,9 +179,3 @@ class CodexCliBackend:
             command=args,
             metadata=metadata,
         )
-
-    def _metadata(self) -> dict[str, str]:
-        version = self.runner.run([self.codex_bin, "--version"])
-        if version.returncode != 0:
-            return {}
-        return {"codex_version": version.stdout.strip()}

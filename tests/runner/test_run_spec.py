@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -178,6 +179,8 @@ scenario:
 
     assert spec.scenario.id == "smoke"
     assert spec.activity is None
+    assert spec.source_path == src.resolve()
+    assert spec.source_sha256 == hashlib.sha256(src.read_bytes()).hexdigest()
 
 
 def test_missing_required_field_fails() -> None:

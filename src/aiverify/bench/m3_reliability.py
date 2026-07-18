@@ -22,6 +22,10 @@ from aiverify.runner.execution_record import (
     is_execution_record_accountable,
     load_execution_record,
 )
+from aiverify.runner.execution_identity import (
+    ExecutionIdentityError,
+    verify_execution_provenance,
+)
 from aiverify.runner.run_spec import load_run_spec
 
 
@@ -760,6 +764,22 @@ def _load_record_authoritative_verdict(
     lifecycle = execution_record["lifecycle_state"]
     verdict_path = attempt_dir / "verdict.json"
 
+    if (
+        execution_record.get("schema_version") == 2
+        and is_execution_record_accountable(execution_record)
+    ):
+        try:
+            verify_execution_provenance(
+                execution_record["evidence_refs"].get("execution_provenance"),
+                attempt_id=execution_record["attempt_id"],
+                scenario=execution_record["scenario"],
+                base_dir=attempt_dir,
+            )
+        except ExecutionIdentityError as error:
+            raise ValueError(
+                f"lane {lane.lane_id} execution provenance is invalid: {error}"
+            ) from error
+
     if lifecycle == "in_progress":
         verdict = _record_only_verdict(execution_record)
         _validate_verdict(verdict, lane=lane)
@@ -1081,6 +1101,7 @@ def failure_class(verdict: dict) -> str:
         "runner_setup_error": "verification_agent_journey",
         "journey_execution_error": "verification_agent_journey",
         "output_finalization_error": "output_finalization",
+        "execution_identity_error": "execution_identity",
         "execution_abandoned": "execution_abandoned",
     }
     failure_class = mapping.get(str(reason))
