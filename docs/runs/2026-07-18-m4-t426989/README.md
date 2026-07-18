@@ -33,6 +33,6 @@ The candidate oracle and Development Agent session have not yet been created. No
 
 ## Candidate attempt
 
-Candidate commit `5bd7d24d5bcf3da503afb3de4246743014abf168` moves the read-more decision into the footer setup and gates it on article/mainspace status, with URI-prefix defenses for non-article namespaces. Candidate APK SHA-256: `0b3325e4046d4a015e6759acd76ed374b2eabbe29d7c66cbbe97f5420bb0a6b7`.
+Candidate commit `5bd7d24d5bcf3da503afb3de4246743014abf168` moves the read-more decision into the footer setup and gates it on article/mainspace status, with URI-prefix defenses for non-article namespaces. Candidate APK SHA-256: `30fb3fd0e3941eecb159688a25fb9d8f1d3ecd6f83aa4a9b18855329b9b23591`.
 
-The article/user/project/special/category candidate observations show no `Read more`. Talk-page capture is inconsistent across repeated cold launches and remains under investigation; #64 is not closed.
+Fresh cold-launch candidate verification (APK installed successfully, `pm clear` before each VIEW intent, 8-second load) showed no `Read more` for article, user, project, talk, special, or category pages. UI dumps are retained under `candidate/`; #64 remains open pending independent verification.
