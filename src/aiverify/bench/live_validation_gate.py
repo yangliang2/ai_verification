@@ -327,6 +327,22 @@ def _check_android_layout(
         timeout_seconds=timeout_seconds,
         snippet_chars=snippet_chars,
     )
+    # UiTestAutomationBridge can transiently return a null root immediately
+    # after an APK/activity restart. Retry that narrow condition so a
+    # momentary bridge race is not recorded as an environment failure.
+    for _ in range(2):
+        if "null root node returned by UiTestAutomationBridge" not in (
+            result.stderr_snippet or ""
+        ):
+            break
+        time.sleep(0.5)
+        result = _run_gate_command(
+            name="android-layout-json",
+            args=args,
+            runner=runner,
+            timeout_seconds=timeout_seconds,
+            snippet_chars=snippet_chars,
+        )
     if result.status != "passed":
         return result
     try:
