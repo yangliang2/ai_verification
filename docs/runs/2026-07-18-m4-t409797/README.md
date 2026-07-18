@@ -22,6 +22,13 @@ The Activity modules now use invariant labels (`Edits this month`, `Edits last m
 - Install: `adb -s emulator-5554 install -r ...` → `Success`
 - Installed identity: `versionCode=50594`, `versionName=50594-fdroid-2026-07-18`.
 
+## Primary Journey and conclusion
+
+- Journey: complete first-run setup, open bottom-navigation `Activity`, and inspect the rendered Activity state.
+- Observed UI: `Log in or create an account to view your activity on the Wikipedia app`.
+- Oracle: target count-dependent Activity labels were not rendered because the unauthenticated fixture has no Activity data.
+- Local conclusion: `non_accountable` (the candidate build and source are valid, but this device/content condition cannot adjudicate the target behavior).
+
 ## Known gap
 
-The current emulator’s unauthenticated Activity screen did not provide a stable upstream data fixture for the exact T409797 UI journey. The source/build evidence is preserved; independent behavior verification and the final case conclusion remain open.
+The current emulator’s unauthenticated Activity screen did not provide a data fixture for the exact T409797 labels. No account or upstream interaction was introduced. This is recorded as a fail-closed non-accountable case, not as evidence that the upstream task is fixed.
