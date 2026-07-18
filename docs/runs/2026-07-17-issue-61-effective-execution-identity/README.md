@@ -49,8 +49,8 @@ is accounting-eligible without manual identity backfill.
 ## Verification
 
 The focused identity/runner/audit suite collected 188 tests and passed. The
-complete repository suite collected 515 tests and passed in 13.59 seconds
-(`user 5.70`, `sys 2.79`). `git diff --check` and Python bytecode compilation
+complete repository suite collected 515 tests and passed in 13.51 seconds
+(`user 5.86`, `sys 2.93`). `git diff --check` and Python bytecode compilation
 also passed. See `process-results.md` for the exact commands.
 
 ## Known gaps and scope
