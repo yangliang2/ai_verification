@@ -22,6 +22,7 @@ from aiverify.bench.run_record_checksums import verify_manifest
 
 _ROOT = Path(__file__).resolve().parents[2]
 _MANIFEST = _ROOT / "bench" / "goldset" / "m3-reliability-slice-v3.yaml"
+_PORTABLE_MANIFEST = _ROOT / "bench" / "goldset" / "m3-reliability-slice-v4.yaml"
 _FINAL_RUN = (
     _ROOT / "docs" / "runs" / "2026-07-17-m3-v3-final-audited-comparison"
 )
@@ -140,6 +141,14 @@ def test_v3_lane_role_is_bound_to_the_deployed_apk_hash() -> None:
         assert "baseline APK" in str(error)
     else:
         raise AssertionError("baseline lane accepted the defect APK")
+
+
+def test_portable_v3_population_can_compare_a_prior_v3_population() -> None:
+    manifest = load_manifest(_PORTABLE_MANIFEST, repo_root=_ROOT)
+
+    assert manifest.schema_version == 3
+    assert manifest.comparison_manifest == _MANIFEST
+    assert manifest.slice_id == "m3-verification-agent-reliability-v4-portable"
 
 
 def test_v3_attempt_provenance_is_bound_to_frozen_execution_identity(

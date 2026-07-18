@@ -101,7 +101,7 @@ class ReliabilityProgress:
 class _LaneComparisonMetadata:
     """Matched metadata that must remain stable across M3 slice versions."""
 
-    run_spec: Path
+    run_spec_signature: dict
     expected_oracle_level: str
     expected_oracle_defect_class: str
 
@@ -171,10 +171,15 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
                 )
     if comparison_manifest is not None:
         historical = load_manifest(comparison_manifest, repo_root=repo_root)
-        if historical.schema_version != schema_version - 1:
+        allowed_historical_versions = (
+            {schema_version - 1, schema_version}
+            if schema_version == 3
+            else {schema_version - 1}
+        )
+        if historical.schema_version not in allowed_historical_versions:
             raise ValueError(
-                f"M3 v{schema_version} comparison manifest must be "
-                f"schema_version {schema_version - 1}"
+                f"M3 schema {schema_version} comparison manifest must be one of "
+                f"schema versions {sorted(allowed_historical_versions)}"
             )
         _validate_version_separation(manifest, historical=historical)
     return manifest
@@ -245,7 +250,7 @@ def _validate_version_separation(
     ) -> dict[tuple[str, str, int], _LaneComparisonMetadata]:
         return {
             (lane.seed_id, lane.role, lane.repetition): _LaneComparisonMetadata(
-                run_spec=lane.run_spec.resolve(),
+                run_spec_signature=_portable_run_spec_signature(lane.run_spec),
                 expected_oracle_level=lane.expected_oracle_level,
                 expected_oracle_defect_class=lane.expected_oracle_defect_class,
             )
@@ -256,6 +261,18 @@ def _validate_version_separation(
         raise ValueError("M3 re-baseline population or matched metadata changed")
     if manifest.max_attempts_per_lane != historical.max_attempts_per_lane:
         raise ValueError("M3 re-baseline bounded retry policy changed")
+
+
+def _portable_run_spec_signature(path: Path) -> dict:
+    """Compare Run Specs while allowing only the host locator to relocate."""
+    parsed = asdict(
+        load_run_spec(path, environ={"WIKIPEDIA_SOURCE": "/__portable__"})
+    )
+    parsed.pop("host_project", None)
+    parsed.pop("host_locator", None)
+    parsed.pop("source_path", None)
+    parsed.pop("source_sha256", None)
+    return parsed
 
 
 def run_lane(
