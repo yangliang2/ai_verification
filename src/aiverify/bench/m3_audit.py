@@ -145,6 +145,11 @@ def build_audited_report(
                     attempt_dir,
                     metadata=metadata,
                     lane=lane,
+                    package_environment=(
+                        package_context["environment"]
+                        if package_context is not None
+                        else None
+                    ),
                 )
                 if provenance_status == "verified":
                     complete_provenance_attempts += 1
@@ -227,6 +232,7 @@ def build_audited_report(
         lane_results=lane_results,
         schema_version=manifest.schema_version,
         complete_provenance_attempts=complete_provenance_attempts,
+        formal_attempts=formal_attempts,
     )
     inventory = {
         "selected_seeds": len({lane.seed_id for lane in manifest.lanes}),
@@ -340,6 +346,7 @@ def _build_criteria(
     lane_results: list[dict],
     schema_version: int,
     complete_provenance_attempts: int = 0,
+    formal_attempts: int | None = None,
 ) -> dict[str, dict]:
     false_positives = summary.control_outcomes.get("false_positive", 0)
     accountable_defects = sum(
@@ -372,6 +379,9 @@ def _build_criteria(
         },
     }
     if schema_version >= 3:
+        required_provenance = (
+            formal_attempts if formal_attempts is not None else summary.planned_lanes
+        )
         passed_controls = summary.control_outcomes.get("passed_control", 0)
         criteria["passed_baseline_controls"] = {
             "status": "passed" if passed_controls == 15 else "failed",
@@ -381,11 +391,11 @@ def _build_criteria(
         criteria["complete_execution_provenance"] = {
             "status": (
                 "passed"
-                if complete_provenance_attempts == summary.planned_lanes
+                if complete_provenance_attempts == required_provenance
                 else "failed"
             ),
             "actual": complete_provenance_attempts,
-            "required": summary.planned_lanes,
+            "required": required_provenance,
         }
     criteria["m3_overall"] = {
         "status": (
@@ -700,7 +710,11 @@ def _attempt_judge_seconds(verdict: dict) -> float:
 
 
 def _attempt_provenance_status(
-    attempt_dir: Path, *, metadata: dict, lane: ReliabilityLane
+    attempt_dir: Path,
+    *,
+    metadata: dict,
+    lane: ReliabilityLane,
+    package_environment: dict | None,
 ) -> str:
     """Return verified/missing while still rejecting any retained tampering."""
     if metadata["schema_version"] < 3:
@@ -725,7 +739,38 @@ def _attempt_provenance_status(
         raise ValueError(
             f"lane {lane.lane_id} execution provenance is invalid: {error}"
         ) from error
+    provenance = _load_json(
+        attempt_dir / reference["path"],
+        label=f"execution provenance for {lane.lane_id}",
+    )
+    if package_environment is None:
+        raise ValueError(f"lane {lane.lane_id} package environment is missing")
+    _validate_lane_apk_identity(
+        provenance,
+        role=lane.role,
+        package_environment=package_environment,
+        lane_id=lane.lane_id,
+    )
     return "verified"
+
+
+def _validate_lane_apk_identity(
+    provenance: dict,
+    *,
+    role: str,
+    package_environment: dict,
+    lane_id: str,
+) -> None:
+    """Bind a baseline/defect lane to the corresponding deployed APK bytes."""
+    expected = package_environment["application"][f"{role}_apk"]["sha256"]
+    installed = provenance.get("deployment", {}).get("installed_artifacts")
+    actual = (
+        [artifact.get("sha256") for artifact in installed]
+        if isinstance(installed, list)
+        else []
+    )
+    if actual != [expected]:
+        raise ValueError(f"lane {lane_id} deployed {role} APK identity mismatch")
 
 
 def _package_execution_identities(

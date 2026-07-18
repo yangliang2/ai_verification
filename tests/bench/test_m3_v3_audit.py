@@ -7,6 +7,7 @@ from pathlib import Path
 
 from aiverify.bench.m3_audit import (
     _build_criteria,
+    _validate_lane_apk_identity,
     audited_report_to_dict,
     build_audited_report,
     render_audited_markdown,
@@ -54,6 +55,7 @@ def test_v3_gate_rejects_the_v2_29_of_30_accountability_threshold() -> None:
         lane_results=_lane_results(accountable=14),
         schema_version=3,
         complete_provenance_attempts=29,
+        formal_attempts=30,
     )
 
     assert criteria["eventual_accountability"] == {
@@ -75,6 +77,7 @@ def test_v3_gate_requires_all_15_controls_and_all_15_defects() -> None:
         lane_results=_lane_results(accountable=15),
         schema_version=3,
         complete_provenance_attempts=30,
+        formal_attempts=30,
     )
 
     assert criteria["eventual_accountability"]["status"] == "passed"
@@ -92,6 +95,49 @@ def test_v3_gate_requires_all_15_controls_and_all_15_defects() -> None:
     assert criteria["m3_overall"] == {"status": "passed"}
 
 
+def test_v3_provenance_gate_counts_attempts_including_retries() -> None:
+    criteria = _build_criteria(
+        _summary(accountable=30),
+        lane_results=_lane_results(accountable=15),
+        schema_version=3,
+        complete_provenance_attempts=30,
+        formal_attempts=31,
+    )
+
+    assert criteria["complete_execution_provenance"] == {
+        "status": "failed",
+        "actual": 30,
+        "required": 31,
+    }
+    assert criteria["m3_overall"] == {"status": "failed"}
+
+
+def test_v3_lane_role_is_bound_to_the_deployed_apk_hash() -> None:
+    provenance = {
+        "deployment": {
+            "installed_artifacts": [{"sha256": "defect-hash"}],
+        }
+    }
+    package_environment = {
+        "application": {
+            "baseline_apk": {"sha256": "baseline-hash"},
+            "defect_apk": {"sha256": "defect-hash"},
+        }
+    }
+
+    try:
+        _validate_lane_apk_identity(
+            provenance,
+            role="baseline",
+            package_environment=package_environment,
+            lane_id="fixture-baseline-1",
+        )
+    except ValueError as error:
+        assert "baseline APK" in str(error)
+    else:
+        raise AssertionError("baseline lane accepted the defect APK")
+
+
 def test_committed_failed_v3_audit_is_derived_from_all_30_fresh_lanes() -> None:
     report = build_audited_report(
         load_manifest(_MANIFEST, repo_root=_ROOT),
@@ -99,19 +145,19 @@ def test_committed_failed_v3_audit_is_derived_from_all_30_fresh_lanes() -> None:
     )
 
     assert report.inventory["planned_lanes"] == 30
-    assert report.inventory["formal_attempts"] == 30
+    assert report.inventory["formal_attempts"] == 54
     assert report.summary.eventual_accountable == 6
     assert report.summary.control_outcomes == {"passed_control": 3}
     assert report.summary.defect_outcomes == {"caught": 3}
-    assert report.summary.failure_classes == {"execution_identity": 24}
+    assert report.summary.failure_classes == {"execution_identity": 48}
     assert report.criteria["m3_overall"] == {"status": "failed"}
     assert report.criteria["complete_execution_provenance"] == {
         "status": "failed",
         "actual": 6,
-        "required": 30,
+        "required": 54,
     }
     assert len(report.lane_results) == 30
-    assert sum(len(row["attempt_lineage"]) for row in report.lane_results) == 30
+    assert sum(len(row["attempt_lineage"]) for row in report.lane_results) == 54
     assert {
         attempt["execution_provenance_status"]
         for row in report.lane_results
