@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import abc
+import os
+import signal
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,17 +46,24 @@ class SubprocessCommandRunner(CommandRunner):
         timeout_seconds: int | None = None,
         input_text: str | None = None,
     ) -> CommandResult:
-        proc = subprocess.run(
+        proc = subprocess.Popen(
             args,
             cwd=cwd,
-            input=input_text,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            capture_output=True,
-            timeout=timeout_seconds,
+            start_new_session=True,
         )
+        try:
+            stdout, stderr = proc.communicate(input=input_text, timeout=timeout_seconds)
+        except subprocess.TimeoutExpired:
+            os.killpg(proc.pid, signal.SIGKILL)
+            stdout, stderr = proc.communicate()
+            return CommandResult(args=list(args), stdout=stdout, stderr=stderr, returncode=124)
         return CommandResult(
             args=list(args),
-            stdout=proc.stdout,
-            stderr=proc.stderr,
+            stdout=stdout,
+            stderr=stderr,
             returncode=proc.returncode,
         )
