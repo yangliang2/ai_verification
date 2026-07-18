@@ -745,13 +745,95 @@ def _attempt_provenance_status(
     )
     if package_environment is None:
         raise ValueError(f"lane {lane.lane_id} package environment is missing")
-    _validate_lane_apk_identity(
+    _validate_lane_execution_identity(
         provenance,
         role=lane.role,
         package_environment=package_environment,
         lane_id=lane.lane_id,
+        attempt_dir=attempt_dir,
     )
     return "verified"
+
+
+def _validate_lane_execution_identity(
+    provenance: dict,
+    *,
+    role: str,
+    package_environment: dict,
+    lane_id: str,
+    attempt_dir: Path,
+) -> None:
+    """Bind retained provenance to the frozen package execution identity."""
+    expected_run_spec = package_environment["inputs"]["run_spec_sha256"]
+    if provenance.get("run_spec", {}).get("consumed_sha256") != expected_run_spec:
+        raise ValueError(f"lane {lane_id} consumed Run Spec identity mismatch")
+
+    expected_host = package_environment["host"]
+    actual_host = provenance.get("host", {})
+    if (
+        actual_host.get("repository_root") != expected_host["wikipedia_source"]
+        or actual_host.get("commit") != expected_host["wikipedia_commit"]
+    ):
+        raise ValueError(f"lane {lane_id} host identity mismatch")
+
+    expected_device = package_environment["device"]
+    actual_device = provenance.get("device", {})
+    if (
+        actual_device.get("serial") != expected_device["serial"]
+        or str(actual_device.get("api_level")) != str(expected_device["api_level"])
+        or actual_device.get("build_fingerprint") != expected_device["fingerprint"]
+    ):
+        raise ValueError(f"lane {lane_id} device identity mismatch")
+
+    expected_tools = package_environment["tools"]
+    actual_tools = provenance.get("tools", {})
+    if actual_tools.get("android_cli", {}).get("version") != expected_tools["android_cli"]:
+        raise ValueError(f"lane {lane_id} Android CLI identity mismatch")
+    codex_version = actual_tools.get("codex_cli", {}).get("version", "")
+    expected_codex_versions = {
+        expected_tools["codex_cli"],
+        f"codex-cli {expected_tools['codex_cli']}",
+    }
+    if codex_version not in expected_codex_versions:
+        raise ValueError(f"lane {lane_id} Codex CLI identity mismatch")
+
+    _validate_lane_apk_identity(
+        provenance,
+        role=role,
+        package_environment=package_environment,
+        lane_id=lane_id,
+    )
+
+    role_models = {
+        "journey_driver": package_environment["models"]["journey_driver"],
+        "l3_semantic_judge": package_environment["models"]["l3_judge"],
+    }
+    for role_name, model_config in role_models.items():
+        retained_role = provenance.get("roles", {}).get(role_name, {})
+        expected_override = model_config["explicit_override"]
+        if retained_role.get("requested_model") != expected_override:
+            raise ValueError(f"lane {lane_id} {role_name} model override mismatch")
+        for invocation in retained_role.get("invocations", []):
+            identity = _load_json(
+                attempt_dir / invocation["path"],
+                label=f"{role_name} invocation identity for {lane_id}",
+            )
+            if (
+                identity.get("role") != role_name
+                or identity.get("backend") != "codex_cli"
+                or identity.get("requested_model") != expected_override
+                or identity.get("effective_model")
+                != model_config["effective_codex_default"]
+                or identity.get("binary", {}).get("version", "")
+                not in expected_codex_versions
+                or identity.get("source_observation", {})
+                .get("session_meta", {})
+                .get("cwd")
+                != expected_host["wikipedia_source"]
+            ):
+                raise ValueError(
+                    f"lane {lane_id} {role_name} effective identity mismatch"
+                )
 
 
 def _validate_lane_apk_identity(
@@ -761,7 +843,7 @@ def _validate_lane_apk_identity(
     package_environment: dict,
     lane_id: str,
 ) -> None:
-    """Bind a baseline/defect lane to the corresponding deployed APK bytes."""
+    """Compatibility seam for focused role-to-APK regression coverage."""
     expected = package_environment["application"][f"{role}_apk"]["sha256"]
     installed = provenance.get("deployment", {}).get("installed_artifacts")
     actual = (

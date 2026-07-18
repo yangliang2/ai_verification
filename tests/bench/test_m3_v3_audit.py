@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
+
+import pytest
 
 from aiverify.bench.m3_audit import (
     _build_criteria,
     _validate_lane_apk_identity,
+    _validate_lane_execution_identity,
     audited_report_to_dict,
     build_audited_report,
     render_audited_markdown,
@@ -136,6 +140,71 @@ def test_v3_lane_role_is_bound_to_the_deployed_apk_hash() -> None:
         assert "baseline APK" in str(error)
     else:
         raise AssertionError("baseline lane accepted the defect APK")
+
+
+def test_v3_attempt_provenance_is_bound_to_frozen_execution_identity(
+    tmp_path: Path,
+) -> None:
+    attempt_dir = (
+        _ROOT
+        / "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes"
+        / "v3-anr-baseline-1/attempt-1"
+    )
+    provenance = json.loads(
+        (attempt_dir / "execution-provenance.json").read_text(encoding="utf-8")
+    )
+    package_environment = json.loads(
+        (
+            _ROOT
+            / "docs/runs/2026-07-17-m3-v3-anr-reliability/environment.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    _validate_lane_execution_identity(
+        provenance,
+        role="baseline",
+        package_environment=package_environment,
+        lane_id="v3-anr-baseline-1",
+        attempt_dir=attempt_dir,
+    )
+
+    for field, value, message in (
+        (("run_spec", "consumed_sha256"), "wrong", "Run Spec"),
+        (("host", "commit"), "wrong", "host identity"),
+        (("tools", "codex_cli", "version"), "codex-cli 0.0.0", "Codex CLI"),
+    ):
+        contradicted = deepcopy(provenance)
+        target = contradicted
+        for key in field[:-1]:
+            target = target[key]
+        target[field[-1]] = value
+        with pytest.raises(ValueError, match=message):
+            _validate_lane_execution_identity(
+                contradicted,
+                role="baseline",
+                package_environment=package_environment,
+                lane_id="v3-anr-baseline-1",
+                attempt_dir=attempt_dir,
+            )
+
+    invocation_ref = provenance["roles"]["journey_driver"]["invocations"][0]
+    identity = json.loads(
+        (attempt_dir / invocation_ref["path"]).read_text(encoding="utf-8")
+    )
+    identity["effective_model"] = "wrong-model"
+    (tmp_path / "identity.json").write_text(json.dumps(identity), encoding="utf-8")
+    contradicted = deepcopy(provenance)
+    contradicted["roles"]["journey_driver"]["invocations"][0]["path"] = (
+        "identity.json"
+    )
+    with pytest.raises(ValueError, match="journey_driver effective identity"):
+        _validate_lane_execution_identity(
+            contradicted,
+            role="baseline",
+            package_environment=package_environment,
+            lane_id="v3-anr-baseline-1",
+            attempt_dir=tmp_path,
+        )
 
 
 def test_committed_failed_v3_audit_is_derived_from_all_30_fresh_lanes() -> None:
