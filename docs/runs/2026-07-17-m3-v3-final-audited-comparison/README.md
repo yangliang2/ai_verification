@@ -67,9 +67,28 @@ APKs remain outside the repository because the six files total about 695 MiB.
 
 Location: `/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/`.
 
+Builds used `./gradlew assembleDevDebug --no-daemon` at the frozen Wikipedia
+commit. Results were: baseline `BUILD SUCCESSFUL in 8s` (real 8.57s), ANR
+defect 37s (real 38.22s), oversized-state defect 21s (real 21.47s),
+query-duplication defect 6s (real 7.03s), swallowed-Back defect 6s
+(real 6.80s), and Search-card defect 7s (real 8.06s). Each patch passed
+`git apply --check`, was applied only for its defect build, and was reversed
+before the next target.
+
 ## Exact verification commands and results
 
 ```bash
+PYTHONPATH=/Users/peter/projects/ai_verfication/src \
+  /Users/peter/projects/ai_verfication/.venv/bin/python \
+  -m aiverify.bench.m3_reliability \
+  --manifest /Users/peter/projects/ai_verfication/bench/goldset/m3-reliability-slice-v3.yaml \
+  run-lane <the exact lane_id listed in report.md> \
+  --device emulator-5554 \
+  --workdir /Users/peter/hosts/wikipedia \
+  --python-executable /Users/peter/projects/ai_verfication/.venv/bin/python
+# invoked once for each of the 30 report.md lane IDs; child exits:
+# 3 control=0, 3 caught defects=1, 24 non-accountable=2
+
 PYTHONPATH=src .venv/bin/python -m aiverify.bench.m3_reliability \
   --manifest bench/goldset/m3-reliability-slice-v3.yaml progress
 # 30 planned, 0 pending, 6 first/eventual accountable, 0 retries,
