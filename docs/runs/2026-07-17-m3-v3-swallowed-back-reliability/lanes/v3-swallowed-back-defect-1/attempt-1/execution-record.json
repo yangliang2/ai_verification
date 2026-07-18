@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "attempt_id": "eabe0727-c2b9-49b4-960a-3a920a9888a5",
+  "scenario": "wikipedia-navigation-02-back-button-swallowed",
+  "lifecycle_state": "failed",
+  "started_at": "2026-07-18T03:38:38+00:00",
+  "finished_at": "2026-07-18T03:38:38+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "execution_identity_error",
+    "message": "ExecutionIdentityError: runner workdir contradicts Run Spec host_project"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-07-18T03:38:38+00:00",
+    "finished_at": "2026-07-18T03:38:38+00:00",
+    "total_seconds": 0.001,
+    "phases": [
+      {
+        "phase": "execution-identity-capture",
+        "kind": "identity",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "execution-identity-capture",
+      "kind": "identity",
+      "reason": "execution_identity_error",
+      "message": "ExecutionIdentityError: runner workdir contradicts Run Spec host_project"
+    }
+  ],
+  "evidence_refs": {
+    "verdict": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-1/attempt-1/verdict.json"
+  }
+}

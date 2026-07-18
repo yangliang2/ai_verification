@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "attempt_id": "26d64b56-1059-430b-926b-ea8dd832202f",
+  "scenario": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+  "lifecycle_state": "failed",
+  "started_at": "2026-07-18T03:38:49+00:00",
+  "finished_at": "2026-07-18T03:38:49+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "execution_identity_error",
+    "message": "ExecutionIdentityError: runner workdir contradicts Run Spec host_project"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-07-18T03:38:49+00:00",
+    "finished_at": "2026-07-18T03:38:49+00:00",
+    "total_seconds": 0.001,
+    "phases": [
+      {
+        "phase": "execution-identity-capture",
+        "kind": "identity",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "execution-identity-capture",
+      "kind": "identity",
+      "reason": "execution_identity_error",
+      "message": "ExecutionIdentityError: runner workdir contradicts Run Spec host_project"
+    }
+  ],
+  "evidence_refs": {
+    "verdict": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-3/attempt-1/verdict.json"
+  }
+}

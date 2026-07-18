@@ -1,0 +1,2058 @@
+{
+  "schema_version": 3,
+  "slice_id": "m3-verification-agent-reliability-v3",
+  "inventory": {
+    "selected_seeds": 5,
+    "lane_roles": 2,
+    "repetitions_per_role": 3,
+    "planned_lanes": 30,
+    "formal_attempts": 30,
+    "evidence_packages": 5
+  },
+  "summary": {
+    "planned_lanes": 30,
+    "first_attempt_accountable": 6,
+    "eventual_accountable": 6,
+    "retry_count": 0,
+    "control_outcomes": {
+      "passed_control": 3
+    },
+    "defect_outcomes": {
+      "caught": 3
+    },
+    "failure_classes": {
+      "execution_identity": 24
+    },
+    "total_seconds": 588.669,
+    "judge_seconds": 0.0,
+    "operational_interventions": 0
+  },
+  "criteria": {
+    "eventual_accountability": {
+      "status": "failed",
+      "actual": 6,
+      "required_minimum": 30
+    },
+    "zero_accountable_baseline_false_positives": {
+      "status": "passed",
+      "actual": 0,
+      "required_maximum": 0
+    },
+    "accountable_defect_consistency": {
+      "status": "failed",
+      "actual": 3,
+      "required": 15
+    },
+    "passed_baseline_controls": {
+      "status": "failed",
+      "actual": 3,
+      "required": 15
+    },
+    "complete_execution_provenance": {
+      "status": "failed",
+      "actual": 6,
+      "required": 30
+    },
+    "m3_overall": {
+      "status": "failed"
+    }
+  },
+  "oracle_breakdown": {
+    "L1": {
+      "planned": 12,
+      "eventual_accountable": 6,
+      "passed_controls": 3,
+      "caught_defects": 3,
+      "non_accountable": 6
+    },
+    "L2": {
+      "planned": 12,
+      "eventual_accountable": 0,
+      "passed_controls": 0,
+      "caught_defects": 0,
+      "non_accountable": 12
+    },
+    "L3": {
+      "planned": 6,
+      "eventual_accountable": 0,
+      "passed_controls": 0,
+      "caught_defects": 0,
+      "non_accountable": 6
+    }
+  },
+  "lane_results": [
+    {
+      "lane_id": "v3-anr-baseline-1",
+      "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+      "role": "baseline",
+      "repetition": 1,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": true,
+      "eventual_accountable": true,
+      "outcome": "passed_control",
+      "failure_class": null,
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml",
+      "run_spec_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+      "final_status": "accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-1/attempt-1",
+          "started_at": "2026-07-18T03:25:32+00:00",
+          "finished_at": "2026-07-18T03:27:22+00:00",
+          "runner_exit_code": 0,
+          "operational_interventions": [],
+          "gate_status": "passed",
+          "device": "emulator-5554",
+          "execution_status": "completed",
+          "accountable": true,
+          "failure_class": null,
+          "total_seconds": 110.114,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "verified"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-anr-baseline-2",
+      "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+      "role": "baseline",
+      "repetition": 2,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": true,
+      "eventual_accountable": true,
+      "outcome": "passed_control",
+      "failure_class": null,
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml",
+      "run_spec_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+      "final_status": "accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-2/attempt-1",
+          "started_at": "2026-07-18T03:27:25+00:00",
+          "finished_at": "2026-07-18T03:28:57+00:00",
+          "runner_exit_code": 0,
+          "operational_interventions": [],
+          "gate_status": "passed",
+          "device": "emulator-5554",
+          "execution_status": "completed",
+          "accountable": true,
+          "failure_class": null,
+          "total_seconds": 91.983,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "verified"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-anr-baseline-3",
+      "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+      "role": "baseline",
+      "repetition": 3,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": true,
+      "eventual_accountable": true,
+      "outcome": "passed_control",
+      "failure_class": null,
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml",
+      "run_spec_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+      "final_status": "accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-3/attempt-1",
+          "started_at": "2026-07-18T03:29:01+00:00",
+          "finished_at": "2026-07-18T03:30:28+00:00",
+          "runner_exit_code": 0,
+          "operational_interventions": [],
+          "gate_status": "passed",
+          "device": "emulator-5554",
+          "execution_status": "completed",
+          "accountable": true,
+          "failure_class": null,
+          "total_seconds": 87.625,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "verified"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-anr-defect-1",
+      "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+      "role": "defect",
+      "repetition": 1,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": true,
+      "eventual_accountable": true,
+      "outcome": "caught",
+      "failure_class": null,
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-defect-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml",
+      "run_spec_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+      "final_status": "accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-defect-1/attempt-1",
+          "started_at": "2026-07-18T03:32:59+00:00",
+          "finished_at": "2026-07-18T03:34:54+00:00",
+          "runner_exit_code": 1,
+          "operational_interventions": [],
+          "gate_status": "passed",
+          "device": "emulator-5554",
+          "execution_status": "completed",
+          "accountable": true,
+          "failure_class": null,
+          "total_seconds": 114.883,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "verified"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-anr-defect-2",
+      "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+      "role": "defect",
+      "repetition": 2,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": true,
+      "eventual_accountable": true,
+      "outcome": "caught",
+      "failure_class": null,
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-defect-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml",
+      "run_spec_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+      "final_status": "accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-defect-2/attempt-1",
+          "started_at": "2026-07-18T03:34:56+00:00",
+          "finished_at": "2026-07-18T03:36:31+00:00",
+          "runner_exit_code": 1,
+          "operational_interventions": [],
+          "gate_status": "passed",
+          "device": "emulator-5554",
+          "execution_status": "completed",
+          "accountable": true,
+          "failure_class": null,
+          "total_seconds": 94.813,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "verified"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-anr-defect-3",
+      "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+      "role": "defect",
+      "repetition": 3,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": true,
+      "eventual_accountable": true,
+      "outcome": "caught",
+      "failure_class": null,
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-defect-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml",
+      "run_spec_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+      "final_status": "accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-defect-3/attempt-1",
+          "started_at": "2026-07-18T03:36:33+00:00",
+          "finished_at": "2026-07-18T03:38:02+00:00",
+          "runner_exit_code": 1,
+          "operational_interventions": [],
+          "gate_status": "passed",
+          "device": "emulator-5554",
+          "execution_status": "completed",
+          "accountable": true,
+          "failure_class": null,
+          "total_seconds": 89.226,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "verified"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-oversized-state-baseline-1",
+      "seed_id": "wikipedia-process-death-03-oversized-saved-state",
+      "role": "baseline",
+      "repetition": 1,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml",
+      "run_spec_sha256": "276bde411d76f8c21a57969e9d0191e4d11b6cb780a45f5e51788f994baa51b5",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-1/attempt-1",
+          "started_at": "2026-07-18T03:30:45+00:00",
+          "finished_at": "2026-07-18T03:30:45+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-oversized-state-baseline-2",
+      "seed_id": "wikipedia-process-death-03-oversized-saved-state",
+      "role": "baseline",
+      "repetition": 2,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml",
+      "run_spec_sha256": "276bde411d76f8c21a57969e9d0191e4d11b6cb780a45f5e51788f994baa51b5",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-2/attempt-1",
+          "started_at": "2026-07-18T03:30:47+00:00",
+          "finished_at": "2026-07-18T03:30:47+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-oversized-state-baseline-3",
+      "seed_id": "wikipedia-process-death-03-oversized-saved-state",
+      "role": "baseline",
+      "repetition": 3,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml",
+      "run_spec_sha256": "276bde411d76f8c21a57969e9d0191e4d11b6cb780a45f5e51788f994baa51b5",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-3/attempt-1",
+          "started_at": "2026-07-18T03:30:49+00:00",
+          "finished_at": "2026-07-18T03:30:49+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-oversized-state-defect-1",
+      "seed_id": "wikipedia-process-death-03-oversized-saved-state",
+      "role": "defect",
+      "repetition": 1,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-defect-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml",
+      "run_spec_sha256": "276bde411d76f8c21a57969e9d0191e4d11b6cb780a45f5e51788f994baa51b5",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-defect-1/attempt-1",
+          "started_at": "2026-07-18T03:38:22+00:00",
+          "finished_at": "2026-07-18T03:38:23+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-oversized-state-defect-2",
+      "seed_id": "wikipedia-process-death-03-oversized-saved-state",
+      "role": "defect",
+      "repetition": 2,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-defect-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml",
+      "run_spec_sha256": "276bde411d76f8c21a57969e9d0191e4d11b6cb780a45f5e51788f994baa51b5",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-defect-2/attempt-1",
+          "started_at": "2026-07-18T03:38:24+00:00",
+          "finished_at": "2026-07-18T03:38:24+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-oversized-state-defect-3",
+      "seed_id": "wikipedia-process-death-03-oversized-saved-state",
+      "role": "defect",
+      "repetition": 3,
+      "expected_oracle_level": "L1",
+      "expected_oracle_defect_class": "crash_stability",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-defect-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml",
+      "run_spec_sha256": "276bde411d76f8c21a57969e9d0191e4d11b6cb780a45f5e51788f994baa51b5",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-defect-3/attempt-1",
+          "started_at": "2026-07-18T03:38:27+00:00",
+          "finished_at": "2026-07-18T03:38:27+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-query-duplication-baseline-1",
+      "seed_id": "wikipedia-config-change-02-query-duplication",
+      "role": "baseline",
+      "repetition": 1,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml",
+      "run_spec_sha256": "feb9597a8acc61352da90fbb4993fe950a30819404c2072a9aeeca4f828c61fb",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-1/attempt-1",
+          "started_at": "2026-07-18T03:30:51+00:00",
+          "finished_at": "2026-07-18T03:30:51+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.002,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-query-duplication-baseline-2",
+      "seed_id": "wikipedia-config-change-02-query-duplication",
+      "role": "baseline",
+      "repetition": 2,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml",
+      "run_spec_sha256": "feb9597a8acc61352da90fbb4993fe950a30819404c2072a9aeeca4f828c61fb",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-2/attempt-1",
+          "started_at": "2026-07-18T03:30:53+00:00",
+          "finished_at": "2026-07-18T03:30:53+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-query-duplication-baseline-3",
+      "seed_id": "wikipedia-config-change-02-query-duplication",
+      "role": "baseline",
+      "repetition": 3,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml",
+      "run_spec_sha256": "feb9597a8acc61352da90fbb4993fe950a30819404c2072a9aeeca4f828c61fb",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-3/attempt-1",
+          "started_at": "2026-07-18T03:30:57+00:00",
+          "finished_at": "2026-07-18T03:30:57+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-query-duplication-defect-1",
+      "seed_id": "wikipedia-config-change-02-query-duplication",
+      "role": "defect",
+      "repetition": 1,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-defect-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml",
+      "run_spec_sha256": "feb9597a8acc61352da90fbb4993fe950a30819404c2072a9aeeca4f828c61fb",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-defect-1/attempt-1",
+          "started_at": "2026-07-18T03:38:31+00:00",
+          "finished_at": "2026-07-18T03:38:31+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-query-duplication-defect-2",
+      "seed_id": "wikipedia-config-change-02-query-duplication",
+      "role": "defect",
+      "repetition": 2,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-defect-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml",
+      "run_spec_sha256": "feb9597a8acc61352da90fbb4993fe950a30819404c2072a9aeeca4f828c61fb",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-defect-2/attempt-1",
+          "started_at": "2026-07-18T03:38:33+00:00",
+          "finished_at": "2026-07-18T03:38:33+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-query-duplication-defect-3",
+      "seed_id": "wikipedia-config-change-02-query-duplication",
+      "role": "defect",
+      "repetition": 3,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-defect-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml",
+      "run_spec_sha256": "feb9597a8acc61352da90fbb4993fe950a30819404c2072a9aeeca4f828c61fb",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-defect-3/attempt-1",
+          "started_at": "2026-07-18T03:38:35+00:00",
+          "finished_at": "2026-07-18T03:38:35+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-swallowed-back-baseline-1",
+      "seed_id": "wikipedia-navigation-02-back-button-swallowed",
+      "role": "baseline",
+      "repetition": 1,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-baseline-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml",
+      "run_spec_sha256": "898833ba843069cc4bc637c00a016929bbc055388e91045faf802686393c705f",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-baseline-1/attempt-1",
+          "started_at": "2026-07-18T03:31:00+00:00",
+          "finished_at": "2026-07-18T03:31:00+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-swallowed-back-baseline-2",
+      "seed_id": "wikipedia-navigation-02-back-button-swallowed",
+      "role": "baseline",
+      "repetition": 2,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-baseline-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml",
+      "run_spec_sha256": "898833ba843069cc4bc637c00a016929bbc055388e91045faf802686393c705f",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-baseline-2/attempt-1",
+          "started_at": "2026-07-18T03:31:02+00:00",
+          "finished_at": "2026-07-18T03:31:02+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-swallowed-back-baseline-3",
+      "seed_id": "wikipedia-navigation-02-back-button-swallowed",
+      "role": "baseline",
+      "repetition": 3,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-baseline-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml",
+      "run_spec_sha256": "898833ba843069cc4bc637c00a016929bbc055388e91045faf802686393c705f",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-baseline-3/attempt-1",
+          "started_at": "2026-07-18T03:31:04+00:00",
+          "finished_at": "2026-07-18T03:31:04+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-swallowed-back-defect-1",
+      "seed_id": "wikipedia-navigation-02-back-button-swallowed",
+      "role": "defect",
+      "repetition": 1,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml",
+      "run_spec_sha256": "898833ba843069cc4bc637c00a016929bbc055388e91045faf802686393c705f",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-1/attempt-1",
+          "started_at": "2026-07-18T03:38:38+00:00",
+          "finished_at": "2026-07-18T03:38:38+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-swallowed-back-defect-2",
+      "seed_id": "wikipedia-navigation-02-back-button-swallowed",
+      "role": "defect",
+      "repetition": 2,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml",
+      "run_spec_sha256": "898833ba843069cc4bc637c00a016929bbc055388e91045faf802686393c705f",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-2/attempt-1",
+          "started_at": "2026-07-18T03:38:40+00:00",
+          "finished_at": "2026-07-18T03:38:40+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-swallowed-back-defect-3",
+      "seed_id": "wikipedia-navigation-02-back-button-swallowed",
+      "role": "defect",
+      "repetition": 3,
+      "expected_oracle_level": "L2",
+      "expected_oracle_defect_class": "state_loss",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml",
+      "run_spec_sha256": "898833ba843069cc4bc637c00a016929bbc055388e91045faf802686393c705f",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-3/attempt-1",
+          "started_at": "2026-07-18T03:38:42+00:00",
+          "finished_at": "2026-07-18T03:38:42+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-search-card-baseline-1",
+      "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+      "role": "baseline",
+      "repetition": 1,
+      "expected_oracle_level": "L3",
+      "expected_oracle_defect_class": "ui_rendering",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml",
+      "run_spec_sha256": "18b50d7f70dd589ed38eabb2ed8da387cb26c3b82b9d5a7cb1b45d999342b19b",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-1/attempt-1",
+          "started_at": "2026-07-18T03:31:06+00:00",
+          "finished_at": "2026-07-18T03:31:06+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-search-card-baseline-2",
+      "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+      "role": "baseline",
+      "repetition": 2,
+      "expected_oracle_level": "L3",
+      "expected_oracle_defect_class": "ui_rendering",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml",
+      "run_spec_sha256": "18b50d7f70dd589ed38eabb2ed8da387cb26c3b82b9d5a7cb1b45d999342b19b",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-2/attempt-1",
+          "started_at": "2026-07-18T03:31:08+00:00",
+          "finished_at": "2026-07-18T03:31:08+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-search-card-baseline-3",
+      "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+      "role": "baseline",
+      "repetition": 3,
+      "expected_oracle_level": "L3",
+      "expected_oracle_defect_class": "ui_rendering",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml",
+      "run_spec_sha256": "18b50d7f70dd589ed38eabb2ed8da387cb26c3b82b9d5a7cb1b45d999342b19b",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-3/attempt-1",
+          "started_at": "2026-07-18T03:31:11+00:00",
+          "finished_at": "2026-07-18T03:31:11+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-search-card-defect-1",
+      "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+      "role": "defect",
+      "repetition": 1,
+      "expected_oracle_level": "L3",
+      "expected_oracle_defect_class": "ui_rendering",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-1",
+      "run_spec": "bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml",
+      "run_spec_sha256": "18b50d7f70dd589ed38eabb2ed8da387cb26c3b82b9d5a7cb1b45d999342b19b",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-1/attempt-1",
+          "started_at": "2026-07-18T03:38:45+00:00",
+          "finished_at": "2026-07-18T03:38:46+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-search-card-defect-2",
+      "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+      "role": "defect",
+      "repetition": 2,
+      "expected_oracle_level": "L3",
+      "expected_oracle_defect_class": "ui_rendering",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-2",
+      "run_spec": "bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml",
+      "run_spec_sha256": "18b50d7f70dd589ed38eabb2ed8da387cb26c3b82b9d5a7cb1b45d999342b19b",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-2/attempt-1",
+          "started_at": "2026-07-18T03:38:47+00:00",
+          "finished_at": "2026-07-18T03:38:47+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    },
+    {
+      "lane_id": "v3-search-card-defect-3",
+      "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+      "role": "defect",
+      "repetition": 3,
+      "expected_oracle_level": "L3",
+      "expected_oracle_defect_class": "ui_rendering",
+      "attempts": 1,
+      "first_attempt_accountable": false,
+      "eventual_accountable": false,
+      "outcome": "non_accountable",
+      "failure_class": "execution_identity",
+      "evidence_dir": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-3",
+      "run_spec": "bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml",
+      "run_spec_sha256": "18b50d7f70dd589ed38eabb2ed8da387cb26c3b82b9d5a7cb1b45d999342b19b",
+      "final_status": "non_accountable",
+      "attempt_lineage": [
+        {
+          "attempt_number": 1,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-3/attempt-1",
+          "started_at": "2026-07-18T03:38:49+00:00",
+          "finished_at": "2026-07-18T03:38:49+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
+        }
+      ]
+    }
+  ],
+  "execution_identity": {
+    "devices": [
+      "emulator-5554"
+    ],
+    "preflight_statuses": {
+      "not_run": 24,
+      "passed": 6
+    },
+    "audit_environment": {
+      "schema_version": 3,
+      "captured_at": "2026-07-18T04:05:00Z",
+      "audit_host": {
+        "os": "macOS 26.3 (25D125)",
+        "arch": "arm64",
+        "workspace": "/Users/peter/projects/ai_verfication",
+        "generated_from_revision": "df7eafef08b89ba89a6d8e73cb7dd90c860506b1"
+      },
+      "backend": {
+        "name": "Codex CLI",
+        "version": "0.144.5"
+      },
+      "tools": {
+        "android_cli": "1.0.15498356",
+        "adb": "1.0.41 / platform-tools 37.0.0-14910828",
+        "openjdk": "17.0.19",
+        "python": "3.11.15",
+        "pytest": "9.0.3",
+        "git": "2.50.1 (Apple Git-155)"
+      },
+      "rebaseline_manifest": {
+        "path": "bench/goldset/m3-reliability-slice-v3.yaml",
+        "sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7"
+      },
+      "comparison": {
+        "manifest_sha256": "c4c0cb8f331ae3e09db8663f8041335ef4614181337551962d5b9a662de8e6cb",
+        "run_record": "docs/runs/2026-07-16-m3-v2-final-audited-comparison",
+        "artifact_sha256": {
+          "README.md": "2edeffe51185ecd85f00780156ac615e4b68322268cec9aeb6d954832590f631",
+          "checksums.sha256": "246e798d991d322e277fcdce54455e42f62a00f2a520eb33cf52cbf7968f8911",
+          "environment.json": "4a9afcc4a3a30bff0ed335a6ca124de5ab2bbcb967e29b04667f7e7b86a28a2b",
+          "report.md": "9e24d3f1ba549bf323ffb5b622388438da7cd56232ef408c59e8547c1e7d59e1",
+          "summary.json": "c7cd22f615d92b1038ffc07fdf2c26c843b511e8b6380d9aa9b51e3b12e50382"
+        },
+        "evidence_package_checksum_sha256": {
+          "docs/runs/2026-07-15-m3-v2-anr-reliability": "9c54038840ee0ea06faaf52c243c3253fac8f62d6d468d5898acccd4a21e9a0b",
+          "docs/runs/2026-07-15-m3-v2-oversized-saved-state-reliability": "3f8f5426ab34172120af2b4ff931e9c823a818e2b64f36b52d0784f0f49d7731",
+          "docs/runs/2026-07-15-m3-v2-query-duplication-reliability": "b432b287b4d59f03bed465815baf5b764525bb76db5324f3e5a31981670e3c95",
+          "docs/runs/2026-07-15-m3-v2-search-card-l3-reliability": "43a6545ef0dde8889c707e16cd0dd38846a0a1addc8ed9167eca14d95c13b252",
+          "docs/runs/2026-07-15-m3-v2-swallowed-back-reliability": "1f86d42fee4a24ab02977eaebbda3c10f5a465cf0ef1efd16c053014be08ce69"
+        }
+      },
+      "package_model_identity": {
+        "docs/runs/2026-07-17-m3-v3-anr-reliability": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        },
+        "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        },
+        "docs/runs/2026-07-17-m3-v3-query-duplication-reliability": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        },
+        "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        },
+        "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        }
+      }
+    },
+    "package_environments": [
+      {
+        "path": "docs/runs/2026-07-17-m3-v3-anr-reliability",
+        "environment_path": "docs/runs/2026-07-17-m3-v3-anr-reliability/environment.json",
+        "environment_sha256": "aa6d5dd404a6f3f8c134ff15bc9a5a3dd5b31c1cf3f458b1c5fe4e9971c23420",
+        "environment_checksum_status": "verified",
+        "lane_count": 6,
+        "formal_attempts": 6,
+        "host": {
+          "workspace": "/Users/peter/projects/ai_verfication",
+          "wikipedia_source": "/Users/peter/hosts/wikipedia",
+          "wikipedia_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b"
+        },
+        "host_commit_status": "retained",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "aiverify_api35",
+          "model": "sdk_gphone64_arm64",
+          "android_release": "15",
+          "api_level": 35,
+          "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"
+        },
+        "tools": {
+          "android_cli": "1.0.15498356",
+          "adb": "1.0.41 / platform-tools 37.0.0-14910828",
+          "python": "3.11.15",
+          "pytest": "9.0.3",
+          "java": "OpenJDK 17.0.19",
+          "gradle": "9.5.1",
+          "codex_cli": "0.144.5"
+        },
+        "backend": {
+          "name": "Codex CLI",
+          "version": "0.144.5",
+          "version_status": "retained"
+        },
+        "model_identity": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        },
+        "inputs": {
+          "manifest": {
+            "path": "bench/goldset/m3-reliability-slice-v3.yaml",
+            "sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "retained_sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "status": "matched"
+          },
+          "run_specs": [
+            {
+              "path": "bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml",
+              "sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+              "retained_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+              "status": "matched"
+            }
+          ]
+        },
+        "application": {
+          "package": "org.wikipedia.dev",
+          "version_code": 50594,
+          "baseline_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/baseline-app-dev-debug.apk",
+            "bytes": 121628105,
+            "sha256": "32ec2d364f5fd3b291fc0486dd809a8412e7f23bfd3b5d99e3fd999c4985a227"
+          },
+          "defect_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/anr-defect-app-dev-debug.apk",
+            "bytes": 121283210,
+            "sha256": "ea5dc10f79c2bd767ac3566eacbc8b5fd489fd3dae7acb68ddd58839b1c7392c"
+          }
+        }
+      },
+      {
+        "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability",
+        "environment_path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/environment.json",
+        "environment_sha256": "5614d1309e23c01cc18235e6d5eb79efc3cbaadb2bcc167fb7fd478c744471d8",
+        "environment_checksum_status": "verified",
+        "lane_count": 6,
+        "formal_attempts": 6,
+        "host": {
+          "workspace": "/Users/peter/projects/ai_verfication",
+          "wikipedia_source": "/Users/peter/hosts/wikipedia",
+          "wikipedia_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b"
+        },
+        "host_commit_status": "retained",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "aiverify_api35",
+          "model": "sdk_gphone64_arm64",
+          "android_release": "15",
+          "api_level": 35,
+          "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"
+        },
+        "tools": {
+          "android_cli": "1.0.15498356",
+          "adb": "1.0.41 / platform-tools 37.0.0-14910828",
+          "python": "3.11.15",
+          "pytest": "9.0.3",
+          "java": "OpenJDK 17.0.19",
+          "gradle": "9.5.1",
+          "codex_cli": "0.144.5"
+        },
+        "backend": {
+          "name": "Codex CLI",
+          "version": "0.144.5",
+          "version_status": "retained"
+        },
+        "model_identity": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        },
+        "inputs": {
+          "manifest": {
+            "path": "bench/goldset/m3-reliability-slice-v3.yaml",
+            "sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "retained_sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "status": "matched"
+          },
+          "run_specs": [
+            {
+              "path": "bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state.yaml",
+              "sha256": "276bde411d76f8c21a57969e9d0191e4d11b6cb780a45f5e51788f994baa51b5",
+              "retained_sha256": "276bde411d76f8c21a57969e9d0191e4d11b6cb780a45f5e51788f994baa51b5",
+              "status": "matched"
+            }
+          ]
+        },
+        "application": {
+          "package": "org.wikipedia.dev",
+          "version_code": 50594,
+          "baseline_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/baseline-app-dev-debug.apk",
+            "bytes": 121628105,
+            "sha256": "32ec2d364f5fd3b291fc0486dd809a8412e7f23bfd3b5d99e3fd999c4985a227"
+          },
+          "defect_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/oversized-state-defect-app-dev-debug.apk",
+            "bytes": 121283188,
+            "sha256": "228a9ff92e98d95197cace295f12e0e085ee98f3590a0484cb1892ed60ab2525"
+          }
+        }
+      },
+      {
+        "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability",
+        "environment_path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/environment.json",
+        "environment_sha256": "d2b01a8bc38379b406c33a7de8f4662bc93e1a8af18bfe7c85848f96c37a41a6",
+        "environment_checksum_status": "verified",
+        "lane_count": 6,
+        "formal_attempts": 6,
+        "host": {
+          "workspace": "/Users/peter/projects/ai_verfication",
+          "wikipedia_source": "/Users/peter/hosts/wikipedia",
+          "wikipedia_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b"
+        },
+        "host_commit_status": "retained",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "aiverify_api35",
+          "model": "sdk_gphone64_arm64",
+          "android_release": "15",
+          "api_level": 35,
+          "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"
+        },
+        "tools": {
+          "android_cli": "1.0.15498356",
+          "adb": "1.0.41 / platform-tools 37.0.0-14910828",
+          "python": "3.11.15",
+          "pytest": "9.0.3",
+          "java": "OpenJDK 17.0.19",
+          "gradle": "9.5.1",
+          "codex_cli": "0.144.5"
+        },
+        "backend": {
+          "name": "Codex CLI",
+          "version": "0.144.5",
+          "version_status": "retained"
+        },
+        "model_identity": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        },
+        "inputs": {
+          "manifest": {
+            "path": "bench/goldset/m3-reliability-slice-v3.yaml",
+            "sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "retained_sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "status": "matched"
+          },
+          "run_specs": [
+            {
+              "path": "bench/goldset/run-specs/wikipedia-config-change-02-query-duplication.yaml",
+              "sha256": "feb9597a8acc61352da90fbb4993fe950a30819404c2072a9aeeca4f828c61fb",
+              "retained_sha256": "feb9597a8acc61352da90fbb4993fe950a30819404c2072a9aeeca4f828c61fb",
+              "status": "matched"
+            }
+          ]
+        },
+        "application": {
+          "package": "org.wikipedia.dev",
+          "version_code": 50594,
+          "baseline_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/baseline-app-dev-debug.apk",
+            "bytes": 121628105,
+            "sha256": "32ec2d364f5fd3b291fc0486dd809a8412e7f23bfd3b5d99e3fd999c4985a227"
+          },
+          "defect_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/query-duplication-defect-app-dev-debug.apk",
+            "bytes": 121283168,
+            "sha256": "61450b80bec76ee94638602aa8054facfad84403c5b7e6fd7b660295e761e784"
+          }
+        }
+      },
+      {
+        "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability",
+        "environment_path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/environment.json",
+        "environment_sha256": "74246d0899e734d3e5d3f9f8bc541260c38b8f7f98186391451e94320c3ffef8",
+        "environment_checksum_status": "verified",
+        "lane_count": 6,
+        "formal_attempts": 6,
+        "host": {
+          "workspace": "/Users/peter/projects/ai_verfication",
+          "wikipedia_source": "/Users/peter/hosts/wikipedia",
+          "wikipedia_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b"
+        },
+        "host_commit_status": "retained",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "aiverify_api35",
+          "model": "sdk_gphone64_arm64",
+          "android_release": "15",
+          "api_level": 35,
+          "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"
+        },
+        "tools": {
+          "android_cli": "1.0.15498356",
+          "adb": "1.0.41 / platform-tools 37.0.0-14910828",
+          "python": "3.11.15",
+          "pytest": "9.0.3",
+          "java": "OpenJDK 17.0.19",
+          "gradle": "9.5.1",
+          "codex_cli": "0.144.5"
+        },
+        "backend": {
+          "name": "Codex CLI",
+          "version": "0.144.5",
+          "version_status": "retained"
+        },
+        "model_identity": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        },
+        "inputs": {
+          "manifest": {
+            "path": "bench/goldset/m3-reliability-slice-v3.yaml",
+            "sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "retained_sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "status": "matched"
+          },
+          "run_specs": [
+            {
+              "path": "bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml",
+              "sha256": "18b50d7f70dd589ed38eabb2ed8da387cb26c3b82b9d5a7cb1b45d999342b19b",
+              "retained_sha256": "18b50d7f70dd589ed38eabb2ed8da387cb26c3b82b9d5a7cb1b45d999342b19b",
+              "status": "matched"
+            }
+          ]
+        },
+        "application": {
+          "package": "org.wikipedia.dev",
+          "version_code": 50594,
+          "baseline_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/baseline-app-dev-debug.apk",
+            "bytes": 121628105,
+            "sha256": "32ec2d364f5fd3b291fc0486dd809a8412e7f23bfd3b5d99e3fd999c4985a227"
+          },
+          "defect_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/search-card-l3-defect-app-dev-debug.apk",
+            "bytes": 121282915,
+            "sha256": "bcafbdb2b07bde007d524c37bffa9fdc3a308e1c78fd993d01b30e283d1ee94d"
+          }
+        }
+      },
+      {
+        "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability",
+        "environment_path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/environment.json",
+        "environment_sha256": "f4658e367eea023fb1384c13b85686c3d54ebd8e8ff63e0d041e00e724571c98",
+        "environment_checksum_status": "verified",
+        "lane_count": 6,
+        "formal_attempts": 6,
+        "host": {
+          "workspace": "/Users/peter/projects/ai_verfication",
+          "wikipedia_source": "/Users/peter/hosts/wikipedia",
+          "wikipedia_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b"
+        },
+        "host_commit_status": "retained",
+        "device": {
+          "serial": "emulator-5554",
+          "avd": "aiverify_api35",
+          "model": "sdk_gphone64_arm64",
+          "android_release": "15",
+          "api_level": 35,
+          "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"
+        },
+        "tools": {
+          "android_cli": "1.0.15498356",
+          "adb": "1.0.41 / platform-tools 37.0.0-14910828",
+          "python": "3.11.15",
+          "pytest": "9.0.3",
+          "java": "OpenJDK 17.0.19",
+          "gradle": "9.5.1",
+          "codex_cli": "0.144.5"
+        },
+        "backend": {
+          "name": "Codex CLI",
+          "version": "0.144.5",
+          "version_status": "retained"
+        },
+        "model_identity": {
+          "status": "retained",
+          "journey_driver": "gpt-5.6-sol",
+          "l3_judge": "gpt-5.6-sol",
+          "source": "Frozen manifest and checksummed package environment."
+        },
+        "inputs": {
+          "manifest": {
+            "path": "bench/goldset/m3-reliability-slice-v3.yaml",
+            "sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "retained_sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+            "status": "matched"
+          },
+          "run_specs": [
+            {
+              "path": "bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed.yaml",
+              "sha256": "898833ba843069cc4bc637c00a016929bbc055388e91045faf802686393c705f",
+              "retained_sha256": "898833ba843069cc4bc637c00a016929bbc055388e91045faf802686393c705f",
+              "status": "matched"
+            }
+          ]
+        },
+        "application": {
+          "package": "org.wikipedia.dev",
+          "version_code": 50594,
+          "baseline_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/baseline-app-dev-debug.apk",
+            "bytes": 121628105,
+            "sha256": "32ec2d364f5fd3b291fc0486dd809a8412e7f23bfd3b5d99e3fd999c4985a227"
+          },
+          "defect_apk": {
+            "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/swallowed-back-defect-app-dev-debug.apk",
+            "bytes": 121283061,
+            "sha256": "4b37babd6ede7136dfe499b369056f34d793bef65a83a23e08b2cce95b824afd"
+          }
+        }
+      }
+    ],
+    "identity_coverage": {
+      "package_environment": "5/5",
+      "device_serial_crosscheck": "30/30",
+      "host_path_crosscheck": "30/30",
+      "run_spec_command_crosscheck": "30/30",
+      "run_spec_sha256_retained": "5/5",
+      "manifest_sha256_retained": "5/5",
+      "host_commit_retained": "5/5",
+      "backend_version_retained": "5/5",
+      "model_identity_retained": "5/5",
+      "model_override_crosscheck": "30/30"
+    }
+  },
+  "evidence_packages": [
+    {
+      "path": "docs/runs/2026-07-17-m3-v3-anr-reliability",
+      "checksum_entries": 128,
+      "checksum_status": "verified"
+    },
+    {
+      "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability",
+      "checksum_entries": 38,
+      "checksum_status": "verified"
+    },
+    {
+      "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability",
+      "checksum_entries": 38,
+      "checksum_status": "verified"
+    },
+    {
+      "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability",
+      "checksum_entries": 38,
+      "checksum_status": "verified"
+    },
+    {
+      "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability",
+      "checksum_entries": 38,
+      "checksum_status": "verified"
+    }
+  ],
+  "scope_limitations": [
+    "Wikipedia host only",
+    "Codex CLI Verification Agent Backend only",
+    "Android CLI on one Android 15/API 35 aiverify_api35 emulator only",
+    "versioned five-seed, 30-lane live v3 slice only",
+    "not a fully unattended Journey measurement",
+    "not a benchmark-wide detection or false-positive rate",
+    "not a physical-device, ColorOS, or visual-only/multimodal claim"
+  ],
+  "comparison": {
+    "denominators_combined": false,
+    "selective_lane_replacement": false,
+    "historical": {
+      "slice_id": "m3-verification-agent-reliability-v2",
+      "inventory": {
+        "selected_seeds": 5,
+        "lane_roles": 2,
+        "repetitions_per_role": 3,
+        "planned_lanes": 30,
+        "formal_attempts": 31,
+        "evidence_packages": 5
+      },
+      "summary": {
+        "planned_lanes": 30,
+        "first_attempt_accountable": 29,
+        "eventual_accountable": 29,
+        "retry_count": 1,
+        "control_outcomes": {
+          "passed_control": 14
+        },
+        "defect_outcomes": {
+          "caught": 15
+        },
+        "failure_classes": {
+          "preflight_environment": 2
+        },
+        "total_seconds": 3640.533,
+        "judge_seconds": 165.102,
+        "operational_interventions": 1
+      },
+      "criteria": {
+        "eventual_accountability": {
+          "status": "passed",
+          "actual": 29,
+          "required_minimum": 29
+        },
+        "zero_accountable_baseline_false_positives": {
+          "status": "passed",
+          "actual": 0,
+          "required_maximum": 0
+        },
+        "accountable_defect_consistency": {
+          "status": "passed",
+          "actual": 15,
+          "required": 15
+        },
+        "m3_overall": {
+          "status": "passed"
+        }
+      },
+      "oracle_breakdown": {
+        "L1": {
+          "planned": 12,
+          "eventual_accountable": 11,
+          "passed_controls": 5,
+          "caught_defects": 6,
+          "non_accountable": 1
+        },
+        "L2": {
+          "planned": 12,
+          "eventual_accountable": 12,
+          "passed_controls": 6,
+          "caught_defects": 6,
+          "non_accountable": 0
+        },
+        "L3": {
+          "planned": 6,
+          "eventual_accountable": 6,
+          "passed_controls": 3,
+          "caught_defects": 3,
+          "non_accountable": 0
+        }
+      },
+      "preflight_statuses": {
+        "failed": 2,
+        "passed": 29
+      },
+      "non_accountable_lanes": 1,
+      "accountable_controls": 14,
+      "accountable_defects": 15
+    },
+    "rebaseline": {
+      "slice_id": "m3-verification-agent-reliability-v3",
+      "inventory": {
+        "selected_seeds": 5,
+        "lane_roles": 2,
+        "repetitions_per_role": 3,
+        "planned_lanes": 30,
+        "formal_attempts": 30,
+        "evidence_packages": 5
+      },
+      "summary": {
+        "planned_lanes": 30,
+        "first_attempt_accountable": 6,
+        "eventual_accountable": 6,
+        "retry_count": 0,
+        "control_outcomes": {
+          "passed_control": 3
+        },
+        "defect_outcomes": {
+          "caught": 3
+        },
+        "failure_classes": {
+          "execution_identity": 24
+        },
+        "total_seconds": 588.669,
+        "judge_seconds": 0.0,
+        "operational_interventions": 0
+      },
+      "criteria": {
+        "eventual_accountability": {
+          "status": "failed",
+          "actual": 6,
+          "required_minimum": 30
+        },
+        "zero_accountable_baseline_false_positives": {
+          "status": "passed",
+          "actual": 0,
+          "required_maximum": 0
+        },
+        "accountable_defect_consistency": {
+          "status": "failed",
+          "actual": 3,
+          "required": 15
+        },
+        "passed_baseline_controls": {
+          "status": "failed",
+          "actual": 3,
+          "required": 15
+        },
+        "complete_execution_provenance": {
+          "status": "failed",
+          "actual": 6,
+          "required": 30
+        },
+        "m3_overall": {
+          "status": "failed"
+        }
+      },
+      "oracle_breakdown": {
+        "L1": {
+          "planned": 12,
+          "eventual_accountable": 6,
+          "passed_controls": 3,
+          "caught_defects": 3,
+          "non_accountable": 6
+        },
+        "L2": {
+          "planned": 12,
+          "eventual_accountable": 0,
+          "passed_controls": 0,
+          "caught_defects": 0,
+          "non_accountable": 12
+        },
+        "L3": {
+          "planned": 6,
+          "eventual_accountable": 0,
+          "passed_controls": 0,
+          "caught_defects": 0,
+          "non_accountable": 6
+        }
+      },
+      "preflight_statuses": {
+        "not_run": 24,
+        "passed": 6
+      },
+      "non_accountable_lanes": 24,
+      "accountable_controls": 3,
+      "accountable_defects": 3
+    },
+    "descriptive_delta": {
+      "first_attempt_accountable": -23,
+      "eventual_accountable": -23,
+      "retry_count": -1,
+      "total_seconds": -3051.864,
+      "judge_seconds": -165.102,
+      "operational_interventions": -1
+    },
+    "historical_integrity": {
+      "status": "verified",
+      "manifest": {
+        "path": "bench/goldset/m3-reliability-slice-v2.yaml",
+        "sha256": "c4c0cb8f331ae3e09db8663f8041335ef4614181337551962d5b9a662de8e6cb"
+      },
+      "run_record": "docs/runs/2026-07-16-m3-v2-final-audited-comparison",
+      "artifact_sha256": {
+        "README.md": "2edeffe51185ecd85f00780156ac615e4b68322268cec9aeb6d954832590f631",
+        "checksums.sha256": "246e798d991d322e277fcdce54455e42f62a00f2a520eb33cf52cbf7968f8911",
+        "environment.json": "4a9afcc4a3a30bff0ed335a6ca124de5ab2bbcb967e29b04667f7e7b86a28a2b",
+        "report.md": "9e24d3f1ba549bf323ffb5b622388438da7cd56232ef408c59e8547c1e7d59e1",
+        "summary.json": "c7cd22f615d92b1038ffc07fdf2c26c843b511e8b6380d9aa9b51e3b12e50382"
+      },
+      "evidence_package_checksum_sha256": {
+        "docs/runs/2026-07-15-m3-v2-anr-reliability": "9c54038840ee0ea06faaf52c243c3253fac8f62d6d468d5898acccd4a21e9a0b",
+        "docs/runs/2026-07-15-m3-v2-oversized-saved-state-reliability": "3f8f5426ab34172120af2b4ff931e9c823a818e2b64f36b52d0784f0f49d7731",
+        "docs/runs/2026-07-15-m3-v2-query-duplication-reliability": "b432b287b4d59f03bed465815baf5b764525bb76db5324f3e5a31981670e3c95",
+        "docs/runs/2026-07-15-m3-v2-search-card-l3-reliability": "43a6545ef0dde8889c707e16cd0dd38846a0a1addc8ed9167eca14d95c13b252",
+        "docs/runs/2026-07-15-m3-v2-swallowed-back-reliability": "1f86d42fee4a24ab02977eaebbda3c10f5a465cf0ef1efd16c053014be08ce69"
+      }
+    },
+    "interpretation": "The v2 and v3 slices are two distinct 30-lane populations. Their denominators and lane outcomes are never merged or selectively replaced.",
+    "prior_comparison": {
+      "denominators_combined": false,
+      "selective_lane_replacement": false,
+      "historical": {
+        "slice_id": "m3-verification-agent-reliability",
+        "inventory": {
+          "selected_seeds": 5,
+          "lane_roles": 2,
+          "repetitions_per_role": 3,
+          "planned_lanes": 30,
+          "formal_attempts": 36,
+          "evidence_packages": 5
+        },
+        "summary": {
+          "planned_lanes": 30,
+          "first_attempt_accountable": 24,
+          "eventual_accountable": 27,
+          "retry_count": 6,
+          "control_outcomes": {
+            "passed_control": 15
+          },
+          "defect_outcomes": {
+            "caught": 12
+          },
+          "failure_classes": {
+            "evidence_capture": 1,
+            "preflight_environment": 2,
+            "verification_agent_journey": 6
+          },
+          "total_seconds": 4605.338,
+          "judge_seconds": 97.269,
+          "operational_interventions": 9
+        },
+        "criteria": {
+          "eventual_accountability": {
+            "status": "failed",
+            "actual": 27,
+            "required_minimum": 29
+          },
+          "zero_accountable_baseline_false_positives": {
+            "status": "passed",
+            "actual": 0,
+            "required_maximum": 0
+          },
+          "accountable_defect_consistency": {
+            "status": "passed",
+            "actual": 12,
+            "required": 12
+          },
+          "m3_overall": {
+            "status": "failed"
+          }
+        },
+        "oracle_breakdown": {
+          "L1": {
+            "planned": 12,
+            "eventual_accountable": 10,
+            "passed_controls": 6,
+            "caught_defects": 4,
+            "non_accountable": 2
+          },
+          "L2": {
+            "planned": 12,
+            "eventual_accountable": 12,
+            "passed_controls": 6,
+            "caught_defects": 6,
+            "non_accountable": 0
+          },
+          "L3": {
+            "planned": 6,
+            "eventual_accountable": 5,
+            "passed_controls": 3,
+            "caught_defects": 2,
+            "non_accountable": 1
+          }
+        },
+        "preflight_statuses": {
+          "failed": 2,
+          "passed": 34
+        },
+        "non_accountable_lanes": 3,
+        "accountable_controls": 15,
+        "accountable_defects": 12
+      },
+      "rebaseline": {
+        "slice_id": "m3-verification-agent-reliability-v2",
+        "inventory": {
+          "selected_seeds": 5,
+          "lane_roles": 2,
+          "repetitions_per_role": 3,
+          "planned_lanes": 30,
+          "formal_attempts": 31,
+          "evidence_packages": 5
+        },
+        "summary": {
+          "planned_lanes": 30,
+          "first_attempt_accountable": 29,
+          "eventual_accountable": 29,
+          "retry_count": 1,
+          "control_outcomes": {
+            "passed_control": 14
+          },
+          "defect_outcomes": {
+            "caught": 15
+          },
+          "failure_classes": {
+            "preflight_environment": 2
+          },
+          "total_seconds": 3640.533,
+          "judge_seconds": 165.102,
+          "operational_interventions": 1
+        },
+        "criteria": {
+          "eventual_accountability": {
+            "status": "passed",
+            "actual": 29,
+            "required_minimum": 29
+          },
+          "zero_accountable_baseline_false_positives": {
+            "status": "passed",
+            "actual": 0,
+            "required_maximum": 0
+          },
+          "accountable_defect_consistency": {
+            "status": "passed",
+            "actual": 15,
+            "required": 15
+          },
+          "m3_overall": {
+            "status": "passed"
+          }
+        },
+        "oracle_breakdown": {
+          "L1": {
+            "planned": 12,
+            "eventual_accountable": 11,
+            "passed_controls": 5,
+            "caught_defects": 6,
+            "non_accountable": 1
+          },
+          "L2": {
+            "planned": 12,
+            "eventual_accountable": 12,
+            "passed_controls": 6,
+            "caught_defects": 6,
+            "non_accountable": 0
+          },
+          "L3": {
+            "planned": 6,
+            "eventual_accountable": 6,
+            "passed_controls": 3,
+            "caught_defects": 3,
+            "non_accountable": 0
+          }
+        },
+        "preflight_statuses": {
+          "failed": 2,
+          "passed": 29
+        },
+        "non_accountable_lanes": 1,
+        "accountable_controls": 14,
+        "accountable_defects": 15
+      },
+      "descriptive_delta": {
+        "first_attempt_accountable": 5,
+        "eventual_accountable": 2,
+        "retry_count": -5,
+        "total_seconds": -964.805,
+        "judge_seconds": 67.833,
+        "operational_interventions": -8
+      },
+      "historical_integrity": {
+        "status": "verified",
+        "manifest": {
+          "path": "bench/goldset/m3-reliability-slice.yaml",
+          "sha256": "8017320a27a5a8e0a01fff1357abf09edf0164abf59e764dc843b5335c0271b3"
+        },
+        "run_record": "docs/runs/2026-07-13-m3-final-reliability-baseline",
+        "artifact_sha256": {
+          "README.md": "6e585904695625d8def7aab3d7d2068c8ea009ac2169f956addc727ba385b8b7",
+          "checksums.sha256": "a07238f51b65e5dc6e65ee69dfa6f4876609227e99e85f846a1371212d593e1f",
+          "environment.json": "1d5bd589118dfc069e22256a40f4f997858ca117085e1225b89def7de3a43055",
+          "report.md": "43eb0fe11f91865e7b699763829e4ad36bfdd4cd6034cb5d913a5dcc3fc61e20",
+          "summary.json": "e738af441b760e146412c5fd1afb921ccda528b93bdd787416a4d92702a42b58"
+        },
+        "evidence_package_checksum_sha256": {
+          "docs/runs/2026-07-13-m3-anr-reliability": "60afc10dfa5cbdd6a66a4aa63095ccbc2958016283df6eac800ec171b40db39d",
+          "docs/runs/2026-07-13-m3-oversized-saved-state-reliability": "b1570bb1dcbad5938b083e452201829a33043e830c946090710f165ecea6c291",
+          "docs/runs/2026-07-13-m3-query-duplication-reliability": "816c8c736e4c9862440256644636a405298637e67d6d01e5466816a149245428",
+          "docs/runs/2026-07-13-m3-search-card-l3-reliability": "44455e93de3b8586549c6e0534b2b6b4d9ee50f513c4ca3a2138a54b759594a3",
+          "docs/runs/2026-07-13-m3-swallowed-back-reliability": "5ab4c2f1d440e13cd1d733d7940bc420cbfa85219e1b118b5c85b47aee041be3"
+        }
+      },
+      "interpretation": "The original and v2 slices are two distinct 30-lane populations. Their denominators and lane outcomes are never merged or selectively replaced."
+    }
+  }
+}

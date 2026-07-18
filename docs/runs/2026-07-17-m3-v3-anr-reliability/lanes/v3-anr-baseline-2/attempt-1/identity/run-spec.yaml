@@ -1,0 +1,41 @@
+# Run Spec — Wikipedia coroutine-concurrency-03 main-thread ANR (M1 seed 4)
+#
+# 目的：证明验证链路能通过 L1 抓到"主线程阻塞导致 ANR"的行为层缺陷。
+# 这是一个【无系统事件】的种子——ANR 由用户动作（输入）本身触发，
+# 不需要在段边界注入事件。用来验证 runner 的 L1 扫描覆盖所有 checkpoint（不只事件后）。
+#
+# 注入缺陷：SearchFragment.onQueryTextChange 在主线程做重活（Thread.sleep(6000)，
+# 应当 withContext(Dispatchers.Default)），首次输入即阻塞 UI 线程 > 5s → ANR。
+# happy path（不输入）永远不触发。
+#
+# taxonomy 模式：coroutine-concurrency-03（主线程阻塞——在主调度器执行重活）
+# verdict 症状轴：crash_stability（L1 抓 "ANR in"）
+# 注入 patch：bench/goldset/patches/wikipedia-coroutine-concurrency-03-main-thread-anr.patch
+# 实测 run record：docs/runs/2026-07-05-wikipedia-coroutine-concurrency-03-anr/
+
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-coroutine-concurrency-03-main-thread-anr.patch
+
+scenario:
+  id: wikipedia-coroutine-concurrency-03-main-thread-anr
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: coroutine-concurrency
+    taxonomy_pattern_id: coroutine-concurrency-03
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  user_actions:
+    - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
+    - "点搜索输入框 search_src_text，输入文本 'anrtest'"
+  # 无 system_events：ANR 由输入本身触发，在 segment-0 的 logcat 中出现。
+  # runner 的 L1 现在扫描所有 checkpoint 的 logcat，所以能抓到。
+  system_events: []
+  assertions: []
+  expected_behavior: >
+    在搜索框输入文本时，onQueryTextChange 在主线程阻塞 6 秒，超过 ANR 阈值，
+    系统记录 "ANR in org.wikipedia.dev"。期望 L1 outcome=fail、
+    defect_class_hypothesis=crash_stability；L2 因无系统事件不适用（inconclusive）。
+    baseline（无缺陷）输入不阻塞，无 ANR，L1=inconclusive。

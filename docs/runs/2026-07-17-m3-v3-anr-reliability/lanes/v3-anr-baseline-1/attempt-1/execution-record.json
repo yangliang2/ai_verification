@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "attempt_id": "a80ee113-ae36-4edd-9e5a-7f1930eda711",
+  "scenario": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-18T03:25:32+00:00",
+  "finished_at": "2026-07-18T03:27:22+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-18T03:25:32+00:00",
+    "finished_at": "2026-07-18T03:27:22+00:00",
+    "total_seconds": 110.114,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 5.121
+      },
+      {
+        "phase": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+        "kind": "journey",
+        "seconds": 95.163
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.536
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-1/attempt-1/live-validation-gate.json",
+    "verdict": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-1/attempt-1/verdict.json",
+    "journey_results": [
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-1/attempt-1/artifacts/wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-m3-v3-anr-reliability/lanes/v3-anr-baseline-1/attempt-1/artifacts/after-segment-0"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "bfe854acb3fcf3d26ade173a1577fdcaadf365e2d4fcf51990e5701c6e49e11b"
+    }
+  }
+}

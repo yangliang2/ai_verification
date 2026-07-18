@@ -1,0 +1,29 @@
+{
+  "journey": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 2232",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 371",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "App was already open on the main feed. Observed nav_tab_search at [540,2232], tapped it, then observed search_card at [540,371] and tapped it. Search screen opened with focused search_src_text.",
+      "action": "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
+    },
+    {
+      "action_id": "action-2",
+      "status": "PASSED",
+      "commands": [
+        "adb -s emulator-5554 shell input tap 542 215",
+        "adb -s emulator-5554 shell input text \"anrtest\"",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Tapped search_src_text at [542,215] and dispatched text input. Final layout showed focused search_src_text containing \"anrtest\" and visible search results.",
+      "action": "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "attempt_id": "d0d90c9b-2ae9-4852-abc0-6e41b74ca655",
+  "scenario": "wikipedia-process-death-03-oversized-saved-state",
+  "lifecycle_state": "failed",
+  "started_at": "2026-07-18T03:30:49+00:00",
+  "finished_at": "2026-07-18T03:30:49+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "execution_identity_error",
+    "message": "ExecutionIdentityError: runner workdir contradicts Run Spec host_project"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-07-18T03:30:49+00:00",
+    "finished_at": "2026-07-18T03:30:49+00:00",
+    "total_seconds": 0.001,
+    "phases": [
+      {
+        "phase": "execution-identity-capture",
+        "kind": "identity",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "execution-identity-capture",
+      "kind": "identity",
+      "reason": "execution_identity_error",
+      "message": "ExecutionIdentityError: runner workdir contradicts Run Spec host_project"
+    }
+  ],
+  "evidence_refs": {
+    "verdict": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-3/attempt-1/verdict.json"
+  }
+}

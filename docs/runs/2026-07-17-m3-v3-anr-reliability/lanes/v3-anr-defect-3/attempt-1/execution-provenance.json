@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "attempt_id": "b028f2dd-7780-436a-94bc-96ac358ea78f",
+  "scenario": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+  "captured_at": "2026-07-18T03:38:02+00:00",
+  "run_spec": {
+    "invocation_path": "/Users/peter/projects/ai_verfication/bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr.yaml",
+    "consumed_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+    "snapshot_path": "identity/run-spec.yaml",
+    "snapshot_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c",
+    "scenario": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+    "host_project": "/Users/peter/hosts/wikipedia",
+    "apk_glob": "app/build/outputs/apk/dev/debug/*.apk",
+    "package": "org.wikipedia.dev",
+    "activity": "org.wikipedia.DefaultIcon",
+    "identity_sha256": "7a261bb1c2e1540b3d924e6f278fc46615410fd066316ca4bbf172e948d7df0a"
+  },
+  "host": {
+    "repository_root": "/Users/peter/hosts/wikipedia",
+    "origin": "https://github.com/wikimedia/apps-android-wikipedia",
+    "commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b",
+    "worktree": {
+      "clean": true,
+      "status": "",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_files": [],
+      "patch_path": "identity/host.patch",
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "identity_sha256": "c92fafe890bcc989100ed47b786e6cacecfaee72c1ef358738b07b35751656f2"
+  },
+  "apk": {
+    "artifacts": [
+      {
+        "path": "/Users/peter/hosts/wikipedia/app/build/outputs/apk/dev/debug/app-dev-debug.apk",
+        "bytes": 121283210,
+        "sha256": "ea5dc10f79c2bd767ac3566eacbc8b5fd489fd3dae7acb68ddd58839b1c7392c"
+      }
+    ],
+    "identity_sha256": "a259243b9c0ea5b0def4efcd90d1bfcadfa3e77a08109f6821e47219ac5a301f"
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "api_level": "35",
+    "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "profile": {
+      "kind": "emulator",
+      "name": "aiverify_api35",
+      "model": "sdk_gphone64_arm64",
+      "device": "emu64a"
+    },
+    "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+  },
+  "tools": {
+    "android_cli": {
+      "requested": "android",
+      "resolved_path": "/Users/peter/.local/bin/android",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "version": "1.0.15498356",
+      "identity_sha256": "234115eb377fbc59cb1c243bd769f30ef049f64186491c700e78be4301d450e8"
+    },
+    "adb": {
+      "requested": "adb",
+      "resolved_path": "/opt/homebrew/share/android-commandlinetools/platform-tools/adb",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+      "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/share/android-commandlinetools/platform-tools/adb\nRunning on Darwin 25.3.0 (arm64)",
+      "identity_sha256": "cb42943fa7589293ac27206926e31a50d259fc4af9edfb6ea4ad73ffaa2e0e74"
+    },
+    "codex_cli": {
+      "requested": "codex",
+      "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.5/codex-aarch64-apple-darwin",
+      "sha256": "5e29ab10ca1171be158f7335dd6bd8ce1aaf9af1556939db36a5ee338be6f5f2",
+      "version": "codex-cli 0.144.5",
+      "identity_sha256": "e300dbf926cf634206584b396e2c96216bf9a926c8b506918a2a392105e3797c"
+    },
+    "git": {
+      "requested": "git",
+      "resolved_path": "/usr/bin/git",
+      "sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb",
+      "version": "git version 2.50.1 (Apple Git-155)",
+      "identity_sha256": "fddd0e696681e24d624b01cfe9665a4a0d2ba4cb9f91e09874320cc632784f9c"
+    },
+    "python": {
+      "requested": "/Users/peter/projects/ai_verfication/.venv/bin/python",
+      "resolved_path": "/Users/peter/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11",
+      "sha256": "4c78423e7d5986362ac04df40edb18cdd1174f9818d653402e3abbd2a5bbf793",
+      "version": "3.11.15",
+      "identity_sha256": "2a09f73a774426094259d520874d87d7ae688c41e3f5de0ab558536b55ec1530"
+    }
+  },
+  "deployment": {
+    "target": {
+      "device": "emulator-5554",
+      "package": "org.wikipedia.dev",
+      "component": "org.wikipedia.dev/org.wikipedia.DefaultIcon"
+    },
+    "process": {
+      "args": [
+        "android",
+        "run",
+        "--device=emulator-5554",
+        "--apks=/Users/peter/hosts/wikipedia/app/build/outputs/apk/dev/debug/app-dev-debug.apk",
+        "--activity=org.wikipedia.DefaultIcon",
+        "--type=ACTIVITY"
+      ],
+      "returncode": 0,
+      "stdout": "App loaded: org.wikipedia.dev\nDebuggable: true\nSelected component: org.wikipedia.DefaultIcon\nInstalling APKs: /Users/peter/hosts/wikipedia/app/build/outputs/apk/dev/debug/app-dev-debug.apk\nInstallation completed successfully\nExecuting: Launching Activity for org.wikipedia.dev\nActivation completed successfully\n",
+      "stderr": "",
+      "identity_sha256": "fa6f353288a37ee76ecfbbc9ecc108ee5353e9dff0486c7be8a490962f817863"
+    },
+    "installed_artifacts": [
+      {
+        "path": "/data/app/~~G1d-gXUDRAymlSope4lNjg==/org.wikipedia.dev--4mGg-JkCUo-09mlTBQ6QA==/base.apk",
+        "sha256": "ea5dc10f79c2bd767ac3566eacbc8b5fd489fd3dae7acb68ddd58839b1c7392c"
+      }
+    ],
+    "resolved_component": "org.wikipedia.dev/org.wikipedia.DefaultIcon",
+    "device": {
+      "serial": "emulator-5554",
+      "api_level": "35",
+      "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+      "profile": {
+        "kind": "emulator",
+        "name": "aiverify_api35",
+        "model": "sdk_gphone64_arm64",
+        "device": "emu64a"
+      },
+      "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+    },
+    "tools": {
+      "android_cli_sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "adb_sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+    },
+    "identity_sha256": "73bb9884b77878c19706fc4a388837e2336248821052335c5997c0cdab432387"
+  },
+  "roles": {
+    "journey_driver": {
+      "status": "invoked",
+      "requested_model": null,
+      "invocations": [
+        {
+          "path": "artifacts/wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0/codex-invocation-identity.json",
+          "sha256": "17985737a4baa9ce2f175e1d68ca10a8cb1187aecf6858a7fea2d3028dcc0eab"
+        }
+      ],
+      "invocation_ledger": []
+    },
+    "l3_semantic_judge": {
+      "status": "not_applicable",
+      "reason": "scenario_has_no_l3_spec",
+      "requested_model": null,
+      "invocations": [],
+      "invocation_ledger": []
+    }
+  }
+}

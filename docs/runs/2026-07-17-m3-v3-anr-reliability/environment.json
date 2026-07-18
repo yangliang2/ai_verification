@@ -1,0 +1,54 @@
+{
+  "schema_version": 3,
+  "captured_at": "2026-07-18T03:20:36Z",
+  "host": {
+    "workspace": "/Users/peter/projects/ai_verfication",
+    "wikipedia_source": "/Users/peter/hosts/wikipedia",
+    "wikipedia_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b"
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "avd": "aiverify_api35",
+    "model": "sdk_gphone64_arm64",
+    "android_release": "15",
+    "api_level": 35,
+    "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"
+  },
+  "tools": {
+    "android_cli": "1.0.15498356",
+    "adb": "1.0.41 / platform-tools 37.0.0-14910828",
+    "python": "3.11.15",
+    "pytest": "9.0.3",
+    "java": "OpenJDK 17.0.19",
+    "gradle": "9.5.1",
+    "codex_cli": "0.144.5"
+  },
+  "models": {
+    "journey_driver": {
+      "effective_codex_default": "gpt-5.6-sol",
+      "explicit_override": null
+    },
+    "l3_judge": {
+      "effective_codex_default": "gpt-5.6-sol",
+      "explicit_override": null
+    }
+  },
+  "inputs": {
+    "manifest_sha256": "4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7",
+    "run_spec_sha256": "a39b9bd53a46b5c7969cf99926e45d6e6ac797bb01696d3765096c2e166de03c"
+  },
+  "application": {
+    "package": "org.wikipedia.dev",
+    "version_code": 50594,
+    "baseline_apk": {
+      "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/baseline-app-dev-debug.apk",
+      "bytes": 121628105,
+      "sha256": "32ec2d364f5fd3b291fc0486dd809a8412e7f23bfd3b5d99e3fd999c4985a227"
+    },
+    "defect_apk": {
+      "path": "/Users/peter/hosts/wikipedia/aiverify-builds/m3-v3/anr-defect-app-dev-debug.apk",
+      "bytes": 121283210,
+      "sha256": "ea5dc10f79c2bd767ac3566eacbc8b5fd489fd3dae7acb68ddd58839b1c7392c"
+    }
+  }
+}
