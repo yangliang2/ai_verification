@@ -1,0 +1,17 @@
+host_project: /Users/peter/hosts/wikipedia
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+
+scenario:
+  id: issue-61-effective-execution-identity
+  user_actions:
+    - >-
+      Inspect the current Wikipedia screen with android layout and report PASSED
+      when at least one visible UI element is present; no navigation is required.
+  expected_behavior: >-
+    The public runner completes on the API 35 emulator and binds the consumed
+    Run Spec, host, complete APK set, Android deployment, device, critical tools,
+    and the journey driver's requested and effective Codex model to one
+    checksum-verified execution provenance manifest. L3 is explicitly not
+    applicable because this scenario has no semantic-judge specification.

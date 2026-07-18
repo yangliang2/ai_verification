@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "attempt_id": "c4c22d1d-d44f-42a6-ad1f-2a45ea16b796",
+  "scenario": "issue-61-effective-execution-identity",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-18T02:29:04+00:00",
+  "finished_at": "2026-07-18T02:29:40+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-18T02:29:04+00:00",
+    "finished_at": "2026-07-18T02:29:40+00:00",
+    "total_seconds": 36.015,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 5.332
+      },
+      {
+        "phase": "issue-61-effective-execution-identity-segment-0",
+        "kind": "journey",
+        "seconds": 22.93
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.136
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt/live-validation-gate.json",
+    "verdict": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt/verdict.json",
+    "journey_results": [
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt/artifacts/issue-61-effective-execution-identity-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt/artifacts/after-segment-0"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "a3963cea6f637a0cab6784e9b25c3da93144d388f8bd75bdf5a380383803b31a"
+    }
+  }
+}
