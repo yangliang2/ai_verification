@@ -1,0 +1,78 @@
+schema_version: 3
+slice_id: m3-verification-agent-reliability-v9-query-rebuilt
+comparison_manifest: bench/goldset/m3-reliability-slice-v9-audited.yaml
+preregistration:
+  frozen_at: "2026-07-18T00:30:00-04:00"
+  source_revision: 569d9c4
+  host_commit: 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b
+  host_workspace: ${WIKIPEDIA_SOURCE}
+  application_package: org.wikipedia.dev
+  application_version_code: 50594
+  device_serial: emulator-5554
+  device_avd: aiverify_api35
+  device_api_level: 35
+  device_fingerprint: google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys
+  backend: codex_cli
+  backend_version: 0.144.5
+  journey_driver_model: gpt-5.6-sol
+  l3_judge_model: gpt-5.6-sol
+  public_runner: python -m aiverify.runner
+  live_validation_gate: required_for_every_attempt
+  planned_lanes: 30
+  selected_seeds: 5
+  baseline_lanes: 15
+  defect_lanes: 15
+  repetitions_per_role: 3
+  max_attempts_per_lane: 2
+  historical_denominators_combined: false
+  original_manifest_sha256: 8017320a27a5a8e0a01fff1357abf09edf0164abf59e764dc843b5335c0271b3
+  original_final_checksums_sha256: a07238f51b65e5dc6e65ee69dfa6f4876609227e99e85f846a1371212d593e1f
+  v2_manifest_sha256: c4c0cb8f331ae3e09db8663f8041335ef4614181337551962d5b9a662de8e6cb
+  v2_final_checksums_sha256: 246e798d991d322e277fcdce54455e42f62a00f2a520eb33cf52cbf7968f8911
+  v3_manifest_sha256: 4a8860c62f526d9b27f847517c916b851475375c005b6596c7bf39db457014a7
+  v3_final_checksums_sha256: 615b8960ea2f4998552a21b701c59b98632855d3ca42552eba3b2b3ab88b9017
+  v8_manifest_sha256: 724c61645ac2018f001c2194198412acbabed8d06022c5447fe529c44cd89895
+max_attempts_per_lane: 2
+
+_templates:
+  anr: &anr {seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr, run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr-portable.yaml, expected_oracle_level: L1, expected_oracle_defect_class: crash_stability}
+  oversized: &oversized {seed_id: wikipedia-process-death-03-oversized-saved-state, run_spec: bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state-portable.yaml, expected_oracle_level: L1, expected_oracle_defect_class: crash_stability}
+  query: &query {seed_id: wikipedia-config-change-02-query-duplication, run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication-portable.yaml, expected_oracle_level: L2, expected_oracle_defect_class: state_loss}
+  swallowed: &swallowed {seed_id: wikipedia-navigation-02-back-button-swallowed, run_spec: bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed-portable.yaml, expected_oracle_level: L2, expected_oracle_defect_class: state_loss}
+  search: &search {seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch, run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch-portable.yaml, expected_oracle_level: L3, expected_oracle_defect_class: ui_rendering}
+
+lanes:
+  - {<<: *anr, id: v9-anr-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-anr-reliability/lanes/v9-anr-baseline-1}
+  - {<<: *anr, id: v9-anr-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-anr-reliability/lanes/v9-anr-baseline-2}
+  - {<<: *anr, id: v9-anr-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-anr-reliability/lanes/v9-anr-baseline-3}
+  - {<<: *anr, id: v9-anr-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-anr-reliability/lanes/v9-anr-defect-1}
+  - {<<: *anr, id: v9-anr-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-anr-reliability/lanes/v9-anr-defect-2}
+  - {<<: *anr, id: v9-anr-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-anr-reliability/lanes/v9-anr-defect-3}
+  - {<<: *oversized, id: v9-oversized-state-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-oversized-state-reliability/lanes/v9-oversized-state-baseline-1}
+  - {<<: *oversized, id: v9-oversized-state-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-oversized-state-reliability/lanes/v9-oversized-state-baseline-2}
+  - {<<: *oversized, id: v9-oversized-state-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-oversized-state-reliability/lanes/v9-oversized-state-baseline-3}
+  - {<<: *oversized, id: v9-oversized-state-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-oversized-state-reliability/lanes/v9-oversized-state-defect-1}
+  - {<<: *oversized, id: v9-oversized-state-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-oversized-state-reliability/lanes/v9-oversized-state-defect-2}
+  - {<<: *oversized, id: v9-oversized-state-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-oversized-state-reliability/lanes/v9-oversized-state-defect-3}
+  - {<<: *query, id: v9-query-duplication-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-query-duplication-reliability/lanes/v9-query-duplication-baseline-1}
+  - {<<: *query, id: v9-query-duplication-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-query-duplication-reliability/lanes/v9-query-duplication-baseline-2}
+  - {<<: *query, id: v9-query-duplication-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-query-duplication-reliability/lanes/v9-query-duplication-baseline-3}
+  - {<<: *query, id: v9-query-duplication-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-query-duplication-reliability/lanes/v9-query-duplication-defect-1}
+  - {<<: *query, id: v9-query-duplication-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-query-duplication-reliability/lanes/v9-query-duplication-defect-2}
+  - {<<: *query, id: v9-query-duplication-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-query-duplication-reliability/lanes/v9-query-duplication-defect-3}
+  - {<<: *swallowed, id: v9-swallowed-back-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-swallowed-back-reliability/lanes/v9-swallowed-back-baseline-1}
+  - {<<: *swallowed, id: v9-swallowed-back-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-swallowed-back-reliability/lanes/v9-swallowed-back-baseline-2}
+  - {<<: *swallowed, id: v9-swallowed-back-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-swallowed-back-reliability/lanes/v9-swallowed-back-baseline-3}
+  - {<<: *swallowed, id: v9-swallowed-back-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-swallowed-back-reliability/lanes/v9-swallowed-back-defect-1}
+  - {<<: *swallowed, id: v9-swallowed-back-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-swallowed-back-reliability/lanes/v9-swallowed-back-defect-2}
+  - {<<: *swallowed, id: v9-swallowed-back-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-swallowed-back-reliability/lanes/v9-swallowed-back-defect-3}
+  - {<<: *search, id: v9-search-card-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-search-card-reliability/lanes/v9-search-card-baseline-1}
+  - {<<: *search, id: v9-search-card-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-search-card-reliability/lanes/v9-search-card-baseline-2}
+  - {<<: *search, id: v9-search-card-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-search-card-reliability/lanes/v9-search-card-baseline-3}
+  - {<<: *search, id: v9-search-card-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-18-m3-v9-search-card-reliability/lanes/v9-search-card-defect-1}
+  - {<<: *search, id: v9-search-card-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-18-m3-v9-search-card-reliability/lanes/v9-search-card-defect-2}
+  - {<<: *search, id: v9-search-card-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-18-m3-v9-search-card-reliability/lanes/v9-search-card-defect-3}
+
+
+
+
