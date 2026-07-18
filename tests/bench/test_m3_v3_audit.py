@@ -37,6 +37,7 @@ def test_v3_gate_rejects_the_v2_29_of_30_accountability_threshold() -> None:
         _summary(accountable=29),
         lane_results=_lane_results(accountable=14),
         schema_version=3,
+        complete_provenance_attempts=29,
     )
 
     assert criteria["eventual_accountability"] == {
@@ -45,6 +46,11 @@ def test_v3_gate_rejects_the_v2_29_of_30_accountability_threshold() -> None:
         "required_minimum": 30,
     }
     assert criteria["m3_overall"] == {"status": "failed"}
+    assert criteria["complete_execution_provenance"] == {
+        "status": "failed",
+        "actual": 29,
+        "required": 30,
+    }
 
 
 def test_v3_gate_requires_all_15_controls_and_all_15_defects() -> None:
@@ -52,6 +58,7 @@ def test_v3_gate_requires_all_15_controls_and_all_15_defects() -> None:
         _summary(accountable=30),
         lane_results=_lane_results(accountable=15),
         schema_version=3,
+        complete_provenance_attempts=30,
     )
 
     assert criteria["eventual_accountability"]["status"] == "passed"

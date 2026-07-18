@@ -23,6 +23,10 @@ from aiverify.bench.m3_reliability import (
 )
 from aiverify.bench.run_record_checksums import verify_manifest
 from aiverify.runner.run_spec import load_run_spec
+from aiverify.runner.execution_identity import (
+    ExecutionIdentityError,
+    verify_execution_provenance,
+)
 
 _LANE_ROLES = frozenset({"baseline", "defect"})
 _ORACLE_LEVELS = frozenset({"L1", "L2", "L3"})
@@ -85,6 +89,7 @@ def build_audited_report(
         for level in sorted(_ORACLE_LEVELS)
     }
     formal_attempts = 0
+    complete_provenance_attempts = 0
     package_attempts: Counter[Path] = Counter()
 
     for lane in manifest.lanes:
@@ -126,29 +131,37 @@ def build_audited_report(
             package_attempts[package] += 1
             loaded.append(verdict)
             if is_rebaseline:
+                provenance_status = _attempt_provenance_status(
+                    attempt_dir,
+                    metadata=metadata,
+                    lane=lane,
+                )
+                if provenance_status == "verified":
+                    complete_provenance_attempts += 1
                 attempt_failure_class = (
                     None if is_accountable(verdict) else failure_class(verdict)
                 )
-                attempt_lineage.append(
-                    {
-                        "attempt_number": number,
-                        "path": _stable_evidence_path(attempt_dir),
-                        "started_at": metadata["started_at"],
-                        "finished_at": metadata["finished_at"],
-                        "runner_exit_code": metadata["runner_exit_code"],
-                        "operational_interventions": metadata.get(
-                            "operational_interventions", []
-                        ),
-                        "gate_status": gate_status,
-                        "device": gate_device,
-                        "execution_status": verdict["execution"]["status"],
-                        "accountable": is_accountable(verdict),
-                        "failure_class": attempt_failure_class,
-                        "total_seconds": verdict["timing"]["total_seconds"],
-                        "judge_seconds": _attempt_judge_seconds(verdict),
-                        "checksum_status": "verified",
-                    }
-                )
+                lineage_row = {
+                    "attempt_number": number,
+                    "path": _stable_evidence_path(attempt_dir),
+                    "started_at": metadata["started_at"],
+                    "finished_at": metadata["finished_at"],
+                    "runner_exit_code": metadata["runner_exit_code"],
+                    "operational_interventions": metadata.get(
+                        "operational_interventions", []
+                    ),
+                    "gate_status": gate_status,
+                    "device": gate_device,
+                    "execution_status": verdict["execution"]["status"],
+                    "accountable": is_accountable(verdict),
+                    "failure_class": attempt_failure_class,
+                    "total_seconds": verdict["timing"]["total_seconds"],
+                    "judge_seconds": _attempt_judge_seconds(verdict),
+                    "checksum_status": "verified",
+                }
+                if manifest.schema_version >= 3:
+                    lineage_row["execution_provenance_status"] = provenance_status
+                attempt_lineage.append(lineage_row)
 
         eventual = loaded[-1]
         accountable = is_accountable(eventual)
@@ -203,6 +216,7 @@ def build_audited_report(
         summary,
         lane_results=lane_results,
         schema_version=manifest.schema_version,
+        complete_provenance_attempts=complete_provenance_attempts,
     )
     inventory = {
         "selected_seeds": len({lane.seed_id for lane in manifest.lanes}),
@@ -300,7 +314,11 @@ def audited_report_to_dict(report: AuditedReliabilityReport) -> dict:
 
 
 def _build_criteria(
-    summary: ReliabilitySummary, *, lane_results: list[dict], schema_version: int
+    summary: ReliabilitySummary,
+    *,
+    lane_results: list[dict],
+    schema_version: int,
+    complete_provenance_attempts: int = 0,
 ) -> dict[str, dict]:
     false_positives = summary.control_outcomes.get("false_positive", 0)
     accountable_defects = sum(
@@ -338,6 +356,15 @@ def _build_criteria(
             "status": "passed" if passed_controls == 15 else "failed",
             "actual": passed_controls,
             "required": 15,
+        }
+        criteria["complete_execution_provenance"] = {
+            "status": (
+                "passed"
+                if complete_provenance_attempts == summary.planned_lanes
+                else "failed"
+            ),
+            "actual": complete_provenance_attempts,
+            "required": summary.planned_lanes,
         }
     criteria["m3_overall"] = {
         "status": (
@@ -649,6 +676,35 @@ def _attempt_judge_seconds(verdict: dict) -> float:
         ),
         3,
     )
+
+
+def _attempt_provenance_status(
+    attempt_dir: Path, *, metadata: dict, lane: ReliabilityLane
+) -> str:
+    """Return verified/missing while still rejecting any retained tampering."""
+    if metadata["schema_version"] < 3:
+        return "not_required"
+    execution_record = _load_json(
+        attempt_dir / "execution-record.json",
+        label=f"ExecutionRecord for {lane.lane_id}",
+    )
+    reference = execution_record.get("evidence_refs", {}).get(
+        "execution_provenance"
+    )
+    if reference is None:
+        return "missing"
+    try:
+        verify_execution_provenance(
+            reference,
+            attempt_id=metadata["attempt_id"],
+            scenario=lane.seed_id,
+            base_dir=attempt_dir,
+        )
+    except ExecutionIdentityError as error:
+        raise ValueError(
+            f"lane {lane.lane_id} execution provenance is invalid: {error}"
+        ) from error
+    return "verified"
 
 
 def _package_execution_identities(
@@ -1156,6 +1212,10 @@ def _render_v3_markdown(report: AuditedReliabilityReport) -> str:
         f"{criteria['accountable_defect_consistency']['status'].upper()}** | "
         f"{criteria['accountable_defect_consistency']['actual']} / 15 caught "
         "at expected oracle/class |",
+        "| Complete execution provenance | **"
+        f"{criteria['complete_execution_provenance']['status'].upper()}** | "
+        f"{criteria['complete_execution_provenance']['actual']} / "
+        f"{criteria['complete_execution_provenance']['required']} attempts |",
         "",
         "Original, v2, and v3 remain three distinct 30-lane populations. "
         "Their denominators are never merged and no historical lane is replaced.",
@@ -1189,8 +1249,8 @@ def _render_v3_markdown(report: AuditedReliabilityReport) -> str:
             "",
             "## V3 Lane and Attempt Lineage",
             "",
-            "| Lane | Role | Oracle | Attempt | Accountable | Outcome | Checksum |",
-            "|---|---|---|---:|---|---|---|",
+            "| Lane | Role | Oracle | Attempt | Accountable | Outcome | Provenance | Checksum |",
+            "|---|---|---|---:|---|---|---|---|",
         ]
     )
     for row in report.lane_results:
@@ -1199,6 +1259,7 @@ def _render_v3_markdown(report: AuditedReliabilityReport) -> str:
                 f"| `{row['lane_id']}` | {row['role']} | "
                 f"{row['expected_oracle_level']} | {attempt['attempt_number']} | "
                 f"{str(attempt['accountable']).lower()} | {row['outcome']} | "
+                f"{attempt['execution_provenance_status']} | "
                 f"{attempt['checksum_status']} |"
             )
     coverage = report.execution_identity["identity_coverage"]
@@ -1582,6 +1643,12 @@ def _failed_criterion_reasons(report: AuditedReliabilityReport) -> list[str]:
         reasons.append(
             "passed baseline controls "
             f"({controls['actual']} / {controls['required']})"
+        )
+    provenance = criteria.get("complete_execution_provenance")
+    if provenance is not None and provenance["status"] == "failed":
+        reasons.append(
+            "complete execution provenance "
+            f"({provenance['actual']} / {provenance['required']})"
         )
     defects = criteria["accountable_defect_consistency"]
     if defects["status"] == "failed":
