@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import hashlib
+import os
+import re
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import yaml
 
@@ -127,6 +129,17 @@ class DryRunPlan:
 
 
 @dataclass(frozen=True)
+class HostProjectLocator:
+    """Portable declaration and one execution's resolved host binding."""
+
+    root: str
+    resolution: str
+    resolved_path: Path
+    expected_origin: str
+    expected_commit: str
+
+
+@dataclass(frozen=True)
 class RunSpec:
     """Single-file input contract for one reproducible verification run."""
 
@@ -137,6 +150,7 @@ class RunSpec:
     diff: Path | None
     spec: Path | None
     scenario: ScenarioSpec
+    host_locator: HostProjectLocator | None = None
     live_validation: LiveValidationSpec = field(default_factory=LiveValidationSpec)
     source_path: Path | None = None
     source_sha256: str | None = None
@@ -160,7 +174,12 @@ class RunSpec:
         return DryRunPlan(run_id=run_id, artifact_dir=artifact_dir, actions=actions)
 
 
-def load_run_spec(path: str | Path) -> RunSpec:
+def load_run_spec(
+    path: str | Path,
+    *,
+    environ: Mapping[str, str] | None = None,
+    host_project_override: str | Path | None = None,
+) -> RunSpec:
     """Load and validate a Run Spec YAML file."""
     src = Path(path).resolve()
     try:
@@ -171,20 +190,36 @@ def load_run_spec(path: str | Path) -> RunSpec:
     except yaml.YAMLError as exc:
         raise RunSpecError(f"Run Spec YAML 解析失败：{exc}") from exc
     return replace(
-        parse_run_spec(data, base_dir=src.parent),
+        parse_run_spec(
+            data,
+            base_dir=src.parent,
+            environ=environ,
+            host_project_override=host_project_override,
+        ),
         source_path=src,
         source_sha256=hashlib.sha256(source_bytes).hexdigest(),
     )
 
 
-def parse_run_spec(data: object, *, base_dir: Path | None = None) -> RunSpec:
+def parse_run_spec(
+    data: object,
+    *,
+    base_dir: Path | None = None,
+    environ: Mapping[str, str] | None = None,
+    host_project_override: str | Path | None = None,
+) -> RunSpec:
     """Parse and validate a Run Spec mapping."""
     if base_dir is None:
         base_dir = Path.cwd()
     if not isinstance(data, dict):
         raise RunSpecError("Run Spec 顶层必须是映射")
 
-    host_project = _required_str(data, "host_project")
+    host_project, host_locator = _parse_host_project(
+        data.get("host_project"),
+        base_dir=base_dir,
+        environ=os.environ if environ is None else environ,
+        override=host_project_override,
+    )
     apk_glob = _required_str(data, "apk_glob")
     package = _required_str(data, "package")
     activity = _optional_str(data, "activity")
@@ -210,7 +245,78 @@ def parse_run_spec(data: object, *, base_dir: Path | None = None) -> RunSpec:
         diff=diff,
         spec=spec,
         scenario=scenario,
+        host_locator=host_locator,
         live_validation=live_validation,
+    )
+
+
+_HOST_ENV_LOCATOR = re.compile(r"\$\{([A-Z][A-Z0-9_]*)\}")
+
+
+def _parse_host_project(
+    raw: object,
+    *,
+    base_dir: Path,
+    environ: Mapping[str, str],
+    override: str | Path | None,
+) -> tuple[Path, HostProjectLocator | None]:
+    if isinstance(raw, str) and raw.strip():
+        if override is not None:
+            raise RunSpecError(
+                "host_project override requires a structured portable locator"
+            )
+        return _resolve_path(raw, base_dir=base_dir), None
+    if not isinstance(raw, dict):
+        raise RunSpecError("字段 host_project 必须是路径字符串或 portable locator")
+
+    root = _required_str(raw, "root")
+    origin = _required_str(raw, "origin")
+    commit = _required_str(raw, "commit")
+    match = _HOST_ENV_LOCATOR.fullmatch(root)
+    if match is None:
+        raise RunSpecError(
+            "portable host_project.root 必须是 ${UPPER_CASE_VARIABLE}"
+        )
+    if re.fullmatch(r"[0-9a-fA-F]{40}", commit) is None:
+        raise RunSpecError("portable host_project.commit 必须是 40 位 Git commit")
+
+    variable = match.group(1)
+    if override is not None:
+        override_path = Path(override).expanduser()
+        if not override_path.is_absolute():
+            raise RunSpecError(
+                "portable host_project override must be an absolute path"
+            )
+        resolved = override_path.resolve()
+        declared_environment = environ.get(variable)
+        if declared_environment:
+            environment_path = Path(declared_environment).expanduser()
+            if not environment_path.is_absolute():
+                raise RunSpecError(
+                    f"portable host locator must resolve to an absolute path: {variable}"
+                )
+            if environment_path.resolve() != resolved:
+                raise RunSpecError(
+                    f"portable host_project override contradicts environment: {variable}"
+                )
+        resolution = "override"
+    else:
+        value = environ.get(variable)
+        if not value:
+            raise RunSpecError(f"portable host locator environment is missing: {variable}")
+        resolved = Path(value).expanduser()
+        if not resolved.is_absolute():
+            raise RunSpecError(
+                f"portable host locator must resolve to an absolute path: {variable}"
+            )
+        resolved = resolved.resolve()
+        resolution = "environment"
+    return resolved, HostProjectLocator(
+        root=root,
+        resolution=resolution,
+        resolved_path=resolved,
+        expected_origin=origin,
+        expected_commit=commit.lower(),
     )
 
 

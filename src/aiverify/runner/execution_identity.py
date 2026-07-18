@@ -93,6 +93,15 @@ class ExecutionIdentityCollector:
             "package": self.spec.package,
             "activity": self.spec.activity,
         }
+        if self.spec.host_locator is not None:
+            locator = self.spec.host_locator
+            run_spec["host_locator"] = {
+                "root": locator.root,
+                "resolution": locator.resolution,
+                "resolved_path": str(locator.resolved_path),
+                "expected_origin": locator.expected_origin,
+                "expected_commit": locator.expected_commit,
+            }
         run_spec["identity_sha256"] = _identity_sha256(run_spec)
         self._static = {
             "run_spec": run_spec,
@@ -392,6 +401,18 @@ class ExecutionIdentityCollector:
             )
         if not origin or not _is_sha1(commit):
             raise ExecutionIdentityError("git origin or commit identity is unavailable")
+        if self.spec.host_locator is not None and (
+            origin != self.spec.host_locator.expected_origin
+        ):
+            raise ExecutionIdentityError(
+                "host origin contradicts portable Run Spec locator"
+            )
+        if self.spec.host_locator is not None and (
+            commit != self.spec.host_locator.expected_commit
+        ):
+            raise ExecutionIdentityError(
+                "host commit contradicts portable Run Spec locator"
+            )
         return {
             "repository_root": str(root),
             "origin": origin,
@@ -600,6 +621,14 @@ def verify_execution_provenance(
     _validate_host_identity(payload.get("host"), evidence_root=evidence_root)
     if payload["host"]["repository_root"] != payload["run_spec"]["host_project"]:
         raise ExecutionIdentityError("host root contradicts the consumed Run Spec")
+    locator = payload["run_spec"].get("host_locator")
+    if locator is not None and (
+        payload["host"]["origin"] != locator["expected_origin"]
+        or payload["host"]["commit"] != locator["expected_commit"]
+    ):
+        raise ExecutionIdentityError(
+            "host repository identity contradicts the consumed Run Spec locator"
+        )
     local_hashes = _validate_apk_identity(payload.get("apk"))
     host_root = Path(payload["host"]["repository_root"])
     for artifact in payload["apk"]["artifacts"]:
@@ -666,10 +695,35 @@ def _validate_run_spec_identity(
     invocation_path = Path(value["invocation_path"])
     if not invocation_path.is_absolute():
         raise ExecutionIdentityError("Run Spec invocation path is not absolute")
+    locator = value.get("host_locator")
+    if locator is not None:
+        if (
+            not isinstance(locator, dict)
+            or set(locator)
+            != {
+                "root",
+                "resolution",
+                "resolved_path",
+                "expected_origin",
+                "expected_commit",
+            }
+            or not isinstance(locator.get("root"), str)
+            or locator.get("resolution") not in {"environment", "override"}
+            or locator.get("resolved_path") != value["host_project"]
+            or not isinstance(locator.get("expected_origin"), str)
+            or not locator["expected_origin"]
+            or not _is_sha1(locator.get("expected_commit"))
+        ):
+            raise ExecutionIdentityError("portable host locator identity is invalid")
     try:
         snapshot_data = yaml.safe_load(snapshot.read_text(encoding="utf-8"))
         snapshot_spec = parse_run_spec(
-            snapshot_data, base_dir=invocation_path.parent
+            snapshot_data,
+            base_dir=invocation_path.parent,
+            environ={},
+            host_project_override=(
+                Path(value["host_project"]) if locator is not None else None
+            ),
         )
     except (OSError, UnicodeDecodeError, yaml.YAMLError, RunSpecError) as error:
         raise ExecutionIdentityError(
@@ -684,6 +738,16 @@ def _validate_run_spec_identity(
     }
     if any(value.get(key) != expected_value for key, expected_value in expected.items()):
         raise ExecutionIdentityError("Run Spec snapshot contradicts captured identity")
+    if locator is not None and locator != {
+        "root": snapshot_spec.host_locator.root,
+        "resolution": locator["resolution"],
+        "resolved_path": str(snapshot_spec.host_locator.resolved_path),
+        "expected_origin": snapshot_spec.host_locator.expected_origin,
+        "expected_commit": snapshot_spec.host_locator.expected_commit,
+    }:
+        raise ExecutionIdentityError(
+            "Run Spec snapshot contradicts portable host locator identity"
+        )
     if value.get("identity_sha256") != _identity_sha256(value):
         raise ExecutionIdentityError("Run Spec identity checksum mismatch")
 

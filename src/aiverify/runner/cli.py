@@ -1240,19 +1240,35 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("run_spec", help="Path to a run-spec.yaml")
     ap.add_argument("--device", required=True, help="adb device serial, e.g. emulator-5554")
     ap.add_argument("--artifact-dir", required=True, type=Path, help="Directory for evidence checkpoints")
-    ap.add_argument("--workdir", type=Path, default=Path.cwd(), help="Codex --cd working directory")
+    ap.add_argument(
+        "--host-project",
+        type=Path,
+        help="Resolve a structured portable host locator to this repository root",
+    )
+    ap.add_argument(
+        "--workdir",
+        type=Path,
+        default=None,
+        help="Codex --cd working directory (defaults to the resolved host project)",
+    )
     ap.add_argument("--no-launch", action="store_true", help="Do not launch the app first")
     ap.add_argument("--model", default=None, help="Override Codex model")
     ap.add_argument("--l3-model", default=None, help="Override Codex model for the L3 judge")
     args = ap.parse_args(argv)
 
-    spec = load_run_spec(args.run_spec)
+    load_kwargs = (
+        {"host_project_override": args.host_project}
+        if args.host_project is not None
+        else {}
+    )
+    spec = load_run_spec(args.run_spec, **load_kwargs)
+    workdir = args.workdir if args.workdir is not None else spec.host_project
     try:
         verdict = run(
             spec,
             device=args.device,
             artifact_dir=args.artifact_dir,
-            workdir=args.workdir,
+            workdir=workdir,
             launch=not args.no_launch,
             model=args.model,
             l3_model=args.l3_model,

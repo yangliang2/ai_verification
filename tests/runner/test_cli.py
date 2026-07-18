@@ -1738,7 +1738,7 @@ def test_record_finalization_failure_leaves_original_nonterminal_record(
 def test_main_returns_nonzero_when_execution_record_storage_fails(
     tmp_path, monkeypatch, capsys
 ):
-    monkeypatch.setattr(cli, "load_run_spec", lambda path: object())
+    monkeypatch.setattr(cli, "load_run_spec", lambda path: _spec(tmp_path, ""))
     monkeypatch.setattr(
         cli,
         "run",
@@ -1759,6 +1759,49 @@ def test_main_returns_nonzero_when_execution_record_storage_fails(
 
     assert status == 2
     assert "ExecutionRecord storage failed: record fsync failed" in capsys.readouterr().err
+
+
+def test_main_resolves_portable_host_override_and_defaults_workdir_to_it(
+    tmp_path, monkeypatch
+):
+    host = tmp_path / "wikipedia"
+    spec = _spec(host, l3_spec="")
+    captured: dict[str, object] = {}
+
+    def fake_load(path, *, host_project_override=None):
+        captured["load_path"] = path
+        captured["host_project_override"] = host_project_override
+        return spec
+
+    def fake_run(loaded_spec, **kwargs):
+        captured["run_spec"] = loaded_spec
+        captured.update(kwargs)
+        return {
+            "scenario": "portable-host",
+            "execution": {"status": "completed"},
+            "l1": {"outcome": "pass", "defect_class_hypothesis": None},
+            "l2": {"outcome": "pass", "defect_class_hypothesis": None},
+            "l3": None,
+        }
+
+    monkeypatch.setattr(cli, "load_run_spec", fake_load)
+    monkeypatch.setattr(cli, "run", fake_run)
+
+    status = cli.main(
+        [
+            "run-spec.yaml",
+            "--device",
+            "emulator-5554",
+            "--artifact-dir",
+            str(tmp_path / "artifacts"),
+            "--host-project",
+            str(host),
+        ]
+    )
+
+    assert status == 0
+    assert captured["host_project_override"] == host
+    assert captured["workdir"] == host
 
 
 def test_app_smoke_preflight_uses_explicit_run_spec_configuration(tmp_path, monkeypatch):
@@ -1826,7 +1869,7 @@ def test_app_smoke_preflight_uses_explicit_run_spec_configuration(tmp_path, monk
 
 
 def test_main_returns_distinct_status_for_non_accountable_run(tmp_path, monkeypatch):
-    monkeypatch.setattr(cli, "load_run_spec", lambda path: object())
+    monkeypatch.setattr(cli, "load_run_spec", lambda path: _spec(tmp_path, ""))
     monkeypatch.setattr(
         cli,
         "run",

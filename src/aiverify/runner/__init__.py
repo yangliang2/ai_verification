@@ -18,6 +18,7 @@ from aiverify.runner.journey import (
 from aiverify.runner.run_spec import (
     AssertionSpec,
     DryRunPlan,
+    HostProjectLocator,
     RunSpec,
     RunSpecError,
     ScenarioSpec,
@@ -40,6 +41,7 @@ __all__ = [
     "DryRunPlan",
     "DeviceSystemEventInjector",
     "EvidenceCheckpoint",
+    "HostProjectLocator",
     "JourneyExecutionRequest",
     "JourneyExecutionResult",
     "JourneySegment",

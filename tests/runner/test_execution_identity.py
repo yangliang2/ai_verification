@@ -5,6 +5,7 @@ import json
 import shutil
 import subprocess
 from copy import deepcopy
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -214,9 +215,13 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
     split_apk = apk_dir / "split_config.apk"
     base_apk.write_bytes(b"base apk")
     split_apk.write_bytes(b"split apk")
+    host_commit = _git(["rev-parse", "HEAD"], cwd=host)
     run_spec_path = tmp_path / "run-spec.yaml"
     run_spec_path.write_text(
-        "host_project: host\n"
+        "host_project:\n"
+        "  root: ${WIKIPEDIA_SOURCE}\n"
+        "  origin: https://example.invalid/upstream.git\n"
+        f"  commit: {host_commit}\n"
         "apk_glob: apks/*.apk\n"
         "package: org.example.app\n"
         "activity: org.example.MainActivity\n"
@@ -226,7 +231,10 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
         "    - Inspect the current screen\n",
         encoding="utf-8",
     )
-    spec = load_run_spec(run_spec_path)
+    spec = load_run_spec(
+        run_spec_path,
+        environ={"WIKIPEDIA_SOURCE": str(host)},
+    )
 
     binaries: dict[str, Path] = {}
     for name in ("android", "adb", "codex"):
@@ -245,6 +253,37 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
         binaries=binaries,
         installed_hashes=installed_hashes,
     )
+    for locator, message in (
+        (
+            replace(
+                spec.host_locator,
+                expected_origin="https://evil.invalid/fork.git",
+            ),
+            "host origin",
+        ),
+        (replace(spec.host_locator, expected_commit="b" * 40), "host commit"),
+    ):
+        contradicted = ExecutionIdentityCollector(
+            run_dir=tmp_path / f"contradicted-{message.replace(' ', '-')}",
+            artifact_dir=tmp_path
+            / f"contradicted-{message.replace(' ', '-')}"
+            / "artifacts",
+            attempt_id=f"contradicted-{message.replace(' ', '-')}",
+            spec=replace(spec, host_locator=locator),
+            run_spec_path=run_spec_path,
+            workdir=host,
+            device="emulator-5554",
+            requested_driver_model="gpt-5.1-codex",
+            requested_l3_model=None,
+            command_runner=command_runner,
+            android_bin=str(binaries["android"]),
+            adb_bin=str(binaries["adb"]),
+            codex_bin=str(binaries["codex"]),
+            git_bin=str(git_bin),
+        )
+        with pytest.raises(ExecutionIdentityError, match=message):
+            contradicted.capture_static()
+
     run_dir = tmp_path / "run"
     artifact_dir = run_dir / "artifacts"
     collector = ExecutionIdentityCollector(
@@ -299,6 +338,13 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
     assert provenance["run_spec"]["snapshot_sha256"] == _sha256(
         run_dir / provenance["run_spec"]["snapshot_path"]
     )
+    assert provenance["run_spec"]["host_locator"] == {
+        "root": "${WIKIPEDIA_SOURCE}",
+        "resolution": "environment",
+        "resolved_path": str(host),
+        "expected_origin": "https://example.invalid/upstream.git",
+        "expected_commit": host_commit,
+    }
     assert provenance["host"]["origin"] == "https://example.invalid/upstream.git"
     assert provenance["host"]["commit"] == _git(["rev-parse", "HEAD"], cwd=host)
     assert provenance["host"]["worktree"]["clean"] is True
@@ -369,6 +415,24 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
     tampered = deepcopy(provenance)
     tampered["run_spec"]["consumed_sha256"] = "c" * 64
     rejected("run-spec-drift", tampered, "consumed and snapshot checksums differ")
+
+    tampered = deepcopy(provenance)
+    tampered["run_spec"]["host_locator"]["expected_origin"] = (
+        "https://evil.invalid/fork.git"
+    )
+    run_spec_identity = {
+        key: value
+        for key, value in tampered["run_spec"].items()
+        if key != "identity_sha256"
+    }
+    tampered["run_spec"]["identity_sha256"] = hashlib.sha256(
+        json.dumps(
+            run_spec_identity,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    rejected("portable-host-locator", tampered, "portable host locator identity")
 
     tampered = deepcopy(provenance)
     tampered["apk"]["artifacts"].append(

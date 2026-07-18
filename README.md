@@ -116,6 +116,34 @@ adb devices
 把一份 run-spec 从头跑到 verdict，无需手动驱动：Codex CLI 作为 Verification Agent
 Backend 驱动应用，runner 注入行为层事件并采证据，oracle 判定：
 
+新的 Run Spec 应使用可移植 host locator，而不是冻结某台机器的绝对路径：
+
+```yaml
+host_project:
+  root: ${WIKIPEDIA_SOURCE}
+  origin: https://github.com/wikimedia/apps-android-wikipedia
+  commit: 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b
+```
+
+运行时可以设置 locator 声明的环境变量，或使用显式 CLI override：
+
+```bash
+WIKIPEDIA_SOURCE=/Users/me/hosts/wikipedia \
+  PYTHONPATH=src python -m aiverify.runner run-spec.yaml \
+  --device emulator-5554 \
+  --artifact-dir docs/runs/<slug>/artifacts
+
+PYTHONPATH=src python -m aiverify.runner run-spec.yaml \
+  --host-project /Users/me/hosts/wikipedia \
+  --device emulator-5554 \
+  --artifact-dir docs/runs/<slug>/artifacts
+```
+
+locator 会同时冻结预期 Git origin 和 commit。runner 在部署前校验实际仓库身份，
+并在 Effective Execution Identity 中保留 locator、解析来源和本机绝对路径。若环境
+变量缺失、CLI override 与环境冲突、或仓库身份不一致，执行会 fail closed。旧的
+字符串 `host_project` 仅为历史 Run Spec 和证据重放继续兼容。
+
 ```bash
 PYTHONPATH=src python -m aiverify.runner \
   bench/goldset/run-specs/wikipedia-config-change-01-defect.yaml \

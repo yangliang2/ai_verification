@@ -42,6 +42,82 @@ def test_parse_valid_run_spec_normalizes_paths(tmp_path: Path) -> None:
     assert spec.scenario.metric_context.seed_kind == "unspecified"
 
 
+def test_portable_host_locator_resolves_from_environment_or_explicit_override(
+    tmp_path: Path,
+) -> None:
+    run_spec_path = tmp_path / "run-spec.yaml"
+    run_spec_path.write_text(
+        "host_project:\n"
+        "  root: ${WIKIPEDIA_SOURCE}\n"
+        "  origin: https://example.invalid/wikipedia.git\n"
+        f"  commit: {'a' * 40}\n"
+        "apk_glob: app/build/**/*.apk\n"
+        "package: org.wikipedia.dev\n"
+        "scenario:\n"
+        "  id: portable-host\n",
+        encoding="utf-8",
+    )
+    first_host = tmp_path / "machine-a" / "wikipedia"
+    second_host = tmp_path / "machine-b" / "wikipedia"
+
+    from_environment = load_run_spec(
+        run_spec_path,
+        environ={"WIKIPEDIA_SOURCE": str(first_host)},
+    )
+    from_override = load_run_spec(
+        run_spec_path,
+        environ={},
+        host_project_override=second_host,
+    )
+
+    assert from_environment.host_project == first_host
+    assert from_override.host_project == second_host
+    assert from_environment.host_locator is not None
+    assert from_override.host_locator is not None
+    assert from_environment.host_locator.root == "${WIKIPEDIA_SOURCE}"
+    assert from_environment.host_locator.resolution == "environment"
+    assert from_override.host_locator.resolution == "override"
+    assert from_environment.host_locator.expected_origin == (
+        "https://example.invalid/wikipedia.git"
+    )
+    assert from_environment.host_locator.expected_commit == "a" * 40
+    assert from_environment.source_sha256 == from_override.source_sha256
+
+
+def test_portable_host_locator_fails_closed_on_missing_relative_or_conflicting_root(
+    tmp_path: Path,
+) -> None:
+    data = _valid_spec()
+    data["host_project"] = {
+        "root": "${WIKIPEDIA_SOURCE}",
+        "origin": "https://example.invalid/wikipedia.git",
+        "commit": "a" * 40,
+    }
+
+    with pytest.raises(RunSpecError, match="environment is missing"):
+        parse_run_spec(data, base_dir=tmp_path, environ={})
+    with pytest.raises(RunSpecError, match="absolute path"):
+        parse_run_spec(
+            data,
+            base_dir=tmp_path,
+            environ={"WIKIPEDIA_SOURCE": "relative/wikipedia"},
+        )
+    with pytest.raises(RunSpecError, match="override must be an absolute path"):
+        parse_run_spec(
+            data,
+            base_dir=tmp_path,
+            environ={},
+            host_project_override="relative/wikipedia",
+        )
+    with pytest.raises(RunSpecError, match="contradicts environment"):
+        parse_run_spec(
+            data,
+            base_dir=tmp_path,
+            environ={"WIKIPEDIA_SOURCE": str(tmp_path / "from-env")},
+            host_project_override=tmp_path / "from-cli",
+        )
+
+
 def test_parse_run_spec_metric_context(tmp_path: Path) -> None:
     data = _valid_spec()
     data["scenario"]["metric_context"] = {
