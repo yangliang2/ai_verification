@@ -11,9 +11,11 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
+import yaml
+
 from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
 from aiverify.runner.execution_record import write_bytes_artifact, write_json_artifact
-from aiverify.runner.run_spec import RunSpec, load_run_spec
+from aiverify.runner.run_spec import RunSpec, RunSpecError, parse_run_spec
 
 
 class ExecutionIdentityError(RuntimeError):
@@ -661,7 +663,18 @@ def _validate_run_spec_identity(
         raise ExecutionIdentityError("Run Spec snapshot checksum mismatch")
     if value["consumed_sha256"] != value["snapshot_sha256"]:
         raise ExecutionIdentityError("Run Spec consumed and snapshot checksums differ")
-    snapshot_spec = load_run_spec(snapshot)
+    invocation_path = Path(value["invocation_path"])
+    if not invocation_path.is_absolute():
+        raise ExecutionIdentityError("Run Spec invocation path is not absolute")
+    try:
+        snapshot_data = yaml.safe_load(snapshot.read_text(encoding="utf-8"))
+        snapshot_spec = parse_run_spec(
+            snapshot_data, base_dir=invocation_path.parent
+        )
+    except (OSError, UnicodeDecodeError, yaml.YAMLError, RunSpecError) as error:
+        raise ExecutionIdentityError(
+            f"Run Spec snapshot cannot be parsed: {error}"
+        ) from error
     expected = {
         "scenario": snapshot_spec.scenario.id,
         "host_project": str(snapshot_spec.host_project.resolve()),

@@ -16,14 +16,23 @@
   统一 fail closed 为 `system_event_error`；前后台事件以有界 resumed-activity
   轮询确认状态，runner setup 的 adb 非零退出同样不可进入 Journey；M3 新
   attempt 以记录为权威并强制全局唯一 ID，历史 schema-v1 evidence 保持兼容
-  且不可变。#61（effective identity/provenance）是下一依赖，完成后才能执行
-  #62 fresh immutable v3 30-lane audit。
+  且不可变。#61 也已完成：accountable attempt 现在 checksum-bind consumed
+  Run Spec、host commit/worktree、完整 APK/安装态、deployment/device/tool 以及
+  每个 agent role 的 requested/effective model；pre-agent/final drift、缺失身份、
+  cwd/model/deployment 矛盾和篡改全部 fail closed。历史 v1/v2 包不回填，fresh
+  v3 manifest 强制 schema-v2 ExecutionRecord。#62 fresh immutable v3 30-lane
+  audit 是下一 issue。
 - #60 durable run record：
   [`docs/runs/2026-07-17-issue-60-execution-record-system-event/README.md`](docs/runs/2026-07-17-issue-60-execution-record-system-event/README.md)。
   API 35 公共 seam 实测 rotate success（exit 0）与 forced permission failure
   （adb 255 → `system_event_error`, exit 2, pre-event evidence only, no oracle
   accounting），另实测 Wikipedia → Launcher → Wikipedia 的前后台 postcondition
   轮询，并保留每次 retry 的独立 attempt identity。
+- #61 durable run record：
+  [`docs/runs/2026-07-17-issue-61-effective-execution-identity/README.md`](docs/runs/2026-07-17-issue-61-effective-execution-identity/README.md)。
+  API 35 公共 runner 最终 attempt exit 0；requested/effective driver model 均为
+  `gpt-5.6-sol`，local/installed APK SHA-256 一致，40 项 checksum inventory 与
+  4 维 recomputed-checksum mutation audit 全部通过。
 - 原 M3 报告工作完成，但 milestone criterion 本身因 27/30 accountability
   未达到 29/30 而明确失败；该历史 evidence package 保持不可变。
 - #49 已加固 ANR evidence capture，#50 已加固 Journey action lineage，#51

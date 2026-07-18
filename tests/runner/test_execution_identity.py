@@ -216,7 +216,7 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
     split_apk.write_bytes(b"split apk")
     run_spec_path = tmp_path / "run-spec.yaml"
     run_spec_path.write_text(
-        f"host_project: {host}\n"
+        "host_project: host\n"
         "apk_glob: apks/*.apk\n"
         "package: org.example.app\n"
         "activity: org.example.MainActivity\n"
