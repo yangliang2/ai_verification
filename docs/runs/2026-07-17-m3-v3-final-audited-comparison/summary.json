@@ -6,14 +6,14 @@
     "lane_roles": 2,
     "repetitions_per_role": 3,
     "planned_lanes": 30,
-    "formal_attempts": 30,
+    "formal_attempts": 54,
     "evidence_packages": 5
   },
   "summary": {
     "planned_lanes": 30,
     "first_attempt_accountable": 6,
     "eventual_accountable": 6,
-    "retry_count": 0,
+    "retry_count": 24,
     "control_outcomes": {
       "passed_control": 3
     },
@@ -21,11 +21,11 @@
       "caught": 3
     },
     "failure_classes": {
-      "execution_identity": 24
+      "execution_identity": 48
     },
-    "total_seconds": 588.669,
+    "total_seconds": 588.695,
     "judge_seconds": 0.0,
-    "operational_interventions": 0
+    "operational_interventions": 24
   },
   "criteria": {
     "eventual_accountability": {
@@ -51,7 +51,7 @@
     "complete_execution_provenance": {
       "status": "failed",
       "actual": 6,
-      "required": 30
+      "required": 54
     },
     "m3_overall": {
       "status": "failed"
@@ -304,7 +304,7 @@
       "repetition": 1,
       "expected_oracle_level": "L1",
       "expected_oracle_defect_class": "crash_stability",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -330,6 +330,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-1/attempt-2",
+          "started_at": "2026-07-18T04:01:56+00:00",
+          "finished_at": "2026-07-18T04:01:56+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -340,7 +359,7 @@
       "repetition": 2,
       "expected_oracle_level": "L1",
       "expected_oracle_defect_class": "crash_stability",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -366,6 +385,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-2/attempt-2",
+          "started_at": "2026-07-18T04:01:58+00:00",
+          "finished_at": "2026-07-18T04:01:58+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -376,7 +414,7 @@
       "repetition": 3,
       "expected_oracle_level": "L1",
       "expected_oracle_defect_class": "crash_stability",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -402,6 +440,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-baseline-3/attempt-2",
+          "started_at": "2026-07-18T04:02:00+00:00",
+          "finished_at": "2026-07-18T04:02:00+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -412,7 +469,7 @@
       "repetition": 1,
       "expected_oracle_level": "L1",
       "expected_oracle_defect_class": "crash_stability",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -438,6 +495,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-defect-1/attempt-2",
+          "started_at": "2026-07-18T04:02:04+00:00",
+          "finished_at": "2026-07-18T04:02:04+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -448,7 +524,7 @@
       "repetition": 2,
       "expected_oracle_level": "L1",
       "expected_oracle_defect_class": "crash_stability",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -474,6 +550,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-defect-2/attempt-2",
+          "started_at": "2026-07-18T04:02:06+00:00",
+          "finished_at": "2026-07-18T04:02:06+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -484,7 +579,7 @@
       "repetition": 3,
       "expected_oracle_level": "L1",
       "expected_oracle_defect_class": "crash_stability",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -510,6 +605,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability/lanes/v3-oversized-state-defect-3/attempt-2",
+          "started_at": "2026-07-18T04:02:07+00:00",
+          "finished_at": "2026-07-18T04:02:07+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -520,7 +634,7 @@
       "repetition": 1,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -546,6 +660,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-1/attempt-2",
+          "started_at": "2026-07-18T04:02:11+00:00",
+          "finished_at": "2026-07-18T04:02:11+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -556,7 +689,7 @@
       "repetition": 2,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -582,6 +715,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-2/attempt-2",
+          "started_at": "2026-07-18T04:02:13+00:00",
+          "finished_at": "2026-07-18T04:02:13+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -592,7 +744,7 @@
       "repetition": 3,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -618,6 +770,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-3/attempt-2",
+          "started_at": "2026-07-18T04:02:14+00:00",
+          "finished_at": "2026-07-18T04:02:15+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -628,7 +799,7 @@
       "repetition": 1,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -654,6 +825,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-defect-1/attempt-2",
+          "started_at": "2026-07-18T04:02:18+00:00",
+          "finished_at": "2026-07-18T04:02:18+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -664,7 +854,7 @@
       "repetition": 2,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -690,6 +880,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-defect-2/attempt-2",
+          "started_at": "2026-07-18T04:02:20+00:00",
+          "finished_at": "2026-07-18T04:02:20+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -700,7 +909,7 @@
       "repetition": 3,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -726,6 +935,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-defect-3/attempt-2",
+          "started_at": "2026-07-18T04:02:22+00:00",
+          "finished_at": "2026-07-18T04:02:22+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -736,7 +964,7 @@
       "repetition": 1,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -762,6 +990,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-baseline-1/attempt-2",
+          "started_at": "2026-07-18T04:02:27+00:00",
+          "finished_at": "2026-07-18T04:02:27+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -772,7 +1019,7 @@
       "repetition": 2,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -798,6 +1045,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-baseline-2/attempt-2",
+          "started_at": "2026-07-18T04:02:30+00:00",
+          "finished_at": "2026-07-18T04:02:30+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.002,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -808,7 +1074,7 @@
       "repetition": 3,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -834,6 +1100,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-baseline-3/attempt-2",
+          "started_at": "2026-07-18T04:02:33+00:00",
+          "finished_at": "2026-07-18T04:02:33+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -844,7 +1129,7 @@
       "repetition": 1,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -870,6 +1155,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-1/attempt-2",
+          "started_at": "2026-07-18T04:02:37+00:00",
+          "finished_at": "2026-07-18T04:02:37+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -880,7 +1184,7 @@
       "repetition": 2,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -906,6 +1210,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-2/attempt-2",
+          "started_at": "2026-07-18T04:02:39+00:00",
+          "finished_at": "2026-07-18T04:02:39+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.002,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -916,7 +1239,7 @@
       "repetition": 3,
       "expected_oracle_level": "L2",
       "expected_oracle_defect_class": "state_loss",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -942,6 +1265,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability/lanes/v3-swallowed-back-defect-3/attempt-2",
+          "started_at": "2026-07-18T04:02:41+00:00",
+          "finished_at": "2026-07-18T04:02:42+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -952,7 +1294,7 @@
       "repetition": 1,
       "expected_oracle_level": "L3",
       "expected_oracle_defect_class": "ui_rendering",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -978,6 +1320,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-1/attempt-2",
+          "started_at": "2026-07-18T04:02:46+00:00",
+          "finished_at": "2026-07-18T04:02:46+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -988,7 +1349,7 @@
       "repetition": 2,
       "expected_oracle_level": "L3",
       "expected_oracle_defect_class": "ui_rendering",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -1014,6 +1375,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-2/attempt-2",
+          "started_at": "2026-07-18T04:02:48+00:00",
+          "finished_at": "2026-07-18T04:02:48+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -1024,7 +1404,7 @@
       "repetition": 3,
       "expected_oracle_level": "L3",
       "expected_oracle_defect_class": "ui_rendering",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -1050,6 +1430,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-3/attempt-2",
+          "started_at": "2026-07-18T04:02:50+00:00",
+          "finished_at": "2026-07-18T04:02:50+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -1060,7 +1459,7 @@
       "repetition": 1,
       "expected_oracle_level": "L3",
       "expected_oracle_defect_class": "ui_rendering",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -1086,6 +1485,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-1/attempt-2",
+          "started_at": "2026-07-18T04:02:55+00:00",
+          "finished_at": "2026-07-18T04:02:55+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -1096,7 +1514,7 @@
       "repetition": 2,
       "expected_oracle_level": "L3",
       "expected_oracle_defect_class": "ui_rendering",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -1122,6 +1540,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-2/attempt-2",
+          "started_at": "2026-07-18T04:02:57+00:00",
+          "finished_at": "2026-07-18T04:02:58+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     },
@@ -1132,7 +1569,7 @@
       "repetition": 3,
       "expected_oracle_level": "L3",
       "expected_oracle_defect_class": "ui_rendering",
-      "attempts": 1,
+      "attempts": 2,
       "first_attempt_accountable": false,
       "eventual_accountable": false,
       "outcome": "non_accountable",
@@ -1158,6 +1595,25 @@
           "judge_seconds": 0,
           "checksum_status": "verified",
           "execution_provenance_status": "missing"
+        },
+        {
+          "attempt_number": 2,
+          "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-defect-3/attempt-2",
+          "started_at": "2026-07-18T04:03:00+00:00",
+          "finished_at": "2026-07-18T04:03:00+00:00",
+          "runner_exit_code": 2,
+          "operational_interventions": [
+            "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+          ],
+          "gate_status": "not_run",
+          "device": "emulator-5554",
+          "execution_status": "non_accountable",
+          "accountable": false,
+          "failure_class": "execution_identity",
+          "total_seconds": 0.001,
+          "judge_seconds": 0,
+          "checksum_status": "verified",
+          "execution_provenance_status": "missing"
         }
       ]
     }
@@ -1167,7 +1623,7 @@
       "emulator-5554"
     ],
     "preflight_statuses": {
-      "not_run": 24,
+      "not_run": 48,
       "passed": 6
     },
     "audit_environment": {
@@ -1177,7 +1633,7 @@
         "os": "macOS 26.3 (25D125)",
         "arch": "arm64",
         "workspace": "/Users/peter/projects/ai_verfication",
-        "generated_from_revision": "df7eafef08b89ba89a6d8e73cb7dd90c860506b1"
+        "generated_from_revision": "500ad4e17142d213cd38377cc06a20bc8b93e608"
       },
       "backend": {
         "name": "Codex CLI",
@@ -1325,7 +1781,7 @@
         "environment_sha256": "5614d1309e23c01cc18235e6d5eb79efc3cbaadb2bcc167fb7fd478c744471d8",
         "environment_checksum_status": "verified",
         "lane_count": 6,
-        "formal_attempts": 6,
+        "formal_attempts": 12,
         "host": {
           "workspace": "/Users/peter/projects/ai_verfication",
           "wikipedia_source": "/Users/peter/hosts/wikipedia",
@@ -1397,7 +1853,7 @@
         "environment_sha256": "d2b01a8bc38379b406c33a7de8f4662bc93e1a8af18bfe7c85848f96c37a41a6",
         "environment_checksum_status": "verified",
         "lane_count": 6,
-        "formal_attempts": 6,
+        "formal_attempts": 12,
         "host": {
           "workspace": "/Users/peter/projects/ai_verfication",
           "wikipedia_source": "/Users/peter/hosts/wikipedia",
@@ -1469,7 +1925,7 @@
         "environment_sha256": "74246d0899e734d3e5d3f9f8bc541260c38b8f7f98186391451e94320c3ffef8",
         "environment_checksum_status": "verified",
         "lane_count": 6,
-        "formal_attempts": 6,
+        "formal_attempts": 12,
         "host": {
           "workspace": "/Users/peter/projects/ai_verfication",
           "wikipedia_source": "/Users/peter/hosts/wikipedia",
@@ -1541,7 +1997,7 @@
         "environment_sha256": "f4658e367eea023fb1384c13b85686c3d54ebd8e8ff63e0d041e00e724571c98",
         "environment_checksum_status": "verified",
         "lane_count": 6,
-        "formal_attempts": 6,
+        "formal_attempts": 12,
         "host": {
           "workspace": "/Users/peter/projects/ai_verfication",
           "wikipedia_source": "/Users/peter/hosts/wikipedia",
@@ -1610,15 +2066,15 @@
     ],
     "identity_coverage": {
       "package_environment": "5/5",
-      "device_serial_crosscheck": "30/30",
-      "host_path_crosscheck": "30/30",
-      "run_spec_command_crosscheck": "30/30",
+      "device_serial_crosscheck": "54/54",
+      "host_path_crosscheck": "54/54",
+      "run_spec_command_crosscheck": "54/54",
       "run_spec_sha256_retained": "5/5",
       "manifest_sha256_retained": "5/5",
       "host_commit_retained": "5/5",
       "backend_version_retained": "5/5",
       "model_identity_retained": "5/5",
-      "model_override_crosscheck": "30/30"
+      "model_override_crosscheck": "54/54"
     }
   },
   "evidence_packages": [
@@ -1629,22 +2085,22 @@
     },
     {
       "path": "docs/runs/2026-07-17-m3-v3-oversized-saved-state-reliability",
-      "checksum_entries": 38,
+      "checksum_entries": 74,
       "checksum_status": "verified"
     },
     {
       "path": "docs/runs/2026-07-17-m3-v3-query-duplication-reliability",
-      "checksum_entries": 38,
+      "checksum_entries": 74,
       "checksum_status": "verified"
     },
     {
       "path": "docs/runs/2026-07-17-m3-v3-search-card-l3-reliability",
-      "checksum_entries": 38,
+      "checksum_entries": 74,
       "checksum_status": "verified"
     },
     {
       "path": "docs/runs/2026-07-17-m3-v3-swallowed-back-reliability",
-      "checksum_entries": 38,
+      "checksum_entries": 74,
       "checksum_status": "verified"
     }
   ],
@@ -1746,14 +2202,14 @@
         "lane_roles": 2,
         "repetitions_per_role": 3,
         "planned_lanes": 30,
-        "formal_attempts": 30,
+        "formal_attempts": 54,
         "evidence_packages": 5
       },
       "summary": {
         "planned_lanes": 30,
         "first_attempt_accountable": 6,
         "eventual_accountable": 6,
-        "retry_count": 0,
+        "retry_count": 24,
         "control_outcomes": {
           "passed_control": 3
         },
@@ -1761,11 +2217,11 @@
           "caught": 3
         },
         "failure_classes": {
-          "execution_identity": 24
+          "execution_identity": 48
         },
-        "total_seconds": 588.669,
+        "total_seconds": 588.695,
         "judge_seconds": 0.0,
-        "operational_interventions": 0
+        "operational_interventions": 24
       },
       "criteria": {
         "eventual_accountability": {
@@ -1791,7 +2247,7 @@
         "complete_execution_provenance": {
           "status": "failed",
           "actual": 6,
-          "required": 30
+          "required": 54
         },
         "m3_overall": {
           "status": "failed"
@@ -1821,7 +2277,7 @@
         }
       },
       "preflight_statuses": {
-        "not_run": 24,
+        "not_run": 48,
         "passed": 6
       },
       "non_accountable_lanes": 24,
@@ -1831,10 +2287,10 @@
     "descriptive_delta": {
       "first_attempt_accountable": -23,
       "eventual_accountable": -23,
-      "retry_count": -1,
-      "total_seconds": -3051.864,
+      "retry_count": 23,
+      "total_seconds": -3051.838,
       "judge_seconds": -165.102,
-      "operational_interventions": -1
+      "operational_interventions": 23
     },
     "historical_integrity": {
       "status": "verified",

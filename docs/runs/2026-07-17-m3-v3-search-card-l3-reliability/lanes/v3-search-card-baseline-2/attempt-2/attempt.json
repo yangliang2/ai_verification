@@ -1,0 +1,29 @@
+{
+  "schema_version": 3,
+  "lane_id": "v3-search-card-baseline-2",
+  "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+  "role": "baseline",
+  "repetition": 2,
+  "attempt_number": 2,
+  "started_at": "2026-07-18T04:02:48+00:00",
+  "finished_at": "2026-07-18T04:02:48+00:00",
+  "runner_command": [
+    "/Users/peter/projects/ai_verfication/.venv/bin/python",
+    "-m",
+    "aiverify.runner",
+    "/Users/peter/projects/ai_verfication/bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.yaml",
+    "--device",
+    "emulator-5554",
+    "--artifact-dir",
+    "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-m3-v3-search-card-l3-reliability/lanes/v3-search-card-baseline-2/attempt-2/artifacts",
+    "--workdir",
+    "/Users/peter/hosts/wikipedia"
+  ],
+  "runner_exit_code": 2,
+  "verdict": "verdict.json",
+  "execution_record": "execution-record.json",
+  "attempt_id": "eb0218e8-9044-45b5-9a71-0a1081f7a3ae",
+  "operational_interventions": [
+    "Pre-retry diagnosis confirmed the frozen Run Spec host_project path is unavailable; administrator-only alias creation was denied, so the bounded second attempt re-ran unchanged to preserve a terminal immutable lineage."
+  ]
+}

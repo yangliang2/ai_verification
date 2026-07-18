@@ -1,13 +1,15 @@
 # M3 V3 Search-Card L3 Reliability Package
 
-This immutable child package contains six fresh first attempts for
-`wikipedia-ui-rendering-02-search-card-copy-mismatch`. All six are non-accountable
+This immutable child package contains twelve formal attempts across six fresh
+lanes for `wikipedia-ui-rendering-02-search-card-copy-mismatch`. Both bounded
+attempts in every lane are non-accountable
 `execution_identity_error` results because the frozen Run Spec declares the
 unavailable `/Users/80268204/hosts/wikipedia` path while the preregistered runner
 workdir is `/Users/peter/hosts/wikipedia`.
 
 No result is reclassified as a control pass, false positive, catch, or oracle
 miss. The public runner outputs, failed schema-v2 ExecutionRecords, verdicts,
-and checksum manifests are retained. Live validation was not reached
+retry interventions, and checksum manifests are retained. All six lanes are
+terminally exhausted. Live validation was not reached
 (`not_run`), so no gate file was fabricated. Exact external APK identities are
 in `environment.json`.

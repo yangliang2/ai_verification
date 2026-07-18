@@ -14,9 +14,10 @@ The fresh immutable v3 population **FAILED** and does not unblock M4:
 - The 3 accountable ANR defects were caught at L1 as `crash_stability`, but the
   required defect denominator was 15/15.
 - Only the 6 accountable ANR attempts produced complete checksummed execution
-  provenance; v3 required 30/30.
+  provenance; the audit requires provenance for all 54 formal attempts.
 
-The remaining 24 attempts failed before live validation with
+The remaining 24 lanes exhausted both bounded attempts before live validation,
+producing 48 terminal
 `execution_identity_error`: four frozen Run Specs declare the unavailable
 `/Users/80268204/hosts/wikipedia` path, while the preregistered effective worktree
 is `/Users/peter/hosts/wikipedia`. The new execution-identity gate rejected that
@@ -34,23 +35,23 @@ populations.
 - `summary.json`: the single structured audit model for all 30 lanes/attempts.
 - `report.md`: generated from the same in-memory model as `summary.json`.
 - `restored-baseline-layout.json`: final Android CLI layout after restoring the
-  baseline APK; 39 nodes.
+  baseline APK; 38 nodes.
 - `checksums.sha256`: final root inventory (generated last).
 
-The five child packages contain 285 files: 149 JSON, 6 JSONL, 5 Markdown,
-6 patches, 12 PNG screenshots, 35 SHA-256 manifests, 66 text/log files, and
-6 YAML snapshots. All 30 attempt IDs are unique. The ANR package has 128 covered
-entries; each deterministic identity-failure package has 38.
+The five child packages contain 429 files: 221 JSON, 6 JSONL, 5 Markdown,
+6 patches, 12 PNG screenshots, 59 SHA-256 manifests, 114 text/log files, and
+6 YAML snapshots. All 54 attempt IDs are unique. The ANR package has 128 covered
+entries; each deterministic identity-failure package has 74.
 
 ## Child package checksum anchors
 
 | Package | Root checksum-manifest SHA-256 |
 |---|---|
 | `2026-07-17-m3-v3-anr-reliability` | `34cae38c7d95ca4c52d1a05346da5b6e24b2a62cf6d6cb20f04ed44b28811a3e` |
-| `2026-07-17-m3-v3-oversized-saved-state-reliability` | `cb98f44603683bcd0d602de5d9bfe291d80f85b71a1f7f9c09933eee2ed87aaf` |
-| `2026-07-17-m3-v3-query-duplication-reliability` | `5c38a051e12a1f1d80fec0ddcec3a09bce503ab6f17e63a60f6dd7809d6fb9f8` |
-| `2026-07-17-m3-v3-search-card-l3-reliability` | `ae894c316894f6b5d7ad5356fb8b3c2554b7ab75c9682ef957e4ab176c9369d6` |
-| `2026-07-17-m3-v3-swallowed-back-reliability` | `d3a7b3130e87362842f3b7b5ef2261f181e4ae11ebf44b8e5391d6dd25582df1` |
+| `2026-07-17-m3-v3-oversized-saved-state-reliability` | `34c9ee5a57af35276e7425d0dace993c730feb873c047ff19d7068f56e8e7ecd` |
+| `2026-07-17-m3-v3-query-duplication-reliability` | `d96309d9cd05e09e3a96807613021f7425eb5ddd5b11ed10bacd1f1046370340` |
+| `2026-07-17-m3-v3-search-card-l3-reliability` | `7321233f7016a9176ddb55b6334d82d9d3d154cef540525777cba6706bda0cda` |
+| `2026-07-17-m3-v3-swallowed-back-reliability` | `f1737ddb1bade6034c355454820119bc6ed8eaa0f556dc4a25337accd41b97e0` |
 
 ## External APK inventory
 
@@ -86,14 +87,16 @@ PYTHONPATH=/Users/peter/projects/ai_verfication/src \
   --device emulator-5554 \
   --workdir /Users/peter/hosts/wikipedia \
   --python-executable /Users/peter/projects/ai_verfication/.venv/bin/python
-# invoked once for each of the 30 report.md lane IDs; child exits:
-# 3 control=0, 3 caught defects=1, 24 non-accountable=2
+# invoked for each of the 30 report.md lane IDs; the 24 identity failures were
+# rerun once with the recorded diagnosis/intervention, exhausting max_attempts=2.
+# Across 54 formal attempts: 3 control=0, 3 caught defects=1,
+# 48 non-accountable=2.
 
 PYTHONPATH=src .venv/bin/python -m aiverify.bench.m3_reliability \
   --manifest bench/goldset/m3-reliability-slice-v3.yaml progress
-# 30 planned, 0 pending, 6 first/eventual accountable, 0 retries,
-# 3 passed controls, 3 caught defects, execution_identity=24,
-# total_seconds=588.669, judge_seconds=0.0, interventions=0
+# 30 planned, 0 pending, 6 first/eventual accountable, 24 retries,
+# 3 passed controls, 3 caught defects, execution_identity=48,
+# total_seconds=588.695, judge_seconds=0.0, interventions=24
 
 PYTHONPATH=src .venv/bin/python -m aiverify.bench.m3_reliability \
   --manifest bench/goldset/m3-reliability-slice-v3.yaml audit \
@@ -110,10 +113,10 @@ done
 
 .venv/bin/pytest -q tests/bench/test_m3_v3_audit.py \
   tests/bench/test_m3_rebaseline_audit.py tests/bench/test_m3_reliability.py
-# 94 passed
+# 96 passed in 8.16s
 
 .venv/bin/pytest
-# 519 passed in 19.45s
+# 521 passed in 12.42s (12.65s wall clock)
 
 git diff --exit-code 6aabe4d198eef1f22c701a492f54bde05a0d0ec0 -- \
   bench/goldset/m3-reliability-slice.yaml \
@@ -131,24 +134,25 @@ Historical anchors remained unchanged: original manifest
 
 - Android CLI `1.0.15498356` installed and activated every baseline/defect APK
   on `emulator-5554` / `aiverify_api35` (Android 15/API 35).
-- Six ANR attempts passed the mandatory live-validation gate; 24 identity
+- Six ANR attempts passed the mandatory live-validation gate; 48 identity
   failures correctly stopped before that gate (`not_run`), so they have no
   fabricated Journey or oracle result.
 - After execution, Android CLI restored the baseline APK. Device-side base APK
   SHA-256 matched `32ec2d36…`; a cold restart followed by `android layout`
-  returned the committed 39-node layout.
+  returned the committed 38-node layout.
 - The Wikipedia source worktree was clean at
   `6ccb8d85a21a8e34b96e4813d3caee5c690ece9b` after all five defect builds.
 
 ## Known gaps and follow-up risk
 
 - v3 does not satisfy M3 and must not unblock M4.
-- No retries were spent on the 24 deterministic identity failures because the
-  only available remedies required changing frozen inputs/runner semantics or
-  administrator-only creation of the old `/Users/80268204` alias. The failed
-  first attempts remain the authoritative eventual outcomes.
+- All 24 deterministic identity-failure lanes spent their one permitted retry
+  after diagnosis. The only corrective remedies required changing frozen
+  inputs/runner semantics or administrator-only creation of the old
+  `/Users/80268204` alias, so the unchanged retries failed identically and all
+  lanes are terminally exhausted.
 - Validation used one emulator, not a physical device, ColorOS device, second
   AVD, or cross-host fleet.
-- The first post-restoration Android layout call returned a transient null root;
-  force-stop/cold start and a three-second settle produced the retained 39-node
-  layout. This did not affect any formal lane.
+- A post-restoration launcher attempt briefly opened LeakCanary; an explicit
+  force-stop/cold start of `org.wikipedia.DefaultIcon` and a three-second settle
+  produced the retained 38-node layout. This did not affect any formal lane.

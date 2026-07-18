@@ -1,0 +1,56 @@
+{
+  "scenario": "wikipedia-config-change-02-query-duplication",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "execution_identity_error",
+    "message": "ExecutionIdentityError: runner workdir contradicts Run Spec host_project"
+  },
+  "preflight": {
+    "live_validation_gate": null
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-config-change-02-query-duplication",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": "config-change",
+    "taxonomy_pattern_id": "config-change-02",
+    "expected_oracle_level": "L2",
+    "expected_oracle_defect_class": "state_loss",
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "journey_results": [],
+    "checkpoints": []
+  },
+  "journey_results": [],
+  "checkpoints": [],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-18T04:02:13+00:00",
+    "finished_at": "2026-07-18T04:02:13+00:00",
+    "total_seconds": 0.001,
+    "phases": [
+      {
+        "phase": "execution-identity-capture",
+        "kind": "identity",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-m3-v3-query-duplication-reliability/lanes/v3-query-duplication-baseline-2/attempt-2/execution-record.json"
+}
