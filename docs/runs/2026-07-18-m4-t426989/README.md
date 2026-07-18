@@ -30,3 +30,9 @@ Artifacts are under `preflight/` (`*.xml` UI dumps and `*.png` screenshots). Thi
 ## Remaining work
 
 The candidate oracle and Development Agent session have not yet been created. No implementation has been started in this worktree.
+
+## Candidate attempt
+
+Candidate commit `5bd7d24d5bcf3da503afb3de4246743014abf168` moves the read-more decision into the footer setup and gates it on article/mainspace status, with URI-prefix defenses for non-article namespaces. Candidate APK SHA-256: `0b3325e4046d4a015e6759acd76ed374b2eabbe29d7c66cbbe97f5420bb0a6b7`.
+
+The article/user/project/special/category candidate observations show no `Read more`. Talk-page capture is inconsistent across repeated cold launches and remains under investigation; #64 is not closed.
