@@ -113,6 +113,22 @@ class CodexCliBackend:
             input_text="",
         )
         events_path.write_text(result.stdout, encoding="utf-8")
+        identity_path = artifact_dir / "codex-invocation-identity.json"
+        identity = None
+        identity_error: CodexIdentityError | None = None
+        try:
+            identity = capture_codex_invocation_identity(
+                role="journey_driver",
+                requested_model=request.model,
+                command=args,
+                codex_bin=self.codex_bin,
+                runner=self.runner,
+                events_path=events_path,
+                receipt_path=identity_path,
+                session_root=self.session_root,
+            )
+        except CodexIdentityError as exc:
+            identity_error = exc
         if result.returncode != 0:
             raise CodexCliError(
                 f"Codex CLI failed with exit code {result.returncode}: {result.stderr.strip()}",
@@ -148,25 +164,14 @@ class CodexCliBackend:
                 command=args,
             ) from exc
 
-        identity_path = artifact_dir / "codex-invocation-identity.json"
-        try:
-            identity = capture_codex_invocation_identity(
-                role="journey_driver",
-                requested_model=request.model,
-                command=args,
-                codex_bin=self.codex_bin,
-                runner=self.runner,
-                events_path=events_path,
-                receipt_path=identity_path,
-                session_root=self.session_root,
-            )
-        except CodexIdentityError as exc:
+        if identity_error is not None or identity is None:
             raise CodexCliError(
-                f"Codex CLI identity capture failed: {exc}",
+                f"Codex CLI identity capture failed: {identity_error}",
                 result_path=result_path,
                 events_path=events_path,
                 command=args,
-            ) from exc
+            ) from identity_error
+
         metadata = {
             "codex_version": identity["binary"]["version"],
             "effective_model": identity["effective_model"],

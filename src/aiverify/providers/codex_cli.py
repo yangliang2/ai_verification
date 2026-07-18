@@ -11,6 +11,7 @@ judge 只读证据、不得操作设备，因此 sandbox 固定为 read-only
 
 from __future__ import annotations
 
+import hashlib
 import tempfile
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from aiverify.runner.codex_identity import (
     default_codex_session_root,
 )
 from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
+from aiverify.runner.execution_record import write_json_artifact
 
 
 class CodexCliProviderError(RuntimeError):
@@ -94,6 +96,22 @@ class CodexCliProvider(LLMProvider):
             args += ["--model", self.model]
         args.append(full_prompt)
 
+        if self.artifact_dir is not None:
+            write_json_artifact(
+                self.artifact_dir
+                / f"l3-judge-call-{self._call_index}.invocation.json",
+                {
+                    "schema_version": 1,
+                    "role": "l3_semantic_judge",
+                    "call_index": self._call_index,
+                    "requested_model": self.model,
+                    "argv_without_prompt": args[:-1],
+                    "prompt_sha256": hashlib.sha256(
+                        full_prompt.encode("utf-8")
+                    ).hexdigest(),
+                },
+            )
+
         result = self.runner.run(
             args,
             cwd=self.workdir,
@@ -103,15 +121,8 @@ class CodexCliProvider(LLMProvider):
         )
         if events_path is not None:
             events_path.write_text(result.stdout, encoding="utf-8")
-        if result.returncode != 0:
-            raise CodexCliProviderError(
-                f"codex exec 失败，exit code {result.returncode}: {result.stderr.strip()}"
-            )
-        if not result_path.is_file():
-            raise CodexCliProviderError(f"codex exec 未写出最终回答文件：{result_path}")
-
-        text = result_path.read_text(encoding="utf-8")
         identity_path: Path | None = None
+        identity_error: CodexIdentityError | None = None
         effective_model = self.model or "codex-default"
         if events_path is not None:
             identity_path = (
@@ -130,11 +141,23 @@ class CodexCliProvider(LLMProvider):
                     session_root=self.session_root,
                 )
             except CodexIdentityError as error:
-                raise CodexCliProviderError(
-                    f"codex exec identity capture failed: {error}"
-                ) from error
-            effective_model = identity["effective_model"]
-            self.identity_receipts.append(identity_path)
+                identity_error = error
+            else:
+                effective_model = identity["effective_model"]
+                self.identity_receipts.append(identity_path)
+        if result.returncode != 0:
+            raise CodexCliProviderError(
+                f"codex exec 失败，exit code {result.returncode}: {result.stderr.strip()}"
+            )
+        if not result_path.is_file():
+            raise CodexCliProviderError(f"codex exec 未写出最终回答文件：{result_path}")
+
+        if identity_error is not None:
+            raise CodexCliProviderError(
+                f"codex exec identity capture failed: {identity_error}"
+            ) from identity_error
+
+        text = result_path.read_text(encoding="utf-8")
         return CompletionResult(
             text=text,
             model=effective_model,

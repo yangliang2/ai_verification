@@ -923,6 +923,8 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         run_spec_path: Path | None = None,
         identity_command_runner: CommandRunner | None = None,
         identity_collector: ExecutionIdentityCollector | None = None) -> dict:
+    artifact_dir = Path(artifact_dir).resolve()
+    workdir = Path(workdir).resolve()
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     run_start = time.monotonic()
     execution_record = ExecutionRecordStore.establish(
@@ -1016,6 +1018,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
     deployment_start = time.monotonic()
     try:
         identity_collector.deploy()
+        identity_collector.verify_ready_for_agent()
     except Exception as error:
         return _write_failed_run_verdict(
             spec=spec,

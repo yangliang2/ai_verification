@@ -133,8 +133,25 @@ class IdentityCommandRunner(CommandRunner):
         raise AssertionError(f"unexpected command: {args}")
 
 
-def _write_role_receipt(path: Path, *, binary: Path) -> None:
+def _write_role_receipt(path: Path, *, binary: Path, workdir: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    observation = {
+        "session_meta": {
+            "id": "thread-1",
+            "cwd": str(workdir),
+            "cli_version": "0.144.5",
+            "source": "exec",
+        },
+        "turn_context": {
+            "turn_id": "turn-1",
+            "model": "gpt-5.1-codex",
+        },
+    }
+    observation_sha256 = hashlib.sha256(
+        json.dumps(
+            observation, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+    ).hexdigest()
     path.write_text(
         json.dumps(
             {
@@ -151,27 +168,21 @@ def _write_role_receipt(path: Path, *, binary: Path) -> None:
                 "effective_model": "gpt-5.1-codex",
                 "effective_model_source": {
                     "kind": "codex_session_turn_context",
-                    "session_path": "/captured/session.jsonl",
-                    "session_sha256": "a" * 64,
+                    "observation_sha256": observation_sha256,
                     "thread_id": "thread-1",
                     "turn_id": "turn-1",
                 },
-                "source_observation": {
-                    "session_meta": {
-                        "id": "thread-1",
-                        "cwd": str(path.parent),
-                        "cli_version": "0.144.5",
-                        "source": "exec",
-                    },
-                    "turn_context": {
-                        "turn_id": "turn-1",
-                        "model": "gpt-5.1-codex",
-                    },
-                },
+                "source_observation": observation,
                 "command": {
                     "argv_without_prompt": [
                         str(binary),
                         "exec",
+                        "--json",
+                        "--output-schema",
+                        "/schema.json",
+                        "--cd",
+                        str(workdir),
+                        "--dangerously-bypass-approvals-and-sandbox",
                         "--model",
                         "gpt-5.1-codex",
                     ],
@@ -255,9 +266,21 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
 
     collector.capture_static()
     collector.deploy()
+
+    (host / "source.txt").write_text("runtime drift\n", encoding="utf-8")
+    with pytest.raises(ExecutionIdentityError, match="host identity drifted"):
+        collector.finalize(
+            l1={"outcome": "inconclusive"},
+            l2={"outcome": "pass"},
+            l3=None,
+            l3_configured=False,
+        )
+    (host / "source.txt").write_text("baseline\n", encoding="utf-8")
+
     _write_role_receipt(
         artifact_dir / "identity-smoke-segment-0" / "codex-invocation-identity.json",
         binary=binaries["codex"],
+        workdir=host,
     )
     binding = collector.finalize(
         l1={"outcome": "inconclusive"},
@@ -297,6 +320,7 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
             "model": "sdk_gphone64_arm64",
             "device": "emu64a",
         },
+        "identity_sha256": provenance["device"]["identity_sha256"],
     }
     assert provenance["roles"]["journey_driver"]["status"] == "invoked"
     assert provenance["roles"]["l3_semantic_judge"] == {
@@ -304,6 +328,7 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
         "reason": "scenario_has_no_l3_spec",
         "requested_model": None,
         "invocations": [],
+        "invocation_ledger": [],
     }
 
     def rejected(name: str, tampered: dict, message: str) -> None:
@@ -318,6 +343,18 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
             )
 
     tampered = deepcopy(provenance)
+    tampered["host"]["origin"] = "https://evil.invalid/replaced.git"
+    rejected("host-origin", tampered, "host identity checksum mismatch")
+
+    tampered = deepcopy(provenance)
+    tampered["run_spec"]["package"] = "org.example.other"
+    rejected("run-spec-package", tampered, "Run Spec snapshot contradicts")
+
+    tampered = deepcopy(provenance)
+    tampered["deployment"]["process"]["args"][2] = "--device=other-device"
+    rejected("deployment-command", tampered, "deployment process checksum mismatch")
+
+    tampered = deepcopy(provenance)
     tampered["host"]["worktree"]["status"] = " M source.txt\n"
     rejected("host-status", tampered, "host status checksum mismatch")
 
@@ -327,7 +364,7 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
 
     tampered = deepcopy(provenance)
     tampered["tools"]["android_cli"]["sha256"] = "e" * 64
-    rejected("changed-tool", tampered, "deployment tool identity contradicts")
+    rejected("changed-tool", tampered, "tool identity checksum mismatch")
 
     tampered = deepcopy(provenance)
     tampered["run_spec"]["consumed_sha256"] = "c" * 64
@@ -347,7 +384,7 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
     tampered["roles"]["journey_driver"]["invocations"].append(
         deepcopy(tampered["roles"]["journey_driver"]["invocations"][0])
     )
-    rejected("duplicate-role", tampered, "role receipt reference is duplicated")
+    rejected("duplicate-role", tampered, "role thread or turn identity is duplicated")
 
     tampered = deepcopy(provenance)
     role_ref = tampered["roles"]["journey_driver"]["invocations"][0]
@@ -359,6 +396,24 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
     changed_role_path.write_text(json.dumps(role_receipt) + "\n", encoding="utf-8")
     role_ref.update({"path": changed_role_path.name, "sha256": _sha256(changed_role_path)})
     rejected("changed-model", tampered, "requested and effective models differ")
+
+    tampered = deepcopy(provenance)
+    role_ref = tampered["roles"]["journey_driver"]["invocations"][0]
+    role_receipt = json.loads(
+        (run_dir / role_ref["path"]).read_text(encoding="utf-8")
+    )
+    role_receipt["source_observation"]["session_meta"]["cwd"] = str(tmp_path)
+    role_receipt["effective_model_source"]["observation_sha256"] = hashlib.sha256(
+        json.dumps(
+            role_receipt["source_observation"],
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    changed_role_path = run_dir / "tampered-role-cwd.json"
+    changed_role_path.write_text(json.dumps(role_receipt) + "\n", encoding="utf-8")
+    role_ref.update({"path": changed_role_path.name, "sha256": _sha256(changed_role_path)})
+    rejected("changed-role-cwd", tampered, "role session cwd contradicts")
 
     with pytest.raises(ExecutionIdentityError, match="escapes the audit base"):
         verify_execution_provenance(

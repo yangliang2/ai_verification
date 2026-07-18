@@ -240,6 +240,9 @@ def _controlled_execution_identity(monkeypatch):
             self.calls.append("deploy")
             return {"status": "passed"}
 
+        def verify_ready_for_agent(self):
+            self.calls.append("verify_ready_for_agent")
+
         def finalize(self, **kwargs):
             self.calls.append("finalize")
             path = self.run_dir / "execution-provenance.json"
@@ -1051,6 +1054,9 @@ def test_identity_finalization_failure_discards_oracle_accounting(
         def deploy(self):
             pass
 
+        def verify_ready_for_agent(self):
+            pass
+
         def finalize(self, **kwargs):
             raise ExecutionIdentityError("effective model contradicts requested model")
 
@@ -1084,6 +1090,46 @@ def test_identity_finalization_failure_discards_oracle_accounting(
     )
     assert record["lifecycle_state"] == "failed"
     assert record["execution"]["accounting_eligible"] is False
+
+
+def test_pre_agent_identity_drift_blocks_journey_and_oracles(tmp_path, monkeypatch):
+    class DriftedIdentityCollector:
+        def capture_static(self):
+            pass
+
+        def deploy(self):
+            pass
+
+        def verify_ready_for_agent(self):
+            raise ExecutionIdentityError("host identity drifted during execution")
+
+        def finalize(self, **kwargs):
+            raise AssertionError("finalize must not run after pre-agent drift")
+
+    class UnexpectedController:
+        def __init__(self, serial):
+            raise AssertionError("journey setup must not run after identity drift")
+
+    monkeypatch.setattr(cli, "DeviceController", UnexpectedController)
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        _spec(tmp_path, l3_spec=""),
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        preflight_command_runner=FakePreflightRunner(
+            _passing_preflight_responses()
+        ),
+        identity_collector=DriftedIdentityCollector(),
+    )
+
+    assert verdict["execution"]["reason"] == "execution_identity_error"
+    assert verdict["l1"] is None and verdict["l2"] is None and verdict["l3"] is None
+    record = json.loads(
+        (artifact_dir.parent / "execution-record.json").read_text(encoding="utf-8")
+    )
+    assert record["phase_errors"][-1]["phase"] == "deployment-identity"
 
 
 def test_public_run_rejects_preexisting_custom_artifact_directory_before_preflight(

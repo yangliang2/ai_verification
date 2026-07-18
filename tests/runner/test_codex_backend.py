@@ -164,7 +164,7 @@ def test_codex_backend_binds_requested_model_to_effective_session_model(
 ) -> None:
     thread_id = "019f7118-9441-72f2-8831-8c46759ca86c"
     session_root = tmp_path / "sessions"
-    session_path = _write_codex_session(
+    _write_codex_session(
         session_root,
         thread_id=thread_id,
         model="gpt-5.1-codex",
@@ -216,8 +216,7 @@ def test_codex_backend_binds_requested_model_to_effective_session_model(
     assert identity["effective_model"] == "gpt-5.1-codex"
     assert identity["effective_model_source"] == {
         "kind": "codex_session_turn_context",
-        "session_path": str(session_path),
-        "session_sha256": identity["effective_model_source"]["session_sha256"],
+        "observation_sha256": identity["effective_model_source"]["observation_sha256"],
         "thread_id": thread_id,
         "turn_id": "turn-1",
     }
@@ -284,6 +283,17 @@ def test_codex_backend_raises_on_nonzero_exit(tmp_path: Path) -> None:
 
     with pytest.raises(CodexCliError, match="exit code 2"):
         backend.execute(_request(tmp_path))
+
+
+def test_nonzero_backend_invocation_retains_observable_identity(tmp_path: Path) -> None:
+    runner = FakeRunner(returncode=2)
+    backend = _backend_with_identity(tmp_path, runner)
+    request = _request(tmp_path)
+
+    with pytest.raises(CodexCliError, match="exit code 2"):
+        backend.execute(request)
+
+    assert (request.artifact_dir / "codex-invocation-identity.json").is_file()
 
 
 def test_codex_backend_raises_on_invalid_schema(tmp_path: Path) -> None:

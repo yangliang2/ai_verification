@@ -1119,6 +1119,29 @@ def test_run_lane_invokes_public_runner_and_preserves_attempt(tmp_path: Path) ->
     assert verify_manifest(attempt.directory) == []
 
 
+def test_schema_v3_run_rejects_downgraded_execution_record(tmp_path: Path) -> None:
+    _, v2_path = _write_versioned_fixture_manifests(tmp_path)
+    v3_path = tmp_path / "manifest-v3.yaml"
+    v3_path.write_text(
+        v2_path.read_text(encoding="utf-8")
+        .replace("schema_version: 2", "schema_version: 3", 1)
+        .replace("fixture-reliability-v2", "fixture-reliability-v3")
+        .replace("comparison_manifest: manifest.yaml", "comparison_manifest: manifest-v2.yaml")
+        .replace("v2-fixture-baseline-1", "v3-fixture-baseline-1"),
+        encoding="utf-8",
+    )
+    manifest = load_manifest(v3_path, repo_root=tmp_path)
+
+    with pytest.raises(ValueError, match="schema-v3 run requires.*schema-v2"):
+        run_lane(
+            manifest,
+            lane_id="v3-fixture-baseline-1",
+            device="emulator-5554",
+            workdir=tmp_path,
+            runner=VerdictWritingRunner(_completed_verdict()),
+        )
+
+
 def test_summary_treats_in_progress_record_as_authoritative_abandonment(
     tmp_path: Path,
 ) -> None:

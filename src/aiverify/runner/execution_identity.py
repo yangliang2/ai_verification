@@ -13,7 +13,7 @@ from pathlib import Path
 
 from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
 from aiverify.runner.execution_record import write_bytes_artifact, write_json_artifact
-from aiverify.runner.run_spec import RunSpec
+from aiverify.runner.run_spec import RunSpec, load_run_spec
 
 
 class ExecutionIdentityError(RuntimeError):
@@ -75,6 +75,32 @@ class ExecutionIdentityCollector:
 
         apk_artifacts = self._apk_artifacts()
         device = self._device_identity()
+        tools = self._tools_identity()
+        host["identity_sha256"] = _identity_sha256(host)
+        apk = {"artifacts": apk_artifacts}
+        apk["identity_sha256"] = _identity_sha256(apk)
+        device["identity_sha256"] = _identity_sha256(device)
+        run_spec = {
+            "invocation_path": str(self.run_spec_path),
+            "consumed_sha256": _sha256_bytes(source_bytes),
+            "snapshot_path": self._evidence_path(snapshot_path),
+            "snapshot_sha256": _sha256_file(snapshot_path),
+            "scenario": self.spec.scenario.id,
+            "host_project": str(self.spec.host_project.resolve()),
+            "apk_glob": self.spec.apk_glob,
+            "package": self.spec.package,
+            "activity": self.spec.activity,
+        }
+        run_spec["identity_sha256"] = _identity_sha256(run_spec)
+        self._static = {
+            "run_spec": run_spec,
+            "host": host,
+            "apk": apk,
+            "device": device,
+            "tools": tools,
+        }
+
+    def _tools_identity(self) -> dict:
         tools = {
             "android_cli": self._tool_identity(
                 self.android_bin, [self.android_bin, "--version"]
@@ -95,23 +121,9 @@ class ExecutionIdentityCollector:
                 "version": platform.python_version(),
             },
         }
-        self._static = {
-            "run_spec": {
-                "invocation_path": str(self.run_spec_path),
-                "consumed_sha256": _sha256_bytes(source_bytes),
-                "snapshot_path": self._evidence_path(snapshot_path),
-                "snapshot_sha256": _sha256_file(snapshot_path),
-                "scenario": self.spec.scenario.id,
-                "host_project": str(self.spec.host_project.resolve()),
-                "apk_glob": self.spec.apk_glob,
-                "package": self.spec.package,
-                "activity": self.spec.activity,
-            },
-            "host": host,
-            "apk": {"artifacts": apk_artifacts},
-            "device": device,
-            "tools": tools,
-        }
+        for identity in tools.values():
+            identity["identity_sha256"] = _identity_sha256(identity)
+        return tools
 
     def deploy(self) -> dict:
         """Deploy the captured APK set and bind device-side installed bytes."""
@@ -180,6 +192,7 @@ class ExecutionIdentityCollector:
                 "resolved launch component contradicts the Run Spec"
             )
         device_after = self._device_identity()
+        device_after["identity_sha256"] = _identity_sha256(device_after)
         if device_after != self._static["device"]:
             raise ExecutionIdentityError("device identity drifted during deployment")
         self._deployment = {
@@ -193,6 +206,7 @@ class ExecutionIdentityCollector:
                 "adb_sha256": self._static["tools"]["adb"]["sha256"],
             },
         }
+        self._deployment["identity_sha256"] = _identity_sha256(self._deployment)
         return self._deployment
 
     def finalize(
@@ -206,20 +220,26 @@ class ExecutionIdentityCollector:
         """Write and verify the checksum-bound provenance manifest."""
         if self._static is None or self._deployment is None:
             raise ExecutionIdentityError("static and deployment identity are required")
+        self._verify_no_drift()
         driver_paths = sorted(
             self.artifact_dir.glob("*/codex-invocation-identity.json")
         )
         l3_paths = sorted(
             (self.artifact_dir / "l3-judge").glob("l3-judge-call-*.identity.json")
         )
+        l3_ledger_paths = sorted(
+            (self.artifact_dir / "l3-judge").glob("l3-judge-call-*.invocation.json")
+        )
         if not driver_paths:
             raise ExecutionIdentityError("journey driver identity receipt is missing")
         driver = self._role_identity(
-            "journey_driver", driver_paths, self.requested_driver_model
+            "journey_driver", driver_paths, self.requested_driver_model,
+            ledger_paths=[],
         )
         if l3_paths:
             l3_role = self._role_identity(
-                "l3_semantic_judge", l3_paths, self.requested_l3_model
+                "l3_semantic_judge", l3_paths, self.requested_l3_model,
+                ledger_paths=l3_ledger_paths,
             )
         elif not l3_configured:
             l3_role = _not_applicable_role(
@@ -258,6 +278,77 @@ class ExecutionIdentityCollector:
             base_dir=self.run_dir,
         )
         return binding
+
+    def verify_ready_for_agent(self) -> None:
+        """Fail closed if captured inputs drift before agent invocation."""
+        if self._static is None or self._deployment is None:
+            raise ExecutionIdentityError("static and deployment identity are required")
+        self._verify_no_drift()
+
+    def _verify_no_drift(self) -> None:
+        if _sha256_bytes(self._run_spec_bytes()) != self._static["run_spec"][
+            "consumed_sha256"
+        ]:
+            raise ExecutionIdentityError("Run Spec identity drifted during execution")
+
+        current_host = self._host_identity()
+        patch_bytes = current_host.pop("patch_bytes")
+        current_host["worktree"]["patch_path"] = self._static["host"]["worktree"][
+            "patch_path"
+        ]
+        current_host["worktree"]["patch_sha256"] = _sha256_bytes(patch_bytes)
+        current_host["identity_sha256"] = _identity_sha256(current_host)
+        if current_host != self._static["host"]:
+            raise ExecutionIdentityError("host identity drifted during execution")
+
+        current_apk = {"artifacts": self._apk_artifacts()}
+        current_apk["identity_sha256"] = _identity_sha256(current_apk)
+        if current_apk != self._static["apk"]:
+            raise ExecutionIdentityError("APK identity drifted during execution")
+
+        current_device = self._device_identity()
+        current_device["identity_sha256"] = _identity_sha256(current_device)
+        if current_device != self._static["device"]:
+            raise ExecutionIdentityError("device identity drifted during execution")
+
+        current_tools = self._tools_identity()
+        if current_tools != self._static["tools"]:
+            raise ExecutionIdentityError("tool identity drifted during execution")
+
+        installed = self._installed_artifacts()
+        if installed != self._deployment["installed_artifacts"]:
+            raise ExecutionIdentityError(
+                "installed APK identity drifted during execution"
+            )
+        expected_component = self._deployment["target"]["component"]
+        component_result = self._adb(
+            "shell", "cmd", "package", "resolve-activity", "--brief", "-n",
+            expected_component,
+        )
+        if _component_value(_last_nonempty_line(component_result.stdout)) != expected_component:
+            raise ExecutionIdentityError(
+                "launch component identity drifted during execution"
+            )
+
+    def _installed_artifacts(self) -> list[dict[str, str]]:
+        installed_paths_result = self._adb("shell", "pm", "path", self.spec.package)
+        installed_paths = [
+            line.removeprefix("package:").strip()
+            for line in installed_paths_result.stdout.splitlines()
+            if line.startswith("package:") and line.removeprefix("package:").strip()
+        ]
+        if not installed_paths or len(installed_paths) != len(set(installed_paths)):
+            raise ExecutionIdentityError("installed APK path set is empty or duplicated")
+        installed_artifacts = []
+        for installed_path in installed_paths:
+            digest_result = self._adb("shell", "sha256sum", installed_path)
+            digest = digest_result.stdout.strip().split()[0] if digest_result.stdout.strip() else ""
+            if not _is_sha256(digest):
+                raise ExecutionIdentityError(
+                    f"device-side APK hash is missing for {installed_path}"
+                )
+            installed_artifacts.append({"path": installed_path, "sha256": digest})
+        return installed_artifacts
 
     def _run_spec_bytes(self) -> bytes:
         if self.spec.source_path is None or self.spec.source_sha256 is None:
@@ -389,8 +480,10 @@ class ExecutionIdentityCollector:
         role: str,
         paths: list[Path],
         requested_model: str | None,
+        ledger_paths: list[Path],
     ) -> dict:
         refs = []
+        receipts = []
         for path in paths:
             receipt = _load_json(path, label=f"{role} identity receipt")
             _validate_role_receipt(
@@ -398,12 +491,44 @@ class ExecutionIdentityCollector:
                 expected_role=role,
                 requested_model=requested_model,
                 expected_binary=self._static["tools"]["codex_cli"],
+                expected_workdir=self.workdir,
             )
+            receipts.append(receipt)
             refs.append({"path": self._evidence_path(path), "sha256": _sha256_file(path)})
+        ledger_refs = []
+        for expected_index, path in enumerate(ledger_paths, start=1):
+            ledger = _load_json(path, label=f"{role} invocation ledger")
+            if ledger != {
+                "schema_version": 1,
+                "role": role,
+                "call_index": expected_index,
+                "requested_model": requested_model,
+                "argv_without_prompt": ledger.get("argv_without_prompt"),
+                "prompt_sha256": ledger.get("prompt_sha256"),
+            } or not isinstance(ledger["argv_without_prompt"], list) or not _is_sha256(
+                ledger["prompt_sha256"]
+            ):
+                raise ExecutionIdentityError("L3 invocation ledger is invalid")
+            receipt_command = receipts[expected_index - 1]["command"]
+            if (
+                ledger["argv_without_prompt"] != receipt_command["argv_without_prompt"]
+                or ledger["prompt_sha256"] != receipt_command["prompt_sha256"]
+            ):
+                raise ExecutionIdentityError(
+                    "L3 invocation ledger contradicts identity receipt"
+                )
+            ledger_refs.append(
+                {"path": self._evidence_path(path), "sha256": _sha256_file(path)}
+            )
+        if role == "l3_semantic_judge" and len(ledger_refs) != len(refs):
+            raise ExecutionIdentityError(
+                "L3 invoked call is missing a terminal identity receipt"
+            )
         return {
             "status": "invoked",
             "requested_model": requested_model,
             "invocations": refs,
+            "invocation_ledger": ledger_refs,
         }
 
     def _git(self, *args: str) -> CommandResult:
@@ -471,12 +596,21 @@ def verify_execution_provenance(
         payload.get("run_spec"), scenario=scenario, evidence_root=evidence_root
     )
     _validate_host_identity(payload.get("host"), evidence_root=evidence_root)
+    if payload["host"]["repository_root"] != payload["run_spec"]["host_project"]:
+        raise ExecutionIdentityError("host root contradicts the consumed Run Spec")
     local_hashes = _validate_apk_identity(payload.get("apk"))
+    host_root = Path(payload["host"]["repository_root"])
+    for artifact in payload["apk"]["artifacts"]:
+        try:
+            Path(artifact["path"]).relative_to(host_root)
+        except ValueError as error:
+            raise ExecutionIdentityError("APK path is outside the captured host") from error
     _validate_device_identity(payload.get("device"))
     _validate_tools(payload.get("tools"))
     _validate_deployment(
         payload.get("deployment"),
         local_hashes=local_hashes,
+        local_artifacts=payload["apk"]["artifacts"],
         run_spec=payload["run_spec"],
         device=payload["device"],
         tools=payload["tools"],
@@ -487,18 +621,23 @@ def verify_execution_provenance(
         "l3_semantic_judge",
     }:
         raise ExecutionIdentityError("role identity set is incomplete or duplicated")
-    _verify_role(
+    driver_identities = _verify_role(
         roles["journey_driver"],
         expected_role="journey_driver",
         expected_binary=payload["tools"]["codex_cli"],
         evidence_root=evidence_root,
+        expected_workdir=Path(payload["host"]["repository_root"]),
     )
-    _verify_role(
+    l3_identities = _verify_role(
         roles["l3_semantic_judge"],
         expected_role="l3_semantic_judge",
         expected_binary=payload["tools"]["codex_cli"],
         evidence_root=evidence_root,
+        expected_workdir=Path(payload["host"]["repository_root"]),
     )
+    all_identities = driver_identities | l3_identities
+    if len(all_identities) != len(driver_identities) + len(l3_identities):
+        raise ExecutionIdentityError("role thread or turn identity is duplicated")
     return payload
 
 
@@ -522,11 +661,26 @@ def _validate_run_spec_identity(
         raise ExecutionIdentityError("Run Spec snapshot checksum mismatch")
     if value["consumed_sha256"] != value["snapshot_sha256"]:
         raise ExecutionIdentityError("Run Spec consumed and snapshot checksums differ")
+    snapshot_spec = load_run_spec(snapshot)
+    expected = {
+        "scenario": snapshot_spec.scenario.id,
+        "host_project": str(snapshot_spec.host_project.resolve()),
+        "apk_glob": snapshot_spec.apk_glob,
+        "package": snapshot_spec.package,
+        "activity": snapshot_spec.activity,
+    }
+    if any(value.get(key) != expected_value for key, expected_value in expected.items()):
+        raise ExecutionIdentityError("Run Spec snapshot contradicts captured identity")
+    if value.get("identity_sha256") != _identity_sha256(value):
+        raise ExecutionIdentityError("Run Spec identity checksum mismatch")
 
 
 def _validate_host_identity(value: object, *, evidence_root: Path | None) -> None:
     if not isinstance(value, dict):
         raise ExecutionIdentityError("host identity is missing")
+    root = value.get("repository_root")
+    if not isinstance(root, str) or not Path(root).is_absolute():
+        raise ExecutionIdentityError("host repository root is invalid")
     if not isinstance(value.get("origin"), str) or not value["origin"]:
         raise ExecutionIdentityError("host origin is missing")
     if not _is_sha1(value.get("commit")):
@@ -555,6 +709,8 @@ def _validate_host_identity(value: object, *, evidence_root: Path | None) -> Non
         raise ExecutionIdentityError("host untracked identity is invalid or duplicated")
     if any(not _is_sha256(item.get("sha256")) for item in untracked):
         raise ExecutionIdentityError("host untracked checksum is invalid")
+    if value.get("identity_sha256") != _identity_sha256(value):
+        raise ExecutionIdentityError("host identity checksum mismatch")
 
 
 def _validate_apk_identity(value: object) -> Counter[str]:
@@ -575,6 +731,8 @@ def _validate_apk_identity(value: object) -> Counter[str]:
         hashes.append(digest)
     if len(paths) != len(set(paths)):
         raise ExecutionIdentityError("APK identity path is duplicated")
+    if value.get("identity_sha256") != _identity_sha256(value):
+        raise ExecutionIdentityError("APK identity checksum mismatch")
     return Counter(hashes)
 
 
@@ -582,6 +740,7 @@ def _validate_deployment(
     value: object,
     *,
     local_hashes: Counter[str],
+    local_artifacts: list[dict],
     run_spec: dict,
     device: dict,
     tools: dict,
@@ -591,6 +750,10 @@ def _validate_deployment(
     process = value.get("process")
     if not isinstance(process, dict) or process.get("returncode") != 0:
         raise ExecutionIdentityError("deployment process did not succeed")
+    if process.get("identity_sha256") != _identity_sha256(process):
+        raise ExecutionIdentityError("deployment process checksum mismatch")
+    if not isinstance(process.get("stdout"), str) or not isinstance(process.get("stderr"), str):
+        raise ExecutionIdentityError("deployment process output is incomplete")
     target = value.get("target")
     expected_component = _component(run_spec["package"], run_spec.get("activity"))
     if target != {
@@ -599,6 +762,18 @@ def _validate_deployment(
         "component": expected_component,
     }:
         raise ExecutionIdentityError("deployment target contradicts Run Spec or device")
+    expected_args = [
+        tools["android_cli"]["requested"],
+        "run",
+        f"--device={device['serial']}",
+        "--apks=" + ",".join(item["path"] for item in local_artifacts),
+    ]
+    if run_spec.get("activity"):
+        expected_args.extend(
+            [f"--activity={run_spec['activity']}", "--type=ACTIVITY"]
+        )
+    if process.get("args") != expected_args:
+        raise ExecutionIdentityError("deployment command contradicts captured identity")
     installed = value.get("installed_artifacts")
     if not isinstance(installed, list) or not installed:
         raise ExecutionIdentityError("installed artifact identity is missing")
@@ -621,11 +796,15 @@ def _validate_deployment(
         raise ExecutionIdentityError("deployment tool identity contradicts capture")
     if _component_value(value.get("resolved_component")) != expected_component:
         raise ExecutionIdentityError("deployment component cross-check failed")
+    if value.get("identity_sha256") != _identity_sha256(value):
+        raise ExecutionIdentityError("deployment identity checksum mismatch")
 
 
 def _validate_device_identity(value: object) -> None:
     if not isinstance(value, dict):
         raise ExecutionIdentityError("device identity is missing")
+    if value.get("identity_sha256") != _identity_sha256(value):
+        raise ExecutionIdentityError("device identity checksum mismatch")
     if not isinstance(value.get("serial"), str) or not value["serial"]:
         raise ExecutionIdentityError("device serial is missing")
     if not isinstance(value.get("api_level"), str) or not value["api_level"].isdigit():
@@ -652,6 +831,8 @@ def _validate_tools(value: object) -> None:
             raise ExecutionIdentityError(f"tool binary checksum is invalid: {name}")
         if not isinstance(identity.get("version"), str) or not identity["version"]:
             raise ExecutionIdentityError(f"tool version is missing: {name}")
+        if identity.get("identity_sha256") != _identity_sha256(identity):
+            raise ExecutionIdentityError(f"tool identity checksum mismatch: {name}")
 
 
 def _verify_role(
@@ -660,7 +841,8 @@ def _verify_role(
     expected_role: str,
     expected_binary: dict,
     evidence_root: Path | None,
-) -> None:
+    expected_workdir: Path,
+) -> set[tuple[str, str]]:
     if not isinstance(value, dict):
         raise ExecutionIdentityError(f"role identity is missing: {expected_role}")
     status = value.get("status")
@@ -674,12 +856,13 @@ def _verify_role(
         if expected_role != "l3_semantic_judge" or value.get("reason") not in {
             "scenario_has_no_l3_spec",
             "gated_by_lower_oracle",
-        } or invocations != []:
+        } or invocations != [] or value.get("invocation_ledger") != []:
             raise ExecutionIdentityError("not-applicable role identity is invalid")
-        return
+        return set()
     if status != "invoked" or not isinstance(invocations, list) or not invocations:
         raise ExecutionIdentityError(f"invoked role identity is incomplete: {expected_role}")
     paths = []
+    identities: set[tuple[str, str]] = set()
     for ref in invocations:
         if not isinstance(ref, dict) or not isinstance(ref.get("path"), str) or not _is_sha256(ref.get("sha256")):
             raise ExecutionIdentityError("role receipt reference is invalid")
@@ -694,10 +877,28 @@ def _verify_role(
             expected_role=expected_role,
             requested_model=requested_model,
             expected_binary=expected_binary,
+            expected_workdir=expected_workdir,
         )
+        source = receipt["effective_model_source"]
+        identity = (source["thread_id"], source["turn_id"])
+        if identity in identities:
+            raise ExecutionIdentityError("role thread or turn identity is duplicated")
+        identities.add(identity)
         paths.append(str(path.resolve()))
     if len(paths) != len(set(paths)):
         raise ExecutionIdentityError("role receipt reference is duplicated")
+    ledger = value.get("invocation_ledger")
+    if expected_role == "journey_driver":
+        if ledger != []:
+            raise ExecutionIdentityError("journey driver invocation ledger is invalid")
+    else:
+        _verify_l3_ledger(
+            ledger,
+            invocations=invocations,
+            requested_model=requested_model,
+            evidence_root=evidence_root,
+        )
+    return identities
 
 
 def _validate_role_receipt(
@@ -706,6 +907,7 @@ def _validate_role_receipt(
     expected_role: str,
     requested_model: str | None,
     expected_binary: dict | None = None,
+    expected_workdir: Path | None = None,
 ) -> None:
     if not isinstance(receipt, dict) or receipt.get("schema_version") != 1:
         raise ExecutionIdentityError("role identity receipt schema is invalid")
@@ -728,7 +930,7 @@ def _validate_role_receipt(
         raise ExecutionIdentityError("role backend binary contradicts tool identity")
     source = receipt.get("effective_model_source")
     observation = receipt.get("source_observation")
-    if not isinstance(source, dict) or source.get("kind") != "codex_session_turn_context" or not _is_sha256(source.get("session_sha256")):
+    if not isinstance(source, dict) or source.get("kind") != "codex_session_turn_context" or not _is_sha256(source.get("observation_sha256")):
         raise ExecutionIdentityError("role effective-model source is invalid")
     if not isinstance(observation, dict):
         raise ExecutionIdentityError("role source observation is missing")
@@ -736,14 +938,49 @@ def _validate_role_receipt(
     turn = observation.get("turn_context")
     if not isinstance(meta, dict) or not isinstance(turn, dict):
         raise ExecutionIdentityError("role source observation is incomplete")
+    if source["observation_sha256"] != _identity_sha256(observation):
+        raise ExecutionIdentityError("role source observation checksum mismatch")
     if meta.get("id") != source.get("thread_id") or turn.get("turn_id") != source.get("turn_id") or turn.get("model") != effective_model:
         raise ExecutionIdentityError("role source observation contradicts receipt")
+    if meta.get("source") != "exec":
+        raise ExecutionIdentityError("role source is not a Codex exec invocation")
+    if _version_number(str(meta.get("cli_version", ""))) != _version_number(
+        binary["version"]
+    ):
+        raise ExecutionIdentityError("role session CLI version contradicts binary")
+    if expected_workdir is not None:
+        try:
+            session_cwd = Path(str(meta.get("cwd", ""))).resolve()
+        except OSError as error:
+            raise ExecutionIdentityError("role session cwd is invalid") from error
+        if session_cwd != expected_workdir.resolve():
+            raise ExecutionIdentityError("role session cwd contradicts captured host")
     command = receipt.get("command")
     argv = command.get("argv_without_prompt") if isinstance(command, dict) else None
     if not isinstance(argv, list) or not all(isinstance(arg, str) for arg in argv):
         raise ExecutionIdentityError("role command identity is invalid")
     if not _is_sha256(command.get("prompt_sha256")):
         raise ExecutionIdentityError("role prompt checksum is invalid")
+    if len(argv) < 2 or argv[0] != binary.get("requested") or argv[1] != "exec":
+        raise ExecutionIdentityError("role command backend contradicts receipt")
+    if argv.count("--cd") != 1 or argv.count("--json") != 1:
+        raise ExecutionIdentityError("role command context is incomplete")
+    try:
+        command_cwd = Path(argv[argv.index("--cd") + 1]).resolve()
+    except (ValueError, IndexError, OSError) as error:
+        raise ExecutionIdentityError("role command cwd is invalid") from error
+    if expected_workdir is not None and command_cwd != expected_workdir.resolve():
+        raise ExecutionIdentityError("role command cwd contradicts captured host")
+    if expected_role == "journey_driver":
+        if "--output-schema" not in argv or "--dangerously-bypass-approvals-and-sandbox" not in argv:
+            raise ExecutionIdentityError("journey driver command shape is invalid")
+    else:
+        try:
+            sandbox = argv[argv.index("--sandbox") + 1]
+        except (ValueError, IndexError) as error:
+            raise ExecutionIdentityError("L3 judge command sandbox is invalid") from error
+        if sandbox != "read-only":
+            raise ExecutionIdentityError("L3 judge command sandbox is invalid")
     if requested_model is not None:
         try:
             command_model = argv[argv.index("--model") + 1]
@@ -753,22 +990,65 @@ def _validate_role_receipt(
             raise ExecutionIdentityError("role command model contradicts runner input")
 
 
+def _verify_l3_ledger(
+    value: object,
+    *,
+    invocations: list[dict],
+    requested_model: str | None,
+    evidence_root: Path | None,
+) -> None:
+    if not isinstance(value, list) or len(value) != len(invocations):
+        raise ExecutionIdentityError("L3 invocation ledger is incomplete")
+    for expected_index, ref in enumerate(value, start=1):
+        if not isinstance(ref, dict) or not isinstance(ref.get("path"), str) or not _is_sha256(ref.get("sha256")):
+            raise ExecutionIdentityError("L3 invocation ledger reference is invalid")
+        path = _resolve_evidence_path(ref["path"], evidence_root=evidence_root)
+        if not path.is_file() or _sha256_file(path) != ref["sha256"]:
+            raise ExecutionIdentityError("L3 invocation ledger checksum mismatch")
+        ledger = _load_json(path, label="L3 invocation ledger")
+        if (
+            ledger.get("schema_version") != 1
+            or ledger.get("role") != "l3_semantic_judge"
+            or ledger.get("call_index") != expected_index
+            or ledger.get("requested_model") != requested_model
+            or not isinstance(ledger.get("argv_without_prompt"), list)
+            or not _is_sha256(ledger.get("prompt_sha256"))
+        ):
+            raise ExecutionIdentityError("L3 invocation ledger is invalid")
+        receipt_ref = invocations[expected_index - 1]
+        receipt_path = _resolve_evidence_path(
+            receipt_ref["path"], evidence_root=evidence_root
+        )
+        receipt = _load_json(receipt_path, label="L3 identity receipt")
+        command = receipt.get("command")
+        if not isinstance(command, dict) or (
+            ledger["argv_without_prompt"] != command.get("argv_without_prompt")
+            or ledger["prompt_sha256"] != command.get("prompt_sha256")
+        ):
+            raise ExecutionIdentityError(
+                "L3 invocation ledger contradicts identity receipt"
+            )
+
+
 def _not_applicable_role(reason: str, requested_model: str | None) -> dict:
     return {
         "status": "not_applicable",
         "reason": reason,
         "requested_model": requested_model,
         "invocations": [],
+        "invocation_ledger": [],
     }
 
 
 def _process_identity(result: CommandResult) -> dict:
-    return {
+    identity = {
         "args": list(result.args),
         "returncode": result.returncode,
         "stdout": result.stdout,
         "stderr": result.stderr,
     }
+    identity["identity_sha256"] = _identity_sha256(identity)
+    return identity
 
 
 def _resolve_binary(binary: str) -> Path:
@@ -786,6 +1066,13 @@ def _resolve_binary(binary: str) -> Path:
 def _resolve_evidence_path(path_value: str, *, evidence_root: Path | None) -> Path:
     path = Path(path_value)
     if path.is_absolute():
+        if evidence_root is not None:
+            try:
+                path.resolve().relative_to(evidence_root)
+            except ValueError as error:
+                raise ExecutionIdentityError(
+                    "execution evidence path escapes the audit base directory"
+                ) from error
         return path
     if evidence_root is None:
         raise ExecutionIdentityError(
@@ -849,6 +1136,19 @@ def _sha256_file(path: Path) -> str:
 
 def _sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def _identity_sha256(value: dict) -> str:
+    payload = {key: item for key, item in value.items() if key != "identity_sha256"}
+    return _sha256_bytes(
+        json.dumps(
+            payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+    )
+
+
+def _version_number(value: str) -> str:
+    return value.strip().split()[-1] if value.strip() else ""
 
 
 def _is_sha256(value: object) -> bool:

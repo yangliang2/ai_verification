@@ -115,7 +115,7 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
         raise ValueError("M3 reliability manifest must be a mapping")
 
     schema_version = _required_int(raw, "schema_version")
-    if schema_version not in {1, 2}:
+    if schema_version not in {1, 2, 3}:
         raise ValueError(f"unsupported M3 reliability schema_version: {schema_version}")
     slice_id = _required_str(raw, "slice_id")
     max_attempts = _required_int(raw, "max_attempts_per_lane")
@@ -138,7 +138,7 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
         raise ValueError("M3 reliability manifest contains duplicate evidence directories")
 
     comparison_manifest = None
-    if schema_version == 2:
+    if schema_version >= 2:
         comparison_manifest = repo_root / _required_str(raw, "comparison_manifest")
         if comparison_manifest.resolve() == path.resolve():
             raise ValueError("M3 reliability comparison manifest cannot reference itself")
@@ -152,8 +152,11 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
     )
     if comparison_manifest is not None:
         historical = load_manifest(comparison_manifest, repo_root=repo_root)
-        if historical.schema_version != 1:
-            raise ValueError("M3 reliability comparison manifest must be schema_version 1")
+        if historical.schema_version != schema_version - 1:
+            raise ValueError(
+                f"M3 v{schema_version} comparison manifest must be "
+                f"schema_version {schema_version - 1}"
+            )
         _validate_version_separation(manifest, historical=historical)
     return manifest
 
@@ -254,8 +257,13 @@ def run_lane(
             f"lane {lane.lane_id} runner did not produce a valid ExecutionRecord: "
             f"{error}"
         ) from error
+    if manifest.schema_version == 3 and execution_record.get("schema_version") != 2:
+        raise ValueError(
+            f"lane {lane.lane_id} schema-v3 run requires "
+            "a schema-v2 ExecutionRecord"
+        )
     metadata = {
-        "schema_version": 2,
+        "schema_version": 3 if manifest.schema_version == 3 else 2,
         "lane_id": lane.lane_id,
         "seed_id": lane.seed_id,
         "role": lane.role,
@@ -314,7 +322,7 @@ def plan_lanes(manifest: ReliabilityManifest) -> list[dict]:
                     for number, attempt_dir in enumerate(attempts, start=1)
                 ]
                 for metadata, _ in loaded:
-                    if metadata["schema_version"] == 2:
+                    if metadata["schema_version"] >= 2:
                         schema_v2_attempt_lanes.setdefault(
                             metadata["attempt_id"], []
                         ).append(lane.lane_id)
@@ -393,7 +401,7 @@ def _build_progress(
             metadata, verdict = load_verified_attempt(
                 attempt_dir, lane=lane, attempt_number=number
             )
-            if metadata["schema_version"] == 2:
+            if metadata["schema_version"] >= 2:
                 attempt_id = metadata["attempt_id"]
                 previous = schema_v2_attempt_ids.get(attempt_id)
                 if previous is not None:
@@ -730,6 +738,14 @@ def load_verified_attempt(
             raise ValueError(
                 f"lane {lane.lane_id} ExecutionRecord scenario mismatch"
             )
+        if (
+            metadata["schema_version"] == 3
+            and execution_record.get("schema_version") != 2
+        ):
+            raise ValueError(
+                f"lane {lane.lane_id} schema-v3 attempt requires "
+                "a schema-v2 ExecutionRecord"
+            )
         verdict = _load_record_authoritative_verdict(
             attempt_dir,
             lane=lane,
@@ -858,7 +874,7 @@ def _validate_attempt(
     metadata: dict, *, lane: ReliabilityLane, attempt_number: int
 ) -> None:
     schema_version = metadata.get("schema_version")
-    if schema_version not in {1, 2}:
+    if schema_version not in {1, 2, 3}:
         raise ValueError(
             f"lane {lane.lane_id} attempt metadata schema_version is unsupported: "
             f"{schema_version!r}"
@@ -876,7 +892,7 @@ def _validate_attempt(
                 f"lane {lane.lane_id} attempt metadata {key} mismatch: "
                 f"{metadata.get(key)!r}"
             )
-    if schema_version == 2:
+    if schema_version >= 2:
         attempt_id = metadata.get("attempt_id")
         if not isinstance(attempt_id, str) or not attempt_id:
             raise ValueError(

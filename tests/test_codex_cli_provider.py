@@ -156,6 +156,8 @@ def test_artifact_dir_persists_answer_and_events_per_call(tmp_path):
     assert (art / "l3-judge-call-2.prompt.md").read_text(encoding="utf-8") == "second"
     assert (art / "l3-judge-call-1.identity.json").is_file()
     assert (art / "l3-judge-call-2.identity.json").is_file()
+    assert (art / "l3-judge-call-1.invocation.json").is_file()
+    assert (art / "l3-judge-call-2.invocation.json").is_file()
 
 
 def test_artifact_call_binds_requested_model_to_effective_session_model(tmp_path):
@@ -195,6 +197,33 @@ def test_nonzero_exit_raises(tmp_path):
     p = CodexCliProvider(workdir=tmp_path, runner=runner)
     with pytest.raises(CodexCliProviderError, match="exit code 3"):
         p.complete("x")
+
+
+def test_nonzero_invocation_retains_ledger_and_observable_identity(tmp_path):
+    session_root = tmp_path / "sessions"
+    runner = FakeRunner(
+        returncode=3,
+        write_result=False,
+        session_root=session_root,
+        thread_ids=["thread-failed"],
+    )
+    codex_bin = tmp_path / "codex"
+    codex_bin.write_bytes(b"fake codex binary\n")
+    codex_bin.chmod(0o755)
+    artifacts = tmp_path / "l3"
+    provider = CodexCliProvider(
+        codex_bin=str(codex_bin),
+        workdir=tmp_path,
+        artifact_dir=artifacts,
+        runner=runner,
+        session_root=session_root,
+    )
+
+    with pytest.raises(CodexCliProviderError, match="exit code 3"):
+        provider.complete("x")
+
+    assert (artifacts / "l3-judge-call-1.invocation.json").is_file()
+    assert (artifacts / "l3-judge-call-1.identity.json").is_file()
 
 
 def test_missing_result_file_raises(tmp_path):

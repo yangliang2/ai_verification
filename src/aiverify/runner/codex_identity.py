@@ -35,7 +35,7 @@ def capture_codex_invocation_identity(
 ) -> dict:
     """Persist a create-only receipt derived from this invocation's session log."""
     thread_id = _thread_id(events_path)
-    source_path, session_meta, turn_context = _session_observation(
+    _, session_meta, turn_context = _session_observation(
         thread_id,
         session_root=session_root or default_codex_session_root(),
     )
@@ -61,6 +61,18 @@ def capture_codex_invocation_identity(
         )
 
     prompt = command[-1] if command else ""
+    source_observation = {
+        "session_meta": {
+            "id": session_meta.get("id"),
+            "cwd": session_meta.get("cwd"),
+            "cli_version": source_version,
+            "source": session_meta.get("source"),
+        },
+        "turn_context": {
+            "turn_id": turn_context.get("turn_id"),
+            "model": effective_model,
+        },
+    }
     receipt = {
         "schema_version": 1,
         "role": role,
@@ -75,23 +87,11 @@ def capture_codex_invocation_identity(
         "effective_model": effective_model,
         "effective_model_source": {
             "kind": "codex_session_turn_context",
-            "session_path": str(source_path),
-            "session_sha256": _sha256_file(source_path),
+            "observation_sha256": _sha256_json(source_observation),
             "thread_id": thread_id,
             "turn_id": turn_context.get("turn_id"),
         },
-        "source_observation": {
-            "session_meta": {
-                "id": session_meta.get("id"),
-                "cwd": session_meta.get("cwd"),
-                "cli_version": source_version,
-                "source": session_meta.get("source"),
-            },
-            "turn_context": {
-                "turn_id": turn_context.get("turn_id"),
-                "model": effective_model,
-            },
-        },
+        "source_observation": source_observation,
         "command": {
             "argv_without_prompt": command[:-1],
             "prompt_sha256": _sha256_bytes(prompt.encode("utf-8")),
@@ -209,3 +209,10 @@ def _sha256_file(path: Path) -> str:
 
 def _sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def _sha256_json(value: object) -> str:
+    encoded = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return _sha256_bytes(encoded)
