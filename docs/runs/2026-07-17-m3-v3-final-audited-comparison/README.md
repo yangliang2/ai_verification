@@ -113,10 +113,10 @@ done
 
 .venv/bin/pytest -q tests/bench/test_m3_v3_audit.py \
   tests/bench/test_m3_rebaseline_audit.py tests/bench/test_m3_reliability.py
-# 96 passed in 8.16s
+# 97 passed in 8.24s
 
 .venv/bin/pytest
-# 521 passed in 12.42s (12.65s wall clock)
+# 522 passed in 14.06s (14.22s wall clock)
 
 git diff --exit-code 6aabe4d198eef1f22c701a492f54bde05a0d0ec0 -- \
   bench/goldset/m3-reliability-slice.yaml \
