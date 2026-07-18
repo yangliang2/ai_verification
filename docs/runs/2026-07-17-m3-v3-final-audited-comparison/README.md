@@ -47,10 +47,10 @@ entries; each deterministic identity-failure package has 38.
 | Package | Root checksum-manifest SHA-256 |
 |---|---|
 | `2026-07-17-m3-v3-anr-reliability` | `34cae38c7d95ca4c52d1a05346da5b6e24b2a62cf6d6cb20f04ed44b28811a3e` |
-| `2026-07-17-m3-v3-oversized-saved-state-reliability` | `a55d21b0e39abdf24daf6b4a92d559c2dbf45f4046e226f8a40636d0c471617a` |
-| `2026-07-17-m3-v3-query-duplication-reliability` | `e478ffdc1422dd5d60754584ea42dc7fb4b1956fe77728ae808ef5e2c792be86` |
-| `2026-07-17-m3-v3-search-card-l3-reliability` | `2f4aca58a1b8a746a9adacb0f4dfc15007eead01192269dc975c24b1124f7f57` |
-| `2026-07-17-m3-v3-swallowed-back-reliability` | `5b7ac42011d64a8ba6279bcde823006faf98d17f6a3df36e267f89356495955b` |
+| `2026-07-17-m3-v3-oversized-saved-state-reliability` | `cb98f44603683bcd0d602de5d9bfe291d80f85b71a1f7f9c09933eee2ed87aaf` |
+| `2026-07-17-m3-v3-query-duplication-reliability` | `5c38a051e12a1f1d80fec0ddcec3a09bce503ab6f17e63a60f6dd7809d6fb9f8` |
+| `2026-07-17-m3-v3-search-card-l3-reliability` | `ae894c316894f6b5d7ad5356fb8b3c2554b7ab75c9682ef957e4ab176c9369d6` |
+| `2026-07-17-m3-v3-swallowed-back-reliability` | `d3a7b3130e87362842f3b7b5ef2261f181e4ae11ebf44b8e5391d6dd25582df1` |
 
 ## External APK inventory
 
