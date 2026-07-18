@@ -1,0 +1,112 @@
+{
+  "scenario": "issue-61-effective-execution-identity",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt-2/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "issue-61-effective-execution-identity",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_detected",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "inconclusive",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-cc3aa256",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Inspect the current Wikipedia screen with android layout and report PASSED when at least one visible UI element is present; no navigation is required."
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Inspect the current Wikipedia screen with android layout and report PASSED when at least one visible UI element is present; no navigation is required."
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "issue-61-effective-execution-identity-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Layout inspection succeeded and returned multiple visible UI elements. The Wikipedia Home screen was visible with bottom navigation and feed content, including “Featured article” and “Black hole.” No navigation was performed.",
+          "action": "Inspect the current Wikipedia screen with android layout and report PASSED when at least one visible UI element is present; no navigation is required."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-18T02:56:07+00:00",
+    "finished_at": "2026-07-18T02:57:20+00:00",
+    "total_seconds": 72.597,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.884
+      },
+      {
+        "phase": "issue-61-effective-execution-identity-segment-0",
+        "kind": "journey",
+        "seconds": 58.68
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 5.139
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt-2/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "87c4c7088549fdd9073ec85f7c96fbee01eb9662405973999733771055a2b79f"
+  }
+}

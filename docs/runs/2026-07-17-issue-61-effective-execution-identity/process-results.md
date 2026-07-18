@@ -8,16 +8,16 @@ All commands ran from `/Users/peter/projects/ai_verfication` on 2026-07-17.
 PYTHONPATH=src .venv/bin/python -m aiverify.runner \
   /Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-61-effective-execution-identity/run-spec.yaml \
   --device emulator-5554 \
-  --artifact-dir /Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt/artifacts \
+  --artifact-dir /Users/peter/projects/ai_verfication/docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt-2/artifacts \
   --workdir /Users/peter/hosts/wikipedia \
   --model gpt-5.6-sol
 ```
 
 ```text
-attempt c4c22d1d-d44f-42a6-ad1f-2a45ea16b796
+attempt 294732cf-1198-4a3d-9783-de7f94c208c0
 ExecutionRecord schema 2
 lifecycle completed; accounting eligible; process exit 0
-total 36.015 seconds
+total 72.597 seconds
 L1 inconclusive; L2 inconclusive (no boundary event); L3 not applicable
 ```
 
@@ -35,7 +35,7 @@ from aiverify.runner.execution_identity import verify_execution_provenance
 from aiverify.runner.execution_record import load_execution_record
 
 run = Path(
-    "docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt"
+    "docs/runs/2026-07-17-issue-61-effective-execution-identity/success-attempt-2"
 ).resolve()
 record = load_execution_record(run / "execution-record.json")
 manifest = verify_execution_provenance(
@@ -50,6 +50,7 @@ print(record["lifecycle_state"], record["process_outcome"]["exit_code"])
 print(receipt["requested_model"], receipt["effective_model"])
 print(manifest["apk"]["artifacts"][0]["sha256"])
 print(manifest["deployment"]["installed_artifacts"][0]["sha256"])
+print(record["evidence_refs"]["execution_provenance"]["sha256"])
 PY
 ```
 
@@ -58,20 +59,26 @@ completed 0
 gpt-5.6-sol gpt-5.6-sol
 a3060b8c00b7addec0aa17685df0ea96892b5097289e3b51a863b6234468c2bc
 a3060b8c00b7addec0aa17685df0ea96892b5097289e3b51a863b6234468c2bc
-audit passed; provenance a3963cea6f637a0cab6784e9b25c3da93144d388f8bd75bdf5a380383803b31a
+87c4c7088549fdd9073ec85f7c96fbee01eb9662405973999733771055a2b79f
 ```
 
 ## Recomputed-checksum mutation probe
 
-The probe deep-copied the successful manifest, changed
-`host.worktree.status`, wrote a new manifest, recomputed its outer SHA-256, and
-called `verify_execution_provenance` with the new checksum.
+The committed executable probe deep-copies the final attempt, mutates four
+independent provenance dimensions, recomputes every outer provenance checksum,
+and calls the production verifier:
+
+```bash
+.venv/bin/python \
+  docs/runs/2026-07-17-issue-61-effective-execution-identity/audit-mutations.py
+```
 
 ```text
-mutation: host.worktree.status
-outer_checksum_recomputed: true
-audit: rejected
-reason: host status checksum mismatch
+host.origin: rejected — host identity checksum mismatch
+run_spec.package: rejected — Run Spec snapshot contradicts captured identity
+deployment.process.args: rejected — deployment process checksum mismatch
+journey_driver.session_cwd: rejected — role session cwd contradicts captured host
+4 mutation checks passed
 ```
 
 ## Focused tests
@@ -89,7 +96,7 @@ reason: host status checksum mismatch
 ```
 
 ```text
-184 passed
+188 passed
 ```
 
 ## Complete suite and static checks
@@ -103,11 +110,11 @@ git diff --check
 ```
 
 ```text
-511 tests collected
-511 passed
-real 14.93
-user 5.54
-sys 2.72
+515 tests collected
+515 passed
+real 13.59
+user 5.70
+sys 2.79
 git diff --check: passed
 compileall: passed
 ```
@@ -122,4 +129,3 @@ adb 1.0.41 / platform-tools 37.0.0-14910828
 Codex CLI 0.144.5
 git 2.50.1 (Apple Git-155)
 ```
-

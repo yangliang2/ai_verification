@@ -1,14 +1,14 @@
 {
   "issue": 61,
   "scenario": "issue-61-effective-execution-identity",
-  "attempt_id": "c4c22d1d-d44f-42a6-ad1f-2a45ea16b796",
+  "attempt_id": "294732cf-1198-4a3d-9783-de7f94c208c0",
   "execution_record_schema": 2,
   "lifecycle_state": "completed",
   "accounting_eligible": true,
   "process_exit_code": 0,
-  "duration_seconds": 36.015,
+  "duration_seconds": 72.597,
   "provenance_audit": "passed",
-  "provenance_sha256": "a3963cea6f637a0cab6784e9b25c3da93144d388f8bd75bdf5a380383803b31a",
+  "provenance_sha256": "87c4c7088549fdd9073ec85f7c96fbee01eb9662405973999733771055a2b79f",
   "requested_model": "gpt-5.6-sol",
   "effective_model": "gpt-5.6-sol",
   "effective_model_source": "codex_session_turn_context",
@@ -20,12 +20,14 @@
     "status": "not_applicable",
     "reason": "scenario_has_no_l3_spec"
   },
-  "tamper_probe": {
-    "mutation": "host.worktree.status",
-    "outer_checksum_recomputed": true,
-    "audit": "rejected",
-    "reason": "host status checksum mismatch"
+  "mutation_audit": {
+    "passed": 4,
+    "dimensions": [
+      "host.origin",
+      "run_spec.package",
+      "deployment.process.args",
+      "journey_driver.session_cwd"
+    ]
   },
   "visual_check": "passed"
 }
-
