@@ -57,6 +57,7 @@ class ReliabilityManifest:
     max_attempts_per_lane: int
     lanes: tuple[ReliabilityLane, ...]
     comparison_manifest: Path | None = None
+    preregistration: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -143,13 +144,31 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
         if comparison_manifest.resolve() == path.resolve():
             raise ValueError("M3 reliability comparison manifest cannot reference itself")
 
+    preregistration = None
+    if schema_version == 3:
+        preregistration = _load_preregistration(raw.get("preregistration"))
+
     manifest = ReliabilityManifest(
         schema_version=schema_version,
         slice_id=slice_id,
         max_attempts_per_lane=max_attempts,
         lanes=lanes,
         comparison_manifest=comparison_manifest,
+        preregistration=preregistration,
     )
+    if preregistration is not None:
+        expected_counts = {
+            "planned_lanes": len(lanes),
+            "selected_seeds": len({lane.seed_id for lane in lanes}),
+            "baseline_lanes": sum(lane.role == "baseline" for lane in lanes),
+            "defect_lanes": sum(lane.role == "defect" for lane in lanes),
+            "repetitions_per_role": len({lane.repetition for lane in lanes}),
+        }
+        for key, expected in expected_counts.items():
+            if preregistration[key] != expected:
+                raise ValueError(
+                    f"M3 v3 preregistration {key} does not match lane inventory"
+                )
     if comparison_manifest is not None:
         historical = load_manifest(comparison_manifest, repo_root=repo_root)
         if historical.schema_version != schema_version - 1:
@@ -159,6 +178,41 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
             )
         _validate_version_separation(manifest, historical=historical)
     return manifest
+
+
+def _load_preregistration(raw: object) -> dict:
+    """Validate the immutable execution declaration required before v3 runs."""
+    if not isinstance(raw, dict):
+        raise ValueError("M3 v3 manifest preregistration must be a mapping")
+    string_fields = (
+        "frozen_at",
+        "source_revision",
+        "host_commit",
+        "device_serial",
+        "backend",
+        "backend_version",
+        "journey_driver_model",
+        "l3_judge_model",
+    )
+    for key in string_fields:
+        value = raw.get(key)
+        if not isinstance(value, str) or not value:
+            raise ValueError(f"M3 v3 preregistration {key} is invalid")
+    for key in (
+        "planned_lanes",
+        "selected_seeds",
+        "baseline_lanes",
+        "defect_lanes",
+        "repetitions_per_role",
+    ):
+        value = raw.get(key)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise ValueError(f"M3 v3 preregistration {key} is invalid")
+    if raw.get("historical_denominators_combined") is not False:
+        raise ValueError(
+            "M3 v3 preregistration must keep historical denominators separate"
+        )
+    return dict(raw)
 
 
 def _validate_version_separation(

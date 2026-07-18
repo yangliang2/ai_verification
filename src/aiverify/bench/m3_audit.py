@@ -55,7 +55,7 @@ def build_audited_report(
     if environment["schema_version"] != manifest.schema_version:
         raise ValueError("audit environment schema does not match reliability manifest")
     evidence_packages = _verified_evidence_packages(manifest)
-    is_rebaseline = manifest.schema_version == 2
+    is_rebaseline = manifest.schema_version >= 2
     package_contexts: dict[Path, dict] = {}
     repo_root: Path | None = None
     if is_rebaseline:
@@ -199,7 +199,11 @@ def build_audited_report(
                 "audit environment device does not match committed attempt gates"
             )
 
-    criteria = _build_criteria(summary, lane_results=lane_results)
+    criteria = _build_criteria(
+        summary,
+        lane_results=lane_results,
+        schema_version=manifest.schema_version,
+    )
     inventory = {
         "selected_seeds": len({lane.seed_id for lane in manifest.lanes}),
         "lane_roles": len({lane.role for lane in manifest.lanes}),
@@ -218,6 +222,13 @@ def build_audited_report(
             package_contexts=package_contexts,
             package_attempts=package_attempts,
         )
+        if manifest.schema_version >= 3:
+            _validate_v3_execution_identity(
+                manifest,
+                environment=environment,
+                package_environments=package_environments,
+                identity_coverage=identity_coverage,
+            )
         comparison = _build_historical_comparison(
             manifest,
             environment=environment,
@@ -259,7 +270,7 @@ def build_audited_report(
                 "Android CLI across the two declared package environments: "
                 "Android 16/API 36 medium_phone and Android 15/API 35 "
                 "aiverify_api35 emulators",
-                "versioned five-seed, 30-lane live v2 slice only",
+                f"versioned five-seed, 30-lane live v{manifest.schema_version} slice only",
                 "mixed host/device environments prevent causal timing comparisons",
                 "not a fully unattended Journey measurement",
                 "not a benchmark-wide detection or false-positive rate",
@@ -289,7 +300,7 @@ def audited_report_to_dict(report: AuditedReliabilityReport) -> dict:
 
 
 def _build_criteria(
-    summary: ReliabilitySummary, *, lane_results: list[dict]
+    summary: ReliabilitySummary, *, lane_results: list[dict], schema_version: int
 ) -> dict[str, dict]:
     false_positives = summary.control_outcomes.get("false_positive", 0)
     accountable_defects = sum(
@@ -298,11 +309,17 @@ def _build_criteria(
         if row["role"] == "defect"
     )
     caught_defects = summary.defect_outcomes.get("caught", 0)
+    required_accountability = 30 if schema_version >= 3 else 29
+    required_defects = 15 if schema_version >= 3 else accountable_defects
     criteria = {
         "eventual_accountability": {
-            "status": "passed" if summary.eventual_accountable >= 29 else "failed",
+            "status": (
+                "passed"
+                if summary.eventual_accountable >= required_accountability
+                else "failed"
+            ),
             "actual": summary.eventual_accountable,
-            "required_minimum": 29,
+            "required_minimum": required_accountability,
         },
         "zero_accountable_baseline_false_positives": {
             "status": "passed" if false_positives == 0 else "failed",
@@ -310,11 +327,18 @@ def _build_criteria(
             "required_maximum": 0,
         },
         "accountable_defect_consistency": {
-            "status": "passed" if caught_defects == accountable_defects else "failed",
+            "status": "passed" if caught_defects == required_defects else "failed",
             "actual": caught_defects,
-            "required": accountable_defects,
+            "required": required_defects,
         },
     }
+    if schema_version >= 3:
+        passed_controls = summary.control_outcomes.get("passed_control", 0)
+        criteria["passed_baseline_controls"] = {
+            "status": "passed" if passed_controls == 15 else "failed",
+            "actual": passed_controls,
+            "required": 15,
+        }
     criteria["m3_overall"] = {
         "status": (
             "passed"
@@ -714,6 +738,54 @@ def _package_execution_identities(
     return rows, coverage
 
 
+def _validate_v3_execution_identity(
+    manifest: ReliabilityManifest,
+    *,
+    environment: dict,
+    package_environments: list[dict],
+    identity_coverage: dict[str, str],
+) -> None:
+    """Fail closed unless every v3 package and attempt has declared identity."""
+    preregistration = manifest.preregistration
+    if preregistration is None:
+        raise ValueError("v3 audit requires manifest preregistration")
+    if environment["backend"]["version"] != preregistration["backend_version"]:
+        raise ValueError("v3 audit backend contradicts preregistration")
+
+    package_count = len(package_environments)
+    attempt_count = sum(row["formal_attempts"] for row in package_environments)
+    required_coverage = {
+        "package_environment": f"{package_count}/{package_count}",
+        "device_serial_crosscheck": f"{attempt_count}/{attempt_count}",
+        "host_path_crosscheck": f"{attempt_count}/{attempt_count}",
+        "run_spec_command_crosscheck": f"{attempt_count}/{attempt_count}",
+        "run_spec_sha256_retained": f"{package_count}/{package_count}",
+        "manifest_sha256_retained": f"{package_count}/{package_count}",
+        "host_commit_retained": f"{package_count}/{package_count}",
+        "backend_version_retained": f"{package_count}/{package_count}",
+        "model_identity_retained": f"{package_count}/{package_count}",
+        "model_override_crosscheck": f"{attempt_count}/{attempt_count}",
+    }
+    if identity_coverage != required_coverage:
+        raise ValueError("v3 audit execution identity coverage is incomplete")
+
+    for row in package_environments:
+        if row["host"].get("wikipedia_commit") != preregistration["host_commit"]:
+            raise ValueError("v3 package host commit contradicts preregistration")
+        if row["device"]["serial"] != preregistration["device_serial"]:
+            raise ValueError("v3 package device contradicts preregistration")
+        if row["backend"]["version"] != preregistration["backend_version"]:
+            raise ValueError("v3 package backend contradicts preregistration")
+        model_identity = row["model_identity"]
+        if (
+            model_identity.get("journey_driver")
+            != preregistration["journey_driver_model"]
+            or model_identity.get("l3_judge")
+            != preregistration["l3_judge_model"]
+        ):
+            raise ValueError("v3 package model identity contradicts preregistration")
+
+
 def _build_historical_comparison(
     manifest: ReliabilityManifest,
     *,
@@ -726,7 +798,7 @@ def _build_historical_comparison(
     preflight_statuses: dict[str, int],
 ) -> dict:
     if manifest.comparison_manifest is None:
-        raise ValueError("v2 final audit requires a historical comparison manifest")
+        raise ValueError("versioned final audit requires a historical comparison manifest")
     comparison_config = environment["comparison"]
     comparison_manifest = manifest.comparison_manifest
     if _sha256_file(comparison_manifest) != comparison_config["manifest_sha256"]:
@@ -809,7 +881,7 @@ def _build_historical_comparison(
     )
     historical_summary = historical["summary"]
     rebaseline_summary = rebaseline["summary"]
-    return {
+    result = {
         "denominators_combined": False,
         "selective_lane_replacement": False,
         "historical": historical,
@@ -842,8 +914,15 @@ def _build_historical_comparison(
         "interpretation": (
             "The original and v2 slices are two distinct 30-lane populations. "
             "Their denominators and lane outcomes are never merged or selectively replaced."
+            if manifest.schema_version == 2
+            else f"The v{historical_report.schema_version} and "
+            f"v{manifest.schema_version} slices are two distinct 30-lane populations. "
+            "Their denominators and lane outcomes are never merged or selectively replaced."
         ),
     }
+    if historical_report.comparison is not None:
+        result["prior_comparison"] = historical_report.comparison
+    return result
 
 
 def _comparison_snapshot(
@@ -888,6 +967,8 @@ def _sha256_file(path: Path) -> str:
 
 def render_audited_markdown(report: AuditedReliabilityReport) -> str:
     """Render the final audited report from the exact structured report model."""
+    if report.schema_version >= 3:
+        return _render_v3_markdown(report)
     if report.comparison is not None:
         return _render_rebaseline_markdown(report)
 
@@ -1035,6 +1116,98 @@ def render_audited_markdown(report: AuditedReliabilityReport) -> str:
     )
     lines.extend(
         f"| `{row['path']}` | {row['checksum_entries']} | {row['checksum_status']} |"
+        for row in report.evidence_packages
+    )
+    lines.extend(["", "## Scope and Claim Boundary", ""])
+    lines.extend(f"- {limitation}" for limitation in report.scope_limitations)
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _render_v3_markdown(report: AuditedReliabilityReport) -> str:
+    """Render the strict v3 decision and its immutable three-population chain."""
+    comparison = report.comparison
+    assert comparison is not None
+    prior = comparison.get("prior_comparison")
+    if not isinstance(prior, dict):
+        raise ValueError("v3 audit comparison is missing the original/v2 chain")
+    original = prior["historical"]
+    v2 = comparison["historical"]
+    current = summary_to_dict(report.summary)
+    criteria = report.criteria
+    lines = [
+        "# M3 Verification Agent Immutable V3 Audit",
+        "",
+        f"Slice: `{report.slice_id}`",
+        "",
+        "## Decision",
+        "",
+        "| Criterion | Result | Evidence |",
+        "|---|---|---|",
+        f"| M3 v3 overall | **{criteria['m3_overall']['status'].upper()}** | "
+        "All strict v3 criteria must pass |",
+        f"| Eventual accountability | **{criteria['eventual_accountability']['status'].upper()}** | "
+        f"{current['eventual_accountable']} / 30; required 30 / 30 |",
+        "| Baseline controls | **"
+        f"{criteria['passed_baseline_controls']['status'].upper()}** | "
+        f"{criteria['passed_baseline_controls']['actual']} / 15 passed; "
+        "0 false positives |",
+        "| Expected defect detection | **"
+        f"{criteria['accountable_defect_consistency']['status'].upper()}** | "
+        f"{criteria['accountable_defect_consistency']['actual']} / 15 caught "
+        "at expected oracle/class |",
+        "",
+        "Original, v2, and v3 remain three distinct 30-lane populations. "
+        "Their denominators are never merged and no historical lane is replaced.",
+        "",
+        "## Immutable Population Comparison",
+        "",
+        "| Metric | Original | V2 | V3 |",
+        "|---|---:|---:|---:|",
+        f"| Decision | {original['criteria']['m3_overall']['status'].upper()} | "
+        f"{v2['criteria']['m3_overall']['status'].upper()} | "
+        f"{criteria['m3_overall']['status'].upper()} |",
+        f"| Eventual accountable | {original['summary']['eventual_accountable']} / 30 | "
+        f"{v2['summary']['eventual_accountable']} / 30 | "
+        f"{current['eventual_accountable']} / 30 |",
+        f"| Retries | {original['summary']['retry_count']} | "
+        f"{v2['summary']['retry_count']} | {current['retry_count']} |",
+        "",
+        "## V3 Per-Oracle Breakdown",
+        "",
+        "| Oracle | Planned | Accountable | Passed controls | Caught defects | Non-accountable |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for level, row in report.oracle_breakdown.items():
+        lines.append(
+            f"| {level} | {row['planned']} | {row['eventual_accountable']} | "
+            f"{row['passed_controls']} | {row['caught_defects']} | "
+            f"{row['non_accountable']} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## V3 Lane and Attempt Lineage",
+            "",
+            "| Lane | Role | Oracle | Attempt | Accountable | Outcome | Checksum |",
+            "|---|---|---|---:|---|---|---|",
+        ]
+    )
+    for row in report.lane_results:
+        for attempt in row["attempt_lineage"]:
+            lines.append(
+                f"| `{row['lane_id']}` | {row['role']} | "
+                f"{row['expected_oracle_level']} | {attempt['attempt_number']} | "
+                f"{str(attempt['accountable']).lower()} | {row['outcome']} | "
+                f"{attempt['checksum_status']} |"
+            )
+    coverage = report.execution_identity["identity_coverage"]
+    lines.extend(["", "## Execution Identity Coverage", ""])
+    lines.extend(f"- `{key}`: {value}" for key, value in coverage.items())
+    lines.extend(["", "## Evidence Packages", ""])
+    lines.extend(
+        f"- `{row['path']}`: {row['checksum_entries']} entries, "
+        f"{row['checksum_status']}"
         for row in report.evidence_packages
     )
     lines.extend(["", "## Scope and Claim Boundary", ""])
@@ -1404,6 +1577,12 @@ def _failed_criterion_reasons(report: AuditedReliabilityReport) -> list[str]:
             "accountable baseline false positives "
             f"({false_positives['actual']}; required 0)"
         )
+    controls = criteria.get("passed_baseline_controls")
+    if controls is not None and controls["status"] == "failed":
+        reasons.append(
+            "passed baseline controls "
+            f"({controls['actual']} / {controls['required']})"
+        )
     defects = criteria["accountable_defect_consistency"]
     if defects["status"] == "failed":
         reasons.append(
@@ -1447,7 +1626,7 @@ def _load_audit_environment(path: Path) -> dict:
             "backend": ("name", "version"),
             "tools": ("android_cli", "adb", "openjdk", "python", "pytest"),
         }
-    elif schema_version == 2:
+    elif schema_version in {2, 3}:
         required = {
             "audit_host": (
                 "os",
@@ -1467,7 +1646,7 @@ def _load_audit_environment(path: Path) -> dict:
             "rebaseline_manifest": ("path", "sha256"),
         }
     else:
-        raise ValueError("audit environment schema_version must be 1 or 2")
+        raise ValueError("audit environment schema_version must be 1, 2, or 3")
     for section, keys in required.items():
         values = environment.get(section)
         if not isinstance(values, dict):
@@ -1483,7 +1662,7 @@ def _load_audit_environment(path: Path) -> dict:
                 or str(value) == ""
             ):
                 raise ValueError(f"audit environment {section}.{key} is invalid")
-    if schema_version == 2:
+    if schema_version in {2, 3}:
         comparison = environment.get("comparison")
         if not isinstance(comparison, dict):
             raise ValueError("audit environment comparison is invalid")

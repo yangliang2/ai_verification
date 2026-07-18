@@ -1130,6 +1130,29 @@ def test_schema_v3_run_rejects_downgraded_execution_record(tmp_path: Path) -> No
         .replace("v2-fixture-baseline-1", "v3-fixture-baseline-1"),
         encoding="utf-8",
     )
+    v3_path.write_text(
+        v3_path.read_text(encoding="utf-8").replace(
+            "max_attempts_per_lane: 2",
+            """preregistration:
+  frozen_at: "2026-07-17T12:00:00Z"
+  source_revision: fixture-revision
+  host_commit: fixture-host-commit
+  device_serial: emulator-5554
+  backend: codex_cli
+  backend_version: fixture-codex
+  journey_driver_model: fixture-model
+  l3_judge_model: fixture-model
+  planned_lanes: 1
+  selected_seeds: 1
+  baseline_lanes: 1
+  defect_lanes: 0
+  repetitions_per_role: 1
+  historical_denominators_combined: false
+max_attempts_per_lane: 2""",
+            1,
+        ),
+        encoding="utf-8",
+    )
     manifest = load_manifest(v3_path, repo_root=tmp_path)
 
     with pytest.raises(ValueError, match="schema-v3 run requires.*schema-v2"):
@@ -1140,6 +1163,27 @@ def test_schema_v3_run_rejects_downgraded_execution_record(tmp_path: Path) -> No
             workdir=tmp_path,
             runner=VerdictWritingRunner(_completed_verdict()),
         )
+
+
+def test_schema_v3_manifest_requires_execution_preregistration(
+    tmp_path: Path,
+) -> None:
+    _, v2_path = _write_versioned_fixture_manifests(tmp_path)
+    v3_path = tmp_path / "manifest-v3.yaml"
+    v3_path.write_text(
+        v2_path.read_text(encoding="utf-8")
+        .replace("schema_version: 2", "schema_version: 3", 1)
+        .replace("fixture-reliability-v2", "fixture-reliability-v3")
+        .replace(
+            "comparison_manifest: manifest.yaml",
+            "comparison_manifest: manifest-v2.yaml",
+        )
+        .replace("v2-fixture-baseline-1", "v3-fixture-baseline-1"),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="preregistration"):
+        load_manifest(v3_path, repo_root=tmp_path)
 
 
 def test_summary_treats_in_progress_record_as_authoritative_abandonment(
