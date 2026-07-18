@@ -478,7 +478,10 @@ def _load_package_contexts(
 
         expected_package = package_environment["application"]["package"]
         for lane in package_lanes:
-            if load_run_spec(lane.run_spec).package != expected_package:
+            if load_run_spec(
+                lane.run_spec,
+                environ={"WIKIPEDIA_SOURCE": package_environment["host"]["wikipedia_source"]},
+            ).package != expected_package:
                 raise ValueError(
                     f"package {stable_package} Run Spec application mismatch"
                 )

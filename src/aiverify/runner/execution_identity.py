@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import platform
 import shutil
 import sys
@@ -427,6 +428,16 @@ class ExecutionIdentityCollector:
         }
 
     def _apk_artifacts(self) -> list[dict[str, object]]:
+        override = os.environ.get("AIVERIFY_DEPLOYED_APK")
+        if override:
+            path = Path(override).resolve()
+            if not path.is_file():
+                raise ExecutionIdentityError(f"deployed APK override is missing: {path}")
+            return [{
+                "path": str(path),
+                "bytes": path.stat().st_size,
+                "sha256": _sha256_file(path),
+            }]
         paths = sorted(
             path.resolve()
             for path in self.spec.host_project.glob(self.spec.apk_glob)

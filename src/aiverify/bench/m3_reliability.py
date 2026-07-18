@@ -285,6 +285,7 @@ def run_lane(
     runner: CommandRunner | None = None,
     python_executable: str | None = None,
     operational_interventions: list[str] | None = None,
+    deployed_apk: str | None = None,
 ) -> AttemptRecord:
     """Invoke the public Run Spec runner for the next preserved lane attempt."""
     lane = _lane_by_id(manifest, lane_id)
@@ -308,6 +309,8 @@ def run_lane(
         "--workdir",
         str(workdir),
     ]
+    if deployed_apk:
+        os.environ["AIVERIFY_DEPLOYED_APK"] = deployed_apk
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     command_result = (runner or SubprocessCommandRunner()).run(
         command,
@@ -599,6 +602,7 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument("--workdir", type=Path, required=True)
     run_parser.add_argument("--python-executable", default=sys.executable)
     run_parser.add_argument("--intervention", action="append", default=[])
+    run_parser.add_argument("--deployed-apk")
 
     summary_parser = commands.add_parser("summary")
     summary_parser.add_argument("--json-output", type=Path)
@@ -641,6 +645,7 @@ def main(argv: list[str] | None = None) -> int:
             workdir=args.workdir,
             python_executable=args.python_executable,
             operational_interventions=args.intervention,
+            deployed_apk=args.deployed_apk,
         )
         print(
             json.dumps(
