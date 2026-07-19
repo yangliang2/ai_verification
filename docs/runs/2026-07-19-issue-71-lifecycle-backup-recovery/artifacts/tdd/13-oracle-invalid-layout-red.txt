@@ -1,0 +1,64 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_oracle_fails_closed_when_restore_layout_is_invalid ____________
+
+    def test_oracle_fails_closed_when_restore_layout_is_invalid() -> None:
+>       verdict = judge_lifecycle_recovery(
+            contract=CONTRACT,
+            initial_layout=PRE_RESTORE,
+            rotated_layout=PRE_RESTORE,
+            process_restored_layout=PRE_RESTORE,
+            backup_restored_layout="not-json",
+            process_event={
+                "status": "passed",
+                "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
+            },
+            backup_event={
+                "status": "passed",
+                "evidence": {
+                    "transport": "com.android.localtransport/.LocalTransport",
+                    "backup_status": "success",
+                    "restore_status": "success",
+                    "restore_token": "1",
+                },
+            },
+            crash_detected=False,
+        )
+
+tests/bench/test_lifecycle_recovery.py:248: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/lifecycle_recovery.py:39: in judge_lifecycle_recovery
+    "backup_restore": _read_observation(backup_restored_layout),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/aiverify/bench/lifecycle_recovery.py:139: in _read_observation
+    data = json.loads(layout_json)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.decoder.JSONDecoder object at 0x1036acf90>, s = 'not-json', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/json/decoder.py:355: JSONDecodeError
+=========================== short test summary info ============================
+FAILED tests/bench/test_lifecycle_recovery.py::test_oracle_fails_closed_when_restore_layout_is_invalid
+1 failed in 0.02s

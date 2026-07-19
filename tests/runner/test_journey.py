@@ -281,6 +281,12 @@ class FakeInjector:
         self.events.append(event)
 
 
+class EvidenceInjector(FakeInjector):
+    def inject(self, event: SystemEventSpec) -> dict[str, object]:
+        self.events.append(event)
+        return {"before_pids": ["111"], "after_pids": ["222"]}
+
+
 class RaisingCollector(FakeCollector):
     def capture_checkpoint(
         self,
@@ -411,6 +417,39 @@ def test_journey_segment_runner_times_every_phase(tmp_path: Path) -> None:
     assert all(isinstance(t["seconds"], float) and t["seconds"] >= 0 for t in flow.timings)
     event_entry = next(t for t in flow.timings if t["kind"] == "system_event")
     assert event_entry["event"] == "process_death"
+
+
+def test_journey_segment_runner_persists_system_event_evidence(tmp_path: Path) -> None:
+    runner = JourneySegmentRunner(
+        backend=FakeBackend(),
+        checkpoint_collector=FakeCollector(),
+        system_event_injector=EvidenceInjector(),
+    )
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}", encoding="utf-8")
+
+    flow = runner.run(
+        scenario=ScenarioSpec(
+            id="lifecycle",
+            user_actions=["Create fixture", "Verify restored fixture"],
+            system_events=[SystemEventSpec(step_index=0, event="process_death")],
+        ),
+        workdir=tmp_path,
+        artifact_dir=tmp_path / "artifacts",
+        output_schema=schema,
+        device="emulator-5554",
+    )
+
+    assert len(flow.system_event_evidence) == 1
+    event_path = flow.system_event_evidence[0]
+    assert event_path == tmp_path / "artifacts/system-event-0/event.json"
+    assert json.loads(event_path.read_text(encoding="utf-8")) == {
+        "schema_version": 1,
+        "event": "process_death",
+        "args": {},
+        "status": "passed",
+        "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
+    }
 
 
 def test_journey_segment_runner_prepends_instruction_prefix(tmp_path: Path) -> None:

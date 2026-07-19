@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "fixture": {
+    "package": "dev.aiverify.lifecyclefixture",
+    "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+    "resources": {
+      "sentinel": "fixture_sentinel",
+      "schema_version": "fixture_schema_version",
+      "revision": "fixture_revision",
+      "migration_status": "fixture_migration_status"
+    }
+  },
+  "checkpoints": {
+    "initial": "after-segment-0",
+    "rotated": "after-event-0",
+    "process_restored": "after-event-1",
+    "backup_restored": "after-event-2"
+  },
+  "system_events": {
+    "rotate": "system-event-0/event.json",
+    "process_death": "system-event-1/event.json",
+    "backup_restore": "system-event-2/event.json"
+  },
+  "state": {
+    "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+    "pre_restore_schema": "1",
+    "pre_restore_revision": "41",
+    "pre_restore_migration": "PENDING_V1_TO_V2",
+    "restored_schema": "2",
+    "restored_revision": "42",
+    "restored_migration": "MIGRATED_V1_TO_V2",
+    "reset_sentinel": "UNINITIALIZED"
+  }
+}

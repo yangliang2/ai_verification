@@ -7,6 +7,7 @@ import re
 import time
 from collections.abc import Iterable
 from dataclasses import dataclass
+from typing import Any
 
 from aiverify.harness.device import AdbResult, DeviceController
 from aiverify.runner.run_spec import SystemEventSpec
@@ -29,7 +30,7 @@ class DeviceSystemEventInjector:
     package: str
     activity: str | None = None
 
-    def inject(self, event: SystemEventSpec) -> None:
+    def inject(self, event: SystemEventSpec) -> dict[str, Any] | None:
         """Inject one system event at a Journey Segment Boundary."""
         if event.event == "rotate":
             raw_rotation = event.args.get("rotation", "1")
@@ -60,7 +61,10 @@ class DeviceSystemEventInjector:
                     "rotate postcondition failed: "
                     f"expected user_rotation={rotation}, observed {actual!r}"
                 )
-            return
+            return {
+                "accelerometer_rotation": automatic_value,
+                "user_rotation": actual,
+            }
         if event.event == "kill_background":
             before = self.device.get_pid(self.package)
             self._require_success(event.event, before)
@@ -187,7 +191,100 @@ class DeviceSystemEventInjector:
                     "process_death postcondition failed: "
                     f"{noun} {survivor_list} survived"
                 )
-            return
+            return {
+                "before_pids": sorted(before_pids),
+                "after_pids": sorted(after_pids),
+            }
+        if event.event == "backup_restore":
+            transport = event.args.get(
+                "transport", "com.android.localtransport/.LocalTransport"
+            )
+            if not transport or any(character.isspace() for character in transport):
+                raise SystemEventInjectionError(
+                    "backup_restore requires a non-empty transport without whitespace"
+                )
+            raw_restore_wait = event.args.get("restore_wait", "8.0")
+            try:
+                restore_wait = float(raw_restore_wait)
+            except (TypeError, ValueError) as error:
+                raise SystemEventInjectionError(
+                    "backup_restore requires a finite non-negative restore_wait"
+                ) from error
+            if not math.isfinite(restore_wait) or restore_wait < 0:
+                raise SystemEventInjectionError(
+                    "backup_restore requires a finite non-negative restore_wait"
+                )
+
+            enabled_result = self.device.get_backup_enabled()
+            self._require_success(event.event, enabled_result)
+            backup_was_enabled = self._parse_backup_enabled(enabled_result.stdout)
+
+            transports_result = self.device.list_backup_transports()
+            self._require_success(event.event, transports_result)
+            previous_transport, available = self._parse_backup_transports(
+                transports_result.stdout
+            )
+            if transport not in available:
+                raise SystemEventInjectionError(
+                    f"backup_restore transport is unavailable: {transport}"
+                )
+
+            attempt_evidence: dict[str, Any] | None = None
+            attempt_error: Exception | None = None
+            try:
+                if not backup_was_enabled:
+                    self._require_success(
+                        event.event, self.device.set_backup_enabled(enabled=True)
+                    )
+                self._require_success(
+                    event.event, self.device.select_backup_transport(transport)
+                )
+                selected = self.device.list_backup_transports()
+                self._require_success(event.event, selected)
+                selected_transport, _ = self._parse_backup_transports(selected.stdout)
+                if selected_transport != transport:
+                    raise SystemEventInjectionError(
+                        "backup_restore postcondition failed: requested transport "
+                        f"{transport}, observed {selected_transport}"
+                    )
+                attempt_evidence = self._perform_backup_restore(
+                    event=event.event,
+                    transport=transport,
+                    restore_wait=restore_wait,
+                )
+            except Exception as error:
+                attempt_error = error
+
+            cleanup_error: Exception | None = None
+            try:
+                self._restore_backup_configuration(
+                    event=event.event,
+                    previous_transport=previous_transport,
+                    selected_transport=transport,
+                    backup_was_enabled=backup_was_enabled,
+                )
+            except Exception as error:
+                cleanup_error = error
+
+            if attempt_error is not None:
+                if cleanup_error is not None:
+                    raise SystemEventInjectionError(
+                        f"{attempt_error}; backup_restore cleanup also failed: "
+                        f"{cleanup_error}"
+                    ) from attempt_error
+                raise attempt_error
+            if cleanup_error is not None:
+                raise cleanup_error
+            if attempt_evidence is None:
+                raise SystemEventInjectionError(
+                    "backup_restore completed without attempt evidence"
+                )
+            return {
+                "transport": transport,
+                "previous_transport": previous_transport,
+                "backup_was_enabled": backup_was_enabled,
+                **attempt_evidence,
+            }
         if event.event == "app_to_foreground":
             timeout_seconds, poll_interval_seconds = self._postcondition_polling(
                 event
@@ -228,6 +325,94 @@ class DeviceSystemEventInjector:
             return
         raise SystemEventInjectionError(f"Unsupported system event for MVP injector: {event.event}")
 
+    def _perform_backup_restore(
+        self,
+        *,
+        event: str,
+        transport: str,
+        restore_wait: float,
+    ) -> dict[str, Any]:
+        self._require_success(
+            event, self.device.wipe_backup_data(transport, self.package)
+        )
+        backup = self.device.backup_now(self.package)
+        self._require_success(event, backup)
+        if re.search(
+            rf"Package\s+{re.escape(self.package)}\s+with result:\s*Success",
+            backup.stdout,
+        ) is None:
+            raise SystemEventInjectionError(
+                "backup_restore backup postcondition failed: package success "
+                f"marker missing from {backup.stdout.strip()!r}"
+            )
+
+        restore_sets = self.device.list_restore_sets()
+        self._require_success(event, restore_sets)
+        restore_token = self._parse_restore_token(restore_sets.stdout)
+
+        cleared = self.device.clear_data(self.package)
+        self._require_success(event, cleared)
+        if cleared.stdout.strip() != "Success":
+            raise SystemEventInjectionError(
+                "backup_restore clear-data postcondition failed: "
+                f"observed {cleared.stdout.strip()!r}"
+            )
+
+        restored = self.device.restore_backup(restore_token, self.package)
+        self._require_success(event, restored)
+        if re.search(r"restoreFinished:\s*0(?:\s|$)", restored.stdout) is None:
+            raise SystemEventInjectionError(
+                "backup_restore restore postcondition failed: success marker "
+                f"missing from {restored.stdout.strip()!r}"
+            )
+
+        self._require_success(event, self.device.launch(self.package, self.activity))
+        if restore_wait > 0:
+            time.sleep(restore_wait)
+        post_restore_pid = self.device.get_pid(self.package)
+        self._require_success(event, post_restore_pid)
+        post_restore_pids = self._parse_running_pids(event, post_restore_pid)
+        return {
+            "backup_status": "success",
+            "restore_status": "success",
+            "restore_token": restore_token,
+            "post_restore_pids": sorted(post_restore_pids),
+            "backup_output": backup.stdout.strip(),
+            "restore_output": restored.stdout.strip(),
+        }
+
+    def _restore_backup_configuration(
+        self,
+        *,
+        event: str,
+        previous_transport: str,
+        selected_transport: str,
+        backup_was_enabled: bool,
+    ) -> None:
+        if previous_transport != selected_transport:
+            self._require_success(
+                event, self.device.select_backup_transport(previous_transport)
+            )
+        if not backup_was_enabled:
+            self._require_success(
+                event, self.device.set_backup_enabled(enabled=False)
+            )
+        restored_transports = self.device.list_backup_transports()
+        self._require_success(event, restored_transports)
+        active_after_cleanup, _ = self._parse_backup_transports(
+            restored_transports.stdout
+        )
+        if active_after_cleanup != previous_transport:
+            raise SystemEventInjectionError(
+                "backup_restore cleanup failed: previous transport was not restored"
+            )
+        restored_enabled = self.device.get_backup_enabled()
+        self._require_success(event, restored_enabled)
+        if self._parse_backup_enabled(restored_enabled.stdout) != backup_was_enabled:
+            raise SystemEventInjectionError(
+                "backup_restore cleanup failed: backup enabled state was not restored"
+            )
+
     @staticmethod
     def _require_success(
         event: str, results: AdbResult | Iterable[AdbResult]
@@ -252,6 +437,50 @@ class DeviceSystemEventInjector:
                 f"{result.stdout.strip()!r}"
             )
         return pids
+
+    @staticmethod
+    def _parse_backup_enabled(output: str) -> bool:
+        normalized = output.strip().lower()
+        if normalized.endswith("currently enabled") or normalized.endswith("now enabled"):
+            return True
+        if normalized.endswith("currently disabled") or normalized.endswith("now disabled"):
+            return False
+        raise SystemEventInjectionError(
+            "backup_restore postcondition failed: unrecognized bmgr enabled output "
+            f"{output.strip()!r}"
+        )
+
+    @staticmethod
+    def _parse_backup_transports(output: str) -> tuple[str, set[str]]:
+        available: set[str] = set()
+        active: str | None = None
+        for line in output.splitlines():
+            match = re.fullmatch(r"\s*(\*)?\s*(\S+)\s*", line)
+            if match is None:
+                continue
+            name = match.group(2)
+            available.add(name)
+            if match.group(1) == "*":
+                if active is not None:
+                    raise SystemEventInjectionError(
+                        "backup_restore postcondition failed: multiple active transports"
+                    )
+                active = name
+        if active is None or not available:
+            raise SystemEventInjectionError(
+                "backup_restore postcondition failed: active transport is unobservable"
+            )
+        return active, available
+
+    @staticmethod
+    def _parse_restore_token(output: str) -> str:
+        for line in output.splitlines():
+            match = re.match(r"^\s*([0-9A-Fa-f]+)\s*:\s*", line)
+            if match is not None:
+                return match.group(1)
+        raise SystemEventInjectionError(
+            "backup_restore postcondition failed: restore token is unobservable"
+        )
 
     def _read_resumed_package(self, event: str) -> str | None:
         observed = self.device.get_resumed_activity()

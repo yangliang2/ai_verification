@@ -1,0 +1,37 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_oracle_rejects_restored_but_unmigrated_stale_state ____________
+
+    def test_oracle_rejects_restored_but_unmigrated_stale_state() -> None:
+        verdict = judge_lifecycle_recovery(
+            contract=CONTRACT,
+            initial_layout=PRE_RESTORE,
+            rotated_layout=PRE_RESTORE,
+            process_restored_layout=PRE_RESTORE,
+            backup_restored_layout=PRE_RESTORE,
+            process_event={
+                "status": "passed",
+                "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
+            },
+            backup_event={
+                "status": "passed",
+                "evidence": {
+                    "transport": "com.android.localtransport/.LocalTransport",
+                    "backup_status": "success",
+                    "restore_status": "success",
+                    "restore_token": "1",
+                },
+            },
+            crash_detected=False,
+        )
+    
+>       assert verdict["conclusion"] == "locally_rejected"
+E       AssertionError: assert 'non_accountable' == 'locally_rejected'
+E         
+E         - locally_rejected
+E         + non_accountable
+
+tests/bench/test_lifecycle_recovery.py:208: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_lifecycle_recovery.py::test_oracle_rejects_restored_but_unmigrated_stale_state
+1 failed in 0.02s

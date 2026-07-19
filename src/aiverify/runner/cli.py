@@ -1188,6 +1188,9 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         "journey_results": [r.data for r in flow.journey_results],
         "checkpoints": [c.name for c in flow.checkpoints],
         "injected_events": [{"event": e.event, "args": e.args} for e in flow.injected_events],
+        "system_event_evidence": [
+            str(path) for path in flow.system_event_evidence
+        ],
         "timing": {
             "started_at": started_at,
             "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -1229,6 +1232,15 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             "checkpoints": [
                 str(checkpoint.directory) for checkpoint in flow.checkpoints
             ],
+            **(
+                {
+                    "system_events": [
+                        str(path) for path in flow.system_event_evidence
+                    ]
+                }
+                if flow.system_event_evidence
+                else {}
+            ),
             "execution_provenance": execution_provenance,
         },
     )

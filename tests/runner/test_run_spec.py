@@ -42,6 +42,25 @@ def test_parse_valid_run_spec_normalizes_paths(tmp_path: Path) -> None:
     assert spec.scenario.metric_context.seed_kind == "unspecified"
 
 
+def test_run_spec_accepts_backup_restore_as_a_boundary_event(tmp_path: Path) -> None:
+    data = _valid_spec()
+    data["scenario"]["system_events"] = [
+        {
+            "step_index": 1,
+            "event": "backup_restore",
+            "args": {
+                "transport": "com.android.localtransport/.LocalTransport",
+                "restore_wait": "0",
+            },
+        }
+    ]
+
+    spec = parse_run_spec(data, base_dir=tmp_path)
+
+    assert spec.scenario.system_events[0].event == "backup_restore"
+    assert spec.scenario.system_events[0].args["restore_wait"] == "0"
+
+
 def test_portable_host_locator_resolves_from_environment_or_explicit_override(
     tmp_path: Path,
 ) -> None:

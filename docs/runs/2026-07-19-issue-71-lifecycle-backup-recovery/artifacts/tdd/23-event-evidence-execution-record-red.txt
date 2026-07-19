@@ -1,0 +1,67 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_public_run_establishes_one_execution_record_before_preflight_and_finalizes_it _
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-370/test_public_run_establishes_on0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10ab93f10>
+
+    def test_public_run_establishes_one_execution_record_before_preflight_and_finalizes_it(
+        tmp_path, monkeypatch
+    ):
+        flow = _flow(tmp_path)
+        event_path = tmp_path / "system-event-0" / "event.json"
+        event_path.parent.mkdir()
+        event_path.write_text('{"event":"process_death"}', encoding="utf-8")
+        flow.system_event_evidence.append(event_path)
+        artifact_dir = tmp_path / "run" / "artifacts"
+        record_path = artifact_dir.parent / "execution-record.json"
+        observed_record: dict[str, object] = {}
+    
+        class InspectingPreflightRunner(FakePreflightRunner):
+            def run(self, *args, **kwargs):
+                if not observed_record:
+                    observed_record.update(
+                        json.loads(record_path.read_text(encoding="utf-8"))
+                    )
+                return super().run(*args, **kwargs)
+    
+        class SuccessfulRunner:
+            def __init__(self, **kwargs):
+                pass
+    
+            def run(self, **kwargs):
+                return flow
+    
+        monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+        monkeypatch.setattr(cli, "JourneySegmentRunner", SuccessfulRunner)
+    
+        verdict = cli.run(
+            _spec(tmp_path, l3_spec=""),
+            device="emulator-5554",
+            artifact_dir=artifact_dir,
+            workdir=tmp_path,
+            preflight_command_runner=InspectingPreflightRunner(
+                _passing_preflight_responses()
+            ),
+        )
+    
+        assert observed_record["lifecycle_state"] == "in_progress"
+        assert observed_record["schema_version"] == 2
+        assert observed_record["finished_at"] is None
+        attempt_id = observed_record["attempt_id"]
+        assert isinstance(attempt_id, str) and attempt_id
+    
+        record = json.loads(record_path.read_text(encoding="utf-8"))
+        assert record["attempt_id"] == attempt_id
+        assert record["lifecycle_state"] == "completed"
+        assert record["execution"] == verdict["execution"]
+        assert record["process_outcome"] == {"exit_code": 0}
+        assert record["phase_errors"] == []
+>       assert verdict["system_event_evidence"] == [str(event_path)]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'system_event_evidence'
+
+tests/runner/test_cli.py:979: KeyError
+=========================== short test summary info ============================
+FAILED tests/runner/test_cli.py::test_public_run_establishes_one_execution_record_before_preflight_and_finalizes_it
+1 failed in 0.12s

@@ -1,0 +1,15 @@
+
+==================================== ERRORS ====================================
+___________ ERROR collecting tests/bench/test_lifecycle_recovery.py ____________
+ImportError while importing test module '/Users/peter/projects/ai_verification-issue-71/tests/bench/test_lifecycle_recovery.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/bench/test_lifecycle_recovery.py:6: in <module>
+    from aiverify.bench.lifecycle_recovery import (
+E   ImportError: cannot import name 'judge_lifecycle_recovery_run' from 'aiverify.bench.lifecycle_recovery' (/Users/peter/projects/ai_verification-issue-71/src/aiverify/bench/lifecycle_recovery.py)
+=========================== short test summary info ============================
+ERROR tests/bench/test_lifecycle_recovery.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!

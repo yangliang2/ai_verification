@@ -28,7 +28,14 @@ def test_inject_rotate_uses_device_controller_rotation() -> None:
         ]
     )
 
-    injector.inject(SystemEventSpec(step_index=0, event="rotate", args={"rotation": "3"}))
+    evidence = injector.inject(
+        SystemEventSpec(step_index=0, event="rotate", args={"rotation": "3"})
+    )
+
+    assert evidence == {
+        "accelerometer_rotation": "0",
+        "user_rotation": "3",
+    }
 
     assert fake.commands[-4:] == [
         ["-s", "emulator-5554", "shell", "settings", "put", "system", "accelerometer_rotation", "0"],
@@ -254,6 +261,177 @@ def test_inject_process_death_fails_closed_when_process_identity_is_unchanged() 
                 },
             )
         )
+
+
+def test_inject_backup_restore_records_transport_restore_and_process_evidence() -> None:
+    fake = FakeAdbRunner()
+    device = DeviceController(serial="emulator-5554", runner=fake)
+    injector = DeviceSystemEventInjector(
+        device=device,
+        package="org.example",
+        activity="org.example.MainActivity",
+    )
+    local = "com.android.localtransport/.LocalTransport"
+    cloud = "com.google.android.gms/.backup.BackupTransportService"
+    fake.enqueue_many(
+        [
+            AdbResult(
+                stdout="Backup Manager currently disabled\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(
+                stdout=f"    {local}\n  * {cloud}\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(stdout="Backup Manager now enabled\n", stderr="", returncode=0),
+            AdbResult(stdout=f"Selected transport {local}\n", stderr="", returncode=0),
+            AdbResult(
+                stdout=f"  * {local}\n    {cloud}\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(stdout="Wiped org.example\n", stderr="", returncode=0),
+            AdbResult(
+                stdout="Package org.example with result: Success\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(stdout="1 : Local disk image\n", stderr="", returncode=0),
+            AdbResult(stdout="Success\n", stderr="", returncode=0),
+            AdbResult(
+                stdout="restoreStarting: 1 packages\nrestoreFinished: 0\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(stdout="Starting: Intent\n", stderr="", returncode=0),
+            AdbResult(stdout="333\n", stderr="", returncode=0),
+            AdbResult(stdout=f"Selected transport {cloud}\n", stderr="", returncode=0),
+            AdbResult(stdout="Backup Manager now disabled\n", stderr="", returncode=0),
+            AdbResult(
+                stdout=f"    {local}\n  * {cloud}\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(
+                stdout="Backup Manager currently disabled\n",
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    evidence = injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="backup_restore",
+            args={"transport": local, "restore_wait": "0"},
+        )
+    )
+
+    assert evidence == {
+        "transport": local,
+        "previous_transport": cloud,
+        "backup_was_enabled": False,
+        "backup_status": "success",
+        "restore_status": "success",
+        "restore_token": "1",
+        "post_restore_pids": ["333"],
+        "backup_output": "Package org.example with result: Success",
+        "restore_output": "restoreStarting: 1 packages\nrestoreFinished: 0",
+    }
+    assert fake.commands == [
+        ["-s", "emulator-5554", "shell", "bmgr", "enabled"],
+        ["-s", "emulator-5554", "shell", "bmgr", "list", "transports"],
+        ["-s", "emulator-5554", "shell", "bmgr", "enable", "true"],
+        ["-s", "emulator-5554", "shell", "bmgr", "transport", local],
+        ["-s", "emulator-5554", "shell", "bmgr", "list", "transports"],
+        ["-s", "emulator-5554", "shell", "bmgr", "wipe", local, "org.example"],
+        [
+            "-s", "emulator-5554", "shell", "bmgr", "backupnow", "--monitor",
+            "org.example",
+        ],
+        ["-s", "emulator-5554", "shell", "bmgr", "list", "sets"],
+        ["-s", "emulator-5554", "shell", "pm", "clear", "org.example"],
+        [
+            "-s", "emulator-5554", "shell", "bmgr", "restore", "1",
+            "org.example", "--monitor",
+        ],
+        [
+            "-s", "emulator-5554", "shell", "am", "start", "-n",
+            "org.example/org.example.MainActivity",
+        ],
+        ["-s", "emulator-5554", "shell", "pidof", "org.example"],
+        ["-s", "emulator-5554", "shell", "bmgr", "transport", cloud],
+        ["-s", "emulator-5554", "shell", "bmgr", "enable", "false"],
+        ["-s", "emulator-5554", "shell", "bmgr", "list", "transports"],
+        ["-s", "emulator-5554", "shell", "bmgr", "enabled"],
+    ]
+
+
+def test_inject_backup_restore_fails_closed_and_restores_backup_configuration() -> None:
+    injector, fake = _injector()
+    local = "com.android.localtransport/.LocalTransport"
+    cloud = "com.google.android.gms/.backup.BackupTransportService"
+    fake.enqueue_many(
+        [
+            AdbResult(
+                stdout="Backup Manager currently disabled\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(
+                stdout=f"    {local}\n  * {cloud}\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(stdout="Backup Manager now enabled\n", stderr="", returncode=0),
+            AdbResult(stdout=f"Selected transport {local}\n", stderr="", returncode=0),
+            AdbResult(
+                stdout=f"  * {local}\n    {cloud}\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(stdout="Wiped org.example\n", stderr="", returncode=0),
+            AdbResult(
+                stdout="Package org.example with result: Transport rejected\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(stdout=f"Selected transport {cloud}\n", stderr="", returncode=0),
+            AdbResult(stdout="Backup Manager now disabled\n", stderr="", returncode=0),
+            AdbResult(
+                stdout=f"    {local}\n  * {cloud}\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(
+                stdout="Backup Manager currently disabled\n",
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="backup postcondition failed.*success marker missing",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="backup_restore",
+                args={"transport": local, "restore_wait": "0"},
+            )
+        )
+
+    assert fake.commands[-4:] == [
+        ["-s", "emulator-5554", "shell", "bmgr", "transport", cloud],
+        ["-s", "emulator-5554", "shell", "bmgr", "enable", "false"],
+        ["-s", "emulator-5554", "shell", "bmgr", "list", "transports"],
+        ["-s", "emulator-5554", "shell", "bmgr", "enabled"],
+    ]
 
 
 def test_inject_network_off_toggles_wifi_and_data() -> None:

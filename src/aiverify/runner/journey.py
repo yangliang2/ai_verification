@@ -15,6 +15,7 @@ from aiverify.runner.codex_backend import (
     JourneyExecutionResult,
 )
 from aiverify.runner.evidence import EvidenceCaptureError, EvidenceCheckpoint
+from aiverify.runner.execution_record import write_json_artifact
 from aiverify.runner.run_spec import ScenarioSpec, SystemEventSpec
 
 
@@ -39,6 +40,7 @@ class JourneySegmentFlow:
     journey_results: list[JourneyExecutionResult]
     checkpoints: list[EvidenceCheckpoint]
     injected_events: list[SystemEventSpec] = field(default_factory=list)
+    system_event_evidence: list[Path] = field(default_factory=list)
     timings: list[dict[str, Any]] = field(default_factory=list)
 
 
@@ -55,6 +57,7 @@ class JourneyExecutionInterrupted(RuntimeError):
         injected_events: list[SystemEventSpec],
         timings: list[dict[str, Any]],
         backend_diagnostics: list[dict[str, str | list[str] | None]] | None = None,
+        system_event_evidence: list[Path] | None = None,
     ) -> None:
         super().__init__(message)
         self.reason = reason
@@ -62,6 +65,7 @@ class JourneyExecutionInterrupted(RuntimeError):
             journey_results=list(journey_results),
             checkpoints=list(checkpoints),
             injected_events=list(injected_events),
+            system_event_evidence=list(system_event_evidence or []),
             timings=list(timings),
         )
         self.backend_diagnostics = list(backend_diagnostics or [])
@@ -91,7 +95,7 @@ class CheckpointCollector(Protocol):
 class SystemEventInjector(Protocol):
     """Injector for system events at Journey Segment Boundaries."""
 
-    def inject(self, event: SystemEventSpec) -> None:
+    def inject(self, event: SystemEventSpec) -> dict[str, Any] | None:
         """Inject a system event."""
 
 
@@ -191,6 +195,7 @@ class JourneySegmentRunner:
         journey_results: list[JourneyExecutionResult] = []
         checkpoints: list[EvidenceCheckpoint] = []
         injected_events: list[SystemEventSpec] = []
+        system_event_evidence: list[Path] = []
         timings: list[dict[str, Any]] = []
 
         def _timed(phase: str, kind: str, fn, **extra: Any):
@@ -235,6 +240,7 @@ class JourneySegmentRunner:
                 injected_events=injected_events,
                 timings=timings,
                 backend_diagnostics=backend_diagnostics,
+                system_event_evidence=system_event_evidence,
             )
 
         for index, segment in enumerate(scenario_to_segments(scenario)):
@@ -426,7 +432,7 @@ class JourneySegmentRunner:
             if segment.system_event_after is not None:
                 event = segment.system_event_after
                 try:
-                    _timed(
+                    event_details = _timed(
                         f"event-{index}",
                         "system_event",
                         lambda: self.system_event_injector.inject(event),
@@ -435,6 +441,24 @@ class JourneySegmentRunner:
                 except Exception as exc:
                     raise _interrupt("system_event_error", exc) from exc
                 injected_events.append(event)
+                try:
+                    if event_details is not None and not isinstance(event_details, dict):
+                        raise TypeError("system event evidence must be a mapping")
+                    event_path = artifact_dir / f"system-event-{index}" / "event.json"
+                    event_path.parent.mkdir(parents=True, exist_ok=False)
+                    write_json_artifact(
+                        event_path,
+                        {
+                            "schema_version": 1,
+                            "event": event.event,
+                            "args": event.args,
+                            "status": "passed",
+                            "evidence": event_details or {},
+                        },
+                    )
+                    system_event_evidence.append(event_path)
+                except Exception as exc:
+                    raise _interrupt("system_event_error", exc) from exc
                 try:
                     checkpoints.append(
                         _timed(
@@ -454,5 +478,6 @@ class JourneySegmentRunner:
             journey_results=journey_results,
             checkpoints=checkpoints,
             injected_events=injected_events,
+            system_event_evidence=system_event_evidence,
             timings=timings,
         )

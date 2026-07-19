@@ -1,0 +1,27 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_baseline_and_candidate_run_specs_share_one_lifecycle_journey _______
+
+    def test_baseline_and_candidate_run_specs_share_one_lifecycle_journey() -> None:
+        baseline = load_run_spec(_SLICE / "run-specs/baseline.yaml")
+        candidate = load_run_spec(_SLICE / "run-specs/candidate.yaml")
+    
+        assert baseline.host_project.resolve() == Path(__file__).resolve().parents[2]
+        assert baseline.scenario.id == candidate.scenario.id
+        assert baseline.scenario.user_actions == candidate.scenario.user_actions
+        assert baseline.scenario.system_events == candidate.scenario.system_events
+        assert baseline.scenario.assertions == candidate.scenario.assertions
+        assert [event.event for event in baseline.scenario.system_events] == [
+            "rotate",
+            "process_death",
+            "backup_restore",
+        ]
+        assert baseline.scenario.l2_boundary_index == 2
+        assert baseline.diff is None
+>       assert candidate.diff == _SLICE / "patches/stale-migration-guard.patch"
+E       AssertionError: assert PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/../patches/stale-migration-guard.patch') == (PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery') / 'patches/stale-migration-guard.patch')
+E        +  where PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/../patches/stale-migration-guard.patch') = RunSpec(host_project=PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recov...-recovery/run-specs/candidate.yaml'), source_sha256='080c0747018e1e48e8de71ea02d41e0bf684c05b22f3786c349ac221d203d80d').diff
+
+tests/bench/test_lifecycle_recovery.py:301: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_lifecycle_recovery.py::test_baseline_and_candidate_run_specs_share_one_lifecycle_journey

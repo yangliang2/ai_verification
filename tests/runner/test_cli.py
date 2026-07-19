@@ -928,6 +928,10 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
     tmp_path, monkeypatch
 ):
     flow = _flow(tmp_path)
+    event_path = tmp_path / "system-event-0" / "event.json"
+    event_path.parent.mkdir()
+    event_path.write_text('{"event":"process_death"}', encoding="utf-8")
+    flow.system_event_evidence.append(event_path)
     artifact_dir = tmp_path / "run" / "artifacts"
     record_path = artifact_dir.parent / "execution-record.json"
     observed_record: dict[str, object] = {}
@@ -972,11 +976,13 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
     assert record["execution"] == verdict["execution"]
     assert record["process_outcome"] == {"exit_code": 0}
     assert record["phase_errors"] == []
+    assert verdict["system_event_evidence"] == [str(event_path)]
     assert record["evidence_refs"] == {
         "live_validation_gate": str(artifact_dir.parent / "live-validation-gate.json"),
         "verdict": str(artifact_dir.parent / "verdict.json"),
         "journey_results": [str(flow.journey_results[0].result_path)],
         "checkpoints": [str(flow.checkpoints[0].directory)],
+        "system_events": [str(event_path)],
         "execution_provenance": verdict["execution_provenance"],
     }
     assert verdict["execution_record"] == str(record_path)
