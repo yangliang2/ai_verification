@@ -6,6 +6,7 @@ import json
 import re
 import subprocess
 import time
+import uuid
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -189,7 +190,10 @@ class AndroidEvidenceCollector:
             )
             used_device_scoped_fallback = True
             safe_name = re.sub(r"[^A-Za-z0-9_.-]", "-", name)
-            remote_path = f"/sdcard/aiverify-{safe_name}.png"
+            # The fallback runs on the shared device filesystem.  A checkpoint
+            # name is only unique inside its local artifact directory, so bind
+            # this temporary remote file to this capture attempt as well.
+            remote_path = f"/sdcard/aiverify-{safe_name}-{uuid.uuid4().hex}.png"
             fallback_commands = [
                 [
                     self.adb_bin,

@@ -93,6 +93,12 @@ Important results:
   its applied debug-only host fixture.
 - Tool versions: Android CLI 1.0.15498356; adb 1.0.41 / 37.0.0-14910828;
   Gradle 9.5.1; Kotlin 2.3.20; JVM 17.0.19; Python 3.11.15; pytest 9.0.3.
+- `git diff --check d5a82bf...4121893` exited 2. Its findings are trailing
+  whitespace in byte-preserved raw logcat and captured test-output artifacts;
+  they are intentionally not normalized because that would alter device/tool
+  output protected by `checksums.sha256`. This is an artifact-format limitation,
+  not a source-style pass. The two fixture-patch trailing blank lines reported
+  by that historical command have been normalized in the remediation commit.
 
 ## Artifact inventory
 

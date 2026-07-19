@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -138,6 +139,38 @@ def test_capture_checkpoint_falls_back_to_device_scoped_adb_screenshot(
     manifest = json.loads(checkpoint.manifest_path.read_text(encoding="utf-8"))
     assert manifest["status"] == "passed"
     assert manifest["artifacts"]["screen_annotated"] is None
+
+
+def test_device_scoped_fallback_uses_unique_remote_paths_for_overlapping_runs(
+    tmp_path: Path,
+) -> None:
+    """Separate collectors may capture the same checkpoint on one device."""
+    runner = FakeRunner(android_screen_has_multiple_devices=True)
+    first = AndroidEvidenceCollector(runner=runner)
+    second = AndroidEvidenceCollector(runner=runner)
+
+    first.capture_checkpoint(
+        name="after-event",
+        output_dir=tmp_path / "first",
+        device="emulator-5556",
+    )
+    second.capture_checkpoint(
+        name="after-event",
+        output_dir=tmp_path / "second",
+        device="emulator-5556",
+    )
+
+    remote_paths = [
+        call[-1]
+        for call in runner.calls
+        if call[:5] == ["adb", "-s", "emulator-5556", "shell", "screencap"]
+    ]
+    assert len(remote_paths) == 2
+    assert len(set(remote_paths)) == 2
+    assert all(
+        re.fullmatch(r"/sdcard/aiverify-after-event-[0-9a-f]{32}\.png", path)
+        for path in remote_paths
+    )
 
 
 def test_capture_checkpoint_raises_on_command_failure(tmp_path: Path) -> None:
