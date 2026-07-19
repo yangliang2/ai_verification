@@ -22,7 +22,7 @@ Existing oracle result JSON contents were never displayed, parsed, or used to re
 Identity status is complete and checksum-bound:
 
 - identity SHA-256: `04fa566435a420a28aee0785e0f428b8af5ea3825b9c1c555ec63a8f2c50218c`
-- manifest: 97 entries total; 93 selectively verified; 4 deliberately skipped; 0 mismatches
+- historical selective-manifest snapshot, taken before the final `ordered_response` checkpoint TDD and checksum-log additions: 97 entries total; 93 selectively verified; 4 deliberately skipped; 0 mismatches. These original 93/97 counts are intentionally preserved rather than presented as the later final manifest inventory.
 - accepted attempts: baseline 2, candidate 1
 - host origin, commit, recorded patch hash, and reverse patch checks match for both roles
 - consumed Run Spec hashes match
