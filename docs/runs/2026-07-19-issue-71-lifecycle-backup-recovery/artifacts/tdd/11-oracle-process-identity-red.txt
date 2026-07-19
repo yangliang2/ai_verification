@@ -1,0 +1,42 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_oracle_fails_closed_when_process_identity_did_not_change _________
+
+    def test_oracle_fails_closed_when_process_identity_did_not_change() -> None:
+        verdict = judge_lifecycle_recovery(
+            contract=CONTRACT,
+            initial_layout=PRE_RESTORE,
+            rotated_layout=PRE_RESTORE,
+            process_restored_layout=PRE_RESTORE,
+            backup_restored_layout=_layout(
+                sentinel=CONTRACT.sentinel,
+                schema="2",
+                revision="42",
+                migration="MIGRATED_V1_TO_V2",
+            ),
+            process_event={
+                "status": "passed",
+                "evidence": {"before_pids": ["111"], "after_pids": ["111"]},
+            },
+            backup_event={
+                "status": "passed",
+                "evidence": {
+                    "transport": "com.android.localtransport/.LocalTransport",
+                    "backup_status": "success",
+                    "restore_status": "success",
+                    "restore_token": "1",
+                },
+            },
+            crash_detected=False,
+        )
+    
+        assert verdict["conclusion"] == "non_accountable"
+        assert verdict["classification"] == "non_accountable"
+>       assert verdict["reason"] == "process_identity_missing_or_unchanged"
+               ^^^^^^^^^^^^^^^^^
+E       KeyError: 'reason'
+
+tests/bench/test_lifecycle_recovery.py:243: KeyError
+=========================== short test summary info ============================
+FAILED tests/bench/test_lifecycle_recovery.py::test_oracle_fails_closed_when_process_identity_did_not_change
+1 failed in 0.09s

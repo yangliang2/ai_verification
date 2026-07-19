@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "device": "emulator-5554",
+  "failed_checks": [],
+  "checks": [
+    {
+      "name": "adb-device-present",
+      "args": [
+        "adb",
+        "devices",
+        "-l"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "List of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:1\nemulator-5556          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:2\n\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-completed",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "1\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-animation-stopped",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "init.svc.bootanim"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "stopped\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "android-layout-json",
+      "args": [
+        "android",
+        "layout",
+        "--pretty",
+        "--device",
+        "emulator-5554"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "[\n  {\n    \"interactions\": [\n      \"scrollable\"\n    ],\n    \"center\": \"[540,1200]\",\n    \"bounds\": \"[0,0][1080,2400]\",\n    \"resource-id\": \"workspace\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Home\",\n    \"center\": \"[540,1234]\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Google search\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,2207]\",\n    \"resource-id\": \"search_container_hotseat\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Phone\",\n    \"content-desc\": \"Phone\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[169,1970]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Messages\",\n    \"content-desc\": \"Messages\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[416,1970]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Chrome\",\n    \"content-desc\": \"Chrome\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[663,1970]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Lifecycle Recovery Fixture\",\n    \"content-desc\": \"Predicted app: Lifecycle Recovery Fixture\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[910,1970]\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Google app\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[164,2207]\",\n    \"resource-id\": \"g_icon\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Gmail\",\n    \"content-desc\": \"Gmail\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[416,1623]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Photos\",\n    \"content-desc\": \"Photos\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[663,1623]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"YouTube\",\n    \"content-desc\": \"YouTube\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[910,1623]\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Voice search\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[790,2207]\",\n    \"resource-id\": \"mic_icon\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Google Lens\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[916,2207]\",\n    \"resource-id\": \"lens_icon\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"At a glance\",\n    \"interactions\": [\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,363]\",\n    \"resource-id\": \"smartspace_card_pager\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"state\": [\n      \"focused\"\n    ],\n    \"center\": \"[540,363]\",\n    \"resource-id\": \"base_template_card_with_date\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Sun, Jul 19\",\n    \"content-desc\": \"Sun, Jul 19\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[211,357]\",\n    \"resource-id\": \"date\",\n    \"key\": 3506402\n  }\n]\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "uiautomator-dump",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/window_dump.xml"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "UI hierchary dumped to: /sdcard/window_dump.xml\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "app-launch",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "am",
+        "start",
+        "-W",
+        "-a",
+        "android.intent.action.MAIN",
+        "-c",
+        "android.intent.category.LAUNCHER",
+        "-n",
+        "dev.aiverify.lifecyclefixture/dev.aiverify.lifecyclefixture.MainActivity"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] cmp=dev.aiverify.lifecyclefixture/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: dev.aiverify.lifecyclefixture/.MainActivity\nTotalTime: 271\nWaitTime: 275\nComplete\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "app-foreground-package",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "dumpsys",
+        "window"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "\nWINDOW MANAGER LAST ANR (dumpsys window lastanr)\n  <no ANR has occurred since boot>\n\nWINDOW MANAGER POLICY STATE (dumpsys window policy)\n    mSafeMode=false mSystemReady=true mSystemBooted=true\n    mCameraLensCoverState=CAMERA_LENS_COVER_ABSENT\n    mWakeGestureEnabledSetting=true\n    mUiMode=UI_MODE_TYPE_NORMALmEnableCarDockHomeCapture=false\n    mLidKeyboardAccessibility=0 mLidNavigationAccessibility=0 getLidBehavior=LID_BEHAVIOR_NONE\n    mLongPressOnBackBehavior=LONG_PRESS_BACK_NOTHING\n    mLongPressOnHomeBehavior=LONG_PRESS_HOME_NOTHING\n    mDoubleTapOnHomeBehavior=DOUBLE_TAP_HOME_NOTHING\n    mShortPressOnPowerBehavior=SHORT_PRESS_POWER_GO_TO_SLEEP\n    mLongPressOnPowerBehavior=LONG_PRESS_POWER_ASSISTANT\n    mSettingsKeyBehavior=SETTINGS_KEY_BEHAVIOR_SETTINGS_ACTIVITY\n    mLongPressOnPowerAssistantTimeoutMs=500\n    mVeryLongPressOnPowerBehavior=VERY_LONG_PRESS_POWER_NOTHING\n    mDoublePressOnPowerBehavior=MULTI_PRESS_POWER_NOTHING\n    mTriplePressOnPowerBehavior=MULTI_PRESS_POWER_NOTHING\n    mSupportShortPressPowerWhenDefaultDisplayOn=false\n    mPowerVolUpBehavior=POWER_VOLUME_UP_BEHAVIOR_GLOBAL_ACTIONS\n    mShortPressOnSleepBehavior=SHORT_PRESS_SLEEP_GO_TO_SLEEP\n    mShortPressOnWindowBehavior=SHORT_PRESS_WINDOW_PICTURE_IN_PICTURE\n    mShortPressOnStemPrimaryBehavior=SHORT_PRESS_PRIMARY_NOTHING\n    mDoublePressOnStemPrimaryBehavior=DOUBLE_PRESS_PRIMARY_NOTHING\n    mTriplePressOnStemPrimaryBehavior=TRIPLE_PRESS_PRIMARY_NOTHING\n    mLongPressOnStemPrimaryBehavior=LONG_PRESS_PRIMARY_NOTHING\n    mAllowStartActivityForLongPressOnPowerDuringSetup=false\n    mHasSoftInput=true\n    mDismissImeOnBackKeyPressed=false mIncallPowerBehavior=sleep\n    mIncallBackBehavior=<nothing> mEndcallBehavior=sleep\n    mDisplayHomeButtonHandlers=\n      mDisplayId = -1, mHomePressed = false\n    mKeyguardOccluded=false mKeyguardOccludedChanged=false mPendingKeyguardOccluded=false\n    mAllowLockscreenWhenOnDisplays=false mLockScreenTimeout=2147483647 mLockScreenTimerActive=false\n    mKidsModeEnabled=false\nmHapticTextHandleEnabled=false\n    mKeyMapping.size=0\n    KeyCombination rules:\n      KEYCODE_VOLUME_DOWN + KEYCODE_POWER\n      KEYCODE_VOLUME_DOWN + KEYCODE_VOLUME_UP\n      KEYCODE_VOLUME_UP + KEYCODE_POWER\n    SingleKey rules:\n      KeyCode=KEYCODE_POWER, LongPress=true, VeryLongPress=false, MaxMultiPressCount=1\n    Deferred key action executor:\n      empty\n    WakeGestureListener\n      mTriggerRequested=false\n      mSensor=null\n    KeyguardServiceDelegate\n      showing=false\n      inputRestricted=false\n      occluded=false\n      secure=false\n      dreaming=false\n      systemIsReady=true\n      deviceHasKeyguard=true\n      enabled=true\n      offReason=0\n      currentUser=-10000\n      bootCompleted=true\n      screenState=SCREEN_STATE_ON\n      interactiveState=INTERACTIVE_STATE_AWAKE\n      KeyguardStateMonitor\n        mIsShowing=false\n        mSimSecure=false\n        mInputRestricted=false\n        mTrusted=false\n        mCurrentUserId=0\n    Looper state:\n      Looper (android.ui, tid 22) {862e24c}\n        (Total messages: 0, polling=true, quitting=false)\n\nWINDOW MANAGER ANIMATOR STATE (dumpsys window animator)\n    Display{#0 state=ON size=1080x2400 ROTATION_0}:\n      Window #0: WindowStateAnimator{9ed9e07 com.android.systemui.wallpapers.ImageWallpaper}\n      Window #1: WindowStateAnimator{b472288 org.wikipedia/org.wikipedia.main.MainActivity}\n      Window #2: WindowStateAnimator{6ff5421 org.wikipedia.dev/org.wikipedia.dev.NetworkReliabilityFixtureActivity}\n      Window #3: WindowStateAnimator{7b66063 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}\n      Window #4: WindowStateAnimator{a57443 dev.aiverify.lifecyclefixture/dev.aiverify.lifecyclefixture.MainActivity}\n      Window #5: WindowStateAnimator{57d06d2 InputMethod}\n      Window #6: WindowStateAnimator{6bc13a3 ShellDropTarget}\n      Window #7: WindowStateAnimator{f2236a0 StatusBar}\n      Window #8: WindowStateAnimator{df63259 NotificationShade}\n   ",
+      "stderr_snippet": "",
+      "stdout_truncated": true,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "app-target-surface",
+      "args": [
+        "android",
+        "layout",
+        "--pretty",
+        "--device",
+        "emulator-5554"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "[\n  {\n    \"interactions\": [\n      \"focusable\"\n    ],\n    \"center\": \"[540,1200]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Issue #71 lifecycle recovery fixture\",\n    \"center\": \"[540,101]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"CREATE DETERMINISTIC V1 FIXTURE\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,203]\",\n    \"resource-id\": \"create_fixture\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Sentinel\",\n    \"center\": \"[540,290]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"UNINITIALIZED\",\n    \"center\": \"[540,346]\",\n    \"resource-id\": \"fixture_sentinel\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Schema version\",\n    \"center\": \"[540,402]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"0\",\n    \"center\": \"[540,458]\",\n    \"resource-id\": \"fixture_schema_version\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Revision\",\n    \"center\": \"[540,514]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"0\",\n    \"center\": \"[540,570]\",\n    \"resource-id\": \"fixture_revision\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Migration status\",\n    \"center\": \"[540,626]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"NOT_CREATED\",\n    \"center\": \"[540,682]\",\n    \"resource-id\": \"fixture_migration_status\",\n    \"key\": 3506402\n  }\n]\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    }
+  ],
+  "app": {
+    "package": "dev.aiverify.lifecyclefixture",
+    "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+    "target_surface": {
+      "resource_id": "create_fixture"
+    }
+  }
+}

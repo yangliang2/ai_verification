@@ -1,0 +1,148 @@
+........................................................................ [ 13%]
+........................................................................ [ 26%]
+........................................................................ [ 39%]
+........................................................................ [ 53%]
+........................................................................ [ 66%]
+..............F......................................................... [ 79%]
+........................F............................................... [ 92%]
+......................................                                   [100%]
+=================================== FAILURES ===================================
+__________ test_public_run_retains_failed_anr_checkpoint_diagnostics ___________
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-403/test_public_run_retains_failed0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109a07950>
+
+    def test_public_run_retains_failed_anr_checkpoint_diagnostics(tmp_path, monkeypatch):
+        class FakeController:
+            def __init__(self, serial):
+                self.serial = serial
+    
+            def logcat_clear(self):
+                return AdbResult(stdout="", stderr="", returncode=0)
+    
+            def launch(self, package, activity):
+                return AdbResult(stdout="", stderr="", returncode=0)
+    
+        class SuccessfulBackend:
+            def execute(self, request):
+                request.artifact_dir.mkdir(parents=True, exist_ok=True)
+                result_path = request.artifact_dir / "result.json"
+                events_path = request.artifact_dir / "events.jsonl"
+                result_path.write_text("{}", encoding="utf-8")
+                events_path.write_text("", encoding="utf-8")
+                return JourneyExecutionResult(
+                    data={
+                        "journey": "anr-defect-1-segment-0",
+                        "results": [
+                            {
+                                "action": "走完 onboarding 到主 feed，观察底部导航栏",
+                                "status": "PASSED",
+                                "commands": [],
+                                "comment": "completed before checkpoint failure",
+                            }
+                        ],
+                    },
+                    result_path=result_path,
+                    events_path=events_path,
+                    command=["codex"],
+                )
+    
+        class AnrCaptureCommandRunner(CommandRunner):
+            def run(
+                self,
+                args,
+                *,
+                cwd=None,
+                timeout_seconds=None,
+                input_text=None,
+            ):
+                if args[:2] == ["android", "layout"]:
+                    return CommandResult(
+                        args=args,
+                        stdout="",
+                        stderr="Failed to retrieve UI dump: \n",
+                        returncode=0,
+                    )
+                if args[:3] == ["android", "screen", "capture"]:
+                    output = Path(args[args.index("-o") + 1])
+                    output.write_bytes(b"diagnostic png")
+                    return CommandResult(args=args, stdout=str(output), stderr="", returncode=0)
+                if args[-2:] == ["logcat", "-d"]:
+                    return CommandResult(
+                        args=args,
+                        stdout="ANR in org.wikipedia.dev\n",
+                        stderr="",
+                        returncode=0,
+                    )
+                raise AssertionError(f"unexpected command: {args}")
+    
+        collector = AndroidEvidenceCollector(
+            runner=AnrCaptureCommandRunner(),
+            layout_attempts=2,
+            layout_retry_sleep_seconds=0,
+        )
+        monkeypatch.setattr(cli, "DeviceController", FakeController)
+        monkeypatch.setattr(cli, "CodexCliBackend", SuccessfulBackend)
+        monkeypatch.setattr(cli, "AndroidEvidenceCollector", lambda: collector)
+    
+        artifact_dir = tmp_path / "run" / "artifacts"
+        verdict = cli.run(
+            _spec(tmp_path, l3_spec=""),
+            device="emulator-5554",
+            artifact_dir=artifact_dir,
+            workdir=tmp_path,
+            preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+        )
+    
+        assert verdict["execution"]["status"] == "non_accountable"
+        assert verdict["execution"]["accounting_eligible"] is False
+        assert verdict["execution"]["reason"] == "checkpoint_capture_error"
+        assert verdict["metric_context"]["seed_outcome"] == "not_accountable"
+        assert verdict["l1"] is None
+>       checkpoint = verdict["diagnostic_artifacts"]["checkpoints"][0]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests/runner/test_cli.py:604: IndexError
+________ test_anr_layout_failure_retains_bounded_checkpoint_diagnostics ________
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-403/test_anr_layout_failure_retain0')
+
+    def test_anr_layout_failure_retains_bounded_checkpoint_diagnostics(tmp_path: Path) -> None:
+        command_runner = HistoricalAnrCaptureRunner()
+        runner = JourneySegmentRunner(
+            backend=FakeBackend(),
+            checkpoint_collector=AndroidEvidenceCollector(
+                runner=command_runner,
+                layout_attempts=2,
+                layout_retry_sleep_seconds=0,
+            ),
+            system_event_injector=FakeInjector(),
+        )
+        schema = tmp_path / "schema.json"
+        schema.write_text("{}", encoding="utf-8")
+    
+        with pytest.raises(JourneyExecutionInterrupted) as raised:
+            runner.run(
+                scenario=ScenarioSpec(id="anr-defect-1", user_actions=["Trigger ANR"]),
+                workdir=tmp_path,
+                artifact_dir=tmp_path / "artifacts",
+                output_schema=schema,
+                device="emulator-5554",
+            )
+    
+        assert raised.value.reason == "checkpoint_capture_error"
+        assert raised.value.flow.journey_results[0].data["results"][0]["status"] == "PASSED"
+>       assert [checkpoint.name for checkpoint in raised.value.flow.checkpoints] == [
+            "after-segment-0"
+        ]
+E       AssertionError: assert [] == ['after-segment-0']
+E         
+E         Right contains one more item: 'after-segment-0'
+E         Use -v to get more diff
+
+tests/runner/test_journey.py:821: AssertionError
+=========================== short test summary info ============================
+FAILED tests/runner/test_cli.py::test_public_run_retains_failed_anr_checkpoint_diagnostics
+FAILED tests/runner/test_journey.py::test_anr_layout_failure_retains_bounded_checkpoint_diagnostics
+2 failed, 540 passed in 17.29s

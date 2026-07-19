@@ -1,0 +1,29 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______________ test_inject_rotate_uses_device_controller_rotation ______________
+
+    def test_inject_rotate_uses_device_controller_rotation() -> None:
+        injector, fake = _injector()
+        fake.enqueue_many(
+            [
+                AdbResult(stdout="", stderr="", returncode=0),
+                AdbResult(stdout="", stderr="", returncode=0),
+                AdbResult(stdout="0\n", stderr="", returncode=0),
+                AdbResult(stdout="3\n", stderr="", returncode=0),
+            ]
+        )
+    
+        evidence = injector.inject(
+            SystemEventSpec(step_index=0, event="rotate", args={"rotation": "3"})
+        )
+    
+>       assert evidence == {
+            "accelerometer_rotation": "0",
+            "user_rotation": "3",
+        }
+E       AssertionError: assert None == {'accelerometer_rotation': '0', 'user_rotation': '3'}
+
+tests/runner/test_system_events.py:35: AssertionError
+=========================== short test summary info ============================
+FAILED tests/runner/test_system_events.py::test_inject_rotate_uses_device_controller_rotation
+1 failed in 0.07s

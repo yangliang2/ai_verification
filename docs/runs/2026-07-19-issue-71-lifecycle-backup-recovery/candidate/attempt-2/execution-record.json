@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "attempt_id": "f71c8c40-884a-4a38-a29d-300140f4b602",
+  "scenario": "lifecycle-recovery-matched-journey",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-19T08:21:55+00:00",
+  "finished_at": "2026-07-19T08:26:45+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 1
+  },
+  "timing": {
+    "started_at": "2026-07-19T08:21:55+00:00",
+    "finished_at": "2026-07-19T08:26:45+00:00",
+    "total_seconds": 289.997,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.715
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-0",
+        "kind": "journey",
+        "seconds": 57.073
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.894
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.066
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 2.875
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-1",
+        "kind": "journey",
+        "seconds": 63.165
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 2.872
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "process_death",
+        "seconds": 7.257
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 2.917
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-2",
+        "kind": "journey",
+        "seconds": 50.618
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 2.935
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "backup_restore",
+        "seconds": 15.203
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 2.872
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-3",
+        "kind": "journey",
+        "seconds": 63.935
+      },
+      {
+        "phase": "after-segment-3",
+        "kind": "checkpoint",
+        "seconds": 2.889
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json",
+      "artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json",
+      "artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json",
+      "artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0",
+      "artifacts/after-event-0",
+      "artifacts/after-segment-1",
+      "artifacts/after-event-1",
+      "artifacts/after-segment-2",
+      "artifacts/after-event-2",
+      "artifacts/after-segment-3"
+    ],
+    "system_events": [
+      "artifacts/system-event-0/event.json",
+      "artifacts/system-event-1/event.json",
+      "artifacts/system-event-2/event.json"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "a68ddeeb59bf137197874aad263ee9580ee14c320deee2f2f61f881b2b5a6ad7"
+    }
+  }
+}

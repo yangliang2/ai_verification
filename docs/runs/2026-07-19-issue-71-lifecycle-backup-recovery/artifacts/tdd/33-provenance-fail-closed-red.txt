@@ -1,0 +1,157 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_run_oracle_fails_closed_when_provenance_binding_is_missing ________
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-384/test_run_oracle_fails_closed_w0')
+
+    def test_run_oracle_fails_closed_when_provenance_binding_is_missing(
+        tmp_path: Path,
+    ) -> None:
+        started_at = "2026-07-19T12:00:00+00:00"
+        timing = {
+            "started_at": started_at,
+            "finished_at": "2026-07-19T12:00:01+00:00",
+            "total_seconds": 1.0,
+            "phases": [],
+        }
+        store = ExecutionRecordStore.establish(
+            tmp_path,
+            artifact_dir=tmp_path / "artifacts",
+            scenario="lifecycle-recovery-matched-journey",
+            started_at=started_at,
+        )
+>       store.finalize(
+            lifecycle_state="completed",
+            execution={
+                "status": "completed",
+                "accounting_eligible": True,
+                "reason": None,
+                "message": None,
+            },
+            process_exit_code=0,
+            timing=timing,
+            phase_errors=[],
+            evidence_refs={},
+        )
+
+tests/bench/test_lifecycle_recovery.py:351: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/runner/execution_record.py:133: in finalize
+    validate_execution_record(record)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+record = {'attempt_id': 'a3bebc93-2e6e-4d5e-9510-020e4884fa94', 'evidence_refs': {}, 'execution': {'accounting_eligible': True, 'message': None, 'reason': None, 'status': 'completed'}, 'finished_at': '2026-07-19T12:00:01+00:00', ...}
+
+    def validate_execution_record(record: object) -> None:
+        """Reject structural and cross-field accountability contradictions."""
+        if not isinstance(record, dict):
+            raise ExecutionRecordValidationError("ExecutionRecord must be an object")
+        schema_version = record.get("schema_version")
+        if schema_version not in {1, 2}:
+            raise ExecutionRecordValidationError("unsupported ExecutionRecord schema_version")
+        for key in ("attempt_id", "scenario", "started_at"):
+            value = record.get(key)
+            if not isinstance(value, str) or not value:
+                raise ExecutionRecordValidationError(
+                    f"ExecutionRecord {key} must be a non-empty string"
+                )
+    
+        lifecycle = record.get("lifecycle_state")
+        if lifecycle not in {
+            "in_progress",
+            "completed",
+            "preflight_rejected",
+            "interrupted",
+            "failed",
+        }:
+            raise ExecutionRecordValidationError(
+                f"unsupported ExecutionRecord lifecycle_state: {lifecycle!r}"
+            )
+        execution = record.get("execution")
+        if not isinstance(execution, dict):
+            raise ExecutionRecordValidationError("ExecutionRecord execution must be an object")
+        status = execution.get("status")
+        eligible = execution.get("accounting_eligible")
+        reason = execution.get("reason")
+        if not isinstance(record.get("timing"), dict):
+            raise ExecutionRecordValidationError("ExecutionRecord timing must be an object")
+        timing = record["timing"]
+        if timing.get("started_at") != record["started_at"]:
+            raise ExecutionRecordValidationError(
+                "ExecutionRecord timing.started_at contradicts started_at"
+            )
+        if not isinstance(timing.get("phases"), list):
+            raise ExecutionRecordValidationError("ExecutionRecord timing.phases must be a list")
+        if not isinstance(record.get("phase_errors"), list):
+            raise ExecutionRecordValidationError("ExecutionRecord phase_errors must be a list")
+        if not isinstance(record.get("evidence_refs"), dict):
+            raise ExecutionRecordValidationError("ExecutionRecord evidence_refs must be an object")
+    
+        if lifecycle == "in_progress":
+            if status != "non_accountable" or eligible is not False:
+                raise ExecutionRecordValidationError(
+                    "in_progress ExecutionRecord must be non-accountable"
+                )
+            if reason is not None:
+                raise ExecutionRecordValidationError(
+                    "in_progress ExecutionRecord cannot have a terminal reason"
+                )
+            if record.get("finished_at") is not None or record.get("process_outcome") is not None:
+                raise ExecutionRecordValidationError(
+                    "in_progress ExecutionRecord cannot have terminal outcome fields"
+                )
+            if timing.get("finished_at") is not None or timing.get("total_seconds") is not None:
+                raise ExecutionRecordValidationError(
+                    "in_progress ExecutionRecord cannot have terminal timing"
+                )
+            if record["phase_errors"]:
+                raise ExecutionRecordValidationError(
+                    "in_progress ExecutionRecord cannot have terminal phase errors"
+                )
+            return
+    
+        finished_at = record.get("finished_at")
+        if not isinstance(finished_at, str) or not finished_at:
+            raise ExecutionRecordValidationError(
+                f"{lifecycle} ExecutionRecord requires finished_at"
+            )
+        if timing.get("finished_at") != finished_at:
+            raise ExecutionRecordValidationError(
+                "ExecutionRecord timing.finished_at contradicts finished_at"
+            )
+        total_seconds = timing.get("total_seconds")
+        if (
+            not isinstance(total_seconds, (int, float))
+            or isinstance(total_seconds, bool)
+            or total_seconds < 0
+        ):
+            raise ExecutionRecordValidationError(
+                "terminal ExecutionRecord requires non-negative timing.total_seconds"
+            )
+        process = record.get("process_outcome")
+        exit_code = process.get("exit_code") if isinstance(process, dict) else None
+    
+        if lifecycle == "completed":
+            if status != "completed" or eligible is not True:
+                raise ExecutionRecordValidationError(
+                    "completed ExecutionRecord must be accountable"
+                )
+            if reason is not None or exit_code not in {0, 1}:
+                raise ExecutionRecordValidationError(
+                    "completed ExecutionRecord requires no reason and exit code 0 or 1"
+                )
+            if record["phase_errors"]:
+                raise ExecutionRecordValidationError(
+                    "completed ExecutionRecord cannot contain phase errors"
+                )
+            if schema_version == 2:
+                provenance = record["evidence_refs"].get("execution_provenance")
+                if not isinstance(provenance, dict):
+>                   raise ExecutionRecordValidationError(
+                        "schema-v2 completed ExecutionRecord requires execution provenance"
+                    )
+E                   aiverify.runner.execution_record.ExecutionRecordValidationError: schema-v2 completed ExecutionRecord requires execution provenance
+
+src/aiverify/runner/execution_record.py:260: ExecutionRecordValidationError
+=========================== short test summary info ============================
+FAILED tests/bench/test_lifecycle_recovery.py::test_run_oracle_fails_closed_when_provenance_binding_is_missing

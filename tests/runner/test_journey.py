@@ -281,6 +281,12 @@ class FakeInjector:
         self.events.append(event)
 
 
+class EvidenceInjector(FakeInjector):
+    def inject(self, event: SystemEventSpec) -> dict[str, object]:
+        self.events.append(event)
+        return {"before_pids": ["111"], "after_pids": ["222"]}
+
+
 class RaisingCollector(FakeCollector):
     def capture_checkpoint(
         self,
@@ -332,6 +338,14 @@ class HistoricalAnrCaptureRunner(CommandRunner):
             output = Path(args[args.index("-o") + 1])
             output.write_bytes(b"diagnostic png")
             return CommandResult(args=args, stdout=str(output), stderr="", returncode=0)
+        if "screencap" in args:
+            return CommandResult(args=args, stdout="", stderr="", returncode=0)
+        if "pull" in args:
+            output = Path(args[-1])
+            output.write_bytes(b"diagnostic png")
+            return CommandResult(args=args, stdout=str(output), stderr="", returncode=0)
+        if "rm" in args:
+            return CommandResult(args=args, stdout="", stderr="", returncode=0)
         if args[-2:] == ["logcat", "-d"]:
             return CommandResult(
                 args=args,
@@ -411,6 +425,39 @@ def test_journey_segment_runner_times_every_phase(tmp_path: Path) -> None:
     assert all(isinstance(t["seconds"], float) and t["seconds"] >= 0 for t in flow.timings)
     event_entry = next(t for t in flow.timings if t["kind"] == "system_event")
     assert event_entry["event"] == "process_death"
+
+
+def test_journey_segment_runner_persists_system_event_evidence(tmp_path: Path) -> None:
+    runner = JourneySegmentRunner(
+        backend=FakeBackend(),
+        checkpoint_collector=FakeCollector(),
+        system_event_injector=EvidenceInjector(),
+    )
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}", encoding="utf-8")
+
+    flow = runner.run(
+        scenario=ScenarioSpec(
+            id="lifecycle",
+            user_actions=["Create fixture", "Verify restored fixture"],
+            system_events=[SystemEventSpec(step_index=0, event="process_death")],
+        ),
+        workdir=tmp_path,
+        artifact_dir=tmp_path / "artifacts",
+        output_schema=schema,
+        device="emulator-5554",
+    )
+
+    assert len(flow.system_event_evidence) == 1
+    event_path = flow.system_event_evidence[0]
+    assert event_path == tmp_path / "artifacts/system-event-0/event.json"
+    assert json.loads(event_path.read_text(encoding="utf-8")) == {
+        "schema_version": 1,
+        "event": "process_death",
+        "args": {},
+        "status": "passed",
+        "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
+    }
 
 
 def test_journey_segment_runner_prepends_instruction_prefix(tmp_path: Path) -> None:
@@ -679,6 +726,9 @@ def test_multi_segment_interruption_keeps_completed_prior_boundary_evidence(tmp_
         "after-segment-1",
     ]
     assert [event.event for event in raised.value.flow.injected_events] == ["rotate"]
+    assert raised.value.flow.system_event_evidence == [
+        tmp_path / "artifacts" / "system-event-0" / "event.json"
+    ]
 
 
 def test_backend_failure_becomes_non_accountable_journey_interruption(tmp_path: Path) -> None:
@@ -791,7 +841,7 @@ def test_anr_layout_failure_retains_bounded_checkpoint_diagnostics(tmp_path: Pat
     assert manifest["artifact_exists"] == {
         "layout": False,
         "screen": True,
-        "screen_annotated": True,
+        "screen_annotated": False,
         "logcat": True,
         "commands": True,
     }
@@ -799,7 +849,8 @@ def test_anr_layout_failure_retains_bounded_checkpoint_diagnostics(tmp_path: Pat
         "layout",
         "layout",
         "screenshot",
-        "annotated_screenshot",
+        "screenshot",
+        "screenshot",
         "logcat",
     ]
     assert checkpoint.logcat_path.read_text(encoding="utf-8") == (

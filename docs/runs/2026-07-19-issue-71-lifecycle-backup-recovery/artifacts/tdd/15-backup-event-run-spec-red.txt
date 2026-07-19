@@ -1,0 +1,51 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_run_spec_accepts_backup_restore_as_a_boundary_event ___________
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-364/test_run_spec_accepts_backup_r0')
+
+    def test_run_spec_accepts_backup_restore_as_a_boundary_event(tmp_path: Path) -> None:
+        data = _valid_spec()
+        data["scenario"]["system_events"] = [
+            {
+                "step_index": 1,
+                "event": "backup_restore",
+                "args": {
+                    "transport": "com.android.localtransport/.LocalTransport",
+                    "restore_wait": "0",
+                },
+            }
+        ]
+    
+>       spec = parse_run_spec(data, base_dir=tmp_path)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/runner/test_run_spec.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/runner/run_spec.py:238: in parse_run_spec
+    scenario = _parse_scenario(raw_scenario)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/aiverify/runner/run_spec.py:397: in _parse_scenario
+    system_events = sorted(
+src/aiverify/runner/run_spec.py:398: in <genexpr>
+    (_parse_system_event(e) for e in raw_events),
+     ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+raw = {'args': {'restore_wait': '0', 'transport': 'com.android.localtransport/.LocalTransport'}, 'event': 'backup_restore', 'step_index': 1}
+
+    def _parse_system_event(raw: object) -> SystemEventSpec:
+        if not isinstance(raw, dict):
+            raise RunSpecError("system event 必须是映射")
+        step_index = raw.get("step_index")
+        if not isinstance(step_index, int) or step_index < 0:
+            raise RunSpecError("system event step_index 必须是非负整数")
+        event = _required_str(raw, "event")
+        if event not in SUPPORTED_SYSTEM_EVENTS:
+>           raise RunSpecError(f"不支持的 system event：{event}")
+E           aiverify.runner.run_spec.RunSpecError: 不支持的 system event：backup_restore
+
+src/aiverify/runner/run_spec.py:482: RunSpecError
+=========================== short test summary info ============================
+FAILED tests/runner/test_run_spec.py::test_run_spec_accepts_backup_restore_as_a_boundary_event
+1 failed in 0.11s

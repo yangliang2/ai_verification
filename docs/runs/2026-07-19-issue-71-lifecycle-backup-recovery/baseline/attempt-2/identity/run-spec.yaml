@@ -1,0 +1,69 @@
+host_project: ../../../..
+apk_glob: bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk
+package: dev.aiverify.lifecyclefixture
+activity: dev.aiverify.lifecyclefixture.MainActivity
+spec: ../spec.md
+
+live_validation:
+  timeout_seconds: 30
+  app_smoke:
+    target_resource_id: create_fixture
+    app_settle_seconds: 1
+
+scenario:
+  id: lifecycle-recovery-matched-journey
+  user_actions:
+    - >
+      The fixture app is already open. Tap the CREATE VERSION 1 FIXTURE button
+      (resource-id create_fixture). Confirm the four displayed fields are exactly:
+      sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and
+      migration status PENDING_V1_TO_V2. Do not relaunch or navigate away.
+    - >
+      After the runner-controlled rotation, inspect the already-open fixture app
+      without relaunching it. Confirm the same four version 1 values remain visible.
+      Do not tap CREATE VERSION 1 FIXTURE again.
+    - >
+      After the runner-controlled background process death and relaunch, inspect
+      the restored fixture app. Confirm the same four version 1 values remain
+      visible. Do not tap CREATE VERSION 1 FIXTURE again.
+    - >
+      After the runner-controlled backup, app-data clear, restore, and relaunch,
+      inspect the restored fixture app. Confirm sentinel
+      AIVERIFY-ISSUE-71-SENTINEL, schema version 2, revision 42, and migration
+      status MIGRATED_V1_TO_V2 are visible. Do not modify the fixture.
+  system_events:
+    - step_index: 0
+      event: rotate
+      args:
+        rotation: "1"
+    - step_index: 1
+      event: process_death
+      args:
+        background_wait: "2"
+        kill_wait: "2"
+        restore_wait: "3"
+    - step_index: 2
+      event: backup_restore
+      args:
+        transport: com.android.localtransport/.LocalTransport
+        restore_wait: "3"
+  l2_boundary_index: 2
+  assertions:
+    - resource_id: fixture_sentinel
+      attr: text
+      expected: AIVERIFY-ISSUE-71-SENTINEL
+    - resource_id: fixture_schema_version
+      attr: text
+      expected: "2"
+    - resource_id: fixture_revision
+      attr: text
+      expected: "42"
+    - resource_id: fixture_migration_status
+      attr: text
+      expected: MIGRATED_V1_TO_V2
+  expected_behavior: >
+    The deterministic version 1 fixture survives rotation and a real background
+    process death unchanged. A successful local-transport backup, app-data clear,
+    restore, and relaunch preserves the sentinel and performs exactly one migration
+    to schema 2 / revision 42 / MIGRATED_V1_TO_V2. This is a local capability
+    verification scenario, not a benchmark-rate or upstream-acceptance claim.

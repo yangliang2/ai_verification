@@ -1,0 +1,79 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_run_oracle_fails_closed_when_provenance_binding_is_missing ________
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-385/test_run_oracle_fails_closed_w0')
+
+    def test_run_oracle_fails_closed_when_provenance_binding_is_missing(
+        tmp_path: Path,
+    ) -> None:
+        started_at = "2026-07-19T12:00:00+00:00"
+        timing = {
+            "started_at": started_at,
+            "finished_at": "2026-07-19T12:00:01+00:00",
+            "total_seconds": 1.0,
+            "phases": [],
+        }
+        execution = {
+            "status": "completed",
+            "accounting_eligible": True,
+            "reason": None,
+            "message": None,
+        }
+        (tmp_path / "execution-record.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "attempt_id": "test-attempt",
+                    "scenario": "lifecycle-recovery-matched-journey",
+                    "lifecycle_state": "completed",
+                    "started_at": started_at,
+                    "finished_at": timing["finished_at"],
+                    "execution": execution,
+                    "process_outcome": {"exit_code": 0},
+                    "timing": timing,
+                    "phase_errors": [],
+                    "evidence_refs": {},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (tmp_path / "verdict.json").write_text(
+            json.dumps(
+                {
+                    "scenario": "lifecycle-recovery-matched-journey",
+                    "execution": execution,
+                    "execution_provenance": None,
+                }
+            ),
+            encoding="utf-8",
+        )
+    
+>       verdict = judge_lifecycle_recovery_run(
+            run_dir=tmp_path,
+            contract_path=_SLICE / "contract.json",
+        )
+
+tests/bench/test_lifecycle_recovery.py:379: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/lifecycle_recovery.py:213: in judge_lifecycle_recovery_run
+    verify_execution_provenance(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+binding = None
+
+    def verify_execution_provenance(
+        binding: object,
+        *,
+        attempt_id: str,
+        scenario: str,
+        base_dir: Path | None = None,
+    ) -> dict:
+        """Load checksum-bound provenance and reject missing or contradictory identity."""
+        if not isinstance(binding, dict):
+>           raise ExecutionIdentityError("execution provenance binding must be an object")
+E           aiverify.runner.execution_identity.ExecutionIdentityError: execution provenance binding must be an object
+
+src/aiverify/runner/execution_identity.py:615: ExecutionIdentityError
+=========================== short test summary info ============================
+FAILED tests/bench/test_lifecycle_recovery.py::test_run_oracle_fails_closed_when_provenance_binding_is_missing

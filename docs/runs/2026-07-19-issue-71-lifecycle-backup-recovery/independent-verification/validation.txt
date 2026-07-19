@@ -1,0 +1,19 @@
+Independent conclusion validation
+Date: 2026-07-19
+
+Successful command:
+.venv/bin/python -c 'import json, pathlib; from jsonschema import Draft202012Validator; root=pathlib.Path("docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/independent-verification"); schema=json.loads(pathlib.Path("bench/capability-slices/lifecycle-recovery/independent-conclusion-schema.json").read_text()); data=json.loads((root/"conclusion.json").read_text()); Draft202012Validator.check_schema(schema); Draft202012Validator(schema).validate(data); assert data["conclusion"] == "locally_supported" and data["accountable"] is True; assert all(item["status"] == "passed" for item in data["evidence_checks"]); print("schema validation: passed"); print("conclusion:", data["conclusion"]); print("accountable:", str(data["accountable"]).lower()); print("evidence checks: %d passed" % len(data["evidence_checks"])); print("limitations:", len(data["limitations"]))'
+
+Result:
+schema validation: passed
+conclusion: locally_supported
+accountable: true
+evidence checks: 13 passed
+limitations: 6
+
+Conclusion SHA-256:
+c60b774f2c0e8b24ebf708952826ced4b8864e46e411e9febaf9e65ca8e7213b
+
+One earlier inline formatter invocation exited 1 with a Python f-string
+SyntaxError before loading or validating any evidence. The command above fixed
+only that shell/Python formatting error; no evidence or conclusion file changed.

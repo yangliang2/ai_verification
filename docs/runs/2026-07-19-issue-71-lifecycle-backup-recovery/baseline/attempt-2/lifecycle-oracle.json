@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_supported",
+  "classification": "correct_restoration",
+  "reason": "exact_state_continuity_and_migration_observed",
+  "accountable": true,
+  "observations": {
+    "initial": {
+      "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+      "schema_version": "1",
+      "revision": "41",
+      "migration_status": "PENDING_V1_TO_V2"
+    },
+    "rotation": {
+      "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+      "schema_version": "1",
+      "revision": "41",
+      "migration_status": "PENDING_V1_TO_V2"
+    },
+    "process_death": {
+      "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+      "schema_version": "1",
+      "revision": "41",
+      "migration_status": "PENDING_V1_TO_V2"
+    },
+    "backup_restore": {
+      "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+      "schema_version": "2",
+      "revision": "42",
+      "migration_status": "MIGRATED_V1_TO_V2"
+    }
+  },
+  "run_evidence": {
+    "run_dir": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2",
+    "contract": "/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/contract.json",
+    "execution_record": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/execution-record.json",
+    "execution_provenance": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/execution-provenance.json",
+    "layouts": {
+      "initial": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/layout.json",
+      "rotated": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/layout.json",
+      "process_restored": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/layout.json",
+      "backup_restored": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/layout.json"
+    },
+    "system_events": {
+      "rotate": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/system-event-0/event.json",
+      "process_death": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/system-event-1/event.json",
+      "backup_restore": "/Users/peter/projects/ai_verification-issue-71/docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/system-event-2/event.json"
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "attempt_id": "baf76de8-a1b9-42e1-bcdd-3b581c79631a",
+  "scenario": "lifecycle-recovery-matched-journey",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-19T07:04:09+00:00",
+  "finished_at": "2026-07-19T07:09:04+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-19T07:04:09+00:00",
+    "finished_at": "2026-07-19T07:09:04+00:00",
+    "total_seconds": 294.91,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.988
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-0",
+        "kind": "journey",
+        "seconds": 95.428
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 3.095
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.115
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 3.253
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-1",
+        "kind": "journey",
+        "seconds": 49.428
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 2.942
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "process_death",
+        "seconds": 7.151
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 2.989
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-2",
+        "kind": "journey",
+        "seconds": 56.618
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 3.107
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "backup_restore",
+        "seconds": 15.386
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 3.208
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-3",
+        "kind": "journey",
+        "seconds": 36.667
+      },
+      {
+        "phase": "after-segment-3",
+        "kind": "checkpoint",
+        "seconds": 3.015
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "/private/tmp/aiverify-issue71-baseline.F1jkCH/live-validation-gate.json",
+    "verdict": "/private/tmp/aiverify-issue71-baseline.F1jkCH/verdict.json",
+    "journey_results": [
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/after-segment-0",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/after-event-0",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/after-segment-1",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/after-event-1",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/after-segment-2",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/after-event-2",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/after-segment-3"
+    ],
+    "system_events": [
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/system-event-0/event.json",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/system-event-1/event.json",
+      "/private/tmp/aiverify-issue71-baseline.F1jkCH/artifacts/system-event-2/event.json"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "e894b453c98e286531124cd506a16510e9c95990df3e7c4b7c7e1f9e6c7f45b7"
+    }
+  }
+}

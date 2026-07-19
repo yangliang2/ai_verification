@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "baseline_attempt": "bfd50b91-4489-467b-9b21-ac69f835058c",
+  "candidate_attempt": "f71c8c40-884a-4a38-a29d-300140f4b602",
+  "host_commit": "8cab543d120bce430f97642c30e023f2f742ed57",
+  "matched_executable_inputs": true,
+  "strict_entire_worktree_match": false,
+  "candidate_executable_difference": {
+    "path": "bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java",
+    "insertions": 1,
+    "deletions": 1,
+    "patch_sha256": "7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42"
+  },
+  "baseline_non_document_host_changes": [],
+  "candidate_non_document_host_changes": [
+    "1\t1\tbench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java"
+  ],
+  "normalized_run_spec_sha256": "3a23e226c11c68834a47dfae64941e9c5aec5ca896932a44caa98c4083c2c827",
+  "journey_prompt_sha256": [
+    "4973624aa36bcc1f7b63a40a9e0f89991f9dc354b6672e5051258754d84c9a16",
+    "b73282ecc6193783de25feb74ecf95030d985828ec336663bd09238ca2af7945",
+    "e1af7691ac0b29957740e7cb58e1a708ac4e4f19bce3024fd08aa65de363d4d1",
+    "79e9c79833275e00cb074918a8cb96610af6b644f4cc803240b5e4d90358a0a5"
+  ],
+  "device_identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8",
+  "tool_identity_match": true,
+  "event_sequence_and_args_match": true,
+  "package_activity_match": true,
+  "archived_apk_matches_installed_apk": {
+    "baseline": true,
+    "candidate": true
+  },
+  "document_only_worktree_difference": {
+    "present": true,
+    "scope": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/",
+    "reason": "Earlier evidence lanes were moved and the new baseline was frozen between live executions.",
+    "execution_impact": "The Journey prompts prohibited file inspection and retained command streams contain only Android CLI/adb UI operations; runner and fixture executable inputs are covered above."
+  },
+  "clean_retry": {
+    "attempted": true,
+    "result": "non_accountable",
+    "reason": "Codex CLI account usage limit before the first Journey action",
+    "artifact": "attempts/non-accountable-baseline-clean-codex-usage-limit/"
+  }
+}

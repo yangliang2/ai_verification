@@ -1,0 +1,58 @@
+........F.                                                               [100%]
+=================================== FAILURES ===================================
+________ test_anr_layout_failure_retains_bounded_checkpoint_diagnostics ________
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-404/test_anr_layout_failure_retain0')
+
+    def test_anr_layout_failure_retains_bounded_checkpoint_diagnostics(tmp_path: Path) -> None:
+        command_runner = HistoricalAnrCaptureRunner()
+        runner = JourneySegmentRunner(
+            backend=FakeBackend(),
+            checkpoint_collector=AndroidEvidenceCollector(
+                runner=command_runner,
+                layout_attempts=2,
+                layout_retry_sleep_seconds=0,
+            ),
+            system_event_injector=FakeInjector(),
+        )
+        schema = tmp_path / "schema.json"
+        schema.write_text("{}", encoding="utf-8")
+    
+        with pytest.raises(JourneyExecutionInterrupted) as raised:
+            runner.run(
+                scenario=ScenarioSpec(id="anr-defect-1", user_actions=["Trigger ANR"]),
+                workdir=tmp_path,
+                artifact_dir=tmp_path / "artifacts",
+                output_schema=schema,
+                device="emulator-5554",
+            )
+    
+        assert raised.value.reason == "checkpoint_capture_error"
+        assert raised.value.flow.journey_results[0].data["results"][0]["status"] == "PASSED"
+        assert [checkpoint.name for checkpoint in raised.value.flow.checkpoints] == [
+            "after-segment-0"
+        ]
+        checkpoint = raised.value.flow.checkpoints[0]
+        manifest = json.loads(checkpoint.manifest_path.read_text(encoding="utf-8"))
+        commands = json.loads(checkpoint.commands_path.read_text(encoding="utf-8"))
+    
+        assert manifest["status"] == "failed"
+        assert manifest["failed_phase"] == "layout"
+>       assert manifest["artifact_exists"] == {
+            "layout": False,
+            "screen": True,
+            "screen_annotated": True,
+            "logcat": True,
+            "commands": True,
+        }
+E       AssertionError: assert {'commands': ...n': True, ...} == {'commands': ...n': True, ...}
+E         
+E         Omitting 4 identical items, use -vv to show
+E         Differing items:
+E         {'screen_annotated': False} != {'screen_annotated': True}
+E         Use -v to get more diff
+
+tests/runner/test_journey.py:838: AssertionError
+=========================== short test summary info ============================
+FAILED tests/runner/test_journey.py::test_anr_layout_failure_retains_bounded_checkpoint_diagnostics
+1 failed, 9 passed in 0.15s

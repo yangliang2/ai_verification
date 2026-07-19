@@ -1,0 +1,35 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_journey_segment_runner_persists_system_event_evidence __________
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-367/test_journey_segment_runner_pe0')
+
+    def test_journey_segment_runner_persists_system_event_evidence(tmp_path: Path) -> None:
+        runner = JourneySegmentRunner(
+            backend=FakeBackend(),
+            checkpoint_collector=FakeCollector(),
+            system_event_injector=EvidenceInjector(),
+        )
+        schema = tmp_path / "schema.json"
+        schema.write_text("{}", encoding="utf-8")
+    
+        flow = runner.run(
+            scenario=ScenarioSpec(
+                id="lifecycle",
+                user_actions=["Create fixture", "Verify restored fixture"],
+                system_events=[SystemEventSpec(step_index=0, event="process_death")],
+            ),
+            workdir=tmp_path,
+            artifact_dir=tmp_path / "artifacts",
+            output_schema=schema,
+            device="emulator-5554",
+        )
+    
+>       assert len(flow.system_event_evidence) == 1
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'JourneySegmentFlow' object has no attribute 'system_event_evidence'
+
+tests/runner/test_journey.py:443: AttributeError
+=========================== short test summary info ============================
+FAILED tests/runner/test_journey.py::test_journey_segment_runner_persists_system_event_evidence
+1 failed in 0.08s

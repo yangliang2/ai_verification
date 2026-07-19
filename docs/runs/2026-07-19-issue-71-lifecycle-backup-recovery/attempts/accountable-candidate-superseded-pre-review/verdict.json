@@ -1,0 +1,284 @@
+{
+  "scenario": "lifecycle-recovery-matched-journey",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/private/tmp/aiverify-issue71-candidate.c2wnqt/live-validation-gate.json",
+      "failed_checks": [],
+      "app": {
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "target_surface": {
+          "resource_id": "create_fixture"
+        }
+      }
+    }
+  },
+  "metric_context": {
+    "seed_id": "lifecycle-recovery-matched-journey",
+    "seed_kind": "unspecified",
+    "seed_outcome": "detected",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "fail",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": "state_loss",
+      "L3": null
+    },
+    "failed_oracles": [
+      "L2"
+    ]
+  },
+  "l1": {
+    "verdict_id": "L1-5716e3a0",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "The fixture app is already open. Tap the CREATE VERSION 1 FIXTURE button (resource-id create_fixture). Confirm the four displayed fields are exactly: sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2. Do not relaunch or navigate away.\n",
+      "After the runner-controlled rotation, inspect the already-open fixture app without relaunching it. Confirm the same four version 1 values remain visible. Do not tap CREATE VERSION 1 FIXTURE again.\n",
+      "After the runner-controlled background process death and relaunch, inspect the restored fixture app. Confirm the same four version 1 values remain visible. Do not tap CREATE VERSION 1 FIXTURE again.\n",
+      "After the runner-controlled backup, app-data clear, restore, and relaunch, inspect the restored fixture app. Confirm sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 2, revision 42, and migration status MIGRATED_V1_TO_V2 are visible. Do not modify the fixture.\n",
+      "[boundary] inject rotate {'rotation': '1'}",
+      "[boundary] inject process_death {'background_wait': '2', 'kill_wait': '2', 'restore_wait': '3'}",
+      "[boundary] inject backup_restore {'transport': 'com.android.localtransport/.LocalTransport', 'restore_wait': '3'}"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-8c1bb833",
+    "level": "L2",
+    "outcome": "fail",
+    "defect_class_hypothesis": "state_loss",
+    "trigger_steps": [
+      "The fixture app is already open. Tap the CREATE VERSION 1 FIXTURE button (resource-id create_fixture). Confirm the four displayed fields are exactly: sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2. Do not relaunch or navigate away.\n",
+      "After the runner-controlled rotation, inspect the already-open fixture app without relaunching it. Confirm the same four version 1 values remain visible. Do not tap CREATE VERSION 1 FIXTURE again.\n",
+      "After the runner-controlled background process death and relaunch, inspect the restored fixture app. Confirm the same four version 1 values remain visible. Do not tap CREATE VERSION 1 FIXTURE again.\n",
+      "After the runner-controlled backup, app-data clear, restore, and relaunch, inspect the restored fixture app. Confirm sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 2, revision 42, and migration status MIGRATED_V1_TO_V2 are visible. Do not modify the fixture.\n",
+      "[boundary] inject rotate {'rotation': '1'}",
+      "[boundary] inject process_death {'background_wait': '2', 'kill_wait': '2', 'restore_wait': '3'}",
+      "[boundary] inject backup_restore {'transport': 'com.android.localtransport/.LocalTransport', 'restore_wait': '3'}"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "resource-id='fixture_schema_version' attr='text'：期望='2'，实际='1'",
+        "note": "属性 'text' 值与期望不符"
+      },
+      {
+        "type": "state_diff",
+        "ref": "resource-id='fixture_revision' attr='text'：期望='42'，实际='41'",
+        "note": "属性 'text' 值与期望不符"
+      },
+      {
+        "type": "state_diff",
+        "ref": "resource-id='fixture_migration_status' attr='text'：期望='MIGRATED_V1_TO_V2'，实际='PENDING_V1_TO_V2'",
+        "note": "属性 'text' 值与期望不符"
+      }
+    ],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "lifecycle-recovery-matched-journey-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 203",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Located resource-id create_fixture at [540,203] and dispatched the tap. The refreshed layout displayed sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2 exactly. The visible button text was CREATE DETERMINISTIC V1 FIXTURE.",
+          "action": "The fixture app is already open. Tap the CREATE VERSION 1 FIXTURE button (resource-id create_fixture). Confirm the four displayed fields are exactly: sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2. Do not relaunch or navigate away.\n"
+        }
+      ]
+    },
+    {
+      "journey": "lifecycle-recovery-matched-journey-segment-1",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Inspected the already-open fixture app after rotation. All four version 1 values remained visible: sentinel=AIVERIFY-ISSUE-71-SENTINEL, schema version=1, revision=41, migration status=PENDING_V1_TO_V2. No tap, relaunch, or fixture recreation was performed.",
+          "action": "After the runner-controlled rotation, inspect the already-open fixture app without relaunching it. Confirm the same four version 1 values remain visible. Do not tap CREATE VERSION 1 FIXTURE again.\n"
+        }
+      ]
+    },
+    {
+      "journey": "lifecycle-recovery-matched-journey-segment-2",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Restored fixture shows all four version 1 values: sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2. CREATE DETERMINISTIC V1 FIXTURE remained visible and was not tapped.",
+          "action": "After the runner-controlled background process death and relaunch, inspect the restored fixture app. Confirm the same four version 1 values remain visible. Do not tap CREATE VERSION 1 FIXTURE again.\n"
+        }
+      ]
+    },
+    {
+      "journey": "lifecycle-recovery-matched-journey-segment-3",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Inspection dispatched successfully twice; no taps or text input were performed, so the fixture was not modified. AIVERIFY-ISSUE-71-SENTINEL was visible, but the restored UI incorrectly showed schema version 1, revision 41, and migration status PENDING_V1_TO_V2 instead of expected values 2, 42, and MIGRATED_V1_TO_V2.",
+          "action": "After the runner-controlled backup, app-data clear, restore, and relaunch, inspect the restored fixture app. Confirm sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 2, revision 42, and migration status MIGRATED_V1_TO_V2 are visible. Do not modify the fixture.\n"
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0",
+    "after-segment-1",
+    "after-event-1",
+    "after-segment-2",
+    "after-event-2",
+    "after-segment-3"
+  ],
+  "injected_events": [
+    {
+      "event": "rotate",
+      "args": {
+        "rotation": "1"
+      }
+    },
+    {
+      "event": "process_death",
+      "args": {
+        "background_wait": "2",
+        "kill_wait": "2",
+        "restore_wait": "3"
+      }
+    },
+    {
+      "event": "backup_restore",
+      "args": {
+        "transport": "com.android.localtransport/.LocalTransport",
+        "restore_wait": "3"
+      }
+    }
+  ],
+  "system_event_evidence": [
+    "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/system-event-0/event.json",
+    "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/system-event-1/event.json",
+    "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/system-event-2/event.json"
+  ],
+  "timing": {
+    "started_at": "2026-07-19T07:10:25+00:00",
+    "finished_at": "2026-07-19T07:16:40+00:00",
+    "total_seconds": 375.245,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.995
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-0",
+        "kind": "journey",
+        "seconds": 74.885
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 3.187
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.113
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 3.16
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-1",
+        "kind": "journey",
+        "seconds": 78.36
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 3.23
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "process_death",
+        "seconds": 7.196
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 3.611
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-2",
+        "kind": "journey",
+        "seconds": 94.018
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 3.382
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "backup_restore",
+        "seconds": 16.357
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 3.555
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-3",
+        "kind": "journey",
+        "seconds": 68.778
+      },
+      {
+        "phase": "after-segment-3",
+        "kind": "checkpoint",
+        "seconds": 3.105
+      }
+    ]
+  },
+  "execution_record": "/private/tmp/aiverify-issue71-candidate.c2wnqt/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "8fe1b32180f702b0e6419bb8721c8cbeb148b06cd980c9c653361a21370460e5"
+  }
+}

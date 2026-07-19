@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "event": "backup_restore",
+  "args": {
+    "transport": "com.android.localtransport/.LocalTransport",
+    "restore_wait": "3"
+  },
+  "status": "passed",
+  "evidence": {
+    "transport": "com.android.localtransport/.LocalTransport",
+    "previous_transport": "com.google.android.gms/.backup.BackupTransportService",
+    "backup_was_enabled": false,
+    "backup_status": "success",
+    "clear_data_status": "success",
+    "clear_data_output": "Success",
+    "restore_status": "success",
+    "restore_token": "1",
+    "post_restore_pids": [
+      "27584"
+    ],
+    "backup_output": "Running incremental backup for 1 requested packages.\nPackage @pm@ with result: Success\nPackage dev.aiverify.lifecyclefixture with progress: 2048/1024\nPackage dev.aiverify.lifecyclefixture with progress: 3072/1024\n=> Event{AGENT / AGENT_LOGGING_RESULTS : package = dev.aiverify.lifecyclefixture(v2), results = []}\nPackage dev.aiverify.lifecyclefixture with result: Success\nBackup finished with result: Success",
+    "restore_output": "Scheduling restore: Local disk image\nrestoreStarting: 1 packages\n=> Event{BACKUP_MANAGER_POLICY / PACKAGE_ACCEPTED_FOR_RESTORE : package = @pm@(v0)}\n=> Event{BACKUP_MANAGER_POLICY / PACKAGE_ACCEPTED_FOR_RESTORE : package = dev.aiverify.lifecyclefixture(v2)}\n=> Event{BACKUP_MANAGER_POLICY / START_RESTORE_AT_INSTALL}\nonUpdate: 1 = dev.aiverify.lifecyclefixture\n=> Event{BACKUP_MANAGER_POLICY / START_PACKAGE_RESTORE : package = dev.aiverify.lifecyclefixture(v2)}\n=> Event{BACKUP_MANAGER_POLICY / FULL_RESTORE : package = dev.aiverify.lifecyclefixture(v2)}\n=> Event{BACKUP_MANAGER_POLICY / VERSIONS_MATCH : package = dev.aiverify.lifecyclefixture(v2)}\n=> Event{BACKUP_MANAGER_POLICY / PACKAGE_RESTORE_FINISHED : package = dev.aiverify.lifecyclefixture(v2)}\n=> Event{AGENT / AGENT_LOGGING_RESULTS : package = dev.aiverify.lifecyclefixture(v2), results = []}\nrestoreFinished: 0\n=> Event{BACKUP_MANAGER_POLICY / RESTORE_COMPLETE}\ndone",
+    "cleanup_status": "success",
+    "cleanup_transport": "com.google.android.gms/.backup.BackupTransportService",
+    "cleanup_backup_enabled": false
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "attempt_id": "51d9b118-c2a5-4a4e-8112-8a6f1a0a9819",
+  "scenario": "lifecycle-recovery-matched-journey",
+  "lifecycle_state": "interrupted",
+  "started_at": "2026-07-19T08:30:23+00:00",
+  "finished_at": "2026-07-19T08:30:42+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_backend_error",
+    "message": "CodexCliError: Codex CLI failed with exit code 1: Reading additional input from stdin..."
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-07-19T08:30:23+00:00",
+    "finished_at": "2026-07-19T08:30:42+00:00",
+    "total_seconds": 18.965,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.587
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-0",
+        "kind": "journey",
+        "status": "failed",
+        "seconds": 7.897
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "lifecycle-recovery-matched-journey-segment-0",
+      "kind": "journey",
+      "reason": "journey_backend_error",
+      "message": "CodexCliError: Codex CLI failed with exit code 1: Reading additional input from stdin..."
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [],
+    "checkpoints": []
+  }
+}

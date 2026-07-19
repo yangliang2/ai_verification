@@ -1,0 +1,6 @@
+Command:
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.lifecycle_recovery --run-dir docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2 --contract bench/capability-slices/lifecycle-recovery/contract.json --output docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/lifecycle-oracle.json
+
+Result: exit 0; accountable=true; conclusion=locally_supported; classification=correct_restoration; reason=exact_state_continuity_and_migration_observed.
+
+The earlier temp-origin replay is retained as lifecycle-oracle-temp-origin.json. The canonical lifecycle-oracle.json above was generated after the attempt was frozen at its durable repo path.

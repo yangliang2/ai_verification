@@ -1,0 +1,75 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_inject_backup_restore_fails_closed_and_restores_backup_configuration ___
+
+    def test_inject_backup_restore_fails_closed_and_restores_backup_configuration() -> None:
+        injector, fake = _injector()
+        local = "com.android.localtransport/.LocalTransport"
+        cloud = "com.google.android.gms/.backup.BackupTransportService"
+        fake.enqueue_many(
+            [
+                AdbResult(
+                    stdout="Backup Manager currently disabled\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(
+                    stdout=f"    {local}\n  * {cloud}\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(stdout="Backup Manager now enabled\n", stderr="", returncode=0),
+                AdbResult(stdout=f"Selected transport {local}\n", stderr="", returncode=0),
+                AdbResult(
+                    stdout=f"  * {local}\n    {cloud}\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(stdout="Wiped org.example\n", stderr="", returncode=0),
+                AdbResult(
+                    stdout="Package org.example with result: Transport rejected\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(stdout=f"Selected transport {cloud}\n", stderr="", returncode=0),
+                AdbResult(stdout="Backup Manager now disabled\n", stderr="", returncode=0),
+                AdbResult(
+                    stdout=f"    {local}\n  * {cloud}\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(
+                    stdout="Backup Manager currently disabled\n",
+                    stderr="",
+                    returncode=0,
+                ),
+            ]
+        )
+    
+        with pytest.raises(
+            SystemEventInjectionError,
+            match="backup postcondition failed.*success marker missing",
+        ):
+            injector.inject(
+                SystemEventSpec(
+                    step_index=0,
+                    event="backup_restore",
+                    args={"transport": local, "restore_wait": "0"},
+                )
+            )
+    
+>       assert fake.commands[-4:] == [
+            ["-s", "emulator-5554", "shell", "bmgr", "transport", cloud],
+            ["-s", "emulator-5554", "shell", "bmgr", "enable", "false"],
+            ["-s", "emulator-5554", "shell", "bmgr", "list", "transports"],
+            ["-s", "emulator-5554", "shell", "bmgr", "enabled"],
+        ]
+E       AssertionError: assert [['-s', 'emul...onitor', ...]] == [['-s', 'emul...', 'enabled']]
+E         
+E         At index 0 diff: ['-s', 'emulator-5554', 'shell', 'bmgr', 'transport', 'com.android.localtransport/.LocalTransport'] != ['-s', 'emulator-5554', 'shell', 'bmgr', 'transport', 'com.google.android.gms/.backup.BackupTransportService']
+E         Use -v to get more diff
+
+tests/runner/test_system_events.py:422: AssertionError
+=========================== short test summary info ============================
+FAILED tests/runner/test_system_events.py::test_inject_backup_restore_fails_closed_and_restores_backup_configuration
+1 failed in 0.06s

@@ -1,0 +1,281 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_inject_backup_restore_records_transport_restore_and_process_evidence ___
+
+    def test_inject_backup_restore_records_transport_restore_and_process_evidence() -> None:
+        fake = FakeAdbRunner()
+        device = DeviceController(serial="emulator-5554", runner=fake)
+        injector = DeviceSystemEventInjector(
+            device=device,
+            package="org.example",
+            activity="org.example.MainActivity",
+        )
+        local = "com.android.localtransport/.LocalTransport"
+        cloud = "com.google.android.gms/.backup.BackupTransportService"
+        fake.enqueue_many(
+            [
+                AdbResult(
+                    stdout="Backup Manager currently disabled\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(
+                    stdout=f"    {local}\n  * {cloud}\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(stdout="Backup Manager now enabled\n", stderr="", returncode=0),
+                AdbResult(stdout=f"Selected transport {local}\n", stderr="", returncode=0),
+                AdbResult(
+                    stdout=f"  * {local}\n    {cloud}\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(stdout="Wiped org.example\n", stderr="", returncode=0),
+                AdbResult(
+                    stdout="Package org.example with result: Success\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(stdout="1 : Local disk image\n", stderr="", returncode=0),
+                AdbResult(stdout="Success\n", stderr="", returncode=0),
+                AdbResult(
+                    stdout="restoreStarting: 1 packages\nrestoreFinished: 0\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(stdout="Starting: Intent\n", stderr="", returncode=0),
+                AdbResult(stdout="333\n", stderr="", returncode=0),
+                AdbResult(stdout=f"Selected transport {cloud}\n", stderr="", returncode=0),
+                AdbResult(stdout="Backup Manager now disabled\n", stderr="", returncode=0),
+                AdbResult(
+                    stdout=f"    {local}\n  * {cloud}\n",
+                    stderr="",
+                    returncode=0,
+                ),
+                AdbResult(
+                    stdout="Backup Manager currently disabled\n",
+                    stderr="",
+                    returncode=0,
+                ),
+            ]
+        )
+    
+>       evidence = injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="backup_restore",
+                args={"transport": local, "restore_wait": "0"},
+            )
+        )
+
+tests/runner/test_system_events.py:318: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = DeviceSystemEventInjector(device=<aiverify.harness.device.controller.DeviceController object at 0x108eee290>, package='org.example', activity='org.example.MainActivity')
+event = SystemEventSpec(step_index=0, event='backup_restore', args={'transport': 'com.android.localtransport/.LocalTransport', 'restore_wait': '0'})
+
+    def inject(self, event: SystemEventSpec) -> None:
+        """Inject one system event at a Journey Segment Boundary."""
+        if event.event == "rotate":
+            raw_rotation = event.args.get("rotation", "1")
+            try:
+                rotation = int(raw_rotation)
+            except ValueError:
+                rotation = -1
+            if rotation not in {0, 1, 2, 3}:
+                raise SystemEventInjectionError(
+                    "rotate requires args.rotation to be one of 0, 1, 2, 3; "
+                    f"got {raw_rotation!r}"
+                )
+            self._require_success(event.event, self.device.rotate(rotation))
+            automatic = self.device.get_accelerometer_rotation()
+            self._require_success(event.event, automatic)
+            automatic_value = automatic.stdout.strip()
+            if automatic_value != "0":
+                raise SystemEventInjectionError(
+                    "rotate postcondition failed: "
+                    "expected accelerometer_rotation=0, "
+                    f"observed {automatic_value!r}"
+                )
+            observed = self.device.get_user_rotation()
+            self._require_success(event.event, observed)
+            actual = observed.stdout.strip()
+            if actual != str(rotation):
+                raise SystemEventInjectionError(
+                    "rotate postcondition failed: "
+                    f"expected user_rotation={rotation}, observed {actual!r}"
+                )
+            return
+        if event.event == "kill_background":
+            before = self.device.get_pid(self.package)
+            self._require_success(event.event, before)
+            self._parse_running_pids(event.event, before)
+            self._require_success(
+                event.event, self.device.kill_background(self.package)
+            )
+            after = self.device.get_pid(self.package)
+            if after.returncode == 0:
+                remaining = sorted(self._parse_running_pids(event.event, after))
+                raise SystemEventInjectionError(
+                    "kill_background postcondition failed: process remains running "
+                    f"with pid(s) {', '.join(remaining)}"
+                )
+            if after.returncode != 1 or after.stdout.strip() or after.stderr.strip():
+                self._require_success(event.event, after)
+            return
+        if event.event == "revoke_permission":
+            permission = event.args.get("permission")
+            if not permission:
+                raise SystemEventInjectionError("revoke_permission requires args.permission")
+            self._require_success(
+                event.event, self.device.revoke_permission(self.package, permission)
+            )
+            observed = self.device.dump_package_state(self.package)
+            self._require_success(event.event, observed)
+            grant = re.search(
+                rf"^\s*{re.escape(permission)}:\s+granted=(true|false)(?:,|\s*$)",
+                observed.stdout,
+                flags=re.MULTILINE,
+            )
+            if grant is None:
+                raise SystemEventInjectionError(
+                    "revoke_permission postcondition failed: could not find "
+                    f"runtime permission {permission} in package state"
+                )
+            if grant.group(1) != "false":
+                raise SystemEventInjectionError(
+                    "revoke_permission postcondition failed: "
+                    f"{permission} remains granted"
+                )
+            return
+        if event.event == "network_off":
+            self._require_success(event.event, self.device.set_wifi(enabled=False))
+            self._require_success(
+                event.event, self.device.set_mobile_data(enabled=False)
+            )
+            wifi = self.device.get_wifi_setting()
+            self._require_success(event.event, wifi)
+            wifi_value = wifi.stdout.strip()
+            if wifi_value != "0":
+                raise SystemEventInjectionError(
+                    "network_off postcondition failed: "
+                    f"expected wifi_on=0, observed {wifi_value!r}"
+                )
+            mobile_data = self.device.get_mobile_data_setting()
+            self._require_success(event.event, mobile_data)
+            mobile_data_value = mobile_data.stdout.strip()
+            if mobile_data_value != "0":
+                raise SystemEventInjectionError(
+                    "network_off postcondition failed: "
+                    f"expected mobile_data=0, observed {mobile_data_value!r}"
+                )
+            return
+        if event.event == "network_on":
+            self._require_success(event.event, self.device.set_wifi(enabled=True))
+            self._require_success(
+                event.event, self.device.set_mobile_data(enabled=True)
+            )
+            wifi = self.device.get_wifi_setting()
+            self._require_success(event.event, wifi)
+            wifi_value = wifi.stdout.strip()
+            if wifi_value != "1":
+                raise SystemEventInjectionError(
+                    "network_on postcondition failed: "
+                    f"expected wifi_on=1, observed {wifi_value!r}"
+                )
+            mobile_data = self.device.get_mobile_data_setting()
+            self._require_success(event.event, mobile_data)
+            mobile_data_value = mobile_data.stdout.strip()
+            if mobile_data_value != "1":
+                raise SystemEventInjectionError(
+                    "network_on postcondition failed: "
+                    f"expected mobile_data=1, observed {mobile_data_value!r}"
+                )
+            return
+        if event.event == "app_to_background":
+            timeout_seconds, poll_interval_seconds = self._postcondition_polling(
+                event
+            )
+            self._require_success(event.event, self.device.press_home())
+            self._wait_for_resumed_package(
+                event.event,
+                expect_target=False,
+                timeout_seconds=timeout_seconds,
+                poll_interval_seconds=poll_interval_seconds,
+            )
+            return
+        if event.event == "process_death":
+            # 真实进程死亡：后台化 → am kill → launcher 重新拉起。
+            # 等待编排在 DeviceController.process_death 内部完成，返回时恢复已就绪，
+            # 调用方可立即抓取 after-event checkpoint。args 可覆盖各阶段等待秒数。
+            before = self.device.get_pid(self.package)
+            self._require_success(event.event, before)
+            before_pids = self._parse_running_pids(event.event, before)
+            self._require_success(
+                event.event,
+                self.device.process_death(
+                    self.package,
+                    self.activity,
+                    background_wait=float(event.args.get("background_wait", "2.0")),
+                    kill_wait=float(event.args.get("kill_wait", "2.0")),
+                    restore_wait=float(event.args.get("restore_wait", "8.0")),
+                ),
+            )
+            after = self.device.get_pid(self.package)
+            self._require_success(event.event, after)
+            after_pids = self._parse_running_pids(event.event, after)
+            survivors = sorted(before_pids & after_pids)
+            if survivors:
+                survivor_list = ", ".join(survivors)
+                noun = "process" if len(survivors) == 1 else "processes"
+                raise SystemEventInjectionError(
+                    "process_death postcondition failed: "
+                    f"{noun} {survivor_list} survived"
+                )
+            return
+        if event.event == "app_to_foreground":
+            timeout_seconds, poll_interval_seconds = self._postcondition_polling(
+                event
+            )
+            self._require_success(
+                event.event, self.device.launch(self.package, self.activity)
+            )
+            self._wait_for_resumed_package(
+                event.event,
+                expect_target=True,
+                timeout_seconds=timeout_seconds,
+                poll_interval_seconds=poll_interval_seconds,
+            )
+            return
+        if event.event == "dark_mode":
+            # config-change: toggling uiMode night forces recreation on activities
+            # whose configChanges does not declare uiMode (e.g. Wikipedia SearchActivity
+            # declares only orientation|screenSize). args.night defaults to "yes".
+            night = event.args.get("night", "yes")
+            if night not in {"yes", "no"}:
+                raise SystemEventInjectionError(
+                    "dark_mode requires args.night to be 'yes' or 'no'; "
+                    f"got {night!r}"
+                )
+            enabled = night == "yes"
+            self._require_success(
+                event.event, self.device.set_night_mode(enabled=enabled)
+            )
+            observed = self.device.get_night_mode()
+            self._require_success(event.event, observed)
+            expected = "yes" if enabled else "no"
+            actual = observed.stdout.strip()
+            if not actual.lower().endswith(expected):
+                raise SystemEventInjectionError(
+                    "dark_mode postcondition failed: "
+                    f"expected night={expected}, observed {actual!r}"
+                )
+            return
+>       raise SystemEventInjectionError(f"Unsupported system event for MVP injector: {event.event}")
+E       aiverify.runner.system_events.SystemEventInjectionError: Unsupported system event for MVP injector: backup_restore
+
+src/aiverify/runner/system_events.py:229: SystemEventInjectionError
+=========================== short test summary info ============================
+FAILED tests/runner/test_system_events.py::test_inject_backup_restore_records_transport_restore_and_process_evidence
+1 failed in 0.07s

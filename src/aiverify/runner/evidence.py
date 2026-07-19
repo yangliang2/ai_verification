@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import time
 from dataclasses import dataclass
@@ -74,7 +75,16 @@ class AndroidEvidenceCollector:
 
         layout_path = checkpoint_dir / "layout.json"
         screenshot_path = checkpoint_dir / "screen.png"
-        annotated_path = checkpoint_dir / "screen-annotated.png" if annotated else None
+        # Android CLI 1.0.15498356 exposes no device selector for `screen capture`.
+        # In a multi-device environment an unscoped call can capture the wrong device
+        # or return success without an artifact. Device-scoped captures therefore use
+        # adb directly; annotation remains available only for an unambiguous default
+        # device invocation.
+        annotated_path = (
+            checkpoint_dir / "screen-annotated.png"
+            if annotated and device is None
+            else None
+        )
         logcat_path = checkpoint_dir / "logcat.txt"
         commands_path = checkpoint_dir / "commands.json"
         manifest_path = checkpoint_dir / "capture-manifest.json"
@@ -158,22 +168,33 @@ class AndroidEvidenceCollector:
         if layout is not None:
             layout_path.write_text(layout.stdout, encoding="utf-8")
 
-        screenshot_cmd = [
-            self.android_bin,
-            "screen",
-            "capture",
-            "-o",
-            str(screenshot_path),
-        ]
-        _capture_phase_best_effort(
-            "screenshot",
-            lambda: self._run_checkpoint_command(
-                screenshot_cmd,
-                phase="screenshot",
-                command_results=command_results,
-                timeout_seconds=self.screen_capture_timeout_seconds,
-            ),
-        )
+        if device is not None:
+            _capture_phase_best_effort(
+                "screenshot",
+                lambda: self._capture_device_screenshot(
+                    device=device,
+                    checkpoint_name=name,
+                    output_path=screenshot_path,
+                    command_results=command_results,
+                ),
+            )
+        else:
+            screenshot_cmd = [
+                self.android_bin,
+                "screen",
+                "capture",
+                "-o",
+                str(screenshot_path),
+            ]
+            _capture_phase_best_effort(
+                "screenshot",
+                lambda: self._run_checkpoint_command(
+                    screenshot_cmd,
+                    phase="screenshot",
+                    command_results=command_results,
+                    timeout_seconds=self.screen_capture_timeout_seconds,
+                ),
+            )
         self._record_missing_artifact(
             phase="screenshot",
             path=screenshot_path,
@@ -238,6 +259,38 @@ class AndroidEvidenceCollector:
         _write_metadata("passed")
 
         return checkpoint
+
+    def _capture_device_screenshot(
+        self,
+        *,
+        device: str,
+        checkpoint_name: str,
+        output_path: Path,
+        command_results: list[dict[str, object]],
+    ) -> None:
+        safe_name = re.sub(r"[^A-Za-z0-9_.-]", "-", checkpoint_name)
+        remote_path = f"/data/local/tmp/aiverify-{safe_name}-screen.png"
+        prefix = [self.adb_bin, "-s", device]
+        self._run_checkpoint_command(
+            [*prefix, "shell", "screencap", "-p", remote_path],
+            phase="screenshot",
+            command_results=command_results,
+            timeout_seconds=self.screen_capture_timeout_seconds,
+        )
+        try:
+            self._run_checkpoint_command(
+                [*prefix, "pull", remote_path, str(output_path)],
+                phase="screenshot",
+                command_results=command_results,
+                timeout_seconds=self.screen_capture_timeout_seconds,
+            )
+        finally:
+            self._run_checkpoint_command(
+                [*prefix, "shell", "rm", "-f", remote_path],
+                phase="screenshot",
+                command_results=command_results,
+                timeout_seconds=self.screen_capture_timeout_seconds,
+            )
 
     @staticmethod
     def _record_missing_artifact(

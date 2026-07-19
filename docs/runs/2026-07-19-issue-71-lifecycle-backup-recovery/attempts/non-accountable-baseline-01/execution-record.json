@@ -1,0 +1,58 @@
+{
+  "schema_version": 2,
+  "attempt_id": "c857fa44-ea16-4013-8ecb-89744af988a6",
+  "scenario": "lifecycle-recovery-matched-journey",
+  "lifecycle_state": "interrupted",
+  "started_at": "2026-07-19T06:55:01+00:00",
+  "finished_at": "2026-07-19T06:56:36+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "checkpoint_capture_error",
+    "message": "EvidenceCaptureError: screenshot: screenshot command did not create a non-empty artifact: /private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/screen.png; annotated_screenshot: annotated_screenshot command did not create a non-empty artifact: /private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/screen-annotated.png"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-07-19T06:55:01+00:00",
+    "finished_at": "2026-07-19T06:56:36+00:00",
+    "total_seconds": 95.079,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 9.462
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-0",
+        "kind": "journey",
+        "seconds": 76.741
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "status": "failed",
+        "seconds": 4.501
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "after-segment-0",
+      "kind": "checkpoint",
+      "reason": "checkpoint_capture_error",
+      "message": "EvidenceCaptureError: screenshot: screenshot command did not create a non-empty artifact: /private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/screen.png; annotated_screenshot: annotated_screenshot command did not create a non-empty artifact: /private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/screen-annotated.png"
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "/private/tmp/aiverify-issue71-baseline.34MZoE/live-validation-gate.json",
+    "verdict": "/private/tmp/aiverify-issue71-baseline.34MZoE/verdict.json",
+    "journey_results": [
+      "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json"
+    ],
+    "checkpoints": [
+      "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0"
+    ]
+  }
+}

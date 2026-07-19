@@ -1,0 +1,15 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_baseline_and_candidate_run_specs_share_one_lifecycle_journey _______
+
+    def test_baseline_and_candidate_run_specs_share_one_lifecycle_journey() -> None:
+        baseline = load_run_spec(_SLICE / "run-specs/baseline.yaml")
+        candidate = load_run_spec(_SLICE / "run-specs/candidate.yaml")
+    
+>       assert baseline.host_project == Path(__file__).resolve().parents[2]
+E       AssertionError: assert PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/../../../..') == PosixPath('/Users/peter/projects/ai_verification-issue-71')
+E        +  where PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/../../../..') = RunSpec(host_project=PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recov...e-recovery/run-specs/baseline.yaml'), source_sha256='3a23e226c11c68834a47dfae64941e9c5aec5ca896932a44caa98c4083c2c827').host_project
+
+tests/bench/test_lifecycle_recovery.py:289: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_lifecycle_recovery.py::test_baseline_and_candidate_run_specs_share_one_lifecycle_journey

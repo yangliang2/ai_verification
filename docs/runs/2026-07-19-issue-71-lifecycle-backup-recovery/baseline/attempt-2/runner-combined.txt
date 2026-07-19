@@ -1,0 +1,12 @@
+Command:
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/time -p .venv/bin/python -m aiverify.runner bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml --device emulator-5554 --artifact-dir /tmp/aiverify-issue71-baseline-review.vWWaiL/artifacts
+
+Output:
+scenario: lifecycle-recovery-matched-journey
+L1: inconclusive (None)  |  L2: pass (None)  |  L3: not run
+real 280.15
+user 47.59
+sys 6.21
+
+Exit code: 0
+The complete attempt directory was copied without altering runner artifacts to this durable path. Run-relative evidence references remain valid after the copy.

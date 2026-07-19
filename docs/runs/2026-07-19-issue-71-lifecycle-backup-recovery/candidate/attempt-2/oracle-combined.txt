@@ -1,0 +1,6 @@
+Command:
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.lifecycle_recovery --run-dir docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-2 --contract bench/capability-slices/lifecycle-recovery/contract.json --output docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-2/lifecycle-oracle.json
+
+Result: exit 1; accountable=true; conclusion=locally_rejected; classification=stale_state; reason=restored_state_remains_at_pre_migration_version.
+
+Exit 1 is the expected rejected-candidate result. The earlier temp-origin replay is retained as lifecycle-oracle-temp-origin.json.

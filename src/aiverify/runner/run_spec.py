@@ -27,6 +27,7 @@ SUPPORTED_SYSTEM_EVENTS = frozenset(
         "battery_low",
         "dark_mode",
         "process_death",
+        "backup_restore",
     }
 )
 

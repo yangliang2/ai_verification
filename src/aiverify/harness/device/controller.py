@@ -177,6 +177,24 @@ class DeviceController:
         """按下 Home 键，将当前前台应用送入后台。"""
         return self._shell(["input", "keyevent", "HOME"])
 
+    def launch_from_launcher(
+        self, package: str, activity: str | None = None
+    ) -> AdbResult:
+        """Bring an app forward with launcher semantics.
+
+        An explicit activity uses a MAIN + LAUNCHER intent so Android restores the
+        existing task in the same way as a launcher tap. Without one, fall back to
+        the package-scoped monkey launcher used by :meth:`launch`.
+        """
+        if activity:
+            return self._shell([
+                "am", "start",
+                "-a", "android.intent.action.MAIN",
+                "-c", "android.intent.category.LAUNCHER",
+                "-n", f"{package}/{activity}",
+            ])
+        return self.launch(package)
+
     def process_death(
         self,
         package: str,
@@ -218,18 +236,46 @@ class DeviceController:
         kill_result = self.kill_background(package)
         if kill_wait > 0:
             time.sleep(kill_wait)
-        if activity:
-            result = self._shell([
-                "am", "start",
-                "-a", "android.intent.action.MAIN",
-                "-c", "android.intent.category.LAUNCHER",
-                "-n", f"{package}/{activity}",
-            ])
-        else:
-            result = self.launch(package)
+        result = self.launch_from_launcher(package, activity)
         if restore_wait > 0:
             time.sleep(restore_wait)
         return background_result, kill_result, result
+
+    # ------------------------------------------------------------------
+    # Backup and restore
+    # ------------------------------------------------------------------
+
+    def get_backup_enabled(self) -> AdbResult:
+        """Read whether Android's Backup Manager is enabled."""
+        return self._shell(["bmgr", "enabled"])
+
+    def set_backup_enabled(self, *, enabled: bool) -> AdbResult:
+        """Enable or disable Android's Backup Manager."""
+        return self._shell(["bmgr", "enable", "true" if enabled else "false"])
+
+    def list_backup_transports(self) -> AdbResult:
+        """List available backup transports and the active transport."""
+        return self._shell(["bmgr", "list", "transports"])
+
+    def select_backup_transport(self, transport: str) -> AdbResult:
+        """Select one named backup transport."""
+        return self._shell(["bmgr", "transport", transport])
+
+    def wipe_backup_data(self, transport: str, package: str) -> AdbResult:
+        """Remove only one package's data from one backup transport."""
+        return self._shell(["bmgr", "wipe", transport, package])
+
+    def backup_now(self, package: str) -> AdbResult:
+        """Run an immediate monitored backup for one package."""
+        return self._shell(["bmgr", "backupnow", "--monitor", package])
+
+    def list_restore_sets(self) -> AdbResult:
+        """List restore sets exposed by the active backup transport."""
+        return self._shell(["bmgr", "list", "sets"])
+
+    def restore_backup(self, token: str, package: str) -> AdbResult:
+        """Restore one package from one monitored restore set."""
+        return self._shell(["bmgr", "restore", token, package, "--monitor"])
 
     # ------------------------------------------------------------------
     # 权限管理

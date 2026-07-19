@@ -1,0 +1,112 @@
+{
+  "scenario": "lifecycle-recovery-matched-journey",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "checkpoint_capture_error",
+    "message": "EvidenceCaptureError: screenshot: screenshot command did not create a non-empty artifact: /private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/screen.png; annotated_screenshot: annotated_screenshot command did not create a non-empty artifact: /private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/screen-annotated.png"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/private/tmp/aiverify-issue71-baseline.34MZoE/live-validation-gate.json",
+      "failed_checks": [],
+      "app": {
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "target_surface": {
+          "resource_id": "create_fixture"
+        }
+      }
+    }
+  },
+  "metric_context": {
+    "seed_id": "lifecycle-recovery-matched-journey",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "journey_results": [
+      {
+        "result": "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json",
+        "events": "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-events.jsonl"
+      }
+    ],
+    "checkpoints": [
+      {
+        "name": "after-segment-0",
+        "directory": "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0",
+        "layout": "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/layout.json",
+        "screenshot": "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/screen.png",
+        "annotated_screenshot": "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/screen-annotated.png",
+        "logcat": "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/logcat.txt",
+        "commands": "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/commands.json",
+        "manifest": "/private/tmp/aiverify-issue71-baseline.34MZoE/artifacts/after-segment-0/capture-manifest.json"
+      }
+    ],
+    "backend_errors": []
+  },
+  "journey_results": [
+    {
+      "journey": "lifecycle-recovery-matched-journey-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 203",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Observed create_fixture at [540,203] and dispatched the tap successfully. The refreshed layout showed sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2 exactly. No relaunch or navigation was performed."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-07-19T06:55:01+00:00",
+    "finished_at": "2026-07-19T06:56:36+00:00",
+    "total_seconds": 95.079,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 9.462
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-0",
+        "kind": "journey",
+        "seconds": 76.741
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "status": "failed",
+        "seconds": 4.501
+      }
+    ]
+  },
+  "execution_record": "/private/tmp/aiverify-issue71-baseline.34MZoE/execution-record.json"
+}

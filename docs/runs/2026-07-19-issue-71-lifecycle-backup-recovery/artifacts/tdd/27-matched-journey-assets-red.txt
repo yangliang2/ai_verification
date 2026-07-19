@@ -1,0 +1,72 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_baseline_and_candidate_run_specs_share_one_lifecycle_journey _______
+
+path = PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml')
+
+    def load_run_spec(
+        path: str | Path,
+        *,
+        environ: Mapping[str, str] | None = None,
+        host_project_override: str | Path | None = None,
+    ) -> RunSpec:
+        """Load and validate a Run Spec YAML file."""
+        src = Path(path).resolve()
+        try:
+>           source_bytes = src.read_bytes()
+                           ^^^^^^^^^^^^^^^^
+
+src/aiverify/runner/run_spec.py:187: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/pathlib.py:1050: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml'
+
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/pathlib.py:1044: FileNotFoundError
+
+The above exception was the direct cause of the following exception:
+
+    def test_baseline_and_candidate_run_specs_share_one_lifecycle_journey() -> None:
+>       baseline = load_run_spec(_SLICE / "run-specs/baseline.yaml")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/bench/test_lifecycle_recovery.py:286: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml')
+
+    def load_run_spec(
+        path: str | Path,
+        *,
+        environ: Mapping[str, str] | None = None,
+        host_project_override: str | Path | None = None,
+    ) -> RunSpec:
+        """Load and validate a Run Spec YAML file."""
+        src = Path(path).resolve()
+        try:
+            source_bytes = src.read_bytes()
+            data = yaml.safe_load(source_bytes.decode("utf-8"))
+        except (OSError, UnicodeDecodeError) as exc:
+>           raise RunSpecError(f"Run Spec 读取失败：{exc}") from exc
+E           aiverify.runner.run_spec.RunSpecError: Run Spec 读取失败：[Errno 2] No such file or directory: '/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml'
+
+src/aiverify/runner/run_spec.py:190: RunSpecError
+=========================== short test summary info ============================
+FAILED tests/bench/test_lifecycle_recovery.py::test_baseline_and_candidate_run_specs_share_one_lifecycle_journey
+1 failed in 0.07s

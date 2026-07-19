@@ -1,0 +1,26 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_device_scoped_checkpoint_never_uses_unscoped_android_screenshot _____
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-401/test_device_scoped_checkpoint_0')
+
+    def test_device_scoped_checkpoint_never_uses_unscoped_android_screenshot(
+        tmp_path: Path,
+    ) -> None:
+        runner = FakeRunner()
+        collector = AndroidEvidenceCollector(runner=runner)
+    
+        checkpoint = collector.capture_checkpoint(
+            name="multi-device",
+            output_dir=tmp_path,
+            device="emulator-5554",
+        )
+    
+        assert checkpoint.screenshot_path.read_bytes() == b"png"
+>       assert checkpoint.annotated_screenshot_path is None
+E       AssertionError: assert PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-401/test_device_scoped_checkpoint_0/multi-device/screen-annotated.png') is None
+E        +  where PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-401/test_device_scoped_checkpoint_0/multi-device/screen-annotated.png') = EvidenceCheckpoint(name='multi-device', directory=PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/...l9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-401/test_device_scoped_checkpoint_0/multi-device/capture-manifest.json')).annotated_screenshot_path
+
+tests/runner/test_evidence.py:112: AssertionError
+=========================== short test summary info ============================
+FAILED tests/runner/test_evidence.py::test_device_scoped_checkpoint_never_uses_unscoped_android_screenshot

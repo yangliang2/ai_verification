@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_supported",
+  "accountable": true,
+  "reason": "The audited local pair accountably demonstrates issue #71: both attempt-2 lanes are complete and integrity-bound; the baseline preserves deterministic state through rotation and real background process death, then restores and migrates it exactly, while the matched one-line candidate remains stale and is rejected. The differing host.patch documentation state does not contaminate executable or Journey inputs.",
+  "evidence_checks": [
+    {
+      "check": "lane checksum inventories",
+      "status": "passed",
+      "evidence": "Independent shasum verification passed for all 71 baseline and 72 candidate manifest entries. Each manifest enumerates exactly every other file in its lane, including APKs, layouts, screenshots, logcats, event receipts, Journey receipts, ExecutionRecords, verdicts, and provenance."
+    },
+    {
+      "check": "completed accountable executions",
+      "status": "passed",
+      "evidence": "Baseline attempt bfd50b91-4489-467b-9b21-ac69f835058c and candidate attempt f71c8c40-884a-4a38-a29d-300140f4b602 both have lifecycle_state=completed, execution.status=completed, accounting_eligible=true, no phase errors, and all 15 expected phases. Baseline exited 0 after 280.052 seconds; candidate exited 1 after 289.997 seconds as an accountable product rejection."
+    },
+    {
+      "check": "ExecutionRecord, provenance, and run-relative bindings",
+      "status": "passed",
+      "evidence": "Attempt IDs match between each ExecutionRecord and execution-provenance.json. Actual provenance hashes equal the bound hashes 08f4634370d1e3f114a025c62279310b39104803fb3aef7d4a3c81fd45b126cc and a68ddeeb59bf137197874aad263ee9580ee14c320deee2f2f61f881b2b5a6ad7. Every critical ExecutionRecord evidence reference is run-relative and exists, no ExecutionRecord scalar path is absolute, and every provenance role-receipt hash verified."
+    },
+    {
+      "check": "device, tool, package, and APK identity",
+      "status": "passed",
+      "evidence": "Both executions bind host commit 8cab543d120bce430f97642c30e023f2f742ed57, emulator-5554, AVD aiverify_api35, API 35, the same fingerprint and tool identities, package dev.aiverify.lifecyclefixture, and MainActivity. Baseline APK SHA-256 1a8cc170e310417f37447dd68bea1de853b1f8ed2d11d962a3662ba5cef85c0c and candidate SHA-256 82cb4a481c4572ba883adca2fb9fafce4c1e40b4fbb785b1acfc00051410958b each match the archived APK, sidecar, source provenance, byte count, and installed-APK record."
+    },
+    {
+      "check": "matched Run Specs and Journey prompts",
+      "status": "passed",
+      "evidence": "Removing only candidate.yaml's top-level diff field makes its snapshot byte-identical to baseline with SHA-256 3a23e226c11c68834a47dfae64941e9c5aec5ca896932a44caa98c4083c2c827. Scenario, four actions, three events and arguments, assertions, expected behavior, package, activity, and APK glob match. All four actual prompt hashes match across lanes, and both used Codex CLI 0.144.5 with effective model gpt-5.6-sol."
+    },
+    {
+      "check": "host-patch contamination boundary and candidate identity",
+      "status": "passed",
+      "evidence": "The baseline host.patch contains 145 paths, all under docs/runs. The candidate host.patch contains those evidence-state changes plus exactly one non-document path with 1 insertion and 1 deletion: StateStore.java. Journey transcripts contain only reads of the external Android skill and scoped Android UI commands, with no project or docs inspection. Therefore the differing documentation patches do not affect runner, fixture, or Journey inputs. The applied and committed candidate patches share SHA-256 7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42 and reverse only schemaVersion != LEGACY_SCHEMA to ==; independent APK inspection confirms the corresponding migrateLegacyState bytecode guard changes from if-eq to if-ne."
+    },
+    {
+      "check": "rotation and exact background-process-death phases",
+      "status": "passed",
+      "evidence": "Both rotation receipts passed with requested and observed user_rotation=1 and accelerometer_rotation=0. Both process-death receipts explicitly record HOME background success with Nexus Launcher resumed and target_resumed_after_home=false, successful kill, process_absent_after_kill=true, launcher relaunch, target foreground resumption, and disjoint PIDs: baseline 26923 to 27249 and candidate 27884 to 28238. Logcats independently show each old PID killed as a background process and each new PID started for MainActivity."
+    },
+    {
+      "check": "backup, data clear, restore, and cleanup receipts",
+      "status": "passed",
+      "evidence": "Both lanes selected com.android.localtransport/.LocalTransport, recorded package-specific backup Success, clear_data_status=success with exact output Success, restore token 1, restoreFinished: 0, restore success, and post-restore PIDs 27584 and 28573. Both then recorded cleanup_status=success and restored the prior GMS transport and disabled backup state exactly."
+    },
+    {
+      "check": "checkpoint UI and capture evidence",
+      "status": "passed",
+      "evidence": "All fourteen capture manifests passed with five successful commands each, and every retained adb capture command is scoped to emulator-5554. Parsing all fourteen layouts shows sentinel/v1/41/PENDING initially, after rotation, and after process death in both lanes. After restore, baseline is sentinel/v2/42/MIGRATED while candidate preserves the sentinel but remains v1/41/PENDING. Visual inspection of both post-backup screenshots agrees with those layouts."
+    },
+    {
+      "check": "crash evidence and runner verdicts",
+      "status": "passed",
+      "evidence": "Retained logcats contain no target-package FATAL EXCEPTION, crash, or ANR marker; WindowManager DeadObjectException lines coincide with controlled backup-manager process termination rather than an app crash. Both L1 verdicts are inconclusive. Baseline L2 passes all four assertions; candidate L2 fails with exact mismatches 2 to 1, 42 to 41, and MIGRATED_V1_TO_V2 to PENDING_V1_TO_V2."
+    },
+    {
+      "check": "fixture contract and fail-closed oracle",
+      "status": "passed",
+      "evidence": "The fixture uses a deterministic SharedPreferences v1 record, backs up only lifecycle_fixture.xml, and uses a noBackupFilesDir epoch marker to trigger one post-restore migration. Both APK manifests enable backup and package the backup-rule resources. Oracle source distinguishes crash, state_loss, silent_reset, stale_state, correct_restoration, and non_accountable evidence, and requires the lifecycle, clear-data, restore, and cleanup receipts."
+    },
+    {
+      "check": "independent oracle replay and candidate discrimination",
+      "status": "passed",
+      "evidence": "Read-only replay against the durable attempt-2 directories independently returns baseline accountable locally_supported/correct_restoration with exact v2 migration and candidate accountable locally_rejected/stale_state with preserved but unmigrated v1 state."
+    },
+    {
+      "check": "clean retry exclusion",
+      "status": "passed",
+      "evidence": "The clean-host retry is correctly excluded: attempt 51d9b118-c2a5-4a4e-8112-8a6f1a0a9819 is interrupted, accounting_eligible=false, has no Journey result, checkpoint, or injected event, and its transcript records an external Codex usage-limit failure before the first Journey action. It contributes no product evidence."
+    }
+  ],
+  "limitations": [
+    "This conclusion is limited to the recorded local API-35 emulator, local backup transport, APKs, toolchain, and two attempt-2 executions; no fresh Android-device execution was performed during this read-only audit.",
+    "The entire baseline and candidate worktrees were not byte-identical because docs/runs evidence state changed between executions. This conclusion supports matched executable and Journey inputs, not a strict whole-worktree equality claim.",
+    "Some immutable verdict and capture-manifest fields retain absolute temporary-origin paths; durable accountability instead relies on the verified run-relative ExecutionRecord and provenance bindings plus lane checksum inventories.",
+    "The clean-host retry was unusable because of an external Codex usage limit and was excluded rather than treated as product evidence.",
+    "At audit time the attempt-2 directories and this new conclusion were not yet committed, so they remain local-only evidence until the parent workflow freezes and commits them.",
+    "No detection-rate, Goldset, compatibility-matrix, cloud-provider, or upstream-acceptance claim is made."
+  ]
+}

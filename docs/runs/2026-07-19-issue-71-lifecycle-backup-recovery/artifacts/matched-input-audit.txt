@@ -1,0 +1,27 @@
+Matched executable-input audit
+Date: 2026-07-19
+
+Commands and results:
+
+1. Normalize candidate Run Spec by removing only its top-level `diff:` line and compare bytes/hash with baseline.
+   Result: byte equality true; both SHA-256 3a23e226c11c68834a47dfae64941e9c5aec5ca896932a44caa98c4083c2c827.
+
+2. Filter each contemporaneous identity/host.patch to paths outside docs/runs:
+   git apply --numstat <lane>/identity/host.patch | awk '$3 !~ /^docs\/runs\// {print}'
+   Result: baseline emitted no path; candidate emitted exactly:
+   1  1  bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java
+
+3. Compare the four journey-driver identity receipts.
+   Result: prompt SHA-256 arrays matched byte-for-byte:
+   4973624aa36bcc1f7b63a40a9e0f89991f9dc354b6672e5051258754d84c9a16
+   b73282ecc6193783de25feb74ecf95030d985828ec336663bd09238ca2af7945
+   e1af7691ac0b29957740e7cb58e1a708ac4e4f19bce3024fd08aa65de363d4d1
+   79e9c79833275e00cb074918a8cb96610af6b644f4cc803240b5e4d90358a0a5
+
+4. Compare execution provenance and verdict inputs.
+   Result: host commit, device identity, Android/adb/Codex/Python/Git tool identities, package, activity, scenario, event sequence, event args, assertions, and driver model all matched.
+
+5. Hash archived APKs and compare with deployment.installed_artifacts.
+   Result: baseline archive/installed SHA-256 both 1a8cc170e310417f37447dd68bea1de853b1f8ed2d11d962a3662ba5cef85c0c; candidate archive/installed SHA-256 both 82cb4a481c4572ba883adca2fb9fafce4c1e40b4fbb785b1acfc00051410958b.
+
+Boundary: the entire worktree patches are not byte-matched because run-record documents changed between executions. This is disclosed rather than hidden. No executable input outside the one-line candidate patch differs. A clean-host rerun was attempted and retained, but Codex CLI rejected the first agent turn for an external account usage limit before any Journey action.

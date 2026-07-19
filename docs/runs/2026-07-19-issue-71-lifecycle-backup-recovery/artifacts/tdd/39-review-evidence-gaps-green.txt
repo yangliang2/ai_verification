@@ -1,0 +1,7 @@
+Review-gap TDD green phase
+Date: 2026-07-19
+
+Command:
+uv run --extra dev pytest tests/runner/test_system_events.py::test_inject_process_death_home_kill_relaunch tests/runner/test_system_events.py::test_inject_backup_restore_records_transport_restore_and_process_evidence tests/runner/test_journey.py::test_multi_segment_interruption_keeps_completed_prior_boundary_evidence tests/runner/test_cli.py::test_interrupted_journey_writes_non_accountable_run_result tests/runner/test_cli.py::test_public_run_establishes_one_execution_record_before_preflight_and_finalizes_it tests/bench/test_lifecycle_recovery.py::test_oracle_fails_closed_without_clear_and_cleanup_receipts -q
+
+Result: exit 0; 6 passed in 0.13s.

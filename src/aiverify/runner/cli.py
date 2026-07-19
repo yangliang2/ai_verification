@@ -379,6 +379,36 @@ def _require_runner_setup_success(operation: str, result: AdbResult) -> None:
         )
 
 
+def _portable_evidence_ref(path: str | Path, *, run_dir: Path) -> str:
+    """Return a run-relative reference when an artifact belongs to this attempt."""
+    source = Path(path)
+    try:
+        return source.resolve().relative_to(run_dir.resolve()).as_posix()
+    except (OSError, ValueError):
+        return str(path)
+
+
+def _flow_evidence_refs(
+    flow: JourneySegmentFlow, *, run_dir: Path
+) -> dict[str, object]:
+    refs: dict[str, object] = {
+        "journey_results": [
+            _portable_evidence_ref(result.result_path, run_dir=run_dir)
+            for result in flow.journey_results
+        ],
+        "checkpoints": [
+            _portable_evidence_ref(checkpoint.directory, run_dir=run_dir)
+            for checkpoint in flow.checkpoints
+        ],
+    }
+    if flow.system_event_evidence:
+        refs["system_events"] = [
+            _portable_evidence_ref(path, run_dir=run_dir)
+            for path in flow.system_event_evidence
+        ]
+    return refs
+
+
 def _write_preflight_non_accountable_verdict(
     *,
     spec: RunSpec,
@@ -451,8 +481,13 @@ def _write_preflight_non_accountable_verdict(
         timing=verdict["timing"],
         phase_errors=phase_errors,
         evidence_refs={
-            "live_validation_gate": str(gate_path),
-            "verdict": str(artifact_dir.parent / "verdict.json"),
+            "live_validation_gate": _portable_evidence_ref(
+                gate_path, run_dir=artifact_dir.parent
+            ),
+            "verdict": _portable_evidence_ref(
+                artifact_dir.parent / "verdict.json",
+                run_dir=artifact_dir.parent,
+            ),
         },
     )
     return verdict
@@ -530,7 +565,11 @@ def _write_preflight_exception_verdict(
         process_exit_code=2,
         timing=timing,
         phase_errors=phase_errors,
-        evidence_refs={"verdict": str(verdict_path)},
+        evidence_refs={
+            "verdict": _portable_evidence_ref(
+                verdict_path, run_dir=artifact_dir.parent
+            )
+        },
     )
     return verdict
 
@@ -630,6 +669,22 @@ def _write_failed_run_verdict(
             "message": message,
         }
     ]
+    run_dir = artifact_dir.parent
+    evidence_refs: dict[str, object] = {
+        "verdict": _portable_evidence_ref(verdict_path, run_dir=run_dir)
+    }
+    if preflight_summary is not None:
+        evidence_refs["live_validation_gate"] = _portable_evidence_ref(
+            preflight_summary["artifact"], run_dir=run_dir
+        )
+    if flow is not None:
+        system_event_refs = [
+            _portable_evidence_ref(path, run_dir=run_dir)
+            for path in flow.system_event_evidence
+        ]
+        verdict["system_event_evidence"] = system_event_refs
+        verdict["diagnostic_artifacts"]["system_events"] = system_event_refs
+        evidence_refs.update(_flow_evidence_refs(flow, run_dir=run_dir))
     try:
         write_json_artifact(verdict_path, verdict)
     except Exception as output_error:
@@ -644,20 +699,6 @@ def _write_failed_run_verdict(
             flow=flow,
             additional_timings=[failed_timing],
             prior_phase_errors=phase_errors,
-        )
-    evidence_refs: dict[str, object] = {"verdict": str(verdict_path)}
-    if preflight_summary is not None:
-        evidence_refs["live_validation_gate"] = preflight_summary["artifact"]
-    if flow is not None:
-        evidence_refs.update(
-            {
-                "journey_results": [
-                    str(result.result_path) for result in flow.journey_results
-                ],
-                "checkpoints": [
-                    str(checkpoint.directory) for checkpoint in flow.checkpoints
-                ],
-            }
         )
     execution_record.finalize(
         lifecycle_state=lifecycle_state,
@@ -736,11 +777,14 @@ def _finalize_output_failure(
         "timing": timing,
         "execution_record": str(execution_record.path),
     }
+    run_dir = execution_record.path.parent
     evidence_refs: dict[str, object] = {}
     if preflight_summary is not None:
         gate_path = preflight_summary["artifact"]
         verdict["diagnostic_artifacts"]["live_validation_gate"] = gate_path
-        evidence_refs["live_validation_gate"] = gate_path
+        evidence_refs["live_validation_gate"] = _portable_evidence_ref(
+            gate_path, run_dir=run_dir
+        )
     if flow is not None:
         journey_refs = [
             str(result.result_path) for result in flow.journey_results
@@ -751,9 +795,13 @@ def _finalize_output_failure(
         verdict["diagnostic_artifacts"].update(
             {"journey_results": journey_refs, "checkpoints": checkpoint_refs}
         )
-        evidence_refs.update(
-            {"journey_results": journey_refs, "checkpoints": checkpoint_refs}
-        )
+        system_event_refs = [
+            _portable_evidence_ref(path, run_dir=run_dir)
+            for path in flow.system_event_evidence
+        ]
+        verdict["system_event_evidence"] = system_event_refs
+        verdict["diagnostic_artifacts"]["system_events"] = system_event_refs
+        evidence_refs.update(_flow_evidence_refs(flow, run_dir=run_dir))
     output_error = {
         "phase": output_phase,
         "kind": "output",
@@ -784,6 +832,11 @@ def _write_non_accountable_verdict(
 ) -> dict:
     """Persist a diagnostic run result that cannot enter benchmark accounting."""
     flow = error.flow
+    run_dir = artifact_dir.parent
+    system_event_refs = [
+        _portable_evidence_ref(path, run_dir=run_dir)
+        for path in flow.system_event_evidence
+    ]
     diagnostic_artifacts = {
         "journey_results": [
             {
@@ -824,6 +877,7 @@ def _write_non_accountable_verdict(
             for checkpoint in flow.checkpoints
         ],
         "backend_errors": error.backend_diagnostics,
+        "system_events": system_event_refs,
     }
     verdict = {
         "scenario": spec.scenario.id,
@@ -844,6 +898,7 @@ def _write_non_accountable_verdict(
         "injected_events": [
             {"event": event.event, "args": event.args} for event in flow.injected_events
         ],
+        "system_event_evidence": system_event_refs,
         "timing": {
             "started_at": started_at,
             "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -903,14 +958,13 @@ def _write_non_accountable_verdict(
         timing=verdict["timing"],
         phase_errors=phase_errors,
         evidence_refs={
-            "live_validation_gate": preflight_summary["artifact"],
-            "verdict": str(artifact_dir.parent / "verdict.json"),
-            "journey_results": [
-                str(result.result_path) for result in flow.journey_results
-            ],
-            "checkpoints": [
-                str(checkpoint.directory) for checkpoint in flow.checkpoints
-            ],
+            "live_validation_gate": _portable_evidence_ref(
+                preflight_summary["artifact"], run_dir=run_dir
+            ),
+            "verdict": _portable_evidence_ref(
+                artifact_dir.parent / "verdict.json", run_dir=run_dir
+            ),
+            **_flow_evidence_refs(flow, run_dir=run_dir),
         },
     )
     return verdict
@@ -1188,6 +1242,10 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         "journey_results": [r.data for r in flow.journey_results],
         "checkpoints": [c.name for c in flow.checkpoints],
         "injected_events": [{"event": e.event, "args": e.args} for e in flow.injected_events],
+        "system_event_evidence": [
+            _portable_evidence_ref(path, run_dir=artifact_dir.parent)
+            for path in flow.system_event_evidence
+        ],
         "timing": {
             "started_at": started_at,
             "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -1221,14 +1279,14 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         timing=verdict["timing"],
         phase_errors=[],
         evidence_refs={
-            "live_validation_gate": str(preflight_path),
-            "verdict": str(artifact_dir.parent / "verdict.json"),
-            "journey_results": [
-                str(result.result_path) for result in flow.journey_results
-            ],
-            "checkpoints": [
-                str(checkpoint.directory) for checkpoint in flow.checkpoints
-            ],
+            "live_validation_gate": _portable_evidence_ref(
+                preflight_path, run_dir=artifact_dir.parent
+            ),
+            "verdict": _portable_evidence_ref(
+                artifact_dir.parent / "verdict.json",
+                run_dir=artifact_dir.parent,
+            ),
+            **_flow_evidence_refs(flow, run_dir=artifact_dir.parent),
             "execution_provenance": execution_provenance,
         },
     )
