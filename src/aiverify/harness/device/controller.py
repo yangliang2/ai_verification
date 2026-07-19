@@ -259,6 +259,19 @@ class DeviceController:
         """
         return self._shell(["pm", "revoke", package, permission])
 
+    def open_app_settings(self, package: str) -> AdbResult:
+        """Open Android's App info screen for a package."""
+        return self._shell(
+            [
+                "am",
+                "start",
+                "-a",
+                "android.settings.APPLICATION_DETAILS_SETTINGS",
+                "-d",
+                f"package:{package}",
+            ]
+        )
+
     def clear_permission_flags(
         self,
         package: str,

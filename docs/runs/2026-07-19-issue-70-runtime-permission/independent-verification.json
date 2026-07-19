@@ -2,28 +2,29 @@
   "conclusion": {
     "status": "pass",
     "scope": "GitHub issue #70 bounded Android runtime-permission reliability fault-injection slice; no security-business, security-certification, goldset, or benchmark-metric claim",
-    "rationale": "The canonical accountable pair is internally consistent and independently reproducible from its durable evidence: the baseline demonstrates first denial, permanent denial, grant, and post-revocation graceful degradation, while the matched candidate exposes both a denial dead end and an uncaught AndroidRuntime SecurityException after revocation. Package-manager postconditions, UI layouts/screenshots, Journey command output, logcat, APK installation hashes, host revisions, device identity, and oracle verdicts agree without contradiction.",
+    "rationale": "The remediated canonical accountable pair closes the prior major Settings gap. Both runs enter real Android App info, drive the visible Permissions to Location to Don’t allow path, record Don’t allow as checked and Location as no longer allowed, and then independently observe the package permission as denied. The baseline demonstrates first denial, permanent denial, grant, and post-Settings-revocation graceful degradation; the matched candidate exposes both a denial dead end and an uncaught AndroidRuntime SecurityException after Settings revocation. The candidate Journey's immediate UI observation raced the asynchronous crash, but the later checkpoint logcat and L1 verdict fail closed on the timestamped AndroidRuntime fatal exception.",
     "acceptance_criteria": [
       {
         "criterion": "All four permission states are reproducible on the installed APK",
         "status": "pass",
         "evidence": [
-          "baseline/attempt-5/artifacts/system-event-2.json: first denial is granted=false with USER_SET and without USER_FIXED",
-          "baseline/attempt-5/artifacts/after-segment-2/layout.json and screen.png: FIRST_DENIED, RATIONALE true, and CONTINUE WITHOUT LOCATION",
-          "baseline/attempt-5/artifacts/system-event-3.json: permanent denial is granted=false with USER_SET and USER_FIXED",
-          "baseline/attempt-5/artifacts/after-segment-3/layout.json and screen.png: PERMANENTLY_DENIED, RATIONALE false, CONTINUE WITHOUT LOCATION, and OPEN APP SETTINGS",
-          "baseline/attempt-5/artifacts/system-event-4.json and after-segment-5/layout.json: granted=true and GRANTED location feature use",
-          "baseline/attempt-5/artifacts/system-event-5.json and after-segment-6/layout.json/screen.png: revoked granted=false followed by REVOKED graceful degradation with responsive controls"
+          "baseline/attempt-6/artifacts/system-event-2.json: first denial is granted=false with USER_SET and without USER_FIXED",
+          "baseline/attempt-6/artifacts/after-segment-2/layout.json and screen.png: FIRST_DENIED, RATIONALE true, and CONTINUE WITHOUT LOCATION",
+          "baseline/attempt-6/artifacts/system-event-3.json: permanent denial is granted=false with USER_SET and USER_FIXED",
+          "baseline/attempt-6/artifacts/after-segment-3/layout.json and screen.png: PERMANENTLY_DENIED, RATIONALE false, CONTINUE WITHOUT LOCATION, and OPEN APP SETTINGS",
+          "baseline/attempt-6/artifacts/system-event-4.json and after-segment-5/layout.json: granted=true and GRANTED location feature use",
+          "baseline/attempt-6/artifacts/wikipedia-location-permission-baseline-segment-6/codex-events.jsonl: visible Settings UI shows Location initially allowed, Don’t allow selected and checked, then No permissions allowed",
+          "baseline/attempt-6/artifacts/system-event-6.json and after-segment-6/layout.json/screen.png: final observe_permission records granted=false and the fixture reports REVOKED graceful degradation with responsive controls"
         ]
       },
       {
         "criterion": "Oracle detects SecurityException/crash, dead-end UI, missing fallback, and graceful degradation",
         "status": "pass",
         "evidence": [
-          "candidate/attempt-1/artifacts/after-segment-6/logcat.txt: AndroidRuntime FATAL EXCEPTION and uncaught java.lang.SecurityException from PermissionFixtureActivity.useLocationFeature",
-          "candidate/attempt-1/verdict.json: L1 fail classified crash_stability and L2 fail on BLOCKED versus required FIRST_DENIED fallback state",
-          "candidate/attempt-1/artifacts/after-segment-2/layout.json/screen.png: BLOCKED UI has no continue-without-location or Settings control",
-          "baseline/attempt-5/verdict.json: L2 pass and L3 pass cite first-denial fallback, permanent-denial Settings route, granted use, and revoked degradation",
+          "candidate/attempt-2/artifacts/after-segment-6/logcat.txt: AndroidRuntime FATAL EXCEPTION and uncaught java.lang.SecurityException from PermissionFixtureActivity.useLocationFeature after visible Settings revocation",
+          "candidate/attempt-2/verdict.json: L1 fail classified crash_stability and L2 fail on BLOCKED versus required FIRST_DENIED fallback state",
+          "candidate/attempt-2/artifacts/after-segment-2/layout.json/screen.png: BLOCKED UI has no continue-without-location or Settings control",
+          "baseline/attempt-6/verdict.json: L2 pass and L3 pass cite first-denial fallback, permanent-denial Settings route, granted use, and revoked degradation",
           "tests/bench/test_runtime_permission_slice.py and tests/agent/test_oracle_l1.py: deterministic oracle contract coverage, including missing fallback and AndroidRuntime SecurityException"
         ]
       },
@@ -32,7 +33,7 @@
         "status": "pass",
         "evidence": [
           "bench/runtime-permission/run-specs/: normalized diff is empty after replacing only baseline/candidate identifiers; actions, events, assertions, L2 boundary, expected behavior, and L3 spec match",
-          "baseline/attempt-5/execution-provenance.json and candidate/attempt-1/execution-provenance.json: same upstream commit 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b, package/activity, emulator-5556, API 35, fingerprint, profile, Android CLI, adb, Codex CLI, git, and Python identities",
+          "baseline/attempt-6/execution-provenance.json and candidate/attempt-2/execution-provenance.json: same upstream commit 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b, package/activity, emulator-5556, API 35, fingerprint, profile, Android CLI, adb, Codex CLI, git, and Python identities",
           "both execution-provenance files: Journey driver effective model is gpt-5.6-sol and deployment succeeds on the same resolved component"
         ]
       },
@@ -42,8 +43,8 @@
         "evidence": [
           "build-baseline.log: BUILD SUCCESSFUL in 8s, 66 tasks up-to-date",
           "build-candidate.log: BUILD SUCCESSFUL in 1s, 66 tasks up-to-date",
-          "baseline/attempt-5/execution-provenance.json: local and installed APK SHA-256 both a2584a0fb0224bf89768296243c7da6b8ef2914da9ebdedff1b456461c914681",
-          "candidate/attempt-1/execution-provenance.json: local and installed APK SHA-256 both fb4402403d50367895cf4904c6c12046c4296649572c30f38731a7cbf21c5992",
+          "baseline/attempt-6/execution-provenance.json: local and installed APK SHA-256 both a2584a0fb0224bf89768296243c7da6b8ef2914da9ebdedff1b456461c914681",
+          "candidate/attempt-2/execution-provenance.json: local and installed APK SHA-256 both fb4402403d50367895cf4904c6c12046c4296649572c30f38731a7cbf21c5992",
           "each execution-record.json is completed and accounting_eligible=true, with checksum-bound execution-provenance reference"
         ]
       },
@@ -62,11 +63,11 @@
       },
       {
         "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/pytest -q -p no:cacheprovider",
-        "result": "PASS, 544 tests (progress reached 100%, exit code 0)."
+        "result": "PASS, 549 tests in 16.62 seconds as retained in pytest-settings-final.log (progress reached 100%, exit code 0)."
       },
       {
         "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/pytest -q -p no:cacheprovider tests/bench/test_runtime_permission_slice.py tests/runner/test_system_events.py tests/runner/test_journey.py tests/runner/test_evidence.py tests/agent/test_oracle_l1.py tests/harness/test_device_controller.py tests/runner/test_run_spec.py tests/runner/test_cli.py",
-        "result": "PASS, 211 focused tests (progress reached 100%, exit code 0)."
+        "result": "PASS, 216 focused tests independently rerun after Settings remediation (progress reached 100%, exit code 0)."
       },
       {
         "command": "git -C /Users/peter/hosts/wikipedia-issue-70-baseline apply --check -R /Users/peter/projects/ai_verification-issue-70/bench/runtime-permission/patches/wikipedia-location-permission-baseline.patch && git -C /Users/peter/hosts/wikipedia-issue-70-fixture apply --check -R /Users/peter/projects/ai_verification-issue-70/bench/runtime-permission/patches/wikipedia-location-permission-candidate.patch",
@@ -77,7 +78,7 @@
         "result": "PASS; baseline a2584a0fb0224bf89768296243c7da6b8ef2914da9ebdedff1b456461c914681 and candidate fb4402403d50367895cf4904c6c12046c4296649572c30f38731a7cbf21c5992, matching provenance and installed base.apk hashes."
       },
       {
-        "command": "find docs/runs/2026-07-19-issue-70-runtime-permission/{baseline/attempt-5,candidate/attempt-1} -name '*.json' -print0 | xargs -0 -n1 jq empty",
+        "command": "find docs/runs/2026-07-19-issue-70-runtime-permission/{baseline/attempt-6,candidate/attempt-2} -name '*.json' -print0 | xargs -0 -n1 jq empty",
         "result": "PASS; all canonical JSON evidence parsed successfully."
       },
       {
@@ -85,16 +86,16 @@
         "result": "PASS; no whitespace errors."
       },
       {
-        "command": "Independent visual inspection of baseline after-segment-2/3/5/6 screen.png and candidate after-segment-2/6 screen.png",
-        "result": "PASS; screenshots agree with layout state and the candidate's final launcher screen agrees with the logged process crash."
+        "command": "Independent inspection of canonical segment-6 Journey event streams/action lineage plus baseline/candidate after-event-5 and after-segment-6 screenshots/layouts",
+        "result": "PASS; both runs visibly enter Android App info, traverse Permissions and Location, select Don’t allow, and return to the fixture; baseline degrades to REVOKED, while candidate checkpoint logcat records the asynchronous fatal SecurityException."
       }
     ],
     "gaps": [
       "The slice covers one debug-only Wikipedia fixture on one API 35 emulator, not a device/API compatibility matrix.",
-      "External revocation is modeled deterministically with a device-scoped package-manager event; the run does not navigate through the Settings UI to revoke permission, although the baseline visibly exposes the Settings route after permanent denial.",
       "Android CLI cannot device-select screen capture with two online devices, so device-scoped adb supplies raw screenshots and capture manifests explicitly record annotated screenshots as unavailable.",
       "Candidate L3 is intentionally gated after deterministic L1/L2 failures; no candidate L3 claim is made.",
-      "At audit time this conclusion and the final run-level checksums manifest still require generation/commit by the owning implementation agent before GitHub issue closure; the substantive evidence is sufficient, but it must not be represented as committed durable GitHub evidence until that occurs."
+      "The candidate Journey's immediate post-tap layout did not itself observe the asynchronous crash; the subsequent canonical checkpoint logcat and L1 oracle are the authoritative crash evidence.",
+      "At re-audit time the existing 507-entry checksums.sha256 predates baseline/attempt-6, candidate/attempt-2, pytest-settings-final.log, and this updated conclusion. The owning implementation agent must regenerate the final checksum inventory and commit the run record before GitHub issue closure; until then it must not be represented as committed durable GitHub evidence."
     ]
   }
 }

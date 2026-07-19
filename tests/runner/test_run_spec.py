@@ -281,6 +281,7 @@ def test_invalid_system_event_fails() -> None:
         "reset_permission",
         "observe_permission",
         "grant_permission",
+        "open_app_settings",
         "revoke_permission",
     ],
 )

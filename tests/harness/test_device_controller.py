@@ -165,6 +165,17 @@ class TestForceStopAndKill:
 # ---------------------------------------------------------------------------
 
 class TestPermissions:
+    def test_open_app_settings(self):
+        ctrl, fake = _ctrl(serial="emulator-5554")
+
+        ctrl.open_app_settings("com.example.app")
+
+        assert fake.commands[-1] == [
+            "-s", "emulator-5554", "shell", "am", "start",
+            "-a", "android.settings.APPLICATION_DETAILS_SETTINGS",
+            "-d", "package:com.example.app",
+        ]
+
     def test_grant_permission(self):
         ctrl, fake = _ctrl()
         ctrl.grant_permission("com.example.app", "android.permission.CAMERA")

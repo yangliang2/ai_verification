@@ -31,8 +31,10 @@ Both APKs execute the same actions and permission boundaries on the same device:
    permanent only when the system no longer offers the rationale/dialog path.
 4. Grant through a deterministic package-manager boundary and verify the feature
    is usable.
-5. Revoke through a deterministic package-manager boundary, refresh the screen,
-   and retain UI, screenshot, logcat, package-state, and action evidence.
+5. Open the real Android App info screen through a deterministic harness
+   boundary. Drive Permissions → Location → Don't allow through visible Settings
+   UI, return to the fixture, refresh, access the feature again, and retain UI,
+   screenshot, logcat, package-state, and action evidence.
 
 ## Oracle contract
 
