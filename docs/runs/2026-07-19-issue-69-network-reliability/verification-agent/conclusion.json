@@ -86,10 +86,23 @@
     },
     "oracle_exact_and_fail_closed": {
       "status": "pass",
-      "targeted_test_result": "47 passed in 0.08s",
+      "targeted_test_result": "49 passed in 0.11s",
       "direct_adversarial_result": "All final raw-binding cases returned exit 2/non_accountable; earlier iterative matrices closed malformed identity, exact checkpoint/scenario/event structure, global ordering, cancellation/ordered completion cardinality, stale recovery, missing retry/cancellation/old-response evidence, canonical system events, fixed fixture/Journey/package, distinct APK, and missing required fields.",
       "final_raw_binding_cases": 12,
       "remaining_fail_open_found": false
+    },
+    "ordered_response_checkpoint_guard": {
+      "status": "pass",
+      "required_state": "content",
+      "required_retry_enabled": false,
+      "direct_cases": 4,
+      "results": {
+        "baseline_state_invalid": "exit 1; locally_rejected; baseline fail with scenario_contract_failed",
+        "baseline_retry_enabled_true": "exit 1; locally_rejected; baseline fail with scenario_contract_failed",
+        "candidate_state_invalid": "candidate fail with retry_storm, scenario_contract_failed, and stale_response_overwrite",
+        "candidate_retry_enabled_true": "candidate fail with retry_storm, scenario_contract_failed, and stale_response_overwrite"
+      },
+      "detail": "Both roles reject an ordered_response terminal checkpoint when state is not content or retry_enabled is not false."
     },
     "valid_oracle_cli": {
       "status": "pass",
@@ -118,8 +131,8 @@
     "candidate_bundle_sha256": "9b58895f7e4ba9e874467d420765b1a5043bf1d6c60947d3630ed18821693a25",
     "candidate_logcat_sha256": "903f7a64d719356a3d17f6be1eb339ecf0a42cdd2c67a4cae0a38e38527bddf8",
     "identity_sha256": "04fa566435a420a28aee0785e0f428b8af5ea3825b9c1c555ec63a8f2c50218c",
-    "oracle_source_sha256": "2f702d977eb3defcf0b6ec89c11d97bfac9ccf12924212a9eced9c7986399e06",
-    "oracle_tests_sha256": "94cb318a2f5b477d048011cc1f84fc885bd64a74987f1725788b225fadbdd0ae"
+    "oracle_source_sha256": "8bcfbd8073314fa9b2ae0eaf85daf5ddf31d364e9a544385758b133776e33cae",
+    "oracle_tests_sha256": "fa076d296138724de281a7a62959bf5048fd38292d931bb915fcd7081127809e"
   },
   "commands": [
     "Selective manifest verification of 93/97 entries with zero mismatches; excluded two pre-existing oracle result files and two verification-agent outputs",
@@ -127,7 +140,8 @@
     "shasum -a 256 for consumed Run Specs, patches, local/installed APKs, tool binaries, raw evidence, identity, Journey results, oracle source/tests",
     "jq checks of deployment/bundle/APK identity and local Codex session metadata; config requested model verified at /Users/peter/.codex/config.toml:1",
     "Ruby/JQ validation of accepted Journey role/attempt/status/action/evidence/identity references",
-    "PYTHONPATH=src uv run --no-project --with pytest --with pydantic --with pyyaml python -m pytest tests/bench/test_network_reliability.py -ra (47 passed in 0.08s)",
+    "PYTHONPATH=src uv run --no-project --with pytest --with pydantic --with pyyaml python -m pytest tests/bench/test_network_reliability.py -ra (49 passed in 0.11s)",
+    "PYTHONPATH=src python3 temporary-file matrix mutating ordered_response checkpoint state/retry_enabled for baseline and candidate (4/4 judged fail with scenario_contract_failed; baseline cases exit 1/locally_rejected)",
     "Direct temporary-file adversarial CLI matrices, including 12 final raw-binding cases; expected invalid cases all exit 2/non_accountable",
     "PYTHONPATH=src python3 -m aiverify.bench.network_reliability --baseline docs/runs/2026-07-19-issue-69-network-reliability/baseline/evidence-bundle.json --candidate docs/runs/2026-07-19-issue-69-network-reliability/candidate/evidence-bundle.json --output <temporary-file> (exit 0; baseline pass; candidate retry_storm and stale_response_overwrite)"
   ]

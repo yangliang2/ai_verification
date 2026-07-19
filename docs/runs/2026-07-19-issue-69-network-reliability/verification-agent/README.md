@@ -64,8 +64,17 @@ Candidate evidence records attempts 1 through 6 and applies `old-v1` after `new-
 The final targeted oracle suite result was:
 
 ```text
-47 passed in 0.08s
+49 passed in 0.11s
 ```
+
+The last `ordered_response` checkpoint guard was also verified directly for both roles. Its terminal checkpoint must have `state: content` and `retry_enabled: false`:
+
+- baseline with `state: cached`: exit `1`, `locally_rejected`, baseline `fail` with `scenario_contract_failed`
+- baseline with `retry_enabled: true`: exit `1`, `locally_rejected`, baseline `fail` with `scenario_contract_failed`
+- candidate with `state: cached`: candidate `fail` including `scenario_contract_failed`
+- candidate with `retry_enabled: true`: candidate `fail` including `scenario_contract_failed`
+
+All four direct guard cases were rejected as required.
 
 Iterative adversarial auditing covered malformed provenance, exact checkpoint/scenario/event structure, global scenario ordering, cancellation and ordered-response completion cardinality, stale recovery, missing retry/cancellation/old-response evidence, canonical system events, fixed fixture/Journey/package identity, distinct APK identity, and required fields.
 
@@ -96,7 +105,7 @@ The valid evidence bundles were then run through the oracle CLI. It exited `0` w
 - candidate evidence bundle: `9b58895f7e4ba9e874467d420765b1a5043bf1d6c60947d3630ed18821693a25`
 - candidate raw logcat: `903f7a64d719356a3d17f6be1eb339ecf0a42cdd2c67a4cae0a38e38527bddf8`
 - Effective Execution Identity: `04fa566435a420a28aee0785e0f428b8af5ea3825b9c1c555ec63a8f2c50218c`
-- oracle source: `2f702d977eb3defcf0b6ec89c11d97bfac9ccf12924212a9eced9c7986399e06`
-- oracle tests: `94cb318a2f5b477d048011cc1f84fc885bd64a74987f1725788b225fadbdd0ae`
+- oracle source: `8bcfbd8073314fa9b2ae0eaf85daf5ddf31d364e9a544385758b133776e33cae`
+- oracle tests: `fa076d296138724de281a7a62959bf5048fd38292d931bb915fcd7081127809e`
 
 The machine-readable result and full check inventory are in `conclusion.json` next to this file.

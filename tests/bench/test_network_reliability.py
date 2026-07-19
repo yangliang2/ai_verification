@@ -316,6 +316,27 @@ def test_pair_is_non_accountable_without_delayed_old_response_completion() -> No
 
 
 @pytest.mark.parametrize(
+    ("field", "value"),
+    [("state", "cached"), ("retry_enabled", True)],
+)
+def test_oracle_rejects_invalid_ordered_checkpoint_semantics(
+    field: str, value: object
+) -> None:
+    baseline = _bundle("baseline")
+    candidate = _bundle("candidate")
+    baseline["checkpoints"]["ordered_response"][field] = value
+    _sync_logcat(candidate, "ActivityManager: ANR in org.wikipedia.dev")
+
+    verdict = evaluate_network_pair(baseline, candidate)
+
+    assert verdict["conclusion"] == "locally_rejected"
+    assert verdict["baseline"] == {
+        "outcome": "fail",
+        "faults": ["scenario_contract_failed"],
+    }
+
+
+@pytest.mark.parametrize(
     "mutation",
     [
         "extra_checkpoint",

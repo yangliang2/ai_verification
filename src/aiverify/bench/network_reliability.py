@@ -537,12 +537,14 @@ def _judge_bundle(bundle: Mapping[str, Any]) -> dict[str, Any]:
         for event in events
         if event.get("scenario") == "ordered_response"
     ]
+    terminal = checkpoints["ordered_response"]
+    if terminal.get("state") != "content" or terminal.get("retry_enabled") is not False:
+        faults.add("scenario_contract_failed")
     started = [event.get("request_id") for event in ordered if event.get("kind") == "request_started"]
     applied = [event for event in ordered if event.get("kind") == "response_applied"]
     if len(started) >= 2 and applied:
         newest_request = started[-1]
         last_applied = applied[-1]
-        terminal = checkpoints["ordered_response"]
         if (
             last_applied.get("request_id") != newest_request
             or terminal.get("content") != last_applied.get("content")

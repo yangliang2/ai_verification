@@ -84,7 +84,7 @@ The baseline accepted run is attempt 2 and the candidate accepted run is attempt
 The local oracle was run with:
 
 ```sh
-PYTHONPATH=src uv run --extra dev python \
+PYTHONPATH=src .venv/bin/python \
   -m aiverify.bench.network_reliability \
   --baseline docs/runs/2026-07-19-issue-69-network-reliability/baseline/evidence-bundle.json \
   --candidate docs/runs/2026-07-19-issue-69-network-reliability/candidate/evidence-bundle.json \
@@ -99,12 +99,12 @@ machine-readable conclusion: `verification-agent/conclusion.json`.
 Repository verification:
 
 ```sh
-PYTHONPATH=src uv run --extra dev pytest -o addopts='' -q \
+PYTHONPATH=src .venv/bin/python -m pytest -o addopts='' -q \
   tests/bench/test_network_reliability.py \
   tests/runner/test_run_spec.py tests/runner/test_system_events.py
-PYTHONPATH=src uv run --extra dev pytest -o addopts='' -q
-uv run --extra dev python -m compileall -q src tests
-git diff --check -- . \
+PYTHONPATH=src .venv/bin/python -m pytest -o addopts='' -q
+.venv/bin/python -m compileall -q src tests
+git diff --check origin/main -- . \
   ':(exclude)docs/runs/2026-07-19-issue-69-network-reliability/**'
 PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums \
   docs/runs/2026-07-19-issue-69-network-reliability
@@ -112,8 +112,8 @@ PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums \
   docs/runs/2026-07-19-issue-69-network-reliability --verify
 ```
 
-Results: targeted tests 114 passed in 0.21 seconds; full suite 577 passed in
-16.92 seconds; compileall and the scoped source diff check returned zero. Raw
+Results: targeted tests 116 passed in 0.22 seconds; full suite 579 passed in
+33.00 seconds; compileall and the scoped source diff check returned zero. Raw
 Android/build/test artifacts are excluded from the whitespace check because they
 preserve source-tool output byte-for-byte and are covered by the checksum manifest.
 Python was 3.11.15 and
@@ -124,7 +124,7 @@ pytest was 9.0.3. Android CLI was 1.0.15498356, adb was 37.0.0, Gradle was
 
 - `artifacts/build/`: final baseline and candidate Gradle logs.
 - `artifacts/tests/`: targeted/full pytest logs and static/oracle command log.
-- `artifacts/tdd/`: 22 red/green or strengthening cycles, including the live
+- `artifacts/tdd/`: 23 red/green or strengthening cycles, including the live
   crash-marker false-positive regression and malformed-evidence fail-closed case.
 - `artifacts/identity-and-tools.log`: APK install/pull hashes, package/version,
   device identity, and tool versions.
