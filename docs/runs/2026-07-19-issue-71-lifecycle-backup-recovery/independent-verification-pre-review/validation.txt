@@ -1,0 +1,35 @@
+Command:
+
+PYTHONDONTWRITEBYTECODE=1 /Users/peter/projects/ai_verfication/.venv/bin/python - <<'PY'
+import json
+from pathlib import Path
+from jsonschema import Draft202012Validator
+root = Path('docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/independent-verification')
+schema = json.loads(Path('bench/capability-slices/lifecycle-recovery/independent-conclusion-schema.json').read_text())
+conclusion = json.loads((root / 'conclusion.json').read_text())
+Draft202012Validator(schema).validate(conclusion)
+def count_key(value, key):
+    if isinstance(value, dict):
+        return int(key in value) + sum(count_key(item, key) for item in value.values())
+    if isinstance(value, list):
+        return sum(count_key(item, key) for item in value)
+    return 0
+assert count_key(conclusion, 'conclusion') == 1
+assert conclusion['conclusion'] == 'locally_supported'
+assert conclusion['accountable'] is True
+assert conclusion['evidence_checks'] and all(item['status'] == 'passed' for item in conclusion['evidence_checks'])
+events = [json.loads(line) for line in (root / 'events.jsonl').read_text().splitlines() if line.startswith('{')]
+final_messages = [json.loads(event['item']['text']) for event in events if event.get('type') == 'item.completed' and event.get('item', {}).get('type') == 'agent_message']
+assert final_messages[-1] == conclusion
+assert sum(event.get('type') == 'turn.completed' for event in events) == 1
+PY
+
+Result:
+
+schema validation: passed
+authoritative conclusion objects: 1
+conclusion: locally_supported
+accountable: true
+evidence checks passed: 11
+final output matches last agent message: yes
+completed turns: 1

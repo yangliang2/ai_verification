@@ -1,277 +1,255 @@
 # Issue #71 lifecycle and backup-recovery verification
 
-Status: complete. The accountable matched pair supports the local capability:
-the baseline is `locally_supported / correct_restoration`, the candidate is
-`locally_rejected / stale_state`, and the separate read-only Verification Agent
-concludes `locally_supported` with all 11 evidence checks passed.
+Status: implementation, real-device evidence, and independent post-review audit
+complete; durable commit and GitHub publication are being finalized.
 
-This run record covers GitHub issue #71 only. It makes no detection-rate,
-Goldset, compatibility-matrix, cloud-provider, or upstream-acceptance claim.
+This record supports a deliberately narrow local claim. On the recorded API-35
+emulator, the baseline preserves deterministic version-1 state through rotation
+and background process death, then restores and migrates that state after local
+backup, app-data clear, and restore. The one-line stale-migration candidate is
+rejected. No detection-rate, device-matrix, cloud-provider, or upstream
+acceptance claim is made.
 
 ## Acceptance-criteria audit
 
-- [x] The deterministic fixture keeps
-  `AIVERIFY-ISSUE-71-SENTINEL / 1 / 41 / PENDING_V1_TO_V2` through rotation and
-  a real background process death, with disjoint before/after PIDs.
-- [x] Android local-transport backup, package-data clear, restore, and explicit
-  relaunch produce `AIVERIFY-ISSUE-71-SENTINEL / 2 / 42 /
-  MIGRATED_V1_TO_V2` in the baseline.
-- [x] The machine oracle classifies crash, state loss, silent reset, stale
-  state, correct restoration, and fail-closed non-accountable evidence.
-- [x] Baseline and candidate retain system-event receipts, package/device/tool
-  identity, APK and installed-APK hashes, logs, UI dumps, screenshots, Journey
-  receipts, ExecutionRecords, verdicts, and complete checksum inventories.
-- [x] A separate Codex CLI Verification Agent ran read-only and wrote one
-  schema-valid authoritative `conclusion.json`.
-- [x] Claims remain limited to the recorded local API-35 emulator and attempts.
+- [x] A deterministic Android fixture creates
+  AIVERIFY-ISSUE-71-SENTINEL / schema 1 / revision 41 /
+  PENDING_V1_TO_V2.
+- [x] Rotation and a real background process death retain exact state. Event
+  receipts prove HOME/background state, target-process absence after kill,
+  launcher relaunch, target foreground state, and disjoint process IDs.
+- [x] Local-transport backup records backup success, app-data clear result,
+  restore token/result, post-restore PID, and cleanup back to the original
+  transport and enabled state.
+- [x] The baseline restores schema 2 / revision 42 / MIGRATED_V1_TO_V2.
+- [x] The candidate retains the sentinel but remains stale at schema 1 /
+  revision 41 / PENDING_V1_TO_V2.
+- [x] The fail-closed oracle classifies crash, state loss, silent reset, stale
+  state, correct restoration, and missing/non-accountable evidence.
+- [x] Both final lanes retain run-relative ExecutionRecord and system-event
+  references, provenance, archived executed APKs, Journey receipts, layouts,
+  screenshots, logcats, verdicts, and independent lane checksums.
+- [x] A separate read-only post-review Verification Agent produced exactly one
+  fail-closed schema-valid conclusion: locally_supported, accountable, with
+  13/13 evidence checks passed.
+- [ ] The run record, issue comment, parent progress comment, and closure are
+  pending commit/push.
 
 ## Implemented capability
 
-- `src/aiverify/bench/lifecycle_recovery.py` supplies the fixture contract
-  loader, run-evidence replay, fail-closed classifications, and CLI.
-- `src/aiverify/harness/device/controller.py` and
-  `src/aiverify/runner/system_events.py` add controlled `bmgr` backup/restore,
-  exact success postconditions, package-data clear, relaunch, and restoration of
-  the previous transport/enabled state.
-- `src/aiverify/runner/journey.py`, `cli.py`, and `run_spec.py` make
-  `backup_restore` a Journey boundary and bind create-only system-event receipts
-  into the completed verdict and ExecutionRecord.
-- `src/aiverify/runner/evidence.py` scopes screenshots to the selected serial in
-  multi-device environments.
-- `bench/fixtures/lifecycle-recovery-app/` is a minimal deterministic Android
-  fixture. Only its version-1 SharedPreferences state is backed up; a no-backup
-  data-epoch marker causes restored legacy state to migrate once to version 2.
-- `bench/capability-slices/lifecycle-recovery/` contains the contract, matched
-  Run Specs, Journey description, and one-line stale-migration candidate patch.
-- `tests/bench/test_lifecycle_recovery.py` and the runner test modules cover the
-  oracle, parsing, injection/cleanup, evidence binding, runner failure modes,
-  and scoped screenshot capture.
+- src/aiverify/bench/lifecycle_recovery.py: contract loading, evidence replay,
+  fail-closed classifications, and CLI.
+- src/aiverify/harness/device/controller.py and
+  src/aiverify/runner/system_events.py: controlled rotation, HOME/background
+  transition, process death, launcher relaunch, local backup/clear/restore, and
+  backup-configuration cleanup with explicit retained postconditions.
+- src/aiverify/runner/journey.py, cli.py, and run_spec.py: Journey boundaries,
+  centralized interruption handling, durable run-relative event references,
+  and ExecutionRecord binding.
+- src/aiverify/runner/evidence.py: serial-scoped raw screenshot capture whenever
+  a run names a device. ADR 0001 documents the selector-less Android CLI
+  1.0.15498356 limitation and the recorded adb shell-screencap/pull/cleanup
+  fallback; Android CLI remains the no-selector path.
+- bench/fixtures/lifecycle-recovery-app/: deterministic Android fixture. Only
+  version-1 SharedPreferences state is backed up; a no-backup data-epoch marker
+  causes restored legacy state to migrate once.
+- bench/capability-slices/lifecycle-recovery/: contract, matched Run Specs,
+  Journey, one-line candidate patch, and independent-conclusion schema.
+- tests/bench/test_lifecycle_recovery.py and runner test modules: oracle,
+  parsing, event injection/cleanup, interruption evidence, provenance,
+  run-relative references, and screenshot regression coverage.
 
-## Accountable matched pair
+## Final accountable lanes
 
-Both lanes use package `dev.aiverify.lifecyclefixture`, activity
-`dev.aiverify.lifecyclefixture.MainActivity`, device `emulator-5554`, AVD
-`aiverify_api35`, API 35, and fingerprint
-`google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys`.
-Their four user actions, three event/argument objects, four assertions, Codex
-prompt hashes, package/activity/APK glob, and scenario ID match. Candidate Run
-Spec bytes become identical to baseline after removing only its `diff:` field;
-both hash to `3a23e226c11c68834a47dfae64941e9c5aec5ca896932a44caa98c4083c2c827`.
+Both lanes ran from host commit
+8cab543d120bce430f97642c30e023f2f742ed57 on emulator-5554, AVD
+aiverify_api35, API 35, fingerprint
+google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys.
+They used package dev.aiverify.lifecyclefixture and activity
+dev.aiverify.lifecyclefixture.MainActivity.
 
-| Lane | Attempt | Runner | Dedicated oracle | Duration | Executed APK SHA-256 |
+| Lane | Attempt ID | Runner | Dedicated oracle | Time | Executed APK SHA-256 |
 | --- | --- | --- | --- | ---: | --- |
-| Baseline | `090153ac-43c7-4454-9812-e6bfcad871e0` | exit 0; L1 inconclusive; L2 pass | accountable `correct_restoration` | 282.686 s | `1a8cc170e310417f37447dd68bea1de853b1f8ed2d11d962a3662ba5cef85c0c` |
-| Candidate | `8468060c-46c3-4e01-b56e-aa77bf82c96d` | exit 1; L1 inconclusive; L2 fail (`state_loss`) | accountable `stale_state` | 375.245 s | `535f04161fef62ac7bb89ebb873279224463b38db971691d5baa7b6a89e33fac` |
+| Baseline | bfd50b91-4489-467b-9b21-ac69f835058c | exit 0; L1 inconclusive; L2 pass | accountable, locally_supported / correct_restoration | 280.052 s (real 280.15 s) | 1a8cc170e310417f37447dd68bea1de853b1f8ed2d11d962a3662ba5cef85c0c |
+| Candidate | f71c8c40-884a-4a38-a29d-300140f4b602 | exit 1; L1 inconclusive; L2 fail (state_loss) | accountable, locally_rejected / stale_state | 289.997 s (real 290.08 s) | 82cb4a481c4572ba883adca2fb9fafce4c1e40b4fbb785b1acfc00051410958b |
 
-The runner's generic L2 defect class is `state_loss`; the dedicated contract
-oracle refines the exact observed outcome to `stale_state` because the sentinel
-survives while schema/revision/migration remain at the pre-migration values.
+Candidate exit 1 is the expected product rejection, not a harness failure. The
+generic L2 class is state_loss; the dedicated contract oracle refines the
+observation to stale_state because the sentinel survived while
+schema/revision/migration did not advance.
 
-### Real event evidence
+Each lane contains seven screenshots, seven layout dumps, seven logcats, seven
+command/capture-manifest pairs, three system-event receipts, four Journey
+invocation receipts, the archived executed APK, and terminal runner,
+provenance, oracle, and ExecutionRecord files. The baseline manifest contains
+71 entries and the candidate manifest 72.
 
-- Rotation: both receipts record requested/observed `user_rotation=1` and
-  `accelerometer_rotation=0`; the v1 state remains exact.
-- Background process death and return-to-foreground: baseline PID `25596`
-  becomes `25913`; candidate PID `24543` becomes `24856`. Both sets are
-  non-empty and disjoint, and all four v1 values remain exact after relaunch.
-- Backup/restore: both runs select
-  `com.android.localtransport/.LocalTransport`, record package-specific backup
-  `Success`, restore token `1`, `restoreFinished: 0`, and restore success.
-  Post-restore PIDs are `26243` and `25180`. The injector verifies `pm clear`
-  returned exactly `Success`, then restores the prior GMS transport and disabled
-  backup state before it emits a passed event receipt.
-- State outcome: baseline changes to v2/revision 42/migrated; candidate keeps
-  sentinel but remains v1/revision 41/pending. The final baseline and candidate
-  screenshots were visually inspected and agree with their layout JSON. The
-  independent agent inspected all fourteen checkpoint manifests/screenshots and
-  found no target-package fatal-crash marker in retained logcats.
+### Real event receipts
 
-Each final lane contains 7 screenshots, 7 layout dumps, 7 logcats, 7 command
-records/capture manifests, 3 event receipts, 4 Journey invocation receipts, the
-archived executed APK, and the terminal runner/oracle/provenance records.
+- Rotation: both receipts record requested and observed user_rotation=1 and
+  accelerometer_rotation=0; exact version-1 state remains visible.
+- Process death: baseline PID 26923 becomes 27249; candidate PID 27884 becomes
+  28238. Both record the launcher package after HOME, target absence after
+  kill, target foreground state after relaunch, and disjoint non-empty PID
+  sets.
+- Backup/restore: both select
+  com.android.localtransport/.LocalTransport, record package backup Success,
+  app-data clear Success, restore token 1, restoreFinished: 0, and post-restore
+  process IDs 27584 and 28573. Both restore the original GMS transport and
+  disabled backup state before a passed receipt is emitted.
+- Visual/log review: baseline after-event-2 shows sentinel / 2 / 42 / MIGRATED;
+  candidate shows sentinel / 1 / 41 / PENDING. A scan of all fourteen retained
+  logcats found no target-package FATAL EXCEPTION, ANR, Process, or Fatal signal
+  marker.
 
-## Exact execution and verification commands
+## Matched-input audit and qualification
 
-Fixture build:
+The executable inputs match apart from the intended one-line candidate defect:
 
-```sh
-bench/fixtures/lifecycle-recovery-app/gradlew \
-  -p bench/fixtures/lifecycle-recovery-app \
-  :app:assembleDebug --no-daemon
-sha256sum \
-  bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk
-```
+- normalized Run Spec SHA-256:
+  3a23e226c11c68834a47dfae64941e9c5aec5ca896932a44caa98c4083c2c827;
+- all four Journey prompt hashes match byte-for-byte;
+- host commit, device, tool identities, package/activity, driver model, event
+  sequence/arguments, assertions, and scenario match;
+- each archived APK hash equals its installed APK hash;
+- filtering identity/host.patch to paths outside docs/runs yields no baseline
+  path and exactly one candidate path: a 1-insertion/1-deletion change in
+  StateStore.java, patch SHA-256
+  7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42.
 
-The initial clean build completed in 2m19s with 33 executed tasks. The final
-cached build completed in 2s with 33 up-to-date tasks, reproduced SHA-256
-`1a8cc170e310417f37447dd68bea1de853b1f8ed2d11d962a3662ba5cef85c0c`,
-and was byte-identical to the archived final baseline APK.
+The strict entire-worktree patches are not byte-identical because evidence
+documents under this run directory changed between executions. This
+documentation-only drift is disclosed in artifacts/matched-input-audit.json;
+the audit's matched_executable_inputs value is true and
+strict_entire_worktree_match is false. The Journey prompts prohibited file
+inspection and retained commands contain only device UI operations.
 
-Final runner invocations:
+The candidate runner footer says the lane was “superseded” because it was
+written when a clean-host replacement was still planned. The lane was later
+selected as the qualified final candidate without altering its bytes after the
+clean retry failed before its first Journey action. That retry is retained at
+attempts/non-accountable-baseline-clean-codex-usage-limit/ and is not product
+evidence: Codex CLI reported the account usage limit before any action or
+system event.
 
-```sh
-BASELINE_RUN=/tmp/aiverify-issue71-baseline-final.wK34Mo
-PYTHONPATH=src /usr/bin/time -p \
-  /Users/peter/projects/ai_verfication/.venv/bin/python \
-  -m aiverify.runner \
-  bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml \
-  --device emulator-5554 \
-  --artifact-dir "$BASELINE_RUN/artifacts"
+## Exact live commands
 
-git apply \
-  bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch
-bench/fixtures/lifecycle-recovery-app/gradlew \
-  -p bench/fixtures/lifecycle-recovery-app \
-  :app:assembleDebug --no-daemon
-CANDIDATE_RUN=/tmp/aiverify-issue71-candidate.c2wnqt
-PYTHONPATH=src /usr/bin/time -p \
-  /Users/peter/projects/ai_verfication/.venv/bin/python \
-  -m aiverify.runner \
-  bench/capability-slices/lifecycle-recovery/run-specs/candidate.yaml \
-  --device emulator-5554 \
-  --artifact-dir "$CANDIDATE_RUN/artifacts"
-git apply -R \
-  bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch
-```
+Fixture build and hash:
 
-The candidate's `applied-host.patch` and provenance `identity/host.patch` are
-byte-identical. The committed minimal patch has different diff metadata/context
-but the same `1 insertion, 1 deletion` in `StateStore.java`. Independent APK
-bytecode inspection confirmed the corresponding baseline/candidate branch
-opcode reversal.
+~~~sh
+bench/fixtures/lifecycle-recovery-app/gradlew -p bench/fixtures/lifecycle-recovery-app :app:assembleDebug --no-daemon
+sha256sum bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk
+~~~
 
-Durable oracle replay:
+The post-review baseline build completed in 2 seconds with 33 tasks up to date.
+The candidate build completed in 2 seconds with 1 executed, 3 from cache, and
+29 up-to-date tasks.
 
-```sh
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
-  /Users/peter/projects/ai_verfication/.venv/bin/python \
-  -m aiverify.bench.lifecycle_recovery \
-  --run-dir docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1 \
-  --contract bench/capability-slices/lifecycle-recovery/contract.json \
-  --output /tmp/issue-71-baseline-oracle-replay.json
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
-  /Users/peter/projects/ai_verfication/.venv/bin/python \
-  -m aiverify.bench.lifecycle_recovery \
-  --run-dir docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1 \
-  --contract bench/capability-slices/lifecycle-recovery/contract.json \
-  --output /tmp/issue-71-candidate-oracle-replay.json
-```
+Baseline Journey:
 
-Result: baseline exit 0, accountable `correct_restoration`; candidate exit 1,
-accountable `stale_state`. Exit 1 is the expected rejected-candidate result, not
-an execution failure.
+~~~sh
+BASELINE_RUN=/tmp/aiverify-issue71-baseline-review.vWWaiL
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/time -p .venv/bin/python -m aiverify.runner bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml --device emulator-5554 --artifact-dir $BASELINE_RUN/artifacts
+~~~
 
-Focused and full Python regression:
+Candidate Journey:
 
-```sh
-PYTHONDONTWRITEBYTECODE=1 \
-  /Users/peter/projects/ai_verfication/.venv/bin/pytest \
-  -p no:cacheprovider -o addopts='' -q \
-  tests/bench/test_lifecycle_recovery.py \
-  tests/runner/test_run_spec.py \
-  tests/runner/test_system_events.py \
-  tests/runner/test_journey.py \
-  tests/runner/test_cli.py \
-  tests/runner/test_evidence.py
+~~~sh
+git apply bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch
+bench/fixtures/lifecycle-recovery-app/gradlew -p bench/fixtures/lifecycle-recovery-app :app:assembleDebug --no-daemon
+CANDIDATE_RUN=/tmp/aiverify-issue71-candidate-review.jugCbv
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/time -p .venv/bin/python -m aiverify.runner bench/capability-slices/lifecycle-recovery/run-specs/candidate.yaml --device emulator-5554 --artifact-dir $CANDIDATE_RUN/artifacts
+git apply -R bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch
+~~~
 
-PYTHONDONTWRITEBYTECODE=1 \
-  /Users/peter/projects/ai_verfication/.venv/bin/pytest \
-  -p no:cacheprovider -o addopts='' -q
-```
+The source currently matches HEAD; the candidate patch is not left applied.
 
-Result: `155 passed in 0.22s`; `542 passed in 17.86s`.
+## Final verification commands
 
-Lane inventory verification:
+~~~sh
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -o addopts='' -q --tb=short
 
-```sh
-PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python \
-  -m aiverify.bench.run_record_checksums --verify \
-  docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1
-PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python \
-  -m aiverify.bench.run_record_checksums --verify \
-  docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1
-```
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums --verify docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums --verify docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-2
 
-Result: both verified; baseline lists 70 artifacts and candidate lists 73.
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.lifecycle_recovery --run-dir docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2 --contract bench/capability-slices/lifecycle-recovery/contract.json --output /tmp/issue-71-baseline-oracle-final.json
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.lifecycle_recovery --run-dir docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-2 --contract bench/capability-slices/lifecycle-recovery/contract.json --output /tmp/issue-71-candidate-oracle-final.json
+~~~
 
-## Independent Verification Agent
+Results on 2026-07-19:
 
-The separate read-only Codex CLI process ran for 808.92 seconds under thread
-`019f7944-9b71-7bf1-ab39-f777b855f64a`. Its exact prompt, output schema,
-invocation, raw JSONL transcript, schema validation, and one authoritative
-conclusion are under `independent-verification/`.
+- full suite: 545 passed in 16.48 seconds;
+- both lane checksum inventories verified;
+- baseline oracle: exit 0, accountable correct_restoration;
+- candidate oracle: exit 1, accountable stale_state (expected rejection);
+- git diff --check and compileall were also run against the authored
+  post-review code changes; see
+  artifacts/tdd/40-post-review-full-suite-green.txt. A later whole staged-tree
+  check reports trailing spaces inside immutable captured identity/host.patch
+  log lines. Those raw evidence bytes are intentionally preserved; authored
+  source/document paths pass the scoped check.
 
-`conclusion.json` reports `locally_supported`, `accountable=true`, with 11/11
-checks passed. Validation confirms exactly one `conclusion` key, one completed
-turn, and byte-for-JSON equality between the authoritative file and the final
-agent message. The conclusion notes that attempts were untracked at audit time;
-this run-record commit resolves that limitation without altering the audited
-attempt bytes.
+## Independent verification
 
-## Manual probe and retained diagnostics
+The original Codex CLI audit of the pre-review lanes is preserved under
+independent-verification-pre-review/. A fresh collaboration Verification Agent
+audited attempt-2 read-only and returned exactly one JSON object. Local Draft
+2020-12 validation passed against
+bench/capability-slices/lifecycle-recovery/independent-conclusion-schema.json.
 
-Before the matched pair, the same public system-event injector was probed on
-`emulator-5554`. Rotation preserved v1 state. A deliberately short first
-process-death wait failed closed because PID `22062` survived; retrying changed
-PID `22062` to `22323`. Backup/restore returned package `Success`, token `1`,
-`restoreFinished: 0`, post-restore PID `22602`, restored the original backup
-configuration, and produced exact migrated v2 state. Layouts, events, and
-screenshots are under `artifacts/manual-probe/`.
+The authoritative independent-verification/conclusion.json is
+locally_supported and accountable, with 13/13 checks passed and SHA-256
+c60b774f2c0e8b24ebf708952826ced4b8864e46e411e9febaf9e65ca8e7213b.
+It independently verified lane inventories, provenance and run-relative
+bindings, APK/device/tool identity, normalized Run Specs and prompts, the
+candidate bytecode difference, all lifecycle/backup receipts, UI/logcat
+evidence, oracle discrimination, and exclusion of the clean usage-limit retry.
+It explicitly concluded that the docs-only host.patch drift does not
+contaminate matched executable or Journey inputs.
 
-`attempts/non-accountable-baseline-01/` retains the first full runner attempt.
-It ended `non_accountable / checkpoint_capture_error` after 95.079 seconds when
-Android CLI `screen capture` returned 0 but produced no PNG with two emulators
-online. The diagnosed fix uses scoped `adb -s <serial> screencap/pull/cleanup`.
-The real two-device reproduction under `artifacts/diagnosis/` then produced a
-valid 1080x2400 PNG and passed manifest. Emulator `emulator-5556`, owned by the
-concurrent issue #70 work, was not stopped or modified.
-
-`attempts/accountable-baseline-superseded-no-apk/` is a successful early
-baseline whose executed APK hash was
-`173856bbbb16728278a440b76097f207d4dcc03ac1227257215dabcfe5c02b64`.
-That exact APK was not frozen before the candidate rebuild, so the attempt is
-excluded rather than misrepresented. A later baseline rebuild with hash
-`1a8cc170...` was moved to `artifacts/unmatched-rebuild-after-candidate/` and is
-explicitly not claimed as that superseded attempt's executed APK. The final
-baseline was rerun with this latter APK and retains a matching archive.
-
-The first independent-agent process stopped on an invalid output-schema draft
-before producing a conclusion. Its error transcript is retained; the corrected
-schema was then used by the single completed audit.
+The collaboration API exposes the final message but not a raw transcript or CLI
+thread. invocation.md and prompt.md record that limitation without inventing
+provenance; validation.txt records the successful local schema check.
 
 ## Artifact inventory
 
-- `baseline/attempt-1/`, `candidate/attempt-1/`: final accountable lanes with
-  independent 70- and 73-entry manifests.
-- `independent-verification/`: prompt, schema-bound conclusion, raw transcript,
-  invocation identity, validation, and the pre-audit schema error.
-- `artifacts/tdd/`: 37 red/green records covering oracle classes, system events,
-  event/ExecutionRecord binding, provenance, matched assets, and screenshot
+- baseline/attempt-2/ and candidate/attempt-2/: qualified final real-device
+  lanes with independent 71- and 72-entry manifests.
+- artifacts/matched-input-audit.{json,txt}: executable-input equality audit and
+  explicit entire-worktree qualification.
+- artifacts/tdd/: 40 red/green/regression records, including post-review
+  evidence-reference and event-receipt tests.
+- artifacts/build/, artifacts/manual-probe/, artifacts/diagnosis/: fixture
+  builds, installation, manual device probes, and multi-device screenshot
   diagnosis.
-- `artifacts/build/`, `artifacts/manual-probe/`, `artifacts/diagnosis/`: Gradle,
-  APK, installation, real-device layouts/screenshots/events, and diagnosis.
-- `attempts/`: excluded attempts retained with explicit reasons.
-- `issue-71.json`: fetched issue brief used by the independent audit.
-- `issue-comment.md`, `parent-comment.md`: exact GitHub evidence updates.
-- `checksums.sha256`: root inventory generated only after all final evidence and
-  review records are frozen.
+- independent-verification-pre-review/: superseded pre-review independent
+  audit.
+- independent-verification/: authoritative post-review read-only conclusion,
+  task/invocation record, and schema validation.
+- attempts/: excluded and superseded attempts, including provenance
+  self-drift and the clean Codex-usage-limit retry.
+- issue-71.json: issue brief captured for audit.
+- issue-comment.md and parent-comment.md: to be added as the exact GitHub
+  publication bodies.
+- checksums.sha256: to be generated after all final artifacts are frozen.
 
-Tool versions are in `artifacts/tool-versions.txt`: Android CLI
-`1.0.15498356`, adb `37.0.0`, OpenJDK `17.0.19`, Gradle `9.1.0`, Python
-`3.11.15`, Codex CLI `0.144.5`, and Git `2.50.1`.
+Tool versions: Android CLI 1.0.15498356, adb 37.0.0, OpenJDK 17.0.19,
+Gradle 9.1.0, Python 3.11.15, Codex CLI 0.144.5, Git 2.50.1.
 
 ## Known gaps and claim boundary
 
-- This is one local API-35 emulator and local backup transport, not an Android
-  API/device/locale/RTL/form-factor matrix. That separate scope remains #72.
-- Scoped multi-device screenshots retain plain PNGs and UI layouts but no
-  Android-CLI annotated PNG, because this Android CLI version cannot select a
-  device for annotation.
-- The separate Verification Agent performed a read-only evidence audit and did
-  not rerun the device Journey; its conclusion is bound to the two retained
-  attempts and archived APKs.
-- Absolute `/tmp` paths inside immutable runner receipts record where the live
-  attempts occurred. Durable copies are replayed from this directory and are
-  covered by the lane and root checksum inventories.
-- No detection-rate, Goldset, compatibility-matrix, cloud-provider, or upstream
+- One local API-35 emulator and local backup transport were tested. The broader
+  API/device/locale/RTL/form-factor matrix remains issue #72.
+- Device-scoped screenshots retain plain PNG and UI-layout evidence but no
+  Android-CLI annotation because Android CLI 1.0.15498356 has no screenshot
+  device selector.
+- The final Verification Agent audits retained evidence read-only; it does not
+  rerun the device Journey.
+- ExecutionRecord and system-event references are run-relative. Some immutable
+  live-run provenance/verdict fields retain absolute execution-origin paths;
+  their durable copies are inventoried here and replay uses this directory.
+- The entire-worktree match is qualified by disclosed docs/runs-only drift.
+  A clean retry was attempted but became non-accountable at the external Codex
+  usage limit before the first Journey action.
+- No rates, Goldset, compatibility matrix, cloud-provider result, or upstream
   acceptance is asserted.

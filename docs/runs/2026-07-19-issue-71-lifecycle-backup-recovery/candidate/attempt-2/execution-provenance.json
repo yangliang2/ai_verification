@@ -1,0 +1,1053 @@
+{
+  "schema_version": 1,
+  "attempt_id": "f71c8c40-884a-4a38-a29d-300140f4b602",
+  "scenario": "lifecycle-recovery-matched-journey",
+  "captured_at": "2026-07-19T08:26:45+00:00",
+  "run_spec": {
+    "invocation_path": "/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/run-specs/candidate.yaml",
+    "consumed_sha256": "080c0747018e1e48e8de71ea02d41e0bf684c05b22f3786c349ac221d203d80d",
+    "snapshot_path": "identity/run-spec.yaml",
+    "snapshot_sha256": "080c0747018e1e48e8de71ea02d41e0bf684c05b22f3786c349ac221d203d80d",
+    "scenario": "lifecycle-recovery-matched-journey",
+    "host_project": "/Users/peter/projects/ai_verification-issue-71",
+    "apk_glob": "bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+    "package": "dev.aiverify.lifecyclefixture",
+    "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+    "identity_sha256": "8091de5d7517f0e52e7c451ef91d0d2ff609daefc2a74be807dd8b6483c6d804"
+  },
+  "host": {
+    "repository_root": "/Users/peter/projects/ai_verification-issue-71",
+    "origin": "https://github.com/yangliang2/ai_verification.git",
+    "commit": "8cab543d120bce430f97642c30e023f2f742ed57",
+    "worktree": {
+      "clean": false,
+      "status": " M bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/apk/app-debug.apk\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/apk/app-debug.apk.sha256\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-0/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-0/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-0/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-0/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-0/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-1/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-1/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-1/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-1/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-1/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-2/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-2/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-2/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-2/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-event-2/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-0/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-0/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-0/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-0/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-0/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-1/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-1/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-1/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-1/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-1/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-2/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-2/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-2/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-2/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-2/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-3/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-3/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-3/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-3/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/after-segment-3/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-events.jsonl\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-invocation-identity.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-action-lineage.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-events.jsonl\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-invocation-identity.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-action-lineage.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-events.jsonl\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-invocation-identity.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-action-lineage.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-events.jsonl\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-invocation-identity.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-action-lineage.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/system-event-0/event.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/system-event-1/event.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/artifacts/system-event-2/event.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/checksums.sha256\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/execution-provenance.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/execution-record.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/identity/host.patch\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/identity/run-spec.yaml\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/lifecycle-oracle.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/live-validation-gate.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/oracle-combined.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/runner-combined.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/setup-device.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-1/verdict.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/apk/app-debug.apk\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/apk/app-debug.apk.sha256\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/applied-host.patch\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-0/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-0/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-0/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-0/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-0/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-1/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-1/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-1/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-1/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-1/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-2/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-2/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-2/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-2/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-event-2/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-0/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-0/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-0/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-0/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-0/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-1/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-1/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-1/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-1/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-1/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-2/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-2/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-2/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-2/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-2/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-3/capture-manifest.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-3/commands.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-3/layout.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-3/logcat.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/after-segment-3/screen.png\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-events.jsonl\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-invocation-identity.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-action-lineage.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-events.jsonl\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-invocation-identity.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-action-lineage.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-events.jsonl\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-invocation-identity.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-action-lineage.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-events.jsonl\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-invocation-identity.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-action-lineage.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/system-event-0/event.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/system-event-1/event.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/artifacts/system-event-2/event.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/candidate-apk.sha256\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/candidate-build.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/checksums.sha256\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/execution-provenance.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/execution-record.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/identity/host.patch\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/identity/run-spec.yaml\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/lifecycle-oracle.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/live-validation-gate.json\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/oracle-combined.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/runner-combined.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/setup-device.txt\n D docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/candidate/attempt-1/verdict.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/apk/app-debug.apk\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/apk/app-debug.apk.sha256\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/system-event-0/event.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/system-event-1/event.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/system-event-2/event.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/checksums.sha256\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/execution-provenance.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/execution-record.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/identity/host.patch\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/identity/run-spec.yaml\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/lifecycle-oracle.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/live-validation-gate.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/oracle-combined.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/runner-combined.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/setup-device.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/verdict.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/apk/app-debug.apk\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/apk/app-debug.apk.sha256\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/applied-host.patch\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/system-event-0/event.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/system-event-1/event.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/system-event-2/event.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/candidate-apk.sha256\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/candidate-build.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/checksums.sha256\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/execution-provenance.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/execution-record.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/identity/host.patch\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/identity/run-spec.yaml\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/lifecycle-oracle.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/live-validation-gate.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/oracle-combined.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/runner-combined.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/setup-device.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/verdict.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/execution-record.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/identity/host.patch\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/identity/run-spec.yaml\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/live-validation-gate.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/verdict.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/apk/app-debug.apk\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/apk/app-debug.apk.sha256\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/capture-manifest.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/commands.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/layout.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/logcat.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/screen.png\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-events.jsonl\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-invocation-identity.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-action-lineage.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/system-event-0/event.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/system-event-1/event.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/system-event-2/event.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/execution-provenance.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/execution-record.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/identity/host.patch\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/identity/run-spec.yaml\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/lifecycle-oracle-temp-origin.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/lifecycle-oracle.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/live-validation-gate.json\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/oracle-combined.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/runner-combined.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/setup-device.txt\n?? docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/verdict.json\n",
+      "status_sha256": "81f73ee3015f9fc6b7adc0cb3357a48dc8891ee95def78ab9309d0f3da32cfd3",
+      "untracked_files": [
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/apk/app-debug.apk",
+          "sha256": "1a8cc170e310417f37447dd68bea1de853b1f8ed2d11d962a3662ba5cef85c0c"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/apk/app-debug.apk.sha256",
+          "sha256": "6b7ac2caa1d33b5585cef91111652eb95716ff4adb14dab9afbff050df12c4a8"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/capture-manifest.json",
+          "sha256": "7dc5b9d24f78cc84c523cd5a9b44d961b4c7fd7dd35a825939c11185cc6f4560"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/commands.json",
+          "sha256": "539737e1f8415165b96c22478266641230e42e332ae8a1c9025d4b0edbe5ddf7"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/logcat.txt",
+          "sha256": "2b977a5542d76da9348a153e255bdd7b2022fba4ae23fc9ea8896e91239447bd"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-0/screen.png",
+          "sha256": "71acf2b035c66396a5735e6c3e57ad93ec3290c6f39d87566e987c59f597c79c"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/capture-manifest.json",
+          "sha256": "18e55be39021c0add1054a74567464965bd6f6bea6126b1c781196b425d15a33"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/commands.json",
+          "sha256": "aff64e78a52032114805ff1cb55f3d979d9c34316e1a32fddca327498c950253"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/logcat.txt",
+          "sha256": "568f872f0cb63ef714b2782680335cec08b452147d4e307b8cf3d7fa184fe072"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-1/screen.png",
+          "sha256": "4bcb0661abf02fd243fa81912cb7f6173a6f83285a8acba56b04fba49c51679d"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/capture-manifest.json",
+          "sha256": "735fea3ad9a62e8d25e13261c3b65a14cf58d9c5d2525b7ed415cc48b3aa361a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/commands.json",
+          "sha256": "9aab94ad68b382a44f8870bb3e2d1d7c65ac1182b26b3de5ff458054ea5787c5"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/layout.json",
+          "sha256": "3ff84f2bf6a33c9f9a0570c26e97d92f4d7f53fd25b03d589701e14b924b5d53"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/logcat.txt",
+          "sha256": "346860df568ea3cd7933ec1ad0f3d0a81b0e1d310f560244d490a255682972a3"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-event-2/screen.png",
+          "sha256": "b2d924e6990743ef3f497191dff1e2d9baf784d1a517a11381bf951fee8998ba"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/capture-manifest.json",
+          "sha256": "c805a6e240cab9886b7fb96f4a16bc116fb5f0529a8a0db067e8944685decc9b"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/commands.json",
+          "sha256": "0b11c294939d1d056ad48940a2c8dbfcd5999ed9a46172a6c54de15e5f4d4359"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/layout.json",
+          "sha256": "1f22406f1d6e471b6ab7e92f88eef872be0c0e20d338bd149d453cc8227a6601"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/logcat.txt",
+          "sha256": "f37e5bb21a2940266280e07bcbb22bb670ebc4a62aba3691b9aa832bd5df2b42"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-0/screen.png",
+          "sha256": "530833f532855eec1ce3315cb42ba5d82d3fcdffe3e8a231dd46b2d07d677e81"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/capture-manifest.json",
+          "sha256": "1bff0b470d11d1afeb9d3ccbb7f3cb9583ce383c47cb7650769ba6ee08e8f929"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/commands.json",
+          "sha256": "602bee73db98252feaaaf32d4bf3d1e3d3955f67ac772fd035bb7fea0e8781d8"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/logcat.txt",
+          "sha256": "991898c9ce9e164c242132515a982bb3d87dae79dea20790f60d26a2757003ed"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-1/screen.png",
+          "sha256": "4bcb0661abf02fd243fa81912cb7f6173a6f83285a8acba56b04fba49c51679d"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/capture-manifest.json",
+          "sha256": "a36b276d2887e394eacd7212634a80356c4581939d7c221392d99f73a3ac3eaa"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/commands.json",
+          "sha256": "5c3df654484d1d10cc9cd1d302d8e6649bf984cedf220734c3a5e6b6e3f8a66a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/logcat.txt",
+          "sha256": "4e3e4fcc9618e05e8c3df0db969811f5ad9c4f46327cf4d2db90c26d64058e8a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-2/screen.png",
+          "sha256": "bb092c21ac4a90a3b8e434b7184eb313d24d298e86f6d8ac4f658a88fc46a5a7"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/capture-manifest.json",
+          "sha256": "c02b5dd3708baced0015f3d9765a6844419c4d63af7a037ca26148c75b372035"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/commands.json",
+          "sha256": "ef95ec0c1b85d5d423b937af83492819f317b6ef0ae529bc4b3902a8b4814131"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/layout.json",
+          "sha256": "3ff84f2bf6a33c9f9a0570c26e97d92f4d7f53fd25b03d589701e14b924b5d53"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/logcat.txt",
+          "sha256": "d9d3045a6fb54ef198da1b0559d8e636e9f6fb98d24c5083fc9980b84b410ce9"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/after-segment-3/screen.png",
+          "sha256": "48a9e09cfd185054981d477c798a4125e6d32ff2fd248d654315aa89c52899a0"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-events.jsonl",
+          "sha256": "8e8b9a859153382dc8be89be285e6be0fbb226b65da9894e1d4e78f17703418c"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-invocation-identity.json",
+          "sha256": "3a111826439ada6a2c878fb411b5f12a25f558ee7e91aec7da7e1fa19583f2a8"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-action-lineage.json",
+          "sha256": "af69d80c583bf87c8d9ab1997d4f291feb9284ac4ff6f2456ed0bacb0493415a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json",
+          "sha256": "fce93d06516c1eae463a95ffcb42999266866daa8ed74b5238caf8378831790a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json",
+          "sha256": "ad25cb3d63ae61b8b9d7db7a662053eeb9fb4a5bb5defaf71d3fc31314a4e5ac"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-events.jsonl",
+          "sha256": "683d19edc166266c0fb32a3f61d5e6416db448baca9bbfbaef83b8720ece0259"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-invocation-identity.json",
+          "sha256": "65434fc58c50cd966c797a03b1063a61865315e3ff16697c0632fa740009b4be"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-action-lineage.json",
+          "sha256": "ed5e4e81fef3b33297fe09fe43b9ddd1bafb07fb7d32465aa454d5d8a87ec104"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.json",
+          "sha256": "5548a4afbf018554dc8978ec40b7ed4ce157d6c0b6fd5ed80b7fc8c93927fd2a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json",
+          "sha256": "9f6d2e15dc75f345110b54ef8dcd5e355112c3a28377225e1884b034ea6c2935"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-events.jsonl",
+          "sha256": "675aa0315996c57fc3c2409a76f183027e29228b57247a779a467ced74930967"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-invocation-identity.json",
+          "sha256": "132c07a05b6e10c524c0dafd65d24715eb792931c89c26cba9ae2679fd661501"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-action-lineage.json",
+          "sha256": "cd8f2d66bf717bc27d0cbbde10b3a1b5810b159c270c26aea34ad213d20d7b7b"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.json",
+          "sha256": "481b36a4f69756b8e1194e12f7fab876621f69f6de75ab3ab089ad09725c6f63"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json",
+          "sha256": "26ffa803a855db706a1177b587c20640aca21beb542c317950dfa1925d4f3d1c"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-events.jsonl",
+          "sha256": "92edf52b8f6640c79da2d3f81f7f6b5fa16d5c168df670e7393ece45ff68239e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-invocation-identity.json",
+          "sha256": "e9f2204c5d1f9364302c45b454dd5f79826ba7f0880dbb9a5b0291c7376651e0"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-action-lineage.json",
+          "sha256": "0c28e6a71bf016364435b99a75527d0aafe0fbee106471be7a41a73952d3c07f"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.json",
+          "sha256": "d649e2363178af270b7fe909604c16d790052832c5df19b416c073f3cd662569"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json",
+          "sha256": "7abdfd1f0d26ef497ec3047505ad881aa746d61d4bf984c9ea50a28ff6923078"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/system-event-0/event.json",
+          "sha256": "80d244480c9537b743196da26e14e7a3bf0c12a1211d6a8d7f5020c231d0bc08"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/system-event-1/event.json",
+          "sha256": "eb8eb2e6957bd3b5b07e58755fb7b120de4c48d5ad58c57f14bbee1494cc3d0a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/artifacts/system-event-2/event.json",
+          "sha256": "5d6fa193656accf8fa04babfe56272db368df368afc8324dd4f5a5e47a1ace04"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/checksums.sha256",
+          "sha256": "c0dd4055987e850b34d9985da8eaa5110ecd551897810f0f7cb5043ee4f3ebf1"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/execution-provenance.json",
+          "sha256": "9f2a5f63e56e0cf842c81c194c9537e3c3a40f692ea233ab15e7f4d71323a9fd"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/execution-record.json",
+          "sha256": "698029d82da4521434f564e78ca49d28101199b022a6d7d372a3e74eacc2125c"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/identity/host.patch",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/identity/run-spec.yaml",
+          "sha256": "3a23e226c11c68834a47dfae64941e9c5aec5ca896932a44caa98c4083c2c827"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/lifecycle-oracle.json",
+          "sha256": "472ebfcceb768d2a237130ade84ce11efb3bc3b3099728230e7f437e2c2a3719"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/live-validation-gate.json",
+          "sha256": "e0a2cb049504aa2e19c2eb7580b5a585af4930476478e53fa9ae258e5a8b0b98"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/oracle-combined.txt",
+          "sha256": "0be0f92fa3f3d54bc5fe7e8b9da24c748742f2c633d9d4e1817fb39e958e54ec"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/runner-combined.txt",
+          "sha256": "4f0a443ce241b2c93c8c7a9ee7a85935041f412ad611d61aec2edb3684ab434c"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/setup-device.txt",
+          "sha256": "ff9eec9ab869fca76d1e2a8a71da7b3a03f1ca336bf9056864843aa0fb55332e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-baseline-superseded-pre-review/verdict.json",
+          "sha256": "8e916ddf4685ca7ded9abf5746324f2a964ee4a5935a59fca3a97d7b9a018a44"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/apk/app-debug.apk",
+          "sha256": "535f04161fef62ac7bb89ebb873279224463b38db971691d5baa7b6a89e33fac"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/apk/app-debug.apk.sha256",
+          "sha256": "8a72b5be4d322f103f34e60faaaed02b9ba9bfffb8e9e347a246575090bf2f88"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/applied-host.patch",
+          "sha256": "76447c169c163ed787b8270c4938791e4d5655bd2c4ccedcc92e0e0e7ac1cf8e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/capture-manifest.json",
+          "sha256": "3569cfbe2fd3eb00bca5c3ea1e55d74d6f5808c9f50d6ae305957eefea8f78a5"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/commands.json",
+          "sha256": "9a2e17b1ef7328aff810d6c79c1bbef5564ad1bdc3575003fb08bbdc6346c42d"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/logcat.txt",
+          "sha256": "8993e457a51d3d5e8ee888b8ca1f17e12db1ebe1a5736fbe71181a33b2596879"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-0/screen.png",
+          "sha256": "91f786790a48ac9a4cad9e9bed2c657c9293958db95ac46fff19716c74add0c9"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/capture-manifest.json",
+          "sha256": "bb903797fa77c5d9965c737932b2b91383a22c1ea7cc414bae281a3b0a4c383d"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/commands.json",
+          "sha256": "11dd54c5d84d5b261348f42e116af00cbfa1f0d1fc7a5513835eb8cbb7bb23bd"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/logcat.txt",
+          "sha256": "0eb1f655ef955451eb3e0d07b5c68543c1a2fb15409c8df03c04a7d619f62b25"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-1/screen.png",
+          "sha256": "9735e832cc7de29d7ade3b7f154236bbabe7d86d0907c1623e8556639446c96b"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/capture-manifest.json",
+          "sha256": "062fe9c1042a4c1bf6df6a13c753eca4b0fa9b99e93cc4d6e36ea11d1efc06d5"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/commands.json",
+          "sha256": "c90e8ed3e11f222420e0cc3384e4bcf1ce6b9bfa557dbeea9b7825f32a6cdc38"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/logcat.txt",
+          "sha256": "20a53464e8e52e4651cc1eadd8174968dda0014976d0842e836d3bd6a706e3b5"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-event-2/screen.png",
+          "sha256": "77027aa65190d18e96066090e6a481d961435b0612dfa70458bf3162c0415443"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/capture-manifest.json",
+          "sha256": "f936e75a8101f0bb4dfdf2e16bef142ddb0d5a00109bf09bf50c8a1e8f50e51a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/commands.json",
+          "sha256": "2009fb0d24105d9c4b1961859380953f06f3f0e57c91172c9bcf97e742ed818a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/layout.json",
+          "sha256": "1f22406f1d6e471b6ab7e92f88eef872be0c0e20d338bd149d453cc8227a6601"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/logcat.txt",
+          "sha256": "6126fd07f50e45a6ae7a9abfba28993761c72166e8620025a83bf536c4143c21"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-0/screen.png",
+          "sha256": "18776108e51dde72456f03d477afbc79b3616489941eaba5b3e16bfb12fa73aa"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/capture-manifest.json",
+          "sha256": "af7ac984fe3a7ac5ab457add6360744ec847297072a7f604638b2ee3b4dfd1a0"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/commands.json",
+          "sha256": "d8b4b0ac879c92ab838a206f33270ef542b5a8291a699df02879989cabcaa543"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/logcat.txt",
+          "sha256": "7ae173db37d6d9d75c58f07c03824d9b728732216918394a592884eb1b994fdf"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-1/screen.png",
+          "sha256": "9735e832cc7de29d7ade3b7f154236bbabe7d86d0907c1623e8556639446c96b"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/capture-manifest.json",
+          "sha256": "3ba8eb038bf32a3d6d45413ef502707fbbd120df5f41adfdba5e4590db5cf9e9"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/commands.json",
+          "sha256": "f0449d4c4205d3f742912f97793e71eedc666fe0a309289efb059225fe22271a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/logcat.txt",
+          "sha256": "f3aaf2b5ba811013723e82e479b4c9c5e8fa1f210ca01cf8d829dd0d7f70a1a6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-2/screen.png",
+          "sha256": "77027aa65190d18e96066090e6a481d961435b0612dfa70458bf3162c0415443"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/capture-manifest.json",
+          "sha256": "92bf73af61e9c475ab411c9745057fe1db66c62b14ee9afb06be3d911a6cc6cb"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/commands.json",
+          "sha256": "4f3ababef48682f8f3d4b22e1b0bd2716636cd8bc456fe7b2f0ea2b94dcf981a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/logcat.txt",
+          "sha256": "7999f5f54acc3bde235e06cc156a2ef8b1aba9f880a9529c2e9886a155589418"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/after-segment-3/screen.png",
+          "sha256": "1ed1f9abcc25912b361072761ce28e49e41ff53e034f49ec3094697acb8db3ca"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-events.jsonl",
+          "sha256": "71cf01b2aa8550a9c9d2a620e9ab6a4772603e9f23d3e2296043fa1c3ec84228"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-invocation-identity.json",
+          "sha256": "e3cf39e11b254474350d3200bd34bd52cba5d3601026f58d28dd1db57653fe03"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-action-lineage.json",
+          "sha256": "572c49c45a81ecc47ea81f6408fb26151b485ca8e6dfc86a1ea75cb478a5a6d9"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json",
+          "sha256": "5d7b6255b6d4fe2d50c4a253957104e5279272c06c0d34fa1aac308bdc6731de"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json",
+          "sha256": "2e9ff487094438f56ca7d40baf7f11cbeccb624b0f2d6ec2425f78a283191db6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-events.jsonl",
+          "sha256": "fc1a882e0c03d17a1c8721d6b2749095e292113d02a31cdc4209bce66f711f39"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-invocation-identity.json",
+          "sha256": "30b0b604627cf6f1229b4b830cfd458de015b8df1b51e6a2045fbd6782f0f731"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-action-lineage.json",
+          "sha256": "0697d188702aa32317bbd0aea5f41e2d5a0e936e4773d2982671e5d0d9ddb134"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.json",
+          "sha256": "8709c92aa88f51bf7c3930583bcc916781ace5889e99b8e86cbd1c635dc1b720"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json",
+          "sha256": "f43ae2b6b6b1d8df158294409f8453ddfc24260681c57ce80b7e174d603eac87"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-events.jsonl",
+          "sha256": "02845a0eb0f35c732f507b4cd0f411c265614bed63082318c797577ef2d78689"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-invocation-identity.json",
+          "sha256": "8cb5422132ef0943a5c33607e277689e355a69d08e1b0f3283c2834461891d3e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-action-lineage.json",
+          "sha256": "488cee441b4f0b9036e612afa24a8cc4ec4005318a8bd01e50e3ed4855ede9bf"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.json",
+          "sha256": "c971ec777cbfafbd7233c2130b7f8e3ff26b5fa1b298a8dcb2ac7222bb7f4696"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json",
+          "sha256": "b9b8959d56a977e3f3d1a3d5ce0ecf9cc66e5acce27a328467e109b33af7bd4f"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-events.jsonl",
+          "sha256": "5eef34fe228b258c4fe6dd74dfc2179eb777fa8deda54b89b16c04d7acffea3c"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-invocation-identity.json",
+          "sha256": "58663476582354d6b9cd833aa5a563ea7b9def0719fc3c24581c71f8c300bc59"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-action-lineage.json",
+          "sha256": "da479f1a59167f799f645226e2ab75309f4c6d14094571b68cda8ae9dc4a0939"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.json",
+          "sha256": "5e16555e0134111ac1d6115f338fa62a368a6ea284446d7b06f7e254268ef0b8"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json",
+          "sha256": "2816d5a7c98977b972a79cc8aa1336c0e7d5ab2280c1520bc65c1c3108948fd9"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/system-event-0/event.json",
+          "sha256": "80d244480c9537b743196da26e14e7a3bf0c12a1211d6a8d7f5020c231d0bc08"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/system-event-1/event.json",
+          "sha256": "227101977532792a825a38f21b237354e2eca1355afe92cf92d658a31ceca78b"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/artifacts/system-event-2/event.json",
+          "sha256": "16db82e3a470c70e89dc06e3cbd66c8ad7f3e79f4da6d29773a58f7ae5228fb1"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/candidate-apk.sha256",
+          "sha256": "947acaef84d2e120c37956ec4fc8e33cb3d4df1d9c23787af032fbac7cd23abd"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/candidate-build.txt",
+          "sha256": "b612b5f753334be5833a3fdbbc290d08ffe630cd76a17e024d81ea4b85d38894"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/checksums.sha256",
+          "sha256": "437f30f5a86e20a83c40efac4eb88fb264be1bb03c51bafcbc68d78d64bb130e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/execution-provenance.json",
+          "sha256": "8fe1b32180f702b0e6419bb8721c8cbeb148b06cd980c9c653361a21370460e5"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/execution-record.json",
+          "sha256": "b82760d780dd0a24f980dfd1c8dc6176d4b089d43d880fccd46bd0f8e3b08770"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/identity/host.patch",
+          "sha256": "76447c169c163ed787b8270c4938791e4d5655bd2c4ccedcc92e0e0e7ac1cf8e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/identity/run-spec.yaml",
+          "sha256": "080c0747018e1e48e8de71ea02d41e0bf684c05b22f3786c349ac221d203d80d"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/lifecycle-oracle.json",
+          "sha256": "4fd469f955bab92be08974bbc98fae0d53db186485e8899f0c268195e075426e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/live-validation-gate.json",
+          "sha256": "7d4a25258058d231b387ee947f2da99818cf671b7aecedcd610e9cadf7f94c32"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/oracle-combined.txt",
+          "sha256": "2e0aba2d6f613f4ee589f4d260f683e64186f99738db079b2cf4871b684633c1"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/runner-combined.txt",
+          "sha256": "c2a8af0820e8ef7152429d3f8a928df524b36fe35d698b58d45d16215bc6bd12"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/setup-device.txt",
+          "sha256": "ffa3a23ed1dc7a4c94f8e718ed24164a73a36fafca6d7f98c42fe0890907c7f4"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/accountable-candidate-superseded-pre-review/verdict.json",
+          "sha256": "8ec34faed49b37497bb09390dbf3bdd85157f94e5520ab54de4500340f0a2fff"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/execution-record.json",
+          "sha256": "03d244c139a244c236389853280516137169fd52006d75e06301b27dc91018d1"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/identity/host.patch",
+          "sha256": "8d6acc25aaebb1a6c030d8760a8768cbd478b67d5a4b47dd88fd3efb50c1fed8"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/identity/run-spec.yaml",
+          "sha256": "3a23e226c11c68834a47dfae64941e9c5aec5ca896932a44caa98c4083c2c827"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/live-validation-gate.json",
+          "sha256": "b9f3e3b291dd6a6d2cbc812e63b78d7bce8bfeb08fe043eb2f0f1ce0337a1d51"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/attempts/non-accountable-baseline-post-review-durable-path/verdict.json",
+          "sha256": "6f95690944568e25846b8dda215f9a0f0bed0ffd4047d915966e24feea4c5332"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/apk/app-debug.apk",
+          "sha256": "1a8cc170e310417f37447dd68bea1de853b1f8ed2d11d962a3662ba5cef85c0c"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/apk/app-debug.apk.sha256",
+          "sha256": "4f3c71d8efc4ba159fe3ec0b068479d8a48c60702e29efaa669193088a2299b5"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/capture-manifest.json",
+          "sha256": "fafb6fd0c0d424e825e6e6cd5b07efd21b9962e9a3b103c1a9f071eb6afbb5da"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/commands.json",
+          "sha256": "32a84c3548777165f65f40708dc11a4c617e17892fc961be23d535eef0ea0695"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/logcat.txt",
+          "sha256": "da408ab2c212d970e2dbc89d1ead1be21ea0386060ec6f2c2aeb7a8cd840bdff"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-0/screen.png",
+          "sha256": "9da3d066092dd2d85e80e563bb42e9005a8926455817530196ab30922d26c94d"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/capture-manifest.json",
+          "sha256": "c2d49205258118e9a7b2eb8443e99f68b9469b7d1c723ac10a05ae04572950e6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/commands.json",
+          "sha256": "fd0d51d66cc74b0ba6f31efb1287f970f0d5e042f6eb705ec29dd27c2e9c0e4b"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/logcat.txt",
+          "sha256": "736ecbffbc65bef75b19ff27d5e7a255217980d90b18b8e4dfc7181f8a5f05d7"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-1/screen.png",
+          "sha256": "fa551db21adeca7a910f4427e9a914e693e77ba90de190d06dc5b181d92a383a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/capture-manifest.json",
+          "sha256": "51ab88e3c6bad6034b38f461b75e1a007c735c84fe4cbe8b016f14bcef1d1ef1"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/commands.json",
+          "sha256": "ed500f8e4955d6975148d68580f7f280a06ae6cb0407ff1a0dc3b7296f3458f5"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/layout.json",
+          "sha256": "3ff84f2bf6a33c9f9a0570c26e97d92f4d7f53fd25b03d589701e14b924b5d53"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/logcat.txt",
+          "sha256": "86cc92b7e0f93eef040414e6f2f37f24ff1136dc4c96ac7511b41b5d6d72867f"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-event-2/screen.png",
+          "sha256": "2550bf3724b5654bbbe76e68b1a60f7a9b62b3c56f62a8b79d0f77b290227c0e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/capture-manifest.json",
+          "sha256": "380c382b0333a36453325a9e0f44480797c870c9ac2467bd0babb2cbf233a308"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/commands.json",
+          "sha256": "0d3111cfbff739a059149be547f8cbd39525a226f7965f798b40fed31b3a23ac"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/logcat.txt",
+          "sha256": "a78024fbda234adad25e9f65e5e9565c88bca0346d724da807cb5ae82507f276"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-0/screen.png",
+          "sha256": "5915e594d8e3f267f3986089e5fbccacafd0147c84188f209e20fa41918e6e2a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/capture-manifest.json",
+          "sha256": "133c517c4359ea8ca2a9132d9079a16023ee2b98a283c89a8704332a1e586902"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/commands.json",
+          "sha256": "c3be4110cdbe25e4997ae89411cd6ab700609e19c7d9b0ef8ebd2488863375fe"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/logcat.txt",
+          "sha256": "9445966cf4d5e79675e5c76eba43e66611be6c6e0bb5f661b0bfc7e948f740ac"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-1/screen.png",
+          "sha256": "fa551db21adeca7a910f4427e9a914e693e77ba90de190d06dc5b181d92a383a"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/capture-manifest.json",
+          "sha256": "3044ab86ba197f13bed2da2fc9a4702833db56615699da8c703eadda5bce8312"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/commands.json",
+          "sha256": "199b13f9b34a1a4124088b4016ddf2e5e47cc1cd166019a24cb01fbc2097880b"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/layout.json",
+          "sha256": "57f2ab177912bcc6f62b320c86ac40653823f25b78dcce14b947fc0feb03dda6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/logcat.txt",
+          "sha256": "ea872dcd661bc2156043f7c2f7abe14337b77f4791d3aa536a794824ed904c55"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-2/screen.png",
+          "sha256": "818525248a8c75bd1dc38e3bd78987fd97e61cf030e06aadb8098a9f38b36290"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/capture-manifest.json",
+          "sha256": "9eb86e2cbd92f457fa66a8bb3cda0b2b62e05b7a727ed01df8e6e6d3e8d43da9"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/commands.json",
+          "sha256": "aee696a4d51aa97bbb6e15334dca09e136282f94b6048226175bd1c856d19210"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/layout.json",
+          "sha256": "3ff84f2bf6a33c9f9a0570c26e97d92f4d7f53fd25b03d589701e14b924b5d53"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/logcat.txt",
+          "sha256": "f9cbcf7c6f7e5fb802e10f8c7b2328bb725b0f43878638e2cd5a21a48699e9b6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/after-segment-3/screen.png",
+          "sha256": "9e0174fcfbb21b60f858614b5cf3e3410e17eda184cad444f99654cc8f4f5658"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-events.jsonl",
+          "sha256": "2b319a4338095d8e8457a414cffc65eed440f93760a83dedb7563cc5bdea27a7"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-invocation-identity.json",
+          "sha256": "b4e25260cc6eebb6d21707065302cc46359246a47a5253ed6a918f9ab4882041"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-action-lineage.json",
+          "sha256": "bceca1cf4b33aff0c70c282a00557f4b17a1e95f63875e2eef3ca027e496557e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.json",
+          "sha256": "c7c26986adbf832caea14c11a0b7aba2ac0613caa263956be79e585dd5b77be1"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json",
+          "sha256": "7ac82502c076e5649b95af3c86cf5354b362a5200974806c48dc74194f0dd92e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-events.jsonl",
+          "sha256": "579f7d6442090963b42d3b10e0741e4338f56211e7319f80288646fb75b4de7d"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-invocation-identity.json",
+          "sha256": "9b0336c3ae86dc91ca4f43f1181659ae36cfa3809c1c2ca3c7a3c4db6e378289"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-action-lineage.json",
+          "sha256": "4c14442c3c0333a771b431ba24e0af936f446d1f6feb108ea5e13562fc3e1a64"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.json",
+          "sha256": "8f37fa0d8f21872d9a31d665b8fd3d9992a03487f5bd458c7f140116c5831b91"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json",
+          "sha256": "b1a9143106ff135b06fd056194ec066c405f5fc6569cb79c5beb90b4e21a498e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-events.jsonl",
+          "sha256": "cd4ea9edbe40134a56124184c770c8c2b42e593c5920ad61bed86327b5d60399"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-invocation-identity.json",
+          "sha256": "b0017223c9d52fcdd48a51d0aa3cc5367c83cd353f7d679a58974a81ec23dd04"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-action-lineage.json",
+          "sha256": "f59d579c29fdc323f74f2343309cb247ef4dbc9ab45cded1632ef7c173217ef2"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.json",
+          "sha256": "6585b3d0b43969fb0b90452521c97f2cd5e14b39352dff6aa77269117138fa90"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json",
+          "sha256": "9d37242fb096d5fa9c239d7780b297c3b099a65160c47d5a608bcce7253ebee5"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-events.jsonl",
+          "sha256": "483f9f227634c9be816f2167ed3c713ffc40b376bfe67ba72b04d59a1dd674e4"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-invocation-identity.json",
+          "sha256": "20243b212200f3aa6e022a85c30772df3f7199b0a2e8d964c938df629655e114"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-action-lineage.json",
+          "sha256": "4891b2a9759ea5109cb3448602f73a75ef524be4de2fda56bfabaeb3069d4b56"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.json",
+          "sha256": "4d5046eabc60a67383e9f9a5604aba682741f502dacd8b8c480fcdcebb0f6f6e"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json",
+          "sha256": "9ae44f4b381ed6b760ad54bf8b2a2acb183c8ef2371ea5cc1bf86bec3dcf17b3"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/system-event-0/event.json",
+          "sha256": "80d244480c9537b743196da26e14e7a3bf0c12a1211d6a8d7f5020c231d0bc08"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/system-event-1/event.json",
+          "sha256": "9ef3c9d271720819774f366fa23186e63a6ca6c0971122fc1c883f5f1da10095"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/artifacts/system-event-2/event.json",
+          "sha256": "0010eb57d1ffda6f0ff9446fc0fabb32c86ee4b00ed27b0dc8cd888f9deddee6"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/execution-provenance.json",
+          "sha256": "08f4634370d1e3f114a025c62279310b39104803fb3aef7d4a3c81fd45b126cc"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/execution-record.json",
+          "sha256": "4093158b99737aca02b06d4d02cbdf5e251fe109852b92880e2db2d027076c52"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/identity/host.patch",
+          "sha256": "8d6acc25aaebb1a6c030d8760a8768cbd478b67d5a4b47dd88fd3efb50c1fed8"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/identity/run-spec.yaml",
+          "sha256": "3a23e226c11c68834a47dfae64941e9c5aec5ca896932a44caa98c4083c2c827"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/lifecycle-oracle-temp-origin.json",
+          "sha256": "d9709bc212fc8ee9763b89351d749cbe79b287fe87688b68bf9e6b7306142005"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/lifecycle-oracle.json",
+          "sha256": "aa588ddf53ac7eaee84068473b638045933856abc8ac3c80b0d75144a91dc608"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/live-validation-gate.json",
+          "sha256": "bb58d4bf6615f6dba930ab2a30afec0cdcc6fe251dcdabb26909e1acaa99aeb2"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/oracle-combined.txt",
+          "sha256": "84d4ea3cbd2d9b6b2ea6f28b046ee942afa4e66f4d39c58ce9aaa5c4baf32739"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/runner-combined.txt",
+          "sha256": "7858c9be7b856f8cd862f245a6bfb04e374737b4971fc90e4ab9800c91af89f9"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/setup-device.txt",
+          "sha256": "50a87f524b315443e01b8a5d003b5e877303dcc7f94a3c2e9747aadb02c61ed4"
+        },
+        {
+          "path": "docs/runs/2026-07-19-issue-71-lifecycle-backup-recovery/baseline/attempt-2/verdict.json",
+          "sha256": "4facdc2e794f7c272392477003b32d1bd0c36a1bbb1d34b378ef1b17bf13bebc"
+        }
+      ],
+      "patch_path": "identity/host.patch",
+      "patch_sha256": "3fa4da492022e4eb20099a7a9b38aecf7615b8a5a7ec94fa2ba08d19661e36fe"
+    },
+    "identity_sha256": "213e79016ee7ccef9be0d55da44c698c4111e8f324b6350169995e7677a47b09"
+  },
+  "apk": {
+    "artifacts": [
+      {
+        "path": "/Users/peter/projects/ai_verification-issue-71/bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+        "bytes": 917382,
+        "sha256": "82cb4a481c4572ba883adca2fb9fafce4c1e40b4fbb785b1acfc00051410958b"
+      }
+    ],
+    "identity_sha256": "8c0a0c2da077099a6c8d3e5da75ded47eda44fb683f8daf0797a9c03ff937f91"
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "api_level": "35",
+    "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "profile": {
+      "kind": "emulator",
+      "name": "aiverify_api35",
+      "model": "sdk_gphone64_arm64",
+      "device": "emu64a"
+    },
+    "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+  },
+  "tools": {
+    "android_cli": {
+      "requested": "android",
+      "resolved_path": "/Users/peter/.local/bin/android",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "version": "1.0.15498356",
+      "identity_sha256": "234115eb377fbc59cb1c243bd769f30ef049f64186491c700e78be4301d450e8"
+    },
+    "adb": {
+      "requested": "adb",
+      "resolved_path": "/opt/homebrew/Caskroom/android-platform-tools/37.0.0/platform-tools/adb",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+      "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)",
+      "identity_sha256": "38a82d1bcccaed89f0701833718dcde923cfde9a6080b8c42a1b5a5b6d341987"
+    },
+    "codex_cli": {
+      "requested": "codex",
+      "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.5/codex-aarch64-apple-darwin",
+      "sha256": "5e29ab10ca1171be158f7335dd6bd8ce1aaf9af1556939db36a5ee338be6f5f2",
+      "version": "codex-cli 0.144.5",
+      "identity_sha256": "e300dbf926cf634206584b396e2c96216bf9a926c8b506918a2a392105e3797c"
+    },
+    "git": {
+      "requested": "git",
+      "resolved_path": "/usr/bin/git",
+      "sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb",
+      "version": "git version 2.50.1 (Apple Git-155)",
+      "identity_sha256": "fddd0e696681e24d624b01cfe9665a4a0d2ba4cb9f91e09874320cc632784f9c"
+    },
+    "python": {
+      "requested": "/Users/peter/projects/ai_verification-issue-71/.venv/bin/python",
+      "resolved_path": "/Users/peter/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11",
+      "sha256": "4c78423e7d5986362ac04df40edb18cdd1174f9818d653402e3abbd2a5bbf793",
+      "version": "3.11.15",
+      "identity_sha256": "5581ba01f0972e47a26fe6b53dcaf3f01677259c273bc5245ee1dbf836b03b1d"
+    }
+  },
+  "deployment": {
+    "target": {
+      "device": "emulator-5554",
+      "package": "dev.aiverify.lifecyclefixture",
+      "component": "dev.aiverify.lifecyclefixture/dev.aiverify.lifecyclefixture.MainActivity"
+    },
+    "process": {
+      "args": [
+        "android",
+        "run",
+        "--device=emulator-5554",
+        "--apks=/Users/peter/projects/ai_verification-issue-71/bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+        "--activity=dev.aiverify.lifecyclefixture.MainActivity",
+        "--type=ACTIVITY"
+      ],
+      "returncode": 0,
+      "stdout": "App loaded: dev.aiverify.lifecyclefixture\nDebuggable: true\nSelected component: dev.aiverify.lifecyclefixture.MainActivity\nInstalling APKs: /Users/peter/projects/ai_verification-issue-71/bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk\nInstallation completed successfully\nExecuting: Launching Activity for dev.aiverify.lifecyclefixture\nActivation completed successfully\n",
+      "stderr": "",
+      "identity_sha256": "3dcfa2c523488255084fe4c61e9ce0785bdfe70933435f17b3536ccb107c9880"
+    },
+    "installed_artifacts": [
+      {
+        "path": "/data/app/~~kzq_outER6XKbCm1Gn76zA==/dev.aiverify.lifecyclefixture-TUGJ8VK5ZjWjRvdKvKBq7Q==/base.apk",
+        "sha256": "82cb4a481c4572ba883adca2fb9fafce4c1e40b4fbb785b1acfc00051410958b"
+      }
+    ],
+    "resolved_component": "dev.aiverify.lifecyclefixture/.MainActivity",
+    "device": {
+      "serial": "emulator-5554",
+      "api_level": "35",
+      "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+      "profile": {
+        "kind": "emulator",
+        "name": "aiverify_api35",
+        "model": "sdk_gphone64_arm64",
+        "device": "emu64a"
+      },
+      "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+    },
+    "tools": {
+      "android_cli_sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "adb_sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+    },
+    "identity_sha256": "206eb33617ab8c2ec4767fe72e8448dcc601964a6a0347223f39cbc5613e781b"
+  },
+  "roles": {
+    "journey_driver": {
+      "status": "invoked",
+      "requested_model": null,
+      "invocations": [
+        {
+          "path": "artifacts/lifecycle-recovery-matched-journey-segment-0/codex-invocation-identity.json",
+          "sha256": "6df27b3320e9845e454820b4ddd4eb87ccf08e4c768f5c42cf4c8faafff955d2"
+        },
+        {
+          "path": "artifacts/lifecycle-recovery-matched-journey-segment-1/codex-invocation-identity.json",
+          "sha256": "3395fb718d5ea88d08cacf15ada4c272eb6d90b4930a105f4398431a7991414e"
+        },
+        {
+          "path": "artifacts/lifecycle-recovery-matched-journey-segment-2/codex-invocation-identity.json",
+          "sha256": "4ad89e28c8170824c494b83d05a6ceb191e6bd701212ce35236fde84ca5318c1"
+        },
+        {
+          "path": "artifacts/lifecycle-recovery-matched-journey-segment-3/codex-invocation-identity.json",
+          "sha256": "32e2191c78ce4ab20124acc11321296658f6cf13837dda291a0f130c26b1a0da"
+        }
+      ],
+      "invocation_ledger": []
+    },
+    "l3_semantic_judge": {
+      "status": "not_applicable",
+      "reason": "scenario_has_no_l3_spec",
+      "requested_model": null,
+      "invocations": [],
+      "invocation_ledger": []
+    }
+  }
+}

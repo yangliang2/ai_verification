@@ -1,0 +1,12 @@
+Command:
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/time -p .venv/bin/python -m aiverify.runner bench/capability-slices/lifecycle-recovery/run-specs/candidate.yaml --device emulator-5554 --artifact-dir /tmp/aiverify-issue71-candidate-review.jugCbv/artifacts
+
+Output:
+scenario: lifecycle-recovery-matched-journey
+L1: inconclusive (None)  |  L2: fail (state_loss)  |  L3: not run
+real 290.08
+user 46.84
+sys 6.45
+
+Exit code: 1 (expected product rejection, not an execution failure).
+The attempt is retained but superseded because its host patch also captured evolving run-record documentation; the executed app source differed from baseline only by the candidate patch.

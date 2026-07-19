@@ -1,0 +1,16 @@
+{
+  "journey": "lifecycle-recovery-matched-journey-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 1200 203",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Located resource-id create_fixture at center [1200,203] and dispatched the tap. The fresh post-tap layout confirmed exactly: sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2. Did not relaunch or navigate away.",
+      "action": "The fixture app is already open. Tap the CREATE VERSION 1 FIXTURE button (resource-id create_fixture). Confirm the four displayed fields are exactly: sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2. Do not relaunch or navigate away.\n"
+    }
+  ]
+}

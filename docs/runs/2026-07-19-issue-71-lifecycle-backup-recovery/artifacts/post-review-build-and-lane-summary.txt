@@ -1,0 +1,40 @@
+Post-review build and real-device lane summary
+Date: 2026-07-19
+Host commit: 8cab543d120bce430f97642c30e023f2f742ed57
+
+Build command:
+bench/fixtures/lifecycle-recovery-app/gradlew -p bench/fixtures/lifecycle-recovery-app :app:assembleDebug --no-daemon
+
+Baseline build:
+- BUILD SUCCESSFUL in 2s
+- 33 actionable tasks: 33 up-to-date
+- APK SHA-256: 1a8cc170e310417f37447dd68bea1de853b1f8ed2d11d962a3662ba5cef85c0c
+- archived APK SHA-256 equals source and installed APK SHA-256
+
+Candidate patch:
+- exactly 1 insertion and 1 deletion in
+  bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java
+- patch SHA-256: 7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42
+
+Candidate build:
+- BUILD SUCCESSFUL in 2s
+- 33 actionable tasks: 1 executed, 3 from cache, 29 up-to-date
+- APK SHA-256: 82cb4a481c4572ba883adca2fb9fafce4c1e40b4fbb785b1acfc00051410958b
+- archived APK SHA-256 equals source and installed APK SHA-256
+
+Baseline lane:
+- origin: /tmp/aiverify-issue71-baseline-review.vWWaiL
+- attempt: bfd50b91-4489-467b-9b21-ac69f835058c
+- exit 0; completed/accountable; L1 inconclusive; L2 pass
+- runner total 280.052s; /usr/bin/time real 280.15s
+- dedicated oracle: locally_supported / correct_restoration
+
+Candidate lane:
+- origin: /tmp/aiverify-issue71-candidate-review.jugCbv
+- attempt: f71c8c40-884a-4a38-a29d-300140f4b602
+- exit 1; completed/accountable; L1 inconclusive; L2 fail (state_loss)
+- runner total 289.997s; /usr/bin/time real 290.08s
+- dedicated oracle: locally_rejected / stale_state
+- exit 1 is the expected product rejection, not an execution failure
+
+The candidate patch was reversed after the run. StateStore.java matches HEAD.
