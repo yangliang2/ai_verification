@@ -107,3 +107,26 @@ Git `2.50.1`.
 
 Checksums, matched runner attempts, independent Verification Agent conclusion,
 and the final requirement audit are added after the full executions.
+
+## Retained non-accountable attempt and diagnosis
+
+`attempts/non-accountable-baseline-01/` is the first full baseline invocation.
+Its preflight and first Journey segment passed, but the attempt correctly ended
+`non_accountable / checkpoint_capture_error` after 95.079 seconds. Android CLI
+`screen capture` has no device selector in version `1.0.15498356`; with both
+`emulator-5554` and `emulator-5556` online it printed a multiple-device error,
+returned exit code 0, and wrote no PNG. Layout and logcat capture remained valid.
+
+The collector regression now uses `adb -s <serial> shell screencap`, a scoped
+`adb pull`, and scoped cleanup when a device is supplied. Unit feedback is in
+`artifacts/tdd/36-multi-device-screenshot-red.txt` and
+`37-multi-device-screenshot-green.txt` (`8 passed`). The original two-device
+reproduction then produced a real 1080×2400 PNG and a passed capture manifest;
+the replay is retained under `artifacts/diagnosis/multi-device-repro/` and was
+visually inspected. No emulator belonging to the concurrent issue #70 run was
+stopped or modified.
+
+The post-fix focused regression reports `10 passed in 0.11s`; the full repository
+regression reports `542 passed in 19.46s`. See
+`artifacts/test-screenshot-fix-focused-green.txt` and
+`artifacts/test-full-screenshot-fix-green.txt`.

@@ -569,6 +569,14 @@ def test_public_run_retains_failed_anr_checkpoint_diagnostics(tmp_path, monkeypa
                 output = Path(args[args.index("-o") + 1])
                 output.write_bytes(b"diagnostic png")
                 return CommandResult(args=args, stdout=str(output), stderr="", returncode=0)
+            if "screencap" in args:
+                return CommandResult(args=args, stdout="", stderr="", returncode=0)
+            if "pull" in args:
+                output = Path(args[-1])
+                output.write_bytes(b"diagnostic png")
+                return CommandResult(args=args, stdout=str(output), stderr="", returncode=0)
+            if "rm" in args:
+                return CommandResult(args=args, stdout="", stderr="", returncode=0)
             if args[-2:] == ["logcat", "-d"]:
                 return CommandResult(
                     args=args,

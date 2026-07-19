@@ -338,6 +338,14 @@ class HistoricalAnrCaptureRunner(CommandRunner):
             output = Path(args[args.index("-o") + 1])
             output.write_bytes(b"diagnostic png")
             return CommandResult(args=args, stdout=str(output), stderr="", returncode=0)
+        if "screencap" in args:
+            return CommandResult(args=args, stdout="", stderr="", returncode=0)
+        if "pull" in args:
+            output = Path(args[-1])
+            output.write_bytes(b"diagnostic png")
+            return CommandResult(args=args, stdout=str(output), stderr="", returncode=0)
+        if "rm" in args:
+            return CommandResult(args=args, stdout="", stderr="", returncode=0)
         if args[-2:] == ["logcat", "-d"]:
             return CommandResult(
                 args=args,
@@ -830,7 +838,7 @@ def test_anr_layout_failure_retains_bounded_checkpoint_diagnostics(tmp_path: Pat
     assert manifest["artifact_exists"] == {
         "layout": False,
         "screen": True,
-        "screen_annotated": True,
+        "screen_annotated": False,
         "logcat": True,
         "commands": True,
     }
@@ -838,7 +846,8 @@ def test_anr_layout_failure_retains_bounded_checkpoint_diagnostics(tmp_path: Pat
         "layout",
         "layout",
         "screenshot",
-        "annotated_screenshot",
+        "screenshot",
+        "screenshot",
         "logcat",
     ]
     assert checkpoint.logcat_path.read_text(encoding="utf-8") == (

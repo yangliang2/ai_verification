@@ -59,6 +59,11 @@ class FakeRunner(CommandRunner):
             if not self.omit_screen_output:
                 out.write_bytes(b"png")
             return CommandResult(args=args, stdout=f"Screenshot written to {out}", stderr="", returncode=0)
+        if "pull" in args:
+            out = Path(args[-1])
+            if not self.omit_screen_output:
+                out.write_bytes(b"png")
+            return CommandResult(args=args, stdout=f"pulled to {out}", stderr="", returncode=0)
         if args[-2:] == ["logcat", "-d"]:
             return CommandResult(args=args, stdout="log line\n", stderr="", returncode=0)
         return CommandResult(args=args, stdout="", stderr="", returncode=0)
@@ -76,8 +81,7 @@ def test_capture_checkpoint_writes_evidence_files(tmp_path: Path) -> None:
 
     assert checkpoint.layout_path.read_text(encoding="utf-8") == '[{"text":"Home"}]'
     assert checkpoint.screenshot_path.read_bytes() == b"png"
-    assert checkpoint.annotated_screenshot_path is not None
-    assert checkpoint.annotated_screenshot_path.read_bytes() == b"png"
+    assert checkpoint.annotated_screenshot_path is None
     assert checkpoint.logcat_path.read_text(encoding="utf-8") == "log line\n"
     assert checkpoint.commands_path.is_file()
     assert checkpoint.manifest_path is not None
@@ -86,14 +90,46 @@ def test_capture_checkpoint_writes_evidence_files(tmp_path: Path) -> None:
     assert manifest["status"] == "passed"
     assert manifest["failed_phase"] is None
     assert manifest["error"] is None
-    assert manifest["command_count"] == 4
+    assert manifest["command_count"] == 5
     assert manifest["artifacts"]["layout"] == str(checkpoint.layout_path)
     assert manifest["artifacts"]["screen"] == str(checkpoint.screenshot_path)
-    assert manifest["artifacts"]["screen_annotated"] == str(
-        checkpoint.annotated_screenshot_path
-    )
+    assert manifest["artifacts"]["screen_annotated"] is None
     assert manifest["artifacts"]["logcat"] == str(checkpoint.logcat_path)
     assert ["adb", "-s", "emulator-5554", "logcat", "-d"] in runner.calls
+
+
+def test_device_scoped_checkpoint_never_uses_unscoped_android_screenshot(
+    tmp_path: Path,
+) -> None:
+    runner = FakeRunner()
+    collector = AndroidEvidenceCollector(runner=runner)
+
+    checkpoint = collector.capture_checkpoint(
+        name="multi-device",
+        output_dir=tmp_path,
+        device="emulator-5554",
+    )
+
+    assert checkpoint.screenshot_path.read_bytes() == b"png"
+    assert checkpoint.annotated_screenshot_path is None
+    assert not any(call[:3] == ["android", "screen", "capture"] for call in runner.calls)
+    assert [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "screencap",
+        "-p",
+        "/data/local/tmp/aiverify-multi-device-screen.png",
+    ] in runner.calls
+    assert [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "pull",
+        "/data/local/tmp/aiverify-multi-device-screen.png",
+        str(checkpoint.screenshot_path),
+    ] in runner.calls
 
 
 def test_capture_checkpoint_raises_on_command_failure(tmp_path: Path) -> None:
