@@ -106,6 +106,19 @@ class DeviceSystemEventInjector:
                     "revoke_permission postcondition failed: "
                     f"{permission} remains granted"
                 )
+        if event.event == "open_app_settings":
+            timeout_seconds, poll_interval_seconds = self._postcondition_polling(
+                event
+            )
+            self._require_success(
+                event.event, self.device.open_app_settings(self.package)
+            )
+            self._wait_for_exact_resumed_package(
+                event.event,
+                expected_package="com.android.settings",
+                timeout_seconds=timeout_seconds,
+                poll_interval_seconds=poll_interval_seconds,
+        )
             return
         if event.event == "network_off":
             self._require_success(event.event, self.device.set_wifi(enabled=False))
@@ -711,5 +724,27 @@ class DeviceSystemEventInjector:
                 raise SystemEventInjectionError(
                     f"{event} postcondition timed out: expected {expected}, "
                     f"observed {resumed_package}"
+                )
+            time.sleep(min(poll_interval_seconds, remaining))
+
+    def _wait_for_exact_resumed_package(
+        self,
+        event: str,
+        *,
+        expected_package: str,
+        timeout_seconds: float,
+        poll_interval_seconds: float,
+    ) -> None:
+        deadline = time.monotonic() + timeout_seconds
+        while True:
+            resumed_package = self._read_resumed_package(event)
+            if resumed_package == expected_package:
+                return
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                observed = resumed_package or "unobservable"
+                raise SystemEventInjectionError(
+                    f"{event} postcondition failed: expected resumed package "
+                    f"{expected_package}, observed {observed}"
                 )
             time.sleep(min(poll_interval_seconds, remaining))

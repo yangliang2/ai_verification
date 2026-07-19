@@ -1,0 +1,18 @@
+{
+  "journey": "wikipedia-location-permission-candidate-segment-3",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 540 398",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 540 1787",
+        "android layout --device=emulator-5556 --pretty"
+      ],
+      "comment": "Observed the fixture initially showing “BLOCKED: Location permission is required.” and “RATIONALE: true”. Tapped REQUEST LOCATION PERMISSION, observed Android’s permission dialog, and tapped “Don’t allow”. The fixture then showed exact status “BLOCKED: Location permission is required.” and “RATIONALE: false”. Visible controls: REQUEST LOCATION PERMISSION, REFRESH PERMISSION STATE, and USE LOCATION FEATURE.",
+      "action": "Tap Request location permission a second time. If Android displays a permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls."
+    }
+  ]
+}

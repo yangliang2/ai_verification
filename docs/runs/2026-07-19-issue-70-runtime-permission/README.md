@@ -13,20 +13,21 @@ The canonical matched pair uses Wikipedia Android commit
 `org.wikipedia.permission.PermissionFixtureActivity`, emulator
 `emulator-5556`, and Android API 35.
 
-- Baseline: `baseline/attempt-5/`, completed in 569.122 seconds. L1 was
+- Baseline: `baseline/attempt-6/`, completed in 757.735 seconds. L1 was
   inconclusive because it found no crash/ANR, L2 passed, and L3 passed. After
   first denial it retained retry plus an explicit no-location fallback; after
   permanent denial it exposed fallback plus app Settings; after grant and
-  harness revocation it rechecked permission, reported `REVOKED`, and stayed
-  responsive.
-- Candidate: `candidate/attempt-1/`, completed in 508.417 seconds. L1 failed as
+  revocation driven through the real Android Settings UI it rechecked permission,
+  reported `REVOKED`, and stayed responsive.
+- Candidate: `candidate/attempt-2/`, completed in 584.565 seconds. L1 failed as
   `crash_stability` on an AndroidRuntime `FATAL EXCEPTION` / uncaught
   `SecurityException`; L2 failed as `state_loss` because first denial returned
   `BLOCKED` instead of the required fallback. L3 was intentionally not run
   after deterministic L1/L2 failures.
-- Each canonical attempt contains 13 screenshots, 13 layout dumps, 13 logcat
-  captures, and 6 create-only system-event observation JSON files. The baseline
-  has 117 files (14 MiB); the candidate has 112 files (15 MiB).
+- Each canonical attempt contains 14 screenshots, 14 layout dumps, 14 logcat
+  captures, 7 injected system events, and 6 create-only permission observation
+  JSON files. The baseline has 122 files (17 MiB); the candidate has 117 files
+  (18 MiB).
 
 The system-event evidence establishes these actual device states:
 
@@ -35,7 +36,9 @@ The system-event evidence establishes these actual device states:
 2. First denial: fine location denied with `USER_SET` and without `USER_FIXED`.
 3. Second denial: fine location denied with `USER_SET` and `USER_FIXED`.
 4. Harness grant: fine location granted.
-5. Harness revoke: fine location denied before the final UI access.
+5. The harness opens real Android App info and verifies Settings is resumed.
+6. The Journey drives Permissions → Location → Don't allow through visible UI;
+   the final observation records fine location denied after the feature access.
 
 ## Exact verification commands
 
@@ -45,7 +48,7 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python \
   -m aiverify.runner \
   bench/runtime-permission/run-specs/wikipedia-location-permission-baseline.yaml \
   --device emulator-5556 \
-  --artifact-dir docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-5/artifacts \
+  --artifact-dir docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-6/artifacts \
   --workdir /Users/peter/hosts/wikipedia-issue-70-baseline
 
 WIKIPEDIA_SOURCE=/Users/peter/hosts/wikipedia-issue-70-fixture \
@@ -53,7 +56,7 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python \
   -m aiverify.runner \
   bench/runtime-permission/run-specs/wikipedia-location-permission-candidate.yaml \
   --device emulator-5556 \
-  --artifact-dir docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts \
+  --artifact-dir docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-2/artifacts \
   --workdir /Users/peter/hosts/wikipedia-issue-70-fixture
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/pytest -q
@@ -74,9 +77,10 @@ git diff --check
 
 Important results:
 
-- Full Python suite: 544 passed in 16.50 seconds. An earlier full-suite run is
+- Final full Python suite: 549 passed in 16.62 seconds. An earlier full-suite run is
   retained in `pytest.log`; it had 543 passes and one stale exact-dictionary
-  assertion failure. The corrected final run is `pytest-final.log`.
+  assertion failure. The pre-Settings correction is `pytest-final.log`; the
+  final result is `pytest-settings-final.log`.
 - Baseline APK build: `BUILD SUCCESSFUL in 8s`; 66 tasks, all up-to-date; total
   wall time 8.50 seconds. Log: `build-baseline.log`.
 - Candidate APK build: `BUILD SUCCESSFUL in 1s`; 66 tasks, all up-to-date;
@@ -92,9 +96,9 @@ Important results:
 
 ## Artifact inventory
 
-- `baseline/attempt-5/verdict.json`, `execution-record.json`, and
+- `baseline/attempt-6/verdict.json`, `execution-record.json`, and
   `execution-provenance.json`: canonical baseline result and provenance.
-- `candidate/attempt-1/verdict.json`, `execution-record.json`, and
+- `candidate/attempt-2/verdict.json`, `execution-record.json`, and
   `execution-provenance.json`: canonical candidate result and provenance.
 - Each canonical `artifacts/after-segment-*` and `artifacts/after-event-*`
   directory: layout, raw screenshot, logcat, capture command log, and capture
@@ -105,14 +109,14 @@ Important results:
   observed granted/flags state.
 - Each canonical `artifacts/*-segment-*/`: Journey backend events, invocation
   identity, action lineage, raw result, and normalized result.
-- `baseline/attempt-5/artifacts/l3-judge/`: baseline L3 prompt/result evidence.
-- `candidate/attempt-1/artifacts/after-segment-6/logcat.txt`: durable crash
+- `baseline/attempt-6/artifacts/l3-judge/`: baseline L3 prompt/result evidence.
+- `candidate/attempt-2/artifacts/after-segment-6/logcat.txt`: durable crash
   stack trace for the revoked-access fault.
-- `build-baseline.log`, `build-candidate.log`, `pytest.log`, and
-  `pytest-final.log`: build/test command outputs.
+- `build-baseline.log`, `build-candidate.log`, `pytest.log`, `pytest-final.log`,
+  and `pytest-settings-final.log`: build/test command outputs.
 - `independent-verification.json`: the separate Verification Agent's single
   fail-closed conclusion (`pass`) with acceptance-criterion evidence and gaps.
-- `checksums.sha256`: 507-entry final SHA-256 inventory, excluding itself.
+- `checksums.sha256`: 747-entry final SHA-256 inventory, excluding itself.
 
 ## Superseded attempt lineage
 
@@ -128,6 +132,10 @@ Important results:
 - `baseline/attempt-4`: L1 inconclusive, L2/L3 pass, but superseded because its
   final post-revoke action refreshed without invoking the location feature.
   Attempt 5 actually invokes the protected feature after revocation.
+- `baseline/attempt-5` and `candidate/attempt-1`: accountable package-manager
+  revocation pair superseded after the independent Spec review correctly found
+  that issue #70 requires the revocation itself to be driven through Android
+  Settings UI. Attempts 6/2 close that gap.
 
 ## Known gaps and scope
 

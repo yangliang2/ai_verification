@@ -45,7 +45,8 @@ def test_baseline_and_candidate_run_matched_permission_journeys() -> None:
         "observe_permission",
         "observe_permission",
         "grant_permission",
-        "revoke_permission",
+        "open_app_settings",
+        "observe_permission",
     ]
 
 

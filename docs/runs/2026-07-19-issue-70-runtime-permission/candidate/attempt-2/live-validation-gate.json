@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "device": "emulator-5556",
+  "failed_checks": [],
+  "checks": [
+    {
+      "name": "adb-device-present",
+      "args": [
+        "adb",
+        "devices",
+        "-l"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "List of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:1\nemulator-5556          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:2\n\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-completed",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "1\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-animation-stopped",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "getprop",
+        "init.svc.bootanim"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "stopped\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "android-layout-json",
+      "args": [
+        "android",
+        "layout",
+        "--pretty",
+        "--device",
+        "emulator-5556"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "[\n  {\n    \"text\": \"Runtime location permission\",\n    \"center\": \"[540,114]\",\n    \"resource-id\": \"permission_fixture_title\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"REVOKED: Location unavailable. Continuing without location.\",\n    \"center\": \"[540,248]\",\n    \"resource-id\": \"permission_status\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"RATIONALE: true\",\n    \"center\": \"[540,365]\",\n    \"resource-id\": \"permission_rationale\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"REQUEST LOCATION PERMISSION\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,454]\",\n    \"resource-id\": \"request_location_permission\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"REFRESH PERMISSION STATE\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,580]\",\n    \"resource-id\": \"refresh_permission_state\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"USE LOCATION FEATURE\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,706]\",\n    \"resource-id\": \"use_location_feature\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"CONTINUE WITHOUT LOCATION\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,832]\",\n    \"resource-id\": \"continue_without_location\",\n    \"key\": 3506402\n  }\n]\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "uiautomator-dump",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/window_dump.xml"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "UI hierchary dumped to: /sdcard/window_dump.xml\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    }
+  ]
+}

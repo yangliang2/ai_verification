@@ -300,6 +300,19 @@ def test_invalid_system_event_fails() -> None:
 
 
 def test_parse_wait_system_event_with_explicit_postconditions() -> None:
+
+
+@pytest.mark.parametrize(
+    "event",
+    [
+        "reset_permission",
+        "observe_permission",
+        "grant_permission",
+        "open_app_settings",
+        "revoke_permission",
+    ],
+)
+def test_permission_state_events_are_supported(event: str) -> None:
     data = _valid_spec()
     data["scenario"]["system_events"] = [
         {

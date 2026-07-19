@@ -19,6 +19,7 @@ SUPPORTED_SYSTEM_EVENTS = frozenset(
         "reset_permission",
         "observe_permission",
         "grant_permission",
+        "open_app_settings",
         "revoke_permission",
         "network_off",
         "network_on",
