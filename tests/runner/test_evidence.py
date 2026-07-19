@@ -114,30 +114,17 @@ def test_device_scoped_checkpoint_never_uses_unscoped_android_screenshot(
     assert checkpoint.screenshot_path.read_bytes() == b"png"
     assert checkpoint.annotated_screenshot_path is None
     assert not any(call[:3] == ["android", "screen", "capture"] for call in runner.calls)
-    assert [
-        "adb",
-        "-s",
-        "emulator-5554",
-        "shell",
-        "screencap",
-        "-p",
-        "/data/local/tmp/aiverify-multi-device-screen.png",
-    ] in runner.calls
-    assert [
-        "adb",
-        "-s",
-        "emulator-5554",
-        "pull",
-        "/data/local/tmp/aiverify-multi-device-screen.png",
-        str(checkpoint.screenshot_path),
-    ] in runner.calls
+    screencap = next(call for call in runner.calls if call[4:6] == ["screencap", "-p"])
+    remote_path = screencap[-1]
+    assert re.fullmatch(r"/data/local/tmp/aiverify-multi-device-[0-9a-f]{32}\.png", remote_path)
+    assert ["adb", "-s", "emulator-5554", "pull", remote_path, str(checkpoint.screenshot_path)] in runner.calls
 
 
 def test_device_scoped_fallback_uses_unique_remote_paths_for_overlapping_runs(
     tmp_path: Path,
 ) -> None:
     """Separate collectors may capture the same checkpoint on one device."""
-    runner = FakeRunner(android_screen_has_multiple_devices=True)
+    runner = FakeRunner()
     first = AndroidEvidenceCollector(runner=runner)
     second = AndroidEvidenceCollector(runner=runner)
 
@@ -160,7 +147,7 @@ def test_device_scoped_fallback_uses_unique_remote_paths_for_overlapping_runs(
     assert len(remote_paths) == 2
     assert len(set(remote_paths)) == 2
     assert all(
-        re.fullmatch(r"/sdcard/aiverify-after-event-[0-9a-f]{32}\.png", path)
+        re.fullmatch(r"/data/local/tmp/aiverify-after-event-[0-9a-f]{32}\.png", path)
         for path in remote_paths
     )
 
