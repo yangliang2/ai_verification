@@ -1,0 +1,37 @@
+{
+  "issue": 69,
+  "host_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b",
+  "fixture_id": "issue-69-network-v1",
+  "journey_sha256": "d9ff0cdec1734f3c2cf6fba05035b2bc53c579aacf9760bba61fb9c3afd4c415",
+  "device": {
+    "serial": "emulator-5554",
+    "avd": "aiverify_api35",
+    "api": 35,
+    "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"
+  },
+  "app": {
+    "package": "org.wikipedia.dev",
+    "activity": "org.wikipedia.dev.NetworkReliabilityFixtureActivity",
+    "version_code": 50594,
+    "version_name": "50594-dev-2026-07-19"
+  },
+  "baseline": {
+    "local_apk_sha256": "8f66479b4943e7605297368b2e78ff258682d7f786f259b4d35e4a1c45283aeb",
+    "installed_apk_sha256": "8f66479b4943e7605297368b2e78ff258682d7f786f259b4d35e4a1c45283aeb",
+    "journey_attempt": 2,
+    "oracle_outcome": "pass"
+  },
+  "candidate": {
+    "local_apk_sha256": "55a7fa39248229bafdd82f45c6144c103ec380bb715308b6387e8ce75f57959f",
+    "installed_apk_sha256": "55a7fa39248229bafdd82f45c6144c103ec380bb715308b6387e8ce75f57959f",
+    "journey_attempt": 1,
+    "oracle_outcome": "fail",
+    "faults": ["retry_storm", "stale_response_overwrite"]
+  },
+  "conclusion": "locally_supported",
+  "forbidden_claims": {
+    "detection_rate": false,
+    "goldset": false,
+    "upstream_acceptance": false
+  }
+}

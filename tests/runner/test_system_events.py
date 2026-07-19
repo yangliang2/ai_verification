@@ -351,6 +351,98 @@ def test_inject_network_on_fails_closed_when_mobile_data_remains_disabled() -> N
         injector.inject(SystemEventSpec(step_index=0, event="network_on"))
 
 
+def test_inject_wait_confirms_network_and_resumed_activity_postconditions() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="0\n", stderr="", returncode=0),
+            AdbResult(stdout="0\n", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "mResumedActivity: ActivityRecord{abc u0 "
+                    "org.example/.FixtureActivity t42}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="wait",
+            args={
+                "seconds": "0",
+                "expect_network": "off",
+                "expect_resumed": "target",
+            },
+        )
+    )
+
+    assert fake.commands[-3:] == [
+        ["-s", "emulator-5554", "shell", "settings", "get", "global", "wifi_on"],
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "settings",
+            "get",
+            "global",
+            "mobile_data",
+        ],
+        [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "dumpsys",
+            "activity",
+            "activities",
+        ],
+    ]
+
+
+def test_inject_wait_requires_at_least_one_explicit_postcondition() -> None:
+    injector, fake = _injector()
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="wait requires expect_network or expect_resumed",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="wait",
+                args={"seconds": "0"},
+            )
+        )
+
+    assert fake.commands == []
+
+
+def test_inject_wait_validates_postconditions_before_sleep(monkeypatch) -> None:
+    injector, fake = _injector()
+
+    def unexpected_sleep(_seconds: float) -> None:
+        pytest.fail("wait slept before validating its postcondition")
+
+    monkeypatch.setattr("aiverify.runner.system_events.time.sleep", unexpected_sleep)
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="wait args.expect_network must be 'off' or 'on'",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="wait",
+                args={"seconds": "60", "expect_network": "unknown"},
+            )
+        )
+
+    assert fake.commands == []
+
+
 def test_inject_revoke_permission_requires_permission_arg() -> None:
     injector, _fake = _injector()
 

@@ -1,0 +1,24 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_pair_is_non_accountable_without_successful_recovery_marker ________
+
+    def test_pair_is_non_accountable_without_successful_recovery_marker() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        baseline["network_events"] = [
+            event
+            for event in baseline["network_events"]
+            if event["scenario"] != "recovery"
+        ]
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_rejected' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_rejected
+
+tests/bench/test_network_reliability.py:147: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_pair_is_non_accountable_without_successful_recovery_marker

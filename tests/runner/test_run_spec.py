@@ -5,7 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from aiverify.runner.run_spec import RunSpecError, load_run_spec, parse_run_spec
+from aiverify.runner.run_spec import (
+    RunSpecError,
+    SystemEventSpec,
+    load_run_spec,
+    parse_run_spec,
+)
 
 
 def _valid_spec() -> dict:
@@ -273,6 +278,35 @@ def test_invalid_system_event_fails() -> None:
 
     with pytest.raises(RunSpecError, match="不支持"):
         parse_run_spec(data)
+
+
+def test_parse_wait_system_event_with_explicit_postconditions() -> None:
+    data = _valid_spec()
+    data["scenario"]["system_events"] = [
+        {
+            "step_index": 0,
+            "event": "wait",
+            "args": {
+                "seconds": "0.25",
+                "expect_network": "off",
+                "expect_resumed": "target",
+            },
+        }
+    ]
+
+    spec = parse_run_spec(data)
+
+    assert spec.scenario.system_events == [
+        SystemEventSpec(
+            step_index=0,
+            event="wait",
+            args={
+                "seconds": "0.25",
+                "expect_network": "off",
+                "expect_resumed": "target",
+            },
+        )
+    ]
 
 
 def test_dry_run_plan_does_not_touch_device(tmp_path: Path) -> None:

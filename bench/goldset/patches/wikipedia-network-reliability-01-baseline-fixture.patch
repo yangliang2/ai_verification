@@ -1,0 +1,206 @@
+diff --git a/app/src/dev/AndroidManifest.xml b/app/src/dev/AndroidManifest.xml
+new file mode 100644
+index 0000000..9006d25
+--- /dev/null
++++ b/app/src/dev/AndroidManifest.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
++    <application>
++        <activity
++            android:name="org.wikipedia.dev.NetworkReliabilityFixtureActivity"
++            android:exported="true"
++            android:screenOrientation="portrait" />
++    </application>
++</manifest>
+diff --git a/app/src/dev/java/org/wikipedia/dev/NetworkReliabilityFixtureActivity.kt b/app/src/dev/java/org/wikipedia/dev/NetworkReliabilityFixtureActivity.kt
+new file mode 100644
+index 0000000..4db8a69
+--- /dev/null
++++ b/app/src/dev/java/org/wikipedia/dev/NetworkReliabilityFixtureActivity.kt
+@@ -0,0 +1,185 @@
++package org.wikipedia.dev
++
++import android.app.Activity
++import android.os.Bundle
++import android.os.Handler
++import android.os.Looper
++import android.provider.Settings
++import android.util.Log
++import android.widget.Button
++import android.widget.LinearLayout
++import android.widget.ScrollView
++import android.widget.TextView
++import org.json.JSONObject
++
++class NetworkReliabilityFixtureActivity : Activity() {
++    private val handler = Handler(Looper.getMainLooper())
++    private lateinit var statusView: TextView
++    private var sequence = 0
++    private var cancelledRequest = false
++
++    override fun onCreate(savedInstanceState: Bundle?) {
++        super.onCreate(savedInstanceState)
++        title = "AI Verify network fixture"
++        val content = LinearLayout(this).apply {
++            orientation = LinearLayout.VERTICAL
++            setPadding(32, 32, 32, 32)
++        }
++        statusView = TextView(this).apply {
++            textSize = 18f
++            text = renderState("ready", "ready", "none", false)
++            contentDescription = text
++        }
++        content.addView(statusView)
++        listOf(
++            "Run online" to ::runOnline,
++            "Run offline" to ::runOffline,
++            "Run timeout" to ::runTimeout,
++            "Run retry" to ::runRetry,
++            "Run cancellation" to ::runCancellation,
++            "Run ordered response" to ::runOrderedResponse,
++            "Run recovery" to ::runRecovery,
++        ).forEach { (label, action) -> content.addView(button(label, action)) }
++        setContentView(ScrollView(this).apply { addView(content) })
++        emit("fixture", "fixture_ready", "fixture-1", content = FIXTURE_ID)
++    }
++
++    private fun button(label: String, action: () -> Unit) = Button(this).apply {
++        text = label
++        contentDescription = label
++        isAllCaps = false
++        setOnClickListener { action() }
++    }
++
++    private fun runOnline() {
++        val online = isNetworkEnabled()
++        emit("online", "network_observed", "online-1", content = if (online) "on" else "off")
++        if (online) {
++            emit("online", "response_applied", "online-1", content = "online-v1")
++            show("online", "content", "online-v1")
++        } else {
++            emit("online", "network_error", "online-1")
++            show("online", "error", "")
++        }
++    }
++
++    private fun runOffline() {
++        val online = isNetworkEnabled()
++        emit("offline", "network_observed", "offline-1", content = if (online) "on" else "off")
++        if (!online) {
++            emit("offline", "cache_shown", "offline-1", content = "cached-v1")
++            show("offline", "cached", "cached-v1")
++        } else {
++            emit("offline", "network_error", "offline-1")
++            show("offline", "error", "")
++        }
++    }
++
++    private fun runTimeout() {
++        val requestId = "timeout-1"
++        emit("timeout", "request_started", requestId)
++        show("timeout", "loading", "")
++        handler.postDelayed({
++            emit("timeout", "request_timed_out", requestId)
++            emit("timeout", "request_cancelled", requestId)
++            show("timeout", "timeout", "", retryEnabled = true)
++        }, FIXED_DELAY_MS)
++    }
++
++    private fun runRetry() {
++        val requestId = "retry-1"
++        val attempts = if (INJECT_DEFECT) 6 else 3
++        for (attempt in 1..attempts) {
++            emit("retry", "retry_attempt", requestId, attempt = attempt)
++        }
++        emit("retry", "response_applied", requestId, content = "retry-v1")
++        show("retry", "content", "retry-v1")
++    }
++
++    private fun runCancellation() {
++        val requestId = "cancel-1"
++        cancelledRequest = false
++        emit("cancellation", "request_started", requestId)
++        show("cancellation", "loading", "")
++        handler.postDelayed({
++            if (cancelledRequest) {
++                emit("cancellation", "response_ignored", requestId, content = "late-v1")
++            } else {
++                emit("cancellation", "response_applied", requestId, content = "late-v1")
++                show("cancellation", "content", "late-v1")
++            }
++        }, FIXED_DELAY_MS)
++        cancelledRequest = true
++        emit("cancellation", "request_cancelled", requestId)
++        show("cancellation", "cancelled", "")
++    }
++
++    private fun runOrderedResponse() {
++        emit("ordered_response", "request_started", "old")
++        emit("ordered_response", "request_started", "new")
++        show("ordered_response", "loading", "")
++        handler.postDelayed({
++            emit("ordered_response", "response_applied", "new", content = "new-v2")
++            show("ordered_response", "content", "new-v2")
++        }, FAST_RESPONSE_MS)
++        handler.postDelayed({
++            if (INJECT_DEFECT) {
++                emit("ordered_response", "response_applied", "old", content = "old-v1")
++                show("ordered_response", "content", "old-v1")
++            } else {
++                emit("ordered_response", "response_ignored", "old", content = "old-v1")
++            }
++        }, FIXED_DELAY_MS)
++    }
++
++    private fun runRecovery() {
++        val requestId = "recovery-1"
++        emit("recovery", "network_observed", requestId, content = if (isNetworkEnabled()) "on" else "off")
++        if (isNetworkEnabled()) {
++            emit("recovery", "response_applied", requestId, content = "recovered-v3")
++            show("recovery", "content", "recovered-v3")
++        } else {
++            emit("recovery", "network_error", requestId)
++            show("recovery", "error", "")
++        }
++    }
++
++    private fun isNetworkEnabled(): Boolean {
++        val wifi = Settings.Global.getInt(contentResolver, Settings.Global.WIFI_ON, 0)
++        val mobile = Settings.Global.getInt(contentResolver, "mobile_data", 0)
++        return wifi == 1 || mobile == 1
++    }
++
++    private fun show(scenario: String, state: String, content: String, retryEnabled: Boolean = false) {
++        statusView.text = renderState(scenario, state, content, retryEnabled)
++        statusView.contentDescription = statusView.text
++    }
++
++    private fun renderState(scenario: String, state: String, content: String, retryEnabled: Boolean) =
++        "Fixture ID: $FIXTURE_ID\nScenario: $scenario\nState: $state\nContent: $content\nRetry enabled: $retryEnabled"
++
++    private fun emit(
++        scenario: String,
++        kind: String,
++        requestId: String,
++        attempt: Int? = null,
++        content: String? = null,
++    ) {
++        val event = JSONObject()
++            .put("sequence", ++sequence)
++            .put("scenario", scenario)
++            .put("kind", kind)
++            .put("request_id", requestId)
++        attempt?.let { event.put("attempt", it) }
++        content?.let { event.put("content", it) }
++        Log.i(LOG_TAG, event.toString())
++    }
++
++    companion object {
++        private const val LOG_TAG = "AIVerifyNetwork"
++        private const val FIXTURE_ID = "issue-69-network-v1"
++        private const val FAST_RESPONSE_MS = 100L
++        private const val FIXED_DELAY_MS = 350L
++        private const val INJECT_DEFECT = false
++    }
++}

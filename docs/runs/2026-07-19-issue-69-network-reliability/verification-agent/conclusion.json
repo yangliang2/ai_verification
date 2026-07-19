@@ -1,0 +1,118 @@
+{
+  "conclusion": "locally_supported",
+  "checks": {
+    "independence": {
+      "status": "pass",
+      "detail": "Re-derived from the goldset contract, two run specs, baseline/attempt-2 and candidate/attempt-1 raw layouts and logcat, two evidence bundles, final oracle CLI, and oracle regression tests. Existing oracle-conclusion*.json files were not opened or used."
+    },
+    "matched_identity_and_journey": {
+      "status": "pass",
+      "fixture_id": "issue-69-network-v1",
+      "journey_sha256": "d9ff0cdec1734f3c2cf6fba05035b2bc53c579aacf9760bba61fb9c3afd4c415",
+      "device": {
+        "serial": "emulator-5554",
+        "api": 35,
+        "avd": "aiverify_api35"
+      },
+      "package": "org.wikipedia.dev",
+      "activity": "org.wikipedia.dev.NetworkReliabilityFixtureActivity",
+      "host_origin": "https://github.com/wikimedia/apps-android-wikipedia",
+      "host_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b",
+      "detail": "Origin, commit, package, activity, user actions, fixture, Journey hash, device, and normalized system-event schedule match. APK hashes are present, valid SHA-256 values, and distinct as expected."
+    },
+    "bundle_to_raw_integrity": {
+      "status": "pass",
+      "detail": "For both roles, embedded logcat bytes equal raw logcat by SHA-256; bundle network_events exactly equal raw AIVerifyNetwork JSON after fixture_ready exclusion; sequences strictly increase; and all seven checkpoints exactly equal reconstructed raw layout fields."
+    },
+    "baseline": {
+      "status": "pass",
+      "online": "network on; online-v1 applied",
+      "offline": "network off; cached-v1 shown",
+      "timeout": "timed out then cancelled; timeout UI with retry enabled",
+      "retry": "exactly attempts 1, 2, and 3; retry-v1 applied",
+      "cancellation": "cancelled; late-v1 ignored; cancelled UI retained",
+      "ordering": "new-v2 applied; delayed old-v1 ignored; terminal new-v2",
+      "recovery": "network on; recovered-v3 applied"
+    },
+    "candidate": {
+      "status": "expected_faults_detected",
+      "faults": [
+        "retry_storm",
+        "stale_response_overwrite"
+      ],
+      "detail": "Retry logs attempts 1 through 6. Ordering applies new-v2 and then delayed old-v1; raw terminal layout and bundle checkpoint both show old-v1. Recovery reaches recovered-v3."
+    },
+    "crash_anr_blank": {
+      "status": "pass",
+      "target_crash_or_anr_markers": {
+        "baseline": 0,
+        "candidate": 0
+      },
+      "layouts_per_role": 8,
+      "blank_or_error_layouts": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    "oracle_cli": {
+      "status": "pass",
+      "exit_code": 0,
+      "baseline_outcome": "pass",
+      "baseline_faults": [],
+      "candidate_outcome": "fail",
+      "candidate_faults": [
+        "retry_storm",
+        "stale_response_overwrite"
+      ]
+    },
+    "oracle_fail_closed_hardening": {
+      "status": "pass",
+      "test_result": "22 passed in 0.08s",
+      "malformed_cli_matrix": {
+        "cases": 20,
+        "exceptions": 0,
+        "non_accountable_exit_2": 20
+      },
+      "previously_fail_open_shapes_rejected": [
+        "device_array",
+        "fixture_id_number",
+        "journey_sha_number",
+        "apk_package_object",
+        "apk_sha_object",
+        "event_missing_request_id",
+        "event_content_object",
+        "sequence_nan"
+      ],
+      "detail": "The final oracle rejects malformed JSON/root/provenance/system-event/event/checkpoint/logcat shapes without throwing. Re-running valid bundles preserves the locally_supported result."
+    },
+    "write_integrity": {
+      "status": "pass",
+      "detail": "A concurrent 85-byte empty locally_rejected placeholder overwrite was detected because it contradicted the just-run CLI and lacked evidence. The parent verified no writer remained, removed redundant prompt/schema/events files, provided an exclusive write window, and this evidence-backed result was restored and revalidated."
+    }
+  },
+  "evidence": {
+    "goldset_spec_sha256": "2f05aae5e2739993051374916437f52494b27b9422ce420321406bd61cee79bd",
+    "baseline_run_spec_sha256": "4a8e8cf626db7594c98d5f983018990a2155fe7652c7968696832649b6737aea",
+    "candidate_run_spec_sha256": "2c353217c85f4afc923eaefc2b1d235f39ed677847c269747a5da6c9267c1b50",
+    "baseline_bundle_sha256": "f60120b608470fa7221bff4d127dd282c843e51d611192e4c35e06f29ab42700",
+    "baseline_logcat_sha256": "8c2350abef913ba07b29e3f1d1f2175a8b170d4aa80e6733a76425d88adc5aea",
+    "candidate_bundle_sha256": "9b58895f7e4ba9e874467d420765b1a5043bf1d6c60947d3630ed18821693a25",
+    "candidate_logcat_sha256": "903f7a64d719356a3d17f6be1eb339ecf0a42cdd2c67a4cae0a38e38527bddf8",
+    "oracle_cli_sha256": "46c5901959f18fa193ee7c4f2ad824e012bf47cabee6f53b315dccd50f9be734",
+    "oracle_tests_sha256": "56366a3b5a588cb7f8b1d327bc898dda85a5f3ca6c67742376335bc4ba60947d"
+  },
+  "commands": [
+    "jq/Ruby reconstruction of all raw layout checkpoints and exact comparison with bundle checkpoints",
+    "diff of raw AIVerifyNetwork JSON against bundle network_events for both roles",
+    "canonical YAML/JSON comparison of run-spec and bundle system events",
+    "rg target-package crash/ANR markers in both raw logcats",
+    "PYTHONPATH=src uv run --no-project --with pytest --with pydantic --with pyyaml python -m pytest tests/bench/test_network_reliability.py -ra (22 passed in 0.08s)",
+    "Temporary-file direct CLI matrix for 20 malformed shapes (all exit 2, non_accountable, no exceptions)",
+    "PYTHONPATH=src python3 -m aiverify.bench.network_reliability --baseline docs/runs/2026-07-19-issue-69-network-reliability/baseline/evidence-bundle.json --candidate docs/runs/2026-07-19-issue-69-network-reliability/candidate/evidence-bundle.json --output <temporary-file> (exit 0; baseline pass; candidate retry_storm and stale_response_overwrite)"
+  ],
+  "claim_limits": {
+    "detection_rate": false,
+    "goldset_wide": false,
+    "upstream_acceptance": false
+  }
+}

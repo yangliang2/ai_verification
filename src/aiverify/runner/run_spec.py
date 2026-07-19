@@ -19,6 +19,7 @@ SUPPORTED_SYSTEM_EVENTS = frozenset(
         "revoke_permission",
         "network_off",
         "network_on",
+        "wait",
         "low_memory",
         "app_to_background",
         "app_to_foreground",

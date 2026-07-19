@@ -1,0 +1,5 @@
++zsh:4> .venv/bin/python -m compileall -q src tests
++zsh:5> git diff --check origin/main -- . ':(exclude)docs/runs/2026-07-19-issue-69-network-reliability/**'
++zsh:6> git -C /Users/peter/hosts/wikipedia apply --check /Users/peter/projects/ai_verification-issue-69/bench/goldset/patches/wikipedia-network-reliability-01-baseline-fixture.patch
++zsh:7> git -C /Users/peter/hosts/wikipedia apply --check /Users/peter/projects/ai_verification-issue-69/bench/goldset/patches/wikipedia-network-reliability-01-candidate.patch
++zsh:8> PYTHONPATH=src .venv/bin/python -m aiverify.bench.network_reliability --baseline docs/runs/2026-07-19-issue-69-network-reliability/baseline/evidence-bundle.json --candidate docs/runs/2026-07-19-issue-69-network-reliability/candidate/evidence-bundle.json --output docs/runs/2026-07-19-issue-69-network-reliability/oracle-conclusion.json

@@ -1,0 +1,16 @@
+ERROR: found no collectors for /Users/peter/projects/ai_verification-issue-69/tests/bench/test_network_reliability.py::test_build_evidence_bundle_extracts_layout_state_and_structured_logcat
+
+
+==================================== ERRORS ====================================
+___________ ERROR collecting tests/bench/test_network_reliability.py ___________
+ImportError while importing test module '/Users/peter/projects/ai_verification-issue-69/tests/bench/test_network_reliability.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/bench/test_network_reliability.py:7: in <module>
+    from aiverify.bench.network_reliability import (
+E   ImportError: cannot import name 'build_evidence_bundle' from 'aiverify.bench.network_reliability' (/Users/peter/projects/ai_verification-issue-69/src/aiverify/bench/network_reliability.py)
+=========================== short test summary info ============================
+ERROR tests/bench/test_network_reliability.py

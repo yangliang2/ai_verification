@@ -1,0 +1,24 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_oracle_ignores_androidruntime_shutdown_from_evidence_tool_process ____
+
+    def test_oracle_ignores_androidruntime_shutdown_from_evidence_tool_process() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        baseline["logcat"] = "D AndroidRuntime: Shutting down VM"
+        candidate["logcat"] = (
+            "E AndroidRuntime: FATAL EXCEPTION: main\n"
+            "E AndroidRuntime: Process: org.wikipedia.dev, PID: 1234"
+        )
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "locally_supported"
+E       AssertionError: assert 'locally_rejected' == 'locally_supported'
+E         
+E         - locally_supported
+E         + locally_rejected
+
+tests/bench/test_network_reliability.py:200: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_oracle_ignores_androidruntime_shutdown_from_evidence_tool_process

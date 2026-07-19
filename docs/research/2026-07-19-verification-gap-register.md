@@ -11,7 +11,7 @@
 
 | ID | Gap | 风险面 | 当前状态 | 消解完成条件 | 优先级 |
 |---|---|---|---|---|---|
-| G-01 | 网络离线、超时、重试、缓存一致性 | 空白页、旧响应覆盖新响应、重试风暴 | 缺失行为审计 | 固定 fixture + offline/timeout/retry/restore Journey + response-order oracle | P0 |
+| G-01 | 网络离线、超时、重试、缓存一致性 | 空白页、旧响应覆盖新响应、重试风暴 | covered（[#69](https://github.com/yangliang2/ai_verification/issues/69)，[run record](../runs/2026-07-19-issue-69-network-reliability/README.md)） | 固定 fixture + offline/timeout/retry/restore Journey + response-order oracle | P0 |
 | G-02 | 运行时权限拒绝、永久拒绝、撤销 | `SecurityException`、无法降级 | 仅有 adb 原语 | denial/permanent-denial/revocation 三态 Journey + graceful-degradation oracle | P0 |
 | G-03 | 进程/后台/备份恢复扩展 | 状态丢失、恢复后不一致 | 有窄生命周期覆盖 | background kill + Auto Backup/restore + migration oracle | P1 |
 | G-04 | 配置与设备矩阵 | RTL、locale、横竖屏、平板/折叠差异 | 仅有部分旋转/夜间覆盖 | API × locale/RTL × form factor 矩阵 + layout/semantic oracle | P1 |
@@ -29,6 +29,11 @@
 
 ## 当前基线
 
+- G-01：API 35 matched baseline/candidate Journey 已覆盖 online、offline cache、
+  timeout/cancellation、bounded retry、response ordering 与 recovery；机器 oracle
+  baseline pass，并在 candidate 检出 `retry_storm` 与
+  `stale_response_overwrite`。该结论仅为 `locally_supported`，不计检测率、
+  Goldset 或 upstream acceptance。
 - 已覆盖基线：M3.1 v20，30/30 accountable、baseline false positives 0、defect consistency 15/15、provenance 30/30。
 - M4：T426553、T426989 为 `locally_supported`；T409797 为 `non_accountable`；T337177 被排除。
 - 本登记册不是 Goldset，不计算 detection rate、false-positive rate 或 upstream acceptance rate。

@@ -1,0 +1,49 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_parse_wait_system_event_with_explicit_postconditions ___________
+
+    def test_parse_wait_system_event_with_explicit_postconditions() -> None:
+        data = _valid_spec()
+        data["scenario"]["system_events"] = [
+            {
+                "step_index": 0,
+                "event": "wait",
+                "args": {
+                    "seconds": "0.25",
+                    "expect_network": "off",
+                    "expect_resumed": "target",
+                },
+            }
+        ]
+    
+>       spec = parse_run_spec(data)
+               ^^^^^^^^^^^^^^^^^^^^
+
+tests/runner/test_run_spec.py:297: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/runner/run_spec.py:238: in parse_run_spec
+    scenario = _parse_scenario(raw_scenario)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/aiverify/runner/run_spec.py:397: in _parse_scenario
+    system_events = sorted(
+src/aiverify/runner/run_spec.py:398: in <genexpr>
+    (_parse_system_event(e) for e in raw_events),
+     ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+raw = {'args': {'expect_network': 'off', 'expect_resumed': 'target', 'seconds': '0.25'}, 'event': 'wait', 'step_index': 0}
+
+    def _parse_system_event(raw: object) -> SystemEventSpec:
+        if not isinstance(raw, dict):
+            raise RunSpecError("system event 必须是映射")
+        step_index = raw.get("step_index")
+        if not isinstance(step_index, int) or step_index < 0:
+            raise RunSpecError("system event step_index 必须是非负整数")
+        event = _required_str(raw, "event")
+        if event not in SUPPORTED_SYSTEM_EVENTS:
+>           raise RunSpecError(f"不支持的 system event：{event}")
+E           aiverify.runner.run_spec.RunSpecError: 不支持的 system event：wait
+
+src/aiverify/runner/run_spec.py:482: RunSpecError
+=========================== short test summary info ============================
+FAILED tests/runner/test_run_spec.py::test_parse_wait_system_event_with_explicit_postconditions
