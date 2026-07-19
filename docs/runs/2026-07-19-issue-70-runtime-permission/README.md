@@ -77,10 +77,15 @@ git diff --check
 
 Important results:
 
-- Final full Python suite: 549 passed in 16.62 seconds. An earlier full-suite run is
-  retained in `pytest.log`; it had 543 passes and one stale exact-dictionary
-  assertion failure. The pre-Settings correction is `pytest-final.log`; the
-  final result is `pytest-settings-final.log`.
+- Historical implementation full Python suite: 549 passed in 16.62 seconds.
+  An earlier full-suite run is retained in `pytest.log`; it had 543 passes and
+  one stale exact-dictionary assertion failure. The pre-Settings correction is
+  `pytest-final.log`; that historical result is `pytest-settings-final.log`.
+- Post-remediation focused suite: 217 passed in 0.46 seconds, recorded in
+  `remediation-focused-pytest.log`. It includes the same-device/same-checkpoint
+  UUID remote-screenshot collision regression.
+- Post-remediation full Python suite: 550 passed in 17.01 seconds, recorded in
+  `remediation-full-pytest.log`.
 - Baseline APK build: `BUILD SUCCESSFUL in 8s`; 66 tasks, all up-to-date; total
   wall time 8.50 seconds. Log: `build-baseline.log`.
 - Candidate APK build: `BUILD SUCCESSFUL in 1s`; 66 tasks, all up-to-date;
@@ -119,7 +124,8 @@ Important results:
 - `candidate/attempt-2/artifacts/after-segment-6/logcat.txt`: durable crash
   stack trace for the revoked-access fault.
 - `build-baseline.log`, `build-candidate.log`, `pytest.log`, `pytest-final.log`,
-  and `pytest-settings-final.log`: build/test command outputs.
+  `pytest-settings-final.log`, `remediation-focused-pytest.log`, and
+  `remediation-full-pytest.log`: build/test command outputs.
 - `independent-verification.json`: the separate Verification Agent's single
   fail-closed conclusion (`pass`) with acceptance-criterion evidence and gaps.
 - `checksums.sha256`: 747-entry final SHA-256 inventory, excluding itself.

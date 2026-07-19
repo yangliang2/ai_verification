@@ -63,11 +63,11 @@
       },
       {
         "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/pytest -q -p no:cacheprovider",
-        "result": "PASS, 549 tests in 16.62 seconds as retained in pytest-settings-final.log (progress reached 100%, exit code 0)."
+        "result": "PASS, 550 tests in 17.01 seconds after the screenshot-isolation remediation, as retained in remediation-full-pytest.log (progress reached 100%, exit code 0)."
       },
       {
         "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/pytest -q -p no:cacheprovider tests/bench/test_runtime_permission_slice.py tests/runner/test_system_events.py tests/runner/test_journey.py tests/runner/test_evidence.py tests/agent/test_oracle_l1.py tests/harness/test_device_controller.py tests/runner/test_run_spec.py tests/runner/test_cli.py",
-        "result": "PASS, 216 focused tests independently rerun after Settings remediation (progress reached 100%, exit code 0)."
+        "result": "PASS, 217 focused tests in 0.46 seconds after screenshot-isolation remediation, as retained in remediation-focused-pytest.log. The added evidence regression runs two collectors with the same device and checkpoint and requires distinct UUID-scoped remote screencap paths (progress reached 100%, exit code 0)."
       },
       {
         "command": "git -C /Users/peter/hosts/wikipedia-issue-70-baseline apply --check -R /Users/peter/projects/ai_verification-issue-70/bench/runtime-permission/patches/wikipedia-location-permission-baseline.patch && git -C /Users/peter/hosts/wikipedia-issue-70-fixture apply --check -R /Users/peter/projects/ai_verification-issue-70/bench/runtime-permission/patches/wikipedia-location-permission-candidate.patch",
