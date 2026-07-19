@@ -1,0 +1,517 @@
+{
+  "scenario": "wikipedia-location-permission-candidate",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-location-permission-candidate",
+    "seed_kind": "unspecified",
+    "seed_outcome": "detected",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "fail",
+      "L2": "fail",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": "crash_stability",
+      "L2": "state_loss",
+      "L3": null
+    },
+    "failed_oracles": [
+      "L1",
+      "L2"
+    ]
+  },
+  "l1": {
+    "verdict_id": "L1-f92f448f",
+    "level": "L1",
+    "outcome": "fail",
+    "defect_class_hypothesis": "crash_stability",
+    "trigger_steps": [
+      "Confirm the Runtime location permission fixture is visible. Do not request permission yet.",
+      "Tap Request location permission. In the real Android permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls.",
+      "Tap Request location permission a second time. If Android displays a permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls.",
+      "Inspect and record the exact status, RATIONALE value, and whether Continue without location and Open app Settings are visible.",
+      "Tap Refresh permission state, then tap Use location feature. Record the exact status and confirm the fixture remains responsive.",
+      "Tap Refresh permission state, then tap Use location feature after the harness revokes permission. Record the exact status and whether the fixture remains responsive.",
+      "[boundary] inject reset_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION'}",
+      "[boundary] inject reset_permission {'permission': 'android.permission.ACCESS_COARSE_LOCATION'}",
+      "[boundary] inject observe_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION', 'expected_granted': 'false', 'required_flags': 'USER_SET', 'forbidden_flags': 'USER_FIXED'}",
+      "[boundary] inject observe_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION', 'expected_granted': 'false', 'required_flags': 'USER_SET,USER_FIXED'}",
+      "[boundary] inject grant_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION'}",
+      "[boundary] inject revoke_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION'}"
+    ],
+    "evidence": [
+      {
+        "type": "logcat_line",
+        "ref": "07-19 03:30:33.054 10692 10692 E AndroidRuntime: FATAL EXCEPTION: main",
+        "note": "检测到 FATAL EXCEPTION——JVM 未捕获异常导致进程崩溃"
+      },
+      {
+        "type": "logcat_line",
+        "ref": "07-19 03:30:33.054 10692 10692 E AndroidRuntime: java.lang.SecurityException: uid 10207 does not have android.permission.ACCESS_COARSE_LOCATION or android.permission.ACCESS_FINE_LOCATION.",
+        "note": "检测到 AndroidRuntime 未捕获 SecurityException——运行时权限状态未安全处理"
+      }
+    ],
+    "confidence": 0.95
+  },
+  "l2": {
+    "verdict_id": "L2-2eb8984f",
+    "level": "L2",
+    "outcome": "fail",
+    "defect_class_hypothesis": "state_loss",
+    "trigger_steps": [
+      "Confirm the Runtime location permission fixture is visible. Do not request permission yet.",
+      "Tap Request location permission. In the real Android permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls.",
+      "Tap Request location permission a second time. If Android displays a permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls.",
+      "Inspect and record the exact status, RATIONALE value, and whether Continue without location and Open app Settings are visible.",
+      "Tap Refresh permission state, then tap Use location feature. Record the exact status and confirm the fixture remains responsive.",
+      "Tap Refresh permission state, then tap Use location feature after the harness revokes permission. Record the exact status and whether the fixture remains responsive.",
+      "[boundary] inject reset_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION'}",
+      "[boundary] inject reset_permission {'permission': 'android.permission.ACCESS_COARSE_LOCATION'}",
+      "[boundary] inject observe_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION', 'expected_granted': 'false', 'required_flags': 'USER_SET', 'forbidden_flags': 'USER_FIXED'}",
+      "[boundary] inject observe_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION', 'expected_granted': 'false', 'required_flags': 'USER_SET,USER_FIXED'}",
+      "[boundary] inject grant_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION'}",
+      "[boundary] inject revoke_permission {'permission': 'android.permission.ACCESS_FINE_LOCATION'}"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "resource-id='permission_status' attr='text'：期望='FIRST_DENIED: Continue without location; retry is optional.'，实际='BLOCKED: Location permission is required.'",
+        "note": "属性 'text' 值与期望不符"
+      }
+    ],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "wikipedia-location-permission-candidate-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Observed the visible fixture title (resource-id permission_fixture_title) and status “NOT_REQUESTED: Location is optional.” No permission-request interaction was performed.",
+          "action": "Confirm the Runtime location permission fixture is visible. Do not request permission yet."
+        }
+      ]
+    },
+    {
+      "journey": "wikipedia-location-permission-candidate-segment-1",
+      "results": []
+    },
+    {
+      "journey": "wikipedia-location-permission-candidate-segment-2",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 540 398",
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 540 1787",
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Tapped REQUEST LOCATION PERMISSION, observed the real Android dialog, and tapped Don’t allow. On return, status was exactly “BLOCKED: Location permission is required.” and rationale was “RATIONALE: true”. Visible controls: “REQUEST LOCATION PERMISSION”, “REFRESH PERMISSION STATE”, and “USE LOCATION FEATURE”.",
+          "action": "Tap Request location permission. In the real Android permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls."
+        }
+      ]
+    },
+    {
+      "journey": "wikipedia-location-permission-candidate-segment-3",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 540 398",
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 540 1787",
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Tapped REQUEST LOCATION PERMISSION. Android displayed the location permission dialog, and Don’t allow was tapped. Back on the fixture, status was exactly “BLOCKED: Location permission is required.” and rationale was exactly “RATIONALE: false”. Visible controls: REQUEST LOCATION PERMISSION, REFRESH PERMISSION STATE, and USE LOCATION FEATURE.",
+          "action": "Tap Request location permission a second time. If Android displays a permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls."
+        }
+      ]
+    },
+    {
+      "journey": "wikipedia-location-permission-candidate-segment-4",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Observed status: \"BLOCKED: Location permission is required.\" RATIONALE value: false. \"Continue without location\" and \"Open app Settings\" were both not visible.",
+          "action": "Inspect and record the exact status, RATIONALE value, and whether Continue without location and Open app Settings are visible."
+        }
+      ]
+    },
+    {
+      "journey": "wikipedia-location-permission-candidate-segment-5",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 540 524",
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 540 650",
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Refresh changed the status from \"BLOCKED: Location permission is required.\" to \"GRANTED: Location feature is available.\" After Use location feature was tapped, the exact status was \"GRANTED: Location feature used successfully.\" The final layout returned normally with the fixture title and all three buttons present, confirming it remained responsive.",
+          "action": "Tap Refresh permission state, then tap Use location feature. Record the exact status and confirm the fixture remains responsive."
+        }
+      ]
+    },
+    {
+      "journey": "wikipedia-location-permission-candidate-segment-6",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 540 524",
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 540 650",
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Refresh was dispatched at resource-id refresh_permission_state. The exact refreshed status was \"NOT_REQUESTED: Location is optional.\" with \"RATIONALE: false\". Use location feature was then dispatched at resource-id use_location_feature. Immediately afterward, the emulator showed the Android launcher rather than the fixture, so the fixture did not remain responsive/present.",
+          "action": "Tap Refresh permission state, then tap Use location feature after the harness revokes permission. Record the exact status and whether the fixture remains responsive."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0",
+    "after-segment-1",
+    "after-event-1",
+    "after-segment-2",
+    "after-event-2",
+    "after-segment-3",
+    "after-event-3",
+    "after-segment-4",
+    "after-event-4",
+    "after-segment-5",
+    "after-event-5",
+    "after-segment-6"
+  ],
+  "injected_events": [
+    {
+      "event": "reset_permission",
+      "args": {
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      }
+    },
+    {
+      "event": "reset_permission",
+      "args": {
+        "permission": "android.permission.ACCESS_COARSE_LOCATION"
+      }
+    },
+    {
+      "event": "observe_permission",
+      "args": {
+        "permission": "android.permission.ACCESS_FINE_LOCATION",
+        "expected_granted": "false",
+        "required_flags": "USER_SET",
+        "forbidden_flags": "USER_FIXED"
+      }
+    },
+    {
+      "event": "observe_permission",
+      "args": {
+        "permission": "android.permission.ACCESS_FINE_LOCATION",
+        "expected_granted": "false",
+        "required_flags": "USER_SET,USER_FIXED"
+      }
+    },
+    {
+      "event": "grant_permission",
+      "args": {
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      }
+    },
+    {
+      "event": "revoke_permission",
+      "args": {
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      }
+    }
+  ],
+  "event_observations": [
+    {
+      "event": "reset_permission",
+      "requested": {
+        "package": "org.wikipedia.dev",
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      },
+      "observed": {
+        "granted": false,
+        "flags": [
+          "USER_SENSITIVE_WHEN_DENIED",
+          "USER_SENSITIVE_WHEN_GRANTED"
+        ]
+      },
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-0.json"
+    },
+    {
+      "event": "reset_permission",
+      "requested": {
+        "package": "org.wikipedia.dev",
+        "permission": "android.permission.ACCESS_COARSE_LOCATION"
+      },
+      "observed": {
+        "granted": false,
+        "flags": [
+          "USER_SENSITIVE_WHEN_DENIED",
+          "USER_SENSITIVE_WHEN_GRANTED"
+        ]
+      },
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-1.json"
+    },
+    {
+      "event": "observe_permission",
+      "requested": {
+        "package": "org.wikipedia.dev",
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      },
+      "observed": {
+        "granted": false,
+        "flags": [
+          "USER_SENSITIVE_WHEN_DENIED",
+          "USER_SENSITIVE_WHEN_GRANTED",
+          "USER_SET"
+        ]
+      },
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-2.json"
+    },
+    {
+      "event": "observe_permission",
+      "requested": {
+        "package": "org.wikipedia.dev",
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      },
+      "observed": {
+        "granted": false,
+        "flags": [
+          "USER_FIXED",
+          "USER_SENSITIVE_WHEN_DENIED",
+          "USER_SENSITIVE_WHEN_GRANTED",
+          "USER_SET"
+        ]
+      },
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-3.json"
+    },
+    {
+      "event": "grant_permission",
+      "requested": {
+        "package": "org.wikipedia.dev",
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      },
+      "observed": {
+        "granted": true,
+        "flags": [
+          "USER_FIXED",
+          "USER_SENSITIVE_WHEN_DENIED",
+          "USER_SENSITIVE_WHEN_GRANTED",
+          "USER_SET"
+        ]
+      },
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-4.json"
+    },
+    {
+      "event": "revoke_permission",
+      "requested": {
+        "package": "org.wikipedia.dev",
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      },
+      "observed": {
+        "granted": false,
+        "flags": [
+          "USER_FIXED",
+          "USER_SENSITIVE_WHEN_DENIED",
+          "USER_SENSITIVE_WHEN_GRANTED",
+          "USER_SET"
+        ]
+      },
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-5.json"
+    }
+  ],
+  "timing": {
+    "started_at": "2026-07-19T07:22:35+00:00",
+    "finished_at": "2026-07-19T07:31:04+00:00",
+    "total_seconds": 508.417,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.864
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-0",
+        "kind": "journey",
+        "seconds": 68.077
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 3.77
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "reset_permission",
+        "seconds": 0.083
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 3.636
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-1",
+        "kind": "journey",
+        "seconds": 17.836
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 6.059
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "reset_permission",
+        "seconds": 0.187
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 4.697
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-2",
+        "kind": "journey",
+        "seconds": 83.588
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 4.462
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "observe_permission",
+        "seconds": 0.04
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 3.899
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-3",
+        "kind": "journey",
+        "seconds": 74.154
+      },
+      {
+        "phase": "after-segment-3",
+        "kind": "checkpoint",
+        "seconds": 3.825
+      },
+      {
+        "phase": "event-3",
+        "kind": "system_event",
+        "event": "observe_permission",
+        "seconds": 0.023
+      },
+      {
+        "phase": "after-event-3",
+        "kind": "checkpoint",
+        "seconds": 3.742
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-4",
+        "kind": "journey",
+        "seconds": 31.687
+      },
+      {
+        "phase": "after-segment-4",
+        "kind": "checkpoint",
+        "seconds": 3.736
+      },
+      {
+        "phase": "event-4",
+        "kind": "system_event",
+        "event": "grant_permission",
+        "seconds": 0.04
+      },
+      {
+        "phase": "after-event-4",
+        "kind": "checkpoint",
+        "seconds": 3.822
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-5",
+        "kind": "journey",
+        "seconds": 96.855
+      },
+      {
+        "phase": "after-segment-5",
+        "kind": "checkpoint",
+        "seconds": 3.817
+      },
+      {
+        "phase": "event-5",
+        "kind": "system_event",
+        "event": "revoke_permission",
+        "seconds": 0.064
+      },
+      {
+        "phase": "after-event-5",
+        "kind": "checkpoint",
+        "seconds": 4.444
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-6",
+        "kind": "journey",
+        "seconds": 72.066
+      },
+      {
+        "phase": "after-segment-6",
+        "kind": "checkpoint",
+        "seconds": 4.19
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "5e9c46cbba7a137565575dd1cd3f26a325e238c90f715b13d5da81bdf37c5a49"
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "schema_version": 2,
+  "attempt_id": "a2afab85-05b4-4a76-aae0-deb88e9a01b7",
+  "scenario": "wikipedia-location-permission-candidate",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-19T07:22:35+00:00",
+  "finished_at": "2026-07-19T07:31:04+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 1
+  },
+  "timing": {
+    "started_at": "2026-07-19T07:22:35+00:00",
+    "finished_at": "2026-07-19T07:31:04+00:00",
+    "total_seconds": 508.417,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.864
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-0",
+        "kind": "journey",
+        "seconds": 68.077
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 3.77
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "reset_permission",
+        "seconds": 0.083
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 3.636
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-1",
+        "kind": "journey",
+        "seconds": 17.836
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 6.059
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "reset_permission",
+        "seconds": 0.187
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 4.697
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-2",
+        "kind": "journey",
+        "seconds": 83.588
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 4.462
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "observe_permission",
+        "seconds": 0.04
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 3.899
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-3",
+        "kind": "journey",
+        "seconds": 74.154
+      },
+      {
+        "phase": "after-segment-3",
+        "kind": "checkpoint",
+        "seconds": 3.825
+      },
+      {
+        "phase": "event-3",
+        "kind": "system_event",
+        "event": "observe_permission",
+        "seconds": 0.023
+      },
+      {
+        "phase": "after-event-3",
+        "kind": "checkpoint",
+        "seconds": 3.742
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-4",
+        "kind": "journey",
+        "seconds": 31.687
+      },
+      {
+        "phase": "after-segment-4",
+        "kind": "checkpoint",
+        "seconds": 3.736
+      },
+      {
+        "phase": "event-4",
+        "kind": "system_event",
+        "event": "grant_permission",
+        "seconds": 0.04
+      },
+      {
+        "phase": "after-event-4",
+        "kind": "checkpoint",
+        "seconds": 3.822
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-5",
+        "kind": "journey",
+        "seconds": 96.855
+      },
+      {
+        "phase": "after-segment-5",
+        "kind": "checkpoint",
+        "seconds": 3.817
+      },
+      {
+        "phase": "event-5",
+        "kind": "system_event",
+        "event": "revoke_permission",
+        "seconds": 0.064
+      },
+      {
+        "phase": "after-event-5",
+        "kind": "checkpoint",
+        "seconds": 4.444
+      },
+      {
+        "phase": "wikipedia-location-permission-candidate-segment-6",
+        "kind": "journey",
+        "seconds": 72.066
+      },
+      {
+        "phase": "after-segment-6",
+        "kind": "checkpoint",
+        "seconds": 4.19
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/live-validation-gate.json",
+    "verdict": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/verdict.json",
+    "journey_results": [
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/wikipedia-location-permission-candidate-segment-0/codex-journey-result.normalized.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/wikipedia-location-permission-candidate-segment-1/codex-journey-result.normalized.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/wikipedia-location-permission-candidate-segment-2/codex-journey-result.normalized.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/wikipedia-location-permission-candidate-segment-3/codex-journey-result.normalized.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/wikipedia-location-permission-candidate-segment-4/codex-journey-result.normalized.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/wikipedia-location-permission-candidate-segment-5/codex-journey-result.normalized.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/wikipedia-location-permission-candidate-segment-6/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-segment-0",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-event-0",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-segment-1",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-event-1",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-segment-2",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-event-2",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-segment-3",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-event-3",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-segment-4",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-event-4",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-segment-5",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-event-5",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/after-segment-6"
+    ],
+    "system_event_observations": [
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-0.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-1.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-2.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-3.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-4.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/candidate/attempt-1/artifacts/system-event-5.json"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "5e9c46cbba7a137565575dd1cd3f26a325e238c90f715b13d5da81bdf37c5a49"
+    }
+  }
+}

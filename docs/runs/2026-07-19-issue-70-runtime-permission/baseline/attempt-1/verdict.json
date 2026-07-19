@@ -1,0 +1,105 @@
+{
+  "scenario": "wikipedia-location-permission-baseline",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "checkpoint_capture_error",
+    "message": "EvidenceCaptureError: screenshot: screenshot command did not create a non-empty artifact: /Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/screen.png; annotated_screenshot: annotated_screenshot command did not create a non-empty artifact: /Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/screen-annotated.png"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-location-permission-baseline",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "journey_results": [
+      {
+        "result": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/wikipedia-location-permission-baseline-segment-0/codex-journey-result.json",
+        "events": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/wikipedia-location-permission-baseline-segment-0/codex-events.jsonl"
+      }
+    ],
+    "checkpoints": [
+      {
+        "name": "after-segment-0",
+        "directory": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0",
+        "layout": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/layout.json",
+        "screenshot": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/screen.png",
+        "annotated_screenshot": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/screen-annotated.png",
+        "logcat": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/logcat.txt",
+        "commands": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/commands.json",
+        "manifest": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/capture-manifest.json"
+      }
+    ],
+    "backend_errors": [],
+    "system_event_observations": []
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-location-permission-baseline-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Observed the visible fixture title \"Runtime location permission\" (resource-id: permission_fixture_title) and status \"NOT_REQUESTED: Location is optional.\" No permission button was tapped."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "event_observations": [],
+  "timing": {
+    "started_at": "2026-07-19T06:44:57+00:00",
+    "finished_at": "2026-07-19T06:45:54+00:00",
+    "total_seconds": 57.252,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.953
+      },
+      {
+        "phase": "wikipedia-location-permission-baseline-segment-0",
+        "kind": "journey",
+        "seconds": 43.845
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "status": "failed",
+        "seconds": 4.289
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/execution-record.json"
+}

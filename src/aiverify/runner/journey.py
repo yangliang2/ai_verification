@@ -16,6 +16,7 @@ from aiverify.runner.codex_backend import (
 )
 from aiverify.runner.evidence import EvidenceCaptureError, EvidenceCheckpoint
 from aiverify.runner.run_spec import ScenarioSpec, SystemEventSpec
+from aiverify.runner.system_events import SystemEventObservation
 
 
 @dataclass(frozen=True)
@@ -39,6 +40,7 @@ class JourneySegmentFlow:
     journey_results: list[JourneyExecutionResult]
     checkpoints: list[EvidenceCheckpoint]
     injected_events: list[SystemEventSpec] = field(default_factory=list)
+    event_observations: list[dict[str, Any]] = field(default_factory=list)
     timings: list[dict[str, Any]] = field(default_factory=list)
 
 
@@ -54,6 +56,7 @@ class JourneyExecutionInterrupted(RuntimeError):
         checkpoints: list[EvidenceCheckpoint],
         injected_events: list[SystemEventSpec],
         timings: list[dict[str, Any]],
+        event_observations: list[dict[str, Any]] | None = None,
         backend_diagnostics: list[dict[str, str | list[str] | None]] | None = None,
     ) -> None:
         super().__init__(message)
@@ -62,6 +65,7 @@ class JourneyExecutionInterrupted(RuntimeError):
             journey_results=list(journey_results),
             checkpoints=list(checkpoints),
             injected_events=list(injected_events),
+            event_observations=list(event_observations or []),
             timings=list(timings),
         )
         self.backend_diagnostics = list(backend_diagnostics or [])
@@ -91,7 +95,7 @@ class CheckpointCollector(Protocol):
 class SystemEventInjector(Protocol):
     """Injector for system events at Journey Segment Boundaries."""
 
-    def inject(self, event: SystemEventSpec) -> None:
+    def inject(self, event: SystemEventSpec) -> SystemEventObservation | None:
         """Inject a system event."""
 
 
@@ -191,6 +195,7 @@ class JourneySegmentRunner:
         journey_results: list[JourneyExecutionResult] = []
         checkpoints: list[EvidenceCheckpoint] = []
         injected_events: list[SystemEventSpec] = []
+        event_observations: list[dict[str, Any]] = []
         timings: list[dict[str, Any]] = []
 
         def _timed(phase: str, kind: str, fn, **extra: Any):
@@ -234,6 +239,7 @@ class JourneySegmentRunner:
                 checkpoints=checkpoints,
                 injected_events=injected_events,
                 timings=timings,
+                event_observations=event_observations,
                 backend_diagnostics=backend_diagnostics,
             )
 
@@ -284,6 +290,7 @@ class JourneySegmentRunner:
                     checkpoints=checkpoints,
                     injected_events=injected_events,
                     timings=timings,
+                    event_observations=event_observations,
                 )
 
             expected_action_ids = [
@@ -302,6 +309,7 @@ class JourneySegmentRunner:
                     checkpoints=checkpoints,
                     injected_events=injected_events,
                     timings=timings,
+                    event_observations=event_observations,
                 )
 
             if result.data.get("journey") != segment.id:
@@ -315,6 +323,7 @@ class JourneySegmentRunner:
                     checkpoints=checkpoints,
                     injected_events=injected_events,
                     timings=timings,
+                    event_observations=event_observations,
                 )
 
             invalid_statuses = [
@@ -333,6 +342,7 @@ class JourneySegmentRunner:
                     checkpoints=checkpoints,
                     injected_events=injected_events,
                     timings=timings,
+                    event_observations=event_observations,
                 )
 
             if any("action" in item for item in reported_actions):
@@ -346,6 +356,7 @@ class JourneySegmentRunner:
                     checkpoints=checkpoints,
                     injected_events=injected_events,
                     timings=timings,
+                    event_observations=event_observations,
                 )
 
             normalized_actions: list[dict[str, Any]] = []
@@ -421,17 +432,35 @@ class JourneySegmentRunner:
                     checkpoints=checkpoints,
                     injected_events=injected_events,
                     timings=timings,
+                    event_observations=event_observations,
                 )
 
             if segment.system_event_after is not None:
                 event = segment.system_event_after
                 try:
-                    _timed(
+                    observation = _timed(
                         f"event-{index}",
                         "system_event",
                         lambda: self.system_event_injector.inject(event),
                         event=event.event,
                     )
+                    if observation is not None:
+                        artifact_dir.mkdir(parents=True, exist_ok=True)
+                        observation_path = artifact_dir / f"system-event-{index}.json"
+                        with observation_path.open("x", encoding="utf-8") as handle:
+                            json.dump(
+                                observation.as_dict(),
+                                handle,
+                                ensure_ascii=False,
+                                indent=2,
+                            )
+                            handle.write("\n")
+                        event_observations.append(
+                            {
+                                **observation.as_dict(),
+                                "artifact": str(observation_path),
+                            }
+                        )
                 except Exception as exc:
                     raise _interrupt("system_event_error", exc) from exc
                 injected_events.append(event)
@@ -454,5 +483,6 @@ class JourneySegmentRunner:
             journey_results=journey_results,
             checkpoints=checkpoints,
             injected_events=injected_events,
+            event_observations=event_observations,
             timings=timings,
         )

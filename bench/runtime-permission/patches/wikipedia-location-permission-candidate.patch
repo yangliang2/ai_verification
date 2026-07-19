@@ -1,0 +1,177 @@
+diff --git a/app/src/debug/AndroidManifest.xml b/app/src/debug/AndroidManifest.xml
+new file mode 100644
+index 0000000..8dc81b8
+--- /dev/null
++++ b/app/src/debug/AndroidManifest.xml
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
++    <application>
++        <activity
++            android:name="org.wikipedia.permission.PermissionFixtureActivity"
++            android:exported="true"
++            android:label="Runtime permission fixture"
++            android:theme="@style/AppTheme" />
++    </application>
++</manifest>
+diff --git a/app/src/debug/java/org/wikipedia/permission/PermissionFixtureActivity.kt b/app/src/debug/java/org/wikipedia/permission/PermissionFixtureActivity.kt
+new file mode 100644
+index 0000000..7658ff8
+--- /dev/null
++++ b/app/src/debug/java/org/wikipedia/permission/PermissionFixtureActivity.kt
+@@ -0,0 +1,137 @@
++package org.wikipedia.permission
++
++import android.Manifest
++import android.app.Activity
++import android.content.Intent
++import android.content.pm.PackageManager
++import android.location.LocationManager
++import android.net.Uri
++import android.os.Bundle
++import android.provider.Settings
++import android.view.View
++import android.widget.Button
++import android.widget.LinearLayout
++import android.widget.TextView
++import org.wikipedia.R
++
++/** Debug-only deterministic surface for runtime-permission verification. */
++class PermissionFixtureActivity : Activity() {
++    private lateinit var status: TextView
++    private lateinit var rationale: TextView
++    private lateinit var requestButton: Button
++    private lateinit var continueButton: Button
++    private lateinit var settingsButton: Button
++    private var denialCount = 0
++
++    override fun onCreate(savedInstanceState: Bundle?) {
++        super.onCreate(savedInstanceState)
++        setContentView(buildContent())
++        renderPermissionState()
++    }
++
++    override fun onResume() {
++        super.onResume()
++        if (::status.isInitialized) {
++            renderPermissionState()
++        }
++    }
++
++    override fun onRequestPermissionsResult(
++        requestCode: Int,
++        permissions: Array<out String>,
++        grantResults: IntArray
++    ) {
++        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
++        if (requestCode != REQUEST_LOCATION) return
++        if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
++            renderPermissionState()
++        } else {
++            denialCount += 1
++            renderPermissionState()
++        }
++    }
++
++    private fun buildContent(): View {
++        val root = LinearLayout(this).apply {
++            orientation = LinearLayout.VERTICAL
++            setPadding(48, 72, 48, 48)
++        }
++        root.addView(TextView(this).apply {
++            id = R.id.permission_fixture_title
++            text = "Runtime location permission"
++            textSize = 24f
++        })
++        status = TextView(this).apply {
++            id = R.id.permission_status
++            textSize = 18f
++            setPadding(0, 32, 0, 32)
++        }
++        root.addView(status)
++        rationale = TextView(this).apply {
++            id = R.id.permission_rationale
++        }
++        root.addView(rationale)
++        requestButton = button(
++            R.id.request_location_permission,
++            "Request location permission"
++        ) {
++            requestPermissions(arrayOf(PERMISSION), REQUEST_LOCATION)
++        }
++        root.addView(requestButton)
++        root.addView(button(R.id.refresh_permission_state, "Refresh permission state") {
++            renderPermissionState()
++        })
++        root.addView(button(R.id.use_location_feature, "Use location feature") {
++            useLocationFeature()
++        })
++        continueButton = button(
++            R.id.continue_without_location,
++            "Continue without location"
++        ) {
++            status.text = "DEGRADED: Wikipedia remains usable without location."
++        }
++        root.addView(continueButton)
++        settingsButton = button(R.id.open_permission_settings, "Open app Settings") {
++            startActivity(
++                Intent(
++                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
++                    Uri.parse("package:$packageName")
++                )
++            )
++        }
++        root.addView(settingsButton)
++        return root
++    }
++
++    private fun button(idValue: Int, label: String, action: () -> Unit) =
++        Button(this).apply {
++            id = idValue
++            text = label
++            setOnClickListener { action() }
++        }
++
++    private fun renderPermissionState() {
++        val granted = checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED
++        rationale.text =
++            "RATIONALE: ${shouldShowRequestPermissionRationale(PERMISSION)}"
++        requestButton.isEnabled = !granted
++        continueButton.visibility = View.GONE
++        settingsButton.visibility = View.GONE
++        status.text = when {
++            granted -> "GRANTED: Location feature is available."
++            denialCount >= 1 -> "BLOCKED: Location permission is required."
++            else -> "NOT_REQUESTED: Location is optional."
++        }
++    }
++
++    private fun useLocationFeature() {
++        getSystemService(LocationManager::class.java)
++            .getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)
++        status.text = "GRANTED: Location feature used successfully."
++    }
++
++    companion object {
++        private const val REQUEST_LOCATION = 70
++        private const val PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
++    }
++}
+diff --git a/app/src/debug/res/values/permission_fixture_ids.xml b/app/src/debug/res/values/permission_fixture_ids.xml
+new file mode 100644
+index 0000000..31e4443
+--- /dev/null
++++ b/app/src/debug/res/values/permission_fixture_ids.xml
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <item name="permission_fixture_title" type="id" />
++    <item name="permission_status" type="id" />
++    <item name="permission_rationale" type="id" />
++    <item name="request_location_permission" type="id" />
++    <item name="refresh_permission_state" type="id" />
++    <item name="use_location_feature" type="id" />
++    <item name="continue_without_location" type="id" />
++    <item name="open_permission_settings" type="id" />
++</resources>
+

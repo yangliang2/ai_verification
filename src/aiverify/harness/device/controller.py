@@ -259,6 +259,20 @@ class DeviceController:
         """
         return self._shell(["pm", "revoke", package, permission])
 
+    def clear_permission_flags(
+        self,
+        package: str,
+        permission: str,
+        *flags: str,
+    ) -> tuple[AdbResult, ...]:
+        """Clear package-manager decision flags for one runtime permission."""
+        return tuple(
+            self._shell(
+                ["pm", "clear-permission-flags", package, permission, flag]
+            )
+            for flag in flags
+        )
+
     def dump_package_state(self, package: str) -> AdbResult:
         """Return package-manager state used to verify runtime permissions."""
         return self._shell(["dumpsys", "package", package])

@@ -16,6 +16,9 @@ SUPPORTED_SYSTEM_EVENTS = frozenset(
     {
         "rotate",
         "kill_background",
+        "reset_permission",
+        "observe_permission",
+        "grant_permission",
         "revoke_permission",
         "network_off",
         "network_on",

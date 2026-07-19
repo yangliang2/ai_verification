@@ -18,6 +18,7 @@ class FakeRunner(CommandRunner):
         timeout_on: str = "",
         bad_layouts_before_success: int = 0,
         omit_screen_output: bool = False,
+        android_screen_has_multiple_devices: bool = False,
     ) -> None:
         self.calls: list[list[str]] = []
         self.timeouts: list[int | None] = []
@@ -25,6 +26,7 @@ class FakeRunner(CommandRunner):
         self.timeout_on = timeout_on
         self.bad_layouts_before_success = bad_layouts_before_success
         self.omit_screen_output = omit_screen_output
+        self.android_screen_has_multiple_devices = android_screen_has_multiple_devices
 
     def run(
         self,
@@ -56,9 +58,22 @@ class FakeRunner(CommandRunner):
             return CommandResult(args=args, stdout='[{"text":"Home"}]', stderr="", returncode=0)
         if args[:3] == ["android", "screen", "capture"]:
             out = Path(args[args.index("-o") + 1])
+            if self.android_screen_has_multiple_devices:
+                return CommandResult(
+                    args=args,
+                    stdout="",
+                    stderr=(
+                        "Multiple devices are currently online, please specify "
+                        "serial number or avd name."
+                    ),
+                    returncode=0,
+                )
             if not self.omit_screen_output:
                 out.write_bytes(b"png")
             return CommandResult(args=args, stdout=f"Screenshot written to {out}", stderr="", returncode=0)
+        if len(args) >= 5 and args[-3] == "pull":
+            Path(args[-1]).write_bytes(b"device-scoped-png")
+            return CommandResult(args=args, stdout="1 file pulled", stderr="", returncode=0)
         if args[-2:] == ["logcat", "-d"]:
             return CommandResult(args=args, stdout="log line\n", stderr="", returncode=0)
         return CommandResult(args=args, stdout="", stderr="", returncode=0)
@@ -94,6 +109,35 @@ def test_capture_checkpoint_writes_evidence_files(tmp_path: Path) -> None:
     )
     assert manifest["artifacts"]["logcat"] == str(checkpoint.logcat_path)
     assert ["adb", "-s", "emulator-5554", "logcat", "-d"] in runner.calls
+
+
+def test_capture_checkpoint_falls_back_to_device_scoped_adb_screenshot(
+    tmp_path: Path,
+) -> None:
+    runner = FakeRunner(android_screen_has_multiple_devices=True)
+    collector = AndroidEvidenceCollector(runner=runner)
+
+    checkpoint = collector.capture_checkpoint(
+        name="multi-device",
+        output_dir=tmp_path,
+        device="emulator-5556",
+    )
+
+    assert checkpoint.screenshot_path.read_bytes() == b"device-scoped-png"
+    assert checkpoint.annotated_screenshot_path is None
+    assert any(
+        call[:5] == ["adb", "-s", "emulator-5556", "shell", "screencap"]
+        for call in runner.calls
+    )
+    commands = json.loads(checkpoint.commands_path.read_text(encoding="utf-8"))
+    skipped = next(
+        item for item in commands if item["phase"] == "annotated_screenshot"
+    )
+    assert skipped["status"] == "skipped"
+    assert "cannot select a device" in skipped["error"]
+    manifest = json.loads(checkpoint.manifest_path.read_text(encoding="utf-8"))
+    assert manifest["status"] == "passed"
+    assert manifest["artifacts"]["screen_annotated"] is None
 
 
 def test_capture_checkpoint_raises_on_command_failure(tmp_path: Path) -> None:

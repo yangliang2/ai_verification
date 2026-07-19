@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
@@ -165,7 +166,7 @@ class AndroidEvidenceCollector:
             "-o",
             str(screenshot_path),
         ]
-        _capture_phase_best_effort(
+        screenshot_result = _capture_phase_best_effort(
             "screenshot",
             lambda: self._run_checkpoint_command(
                 screenshot_cmd,
@@ -174,6 +175,59 @@ class AndroidEvidenceCollector:
                 timeout_seconds=self.screen_capture_timeout_seconds,
             ),
         )
+        used_device_scoped_fallback = False
+        if (
+            device is not None
+            and screenshot_result is not None
+            and not _is_non_empty_file(screenshot_path)
+            and _reports_multiple_devices(screenshot_result)
+        ):
+            command_results[-1]["status"] = "device_selection_failed"
+            command_results[-1]["error"] = (
+                "Android CLI screen capture cannot select a device; retrying "
+                "with device-scoped adb."
+            )
+            used_device_scoped_fallback = True
+            safe_name = re.sub(r"[^A-Za-z0-9_.-]", "-", name)
+            remote_path = f"/sdcard/aiverify-{safe_name}.png"
+            fallback_commands = [
+                [
+                    self.adb_bin,
+                    "-s",
+                    device,
+                    "shell",
+                    "screencap",
+                    "-p",
+                    remote_path,
+                ],
+                [
+                    self.adb_bin,
+                    "-s",
+                    device,
+                    "pull",
+                    remote_path,
+                    str(screenshot_path),
+                ],
+                [
+                    self.adb_bin,
+                    "-s",
+                    device,
+                    "shell",
+                    "rm",
+                    "-f",
+                    remote_path,
+                ],
+            ]
+            for fallback_cmd in fallback_commands:
+                _capture_phase_best_effort(
+                    "screenshot",
+                    lambda cmd=fallback_cmd: self._run_checkpoint_command(
+                        cmd,
+                        phase="screenshot",
+                        command_results=command_results,
+                        timeout_seconds=self.screen_capture_timeout_seconds,
+                    ),
+                )
         self._record_missing_artifact(
             phase="screenshot",
             path=screenshot_path,
@@ -181,7 +235,30 @@ class AndroidEvidenceCollector:
             phase_errors=phase_errors,
         )
 
-        if annotated_path is not None:
+        if annotated_path is not None and used_device_scoped_fallback:
+            reason = (
+                "Android CLI annotated screen capture cannot select a device "
+                "when multiple devices are online."
+            )
+            command_results.append(
+                _command_entry(
+                    args=[
+                        self.android_bin,
+                        "screen",
+                        "capture",
+                        "--annotate",
+                        "-o",
+                        str(annotated_path),
+                    ],
+                    phase="annotated_screenshot",
+                    status="skipped",
+                    timeout_seconds=self.screen_capture_timeout_seconds,
+                    error=reason,
+                )
+            )
+            annotated_path = None
+            checkpoint = replace(checkpoint, annotated_screenshot_path=None)
+        elif annotated_path is not None:
             annotated_cmd = [
                 self.android_bin,
                 "screen",
@@ -413,3 +490,12 @@ def _is_json_list(text: str) -> bool:
         return isinstance(json.loads(text), list)
     except json.JSONDecodeError:
         return False
+
+
+def _is_non_empty_file(path: Path) -> bool:
+    return path.is_file() and path.stat().st_size > 0
+
+
+def _reports_multiple_devices(result: CommandResult) -> bool:
+    output = f"{result.stdout}\n{result.stderr}".lower()
+    return "multiple devices" in output

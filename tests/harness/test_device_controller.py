@@ -179,6 +179,25 @@ class TestPermissions:
             "shell", "pm", "revoke", "com.example.app", "android.permission.CAMERA",
         ]
 
+    def test_clear_permission_flags(self):
+        ctrl, fake = _ctrl()
+        ctrl.clear_permission_flags(
+            "com.example.app",
+            "android.permission.ACCESS_FINE_LOCATION",
+            "user-set",
+            "user-fixed",
+        )
+        assert fake.commands[-2:] == [
+            [
+                "shell", "pm", "clear-permission-flags", "com.example.app",
+                "android.permission.ACCESS_FINE_LOCATION", "user-set",
+            ],
+            [
+                "shell", "pm", "clear-permission-flags", "com.example.app",
+                "android.permission.ACCESS_FINE_LOCATION", "user-fixed",
+            ],
+        ]
+
     def test_grant_and_revoke_differ(self):
         ctrl, fake = _ctrl()
         ctrl.grant_permission("com.example.app", "android.permission.LOCATION")

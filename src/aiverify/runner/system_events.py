@@ -6,7 +6,8 @@ import math
 import re
 import time
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 
 from aiverify.harness.device import AdbResult, DeviceController
 from aiverify.runner.run_spec import SystemEventSpec
@@ -14,6 +15,22 @@ from aiverify.runner.run_spec import SystemEventSpec
 
 class SystemEventInjectionError(ValueError):
     """Raised when a system event cannot be injected from the provided context."""
+
+
+@dataclass(frozen=True)
+class SystemEventObservation:
+    """Auditable requested and observed state for one system event."""
+
+    event: str
+    requested: dict[str, Any] = field(default_factory=dict)
+    observed: dict[str, Any] = field(default_factory=dict)
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "event": self.event,
+            "requested": self.requested,
+            "observed": self.observed,
+        }
 
 
 @dataclass
@@ -29,7 +46,7 @@ class DeviceSystemEventInjector:
     package: str
     activity: str | None = None
 
-    def inject(self, event: SystemEventSpec) -> None:
+    def inject(self, event: SystemEventSpec) -> SystemEventObservation | None:
         """Inject one system event at a Journey Segment Boundary."""
         if event.event == "rotate":
             raw_rotation = event.args.get("rotation", "1")
@@ -78,31 +95,65 @@ class DeviceSystemEventInjector:
             if after.returncode != 1 or after.stdout.strip() or after.stderr.strip():
                 self._require_success(event.event, after)
             return
-        if event.event == "revoke_permission":
-            permission = event.args.get("permission")
-            if not permission:
-                raise SystemEventInjectionError("revoke_permission requires args.permission")
+        if event.event == "reset_permission":
+            permission = self._required_permission(event)
             self._require_success(
                 event.event, self.device.revoke_permission(self.package, permission)
             )
-            observed = self.device.dump_package_state(self.package)
-            self._require_success(event.event, observed)
-            grant = re.search(
-                rf"^\s*{re.escape(permission)}:\s+granted=(true|false)(?:,|\s*$)",
-                observed.stdout,
-                flags=re.MULTILINE,
+            self._require_success(
+                event.event,
+                self.device.clear_permission_flags(
+                    self.package,
+                    permission,
+                    "user-set",
+                    "user-fixed",
+                ),
             )
-            if grant is None:
+            return self._permission_observation(
+                event=event,
+                permission=permission,
+                expected_granted=False,
+                forbidden_flags={"USER_SET", "USER_FIXED"},
+            )
+        if event.event == "grant_permission":
+            permission = self._required_permission(event)
+            self._require_success(
+                event.event, self.device.grant_permission(self.package, permission)
+            )
+            return self._permission_observation(
+                event=event,
+                permission=permission,
+                expected_granted=True,
+            )
+        if event.event == "observe_permission":
+            permission = self._required_permission(event)
+            raw_granted = event.args.get("expected_granted")
+            if raw_granted not in {"true", "false"}:
                 raise SystemEventInjectionError(
-                    "revoke_permission postcondition failed: could not find "
-                    f"runtime permission {permission} in package state"
+                    "observe_permission requires args.expected_granted to be "
+                    "'true' or 'false'"
                 )
-            if grant.group(1) != "false":
-                raise SystemEventInjectionError(
-                    "revoke_permission postcondition failed: "
-                    f"{permission} remains granted"
-                )
-            return
+            return self._permission_observation(
+                event=event,
+                permission=permission,
+                expected_granted=raw_granted == "true",
+                required_flags=self._permission_flags(
+                    event.args.get("required_flags", "")
+                ),
+                forbidden_flags=self._permission_flags(
+                    event.args.get("forbidden_flags", "")
+                ),
+            )
+        if event.event == "revoke_permission":
+            permission = self._required_permission(event)
+            self._require_success(
+                event.event, self.device.revoke_permission(self.package, permission)
+            )
+            return self._permission_observation(
+                event=event,
+                permission=permission,
+                expected_granted=False,
+            )
         if event.event == "network_off":
             self._require_success(event.event, self.device.set_wifi(enabled=False))
             self._require_success(
@@ -227,6 +278,72 @@ class DeviceSystemEventInjector:
                 )
             return
         raise SystemEventInjectionError(f"Unsupported system event for MVP injector: {event.event}")
+
+    @staticmethod
+    def _required_permission(event: SystemEventSpec) -> str:
+        permission = event.args.get("permission")
+        if not permission:
+            raise SystemEventInjectionError(
+                f"{event.event} requires args.permission"
+            )
+        return permission
+
+    @staticmethod
+    def _permission_flags(raw: str) -> set[str]:
+        return {value.strip() for value in raw.split(",") if value.strip()}
+
+    def _permission_observation(
+        self,
+        *,
+        event: SystemEventSpec,
+        permission: str,
+        expected_granted: bool,
+        expected_flags: set[str] | None = None,
+        required_flags: set[str] | None = None,
+        forbidden_flags: set[str] | None = None,
+    ) -> SystemEventObservation:
+        observed = self.device.dump_package_state(self.package)
+        self._require_success(event.event, observed)
+        grant = re.search(
+            rf"^\s*{re.escape(permission)}:\s+granted=(true|false)"
+            rf"(?:,\s*flags=\[([^\]]*)\])?(?:,|\s*$)",
+            observed.stdout,
+            flags=re.MULTILINE,
+        )
+        if grant is None:
+            raise SystemEventInjectionError(
+                f"{event.event} postcondition failed: could not find runtime "
+                f"permission {permission} in package state"
+            )
+        granted = grant.group(1) == "true"
+        flags = sorted(
+            flag.strip()
+            for flag in (grant.group(2) or "").split("|")
+            if flag.strip()
+        )
+        if granted != expected_granted:
+            state = "granted" if granted else "denied"
+            raise SystemEventInjectionError(
+                f"{event.event} postcondition failed: {permission} remains {state}"
+            )
+        if expected_flags is not None and set(flags) != expected_flags:
+            raise SystemEventInjectionError(
+                f"{event.event} postcondition failed: expected flags "
+                f"{sorted(expected_flags)!r}, observed {flags!r}"
+            )
+        missing_flags = (required_flags or set()) - set(flags)
+        present_forbidden_flags = (forbidden_flags or set()) & set(flags)
+        if missing_flags or present_forbidden_flags:
+            raise SystemEventInjectionError(
+                f"{event.event} postcondition failed: missing required flags "
+                f"{sorted(missing_flags)!r}, present forbidden flags "
+                f"{sorted(present_forbidden_flags)!r}, observed {flags!r}"
+            )
+        return SystemEventObservation(
+            event=event.event,
+            requested={"package": self.package, "permission": permission},
+            observed={"granted": granted, "flags": flags},
+        )
 
     @staticmethod
     def _require_success(

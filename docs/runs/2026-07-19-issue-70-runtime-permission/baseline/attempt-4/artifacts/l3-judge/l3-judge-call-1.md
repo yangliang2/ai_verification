@@ -1,0 +1,36 @@
+{
+  "verdict_id": "L3-a4c91f2e",
+  "level": "L3",
+  "outcome": "pass",
+  "defect_class_hypothesis": null,
+  "trigger_steps": [
+    "首次请求位置权限并在 Android 权限对话框中点击 Don't allow",
+    "第二次请求位置权限并再次点击 Don't allow",
+    "检查永久拒绝后的状态、RATIONALE 和可用控件",
+    "系统授予位置权限后刷新权限状态并使用位置功能",
+    "系统撤销位置权限后刷新权限状态"
+  ],
+  "evidence": [
+    {
+      "type": "llm_reasoning",
+      "ref": "segment-2 / system-event-2",
+      "note": "首次拒绝后状态为 FIRST_DENIED，RATIONALE 为 true，并明确显示 CONTINUE WITHOUT LOCATION，可选权限的降级路径可用。"
+    },
+    {
+      "type": "llm_reasoning",
+      "ref": "segment-3, segment-4 / system-event-3",
+      "note": "第二次拒绝后系统记录 USER_FIXED；应用显示 PERMANENTLY_DENIED、RATIONALE false，同时提供 CONTINUE WITHOUT LOCATION 和 OPEN APP SETTINGS，用户未被困住。"
+    },
+    {
+      "type": "llm_reasoning",
+      "ref": "system-event-4 / segment-5",
+      "note": "权限被外部授予后，刷新正确识别为 GRANTED；位置功能执行成功，随后仍能取得 UI layout，说明界面保持响应且未崩溃。"
+    },
+    {
+      "type": "llm_reasoning",
+      "ref": "system-event-5 / segment-6 / after-segment-6 layout",
+      "note": "权限被撤销后，刷新不再报告 GRANTED，而是降级为 NOT_REQUESTED，并保留 CONTINUE WITHOUT LOCATION。最终界面完整且可交互，符合撤销后重新检查并避免继续按已授权状态访问位置功能的要求。"
+    }
+  ],
+  "confidence": 0.97
+}

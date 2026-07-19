@@ -108,12 +108,17 @@ def _build_l3_trace_summary(spec: RunSpec, flow) -> str:
     journey_data = json.dumps(
         [r.data for r in flow.journey_results], ensure_ascii=False, indent=2
     )
+    event_data = json.dumps(
+        flow.event_observations, ensure_ascii=False, indent=2
+    )
     layout_text = final_cp.layout_path.read_text(encoding="utf-8")
     return (
         "### 脚本化用户动作（scenario.user_actions）\n"
         + "\n".join(f"{i + 1}. {a}" for i, a in enumerate(spec.scenario.user_actions))
         + "\n\n### 驱动 agent 的分段执行结果（journey results JSON）\n"
         + journey_data
+        + "\n\n### 系统事件请求与实际后置状态\n"
+        + event_data
         + f"\n\n### 最终 checkpoint（{final_cp.name}）的 UI layout JSON 全文\n"
         + layout_text
     )
@@ -733,6 +738,9 @@ def _finalize_output_failure(
             {"event": event.event, "args": event.args}
             for event in (flow.injected_events if flow is not None else [])
         ],
+        "event_observations": (
+            flow.event_observations if flow is not None else []
+        ),
         "timing": timing,
         "execution_record": str(execution_record.path),
     }
@@ -748,11 +756,22 @@ def _finalize_output_failure(
         checkpoint_refs = [
             str(checkpoint.directory) for checkpoint in flow.checkpoints
         ]
+        event_observation_refs = [
+            observation["artifact"] for observation in flow.event_observations
+        ]
         verdict["diagnostic_artifacts"].update(
-            {"journey_results": journey_refs, "checkpoints": checkpoint_refs}
+            {
+                "journey_results": journey_refs,
+                "checkpoints": checkpoint_refs,
+                "system_event_observations": event_observation_refs,
+            }
         )
         evidence_refs.update(
-            {"journey_results": journey_refs, "checkpoints": checkpoint_refs}
+            {
+                "journey_results": journey_refs,
+                "checkpoints": checkpoint_refs,
+                "system_event_observations": event_observation_refs,
+            }
         )
     output_error = {
         "phase": output_phase,
@@ -824,6 +843,9 @@ def _write_non_accountable_verdict(
             for checkpoint in flow.checkpoints
         ],
         "backend_errors": error.backend_diagnostics,
+        "system_event_observations": [
+            observation["artifact"] for observation in flow.event_observations
+        ],
     }
     verdict = {
         "scenario": spec.scenario.id,
@@ -844,6 +866,7 @@ def _write_non_accountable_verdict(
         "injected_events": [
             {"event": event.event, "args": event.args} for event in flow.injected_events
         ],
+        "event_observations": flow.event_observations,
         "timing": {
             "started_at": started_at,
             "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -910,6 +933,9 @@ def _write_non_accountable_verdict(
             ],
             "checkpoints": [
                 str(checkpoint.directory) for checkpoint in flow.checkpoints
+            ],
+            "system_event_observations": [
+                observation["artifact"] for observation in flow.event_observations
             ],
         },
     )
@@ -1188,6 +1214,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         "journey_results": [r.data for r in flow.journey_results],
         "checkpoints": [c.name for c in flow.checkpoints],
         "injected_events": [{"event": e.event, "args": e.args} for e in flow.injected_events],
+        "event_observations": flow.event_observations,
         "timing": {
             "started_at": started_at,
             "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -1228,6 +1255,9 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             ],
             "checkpoints": [
                 str(checkpoint.directory) for checkpoint in flow.checkpoints
+            ],
+            "system_event_observations": [
+                observation["artifact"] for observation in flow.event_observations
             ],
             "execution_provenance": execution_provenance,
         },

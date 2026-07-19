@@ -18,6 +18,7 @@ from aiverify.runner.journey import (
     segment_to_journey_xml,
 )
 from aiverify.runner.run_spec import ScenarioSpec, SystemEventSpec
+from aiverify.runner.system_events import SystemEventObservation
 
 
 def test_scenario_to_segments_splits_after_event_step() -> None:
@@ -281,6 +282,19 @@ class FakeInjector:
         self.events.append(event)
 
 
+class ObservingInjector(FakeInjector):
+    def inject(self, event: SystemEventSpec) -> SystemEventObservation:
+        self.events.append(event)
+        return SystemEventObservation(
+            event=event.event,
+            requested={
+                "package": "org.example",
+                "permission": "android.permission.ACCESS_FINE_LOCATION",
+            },
+            observed={"granted": False, "flags": ["USER_SET"]},
+        )
+
+
 class RaisingCollector(FakeCollector):
     def capture_checkpoint(
         self,
@@ -376,6 +390,41 @@ def test_journey_segment_runner_orders_segments_events_and_checkpoints(tmp_path:
     assert [event.event for event in injector.events] == ["rotate"]
     assert collector.names == ["after-segment-0", "after-event-0", "after-segment-1"]
     assert len(flow.checkpoints) == 3
+
+
+def test_journey_persists_permission_event_observation(tmp_path: Path) -> None:
+    runner = JourneySegmentRunner(
+        backend=FakeBackend(),
+        checkpoint_collector=FakeCollector(),
+        system_event_injector=ObservingInjector(),
+    )
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}", encoding="utf-8")
+
+    flow = runner.run(
+        scenario=ScenarioSpec(
+            id="permission",
+            user_actions=["Deny the permission dialog"],
+            system_events=[
+                SystemEventSpec(step_index=0, event="observe_permission")
+            ],
+        ),
+        workdir=tmp_path,
+        artifact_dir=tmp_path / "artifacts",
+        output_schema=schema,
+    )
+
+    assert len(flow.event_observations) == 1
+    artifact = Path(flow.event_observations[0]["artifact"])
+    assert artifact.name == "system-event-0.json"
+    assert json.loads(artifact.read_text(encoding="utf-8")) == {
+        "event": "observe_permission",
+        "requested": {
+            "package": "org.example",
+            "permission": "android.permission.ACCESS_FINE_LOCATION",
+        },
+        "observed": {"granted": False, "flags": ["USER_SET"]},
+    }
 
 
 def test_journey_segment_runner_times_every_phase(tmp_path: Path) -> None:

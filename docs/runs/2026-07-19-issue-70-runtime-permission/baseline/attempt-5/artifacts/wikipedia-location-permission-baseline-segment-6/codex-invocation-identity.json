@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "role": "journey_driver",
+  "backend": "codex_cli",
+  "binary": {
+    "requested": "codex",
+    "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.5/codex-aarch64-apple-darwin",
+    "sha256": "5e29ab10ca1171be158f7335dd6bd8ce1aaf9af1556939db36a5ee338be6f5f2",
+    "version": "codex-cli 0.144.5"
+  },
+  "requested_model": null,
+  "effective_model": "gpt-5.6-sol",
+  "effective_model_source": {
+    "kind": "codex_session_turn_context",
+    "observation_sha256": "ade5ae8a205d018b08aca06452b14ef418c29abe004302120b2ca83a1689fe63",
+    "thread_id": "019f793f-1b2f-7a83-ab23-52d1c04f835b",
+    "turn_id": "019f793f-1ba4-7351-91b3-f9c0c1bfea51"
+  },
+  "source_observation": {
+    "session_meta": {
+      "id": "019f793f-1b2f-7a83-ab23-52d1c04f835b",
+      "cwd": "/Users/peter/hosts/wikipedia-issue-70-baseline",
+      "cli_version": "0.144.5",
+      "source": "exec"
+    },
+    "turn_context": {
+      "turn_id": "019f793f-1ba4-7351-91b3-f9c0c1bfea51",
+      "model": "gpt-5.6-sol"
+    }
+  },
+  "command": {
+    "argv_without_prompt": [
+      "codex",
+      "exec",
+      "--json",
+      "--output-schema",
+      "/Users/peter/projects/ai_verification-issue-70/src/aiverify/runner/journey_result_schema.json",
+      "--output-last-message",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-5/artifacts/wikipedia-location-permission-baseline-segment-6/codex-journey-result.json",
+      "--skip-git-repo-check",
+      "--cd",
+      "/Users/peter/hosts/wikipedia-issue-70-baseline",
+      "--dangerously-bypass-approvals-and-sandbox"
+    ],
+    "prompt_sha256": "505e88b7ee34a77a0b070c5448ae402185834026a78022c5dcd1d5b6dcf96bb2"
+  }
+}

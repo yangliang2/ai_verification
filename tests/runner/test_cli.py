@@ -977,6 +977,7 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
         "verdict": str(artifact_dir.parent / "verdict.json"),
         "journey_results": [str(flow.journey_results[0].result_path)],
         "checkpoints": [str(flow.checkpoints[0].directory)],
+        "system_event_observations": [],
         "execution_provenance": verdict["execution_provenance"],
     }
     assert verdict["execution_record"] == str(record_path)
