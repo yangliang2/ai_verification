@@ -1,0 +1,18 @@
+{
+  "journey": "wikipedia-location-permission-candidate-segment-6",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 540 524",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 540 650",
+        "android layout --device=emulator-5556 --pretty"
+      ],
+      "comment": "Refresh was dispatched at resource-id refresh_permission_state. The exact refreshed status was \"NOT_REQUESTED: Location is optional.\" with \"RATIONALE: false\". Use location feature was then dispatched at resource-id use_location_feature. Immediately afterward, the emulator showed the Android launcher rather than the fixture, so the fixture did not remain responsive/present.",
+      "action": "Tap Refresh permission state, then tap Use location feature after the harness revokes permission. Record the exact status and whether the fixture remains responsive."
+    }
+  ]
+}

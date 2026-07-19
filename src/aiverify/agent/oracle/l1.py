@@ -21,7 +21,16 @@ from aiverify.agent.oracle.schema import validate_verdict
 # ---------------------------------------------------------------------------
 # 检测规则：(pattern, note)
 # ---------------------------------------------------------------------------
+_ANDROID_SECURITY_EXCEPTION_PATTERN = re.compile(
+    r"AndroidRuntime.*(?:java\.lang\.)?SecurityException",
+    re.IGNORECASE,
+)
+
 _CRASH_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (
+        _ANDROID_SECURITY_EXCEPTION_PATTERN,
+        "检测到 AndroidRuntime 未捕获 SecurityException——运行时权限状态未可靠处理",
+    ),
     (
         re.compile(r"FATAL EXCEPTION", re.IGNORECASE),
         "检测到 FATAL EXCEPTION——JVM 未捕获异常导致进程崩溃",

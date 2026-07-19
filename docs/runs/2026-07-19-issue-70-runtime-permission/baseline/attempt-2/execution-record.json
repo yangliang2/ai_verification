@@ -1,0 +1,84 @@
+{
+  "schema_version": 2,
+  "attempt_id": "4d1ea962-9ecc-4ac2-85f7-948eff8eb9bf",
+  "scenario": "wikipedia-location-permission-baseline",
+  "lifecycle_state": "interrupted",
+  "started_at": "2026-07-19T06:50:45+00:00",
+  "finished_at": "2026-07-19T06:53:50+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_action_failed",
+    "message": "Journey segment wikipedia-location-permission-baseline-segment-1 reported non-passing action status(es): FAILED"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-07-19T06:50:45+00:00",
+    "finished_at": "2026-07-19T06:53:50+00:00",
+    "total_seconds": 184.874,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.863
+      },
+      {
+        "phase": "wikipedia-location-permission-baseline-segment-0",
+        "kind": "journey",
+        "seconds": 62.391
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 3.743
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "reset_permission",
+        "seconds": 0.117
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 3.706
+      },
+      {
+        "phase": "wikipedia-location-permission-baseline-segment-1",
+        "kind": "journey",
+        "seconds": 101.745
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 4.219
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "journey",
+      "kind": "journey",
+      "reason": "journey_action_failed",
+      "message": "Journey segment wikipedia-location-permission-baseline-segment-1 reported non-passing action status(es): FAILED"
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/live-validation-gate.json",
+    "verdict": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/verdict.json",
+    "journey_results": [
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-0/codex-journey-result.normalized.json",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-1/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-0",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-event-0",
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-1"
+    ],
+    "system_event_observations": [
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/system-event-0.json"
+    ]
+  }
+}

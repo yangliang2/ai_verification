@@ -1,0 +1,18 @@
+{
+  "journey": "wikipedia-location-permission-baseline-segment-2",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 540 398",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 540 1787",
+        "android layout --device=emulator-5556 --pretty"
+      ],
+      "comment": "Tapped REQUEST LOCATION PERMISSION, observed the real Android dialog, and tapped Don’t allow. Returned fixture showed status \"FIRST_DENIED: Continue without location; retry is optional.\", \"RATIONALE: true\", and visible controls: REQUEST LOCATION PERMISSION, REFRESH PERMISSION STATE, USE LOCATION FEATURE, and CONTINUE WITHOUT LOCATION.",
+      "action": "Tap Request location permission. In the real Android permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls."
+    }
+  ]
+}

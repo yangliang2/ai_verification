@@ -1,0 +1,82 @@
+........................................................................ [ 13%]
+........................................................................ [ 26%]
+........................................................................ [ 39%]
+........................................................................ [ 52%]
+........................................................................ [ 66%]
+..................F..................................................... [ 79%]
+........................................................................ [ 92%]
+........................................                                 [100%]
+=================================== FAILURES ===================================
+_ test_public_run_establishes_one_execution_record_before_preflight_and_finalizes_it _
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-424/test_public_run_establishes_on0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108709410>
+
+    def test_public_run_establishes_one_execution_record_before_preflight_and_finalizes_it(
+        tmp_path, monkeypatch
+    ):
+        flow = _flow(tmp_path)
+        artifact_dir = tmp_path / "run" / "artifacts"
+        record_path = artifact_dir.parent / "execution-record.json"
+        observed_record: dict[str, object] = {}
+    
+        class InspectingPreflightRunner(FakePreflightRunner):
+            def run(self, *args, **kwargs):
+                if not observed_record:
+                    observed_record.update(
+                        json.loads(record_path.read_text(encoding="utf-8"))
+                    )
+                return super().run(*args, **kwargs)
+    
+        class SuccessfulRunner:
+            def __init__(self, **kwargs):
+                pass
+    
+            def run(self, **kwargs):
+                return flow
+    
+        monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+        monkeypatch.setattr(cli, "JourneySegmentRunner", SuccessfulRunner)
+    
+        verdict = cli.run(
+            _spec(tmp_path, l3_spec=""),
+            device="emulator-5554",
+            artifact_dir=artifact_dir,
+            workdir=tmp_path,
+            preflight_command_runner=InspectingPreflightRunner(
+                _passing_preflight_responses()
+            ),
+        )
+    
+        assert observed_record["lifecycle_state"] == "in_progress"
+        assert observed_record["schema_version"] == 2
+        assert observed_record["finished_at"] is None
+        attempt_id = observed_record["attempt_id"]
+        assert isinstance(attempt_id, str) and attempt_id
+    
+        record = json.loads(record_path.read_text(encoding="utf-8"))
+        assert record["attempt_id"] == attempt_id
+        assert record["lifecycle_state"] == "completed"
+        assert record["execution"] == verdict["execution"]
+        assert record["process_outcome"] == {"exit_code": 0}
+        assert record["phase_errors"] == []
+>       assert record["evidence_refs"] == {
+            "live_validation_gate": str(artifact_dir.parent / "live-validation-gate.json"),
+            "verdict": str(artifact_dir.parent / "verdict.json"),
+            "journey_results": [str(flow.journey_results[0].result_path)],
+            "checkpoints": [str(flow.checkpoints[0].directory)],
+            "execution_provenance": verdict["execution_provenance"],
+        }
+E       AssertionError: assert {'checkpoints...te.json', ...} == {'checkpoints...te.json', ...}
+E         
+E         Omitting 5 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'system_event_observations': []}
+E         Use -v to get more diff
+
+tests/runner/test_cli.py:975: AssertionError
+=========================== short test summary info ============================
+FAILED tests/runner/test_cli.py::test_public_run_establishes_one_execution_record_before_preflight_and_finalizes_it
+real 16.89
+user 8.85
+sys 3.34
