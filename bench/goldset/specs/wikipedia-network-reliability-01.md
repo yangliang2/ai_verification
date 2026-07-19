@@ -21,5 +21,6 @@ contradictory identity, Journey, transition, checkpoint, sequence, or event evid
 is `non_accountable`. A clean baseline plus a rejected injected candidate is
 `locally_supported`; an escaped defect or failing baseline is `locally_rejected`.
 It detects crash/ANR, blank/error UI, duplicate retry/retry storm, cancellation
-failure, stale-response overwrite, and missing recovery evidence. It never emits a
-detection-rate, Goldset, or upstream-acceptance claim.
+failure, stale-response overwrite, stale recovery data, and structurally incomplete
+scenario evidence. It never emits a detection-rate, Goldset, or upstream-acceptance
+claim.

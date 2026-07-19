@@ -1,0 +1,61 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_pair_fails_closed_for_all_malformed_provenance_and_event_shapes[system_event_duplicate_step] _
+
+malformation = 'system_event_duplicate_step'
+
+    @pytest.mark.parametrize(
+        "malformation",
+        [
+            "device_array",
+            "fixture_id_number",
+            "journey_sha_number",
+            "apk_package_object",
+            "apk_sha_object",
+            "event_missing_request_id",
+            "event_content_object",
+            "sequence_nan",
+            "system_event_duplicate_step",
+        ],
+    )
+    def test_pair_fails_closed_for_all_malformed_provenance_and_event_shapes(
+        malformation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if malformation == "device_array":
+            baseline["device"] = candidate["device"] = []
+        elif malformation == "fixture_id_number":
+            baseline["fixture_id"] = candidate["fixture_id"] = 69
+        elif malformation == "journey_sha_number":
+            baseline["journey_sha256"] = candidate["journey_sha256"] = 69
+        elif malformation == "apk_package_object":
+            baseline["apk"]["package"] = candidate["apk"]["package"] = {
+                "unexpected": "shape"
+            }
+        elif malformation == "apk_sha_object":
+            baseline["apk"]["sha256"] = {"unexpected": "shape"}
+        elif malformation == "event_missing_request_id":
+            candidate["network_events"][0].pop("request_id")
+        elif malformation == "event_content_object":
+            candidate["network_events"][0]["content"] = {"unexpected": "shape"}
+        elif malformation == "sequence_nan":
+            candidate["network_events"][0]["sequence"] = float("nan")
+        elif malformation == "system_event_duplicate_step":
+            baseline["system_events"][1]["step_index"] = 0
+            candidate["system_events"][1]["step_index"] = 0
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:437: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_all_malformed_provenance_and_event_shapes[system_event_duplicate_step]
+1 failed, 27 deselected in 0.08s

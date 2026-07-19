@@ -32,6 +32,10 @@ production-networking, or upstream-acceptance claim.
   `8f66479b4943e7605297368b2e78ff258682d7f786f259b4d35e4a1c45283aeb`
 - Candidate APK SHA-256:
   `55a7fa39248229bafdd82f45c6144c103ec380bb715308b6387e8ce75f57959f`
+- Effective Execution Identity: `effective-execution-identity.json`, referenced
+  directly by both accepted `journey-result.json` records. It binds consumed Run
+  Spec bytes, host worktrees/patches, APKs, target, tools, and both agent roles'
+  backend/model/observation source.
 
 The installed APK pulled from the emulator matched the corresponding local APK
 for both roles. The APKs are 115–116 MiB and remain outside the repository at
@@ -108,8 +112,8 @@ PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums \
   docs/runs/2026-07-19-issue-69-network-reliability --verify
 ```
 
-Results: targeted tests 89 passed in 0.20 seconds; full suite 552 passed in
-17.59 seconds; compileall and the scoped source diff check returned zero. Raw
+Results: targeted tests 114 passed in 0.21 seconds; full suite 577 passed in
+16.92 seconds; compileall and the scoped source diff check returned zero. Raw
 Android/build/test artifacts are excluded from the whitespace check because they
 preserve source-tool output byte-for-byte and are covered by the checksum manifest.
 Python was 3.11.15 and
@@ -120,7 +124,7 @@ pytest was 9.0.3. Android CLI was 1.0.15498356, adb was 37.0.0, Gradle was
 
 - `artifacts/build/`: final baseline and candidate Gradle logs.
 - `artifacts/tests/`: targeted/full pytest logs and static/oracle command log.
-- `artifacts/tdd/`: 14 red/green or strengthening cycles, including the live
+- `artifacts/tdd/`: 22 red/green or strengthening cycles, including the live
   crash-marker false-positive regression and malformed-evidence fail-closed case.
 - `artifacts/identity-and-tools.log`: APK install/pull hashes, package/version,
   device identity, and tool versions.
@@ -135,6 +139,7 @@ pytest was 9.0.3. Android CLI was 1.0.15498356, adb was 37.0.0, Gradle was
   original generic `AndroidRuntime` crash matcher was rejected and regression-tested.
 - `verification-agent/`: the independent agent's single conclusion and audit notes.
 - `evidence-summary.json`: concise matched identity and outcome inventory.
+- `effective-execution-identity.json`: checksum-bound attempt and agent identity.
 - `checksums.sha256`: SHA-256 inventory for every other run-record file.
 
 The two accepted recovery screenshots were visually inspected and show populated

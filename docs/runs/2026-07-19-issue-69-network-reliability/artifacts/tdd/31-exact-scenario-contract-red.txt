@@ -1,0 +1,96 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+____________ test_oracle_rejects_stale_recovery_content_on_baseline ____________
+
+    def test_oracle_rejects_stale_recovery_content_on_baseline() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        baseline["checkpoints"]["recovery"]["content"] = "stale-v1"
+        baseline["network_events"][-1]["content"] = "stale-v1"
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "locally_rejected"
+E       AssertionError: assert 'locally_supported' == 'locally_rejected'
+E         
+E         - locally_rejected
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:182: AssertionError
+_________ test_pair_is_non_accountable_without_retry_attempt_evidence __________
+
+    def test_pair_is_non_accountable_without_retry_attempt_evidence() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        baseline["network_events"] = [
+            event
+            for event in baseline["network_events"]
+            if not (
+                event["scenario"] == "retry" and event["kind"] == "retry_attempt"
+            )
+        ]
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:200: AssertionError
+______ test_pair_is_non_accountable_without_cancellation_late_resolution _______
+
+    def test_pair_is_non_accountable_without_cancellation_late_resolution() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        baseline["network_events"] = [
+            event
+            for event in baseline["network_events"]
+            if not (
+                event["scenario"] == "cancellation"
+                and event["kind"] == "response_ignored"
+            )
+        ]
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_rejected' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_rejected
+
+tests/bench/test_network_reliability.py:218: AssertionError
+_____ test_pair_is_non_accountable_without_delayed_old_response_completion _____
+
+    def test_pair_is_non_accountable_without_delayed_old_response_completion() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        baseline["network_events"] = [
+            event
+            for event in baseline["network_events"]
+            if not (
+                event["scenario"] == "ordered_response"
+                and event.get("request_id") == "old"
+                and event["kind"] == "response_ignored"
+            )
+        ]
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_rejected' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_rejected
+
+tests/bench/test_network_reliability.py:236: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_oracle_rejects_stale_recovery_content_on_baseline
+FAILED tests/bench/test_network_reliability.py::test_pair_is_non_accountable_without_retry_attempt_evidence
+FAILED tests/bench/test_network_reliability.py::test_pair_is_non_accountable_without_cancellation_late_resolution
+FAILED tests/bench/test_network_reliability.py::test_pair_is_non_accountable_without_delayed_old_response_completion
+4 failed, 22 deselected in 0.10s
