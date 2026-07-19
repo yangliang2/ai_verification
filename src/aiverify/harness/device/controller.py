@@ -177,6 +177,24 @@ class DeviceController:
         """按下 Home 键，将当前前台应用送入后台。"""
         return self._shell(["input", "keyevent", "HOME"])
 
+    def launch_from_launcher(
+        self, package: str, activity: str | None = None
+    ) -> AdbResult:
+        """Bring an app forward with launcher semantics.
+
+        An explicit activity uses a MAIN + LAUNCHER intent so Android restores the
+        existing task in the same way as a launcher tap. Without one, fall back to
+        the package-scoped monkey launcher used by :meth:`launch`.
+        """
+        if activity:
+            return self._shell([
+                "am", "start",
+                "-a", "android.intent.action.MAIN",
+                "-c", "android.intent.category.LAUNCHER",
+                "-n", f"{package}/{activity}",
+            ])
+        return self.launch(package)
+
     def process_death(
         self,
         package: str,
@@ -218,15 +236,7 @@ class DeviceController:
         kill_result = self.kill_background(package)
         if kill_wait > 0:
             time.sleep(kill_wait)
-        if activity:
-            result = self._shell([
-                "am", "start",
-                "-a", "android.intent.action.MAIN",
-                "-c", "android.intent.category.LAUNCHER",
-                "-n", f"{package}/{activity}",
-            ])
-        else:
-            result = self.launch(package)
+        result = self.launch_from_launcher(package, activity)
         if restore_wait > 0:
             time.sleep(restore_wait)
         return background_result, kill_result, result

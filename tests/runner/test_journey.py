@@ -726,6 +726,9 @@ def test_multi_segment_interruption_keeps_completed_prior_boundary_evidence(tmp_
         "after-segment-1",
     ]
     assert [event.event for event in raised.value.flow.injected_events] == ["rotate"]
+    assert raised.value.flow.system_event_evidence == [
+        tmp_path / "artifacts" / "system-event-0" / "event.json"
+    ]
 
 
 def test_backend_failure_becomes_non_accountable_journey_interruption(tmp_path: Path) -> None:

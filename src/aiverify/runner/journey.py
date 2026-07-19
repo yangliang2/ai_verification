@@ -216,6 +216,25 @@ class JourneySegmentRunner:
             timings.append(entry)
             return value
 
+        def _interruption(
+            reason: str,
+            message: str,
+            *,
+            backend_diagnostics: list[
+                dict[str, str | list[str] | None]
+            ] | None = None,
+        ) -> JourneyExecutionInterrupted:
+            return JourneyExecutionInterrupted(
+                reason=reason,
+                message=message,
+                journey_results=journey_results,
+                checkpoints=checkpoints,
+                injected_events=injected_events,
+                timings=timings,
+                backend_diagnostics=backend_diagnostics,
+                system_event_evidence=system_event_evidence,
+            )
+
         def _interrupt(reason: str, exc: Exception) -> JourneyExecutionInterrupted:
             if (
                 isinstance(exc, EvidenceCaptureError)
@@ -232,15 +251,10 @@ class JourneySegmentRunner:
                         "command": exc.command,
                     }
                 )
-            return JourneyExecutionInterrupted(
-                reason=reason,
-                message=f"{type(exc).__name__}: {exc}",
-                journey_results=journey_results,
-                checkpoints=checkpoints,
-                injected_events=injected_events,
-                timings=timings,
+            return _interruption(
+                reason,
+                f"{type(exc).__name__}: {exc}",
                 backend_diagnostics=backend_diagnostics,
-                system_event_evidence=system_event_evidence,
             )
 
         for index, segment in enumerate(scenario_to_segments(scenario)):
@@ -280,16 +294,12 @@ class JourneySegmentRunner:
 
             reported_actions = result.data.get("results", [])
             if len(reported_actions) != len(segment.actions):
-                raise JourneyExecutionInterrupted(
-                    reason="journey_action_incomplete",
-                    message=(
+                raise _interruption(
+                    "journey_action_incomplete",
+                    (
                         f"Journey segment {segment.id} reported {len(reported_actions)} "
                         f"of {len(segment.actions)} requested action result(s)"
                     ),
-                    journey_results=journey_results,
-                    checkpoints=checkpoints,
-                    injected_events=injected_events,
-                    timings=timings,
                 )
 
             expected_action_ids = [
@@ -298,29 +308,21 @@ class JourneySegmentRunner:
             ]
             reported_action_ids = [item.get("action_id") for item in reported_actions]
             if reported_action_ids != expected_action_ids:
-                raise JourneyExecutionInterrupted(
-                    reason="journey_action_incomplete",
-                    message=(
+                raise _interruption(
+                    "journey_action_incomplete",
+                    (
                         f"Journey segment {segment.id} reported action IDs that do not "
                         "match the requested action order"
                     ),
-                    journey_results=journey_results,
-                    checkpoints=checkpoints,
-                    injected_events=injected_events,
-                    timings=timings,
                 )
 
             if result.data.get("journey") != segment.id:
-                raise JourneyExecutionInterrupted(
-                    reason="journey_action_incomplete",
-                    message=(
+                raise _interruption(
+                    "journey_action_incomplete",
+                    (
                         f"Journey result {result.data.get('journey')!r} does not match "
                         f"requested segment {segment.id!r}"
                     ),
-                    journey_results=journey_results,
-                    checkpoints=checkpoints,
-                    injected_events=injected_events,
-                    timings=timings,
                 )
 
             invalid_statuses = [
@@ -329,29 +331,21 @@ class JourneySegmentRunner:
                 if item.get("status") not in {"PASSED", "FAILED", "SKIPPED"}
             ]
             if invalid_statuses:
-                raise JourneyExecutionInterrupted(
-                    reason="journey_action_incomplete",
-                    message=(
+                raise _interruption(
+                    "journey_action_incomplete",
+                    (
                         f"Journey segment {segment.id} reported invalid status "
                         f"value(s): {', '.join(map(str, invalid_statuses))}"
                     ),
-                    journey_results=journey_results,
-                    checkpoints=checkpoints,
-                    injected_events=injected_events,
-                    timings=timings,
                 )
 
             if any("action" in item for item in reported_actions):
-                raise JourneyExecutionInterrupted(
-                    reason="journey_action_incomplete",
-                    message=(
+                raise _interruption(
+                    "journey_action_incomplete",
+                    (
                         f"Journey segment {segment.id} reported action text outside "
                         "the stable action-ID contract"
                     ),
-                    journey_results=journey_results,
-                    checkpoints=checkpoints,
-                    injected_events=injected_events,
-                    timings=timings,
                 )
 
             normalized_actions: list[dict[str, Any]] = []
@@ -417,16 +411,12 @@ class JourneySegmentRunner:
             ]
             if failed_actions:
                 statuses = ", ".join(item["status"] for item in failed_actions)
-                raise JourneyExecutionInterrupted(
-                    reason="journey_action_failed",
-                    message=(
+                raise _interruption(
+                    "journey_action_failed",
+                    (
                         f"Journey segment {segment.id} reported non-passing action "
                         f"status(es): {statuses}"
                     ),
-                    journey_results=journey_results,
-                    checkpoints=checkpoints,
-                    injected_events=injected_events,
-                    timings=timings,
                 )
 
             if segment.system_event_after is not None:

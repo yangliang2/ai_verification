@@ -164,21 +164,51 @@ class DeviceSystemEventInjector:
             )
             return
         if event.event == "process_death":
-            # 真实进程死亡：后台化 → am kill → launcher 重新拉起。
-            # 等待编排在 DeviceController.process_death 内部完成，返回时恢复已就绪，
-            # 调用方可立即抓取 after-event checkpoint。args 可覆盖各阶段等待秒数。
+            # 真实进程死亡：后台化 → am kill → launcher 重新拉起。每一阶段均
+            # 观测后置条件并写入回执，避免仅凭 adb 命令退出码推断生命周期。
+            background_wait = self._event_delay(event, "background_wait", 2.0)
+            kill_wait = self._event_delay(event, "kill_wait", 2.0)
+            restore_wait = self._event_delay(event, "restore_wait", 8.0)
+            timeout_seconds, poll_interval_seconds = self._postcondition_polling(
+                event
+            )
             before = self.device.get_pid(self.package)
             self._require_success(event.event, before)
             before_pids = self._parse_running_pids(event.event, before)
+
+            self._require_success(event.event, self.device.press_home())
+            if background_wait > 0:
+                time.sleep(background_wait)
+            background_resumed_package = self._wait_for_resumed_package(
+                event.event,
+                expect_target=False,
+                timeout_seconds=timeout_seconds,
+                poll_interval_seconds=poll_interval_seconds,
+            )
+
             self._require_success(
                 event.event,
-                self.device.process_death(
-                    self.package,
-                    self.activity,
-                    background_wait=float(event.args.get("background_wait", "2.0")),
-                    kill_wait=float(event.args.get("kill_wait", "2.0")),
-                    restore_wait=float(event.args.get("restore_wait", "8.0")),
-                ),
+                self.device.kill_background(self.package),
+            )
+            if kill_wait > 0:
+                time.sleep(kill_wait)
+            self._require_process_absent(
+                event.event,
+                self.device.get_pid(self.package),
+                phase="after kill",
+            )
+
+            self._require_success(
+                event.event,
+                self.device.launch_from_launcher(self.package, self.activity),
+            )
+            if restore_wait > 0:
+                time.sleep(restore_wait)
+            foreground_resumed_package = self._wait_for_resumed_package(
+                event.event,
+                expect_target=True,
+                timeout_seconds=timeout_seconds,
+                poll_interval_seconds=poll_interval_seconds,
             )
             after = self.device.get_pid(self.package)
             self._require_success(event.event, after)
@@ -193,6 +223,14 @@ class DeviceSystemEventInjector:
                 )
             return {
                 "before_pids": sorted(before_pids),
+                "background_status": "success",
+                "background_resumed_package": background_resumed_package,
+                "target_resumed_after_home": False,
+                "kill_status": "success",
+                "process_absent_after_kill": True,
+                "relaunch_status": "success",
+                "foreground_resumed_package": foreground_resumed_package,
+                "target_resumed_after_relaunch": True,
                 "after_pids": sorted(after_pids),
             }
         if event.event == "backup_restore":
@@ -255,9 +293,10 @@ class DeviceSystemEventInjector:
             except Exception as error:
                 attempt_error = error
 
+            cleanup_evidence: dict[str, Any] | None = None
             cleanup_error: Exception | None = None
             try:
-                self._restore_backup_configuration(
+                cleanup_evidence = self._restore_backup_configuration(
                     event=event.event,
                     previous_transport=previous_transport,
                     selected_transport=transport,
@@ -279,11 +318,16 @@ class DeviceSystemEventInjector:
                 raise SystemEventInjectionError(
                     "backup_restore completed without attempt evidence"
                 )
+            if cleanup_evidence is None:
+                raise SystemEventInjectionError(
+                    "backup_restore completed without cleanup evidence"
+                )
             return {
                 "transport": transport,
                 "previous_transport": previous_transport,
                 "backup_was_enabled": backup_was_enabled,
                 **attempt_evidence,
+                **cleanup_evidence,
             }
         if event.event == "app_to_foreground":
             timeout_seconds, poll_interval_seconds = self._postcondition_polling(
@@ -374,6 +418,8 @@ class DeviceSystemEventInjector:
         post_restore_pids = self._parse_running_pids(event, post_restore_pid)
         return {
             "backup_status": "success",
+            "clear_data_status": "success",
+            "clear_data_output": cleared.stdout.strip(),
             "restore_status": "success",
             "restore_token": restore_token,
             "post_restore_pids": sorted(post_restore_pids),
@@ -388,7 +434,7 @@ class DeviceSystemEventInjector:
         previous_transport: str,
         selected_transport: str,
         backup_was_enabled: bool,
-    ) -> None:
+    ) -> dict[str, Any]:
         if previous_transport != selected_transport:
             self._require_success(
                 event, self.device.select_backup_transport(previous_transport)
@@ -408,10 +454,18 @@ class DeviceSystemEventInjector:
             )
         restored_enabled = self.device.get_backup_enabled()
         self._require_success(event, restored_enabled)
-        if self._parse_backup_enabled(restored_enabled.stdout) != backup_was_enabled:
+        backup_enabled_after_cleanup = self._parse_backup_enabled(
+            restored_enabled.stdout
+        )
+        if backup_enabled_after_cleanup != backup_was_enabled:
             raise SystemEventInjectionError(
                 "backup_restore cleanup failed: backup enabled state was not restored"
             )
+        return {
+            "cleanup_status": "success",
+            "cleanup_transport": active_after_cleanup,
+            "cleanup_backup_enabled": backup_enabled_after_cleanup,
+        }
 
     @staticmethod
     def _require_success(
@@ -437,6 +491,39 @@ class DeviceSystemEventInjector:
                 f"{result.stdout.strip()!r}"
             )
         return pids
+
+    @classmethod
+    def _require_process_absent(
+        cls,
+        event: str,
+        result: AdbResult,
+        *,
+        phase: str,
+    ) -> None:
+        if result.returncode == 1 and not result.stdout.strip() and not result.stderr.strip():
+            return
+        if result.returncode == 0:
+            remaining = sorted(cls._parse_running_pids(event, result))
+            raise SystemEventInjectionError(
+                f"{event} postcondition failed: process remains running {phase} "
+                f"with pid(s) {', '.join(remaining)}"
+            )
+        cls._require_success(event, result)
+
+    @staticmethod
+    def _event_delay(event: SystemEventSpec, key: str, default: float) -> float:
+        raw_value = event.args.get(key, str(default))
+        try:
+            value = float(raw_value)
+        except (TypeError, ValueError) as error:
+            raise SystemEventInjectionError(
+                f"{event.event} requires finite non-negative {key}"
+            ) from error
+        if not math.isfinite(value) or value < 0:
+            raise SystemEventInjectionError(
+                f"{event.event} requires finite non-negative {key}"
+            )
+        return value
 
     @staticmethod
     def _parse_backup_enabled(output: str) -> bool:
@@ -536,13 +623,13 @@ class DeviceSystemEventInjector:
         expect_target: bool,
         timeout_seconds: float,
         poll_interval_seconds: float,
-    ) -> None:
+    ) -> str:
         deadline = time.monotonic() + timeout_seconds
         while True:
             resumed_package = self._read_resumed_package(event)
             target_is_resumed = resumed_package == self.package
             if resumed_package is not None and target_is_resumed is expect_target:
-                return
+                return resumed_package
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 if resumed_package is None:

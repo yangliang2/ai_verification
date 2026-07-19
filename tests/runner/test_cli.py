@@ -408,6 +408,8 @@ def test_metric_context_marks_missed_injected_seed(tmp_path):
 
 def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeypatch):
     flow = _flow(tmp_path)
+    artifact_dir = tmp_path / "run" / "artifacts"
+    event_path = artifact_dir / "system-event-0" / "event.json"
 
     class FakeController:
         def __init__(self, serial):
@@ -424,6 +426,8 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
             pass
 
         def run(self, **kwargs):
+            event_path.parent.mkdir(parents=True)
+            event_path.write_text('{"event":"rotate"}', encoding="utf-8")
             raise JourneyExecutionInterrupted(
                 reason="journey_action_failed",
                 message="Search card was unavailable",
@@ -431,6 +435,7 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
                 checkpoints=flow.checkpoints,
                 injected_events=[],
                 timings=flow.timings,
+                system_event_evidence=[event_path],
                 backend_diagnostics=[
                     {
                         "result": None,
@@ -443,7 +448,6 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
     monkeypatch.setattr(cli, "DeviceController", FakeController)
     monkeypatch.setattr(cli, "JourneySegmentRunner", InterruptedRunner)
 
-    artifact_dir = tmp_path / "run" / "artifacts"
     verdict = cli.run(
         _spec(tmp_path, l3_spec=""),
         device="emulator-5554",
@@ -487,6 +491,12 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
             "command": ["codex", "exec"],
         }
     ]
+    assert verdict["system_event_evidence"] == [
+        "artifacts/system-event-0/event.json"
+    ]
+    assert verdict["diagnostic_artifacts"]["system_events"] == [
+        "artifacts/system-event-0/event.json"
+    ]
     persisted = json.loads((artifact_dir.parent / "verdict.json").read_text(encoding="utf-8"))
     assert persisted == verdict
     record = json.loads(
@@ -508,6 +518,9 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
     ]
     assert record["evidence_refs"]["journey_results"] == [
         str(flow.journey_results[0].result_path)
+    ]
+    assert record["evidence_refs"]["system_events"] == [
+        "artifacts/system-event-0/event.json"
     ]
     assert verdict["execution_record"] == str(
         artifact_dir.parent / "execution-record.json"
@@ -936,11 +949,9 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
     tmp_path, monkeypatch
 ):
     flow = _flow(tmp_path)
-    event_path = tmp_path / "system-event-0" / "event.json"
-    event_path.parent.mkdir()
-    event_path.write_text('{"event":"process_death"}', encoding="utf-8")
-    flow.system_event_evidence.append(event_path)
     artifact_dir = tmp_path / "run" / "artifacts"
+    event_path = artifact_dir / "system-event-0" / "event.json"
+    flow.system_event_evidence.append(event_path)
     record_path = artifact_dir.parent / "execution-record.json"
     observed_record: dict[str, object] = {}
 
@@ -957,6 +968,10 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
             pass
 
         def run(self, **kwargs):
+            event_path.parent.mkdir(parents=True)
+            event_path.write_text(
+                '{"event":"process_death"}', encoding="utf-8"
+            )
             return flow
 
     monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
@@ -984,13 +999,15 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
     assert record["execution"] == verdict["execution"]
     assert record["process_outcome"] == {"exit_code": 0}
     assert record["phase_errors"] == []
-    assert verdict["system_event_evidence"] == [str(event_path)]
+    assert verdict["system_event_evidence"] == [
+        "artifacts/system-event-0/event.json"
+    ]
     assert record["evidence_refs"] == {
-        "live_validation_gate": str(artifact_dir.parent / "live-validation-gate.json"),
-        "verdict": str(artifact_dir.parent / "verdict.json"),
+        "live_validation_gate": "live-validation-gate.json",
+        "verdict": "verdict.json",
         "journey_results": [str(flow.journey_results[0].result_path)],
         "checkpoints": [str(flow.checkpoints[0].directory)],
-        "system_events": [str(event_path)],
+        "system_events": ["artifacts/system-event-0/event.json"],
         "execution_provenance": verdict["execution_provenance"],
     }
     assert verdict["execution_record"] == str(record_path)
@@ -1231,8 +1248,8 @@ def test_failed_live_validation_preflight_is_non_accountable_and_blocks_launch(
         }
     ]
     assert record["evidence_refs"] == {
-        "live_validation_gate": str(gate_path),
-        "verdict": str(artifact_dir.parent / "verdict.json"),
+        "live_validation_gate": "live-validation-gate.json",
+        "verdict": "verdict.json",
     }
     assert verdict["execution_record"] == str(record_path)
 
@@ -1316,9 +1333,7 @@ def test_preflight_rejection_verdict_output_failure_preserves_ordered_errors(
         "output_finalization_error",
     ]
     assert record["evidence_refs"] == {
-        "live_validation_gate": str(
-            artifact_dir.parent / "live-validation-gate.json"
-        )
+        "live_validation_gate": "live-validation-gate.json"
     }
 
 
@@ -1366,8 +1381,8 @@ def test_preflight_timeout_finalizes_non_accountable_execution_record(
     )
     assert gate["checks"][0]["status"] == "timeout"
     assert "timed out" in gate["checks"][0]["error"]
-    assert record["evidence_refs"]["live_validation_gate"] == str(
-        artifact_dir.parent / "live-validation-gate.json"
+    assert record["evidence_refs"]["live_validation_gate"] == (
+        "live-validation-gate.json"
     )
 
 
@@ -1408,9 +1423,7 @@ def test_unhandled_preflight_exception_becomes_a_terminal_non_accountable_run(
             "message": "OSError: adb binary vanished",
         }
     ]
-    assert record["evidence_refs"] == {
-        "verdict": str(artifact_dir.parent / "verdict.json")
-    }
+    assert record["evidence_refs"] == {"verdict": "verdict.json"}
 
 
 def test_runner_setup_failure_finalizes_record_before_journey_or_oracles(
@@ -1456,8 +1469,8 @@ def test_runner_setup_failure_finalizes_record_before_journey_or_oracles(
             "message": "OSError: logcat transport closed",
         }
     ]
-    assert record["evidence_refs"]["live_validation_gate"] == str(
-        artifact_dir.parent / "live-validation-gate.json"
+    assert record["evidence_refs"]["live_validation_gate"] == (
+        "live-validation-gate.json"
     )
 
 

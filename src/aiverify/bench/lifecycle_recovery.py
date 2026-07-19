@@ -102,21 +102,42 @@ def judge_lifecycle_recovery(
         "migration_status": contract.restored_migration,
     }
     process_evidence = process_event.get("evidence", {})
-    before_pids = set(process_evidence.get("before_pids", []))
-    after_pids = set(process_evidence.get("after_pids", []))
+    if not isinstance(process_evidence, dict):
+        process_evidence = {}
+    before_pids = _pid_set(process_evidence.get("before_pids"))
+    after_pids = _pid_set(process_evidence.get("after_pids"))
     backup_evidence = backup_event.get("evidence", {})
+    if not isinstance(backup_evidence, dict):
+        backup_evidence = {}
     process_is_accountable = (
         process_event.get("status") == "passed"
         and bool(before_pids)
         and bool(after_pids)
         and before_pids.isdisjoint(after_pids)
+        and process_evidence.get("background_status") == "success"
+        and bool(process_evidence.get("background_resumed_package"))
+        and process_evidence.get("target_resumed_after_home") is False
+        and process_evidence.get("kill_status") == "success"
+        and process_evidence.get("process_absent_after_kill") is True
+        and process_evidence.get("relaunch_status") == "success"
+        and bool(process_evidence.get("foreground_resumed_package"))
+        and process_evidence.get("target_resumed_after_relaunch") is True
     )
+    previous_transport = backup_evidence.get("previous_transport")
+    backup_was_enabled = backup_evidence.get("backup_was_enabled")
     backup_is_accountable = (
         backup_event.get("status") == "passed"
         and backup_evidence.get("backup_status") == "success"
+        and backup_evidence.get("clear_data_status") == "success"
+        and backup_evidence.get("clear_data_output") == "Success"
         and backup_evidence.get("restore_status") == "success"
         and bool(backup_evidence.get("restore_token"))
         and bool(backup_evidence.get("transport"))
+        and bool(previous_transport)
+        and isinstance(backup_was_enabled, bool)
+        and backup_evidence.get("cleanup_status") == "success"
+        and backup_evidence.get("cleanup_transport") == previous_transport
+        and backup_evidence.get("cleanup_backup_enabled") is backup_was_enabled
     )
     events_are_accountable = process_is_accountable and backup_is_accountable
     pre_restore_is_exact = all(
@@ -255,9 +276,17 @@ def judge_lifecycle_recovery_run(
             for item in injected_events
         ] != ["rotate", "process_death", "backup_restore"]:
             raise ValueError("runner event order is missing or contradictory")
+        expected_event_refs = [
+            f"artifacts/{_safe_relative_string(event_paths, event)}"
+            for event in ("rotate", "process_death", "backup_restore")
+        ]
         evidence_refs = runner_verdict.get("system_event_evidence")
-        if not isinstance(evidence_refs, list) or len(evidence_refs) != 3:
+        if evidence_refs != expected_event_refs:
             raise ValueError("runner system-event evidence binding is incomplete")
+        if record["evidence_refs"].get("system_events") != expected_event_refs:
+            raise ValueError(
+                "ExecutionRecord system-event evidence binding is incomplete"
+            )
 
         l1 = runner_verdict.get("l1")
         if not isinstance(l1, dict) or l1.get("outcome") not in {
@@ -344,6 +373,14 @@ def _load_json_object(path: Path, *, label: str) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise ValueError(f"{label} must be a JSON object")
     return data
+
+
+def _pid_set(value: object) -> set[str]:
+    if not isinstance(value, list) or not all(
+        isinstance(pid, str) and pid.isdecimal() for pid in value
+    ):
+        return set()
+    return set(value)
 
 
 def _mapping(data: dict[str, Any], key: str) -> dict[str, Any]:

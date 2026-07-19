@@ -146,13 +146,30 @@ def test_inject_process_death_home_kill_relaunch() -> None:
         [
             AdbResult(stdout="111\n", stderr="", returncode=0),
             AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{123 u0 "
+                    "com.android.launcher3/.QuickstepLauncher t4}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
             AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=1),
             AdbResult(stdout="Events injected: 1", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{456 u0 "
+                    "org.example/.MainActivity t9}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
             AdbResult(stdout="222\n", stderr="", returncode=0),
         ]
     )
 
-    injector.inject(
+    evidence = injector.inject(
         SystemEventSpec(
             step_index=0,
             event="process_death",
@@ -160,13 +177,32 @@ def test_inject_process_death_home_kill_relaunch() -> None:
         )
     )
 
-    assert fake.commands[-5:] == [
+    assert evidence == {
+        "before_pids": ["111"],
+        "background_status": "success",
+        "background_resumed_package": "com.android.launcher3",
+        "target_resumed_after_home": False,
+        "kill_status": "success",
+        "process_absent_after_kill": True,
+        "relaunch_status": "success",
+        "foreground_resumed_package": "org.example",
+        "target_resumed_after_relaunch": True,
+        "after_pids": ["222"],
+    }
+    assert fake.commands[-8:] == [
         ["-s", "emulator-5554", "shell", "pidof", "org.example"],
         ["-s", "emulator-5554", "shell", "input", "keyevent", "HOME"],
+        [
+            "-s", "emulator-5554", "shell", "dumpsys", "activity", "activities",
+        ],
         ["-s", "emulator-5554", "shell", "am", "kill", "org.example"],
+        ["-s", "emulator-5554", "shell", "pidof", "org.example"],
         [
             "-s", "emulator-5554", "shell", "monkey", "-p", "org.example",
             "-c", "android.intent.category.LAUNCHER", "1",
+        ],
+        [
+            "-s", "emulator-5554", "shell", "dumpsys", "activity", "activities",
         ],
         ["-s", "emulator-5554", "shell", "pidof", "org.example"],
     ]
@@ -184,8 +220,25 @@ def test_inject_process_death_relaunches_via_explicit_launcher_activity() -> Non
         [
             AdbResult(stdout="111\n", stderr="", returncode=0),
             AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{123 u0 "
+                    "com.android.launcher3/.QuickstepLauncher t4}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
             AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=1),
             AdbResult(stdout="Starting: Intent", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{456 u0 "
+                    "org.example/.MainActivity t9}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
             AdbResult(stdout="222\n", stderr="", returncode=0),
         ]
     )
@@ -198,7 +251,7 @@ def test_inject_process_death_relaunches_via_explicit_launcher_activity() -> Non
         )
     )
 
-    assert fake.commands[-2] == [
+    assert fake.commands[-3] == [
         "-s", "emulator-5554", "shell", "am", "start",
         "-a", "android.intent.action.MAIN",
         "-c", "android.intent.category.LAUNCHER",
@@ -240,8 +293,25 @@ def test_inject_process_death_fails_closed_when_process_identity_is_unchanged() 
         [
             AdbResult(stdout="4242\n", stderr="", returncode=0),
             AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{123 u0 "
+                    "com.android.launcher3/.QuickstepLauncher t4}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
             AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=1),
             AdbResult(stdout="Events injected: 1", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{456 u0 "
+                    "org.example/.MainActivity t9}\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
             AdbResult(stdout="4242\n", stderr="", returncode=0),
         ]
     )
@@ -335,11 +405,16 @@ def test_inject_backup_restore_records_transport_restore_and_process_evidence() 
         "previous_transport": cloud,
         "backup_was_enabled": False,
         "backup_status": "success",
+        "clear_data_status": "success",
+        "clear_data_output": "Success",
         "restore_status": "success",
         "restore_token": "1",
         "post_restore_pids": ["333"],
         "backup_output": "Package org.example with result: Success",
         "restore_output": "restoreStarting: 1 packages\nrestoreFinished: 0",
+        "cleanup_status": "success",
+        "cleanup_transport": cloud,
+        "cleanup_backup_enabled": False,
     }
     assert fake.commands == [
         ["-s", "emulator-5554", "shell", "bmgr", "enabled"],

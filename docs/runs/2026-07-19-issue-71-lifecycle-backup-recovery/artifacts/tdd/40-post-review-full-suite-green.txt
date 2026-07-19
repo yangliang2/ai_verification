@@ -1,0 +1,11 @@
+Post-review full regression suite
+Date: 2026-07-19
+
+Command:
+.venv/bin/pytest -o addopts='' -q --tb=short
+
+Result: exit 0; 545 passed in 17.63s (17.67s wall clock).
+
+Additional checks:
+- git diff --check: exit 0
+- uv run python -m compileall -q src tests: exit 0

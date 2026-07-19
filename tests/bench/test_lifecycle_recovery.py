@@ -56,6 +56,44 @@ PRE_RESTORE = _layout(
 )
 
 
+def _process_event(
+    *, before_pids: list[str] | None = None, after_pids: list[str] | None = None
+) -> dict:
+    return {
+        "status": "passed",
+        "evidence": {
+            "before_pids": before_pids or ["111"],
+            "background_status": "success",
+            "background_resumed_package": "com.android.launcher3",
+            "target_resumed_after_home": False,
+            "kill_status": "success",
+            "process_absent_after_kill": True,
+            "relaunch_status": "success",
+            "foreground_resumed_package": "dev.aiverify.lifecyclefixture",
+            "target_resumed_after_relaunch": True,
+            "after_pids": after_pids or ["222"],
+        },
+    }
+
+
+def _backup_event(**overrides: object) -> dict:
+    evidence: dict[str, object] = {
+        "transport": "com.android.localtransport/.LocalTransport",
+        "previous_transport": "com.google.android.gms/.backup.BackupTransportService",
+        "backup_was_enabled": False,
+        "backup_status": "success",
+        "clear_data_status": "success",
+        "clear_data_output": "Success",
+        "restore_status": "success",
+        "restore_token": "1",
+        "cleanup_status": "success",
+        "cleanup_transport": "com.google.android.gms/.backup.BackupTransportService",
+        "cleanup_backup_enabled": False,
+    }
+    evidence.update(overrides)
+    return {"status": "passed", "evidence": evidence}
+
+
 def test_oracle_supports_exact_restoration_after_all_lifecycle_boundaries() -> None:
     verdict = judge_lifecycle_recovery(
         contract=CONTRACT,
@@ -68,19 +106,8 @@ def test_oracle_supports_exact_restoration_after_all_lifecycle_boundaries() -> N
             revision="42",
             migration="MIGRATED_V1_TO_V2",
         ),
-        process_event={
-            "status": "passed",
-            "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
-        },
-        backup_event={
-            "status": "passed",
-            "evidence": {
-                "transport": "com.android.localtransport/.LocalTransport",
-                "backup_status": "success",
-                "restore_status": "success",
-                "restore_token": "1",
-            },
-        },
+        process_event=_process_event(),
+        backup_event=_backup_event(),
         crash_detected=False,
     )
 
@@ -107,19 +134,8 @@ def test_oracle_rejects_a_crash_even_when_restored_ui_looks_correct() -> None:
             revision="42",
             migration="MIGRATED_V1_TO_V2",
         ),
-        process_event={
-            "status": "passed",
-            "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
-        },
-        backup_event={
-            "status": "passed",
-            "evidence": {
-                "transport": "com.android.localtransport/.LocalTransport",
-                "backup_status": "success",
-                "restore_status": "success",
-                "restore_token": "1",
-            },
-        },
+        process_event=_process_event(),
+        backup_event=_backup_event(),
         crash_detected=True,
     )
 
@@ -140,19 +156,8 @@ def test_oracle_rejects_state_loss_at_rotation_boundary() -> None:
             revision="42",
             migration="MIGRATED_V1_TO_V2",
         ),
-        process_event={
-            "status": "passed",
-            "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
-        },
-        backup_event={
-            "status": "passed",
-            "evidence": {
-                "transport": "com.android.localtransport/.LocalTransport",
-                "backup_status": "success",
-                "restore_status": "success",
-                "restore_token": "1",
-            },
-        },
+        process_event=_process_event(),
+        backup_event=_backup_event(),
         crash_detected=False,
     )
 
@@ -173,19 +178,8 @@ def test_oracle_rejects_silent_reset_after_successful_restore_transport() -> Non
             revision="0",
             migration="RESET_DEFAULTS",
         ),
-        process_event={
-            "status": "passed",
-            "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
-        },
-        backup_event={
-            "status": "passed",
-            "evidence": {
-                "transport": "com.android.localtransport/.LocalTransport",
-                "backup_status": "success",
-                "restore_status": "success",
-                "restore_token": "1",
-            },
-        },
+        process_event=_process_event(),
+        backup_event=_backup_event(),
         crash_detected=False,
     )
 
@@ -201,19 +195,8 @@ def test_oracle_rejects_restored_but_unmigrated_stale_state() -> None:
         rotated_layout=PRE_RESTORE,
         process_restored_layout=PRE_RESTORE,
         backup_restored_layout=PRE_RESTORE,
-        process_event={
-            "status": "passed",
-            "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
-        },
-        backup_event={
-            "status": "passed",
-            "evidence": {
-                "transport": "com.android.localtransport/.LocalTransport",
-                "backup_status": "success",
-                "restore_status": "success",
-                "restore_token": "1",
-            },
-        },
+        process_event=_process_event(),
+        backup_event=_backup_event(),
         crash_detected=False,
     )
 
@@ -234,19 +217,8 @@ def test_oracle_fails_closed_when_process_identity_did_not_change() -> None:
             revision="42",
             migration="MIGRATED_V1_TO_V2",
         ),
-        process_event={
-            "status": "passed",
-            "evidence": {"before_pids": ["111"], "after_pids": ["111"]},
-        },
-        backup_event={
-            "status": "passed",
-            "evidence": {
-                "transport": "com.android.localtransport/.LocalTransport",
-                "backup_status": "success",
-                "restore_status": "success",
-                "restore_token": "1",
-            },
-        },
+        process_event=_process_event(after_pids=["111"]),
+        backup_event=_backup_event(),
         crash_detected=False,
     )
 
@@ -263,19 +235,8 @@ def test_oracle_fails_closed_when_restore_layout_is_invalid() -> None:
         rotated_layout=PRE_RESTORE,
         process_restored_layout=PRE_RESTORE,
         backup_restored_layout="not-json",
-        process_event={
-            "status": "passed",
-            "evidence": {"before_pids": ["111"], "after_pids": ["222"]},
-        },
-        backup_event={
-            "status": "passed",
-            "evidence": {
-                "transport": "com.android.localtransport/.LocalTransport",
-                "backup_status": "success",
-                "restore_status": "success",
-                "restore_token": "1",
-            },
-        },
+        process_event=_process_event(),
+        backup_event=_backup_event(),
         crash_detected=False,
     )
 
@@ -283,6 +244,82 @@ def test_oracle_fails_closed_when_restore_layout_is_invalid() -> None:
     assert verdict["classification"] == "non_accountable"
     assert verdict["reason"] == "layout_evidence_missing_or_invalid"
     assert verdict["accountable"] is False
+
+
+def test_oracle_fails_closed_without_clear_and_cleanup_receipts() -> None:
+    backup_event = _backup_event()
+    del backup_event["evidence"]["clear_data_status"]
+    del backup_event["evidence"]["cleanup_status"]
+
+    verdict = judge_lifecycle_recovery(
+        contract=CONTRACT,
+        initial_layout=PRE_RESTORE,
+        rotated_layout=PRE_RESTORE,
+        process_restored_layout=PRE_RESTORE,
+        backup_restored_layout=_layout(
+            sentinel=CONTRACT.sentinel,
+            schema="2",
+            revision="42",
+            migration="MIGRATED_V1_TO_V2",
+        ),
+        process_event=_process_event(),
+        backup_event=backup_event,
+        crash_detected=False,
+    )
+
+    assert verdict["conclusion"] == "non_accountable"
+    assert verdict["reason"] == "backup_restore_evidence_missing_or_failed"
+    assert verdict["accountable"] is False
+
+
+def test_oracle_fails_closed_without_background_and_foreground_phase_receipts() -> None:
+    process_event = _process_event()
+    del process_event["evidence"]["background_status"]
+    del process_event["evidence"]["target_resumed_after_relaunch"]
+
+    verdict = judge_lifecycle_recovery(
+        contract=CONTRACT,
+        initial_layout=PRE_RESTORE,
+        rotated_layout=PRE_RESTORE,
+        process_restored_layout=PRE_RESTORE,
+        backup_restored_layout=_layout(
+            sentinel=CONTRACT.sentinel,
+            schema="2",
+            revision="42",
+            migration="MIGRATED_V1_TO_V2",
+        ),
+        process_event=process_event,
+        backup_event=_backup_event(),
+        crash_detected=False,
+    )
+
+    assert verdict["conclusion"] == "non_accountable"
+    assert verdict["reason"] == "process_identity_missing_or_unchanged"
+    assert verdict["accountable"] is False
+
+
+def test_oracle_fails_closed_on_malformed_process_pid_receipt() -> None:
+    process_event = _process_event()
+    process_event["evidence"]["before_pids"] = None
+
+    verdict = judge_lifecycle_recovery(
+        contract=CONTRACT,
+        initial_layout=PRE_RESTORE,
+        rotated_layout=PRE_RESTORE,
+        process_restored_layout=PRE_RESTORE,
+        backup_restored_layout=_layout(
+            sentinel=CONTRACT.sentinel,
+            schema="2",
+            revision="42",
+            migration="MIGRATED_V1_TO_V2",
+        ),
+        process_event=process_event,
+        backup_event=_backup_event(),
+        crash_detected=False,
+    )
+
+    assert verdict["conclusion"] == "non_accountable"
+    assert verdict["reason"] == "process_identity_missing_or_unchanged"
 
 
 def test_baseline_and_candidate_run_specs_share_one_lifecycle_journey() -> None:
