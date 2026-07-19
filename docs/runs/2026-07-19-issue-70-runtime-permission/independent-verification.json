@@ -82,8 +82,8 @@
         "result": "PASS; all canonical JSON evidence parsed successfully."
       },
       {
-        "command": "git diff --check",
-        "result": "PASS; no whitespace errors."
+        "command": "git diff --check d5a82bf...4121893",
+        "result": "Expected exit 2: findings are trailing whitespace in byte-preserved raw logcat and captured test-output artifacts. They are checksum-bound device/tool output and are deliberately not normalized; this is not a source-style pass. The two trailing blank lines in fixture patches reported by that historical command are normalized by the remediation commit."
       },
       {
         "command": "Independent inspection of canonical segment-6 Journey event streams/action lineage plus baseline/candidate after-event-5 and after-segment-6 screenshots/layouts",
