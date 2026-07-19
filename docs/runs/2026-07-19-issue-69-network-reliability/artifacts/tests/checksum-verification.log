@@ -1,0 +1,6 @@
+$ PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums docs/runs/2026-07-19-issue-69-network-reliability
+docs/runs/2026-07-19-issue-69-network-reliability/checksums.sha256
+$ PYTHONPATH=src .venv/bin/python -m aiverify.bench.run_record_checksums docs/runs/2026-07-19-issue-69-network-reliability --verify
+checksum inventory verified
+$ wc -l docs/runs/2026-07-19-issue-69-network-reliability/checksums.sha256
+100 docs/runs/2026-07-19-issue-69-network-reliability/checksums.sha256

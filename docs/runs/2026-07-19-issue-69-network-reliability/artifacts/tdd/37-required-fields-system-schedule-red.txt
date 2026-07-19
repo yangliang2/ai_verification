@@ -1,0 +1,480 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[baseline_checkpoint_missing_content] _
+
+mutation = 'baseline_checkpoint_missing_content'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "baseline_checkpoint_missing_content",
+            "candidate_checkpoint_missing_retry_enabled",
+            "candidate_event_missing_required_content",
+            "extra_system_wait",
+            "boolean_wait_seconds",
+            "offset_system_steps",
+            "drifted_wait_seconds",
+        ],
+    )
+    def test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "baseline_checkpoint_missing_content":
+            baseline["checkpoints"]["timeout"].pop("content")
+        elif mutation == "candidate_checkpoint_missing_retry_enabled":
+            candidate["checkpoints"]["online"].pop("retry_enabled")
+        elif mutation == "candidate_event_missing_required_content":
+            recovery_response = next(
+                event
+                for event in candidate["network_events"]
+                if event["scenario"] == "recovery"
+                and event["kind"] == "response_applied"
+            )
+            recovery_response.pop("content")
+        elif mutation == "extra_system_wait":
+            extra = {
+                "step_index": 8,
+                "event": "wait",
+                "args": {
+                    "seconds": "0.2",
+                    "expect_network": "on",
+                    "expect_resumed": "target",
+                },
+            }
+            baseline["system_events"].append(deepcopy(extra))
+            candidate["system_events"].append(deepcopy(extra))
+        elif mutation == "boolean_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = True
+            candidate["system_events"][1]["args"]["seconds"] = True
+        elif mutation == "offset_system_steps":
+            for bundle in (baseline, candidate):
+                for event in bundle["system_events"]:
+                    event["step_index"] += 10
+        elif mutation == "drifted_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = "59"
+            candidate["system_events"][1]["args"]["seconds"] = "59"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_rejected' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_rejected
+
+tests/bench/test_network_reliability.py:427: AssertionError
+_ test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[candidate_checkpoint_missing_retry_enabled] _
+
+mutation = 'candidate_checkpoint_missing_retry_enabled'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "baseline_checkpoint_missing_content",
+            "candidate_checkpoint_missing_retry_enabled",
+            "candidate_event_missing_required_content",
+            "extra_system_wait",
+            "boolean_wait_seconds",
+            "offset_system_steps",
+            "drifted_wait_seconds",
+        ],
+    )
+    def test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "baseline_checkpoint_missing_content":
+            baseline["checkpoints"]["timeout"].pop("content")
+        elif mutation == "candidate_checkpoint_missing_retry_enabled":
+            candidate["checkpoints"]["online"].pop("retry_enabled")
+        elif mutation == "candidate_event_missing_required_content":
+            recovery_response = next(
+                event
+                for event in candidate["network_events"]
+                if event["scenario"] == "recovery"
+                and event["kind"] == "response_applied"
+            )
+            recovery_response.pop("content")
+        elif mutation == "extra_system_wait":
+            extra = {
+                "step_index": 8,
+                "event": "wait",
+                "args": {
+                    "seconds": "0.2",
+                    "expect_network": "on",
+                    "expect_resumed": "target",
+                },
+            }
+            baseline["system_events"].append(deepcopy(extra))
+            candidate["system_events"].append(deepcopy(extra))
+        elif mutation == "boolean_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = True
+            candidate["system_events"][1]["args"]["seconds"] = True
+        elif mutation == "offset_system_steps":
+            for bundle in (baseline, candidate):
+                for event in bundle["system_events"]:
+                    event["step_index"] += 10
+        elif mutation == "drifted_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = "59"
+            candidate["system_events"][1]["args"]["seconds"] = "59"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:427: AssertionError
+_ test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[candidate_event_missing_required_content] _
+
+mutation = 'candidate_event_missing_required_content'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "baseline_checkpoint_missing_content",
+            "candidate_checkpoint_missing_retry_enabled",
+            "candidate_event_missing_required_content",
+            "extra_system_wait",
+            "boolean_wait_seconds",
+            "offset_system_steps",
+            "drifted_wait_seconds",
+        ],
+    )
+    def test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "baseline_checkpoint_missing_content":
+            baseline["checkpoints"]["timeout"].pop("content")
+        elif mutation == "candidate_checkpoint_missing_retry_enabled":
+            candidate["checkpoints"]["online"].pop("retry_enabled")
+        elif mutation == "candidate_event_missing_required_content":
+            recovery_response = next(
+                event
+                for event in candidate["network_events"]
+                if event["scenario"] == "recovery"
+                and event["kind"] == "response_applied"
+            )
+            recovery_response.pop("content")
+        elif mutation == "extra_system_wait":
+            extra = {
+                "step_index": 8,
+                "event": "wait",
+                "args": {
+                    "seconds": "0.2",
+                    "expect_network": "on",
+                    "expect_resumed": "target",
+                },
+            }
+            baseline["system_events"].append(deepcopy(extra))
+            candidate["system_events"].append(deepcopy(extra))
+        elif mutation == "boolean_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = True
+            candidate["system_events"][1]["args"]["seconds"] = True
+        elif mutation == "offset_system_steps":
+            for bundle in (baseline, candidate):
+                for event in bundle["system_events"]:
+                    event["step_index"] += 10
+        elif mutation == "drifted_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = "59"
+            candidate["system_events"][1]["args"]["seconds"] = "59"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:427: AssertionError
+_ test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[extra_system_wait] _
+
+mutation = 'extra_system_wait'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "baseline_checkpoint_missing_content",
+            "candidate_checkpoint_missing_retry_enabled",
+            "candidate_event_missing_required_content",
+            "extra_system_wait",
+            "boolean_wait_seconds",
+            "offset_system_steps",
+            "drifted_wait_seconds",
+        ],
+    )
+    def test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "baseline_checkpoint_missing_content":
+            baseline["checkpoints"]["timeout"].pop("content")
+        elif mutation == "candidate_checkpoint_missing_retry_enabled":
+            candidate["checkpoints"]["online"].pop("retry_enabled")
+        elif mutation == "candidate_event_missing_required_content":
+            recovery_response = next(
+                event
+                for event in candidate["network_events"]
+                if event["scenario"] == "recovery"
+                and event["kind"] == "response_applied"
+            )
+            recovery_response.pop("content")
+        elif mutation == "extra_system_wait":
+            extra = {
+                "step_index": 8,
+                "event": "wait",
+                "args": {
+                    "seconds": "0.2",
+                    "expect_network": "on",
+                    "expect_resumed": "target",
+                },
+            }
+            baseline["system_events"].append(deepcopy(extra))
+            candidate["system_events"].append(deepcopy(extra))
+        elif mutation == "boolean_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = True
+            candidate["system_events"][1]["args"]["seconds"] = True
+        elif mutation == "offset_system_steps":
+            for bundle in (baseline, candidate):
+                for event in bundle["system_events"]:
+                    event["step_index"] += 10
+        elif mutation == "drifted_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = "59"
+            candidate["system_events"][1]["args"]["seconds"] = "59"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:427: AssertionError
+_ test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[boolean_wait_seconds] _
+
+mutation = 'boolean_wait_seconds'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "baseline_checkpoint_missing_content",
+            "candidate_checkpoint_missing_retry_enabled",
+            "candidate_event_missing_required_content",
+            "extra_system_wait",
+            "boolean_wait_seconds",
+            "offset_system_steps",
+            "drifted_wait_seconds",
+        ],
+    )
+    def test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "baseline_checkpoint_missing_content":
+            baseline["checkpoints"]["timeout"].pop("content")
+        elif mutation == "candidate_checkpoint_missing_retry_enabled":
+            candidate["checkpoints"]["online"].pop("retry_enabled")
+        elif mutation == "candidate_event_missing_required_content":
+            recovery_response = next(
+                event
+                for event in candidate["network_events"]
+                if event["scenario"] == "recovery"
+                and event["kind"] == "response_applied"
+            )
+            recovery_response.pop("content")
+        elif mutation == "extra_system_wait":
+            extra = {
+                "step_index": 8,
+                "event": "wait",
+                "args": {
+                    "seconds": "0.2",
+                    "expect_network": "on",
+                    "expect_resumed": "target",
+                },
+            }
+            baseline["system_events"].append(deepcopy(extra))
+            candidate["system_events"].append(deepcopy(extra))
+        elif mutation == "boolean_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = True
+            candidate["system_events"][1]["args"]["seconds"] = True
+        elif mutation == "offset_system_steps":
+            for bundle in (baseline, candidate):
+                for event in bundle["system_events"]:
+                    event["step_index"] += 10
+        elif mutation == "drifted_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = "59"
+            candidate["system_events"][1]["args"]["seconds"] = "59"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:427: AssertionError
+_ test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[offset_system_steps] _
+
+mutation = 'offset_system_steps'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "baseline_checkpoint_missing_content",
+            "candidate_checkpoint_missing_retry_enabled",
+            "candidate_event_missing_required_content",
+            "extra_system_wait",
+            "boolean_wait_seconds",
+            "offset_system_steps",
+            "drifted_wait_seconds",
+        ],
+    )
+    def test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "baseline_checkpoint_missing_content":
+            baseline["checkpoints"]["timeout"].pop("content")
+        elif mutation == "candidate_checkpoint_missing_retry_enabled":
+            candidate["checkpoints"]["online"].pop("retry_enabled")
+        elif mutation == "candidate_event_missing_required_content":
+            recovery_response = next(
+                event
+                for event in candidate["network_events"]
+                if event["scenario"] == "recovery"
+                and event["kind"] == "response_applied"
+            )
+            recovery_response.pop("content")
+        elif mutation == "extra_system_wait":
+            extra = {
+                "step_index": 8,
+                "event": "wait",
+                "args": {
+                    "seconds": "0.2",
+                    "expect_network": "on",
+                    "expect_resumed": "target",
+                },
+            }
+            baseline["system_events"].append(deepcopy(extra))
+            candidate["system_events"].append(deepcopy(extra))
+        elif mutation == "boolean_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = True
+            candidate["system_events"][1]["args"]["seconds"] = True
+        elif mutation == "offset_system_steps":
+            for bundle in (baseline, candidate):
+                for event in bundle["system_events"]:
+                    event["step_index"] += 10
+        elif mutation == "drifted_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = "59"
+            candidate["system_events"][1]["args"]["seconds"] = "59"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:427: AssertionError
+_ test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[drifted_wait_seconds] _
+
+mutation = 'drifted_wait_seconds'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "baseline_checkpoint_missing_content",
+            "candidate_checkpoint_missing_retry_enabled",
+            "candidate_event_missing_required_content",
+            "extra_system_wait",
+            "boolean_wait_seconds",
+            "offset_system_steps",
+            "drifted_wait_seconds",
+        ],
+    )
+    def test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "baseline_checkpoint_missing_content":
+            baseline["checkpoints"]["timeout"].pop("content")
+        elif mutation == "candidate_checkpoint_missing_retry_enabled":
+            candidate["checkpoints"]["online"].pop("retry_enabled")
+        elif mutation == "candidate_event_missing_required_content":
+            recovery_response = next(
+                event
+                for event in candidate["network_events"]
+                if event["scenario"] == "recovery"
+                and event["kind"] == "response_applied"
+            )
+            recovery_response.pop("content")
+        elif mutation == "extra_system_wait":
+            extra = {
+                "step_index": 8,
+                "event": "wait",
+                "args": {
+                    "seconds": "0.2",
+                    "expect_network": "on",
+                    "expect_resumed": "target",
+                },
+            }
+            baseline["system_events"].append(deepcopy(extra))
+            candidate["system_events"].append(deepcopy(extra))
+        elif mutation == "boolean_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = True
+            candidate["system_events"][1]["args"]["seconds"] = True
+        elif mutation == "offset_system_steps":
+            for bundle in (baseline, candidate):
+                for event in bundle["system_events"]:
+                    event["step_index"] += 10
+        elif mutation == "drifted_wait_seconds":
+            baseline["system_events"][1]["args"]["seconds"] = "59"
+            candidate["system_events"][1]["args"]["seconds"] = "59"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:427: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[baseline_checkpoint_missing_content]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[candidate_checkpoint_missing_retry_enabled]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[candidate_event_missing_required_content]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[extra_system_wait]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[boolean_wait_seconds]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[offset_system_steps]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_missing_fields_or_system_event_schedule_drift[drifted_wait_seconds]
+7 failed, 33 deselected in 0.11s

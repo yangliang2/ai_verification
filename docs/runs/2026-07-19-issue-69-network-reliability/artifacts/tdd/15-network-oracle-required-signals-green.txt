@@ -1,0 +1,20 @@
+.....F..                                                                 [100%]
+=================================== FAILURES ===================================
+________________ test_oracle_detects_blank_or_error_terminal_ui ________________
+
+    def test_oracle_detects_blank_or_error_terminal_ui() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["checkpoints"]["recovery"] = {"state": "error", "content": ""}
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "locally_supported"
+E       AssertionError: assert 'non_accountable' == 'locally_supported'
+E         
+E         - locally_supported
+E         + non_accountable
+
+tests/bench/test_network_reliability.py:161: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_oracle_detects_blank_or_error_terminal_ui

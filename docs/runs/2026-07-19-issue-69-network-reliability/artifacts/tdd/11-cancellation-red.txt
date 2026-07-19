@@ -1,0 +1,28 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_oracle_detects_response_applied_after_cancellation ____________
+
+    def test_oracle_detects_response_applied_after_cancellation() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["network_events"].append(
+            {
+                "sequence": 17,
+                "scenario": "cancellation",
+                "kind": "response_applied",
+                "request_id": "cancel-1",
+                "content": "late-v1",
+            }
+        )
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "locally_supported"
+E       AssertionError: assert 'locally_rejected' == 'locally_supported'
+E         
+E         - locally_supported
+E         + locally_rejected
+
+tests/bench/test_network_reliability.py:132: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_oracle_detects_response_applied_after_cancellation

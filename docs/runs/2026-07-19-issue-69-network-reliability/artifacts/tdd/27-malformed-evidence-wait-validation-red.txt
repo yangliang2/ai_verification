@@ -1,0 +1,163 @@
+Downloading pygments (1.2MiB)
+ Downloaded pygments
+Installed 5 packages in 5ms
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_________ test_cli_fails_closed_with_one_conclusion_for_malformed_json _________
+
+tmp_path = PosixPath('/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/pytest-of-peter/pytest-377/test_cli_fails_closed_with_one0')
+
+    def test_cli_fails_closed_with_one_conclusion_for_malformed_json(tmp_path: Path) -> None:
+        baseline = tmp_path / "baseline.json"
+        candidate = tmp_path / "candidate.json"
+        output = tmp_path / "conclusion.json"
+        baseline.write_text(json.dumps(_bundle("baseline")), encoding="utf-8")
+        candidate.write_text("{not valid json", encoding="utf-8")
+    
+>       exit_code = main(
+            [
+                "--baseline",
+                str(baseline),
+                "--candidate",
+                str(candidate),
+                "--output",
+                str(output),
+            ]
+        )
+
+tests/bench/test_network_reliability.py:261: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/network_reliability.py:359: in main
+    candidate = json.loads(args.candidate.read_text(encoding="utf-8"))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.decoder.JSONDecoder object at 0x105886810>, s = '{not valid json'
+idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+>           obj, end = self.scan_once(s, idx)
+                       ^^^^^^^^^^^^^^^^^^^^^^
+E           json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+../../.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/json/decoder.py:353: JSONDecodeError
+______________ test_pair_fails_closed_for_malformed_event_fields _______________
+
+    def test_pair_fails_closed_for_malformed_event_fields() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["network_events"][5]["attempt"] = {"unexpected": "shape"}
+    
+>       verdict = evaluate_network_pair(baseline, candidate)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/bench/test_network_reliability.py:283: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/network_reliability.py:112: in evaluate_network_pair
+    candidate_verdict = _judge_bundle(candidate)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+bundle = {'schema_version': 1, 'role': 'candidate', 'fixture_id': 'issue-69-network-v1', 'journey_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ...}
+
+    def _judge_bundle(bundle: Mapping[str, Any]) -> dict[str, Any]:
+        checkpoints = bundle.get("checkpoints")
+        events = bundle.get("network_events")
+        if not isinstance(checkpoints, Mapping) or not isinstance(events, list):
+            return {"outcome": "inconclusive", "faults": ["evidence_invalid"]}
+        if any(name not in checkpoints for name in _REQUIRED_SCENARIOS):
+            return {"outcome": "inconclusive", "faults": ["evidence_invalid"]}
+        if not all(isinstance(event, Mapping) for event in events):
+            return {"outcome": "inconclusive", "faults": ["evidence_invalid"]}
+        sequences = [event.get("sequence") for event in events]
+        if (
+            not all(isinstance(value, int | float) and not isinstance(value, bool) for value in sequences)
+            or any(left >= right for left, right in zip(sequences, sequences[1:]))
+        ):
+            return {"outcome": "inconclusive", "faults": ["evidence_invalid"]}
+    
+        faults: set[str] = set()
+        logcat = bundle.get("logcat", "")
+        if not isinstance(logcat, str):
+            return {"outcome": "inconclusive", "faults": ["evidence_invalid"]}
+        package = str(bundle.get("apk", {}).get("package", ""))
+        if _has_package_crash_or_anr(logcat, package):
+            faults.add("crash_or_anr")
+    
+        for name, checkpoint in checkpoints.items():
+            if not isinstance(checkpoint, Mapping):
+                return {"outcome": "inconclusive", "faults": ["evidence_invalid"]}
+            state = checkpoint.get("state")
+            if state in {"blank", "error"}:
+                faults.add("blank_or_error_state")
+            if state in {"content", "cached"} and not checkpoint.get("content"):
+                faults.add("blank_or_error_state")
+    
+        retry_attempts = [
+            event.get("attempt")
+            for event in events
+            if event.get("scenario") == "retry" and event.get("kind") == "retry_attempt"
+        ]
+        if len(retry_attempts) > 3:
+            faults.add("retry_storm")
+>       if len(retry_attempts) != len(set(retry_attempts)):
+                                      ^^^^^^^^^^^^^^^^^^^
+E       TypeError: unhashable type: 'dict'
+
+src/aiverify/bench/network_reliability.py:238: TypeError
+____________ test_inject_wait_validates_postconditions_before_sleep ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10aee55d0>
+
+    def test_inject_wait_validates_postconditions_before_sleep(monkeypatch) -> None:
+        injector, fake = _injector()
+    
+        def unexpected_sleep(_seconds: float) -> None:
+            pytest.fail("wait slept before validating its postcondition")
+    
+        monkeypatch.setattr("aiverify.runner.system_events.time.sleep", unexpected_sleep)
+    
+        with pytest.raises(
+            SystemEventInjectionError,
+            match="wait args.expect_network must be 'off' or 'on'",
+        ):
+>           injector.inject(
+                SystemEventSpec(
+                    step_index=0,
+                    event="wait",
+                    args={"seconds": "60", "expect_network": "unknown"},
+                )
+            )
+
+tests/runner/test_system_events.py:435: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/runner/system_events.py:167: in inject
+    time.sleep(seconds)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+_seconds = 60.0
+
+    def unexpected_sleep(_seconds: float) -> None:
+>       pytest.fail("wait slept before validating its postcondition")
+E       Failed: wait slept before validating its postcondition
+
+tests/runner/test_system_events.py:427: Failed
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_cli_fails_closed_with_one_conclusion_for_malformed_json
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_malformed_event_fields
+FAILED tests/runner/test_system_events.py::test_inject_wait_validates_postconditions_before_sleep

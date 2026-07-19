@@ -1,0 +1,149 @@
+{
+  "conclusion": "locally_supported",
+  "checks": {
+    "independent_evidence_basis": {
+      "status": "pass_with_disclosed_procedural_deviation",
+      "detail": "The behavioral judgment was re-derived from the Goldset contract, Run Specs, accepted Journey references, Effective Execution Identity, raw layouts/logcat, evidence bundles, oracle source/tests, and direct local commands. Existing oracle result JSON contents were never displayed, parsed, or used. During an earlier manifest check, one full shasum -c invocation opened those files only to hash their bytes and printed OK; the final selective verification explicitly excluded them."
+    },
+    "effective_execution_identity": {
+      "status": "pass",
+      "identity_status": "complete",
+      "identity_sha256": "04fa566435a420a28aee0785e0f428b8af5ea3825b9c1c555ec63a8f2c50218c",
+      "manifest_entry_match": true,
+      "selective_manifest": {
+        "total_entries": 97,
+        "verified_entries": 93,
+        "skipped_entries": 4,
+        "mismatches": 0,
+        "snapshot_timing": "Historical snapshot taken before the final ordered_response checkpoint TDD and checksum-log additions; the original 93/97 counts are intentionally preserved.",
+        "skip_reason": "Excluded two pre-existing oracle result files and the two verification-agent files that this audit updates."
+      },
+      "accepted_attempts": {
+        "baseline": 2,
+        "candidate": 1
+      },
+      "host_origin_commit_patch": "match for both roles; reverse git-apply checks confirm each recorded patch is applied",
+      "run_specs": "recorded SHA-256 values match consumed files",
+      "apks": "baseline and candidate local/installed copies match their recorded distinct SHA-256 values and bundle identities",
+      "deployment_and_tools": "bundle device/package values match the recorded emulator target; Android CLI and adb binary hashes and versions match",
+      "agent_roles": {
+        "operator": {
+          "backend": "Codex TUI CLI 0.144.5",
+          "session_id": "019f78f4-dda7-7832-8563-b377d6b51078",
+          "requested_model": "gpt-5.6-sol",
+          "effective_model": "gpt-5.6-sol",
+          "reasoning_effort": "high"
+        },
+        "independent_verifier": {
+          "backend": "Codex TUI collaboration subagent, CLI 0.144.5",
+          "session_id": "019f7913-bec5-7772-8b21-ef8101953736",
+          "parent_session_id": "019f78f4-dda7-7832-8563-b377d6b51078",
+          "requested_model": "gpt-5.6-sol",
+          "effective_model": "gpt-5.6-sol",
+          "reasoning_effort": "high",
+          "authoritative_observation_source": "Recorded raw layout/logcat, Run Specs, evidence bundles, identity/Journey records, source/tests, and direct local command outputs; no live-device observation"
+        }
+      },
+      "model_source_check": "Config line model=\"gpt-5.6-sol\" matches requested model; each session's unique turn_context model/effort is gpt-5.6-sol/high; session metadata IDs, parent relation, originator, and CLI version match identity."
+    },
+    "accepted_journeys": {
+      "status": "pass",
+      "baseline_sha256": "76e6eb839fbeccfc683cc10232920714715054871c89f17ac6e5c51ad843c462",
+      "candidate_sha256": "e1b9d2b49e7dc9ad96efe72d36ec10db7eda0ce7c539d577c7326e584cbc7a7a",
+      "detail": "Role, accepted attempt, PASSED status, identity JSON pointer, action-1 through action-8 ordering, per-action PASSED status, and every referenced layout/transcript/logcat/screenshot path exist and match manifest hashes."
+    },
+    "raw_bundle_integrity": {
+      "status": "pass",
+      "detail": "Embedded logcat is byte-identical to raw logcat for each role. The final oracle independently requires one first fixture_ready marker, strictly increasing complete tagged sequence, valid tagged JSON, and exact equality between extracted non-fixture events and network_events. Raw layouts reconstruct exactly to all bundle checkpoints."
+    },
+    "baseline": {
+      "status": "pass",
+      "online": "network on; online-v1",
+      "offline": "network off; cached-v1",
+      "timeout": "request timed out and cancelled; retry enabled",
+      "retry": "exactly attempts 1, 2, and 3; retry-v1",
+      "cancellation": "late-v1 ignored after cancellation",
+      "ordering": "new-v2 applied and delayed old-v1 ignored",
+      "recovery": "network on; recovered-v3"
+    },
+    "candidate": {
+      "status": "expected_faults_detected",
+      "faults": [
+        "retry_storm",
+        "stale_response_overwrite"
+      ],
+      "detail": "Attempts 1 through 6 are recorded. new-v2 is applied before delayed old-v1, and both raw terminal layout and checkpoint show old-v1."
+    },
+    "crash_anr_blank": {
+      "status": "pass",
+      "target_crash_or_anr_markers": {
+        "baseline": 0,
+        "candidate": 0
+      },
+      "blank_or_error_layouts": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    "oracle_exact_and_fail_closed": {
+      "status": "pass",
+      "targeted_test_result": "49 passed in 0.11s",
+      "direct_adversarial_result": "All final raw-binding cases returned exit 2/non_accountable; earlier iterative matrices closed malformed identity, exact checkpoint/scenario/event structure, global ordering, cancellation/ordered completion cardinality, stale recovery, missing retry/cancellation/old-response evidence, canonical system events, fixed fixture/Journey/package, distinct APK, and missing required fields.",
+      "final_raw_binding_cases": 12,
+      "remaining_fail_open_found": false
+    },
+    "ordered_response_checkpoint_guard": {
+      "status": "pass",
+      "required_state": "content",
+      "required_retry_enabled": false,
+      "direct_cases": 4,
+      "results": {
+        "baseline_state_invalid": "exit 1; locally_rejected; baseline fail with scenario_contract_failed",
+        "baseline_retry_enabled_true": "exit 1; locally_rejected; baseline fail with scenario_contract_failed",
+        "candidate_state_invalid": "candidate fail with retry_storm, scenario_contract_failed, and stale_response_overwrite",
+        "candidate_retry_enabled_true": "candidate fail with retry_storm, scenario_contract_failed, and stale_response_overwrite"
+      },
+      "detail": "Both roles reject an ordered_response terminal checkpoint when state is not content or retry_enabled is not false."
+    },
+    "valid_oracle_cli": {
+      "status": "pass",
+      "exit_code": 0,
+      "baseline_outcome": "pass",
+      "baseline_faults": [],
+      "candidate_outcome": "fail",
+      "candidate_faults": [
+        "retry_storm",
+        "stale_response_overwrite"
+      ]
+    },
+    "claim_limits": {
+      "detection_rate": false,
+      "goldset_wide": false,
+      "production_networking": false,
+      "upstream_acceptance": false
+    }
+  },
+  "evidence": {
+    "goldset_spec_sha256": "2f05aae5e2739993051374916437f52494b27b9422ce420321406bd61cee79bd",
+    "baseline_run_spec_sha256": "4a8e8cf626db7594c98d5f983018990a2155fe7652c7968696832649b6737aea",
+    "candidate_run_spec_sha256": "2c353217c85f4afc923eaefc2b1d235f39ed677847c269747a5da6c9267c1b50",
+    "baseline_bundle_sha256": "f60120b608470fa7221bff4d127dd282c843e51d611192e4c35e06f29ab42700",
+    "baseline_logcat_sha256": "8c2350abef913ba07b29e3f1d1f2175a8b170d4aa80e6733a76425d88adc5aea",
+    "candidate_bundle_sha256": "9b58895f7e4ba9e874467d420765b1a5043bf1d6c60947d3630ed18821693a25",
+    "candidate_logcat_sha256": "903f7a64d719356a3d17f6be1eb339ecf0a42cdd2c67a4cae0a38e38527bddf8",
+    "identity_sha256": "04fa566435a420a28aee0785e0f428b8af5ea3825b9c1c555ec63a8f2c50218c",
+    "oracle_source_sha256": "8bcfbd8073314fa9b2ae0eaf85daf5ddf31d364e9a544385758b133776e33cae",
+    "oracle_tests_sha256": "fa076d296138724de281a7a62959bf5048fd38292d931bb915fcd7081127809e"
+  },
+  "commands": [
+    "Selective manifest verification of 93/97 entries with zero mismatches; excluded two pre-existing oracle result files and two verification-agent outputs",
+    "git remote/rev-parse and git apply --reverse --check for both recorded host worktrees/patches",
+    "shasum -a 256 for consumed Run Specs, patches, local/installed APKs, tool binaries, raw evidence, identity, Journey results, oracle source/tests",
+    "jq checks of deployment/bundle/APK identity and local Codex session metadata; config requested model verified at /Users/peter/.codex/config.toml:1",
+    "Ruby/JQ validation of accepted Journey role/attempt/status/action/evidence/identity references",
+    "PYTHONPATH=src uv run --no-project --with pytest --with pydantic --with pyyaml python -m pytest tests/bench/test_network_reliability.py -ra (49 passed in 0.11s)",
+    "PYTHONPATH=src python3 temporary-file matrix mutating ordered_response checkpoint state/retry_enabled for baseline and candidate (4/4 judged fail with scenario_contract_failed; baseline cases exit 1/locally_rejected)",
+    "Direct temporary-file adversarial CLI matrices, including 12 final raw-binding cases; expected invalid cases all exit 2/non_accountable",
+    "PYTHONPATH=src python3 -m aiverify.bench.network_reliability --baseline docs/runs/2026-07-19-issue-69-network-reliability/baseline/evidence-bundle.json --candidate docs/runs/2026-07-19-issue-69-network-reliability/candidate/evidence-bundle.json --output <temporary-file> (exit 0; baseline pass; candidate retry_storm and stale_response_overwrite)"
+  ]
+}

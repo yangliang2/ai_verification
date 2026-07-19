@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "identity_status": "complete",
+  "attempts": {
+    "baseline": {
+      "accepted_attempt": 2,
+      "consumed_run_spec": {
+        "path": "bench/goldset/run-specs/wikipedia-network-reliability-01-baseline.yaml",
+        "sha256": "4a8e8cf626db7594c98d5f983018990a2155fe7652c7968696832649b6737aea"
+      },
+      "host": {
+        "origin": "https://github.com/wikimedia/apps-android-wikipedia",
+        "commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b",
+        "worktree": "/Users/peter/hosts/wikipedia-issue69-baseline",
+        "applied_patch": "bench/goldset/patches/wikipedia-network-reliability-01-baseline-fixture.patch",
+        "patch_sha256": "07f76e26613a894456535f4c72f0b6a508aa4e244fff64a6903d4b22817cea64"
+      },
+      "apk": {
+        "local_path": "/Users/peter/hosts/wikipedia/aiverify-builds/issue-69-network-reliability/baseline-app-dev-debug.apk",
+        "local_sha256": "8f66479b4943e7605297368b2e78ff258682d7f786f259b4d35e4a1c45283aeb",
+        "installed_copy_path": "/Users/peter/hosts/wikipedia/aiverify-builds/issue-69-network-reliability/installed-baseline.apk",
+        "installed_sha256": "8f66479b4943e7605297368b2e78ff258682d7f786f259b4d35e4a1c45283aeb"
+      }
+    },
+    "candidate": {
+      "accepted_attempt": 1,
+      "consumed_run_spec": {
+        "path": "bench/goldset/run-specs/wikipedia-network-reliability-01-candidate.yaml",
+        "sha256": "2c353217c85f4afc923eaefc2b1d235f39ed677847c269747a5da6c9267c1b50"
+      },
+      "host": {
+        "origin": "https://github.com/wikimedia/apps-android-wikipedia",
+        "commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b",
+        "worktree": "/Users/peter/hosts/wikipedia-issue69-candidate",
+        "applied_patch": "bench/goldset/patches/wikipedia-network-reliability-01-candidate.patch",
+        "patch_sha256": "a7bce2dcd6eba638f6c3632f9a26c4c9826be748ba365a0342da0ad0965d6d79"
+      },
+      "apk": {
+        "local_path": "/Users/peter/hosts/wikipedia/aiverify-builds/issue-69-network-reliability/candidate-app-dev-debug.apk",
+        "local_sha256": "55a7fa39248229bafdd82f45c6144c103ec380bb715308b6387e8ce75f57959f",
+        "installed_copy_path": "/Users/peter/hosts/wikipedia/aiverify-builds/issue-69-network-reliability/installed-candidate.apk",
+        "installed_sha256": "55a7fa39248229bafdd82f45c6144c103ec380bb715308b6387e8ce75f57959f"
+      }
+    }
+  },
+  "deployment_target": {
+    "serial": "emulator-5554",
+    "avd": "aiverify_api35",
+    "api": 35,
+    "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "package": "org.wikipedia.dev",
+    "activity": "org.wikipedia.dev.NetworkReliabilityFixtureActivity"
+  },
+  "critical_tools": {
+    "android_cli": {
+      "path": "/Users/peter/.local/bin/android",
+      "version": "1.0.15498356",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc"
+    },
+    "adb": {
+      "path": "/opt/homebrew/bin/adb",
+      "version": "37.0.0-14910828",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+    },
+    "gradle": "9.5.1",
+    "kotlin": "2.3.20",
+    "java": "17.0.19",
+    "python": "3.11.15",
+    "pytest": "9.0.3"
+  },
+  "agent_roles": {
+    "agent_in_the_loop_operator": {
+      "backend": "Codex TUI CLI 0.144.5",
+      "session_id": "019f78f4-dda7-7832-8563-b377d6b51078",
+      "requested_model": "gpt-5.6-sol",
+      "effective_model": "gpt-5.6-sol",
+      "requested_model_source": "/Users/peter/.codex/config.toml:1",
+      "effective_model_source": "turn_context.model in session 019f78f4-dda7-7832-8563-b377d6b51078",
+      "reasoning_effort": "high",
+      "authoritative_observation_source": "Android CLI layout trees at every checkpoint; DeviceSystemEventInjector postconditions and structured target logcat; annotated screenshots were supplemental visual confirmation"
+    },
+    "independent_verification_agent": {
+      "backend": "Codex TUI collaboration subagent, CLI 0.144.5",
+      "session_id": "019f7913-bec5-7772-8b21-ef8101953736",
+      "parent_session_id": "019f78f4-dda7-7832-8563-b377d6b51078",
+      "requested_model": "gpt-5.6-sol",
+      "effective_model": "gpt-5.6-sol",
+      "requested_model_source": "inherited parent selection from /Users/peter/.codex/config.toml:1",
+      "effective_model_source": "turn_context.model in session 019f7913-bec5-7772-8b21-ef8101953736",
+      "reasoning_effort": "high",
+      "authoritative_observation_source": "Committed raw layout/logcat files, Run Specs, evidence bundles, oracle source/tests, and direct local jq/diff/checksum/pytest/oracle command outputs; no live-device observation"
+    }
+  },
+  "model_identity_source": {
+    "kind": "local Codex session metadata",
+    "requested_model_config": "/Users/peter/.codex/config.toml:1 (`model = \"gpt-5.6-sol\"`)",
+    "operator_session_path": "/Users/peter/.codex/sessions/2026/07/19/rollout-2026-07-19T01-59-01-019f78f4-dda7-7832-8563-b377d6b51078.jsonl",
+    "verification_session_path": "/Users/peter/.codex/sessions/2026/07/19/rollout-2026-07-19T02-32-45-019f7913-bec5-7772-8b21-ef8101953736.jsonl",
+    "fields": "session_meta.id/originator/source/cli_version and turn_context.model/effort",
+    "note": "The configured/requested model and each role's effective turn_context.model are independently recorded and agree. Session files are not copied because they contain unrelated conversation context; this extracted identity is checksum-bound by the run-record manifest."
+  }
+}

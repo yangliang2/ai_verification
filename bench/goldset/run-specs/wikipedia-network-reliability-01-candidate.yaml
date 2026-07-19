@@ -1,0 +1,56 @@
+host_project:
+  root: ${WIKIPEDIA_SOURCE}
+  origin: https://github.com/wikimedia/apps-android-wikipedia
+  commit: 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.dev.NetworkReliabilityFixtureActivity
+diff: ../patches/wikipedia-network-reliability-01-candidate.patch
+spec: ../specs/wikipedia-network-reliability-01.md
+live_validation:
+  app_smoke:
+    target_text: Run online
+    app_settle_seconds: 1
+scenario:
+  id: wikipedia-network-reliability-01-candidate
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: network-reliability
+    taxonomy_pattern_id: network-reliability-01
+  user_actions:
+    - "Launch org.wikipedia.dev.NetworkReliabilityFixtureActivity and tap 'Run online'; confirm State: content and Content: online-v1."
+    - "Tap 'Run offline'; confirm State: cached and Content: cached-v1."
+    - "Tap 'Run timeout'; leave the activity foregrounded for the deterministic timeout."
+    - "Confirm the timeout UI shows State: timeout and Retry enabled: true without tapping another scenario."
+    - "Tap 'Run retry'; confirm State: content and Content: retry-v1."
+    - "Tap 'Run cancellation'; confirm State: cancelled remains visible after the delayed response."
+    - "Tap 'Run ordered response' and wait until both deterministic responses finish."
+    - "Tap 'Run recovery' and wait until its deterministic response finishes."
+  system_events:
+    - step_index: 0
+      event: network_off
+    - step_index: 1
+      event: wait
+      args: {seconds: "0.2", expect_network: "off", expect_resumed: "target"}
+    - step_index: 2
+      event: wait
+      args: {seconds: "0.6", expect_network: "off", expect_resumed: "target"}
+    - step_index: 3
+      event: network_on
+    - step_index: 4
+      event: wait
+      args: {seconds: "0.2", expect_network: "on", expect_resumed: "target"}
+    - step_index: 5
+      event: wait
+      args: {seconds: "0.6", expect_network: "on", expect_resumed: "target"}
+    - step_index: 6
+      event: wait
+      args: {seconds: "0.6", expect_network: "on", expect_resumed: "target"}
+    - step_index: 7
+      event: wait
+      args: {seconds: "0.2", expect_network: "on", expect_resumed: "target"}
+  assertions: []
+  expected_behavior: >
+    The injected candidate emits six retry attempts and applies the delayed old-v1
+    response after new-v2. The network oracle must reject both retry_storm and
+    stale_response_overwrite while the remaining scenarios recover cleanly.

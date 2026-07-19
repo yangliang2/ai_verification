@@ -1,0 +1,22 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_pair_requires_fixture_ready_to_be_first_structured_marker ________
+
+    def test_pair_requires_fixture_ready_to_be_first_structured_marker() -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        lines = candidate["logcat"].splitlines()
+        candidate["logcat"] = "\n".join([*lines[1:], lines[0]]) + "\n"
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_rejected' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_rejected
+
+tests/bench/test_network_reliability.py:497: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_pair_requires_fixture_ready_to_be_first_structured_marker
+1 failed, 46 deselected in 0.11s

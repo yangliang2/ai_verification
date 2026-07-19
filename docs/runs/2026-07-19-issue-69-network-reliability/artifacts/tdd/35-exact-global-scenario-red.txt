@@ -1,0 +1,424 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[extra_checkpoint] _
+
+mutation = 'extra_checkpoint'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "extra_checkpoint",
+            "extra_scenario_event",
+            "reordered_scenario_blocks",
+            "duplicate_cancellation_resolution",
+            "duplicate_ordered_resolution",
+        ],
+    )
+    def test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "extra_checkpoint":
+            baseline["checkpoints"]["eighth_scenario"] = {
+                "state": "content",
+                "content": "unexpected-v1",
+                "retry_enabled": False,
+            }
+        elif mutation == "extra_scenario_event":
+            baseline["network_events"].append(
+                {
+                    "sequence": 21,
+                    "scenario": "eighth_scenario",
+                    "kind": "response_applied",
+                    "request_id": "extra-1",
+                    "content": "unexpected-v1",
+                }
+            )
+        elif mutation == "reordered_scenario_blocks":
+            recovery = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] == "recovery"
+            ]
+            other = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] != "recovery"
+            ]
+            baseline["network_events"] = recovery + other
+            for sequence, event in enumerate(baseline["network_events"], start=1):
+                event["sequence"] = sequence
+        elif mutation == "duplicate_cancellation_resolution":
+            baseline["network_events"].insert(
+                14,
+                {
+                    "sequence": 14.5,
+                    "scenario": "cancellation",
+                    "kind": "response_ignored",
+                    "request_id": "cancel-1",
+                    "content": "late-v1",
+                },
+            )
+        elif mutation == "duplicate_ordered_resolution":
+            baseline["network_events"].insert(
+                18,
+                {
+                    "sequence": 18.5,
+                    "scenario": "ordered_response",
+                    "kind": "response_ignored",
+                    "request_id": "old",
+                    "content": "old-v1",
+                },
+            )
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:324: AssertionError
+_ test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[extra_scenario_event] _
+
+mutation = 'extra_scenario_event'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "extra_checkpoint",
+            "extra_scenario_event",
+            "reordered_scenario_blocks",
+            "duplicate_cancellation_resolution",
+            "duplicate_ordered_resolution",
+        ],
+    )
+    def test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "extra_checkpoint":
+            baseline["checkpoints"]["eighth_scenario"] = {
+                "state": "content",
+                "content": "unexpected-v1",
+                "retry_enabled": False,
+            }
+        elif mutation == "extra_scenario_event":
+            baseline["network_events"].append(
+                {
+                    "sequence": 21,
+                    "scenario": "eighth_scenario",
+                    "kind": "response_applied",
+                    "request_id": "extra-1",
+                    "content": "unexpected-v1",
+                }
+            )
+        elif mutation == "reordered_scenario_blocks":
+            recovery = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] == "recovery"
+            ]
+            other = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] != "recovery"
+            ]
+            baseline["network_events"] = recovery + other
+            for sequence, event in enumerate(baseline["network_events"], start=1):
+                event["sequence"] = sequence
+        elif mutation == "duplicate_cancellation_resolution":
+            baseline["network_events"].insert(
+                14,
+                {
+                    "sequence": 14.5,
+                    "scenario": "cancellation",
+                    "kind": "response_ignored",
+                    "request_id": "cancel-1",
+                    "content": "late-v1",
+                },
+            )
+        elif mutation == "duplicate_ordered_resolution":
+            baseline["network_events"].insert(
+                18,
+                {
+                    "sequence": 18.5,
+                    "scenario": "ordered_response",
+                    "kind": "response_ignored",
+                    "request_id": "old",
+                    "content": "old-v1",
+                },
+            )
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:324: AssertionError
+_ test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[reordered_scenario_blocks] _
+
+mutation = 'reordered_scenario_blocks'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "extra_checkpoint",
+            "extra_scenario_event",
+            "reordered_scenario_blocks",
+            "duplicate_cancellation_resolution",
+            "duplicate_ordered_resolution",
+        ],
+    )
+    def test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "extra_checkpoint":
+            baseline["checkpoints"]["eighth_scenario"] = {
+                "state": "content",
+                "content": "unexpected-v1",
+                "retry_enabled": False,
+            }
+        elif mutation == "extra_scenario_event":
+            baseline["network_events"].append(
+                {
+                    "sequence": 21,
+                    "scenario": "eighth_scenario",
+                    "kind": "response_applied",
+                    "request_id": "extra-1",
+                    "content": "unexpected-v1",
+                }
+            )
+        elif mutation == "reordered_scenario_blocks":
+            recovery = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] == "recovery"
+            ]
+            other = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] != "recovery"
+            ]
+            baseline["network_events"] = recovery + other
+            for sequence, event in enumerate(baseline["network_events"], start=1):
+                event["sequence"] = sequence
+        elif mutation == "duplicate_cancellation_resolution":
+            baseline["network_events"].insert(
+                14,
+                {
+                    "sequence": 14.5,
+                    "scenario": "cancellation",
+                    "kind": "response_ignored",
+                    "request_id": "cancel-1",
+                    "content": "late-v1",
+                },
+            )
+        elif mutation == "duplicate_ordered_resolution":
+            baseline["network_events"].insert(
+                18,
+                {
+                    "sequence": 18.5,
+                    "scenario": "ordered_response",
+                    "kind": "response_ignored",
+                    "request_id": "old",
+                    "content": "old-v1",
+                },
+            )
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:324: AssertionError
+_ test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[duplicate_cancellation_resolution] _
+
+mutation = 'duplicate_cancellation_resolution'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "extra_checkpoint",
+            "extra_scenario_event",
+            "reordered_scenario_blocks",
+            "duplicate_cancellation_resolution",
+            "duplicate_ordered_resolution",
+        ],
+    )
+    def test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "extra_checkpoint":
+            baseline["checkpoints"]["eighth_scenario"] = {
+                "state": "content",
+                "content": "unexpected-v1",
+                "retry_enabled": False,
+            }
+        elif mutation == "extra_scenario_event":
+            baseline["network_events"].append(
+                {
+                    "sequence": 21,
+                    "scenario": "eighth_scenario",
+                    "kind": "response_applied",
+                    "request_id": "extra-1",
+                    "content": "unexpected-v1",
+                }
+            )
+        elif mutation == "reordered_scenario_blocks":
+            recovery = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] == "recovery"
+            ]
+            other = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] != "recovery"
+            ]
+            baseline["network_events"] = recovery + other
+            for sequence, event in enumerate(baseline["network_events"], start=1):
+                event["sequence"] = sequence
+        elif mutation == "duplicate_cancellation_resolution":
+            baseline["network_events"].insert(
+                14,
+                {
+                    "sequence": 14.5,
+                    "scenario": "cancellation",
+                    "kind": "response_ignored",
+                    "request_id": "cancel-1",
+                    "content": "late-v1",
+                },
+            )
+        elif mutation == "duplicate_ordered_resolution":
+            baseline["network_events"].insert(
+                18,
+                {
+                    "sequence": 18.5,
+                    "scenario": "ordered_response",
+                    "kind": "response_ignored",
+                    "request_id": "old",
+                    "content": "old-v1",
+                },
+            )
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:324: AssertionError
+_ test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[duplicate_ordered_resolution] _
+
+mutation = 'duplicate_ordered_resolution'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "extra_checkpoint",
+            "extra_scenario_event",
+            "reordered_scenario_blocks",
+            "duplicate_cancellation_resolution",
+            "duplicate_ordered_resolution",
+        ],
+    )
+    def test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence(
+        mutation: str,
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        candidate["logcat"] = "ActivityManager: ANR in org.wikipedia.dev"
+    
+        if mutation == "extra_checkpoint":
+            baseline["checkpoints"]["eighth_scenario"] = {
+                "state": "content",
+                "content": "unexpected-v1",
+                "retry_enabled": False,
+            }
+        elif mutation == "extra_scenario_event":
+            baseline["network_events"].append(
+                {
+                    "sequence": 21,
+                    "scenario": "eighth_scenario",
+                    "kind": "response_applied",
+                    "request_id": "extra-1",
+                    "content": "unexpected-v1",
+                }
+            )
+        elif mutation == "reordered_scenario_blocks":
+            recovery = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] == "recovery"
+            ]
+            other = [
+                event
+                for event in baseline["network_events"]
+                if event["scenario"] != "recovery"
+            ]
+            baseline["network_events"] = recovery + other
+            for sequence, event in enumerate(baseline["network_events"], start=1):
+                event["sequence"] = sequence
+        elif mutation == "duplicate_cancellation_resolution":
+            baseline["network_events"].insert(
+                14,
+                {
+                    "sequence": 14.5,
+                    "scenario": "cancellation",
+                    "kind": "response_ignored",
+                    "request_id": "cancel-1",
+                    "content": "late-v1",
+                },
+            )
+        elif mutation == "duplicate_ordered_resolution":
+            baseline["network_events"].insert(
+                18,
+                {
+                    "sequence": 18.5,
+                    "scenario": "ordered_response",
+                    "kind": "response_ignored",
+                    "request_id": "old",
+                    "content": "old-v1",
+                },
+            )
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "non_accountable"
+E       AssertionError: assert 'locally_supported' == 'non_accountable'
+E         
+E         - non_accountable
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:324: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[extra_checkpoint]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[extra_scenario_event]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[reordered_scenario_blocks]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[duplicate_cancellation_resolution]
+FAILED tests/bench/test_network_reliability.py::test_pair_fails_closed_for_extra_duplicate_or_reordered_scenario_evidence[duplicate_ordered_resolution]
+5 failed, 28 deselected in 0.10s

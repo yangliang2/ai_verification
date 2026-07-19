@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_rejected",
+  "reason": "baseline did not demonstrate graceful network behavior",
+  "baseline": {
+    "outcome": "fail",
+    "faults": [
+      "crash_or_anr"
+    ]
+  },
+  "candidate": {
+    "outcome": "fail",
+    "faults": [
+      "crash_or_anr",
+      "retry_storm",
+      "stale_response_overwrite"
+    ]
+  },
+  "claims": {
+    "detection_rate": false,
+    "goldset": false,
+    "upstream_acceptance": false
+  }
+}

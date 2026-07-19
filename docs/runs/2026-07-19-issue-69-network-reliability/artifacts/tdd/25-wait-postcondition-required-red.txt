@@ -1,0 +1,16 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_inject_wait_requires_at_least_one_explicit_postcondition _________
+
+    def test_inject_wait_requires_at_least_one_explicit_postcondition() -> None:
+        injector, fake = _injector()
+    
+>       with pytest.raises(
+            SystemEventInjectionError,
+            match="wait requires expect_network or expect_resumed",
+        ):
+E       Failed: DID NOT RAISE <class 'aiverify.runner.system_events.SystemEventInjectionError'>
+
+tests/runner/test_system_events.py:408: Failed
+=========================== short test summary info ============================
+FAILED tests/runner/test_system_events.py::test_inject_wait_requires_at_least_one_explicit_postcondition

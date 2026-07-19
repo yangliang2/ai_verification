@@ -1,0 +1,20 @@
+{
+  "journey": "wikipedia-network-reliability-01",
+  "role": "candidate",
+  "attempt": 1,
+  "status": "PASSED",
+  "effective_execution_identity": "../effective-execution-identity.json#/attempts/candidate",
+  "results": [
+    {"action_id": "action-1", "status": "PASSED", "evidence": "attempt-1/01-online-layout.json", "comment": "State content; Content online-v1."},
+    {"action_id": "action-2", "status": "PASSED", "evidence": "attempt-1/02-offline-layout.json", "comment": "After network_off, State cached; Content cached-v1."},
+    {"action_id": "action-3", "status": "PASSED", "evidence": "attempt-1/03-timeout-layout.json", "comment": "Deterministic timeout completed while offline."},
+    {"action_id": "action-4", "status": "PASSED", "evidence": "attempt-1/03-timeout-layout.json", "comment": "State timeout; Retry enabled true."},
+    {"action_id": "action-5", "status": "PASSED", "evidence": "attempt-1/04-retry-layout.json", "comment": "State content; Content retry-v1; marker oracle owns retry-count judgment."},
+    {"action_id": "action-6", "status": "PASSED", "evidence": "attempt-1/05-cancellation-layout.json", "comment": "State cancelled remained after delayed callback."},
+    {"action_id": "action-7", "status": "PASSED", "evidence": "attempt-1/06-ordered-layout.json", "comment": "Both responses completed; terminal Content old-v1 recorded for oracle."},
+    {"action_id": "action-8", "status": "PASSED", "evidence": "attempt-1/07-recovery-layout.json", "comment": "After network_on, State content; Content recovered-v3."}
+  ],
+  "system_event_evidence": "attempt-1/transcript.log",
+  "network_marker_evidence": "attempt-1/logcat.txt",
+  "visual_evidence": "attempt-1/recovery-annotated.png"
+}

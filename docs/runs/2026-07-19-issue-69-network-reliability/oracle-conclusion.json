@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_supported",
+  "reason": "matched baseline passed and candidate fault was detected",
+  "baseline": {
+    "outcome": "pass",
+    "faults": []
+  },
+  "candidate": {
+    "outcome": "fail",
+    "faults": [
+      "retry_storm",
+      "stale_response_overwrite"
+    ]
+  },
+  "claims": {
+    "detection_rate": false,
+    "goldset": false,
+    "upstream_acceptance": false
+  }
+}

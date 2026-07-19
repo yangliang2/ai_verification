@@ -1,0 +1,56 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____ test_oracle_rejects_invalid_ordered_checkpoint_semantics[state-cached] ____
+
+field = 'state', value = 'cached'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("state", "cached"), ("retry_enabled", True)],
+    )
+    def test_oracle_rejects_invalid_ordered_checkpoint_semantics(
+        field: str, value: object
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        baseline["checkpoints"]["ordered_response"][field] = value
+        _sync_logcat(candidate, "ActivityManager: ANR in org.wikipedia.dev")
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "locally_rejected"
+E       AssertionError: assert 'locally_supported' == 'locally_rejected'
+E         
+E         - locally_rejected
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:332: AssertionError
+_ test_oracle_rejects_invalid_ordered_checkpoint_semantics[retry_enabled-True] _
+
+field = 'retry_enabled', value = True
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("state", "cached"), ("retry_enabled", True)],
+    )
+    def test_oracle_rejects_invalid_ordered_checkpoint_semantics(
+        field: str, value: object
+    ) -> None:
+        baseline = _bundle("baseline")
+        candidate = _bundle("candidate")
+        baseline["checkpoints"]["ordered_response"][field] = value
+        _sync_logcat(candidate, "ActivityManager: ANR in org.wikipedia.dev")
+    
+        verdict = evaluate_network_pair(baseline, candidate)
+    
+>       assert verdict["conclusion"] == "locally_rejected"
+E       AssertionError: assert 'locally_supported' == 'locally_rejected'
+E         
+E         - locally_rejected
+E         + locally_supported
+
+tests/bench/test_network_reliability.py:332: AssertionError
+=========================== short test summary info ============================
+FAILED tests/bench/test_network_reliability.py::test_oracle_rejects_invalid_ordered_checkpoint_semantics[state-cached]
+FAILED tests/bench/test_network_reliability.py::test_oracle_rejects_invalid_ordered_checkpoint_semantics[retry_enabled-True]
+2 failed, 47 deselected in 0.08s
