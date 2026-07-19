@@ -2,7 +2,7 @@
   "conclusion": {
     "status": "pass",
     "scope": "GitHub issue #70 bounded Android runtime-permission reliability fault-injection slice; no security-business, security-certification, goldset, or benchmark-metric claim",
-    "rationale": "The remediated canonical accountable pair closes the prior major Settings gap. Both runs enter real Android App info, drive the visible Permissions to Location to Don’t allow path, record Don’t allow as checked and Location as no longer allowed, and then independently observe the package permission as denied. The baseline demonstrates first denial, permanent denial, grant, and post-Settings-revocation graceful degradation; the matched candidate exposes both a denial dead end and an uncaught AndroidRuntime SecurityException after Settings revocation. The candidate Journey's immediate UI observation raced the asynchronous crash, but the later checkpoint logcat and L1 verdict fail closed on the timestamped AndroidRuntime fatal exception.",
+    "rationale": "The canonical accountable pair remains sufficient for the bounded Android runtime-permission reliability conclusion, and the coordinator's two remediation blockers are substantively closed. Screenshot fallback paths now carry a capture-unique 32-hex UUID and the overlap regression passes. Evidence-integrity claims now distinguish an exact scoped diff check that exits 0 from the current unscoped check that exits 2 only for 19,416 whitespace findings in 85 byte-preserved raw outputs: 84 **/logcat.txt captures and one pytest*.log output. The scoped command excludes exactly those two globs, leaving README, JSON, screenshots, source, tests, benchmark definitions, fixtures, and patches checked; all 85 exempt files independently match their existing checksum entries. The current whole-record checksum verification is intentionally not claimed as passing because the pending README correction mismatches its prior entry and the new remediation-diff-check.txt is not yet listed; those fixed-point updates belong to the owning agent after this conclusion becomes immutable.",
     "acceptance_criteria": [
       {
         "criterion": "All four permission states are reproducible on the installed APK",
@@ -56,6 +56,27 @@
         ]
       }
     ],
+    "coordinator_blockers": [
+      {
+        "blocker": "Evidence-integrity contradiction between a claimed git diff --check pass and historical raw-artifact whitespace findings",
+        "status": "pass_with_narrow_exemption",
+        "evidence": [
+          "git -C /Users/peter/projects/ai_verification-issue-70-remediation diff --check d5a82bfa8a74572a447cd1097bba02d674f7d842...HEAD -- . ':(exclude,glob)docs/runs/2026-07-19-issue-70-runtime-permission/**/logcat.txt' ':(exclude,glob)docs/runs/2026-07-19-issue-70-runtime-permission/pytest*.log' exits 0 with no output",
+          "The unscoped command exits 2 with exactly 19,416 findings across 85 files: 84 byte-preserved **/logcat.txt captures and one byte-preserved pytest*.log output; no other file is exempt",
+          "Independent per-file verification found all 85 exempt raw files listed in checksums.sha256 with matching SHA-256 values (85 covered, 0 missing, 0 mismatched)",
+          "Both normalized fixture patches exactly match the canonical identity/host.patch bytes and reverse-apply successfully"
+        ]
+      },
+      {
+        "blocker": "Concurrent screenshot fallback can overwrite another run's deterministic remote path",
+        "status": "pass",
+        "evidence": [
+          "src/aiverify/runner/evidence.py binds the adb remote screencap filename to the safe checkpoint name plus uuid.uuid4().hex",
+          "tests/runner/test_evidence.py::test_device_scoped_fallback_uses_unique_remote_paths_for_overlapping_runs independently passes and requires two distinct /sdcard/aiverify-after-event-[0-9a-f]{32}.png paths",
+          "The post-remediation 217-test focused suite and 550-test full suite independently exit 0"
+        ]
+      }
+    ],
     "verification_commands": [
       {
         "command": "gh issue view 70 --repo yangliang2/ai_verification --comments",
@@ -63,15 +84,19 @@
       },
       {
         "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/pytest -q -p no:cacheprovider",
-        "result": "PASS, 550 tests in 17.01 seconds after the screenshot-isolation remediation, as retained in remediation-full-pytest.log (progress reached 100%, exit code 0)."
+        "result": "PASS independently rerun from ee483b5 plus the pending documentation corrections: 550 tests collected, progress reached 100%, exit code 0. The committed remediation-full-pytest.log separately records 550 passed in 17.01 seconds."
       },
       {
         "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/pytest -q -p no:cacheprovider tests/bench/test_runtime_permission_slice.py tests/runner/test_system_events.py tests/runner/test_journey.py tests/runner/test_evidence.py tests/agent/test_oracle_l1.py tests/harness/test_device_controller.py tests/runner/test_run_spec.py tests/runner/test_cli.py",
-        "result": "PASS, 217 focused tests in 0.46 seconds after screenshot-isolation remediation, as retained in remediation-focused-pytest.log. The added evidence regression runs two collectors with the same device and checkpoint and requires distinct UUID-scoped remote screencap paths (progress reached 100%, exit code 0)."
+        "result": "PASS independently rerun: 217 tests collected, progress reached 100%, exit code 0. The committed remediation-focused-pytest.log separately records 217 passed in 0.46 seconds."
       },
       {
-        "command": "git -C /Users/peter/hosts/wikipedia-issue-70-baseline apply --check -R /Users/peter/projects/ai_verification-issue-70/bench/runtime-permission/patches/wikipedia-location-permission-baseline.patch && git -C /Users/peter/hosts/wikipedia-issue-70-fixture apply --check -R /Users/peter/projects/ai_verification-issue-70/bench/runtime-permission/patches/wikipedia-location-permission-candidate.patch",
-        "result": "PASS; both stored debug-only fixture patches reverse-apply to their executed host worktrees. The only byte difference between each stored patch and captured identity/host.patch is one trailing blank line."
+        "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/pytest -q -p no:cacheprovider tests/runner/test_evidence.py::test_device_scoped_fallback_uses_unique_remote_paths_for_overlapping_runs",
+        "result": "PASS independently rerun: one test, progress reached 100%, exit code 0; two same-device/same-checkpoint collectors receive distinct UUID-scoped remote paths."
+      },
+      {
+        "command": "git -C /Users/peter/hosts/wikipedia-issue-70-baseline apply --check -R /Users/peter/projects/ai_verification-issue-70-remediation/bench/runtime-permission/patches/wikipedia-location-permission-baseline.patch && git -C /Users/peter/hosts/wikipedia-issue-70-fixture apply --check -R /Users/peter/projects/ai_verification-issue-70-remediation/bench/runtime-permission/patches/wikipedia-location-permission-candidate.patch",
+        "result": "PASS; both stored debug-only fixture patches reverse-apply to their executed host worktrees and each normalized patch is byte-identical to its canonical identity/host.patch."
       },
       {
         "command": "shasum -a 256 /Users/peter/hosts/wikipedia-issue-70-{baseline,fixture}/app/build/outputs/apk/dev/debug/app-dev-debug.apk",
@@ -82,8 +107,20 @@
         "result": "PASS; all canonical JSON evidence parsed successfully."
       },
       {
-        "command": "git diff --check d5a82bf...4121893",
-        "result": "Expected exit 2: findings are trailing whitespace in byte-preserved raw logcat and captured test-output artifacts. They are checksum-bound device/tool output and are deliberately not normalized; this is not a source-style pass. The two trailing blank lines in fixture patches reported by that historical command are normalized by the remediation commit."
+        "command": "git -C /Users/peter/projects/ai_verification-issue-70-remediation diff --check d5a82bfa8a74572a447cd1097bba02d674f7d842...HEAD -- . ':(exclude,glob)docs/runs/2026-07-19-issue-70-runtime-permission/**/logcat.txt' ':(exclude,glob)docs/runs/2026-07-19-issue-70-runtime-permission/pytest*.log'",
+        "result": "PASS independently rerun: exit 0, no output. Exactly 84 **/logcat.txt files and one pytest*.log file are eligible for exclusion; README, JSON, screenshots, source, tests, benchmark definitions, fixtures, and patches remain checked."
+      },
+      {
+        "command": "git diff --check d5a82bfa8a74572a447cd1097bba02d674f7d842...HEAD",
+        "result": "Expected scoped-exemption failure: exit 2 with exactly 19,416 findings across 85 files: 84 **/logcat.txt captures and one pytest*.log output, with zero other affected files."
+      },
+      {
+        "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m aiverify.bench.run_record_checksums --verify docs/runs/2026-07-19-issue-70-runtime-permission",
+        "result": "CURRENTLY NOT PASSING, exit 1: checksum mismatch: README.md; unlisted artifact: remediation-diff-check.txt. No post-conclusion whole-record checksum verification is claimed."
+      },
+      {
+        "command": "Independent SHA-256 audit of the 85 files reported by the unscoped git diff --check against checksums.sha256",
+        "result": "PASS for the narrow raw-artifact exemption: 85 covered, 0 missing, 0 mismatched."
       },
       {
         "command": "Independent inspection of canonical segment-6 Journey event streams/action lineage plus baseline/candidate after-event-5 and after-segment-6 screenshots/layouts",
@@ -95,6 +132,8 @@
       "Android CLI cannot device-select screen capture with two online devices, so device-scoped adb supplies raw screenshots and capture manifests explicitly record annotated screenshots as unavailable.",
       "Candidate L3 is intentionally gated after deterministic L1/L2 failures; no candidate L3 claim is made.",
       "The candidate Journey's immediate post-tap layout did not itself observe the asynchronous crash; the subsequent canonical checkpoint logcat and L1 oracle are the authoritative crash evidence.",
+      "The unscoped git diff --check remains intentionally nonzero: exit 2, 19,416 findings, 85 files. The exemption consists exactly of 84 byte-preserved **/logcat.txt captures and one byte-preserved pytest*.log output. README, JSON, screenshots, source, tests, benchmark definitions, fixtures, and patches remain in scope and pass the exact scoped command.",
+      "At this independent-audit point the whole-record checksum command exits 1 because the pending README correction differs from its prior manifest entry and remediation-diff-check.txt is new and unlisted. The 85 immutable files motivating the exemption themselves all match their listed checksums; the owning agent must finalize the additive documentation evidence through the fixed-point protocol.",
       "Checksum fixed-point protocol: after these conclusion bytes become immutable, the owning implementation agent regenerates and verifies checksums.sha256 over the completed run record, then records the manifest hash and repository commit in the GitHub evidence comment. The independent Verification Agent must not edit this conclusion afterward, because doing so would invalidate that post-conclusion manifest. This conclusion does not claim independent verification of any checksum manifest generated after this final edit."
     ]
   }

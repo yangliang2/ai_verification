@@ -71,8 +71,11 @@ cd /Users/peter/hosts/wikipedia-issue-70-fixture
 git apply --check -R \
   /Users/peter/projects/ai_verification-issue-70/bench/runtime-permission/patches/wikipedia-location-permission-candidate.patch
 
-cd /Users/peter/projects/ai_verification-issue-70
-git diff --check
+git -C /Users/peter/projects/ai_verification-issue-70-remediation \
+  diff --check d5a82bfa8a74572a447cd1097bba02d674f7d842...HEAD \
+  -- . \
+  ':(exclude,glob)docs/runs/2026-07-19-issue-70-runtime-permission/**/logcat.txt' \
+  ':(exclude,glob)docs/runs/2026-07-19-issue-70-runtime-permission/pytest*.log'
 ```
 
 Important results:
@@ -104,6 +107,12 @@ Important results:
   output protected by `checksums.sha256`. This is an artifact-format limitation,
   not a source-style pass. The two fixture-patch trailing blank lines reported
   by that historical command have been normalized in the remediation commit.
+- The current unscoped check still intentionally exits 2: 19,416 findings in
+  85 byte-preserved files: 84 `logcat.txt` captures and one `pytest*.log`
+  capture. The current narrowly scoped check shown above exits 0. Only those
+  raw-output globs are exempt; README/JSON/screenshots/source/tests/fixtures and
+  patches remain checked. The exempt bytes remain covered by `checksums.sha256`
+  and are not silently normalized.
 
 ## Artifact inventory
 
@@ -128,7 +137,12 @@ Important results:
   `remediation-full-pytest.log`: build/test command outputs.
 - `independent-verification.json`: the separate Verification Agent's single
   fail-closed conclusion (`pass`) with acceptance-criterion evidence and gaps.
-- `checksums.sha256`: 747-entry final SHA-256 inventory, excluding itself.
+- `remediation-focused-pytest.log`, `remediation-full-pytest.log`, and
+  `remediation-diff-check.txt`: additive coordinator-remediation evidence;
+  prior Android attempts and test logs remain preserved.
+- `checksums.sha256`: final SHA-256 inventory, excluding itself. Its final entry
+  count and manifest hash are recorded after the independent-verification fixed
+  point is complete.
 
 ## Superseded attempt lineage
 
