@@ -1,0 +1,13 @@
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java
+index 367cde6..a28ceb5 100644
+--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java
++++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java
+@@ -84,7 +84,7 @@ final class StateStore {
+ 
+     private void migrateLegacyState() {
+         StateRecord source = read();
+-        if (source.schemaVersion != LEGACY_SCHEMA) {
++        if (source.schemaVersion == LEGACY_SCHEMA) {
+             return;
+         }
+         boolean committed = preferences.edit()

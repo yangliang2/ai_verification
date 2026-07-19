@@ -1,0 +1,14 @@
+{
+  "journey": "lifecycle-recovery-matched-journey-segment-1",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Inspected the already-open fixture app after rotation. All four version 1 values remained visible: sentinel=AIVERIFY-ISSUE-71-SENTINEL, schema version=1, revision=41, migration status=PENDING_V1_TO_V2. No tap, relaunch, or fixture recreation was performed.",
+      "action": "After the runner-controlled rotation, inspect the already-open fixture app without relaunching it. Confirm the same four version 1 values remain visible. Do not tap CREATE VERSION 1 FIXTURE again.\n"
+    }
+  ]
+}

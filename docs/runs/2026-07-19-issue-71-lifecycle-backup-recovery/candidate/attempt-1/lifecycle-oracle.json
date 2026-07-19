@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_rejected",
+  "classification": "stale_state",
+  "reason": "restored_state_remains_at_pre_migration_version",
+  "accountable": true,
+  "observations": {
+    "initial": {
+      "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+      "schema_version": "1",
+      "revision": "41",
+      "migration_status": "PENDING_V1_TO_V2"
+    },
+    "rotation": {
+      "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+      "schema_version": "1",
+      "revision": "41",
+      "migration_status": "PENDING_V1_TO_V2"
+    },
+    "process_death": {
+      "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+      "schema_version": "1",
+      "revision": "41",
+      "migration_status": "PENDING_V1_TO_V2"
+    },
+    "backup_restore": {
+      "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+      "schema_version": "1",
+      "revision": "41",
+      "migration_status": "PENDING_V1_TO_V2"
+    }
+  },
+  "run_evidence": {
+    "run_dir": "/private/tmp/aiverify-issue71-candidate.c2wnqt",
+    "contract": "/Users/peter/projects/ai_verification-issue-71/bench/capability-slices/lifecycle-recovery/contract.json",
+    "execution_record": "/private/tmp/aiverify-issue71-candidate.c2wnqt/execution-record.json",
+    "execution_provenance": "/private/tmp/aiverify-issue71-candidate.c2wnqt/execution-provenance.json",
+    "layouts": {
+      "initial": "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/after-segment-0/layout.json",
+      "rotated": "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/after-event-0/layout.json",
+      "process_restored": "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/after-event-1/layout.json",
+      "backup_restored": "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/after-event-2/layout.json"
+    },
+    "system_events": {
+      "rotate": "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/system-event-0/event.json",
+      "process_death": "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/system-event-1/event.json",
+      "backup_restore": "/private/tmp/aiverify-issue71-candidate.c2wnqt/artifacts/system-event-2/event.json"
+    }
+  }
+}
