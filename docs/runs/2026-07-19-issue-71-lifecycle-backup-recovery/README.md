@@ -1,7 +1,8 @@
 # Issue #71 lifecycle and backup-recovery verification
 
-Status: implementation, real-device evidence, and independent post-review audit
-complete; durable commit and GitHub publication are being finalized.
+Status: complete. Implementation, real-device evidence, independent post-review
+audit, durable commit/push, GitHub issue/parent publication, and issue closure
+all completed.
 
 This record supports a deliberately narrow local claim. On the recorded API-35
 emulator, the baseline preserves deterministic version-1 state through rotation
@@ -32,8 +33,9 @@ acceptance claim is made.
 - [x] A separate read-only post-review Verification Agent produced exactly one
   fail-closed schema-valid conclusion: locally_supported, accountable, with
   13/13 evidence checks passed.
-- [ ] The run record, issue comment, parent progress comment, and closure are
-  pending commit/push.
+- [x] The run record was committed and pushed; the exact issue and parent
+  comment bodies were published; ready-for-agent was removed; #71 closed as
+  completed while parent #68 remains open.
 
 ## Implemented capability
 
@@ -211,6 +213,23 @@ The collaboration API exposes the final message but not a raw transcript or CLI
 thread. invocation.md and prompt.md record that limitation without inventing
 provenance; validation.txt records the successful local schema check.
 
+## GitHub publication
+
+The evidence record was committed as
+626d290707a4a6cffc9b58dcb52f0dce29c67838 and pushed to
+origin/issue-71-lifecycle-recovery before publication.
+
+- Issue evidence:
+  https://github.com/yangliang2/ai_verification/issues/71#issuecomment-5015115661
+- Parent progress:
+  https://github.com/yangliang2/ai_verification/issues/68#issuecomment-5015115813
+- #71: CLOSED / COMPLETED at 2026-07-19T08:57:48Z; enhancement remains and
+  ready-for-agent was removed.
+- #68: remains OPEN for unfinished child slices.
+
+Raw GitHub comment-body hashes exactly match the committed issue-comment.md and
+parent-comment.md hashes. See artifacts/github-publication.md.
+
 ## Artifact inventory
 
 - baseline/attempt-2/ and candidate/attempt-2/: qualified final real-device
@@ -222,6 +241,8 @@ provenance; validation.txt records the successful local schema check.
 - artifacts/build/, artifacts/manual-probe/, artifacts/diagnosis/: fixture
   builds, installation, manual device probes, and multi-device screenshot
   diagnosis.
+- artifacts/github-publication.md: evidence push, exact GitHub comment URLs and
+  body-hash comparisons, label/state transition, and parent state.
 - independent-verification-pre-review/: superseded pre-review independent
   audit.
 - independent-verification/: authoritative post-review read-only conclusion,
@@ -229,9 +250,9 @@ provenance; validation.txt records the successful local schema check.
 - attempts/: excluded and superseded attempts, including provenance
   self-drift and the clean Codex-usage-limit retry.
 - issue-71.json: issue brief captured for audit.
-- issue-comment.md and parent-comment.md: to be added as the exact GitHub
-  publication bodies.
-- checksums.sha256: to be generated after all final artifacts are frozen.
+- issue-comment.md and parent-comment.md: exact published GitHub bodies.
+- checksums.sha256: root inventory generated after all final artifacts were
+  frozen and verified with shasum -a 256 -c.
 
 Tool versions: Android CLI 1.0.15498356, adb 37.0.0, OpenJDK 17.0.19,
 Gradle 9.1.0, Python 3.11.15, Codex CLI 0.144.5, Git 2.50.1.
