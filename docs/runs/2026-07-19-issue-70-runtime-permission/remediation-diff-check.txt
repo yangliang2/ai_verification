@@ -1,0 +1,9 @@
+Historical unscoped command:
+git diff --check d5a82bfa8a74572a447cd1097bba02d674f7d842...HEAD
+Result: expected exit 2; 19,416 findings across 85 files: 84 byte-preserved **/logcat.txt captures and one byte-preserved pytest*.log output.
+
+Current scoped source/fixture command (run from /Users/peter/projects/ai_verification-issue-70-remediation):
+git -C /Users/peter/projects/ai_verification-issue-70-remediation diff --check d5a82bfa8a74572a447cd1097bba02d674f7d842...HEAD -- . ':(exclude,glob)docs/runs/2026-07-19-issue-70-runtime-permission/**/logcat.txt' ':(exclude,glob)docs/runs/2026-07-19-issue-70-runtime-permission/pytest*.log'
+Result: PASS, exit 0.
+
+The exclusions are deliberately limited to the 85 files that actually trigger the historical check. README, JSON, screenshots, source, tests, benchmark definitions, and fixture patches remain checked. Raw run outputs are preserved without normalization and remain checksum-accountable.
