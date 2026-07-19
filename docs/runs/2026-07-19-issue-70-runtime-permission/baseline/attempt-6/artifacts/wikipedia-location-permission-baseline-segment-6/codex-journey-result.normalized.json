@@ -1,0 +1,30 @@
+{
+  "journey": "wikipedia-location-permission-baseline-segment-6",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 214 1482",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 291 1238",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 265 1584",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 73 205",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 73 205",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 74 205",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 540 524",
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 540 650",
+        "android layout --device=emulator-5556 --pretty"
+      ],
+      "comment": "Permissions showed Location as allowed. On the Location screen, “Allow only while using the app” was initially checked; tapping “Don’t allow” changed it to checked, and no warning appeared. After returning via the visible back controls, the fixture showed “NOT_REQUESTED: Location is optional.” and “RATIONALE: true”; Refresh left that status unchanged. After Use location feature, the exact status became “REVOKED: Location unavailable. Continuing without location.” with “RATIONALE: true”. The fixture remained responsive and its controls remained visible and clickable.",
+      "action": "On the real Android App info screen opened by the harness, tap Permissions, tap Location, and select Don't allow (confirm any warning). Press Back until the Runtime location permission fixture returns, then tap Refresh permission state and Use location feature. Record the exact status and whether the fixture remains responsive."
+    }
+  ]
+}

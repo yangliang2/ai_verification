@@ -45,6 +45,86 @@ def test_inject_rotate_uses_device_controller_rotation() -> None:
     ]
 
 
+def test_inject_open_app_settings_confirms_settings_is_resumed() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="Starting: Intent", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{abc u0 "
+                    "com.android.settings/.Settings$AppInfoDashboardActivity t9}"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="open_app_settings",
+            args={"postcondition_timeout_seconds": "0"},
+        )
+    )
+
+    assert fake.commands[-2:] == [
+        [
+            "-s", "emulator-5554", "shell", "am", "start",
+            "-a", "android.settings.APPLICATION_DETAILS_SETTINGS",
+            "-d", "package:org.example",
+        ],
+        [
+            "-s", "emulator-5554", "shell", "dumpsys", "activity", "activities",
+        ],
+    ]
+
+
+def test_inject_open_app_settings_fails_closed_on_wrong_resumed_package() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="Starting: Intent", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "topResumedActivity=ActivityRecord{abc u0 "
+                    "com.android.launcher3/.Launcher t9}"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="open_app_settings postcondition failed.*com.android.settings",
+    ):
+        injector.inject(
+            SystemEventSpec(
+                step_index=0,
+                event="open_app_settings",
+                args={"postcondition_timeout_seconds": "0"},
+            )
+        )
+
+
+def test_inject_open_app_settings_fails_closed_when_launch_fails() -> None:
+    injector, fake = _injector()
+    fake.enqueue(
+        AdbResult(stdout="", stderr="settings activity unavailable", returncode=1)
+    )
+
+    with pytest.raises(
+        SystemEventInjectionError,
+        match="open_app_settings.*return code 1.*settings activity unavailable",
+    ):
+        injector.inject(SystemEventSpec(step_index=0, event="open_app_settings"))
+
+    assert len(fake.commands) == 1
+
+
 def test_inject_rotate_fails_closed_on_nonzero_process_exit() -> None:
     injector, fake = _injector()
     fake.enqueue(AdbResult(stdout="", stderr="permission denied", returncode=1))
@@ -751,13 +831,26 @@ def test_inject_revoke_permission_confirms_runtime_grant_is_denied() -> None:
         ]
     )
 
-    injector.inject(
+    observation = injector.inject(
         SystemEventSpec(
             step_index=0,
             event="revoke_permission",
             args={"permission": "android.permission.CAMERA"},
         )
     )
+
+    assert observation is not None
+    assert observation.as_dict() == {
+        "event": "revoke_permission",
+        "requested": {
+            "package": "org.example",
+            "permission": "android.permission.CAMERA",
+        },
+        "observed": {
+            "granted": False,
+            "flags": ["USER_SET"],
+        },
+    }
 
     assert fake.commands[-2:] == [
         [
@@ -803,6 +896,117 @@ def test_inject_revoke_permission_fails_closed_when_state_is_unobservable() -> N
                 args={"permission": "android.permission.CAMERA"},
             )
         )
+
+
+def test_reset_permission_records_pristine_denied_state() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "runtime permissions:\n"
+                    "  android.permission.ACCESS_FINE_LOCATION: "
+                    "granted=false, flags=[ ]\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    observation = injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="reset_permission",
+            args={"permission": "android.permission.ACCESS_FINE_LOCATION"},
+        )
+    )
+
+    assert observation is not None
+    assert observation.observed == {"granted": False, "flags": []}
+    assert fake.commands[-4:] == [
+        [
+            "-s", "emulator-5554", "shell", "pm", "revoke", "org.example",
+            "android.permission.ACCESS_FINE_LOCATION",
+        ],
+        [
+            "-s", "emulator-5554", "shell", "pm", "clear-permission-flags",
+            "org.example", "android.permission.ACCESS_FINE_LOCATION", "user-set",
+        ],
+        [
+            "-s", "emulator-5554", "shell", "pm", "clear-permission-flags",
+            "org.example", "android.permission.ACCESS_FINE_LOCATION", "user-fixed",
+        ],
+        [
+            "-s", "emulator-5554", "shell", "dumpsys", "package", "org.example",
+        ],
+    ]
+
+
+def test_grant_permission_records_granted_postcondition() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many(
+        [
+            AdbResult(stdout="", stderr="", returncode=0),
+            AdbResult(
+                stdout=(
+                    "runtime permissions:\n"
+                    "  android.permission.ACCESS_FINE_LOCATION: "
+                    "granted=true, flags=[ USER_SET]\n"
+                ),
+                stderr="",
+                returncode=0,
+            ),
+        ]
+    )
+
+    observation = injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="grant_permission",
+            args={"permission": "android.permission.ACCESS_FINE_LOCATION"},
+        )
+    )
+
+    assert observation is not None
+    assert observation.observed == {"granted": True, "flags": ["USER_SET"]}
+
+
+def test_observe_permission_confirms_first_denial_flags() -> None:
+    injector, fake = _injector()
+    fake.enqueue(
+        AdbResult(
+            stdout=(
+                "runtime permissions:\n"
+                "  android.permission.ACCESS_FINE_LOCATION: "
+                "granted=false, flags=[ USER_SET]\n"
+            ),
+            stderr="",
+            returncode=0,
+        )
+    )
+
+    observation = injector.inject(
+        SystemEventSpec(
+            step_index=0,
+            event="observe_permission",
+            args={
+                "permission": "android.permission.ACCESS_FINE_LOCATION",
+                "expected_granted": "false",
+                "required_flags": "USER_SET",
+                "forbidden_flags": "USER_FIXED",
+            },
+        )
+    )
+
+    assert observation is not None
+    assert observation.as_dict()["observed"] == {
+        "granted": False,
+        "flags": ["USER_SET"],
+    }
 
 
 def test_inject_kill_background_uses_package() -> None:

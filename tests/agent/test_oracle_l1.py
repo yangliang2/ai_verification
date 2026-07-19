@@ -43,6 +43,13 @@ LOGCAT_COROUTINE_EXCEPTION = """\
 06-10 17:00:00.002  4000  4000 E AndroidRuntime: \tat kotlinx.coroutines.CoroutineExceptionHandler unhandled exception
 """
 
+LOGCAT_PERMISSION_CRASH = """\
+07-19 12:00:00.000 5000 5000 E AndroidRuntime: FATAL EXCEPTION: main
+07-19 12:00:00.001 5000 5000 E AndroidRuntime: Process: org.wikipedia.dev, PID: 5000
+07-19 12:00:00.002 5000 5000 E AndroidRuntime: java.lang.SecurityException: uid 10234 does not have android.permission.ACCESS_FINE_LOCATION
+07-19 12:00:00.003 5000 5000 E AndroidRuntime: at android.location.LocationManager.getLastKnownLocation(LocationManager.java:999)
+"""
+
 # ---------------------------------------------------------------------------
 # 测试
 # ---------------------------------------------------------------------------
@@ -125,6 +132,15 @@ def test_l1_coroutine_exception_detected():
     validate_verdict(verdict)
 
 
+def test_l1_detects_uncaught_security_exception_as_crash_stability():
+    verdict = oracle.judge(LOGCAT_PERMISSION_CRASH)
+
+    assert verdict["outcome"] == "fail"
+    assert verdict["defect_class_hypothesis"] == "crash_stability"
+    assert any("SecurityException" in item["ref"] for item in verdict["evidence"])
+    validate_verdict(verdict)
+
+
 # 真实设备 logcat 里出现过的良性 exception 提及（非本应用崩溃）：
 # - gRPC/GmsCore 的 "ManagedChannel allocation site" 诊断日志（tag=gclu）
 # - 被 binder stub 捕获（Caught）的 NullPointerException（tag=Binder, W 级）
@@ -134,6 +150,7 @@ LOGCAT_BENIGN_EXCEPTION_MENTIONS = """\
 07-05 17:53:56.345 11442 11460 W Binder  : Caught a RuntimeException from the binder stub implementation.
 07-05 17:53:56.345 11442 11460 W Binder  : java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.InsetsController android.view.ViewRootImpl.getInsetsController()' on a null object reference
 07-05 17:52:21.012  3000  3000 I MainActivity: onResume
+07-05 17:52:22.012  3000  3000 W PermissionProbe: caught SecurityException and showed fallback
 """
 
 

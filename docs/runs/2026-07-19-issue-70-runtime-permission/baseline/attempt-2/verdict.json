@@ -1,0 +1,197 @@
+{
+  "scenario": "wikipedia-location-permission-baseline",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_action_failed",
+    "message": "Journey segment wikipedia-location-permission-baseline-segment-1 reported non-passing action status(es): FAILED"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-location-permission-baseline",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "journey_results": [
+      {
+        "result": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-0/codex-journey-result.normalized.json",
+        "events": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-0/codex-events.jsonl",
+        "raw_result": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-0/codex-journey-result.json",
+        "action_lineage": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-0/codex-journey-action-lineage.json"
+      },
+      {
+        "result": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-1/codex-journey-result.normalized.json",
+        "events": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-1/codex-events.jsonl",
+        "raw_result": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-1/codex-journey-result.json",
+        "action_lineage": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/wikipedia-location-permission-baseline-segment-1/codex-journey-action-lineage.json"
+      }
+    ],
+    "checkpoints": [
+      {
+        "name": "after-segment-0",
+        "directory": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-0",
+        "layout": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-0/layout.json",
+        "screenshot": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-0/screen.png",
+        "annotated_screenshot": null,
+        "logcat": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-0/logcat.txt",
+        "commands": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-0/commands.json",
+        "manifest": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-0/capture-manifest.json"
+      },
+      {
+        "name": "after-event-0",
+        "directory": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-event-0",
+        "layout": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-event-0/layout.json",
+        "screenshot": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-event-0/screen.png",
+        "annotated_screenshot": null,
+        "logcat": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-event-0/logcat.txt",
+        "commands": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-event-0/commands.json",
+        "manifest": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-event-0/capture-manifest.json"
+      },
+      {
+        "name": "after-segment-1",
+        "directory": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-1",
+        "layout": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-1/layout.json",
+        "screenshot": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-1/screen.png",
+        "annotated_screenshot": null,
+        "logcat": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-1/logcat.txt",
+        "commands": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-1/commands.json",
+        "manifest": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/after-segment-1/capture-manifest.json"
+      }
+    ],
+    "backend_errors": [],
+    "system_event_observations": [
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/system-event-0.json"
+    ]
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-location-permission-baseline-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Observed resource-id permission_fixture_title with text “Runtime location permission” and permission_status showing “NOT_REQUESTED: Location is optional.” No permission request was dispatched.",
+          "action": "Confirm the Runtime location permission fixture is visible. Do not request permission yet."
+        }
+      ]
+    },
+    {
+      "journey": "wikipedia-location-permission-baseline-segment-1",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "FAILED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 540 398",
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "The Request location permission tap was dispatched, but no real Android permission dialog was present in the fresh layout, so the required Don't allow tap could not be dispatched. The fixture immediately showed status \"FIRST_DENIED: Continue without location; retry is optional.\" and \"RATIONALE: false\". Visible controls: REQUEST LOCATION PERMISSION, REFRESH PERMISSION STATE, USE LOCATION FEATURE, and CONTINUE WITHOUT LOCATION.",
+          "action": "Tap Request location permission. In the real Android permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0",
+    "after-segment-1"
+  ],
+  "injected_events": [
+    {
+      "event": "reset_permission",
+      "args": {
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      }
+    }
+  ],
+  "event_observations": [
+    {
+      "event": "reset_permission",
+      "requested": {
+        "package": "org.wikipedia.dev",
+        "permission": "android.permission.ACCESS_FINE_LOCATION"
+      },
+      "observed": {
+        "granted": false,
+        "flags": [
+          "USER_SENSITIVE_WHEN_DENIED",
+          "USER_SENSITIVE_WHEN_GRANTED"
+        ]
+      },
+      "artifact": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/artifacts/system-event-0.json"
+    }
+  ],
+  "timing": {
+    "started_at": "2026-07-19T06:50:45+00:00",
+    "finished_at": "2026-07-19T06:53:50+00:00",
+    "total_seconds": 184.874,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.863
+      },
+      {
+        "phase": "wikipedia-location-permission-baseline-segment-0",
+        "kind": "journey",
+        "seconds": 62.391
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 3.743
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "reset_permission",
+        "seconds": 0.117
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 3.706
+      },
+      {
+        "phase": "wikipedia-location-permission-baseline-segment-1",
+        "kind": "journey",
+        "seconds": 101.745
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 4.219
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-2/execution-record.json"
+}

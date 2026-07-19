@@ -6,7 +6,7 @@ import math
 import re
 import time
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from aiverify.harness.device import AdbResult, DeviceController
@@ -15,6 +15,18 @@ from aiverify.runner.run_spec import SystemEventSpec
 
 class SystemEventInjectionError(ValueError):
     """Raised when a system event cannot be injected from the provided context."""
+
+
+@dataclass(frozen=True)
+class SystemEventObservation:
+    """Auditable requested and observed state for one system event."""
+
+    event: str
+    requested: dict[str, Any] = field(default_factory=dict)
+    observed: dict[str, Any] = field(default_factory=dict)
+
+    def as_dict(self) -> dict[str, Any]:
+        return {"event": self.event, "requested": self.requested, "observed": self.observed}
 
 
 @dataclass
@@ -30,7 +42,7 @@ class DeviceSystemEventInjector:
     package: str
     activity: str | None = None
 
-    def inject(self, event: SystemEventSpec) -> dict[str, Any] | None:
+    def inject(self, event: SystemEventSpec) -> SystemEventObservation | dict[str, Any] | None:
         """Inject one system event at a Journey Segment Boundary."""
         if event.event == "rotate":
             raw_rotation = event.args.get("rotation", "1")
@@ -82,30 +94,38 @@ class DeviceSystemEventInjector:
             if after.returncode != 1 or after.stdout.strip() or after.stderr.strip():
                 self._require_success(event.event, after)
             return
+        if event.event == "reset_permission":
+            permission = self._required_permission(event)
+            self._require_success(event.event, self.device.revoke_permission(self.package, permission))
+            self._require_success(event.event, self.device.clear_permission_flags(self.package, permission, "user-set", "user-fixed"))
+            return self._permission_observation(event=event, permission=permission, expected_granted=False, forbidden_flags={"USER_SET", "USER_FIXED"})
+        if event.event == "grant_permission":
+            permission = self._required_permission(event)
+            self._require_success(event.event, self.device.grant_permission(self.package, permission))
+            return self._permission_observation(event=event, permission=permission, expected_granted=True)
+        if event.event == "observe_permission":
+            permission = self._required_permission(event)
+            raw_granted = event.args.get("expected_granted")
+            if raw_granted not in {"true", "false"}:
+                raise SystemEventInjectionError("observe_permission requires args.expected_granted to be 'true' or 'false'")
+            return self._permission_observation(event=event, permission=permission, expected_granted=raw_granted == "true", required_flags=self._permission_flags(event.args.get("required_flags", "")), forbidden_flags=self._permission_flags(event.args.get("forbidden_flags", "")))
         if event.event == "revoke_permission":
-            permission = event.args.get("permission")
-            if not permission:
-                raise SystemEventInjectionError("revoke_permission requires args.permission")
+            permission = self._required_permission(event)
+            self._require_success(event.event, self.device.revoke_permission(self.package, permission))
+            return self._permission_observation(event=event, permission=permission, expected_granted=False)
+        if event.event == "open_app_settings":
+            timeout_seconds, poll_interval_seconds = self._postcondition_polling(
+                event
+            )
             self._require_success(
-                event.event, self.device.revoke_permission(self.package, permission)
+                event.event, self.device.open_app_settings(self.package)
             )
-            observed = self.device.dump_package_state(self.package)
-            self._require_success(event.event, observed)
-            grant = re.search(
-                rf"^\s*{re.escape(permission)}:\s+granted=(true|false)(?:,|\s*$)",
-                observed.stdout,
-                flags=re.MULTILINE,
-            )
-            if grant is None:
-                raise SystemEventInjectionError(
-                    "revoke_permission postcondition failed: could not find "
-                    f"runtime permission {permission} in package state"
-                )
-            if grant.group(1) != "false":
-                raise SystemEventInjectionError(
-                    "revoke_permission postcondition failed: "
-                    f"{permission} remains granted"
-                )
+            self._wait_for_exact_resumed_package(
+                event.event,
+                expected_package="com.android.settings",
+                timeout_seconds=timeout_seconds,
+                poll_interval_seconds=poll_interval_seconds,
+        )
             return
         if event.event == "network_off":
             self._require_success(event.event, self.device.set_wifi(enabled=False))
@@ -534,6 +554,47 @@ class DeviceSystemEventInjector:
         }
 
     @staticmethod
+    def _required_permission(event: SystemEventSpec) -> str:
+        permission = event.args.get("permission")
+        if not permission:
+            raise SystemEventInjectionError(f"{event.event} requires args.permission")
+        return permission
+
+    @staticmethod
+    def _permission_flags(raw: str) -> set[str]:
+        return {value.strip() for value in raw.split(",") if value.strip()}
+
+    def _permission_observation(
+        self,
+        *,
+        event: SystemEventSpec,
+        permission: str,
+        expected_granted: bool,
+        required_flags: set[str] | None = None,
+        forbidden_flags: set[str] | None = None,
+    ) -> SystemEventObservation:
+        observed = self.device.dump_package_state(self.package)
+        self._require_success(event.event, observed)
+        grant = re.search(
+            rf"^\s*{re.escape(permission)}:\s+granted=(true|false)"
+            rf"(?:,\s*flags=\[([^\]]*)\])?(?:,|\s*$)",
+            observed.stdout,
+            flags=re.MULTILINE,
+        )
+        if grant is None:
+            raise SystemEventInjectionError(f"{event.event} postcondition failed: could not find runtime permission {permission} in package state")
+        granted = grant.group(1) == "true"
+        flags = sorted(flag.strip() for flag in (grant.group(2) or "").split("|") if flag.strip())
+        if granted != expected_granted:
+            state = "granted" if granted else "denied"
+            raise SystemEventInjectionError(f"{event.event} postcondition failed: {permission} remains {state}")
+        missing = (required_flags or set()) - set(flags)
+        forbidden = (forbidden_flags or set()) & set(flags)
+        if missing or forbidden:
+            raise SystemEventInjectionError(f"{event.event} postcondition failed: missing required flags {sorted(missing)!r}, present forbidden flags {sorted(forbidden)!r}, observed {flags!r}")
+        return SystemEventObservation(event=event.event, requested={"package": self.package, "permission": permission}, observed={"granted": granted, "flags": flags})
+
+    @staticmethod
     def _require_success(
         event: str, results: AdbResult | Iterable[AdbResult]
     ) -> None:
@@ -711,5 +772,27 @@ class DeviceSystemEventInjector:
                 raise SystemEventInjectionError(
                     f"{event} postcondition timed out: expected {expected}, "
                     f"observed {resumed_package}"
+                )
+            time.sleep(min(poll_interval_seconds, remaining))
+
+    def _wait_for_exact_resumed_package(
+        self,
+        event: str,
+        *,
+        expected_package: str,
+        timeout_seconds: float,
+        poll_interval_seconds: float,
+    ) -> None:
+        deadline = time.monotonic() + timeout_seconds
+        while True:
+            resumed_package = self._read_resumed_package(event)
+            if resumed_package == expected_package:
+                return
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                observed = resumed_package or "unobservable"
+                raise SystemEventInjectionError(
+                    f"{event} postcondition failed: expected resumed package "
+                    f"{expected_package}, observed {observed}"
                 )
             time.sleep(min(poll_interval_seconds, remaining))

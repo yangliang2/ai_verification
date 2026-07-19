@@ -1,0 +1,68 @@
+host_project:
+  root: ${WIKIPEDIA_SOURCE}
+  origin: https://github.com/wikimedia/apps-android-wikipedia
+  commit: 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.permission.PermissionFixtureActivity
+diff: ../patches/wikipedia-location-permission-candidate.patch
+spec: ../specs/wikipedia-location-permission.md
+scenario:
+  id: wikipedia-location-permission-candidate
+  user_actions:
+    - "Confirm the Runtime location permission fixture is visible. Do not request permission yet."
+    - "Tap Request location permission. In the real Android permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls."
+    - "Tap Request location permission a second time. If Android displays a permission dialog, tap Don't allow. Return to the fixture and record the exact status, RATIONALE value, and visible controls."
+    - "Inspect and record the exact status, RATIONALE value, and whether Continue without location and Open app Settings are visible."
+    - "Tap Refresh permission state, then tap Use location feature. Record the exact status and confirm the fixture remains responsive."
+    - "On the real Android App info screen opened by the harness, tap Permissions, tap Location, and select Don't allow (confirm any warning). Press Back until the Runtime location permission fixture returns, then tap Refresh permission state and Use location feature. Record the exact status and whether the fixture remains responsive."
+  system_events:
+    - step_index: 0
+      event: reset_permission
+      args:
+        permission: android.permission.ACCESS_FINE_LOCATION
+    - step_index: 0
+      event: reset_permission
+      args:
+        permission: android.permission.ACCESS_COARSE_LOCATION
+    - step_index: 1
+      event: observe_permission
+      args:
+        permission: android.permission.ACCESS_FINE_LOCATION
+        expected_granted: "false"
+        required_flags: USER_SET
+        forbidden_flags: USER_FIXED
+    - step_index: 2
+      event: observe_permission
+      args:
+        permission: android.permission.ACCESS_FINE_LOCATION
+        expected_granted: "false"
+        required_flags: USER_SET,USER_FIXED
+    - step_index: 3
+      event: grant_permission
+      args:
+        permission: android.permission.ACCESS_FINE_LOCATION
+    - step_index: 4
+      event: open_app_settings
+    - step_index: 5
+      event: observe_permission
+      args:
+        permission: android.permission.ACCESS_FINE_LOCATION
+        expected_granted: "false"
+  l2_boundary_index: 2
+  assertions:
+    - resource_id: permission_status
+      attr: text
+      expected: "FIRST_DENIED: Continue without location; retry is optional."
+  expected_behavior: >
+    Runtime location permission is optional. First denial leaves a retry and a
+    continue-without-location fallback. Permanent denial adds a Settings route.
+    Grant enables the location seam. Revocation performed through the real
+    Android Settings UI is rechecked before access and leaves the fixture
+    responsive with an explicit fallback.
+  l3_spec: >
+    Runtime location permission is optional. Denial and Settings revocation must
+    never crash or trap the user. First denial must retain an explicit usable
+    fallback; permanent denial must also expose an app Settings route; access
+    revoked in Android Settings must be rechecked and degrade without
+    LocationManager access.

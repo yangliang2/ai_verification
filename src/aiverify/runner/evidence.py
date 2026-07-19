@@ -6,6 +6,7 @@ import json
 import re
 import subprocess
 import time
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -269,7 +270,7 @@ class AndroidEvidenceCollector:
         command_results: list[dict[str, object]],
     ) -> None:
         safe_name = re.sub(r"[^A-Za-z0-9_.-]", "-", checkpoint_name)
-        remote_path = f"/data/local/tmp/aiverify-{safe_name}-screen.png"
+        remote_path = f"/data/local/tmp/aiverify-{safe_name}-{uuid.uuid4().hex}.png"
         prefix = [self.adb_bin, "-s", device]
         self._run_checkpoint_command(
             [*prefix, "shell", "screencap", "-p", remote_path],

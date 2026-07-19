@@ -1,0 +1,16 @@
+{
+  "journey": "wikipedia-location-permission-baseline-segment-6",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 540 524",
+        "android layout --device=emulator-5556 --pretty"
+      ],
+      "comment": "Observed refresh control at [540,524] and dispatched the tap. After refresh, status was exactly \"NOT_REQUESTED: Location is optional.\" and RATIONALE was exactly \"RATIONALE: false\". Visible controls: REQUEST LOCATION PERMISSION, REFRESH PERMISSION STATE, USE LOCATION FEATURE, and CONTINUE WITHOUT LOCATION. USE LOCATION FEATURE was not tapped.",
+      "action": "Tap Refresh permission state. Record the exact status, RATIONALE value, and visible controls without tapping Use location feature."
+    }
+  ]
+}

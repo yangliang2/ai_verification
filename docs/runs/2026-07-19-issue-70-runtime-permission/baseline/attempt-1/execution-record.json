@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "attempt_id": "0804326c-a167-4098-a32c-8713290d1d8b",
+  "scenario": "wikipedia-location-permission-baseline",
+  "lifecycle_state": "interrupted",
+  "started_at": "2026-07-19T06:44:57+00:00",
+  "finished_at": "2026-07-19T06:45:54+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "checkpoint_capture_error",
+    "message": "EvidenceCaptureError: screenshot: screenshot command did not create a non-empty artifact: /Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/screen.png; annotated_screenshot: annotated_screenshot command did not create a non-empty artifact: /Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/screen-annotated.png"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-07-19T06:44:57+00:00",
+    "finished_at": "2026-07-19T06:45:54+00:00",
+    "total_seconds": 57.252,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.953
+      },
+      {
+        "phase": "wikipedia-location-permission-baseline-segment-0",
+        "kind": "journey",
+        "seconds": 43.845
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "status": "failed",
+        "seconds": 4.289
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "after-segment-0",
+      "kind": "checkpoint",
+      "reason": "checkpoint_capture_error",
+      "message": "EvidenceCaptureError: screenshot: screenshot command did not create a non-empty artifact: /Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/screen.png; annotated_screenshot: annotated_screenshot command did not create a non-empty artifact: /Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0/screen-annotated.png"
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/live-validation-gate.json",
+    "verdict": "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/verdict.json",
+    "journey_results": [
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/wikipedia-location-permission-baseline-segment-0/codex-journey-result.json"
+    ],
+    "checkpoints": [
+      "/Users/peter/projects/ai_verification-issue-70/docs/runs/2026-07-19-issue-70-runtime-permission/baseline/attempt-1/artifacts/after-segment-0"
+    ],
+    "system_event_observations": []
+  }
+}
