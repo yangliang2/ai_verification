@@ -1,0 +1,19 @@
+{
+  "performance_resource": {
+    "device": {"serial": "emulator-5554", "api_level": 35, "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"},
+    "startup": {"total_time_ms": 253}, "frames": {"total_frames": 7, "slow_frames": 3, "frozen_frames": 0, "max_frame_ms": 57},
+    "resource_pressure": {
+      "storage_setup": {"exit_code": 0, "observed": true}, "battery_setup": {"exit_code": 0, "observed": true},
+      "storage_cleanup": {"exit_code": 0, "observed": true}, "battery_cleanup": {"exit_code": 0, "observed": true}
+    },
+    "wakelocks": {"fixture_held": []}, "runtime": {"crashes": 0, "anrs": 0}
+  },
+  "intent_security": {
+    "package_identity": {"sha256": "4c9faea2d5c94463c62b9d3e1076cdd82908d2a541e810155339863b548ff507"}, "runtime": {"crashes": 0},
+    "scenarios": [
+      {"id": "malformed_extra_rejected", "observed": true}, {"id": "nested_intent_rejected", "observed": false},
+      {"id": "exported_gateway_allowed", "observed": true}, {"id": "nonexported_sensitive_denied", "observed": true},
+      {"id": "pending_intent_immutable", "observed": true}, {"id": "pending_intent_one_shot_replay_denied", "observed": true}
+    ]
+  }
+}

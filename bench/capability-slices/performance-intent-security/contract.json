@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_level": 35,
+  "thresholds": {"cold_start_ms": 1000, "frozen_frame_ms": 700, "max_frozen_frames": 0},
+  "security_scenarios": [
+    {"id": "malformed_extra_rejected"},
+    {"id": "nested_intent_rejected"},
+    {"id": "exported_gateway_allowed"},
+    {"id": "nonexported_sensitive_denied"},
+    {"id": "pending_intent_immutable"},
+    {"id": "pending_intent_one_shot_replay_denied"}
+  ]
+}

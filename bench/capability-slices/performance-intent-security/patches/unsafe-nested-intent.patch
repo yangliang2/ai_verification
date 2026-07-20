@@ -1,0 +1,9 @@
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/PerformanceSecurityActivity.java b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/PerformanceSecurityActivity.java
+--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/PerformanceSecurityActivity.java
++++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/PerformanceSecurityActivity.java
+@@ -55,2 +55,4 @@ public final class PerformanceSecurityActivity extends Activity {
+-        status.setText("Status: nested rejected");
++        nested.setComponent(new android.content.ComponentName(this, SensitiveActivity.class));
++        startActivity(nested);
++        status.setText("Status: nested forwarded");
+     }

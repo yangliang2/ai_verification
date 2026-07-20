@@ -1,0 +1,18 @@
+host_project: ../../../..
+apk_glob: bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk
+package: dev.aiverify.lifecyclefixture
+activity: dev.aiverify.lifecyclefixture.PerformanceSecurityActivity
+spec: ../spec.md
+live_validation: {timeout_seconds: 45, app_smoke: {target_text: "Status: ready", app_settle_seconds: 1}}
+scenario:
+  id: issue74-performance-intent-security-candidate
+  user_actions:
+    - Launch the fixture cold and record startup timing.
+    - Tap Render frame and record frame statistics.
+    - Exercise package-confined hostile Intent and PendingIntent scenarios.
+  system_events: []
+  assertions:
+    - {resource_id: security_status, attr: text, expected: "Status: ready"}
+  expected_behavior: Intent-security rejects unsafe nested forwarding while performance/resource remains evaluated.
+  metric_context: {seed_kind: injected_defect, expected_oracle_level: L2, expected_oracle_defect_class: permission_security}
+diff: ../patches/unsafe-nested-intent.patch
