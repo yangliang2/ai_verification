@@ -1,7 +1,8 @@
 # Issue #72 Arabic RTL compatibility matrix
 
-Status: implementation and live execution complete; independent verification and
-final checksum fixed point remain to be recorded.
+Status: complete. Implementation, live execution, automated verification, the
+one required independent verification, and the final checksum inventory are
+durably recorded here.
 
 This run supports one bounded local conclusion. On two API-35 emulator profiles,
 the baseline preserves localized resources, sentinel state, and correct logical
@@ -62,12 +63,12 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m pytest \
   tests/runner/test_system_events.py tests/runner/test_journey.py \
   tests/runner/test_run_spec.py tests/harness/test_device_controller.py \
   --junitxml=docs/runs/2026-07-20-issue-72-compatibility-matrix/verification/focused-pytest.xml
-# 176 passed in 0.18s
+# 176 passed in 0.205s (JUnit suite time)
 
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m pytest \
   -o addopts='' -q \
   --junitxml=docs/runs/2026-07-20-issue-72-compatibility-matrix/verification/full-pytest.xml
-# 639 passed in 17.58s
+# 639 passed in 16.591s (JUnit suite time)
 
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python \
   -m aiverify.bench.compatibility_matrix \
@@ -103,7 +104,10 @@ JSON files replay the canonical `after-event-1` layouts and require completed
 ExecutionRecords, three passed locale/rotate/cleanup receipts, matching local and
 installed APK hashes, API 35, and the declared AVD profile.
 
-`verification/` contains focused and full pytest JUnit reports. Representative
+`verification/` contains focused and full pytest JUnit reports plus
+`device-cleanup.json`. After the canonical lanes, both emulators were explicitly
+restored to natural rotation `0`; both fixture locale postconditions were `en-US`.
+Representative
 baseline/candidate phone and tablet screenshots were visually inspected: baseline
 Arabic start appears on the right and end on the left; candidate labels move into
 incorrect LTR order and visibly converge near the center. No subjective screenshot
@@ -117,6 +121,11 @@ counted; the corrected Run Spec uses natural rotation `0` and has its own fresh
 attempt identity.
 
 ## Known gaps and limits
+
+The exactly one separate Verification Agent returned accountable
+`locally_supported` after 15 passed evidence checks. Its prompt, invocation
+boundary, schema-valid conclusion, and limitations are retained under
+`independent-verification/`.
 
 - Two local emulator profiles on one API/fingerprint are covered; no additional
   API, foldable posture, font scale, night mode, OEM, or physical-device claim.
