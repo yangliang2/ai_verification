@@ -66,6 +66,11 @@ not committed; their local/installed hashes, sizes, package, activity, device,
 and tool identities are recorded in provenance. Raw build/source, install,
 installed-package/device, and tool identity receipts are under `verification/raw/`.
 
+Exactly one separate read-only Verification Agent audited final commit
+`85ba5b5` and returned accountable `locally_supported` with 14/14 checks passed.
+Its invocation boundary and sole final conclusion are under
+`independent-verification/`.
+
 ## Known gaps
 
 - The bounded oracle consumes device accessibility semantics and deterministic
