@@ -100,6 +100,14 @@ def test_candidate_specs_match_actions_events_and_assertions():
         assert candidate.diff and candidate.diff.name == "forced-ltr.patch"
 
 
+def test_tablet_uses_its_natural_landscape_rotation():
+    root = Path("bench/capability-slices/compatibility-matrix/run-specs")
+    for name in ("tablet-ar-landscape.yaml", "candidate-tablet-ar-landscape.yaml"):
+        spec = load_run_spec(root / name)
+        assert spec.scenario.system_events[1].event == "rotate"
+        assert spec.scenario.system_events[1].args == {"rotation": "0"}
+
+
 def test_runner_lane_replay_requires_cleanup_evidence(tmp_path):
     cells, _ = load_contract(CONTRACT)
     for cell in cells:

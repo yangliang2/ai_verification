@@ -14,7 +14,7 @@ scenario:
     - After cleanup, verify the app locale is restored to en-US; do not modify fixture state.
   system_events:
     - {step_index: 0, event: locale_change, args: {locale: ar-EG}}
-    - {step_index: 1, event: rotate, args: {rotation: "1"}}
+    - {step_index: 1, event: rotate, args: {rotation: "0"}}
     - {step_index: 2, event: locale_change, args: {locale: en-US}}
   l2_boundary_index: 1
   assertions:
