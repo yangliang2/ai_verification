@@ -3,11 +3,11 @@
   "attempt_id": "issue-73-baseline-agent-in-loop-20260720",
   "scenario": "accessibility-installed-apk",
   "lifecycle_state": "completed",
-  "started_at": "2026-07-20T14:59:00Z",
-  "finished_at": "2026-07-20T15:02:00Z",
+  "started_at": "2026-07-20T15:12:11Z",
+  "finished_at": "2026-07-20T15:12:28Z",
   "execution": {"status": "completed", "accounting_eligible": true, "reason": null, "message": "Agent-in-the-loop Journey completed on installed APK."},
   "process_outcome": {"exit_code": 0},
-  "timing": {"started_at": "2026-07-20T14:59:00Z", "finished_at": "2026-07-20T15:02:00Z", "total_seconds": 180, "phases": [{"phase": "build-install", "kind": "preflight", "seconds": 4}, {"phase": "main-dialog-navigation", "kind": "journey", "seconds": 176}]},
+  "timing": {"started_at": "2026-07-20T15:12:11Z", "finished_at": "2026-07-20T15:12:28Z", "total_seconds": 17, "phases": [{"phase": "clean-build-identity-and-install", "kind": "preflight", "seconds": 6}, {"phase": "main-dialog-navigation", "kind": "journey", "seconds": 11}]},
   "phase_errors": [],
-  "evidence_refs": {"run_spec": "../../../../../bench/capability-slices/accessibility/run-specs/baseline.yaml", "oracle": "oracle.json", "layouts": ["layouts/main.xml", "layouts/dialog.xml", "layouts/navigation.xml"], "screenshots": ["screenshots/main.png", "screenshots/dialog.png", "screenshots/navigation.png"], "logs": ["logs/main.log", "logs/navigation.log"], "execution_provenance": "execution-provenance.json"}
+  "evidence_refs": {"run_spec": "../../../../../bench/capability-slices/accessibility/run-specs/baseline.yaml", "oracle": "oracle.json", "layouts": ["layouts/main.xml", "layouts/dialog.xml", "layouts/navigation.xml"], "screenshots": ["screenshots/main.png", "screenshots/dialog.png", "screenshots/navigation.png"], "logs": ["logs/main.log", "logs/navigation.log"], "execution_provenance": "execution-provenance.json", "chronology": "../verification/raw/execution-chronology.txt", "agent_session_identity": "../verification/raw/agent-session-identity.json"}
 }
