@@ -1,8 +1,8 @@
 {
   "performance_resource": {
     "device": {"serial": "emulator-5554", "api_level": 35, "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"},
-    "startup": {"total_time_ms": 253},
-    "frames": {"total_frames": 1, "slow_frames": 1, "frozen_frames": 1, "max_frame_ms": 902},
+    "startup": {"samples_ms": [1126, 1101, 1110], "total_time_ms": 1110},
+    "frames": {"total_frames": 1, "slow_frames": 1, "frozen_frames": 1, "max_frame_ms": 980},
     "resource_pressure": {
       "storage_setup": {"exit_code": 0, "observed": true}, "battery_setup": {"exit_code": 0, "observed": true},
       "storage_cleanup": {"exit_code": 0, "observed": true}, "battery_cleanup": {"exit_code": 0, "observed": true}
@@ -10,7 +10,7 @@
     "wakelocks": {"fixture_held": []}, "runtime": {"crashes": 0, "anrs": 0}
   },
   "intent_security": {
-    "package_identity": {"sha256": "4c9faea2d5c94463c62b9d3e1076cdd82908d2a541e810155339863b548ff507"}, "runtime": {"crashes": 0},
+    "package_identity": {"sha256": "c762ad2798980dfec6e2716066bc31631bad5c41b9a08d0ed8aa8e6b25be832e"}, "runtime": {"crashes": 0},
     "scenarios": [
       {"id": "malformed_extra_rejected", "observed": true}, {"id": "nested_intent_rejected", "observed": true},
       {"id": "exported_gateway_allowed", "observed": true}, {"id": "nonexported_sensitive_denied", "observed": true},

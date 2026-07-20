@@ -4,7 +4,11 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.SystemClock;
+import android.view.FrameMetrics;
+import android.graphics.Canvas;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -12,13 +16,26 @@ import android.widget.TextView;
 /** Harmless, package-confined fixture for performance and untrusted Intent checks. */
 public final class PerformanceSecurityActivity extends Activity {
     public static final String EXTRA_NESTED = "nested_intent";
+    private static final long DRAW_DELAY_MS = 0;
     private TextView status;
+    private HandlerThread metricsThread;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
+        metricsThread = new HandlerThread("issue74-frame-metrics");
+        metricsThread.start();
+        getWindow().addOnFrameMetricsAvailableListener((window, metrics, dropped) -> {
+            long totalMs = metrics.getMetric(FrameMetrics.TOTAL_DURATION) / 1_000_000;
+            long previous = getSharedPreferences("issue74", MODE_PRIVATE)
+                    .getLong("max_frame_total_ms", 0);
+            if (totalMs > previous) {
+                getSharedPreferences("issue74", MODE_PRIVATE).edit()
+                        .putLong("max_frame_total_ms", totalMs).apply();
+            }
+        }, new Handler(metricsThread.getLooper()));
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        status = new TextView(this);
+        status = new SlowDrawTextView();
         status.setId(R.id.security_status);
         status.setText("Status: ready");
         status.setTag("security_status");
@@ -37,15 +54,7 @@ public final class PerformanceSecurityActivity extends Activity {
     }
 
     private void renderWork() {
-        // Candidate patch changes this single bounded delay to 900 ms.
-        getWindow().getDecorView().postOnAnimation(() -> {
-            long started = SystemClock.elapsedRealtime();
-            SystemClock.sleep(0);
-            long elapsed = SystemClock.elapsedRealtime() - started;
-            getSharedPreferences("issue74", MODE_PRIVATE).edit()
-                    .putLong("last_render_work_ms", elapsed).apply();
-            status.setText("Status: frame rendered");
-        });
+        status.setText("Status: frame rendered");
     }
 
     private void handleUntrusted(Intent incoming) {
@@ -80,5 +89,21 @@ public final class PerformanceSecurityActivity extends Activity {
         }
         getSharedPreferences("issue74", MODE_PRIVATE).edit()
                 .putBoolean("pending_intent_replay_denied", replayDenied).apply();
+    }
+
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        if (metricsThread != null) metricsThread.quitSafely();
+    }
+
+    private final class SlowDrawTextView extends TextView {
+        SlowDrawTextView() { super(PerformanceSecurityActivity.this); }
+        @Override protected void onDraw(Canvas canvas) {
+            long started = SystemClock.elapsedRealtime();
+            SystemClock.sleep(DRAW_DELAY_MS);
+            getSharedPreferences("issue74", MODE_PRIVATE).edit()
+                    .putLong("last_render_work_ms", SystemClock.elapsedRealtime() - started).apply();
+            super.onDraw(canvas);
+        }
     }
 }

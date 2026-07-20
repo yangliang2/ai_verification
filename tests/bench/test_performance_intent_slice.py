@@ -83,5 +83,5 @@ def test_three_run_specs_are_matched_and_candidates_are_narrow():
     assert specs[0].scenario.user_actions == specs[1].scenario.user_actions == specs[2].scenario.user_actions
     assert specs[0].scenario.assertions == specs[1].scenario.assertions == specs[2].scenario.assertions
     assert specs[0].diff is None
-    assert "SystemClock.sleep(900)" in specs[1].diff.read_text()
+    assert "DRAW_DELAY_MS = 900" in specs[1].diff.read_text()
     assert "startActivity(nested)" in specs[2].diff.read_text()
