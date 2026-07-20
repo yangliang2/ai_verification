@@ -87,9 +87,15 @@ def judge_slice(contract: dict[str, Any], evidence: dict[str, Any]) -> dict[str,
 def validate_receipt_files(evidence: dict[str, Any], root: Path) -> list[str]:
     missing: list[str] = []
     for domain in ("performance_resource", "intent_security"):
-        for receipt in evidence.get(domain, {}).get("raw_receipts", {}).values():
+        for name, receipt in evidence.get(domain, {}).get("raw_receipts", {}).items():
             if not isinstance(receipt, str) or not (root / receipt).is_file():
                 missing.append(f"{domain}:{receipt}")
+                continue
+            if name == "runtime":
+                text = (root / receipt).read_text(encoding="utf-8")
+                required = ("window_start_utc=", "window_end_utc=", "crash_query_exit=0", "crash_count=0", "anr_query_exit=0", "anr_count=0", "Wake Locks: size=0")
+                if any(marker not in text for marker in required):
+                    missing.append(f"{domain}:{receipt}:runtime_markers")
     return missing
 
 

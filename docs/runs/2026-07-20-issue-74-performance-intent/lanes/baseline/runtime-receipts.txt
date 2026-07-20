@@ -1,5 +1,13 @@
-2026-07-20T16:21:36Z
+window_start_utc=2026-07-20T16:27:02Z
+window_end_utc=2026-07-20T16:27:03Z
 cad80a6383a138f76ecc8bc75e3aef903ce6a11c025d55d05d60513104772a98  /tmp/issue74-b3.apk
+adb -s emulator-5554 logcat -d -b crash
+crash_query_exit=0
+crash_count=0
+adb -s emulator-5554 logcat -d -v brief | match package ANR
+anr_query_exit=0
+anr_count=0
+adb -s emulator-5554 shell dumpsys power
 132:Wake Locks: size=0
 133-
 134-Suspend Blockers: size=5

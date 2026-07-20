@@ -86,6 +86,17 @@ def test_receipt_files_must_exist_for_cli_accountability(tmp_path):
     assert validate_receipt_files(data, tmp_path)
 
 
+def test_runtime_receipt_requires_bounded_zero_counts(tmp_path):
+    data = evidence()
+    for domain in ("performance_resource", "intent_security"):
+        for name, relative in data[domain]["raw_receipts"].items():
+            path = tmp_path / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("incomplete\n")
+    errors = validate_receipt_files(data, tmp_path)
+    assert any("runtime_markers" in item for item in errors)
+
+
 def test_three_run_specs_are_matched_and_candidates_are_narrow():
     root = Path("bench/capability-slices/performance-intent-security")
     specs = [load_run_spec(root / "run-specs" / name) for name in ("baseline.yaml", "performance-candidate.yaml", "security-candidate.yaml")]
