@@ -108,6 +108,15 @@ def test_tablet_uses_its_natural_landscape_rotation():
         assert spec.scenario.system_events[1].args == {"rotation": "0"}
 
 
+def test_frozen_candidate_patch_targets_anchor_order_only():
+    patch = Path(
+        "bench/capability-slices/compatibility-matrix/patches/forced-ltr.patch"
+    ).read_text()
+    assert "anchors.setLayoutDirection(View.LAYOUT_DIRECTION_LOCALE)" in patch
+    assert "anchors.setLayoutDirection(View.LAYOUT_DIRECTION_LTR)" in patch
+    assert "content.setLayoutDirection" not in patch
+
+
 def test_runner_lane_replay_requires_cleanup_evidence(tmp_path):
     cells, _ = load_contract(CONTRACT)
     for cell in cells:
