@@ -5,8 +5,8 @@
 `locally_supported`: on one API-35 `aiverify_api35` emulator, the installed
 baseline APK passed all three preregistered main/dialog/navigation checkpoints.
 The matched candidate remained visually healthy and completed the same Journey,
-but the one-line `IMPORTANT_FOR_ACCESSIBILITY_NO` defect removed the Continue
-control's declared content description from observed device semantics, so the
+but the one-line `IMPORTANT_FOR_ACCESSIBILITY_NO` defect suppressed the Continue
+control's declared content description in observed device semantics, so the
 oracle returned accountable `locally_rejected`.
 
 This is one fixture slice. It is not WCAG certification, full Accessibility
@@ -36,10 +36,12 @@ were visually inspected; baseline and candidate were visibly equivalent and
 the destination remained reachable.
 
 Baseline local APK and installed APK SHA-256 both equal
-`90028b278b4b00b13603a1ab4df3a3b304c3d64a7da760c6cf9f8290bddbb87d`.
+`ba8b3a1775bd1891d37ef18efb972f575ca73614aaaf147b49e9f336d74f5d48`.
 Candidate local and installed APK SHA-256 both equal
-`d1484633c285ee6c0dbb232e9c632bab7ab04d2b4b88691da91eb05089bb8f91`.
-Each APK is 933,032 bytes. The frozen patch SHA-256 is
+`adc0363d1b362b1c4a0164b2dc21d911798218d32b5841054d2bdf430e6cc5d9`.
+The APKs are 921,656 and 929,947 bytes respectively. Both were rebuilt from
+clean commit `10d139e` (candidate plus the checksum-bound frozen patch), then
+installed and pulled back from the declared serial. The frozen patch SHA-256 is
 `44579c68b791831c1a6505f616b3e03312f370d7d11ed308ea81563950a156e3`.
 
 ## Implementation and artifacts
@@ -61,7 +63,8 @@ Artifact inventory before checksums: 6 Android CLI layouts, 6 UIAutomator XML
 hierarchies, 6 PNG screenshots, 3 logcat captures, 2 oracle aggregates, 2
 ExecutionRecords, 2 provenance records, and 2 JUnit reports. APK binaries are
 not committed; their local/installed hashes, sizes, package, activity, device,
-and tool identities are recorded in provenance.
+and tool identities are recorded in provenance. Raw build/source, install,
+installed-package/device, and tool identity receipts are under `verification/raw/`.
 
 ## Known gaps
 
