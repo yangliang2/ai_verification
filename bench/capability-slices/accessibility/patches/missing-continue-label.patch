@@ -1,0 +1,11 @@
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/AccessibilityActivity.java b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/AccessibilityActivity.java
+--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/AccessibilityActivity.java
++++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/AccessibilityActivity.java
+@@ -31,6 +31,6 @@ public final class AccessibilityActivity extends Activity {
+
+         Button navigate = button(R.id.accessibility_navigate, "Continue");
+-        navigate.setContentDescription("Continue");
++        navigate.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+         navigate.setOnClickListener(view -> showDestination());
+         content.addView(navigate, target());
+         setContentView(content);

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "device": {"api_level": "35", "profile": "aiverify_api35", "minimum_target_dp": 48},
+  "candidate_defect": "inaccessible_actionable_control",
+  "checkpoints": [
+    {
+      "id": "main",
+      "nodes": [
+        {"resource_id": "accessibility_title", "accessible_name": "Accessibility verification fixture", "name_source": "content-desc"},
+        {"resource_id": "accessibility_dynamic", "accessible_name": "Status: ready", "name_source": "content-desc"},
+        {"resource_id": "accessibility_dialog", "accessible_name": "Open details", "name_source": "content-desc", "actionable": true, "unique_name": true, "minimum_target_dp": 48},
+        {"resource_id": "accessibility_navigate", "accessible_name": "Continue", "name_source": "content-desc", "actionable": true, "unique_name": true, "minimum_target_dp": 48}
+      ],
+      "traversal_order": ["accessibility_title", "accessibility_dynamic", "accessibility_dialog", "accessibility_navigate"],
+      "contrast": [{"id": "primary_text", "foreground": "#212121", "background": "#FFFFFF", "minimum_ratio": 4.5}]
+    },
+    {
+      "id": "dialog",
+      "nodes": [
+        {"resource_id": "accessibility_dialog_title", "accessible_name": "Verification details", "name_source": "content-desc"},
+        {"resource_id": "accessibility_dialog_message", "accessible_name": "Dynamic status is ready", "name_source": "content-desc"},
+        {"resource_id": "accessibility_dialog_close", "accessible_name": "Close", "name_source": "content-desc", "actionable": true, "unique_name": true, "minimum_target_dp": 48}
+      ],
+      "traversal_order": ["accessibility_dialog_title", "accessibility_dialog_message", "accessibility_dialog_close"],
+      "contrast": [{"id": "dialog_text", "foreground": "#212121", "background": "#FFFFFF", "minimum_ratio": 4.5}]
+    },
+    {
+      "id": "navigation",
+      "nodes": [
+        {"resource_id": "accessibility_destination", "accessible_name": "Destination reached", "name_source": "content-desc"},
+        {"resource_id": "accessibility_back", "accessible_name": "Back", "name_source": "content-desc", "actionable": true, "unique_name": true, "minimum_target_dp": 48}
+      ],
+      "traversal_order": ["accessibility_destination", "accessibility_back"],
+      "contrast": [{"id": "destination_text", "foreground": "#212121", "background": "#FFFFFF", "minimum_ratio": 4.5}]
+    }
+  ]
+}

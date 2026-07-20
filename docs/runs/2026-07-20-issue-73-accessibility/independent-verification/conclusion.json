@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_supported",
+  "accountable": true,
+  "audited_commit": "85ba5b50cf8cda911d7382716083e18ab67e835e",
+  "checks": [
+    {"id": "committed_inventory_checksums", "status": "passed", "evidence": "Every inventory entry verified, including ExecutionRecords, provenance, device artifacts, JUnit reports, and nine raw identity receipts."},
+    {"id": "input_binding_checksums", "status": "passed", "evidence": "Both Run Specs and the frozen patch match their recorded SHA-256 identities."},
+    {"id": "execution_chronology", "status": "passed", "evidence": "Source commit predates execution; ExecutionRecords, provenance, and chronology receipt agree exactly."},
+    {"id": "clean_source_identity", "status": "passed", "evidence": "Baseline binds clean 10d139e; candidate binds that commit plus the exact checksum-bound one-line diff."},
+    {"id": "agent_execution_identity", "status": "passed", "evidence": "The system-authority receipt binds role, Codex backend, requested/effective gpt-5 model, attempts, and authoritative artifacts."},
+    {"id": "apk_local_installed_identity", "status": "passed", "evidence": "Local and pulled-installed hashes match within each baseline/candidate attempt."},
+    {"id": "device_tool_identity", "status": "passed", "evidence": "Receipts bind emulator/API/profile/configuration plus critical tool versions, paths, and hashes."},
+    {"id": "execution_records", "status": "passed", "evidence": "Both schema-v2 records are completed, accountable, error-free, coherently timed, and evidence-bound."},
+    {"id": "checkpoint_accounting", "status": "passed", "evidence": "Both oracles account for main, dialog, and navigation exactly once with no undeclared checkpoints."},
+    {"id": "baseline_candidate_conclusions", "status": "passed", "evidence": "Baseline supports 3/3; candidate preserves Journey health but loses the declared Continue content description."},
+    {"id": "matched_pair_scope", "status": "passed", "evidence": "Journey actions/assertions match and the candidate effective diff equals the frozen one-line patch."},
+    {"id": "test_reports", "status": "passed", "evidence": "Focused 45 and full 652 tests have zero failures, errors, or skips."},
+    {"id": "defect_wording", "status": "passed", "evidence": "The report precisely claims suppressed declared content description, not node disappearance."},
+    {"id": "scope_limit_claims", "status": "passed", "evidence": "The report makes only the bounded one-fixture, one-emulator claim."}
+  ],
+  "limitations": [
+    "Only the committed fixture slice on the recorded API-35 emulator is supported.",
+    "No physical TalkBack speech/focus timing, alternate assistive services, OEM/device fleet, or complete Accessibility Test Framework validation is established.",
+    "Contrast uses preregistered deterministic colors rather than screenshot-pixel inference.",
+    "Execution used the documented agent-in-the-loop path."
+  ]
+}
