@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "attempt_id": "issue-73-baseline-agent-in-loop-20260720",
+  "scenario": "accessibility-installed-apk",
+  "captured_at": "2026-07-20T15:06:13Z",
+  "run_spec": {"path": "bench/capability-slices/accessibility/run-specs/baseline.yaml", "consumed_sha256": "b42ee21cee0da6f86269191b271f53e731fa25658562b272c34a638834e562c0"},
+  "host": {"origin": "https://github.com/yangliang2/ai_verification.git", "base_commit": "c58787398ed56d332ab980eecb35326912be7252", "branch": "issue-73-accessibility-slice", "worktree_clean": false},
+  "apk": {"artifacts": [{"bytes": 933032, "sha256": "90028b278b4b00b13603a1ab4df3a3b304c3d64a7da760c6cf9f8290bddbb87d"}]},
+  "deployment": {"installed_artifacts": [{"sha256": "90028b278b4b00b13603a1ab4df3a3b304c3d64a7da760c6cf9f8290bddbb87d"}], "package": "dev.aiverify.lifecyclefixture", "activity": "dev.aiverify.lifecyclefixture.AccessibilityActivity"},
+  "device": {"serial": "emulator-5554", "api_level": "35", "profile": "aiverify_api35", "resolution_px": "1080x2400", "density_dpi": 420, "density_scale": 2.625, "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"},
+  "tools": {"android_cli": {"version": "1.0.15498356", "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc"}, "adb": {"version": "37.0.0-14910828", "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"}, "codex_cli": {"version": "0.144.6", "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff"}, "python": {"version": "3.11.15"}, "java": {"version": "17.0.19"}},
+  "driver": {"kind": "agent-in-the-loop", "backend": "current Codex coding agent", "observation_sources": ["Android CLI layout", "serial-scoped uiautomator hierarchy", "serial-scoped adb screenshot"]}
+}

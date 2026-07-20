@@ -1,0 +1,23 @@
+host_project: ../../../..
+apk_glob: bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk
+package: dev.aiverify.lifecyclefixture
+activity: dev.aiverify.lifecyclefixture.AccessibilityActivity
+spec: ../spec.md
+live_validation:
+  timeout_seconds: 30
+  app_smoke:
+    target_resource_id: accessibility_dialog
+    app_settle_seconds: 1
+scenario:
+  id: accessibility-installed-apk
+  user_actions:
+    - Inspect the main screen and verify the title, dynamic ready status, Open details, and Continue controls are visible in that order.
+    - Tap Open details, inspect the dialog, and verify its title, dynamic message, and Close control are visible in that order; then tap Close.
+    - Tap Continue and verify Destination reached and Back are visible in that order.
+  system_events: []
+  assertions:
+    - {resource_id: accessibility_title, attr: text, expected: Accessibility verification fixture}
+    - {resource_id: accessibility_dynamic, attr: text, expected: "Status: ready"}
+    - {resource_id: accessibility_destination, attr: text, expected: Destination reached}
+  expected_behavior: Installed APK exposes accountable main, dialog, and navigation accessibility semantics.
+  metric_context: {seed_kind: baseline_control, expected_oracle_level: L2, expected_oracle_defect_class: ui_rendering}

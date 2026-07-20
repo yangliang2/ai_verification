@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_rejected",
+  "reason": "one_or_more_accessibility_checks_rejected",
+  "accountable": true,
+  "expected_checkpoints": [
+    "main",
+    "dialog",
+    "navigation"
+  ],
+  "checkpoints": [
+    {
+      "checkpoint_id": "main",
+      "conclusion": "locally_rejected",
+      "reason": "missing_or_wrong_accessible_name",
+      "accountable": true,
+      "details": {
+        "resource_id": "accessibility_navigate",
+        "observed": ""
+      }
+    },
+    {
+      "checkpoint_id": "dialog",
+      "conclusion": "locally_supported",
+      "reason": "checkpoint_invariants_satisfied",
+      "accountable": true,
+      "details": {}
+    },
+    {
+      "checkpoint_id": "navigation",
+      "conclusion": "locally_supported",
+      "reason": "checkpoint_invariants_satisfied",
+      "accountable": true,
+      "details": {}
+    }
+  ],
+  "undeclared_checkpoints": []
+}
