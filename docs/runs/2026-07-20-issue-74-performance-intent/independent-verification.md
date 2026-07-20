@@ -1,15 +1,16 @@
 # Independent verification for issue #74
 
-Date: 2026-07-20
-Verification agent: `issue74_independent_verifier`
-Reviewed commit: `7d81c8b19daba8cb5436b2ec123a06b819c39e02`
+Date: 2026-07-20  
+Verification agent: `issue74_independent_verifier`  
+Reviewed commit: `07c9119da2f5e4affea74e4e77f96f78dd806d5d`
 
 ## Scope
 
-Final bounded re-audit of the blockers from the prior report: lane-bound security,
-runtime, and resource receipts; timestamps and exit codes; FrameMetrics derivation;
-APK identity; oracle enforcement; checksums; and focused tests. No implementation was
-changed and no mutable device scenario was rerun.
+Final bounded audit of the performance/resource-pressure and Intent-security slice,
+including the last corrective runtime receipts. I reviewed the committed code, three
+lane identities and receipts, FrameMetrics/gfxinfo evidence, security scenarios,
+machine oracles, checksum manifest, and tests. I did not change implementation code or
+rerun mutable device scenarios.
 
 ## Exact commands and results
 
@@ -18,75 +19,72 @@ git status --short --branch
 # clean at reviewed commit
 
 git rev-parse HEAD
-# 7d81c8b19daba8cb5436b2ec123a06b819c39e02
+# 07c9119da2f5e4affea74e4e77f96f78dd806d5d
 
-git show --stat --oneline 7d81c8b
-# 31 files changed, 449 insertions(+), 178 deletions(-)
+git show --stat --oneline 07c9119
+# 7 files changed, 111 insertions(+), 90 deletions(-)
 
 sha256sum -c docs/runs/2026-07-20-issue-74-performance-intent/checksums.sha256
-# all 52 entries: OK
+# all 51 manifest entries: OK
 
 /Users/peter/projects/ai_verfication/.venv/bin/pytest -q tests/bench/test_performance_intent_slice.py
-# 8 passed
+# 9 passed
 
-# Regenerated all three outputs with:
+/Users/peter/projects/ai_verfication/.venv/bin/pytest -q
+# exit 0; all collected tests passed
+
+/Users/peter/projects/ai_verfication/.venv/bin/pytest --collect-only
+# 661 tests collected in 0.11s
+
+# Regenerated each lane output:
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python \
   -m aiverify.bench.performance_intent_slice --contract <contract> \
   --evidence <lane-evidence> --output <temporary-output>
 diff -u <committed-output> <temporary-output>
-# all three matched byte-for-byte
-
-# Compared local and installed hashes for each lane.
-# baseline: cad80a6383a138f76ecc8bc75e3aef903ce6a11c025d55d05d60513104772a98
-# performance: 3999b340fce745ea89c54c449651dfe6f202a9d40f3f741d7c049003e2cd17d3
-# security: 55ac08cc455750ffd559a95942492a62017798435bdcb16cfa4775c740b86d99
-# each pair matched and all three lane hashes were distinct
-
-rg -n "crash|ANR|anr|exit|command|cmd|logcat" \
-  docs/runs/2026-07-20-issue-74-performance-intent/lanes/*/runtime-receipts.txt
-# no matches
+# baseline, performance candidate, and security candidate all matched byte-for-byte
 ```
 
-## Verified closures
+## Findings
 
-- Every lane now has timestamped, APK-bound security receipts. They show malformed
-  rejection, nested rejection or the intended candidate forwarding, exported gateway
-  launch, non-exported direct-launch denial with `SecurityException` and exit 255, and
-  immutable one-shot PendingIntent state.
-- Resource receipts are timestamped and APK-bound and contain setup/cleanup commands,
-  exit code zero, and observed storage LOW/NORMAL and battery 10/100 states.
-- FrameMetrics preferences now retain `frame_count` and maximum duration. The
-  performance candidate records 12 frames and 967 ms maximum; Android gfxinfo also
-  contains the frozen-frame violation. Baseline and security candidate retain their
-  own counts and sub-threshold maxima.
-- Local and pulled installed APK digests match per lane and differ across lanes.
-- Both oracles now require matching structured APK identities and named receipt paths;
-  the CLI additionally rejects missing receipt files. Tests cover those fail-closed
-  checks. The checksum manifest and regenerated oracle outputs are consistent.
-- Performance and Intent-security conclusions remain separate, and neither masks a
-  non-accountable peer domain.
+- Each lane has a distinct APK SHA-256, and its local and pulled installed APK hashes
+  match: baseline `cad80a63...72a98`, performance candidate
+  `3999b340...d17d3`, and security candidate `55ac08cc...6d99`.
+- Startup, FrameMetrics, resource, security, and runtime receipts are lane-bound to
+  those hashes. FrameMetrics retains frame count and maximum duration. The performance
+  candidate has a 967 ms maximum and corresponding Android gfxinfo frozen-frame
+  evidence; its cold-start median also exceeds the registered 1000 ms threshold.
+  Baseline and security-candidate performance measurements remain below threshold.
+- Every lane's security receipt exercises malformed extras, nested Intent behavior,
+  the exported gateway, non-exported component denial, and immutable one-shot
+  PendingIntent behavior. The security candidate alone reaches the package-confined
+  sensitive marker; the security oracle detects that violation while retaining the
+  separate performance result.
+- Resource receipts contain UTC timestamps, exact setup/cleanup descriptions, exit
+  code zero, and observed storage LOW/NORMAL and battery 10/100 states.
+- Runtime receipts now contain bounded UTC start/end times, lane APK hashes, the exact
+  serial-scoped crash and ANR query descriptions, exit code zero, explicit
+  `crash_count=0` and `anr_count=0`, and `Wake Locks: size=0`.
+- The validator requires every runtime marker and rejects incomplete receipts. The
+  oracles also require matching local/installed/package identities, named receipt
+  paths, complete scenario sets, parseable metrics, successful setup/cleanup, and both
+  independent domains. Focused tests exercise missing receipt files and incomplete
+  runtime receipts.
+- All checksum entries verify, all three machine outputs reproduce from committed
+  evidence, 9 focused tests pass, and the full 661-test suite passes.
 
-## Actual remaining blocker
+## Limitations
 
-All three `runtime-receipts.txt` files are timestamped and APK-bound and demonstrate
-the wakelock state, but none records a crash/ANR observation command, its exit status,
-or an explicit zero result. The evidence JSON files nevertheless assert `crashes: 0`
-and `anrs: 0`. The oracle checks only that the runtime receipt path exists; it does not
-validate receipt content. An empty crash/ANR query cannot be distinguished from a
-query that was never run, so the acceptance requirement that crashes and ANRs fail
-closed remains unauditable for all three lanes.
-
-To close this, retain per-lane commands and bounded observation windows for fixture
-crashes and ANRs, with explicit exit codes and zero/nonzero counts, then make the
-oracle validate those structured receipts rather than path existence alone. A smaller
-limitation is that slow/frozen counts are asserted in JSON while FrameMetrics stores
-only total count and maximum duration; the maximum is sufficient for the registered
-700 ms threshold, but not for independently reconstructing every count field.
+This is bounded evidence from one named API 35 emulator and three fixture APKs.
+FrameMetrics maximum duration is the registered frozen-frame decision metric; the
+slice is not a fleet benchmark, precise energy-attribution study, general penetration
+test, or third-party application assessment. No detection-rate, Goldset, upstream
+acceptance, or upstream-impact claim is made.
 
 ## Current fail-closed conclusion
 
-`non_accountable`
+`locally_supported`
 
-The security, resource, frame, and APK-identity gaps are materially closed, but the
-missing crash/ANR observation evidence leaves a required fail-closed runtime condition
-unbound. No broader effectiveness or upstream claim is made.
+All previously identified accountability blockers are closed in the reviewed commit.
+The baseline is supported, each narrow candidate is rejected by its owning oracle,
+the unaffected domain remains separately evaluated, and the retained evidence is
+bound to the corresponding local and installed APK identity.
