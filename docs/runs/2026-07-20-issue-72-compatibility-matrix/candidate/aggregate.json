@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_rejected",
+  "reason": "one_or_more_cells_rejected",
+  "accountable": true,
+  "cells": [
+    {
+      "cell_id": "phone-en-portrait",
+      "conclusion": "locally_supported",
+      "reason": "compatibility_invariants_satisfied",
+      "accountable": true,
+      "details": {
+        "width_dp": 411,
+        "smallest_width_dp": 411,
+        "start_x": 301,
+        "end_x": 778
+      }
+    },
+    {
+      "cell_id": "phone-ar-portrait",
+      "conclusion": "locally_rejected",
+      "reason": "rtl_relative_order_violation",
+      "accountable": true,
+      "details": {
+        "start_x": 301,
+        "end_x": 778
+      }
+    },
+    {
+      "cell_id": "phone-ar-landscape",
+      "conclusion": "locally_rejected",
+      "reason": "rtl_relative_order_violation",
+      "accountable": true,
+      "details": {
+        "start_x": 631,
+        "end_x": 1768
+      }
+    },
+    {
+      "cell_id": "tablet-ar-landscape",
+      "conclusion": "locally_rejected",
+      "reason": "rtl_relative_order_violation",
+      "accountable": true,
+      "details": {
+        "start_x": 664,
+        "end_x": 1896
+      }
+    }
+  ],
+  "undeclared_cells": [],
+  "lane_errors": {},
+  "lane_identity": {
+    "phone-en-portrait": {
+      "attempt_id": "b72cb64b-60aa-43f5-b018-1d2fdd8d9279",
+      "host_commit": "bddd20ca5b881cba3ad8bca21a23a810024ef9b6",
+      "apk_sha256": "8f2c045ed117557e222d1e38a28a7c11ff62429436a245acec3e6564731feb69",
+      "device_serial": "emulator-5554",
+      "api_level": "35",
+      "profile": "aiverify_api35"
+    },
+    "phone-ar-portrait": {
+      "attempt_id": "3abc38e0-2e60-4901-aa79-55861031bab1",
+      "host_commit": "bddd20ca5b881cba3ad8bca21a23a810024ef9b6",
+      "apk_sha256": "8f2c045ed117557e222d1e38a28a7c11ff62429436a245acec3e6564731feb69",
+      "device_serial": "emulator-5554",
+      "api_level": "35",
+      "profile": "aiverify_api35"
+    },
+    "phone-ar-landscape": {
+      "attempt_id": "ed3345b2-de24-40c8-82a2-54586f60f6c7",
+      "host_commit": "bddd20ca5b881cba3ad8bca21a23a810024ef9b6",
+      "apk_sha256": "8f2c045ed117557e222d1e38a28a7c11ff62429436a245acec3e6564731feb69",
+      "device_serial": "emulator-5554",
+      "api_level": "35",
+      "profile": "aiverify_api35"
+    },
+    "tablet-ar-landscape": {
+      "attempt_id": "6d87dcfc-e036-47c3-b728-4f3e58e60a10",
+      "host_commit": "bddd20ca5b881cba3ad8bca21a23a810024ef9b6",
+      "apk_sha256": "8f2c045ed117557e222d1e38a28a7c11ff62429436a245acec3e6564731feb69",
+      "device_serial": "emulator-5556",
+      "api_level": "35",
+      "profile": "aiverify_tablet_api35"
+    }
+  }
+}

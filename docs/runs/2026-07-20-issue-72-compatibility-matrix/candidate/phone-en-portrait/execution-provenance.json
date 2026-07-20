@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "attempt_id": "b72cb64b-60aa-43f5-b018-1d2fdd8d9279",
+  "scenario": "compatibility-phone-en-portrait",
+  "captured_at": "2026-07-20T14:17:30+00:00",
+  "run_spec": {
+    "invocation_path": "/Users/peter/hosts/aiverify-issue-72/bench/capability-slices/compatibility-matrix/run-specs/candidate-phone-en-portrait.yaml",
+    "consumed_sha256": "82e47213a1d76fa1da183d8c882db6d85de7459babb90d97fbe2f197f8e777ec",
+    "snapshot_path": "identity/run-spec.yaml",
+    "snapshot_sha256": "82e47213a1d76fa1da183d8c882db6d85de7459babb90d97fbe2f197f8e777ec",
+    "scenario": "compatibility-phone-en-portrait",
+    "host_project": "/Users/peter/hosts/aiverify-issue-72",
+    "apk_glob": "bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+    "package": "dev.aiverify.lifecyclefixture",
+    "activity": "dev.aiverify.lifecyclefixture.CompatibilityActivity",
+    "identity_sha256": "74aaf32c964b1c4f8519feba5991b6985317e4b46ecc77ab5c80ee4d4133213d"
+  },
+  "host": {
+    "repository_root": "/Users/peter/hosts/aiverify-issue-72",
+    "origin": "https://github.com/yangliang2/ai_verification.git",
+    "commit": "bddd20ca5b881cba3ad8bca21a23a810024ef9b6",
+    "worktree": {
+      "clean": false,
+      "status": " M bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/CompatibilityActivity.java\n",
+      "status_sha256": "9fe6763740ee6b80b3834431cf0fed1a4241ce60ea3d413d87bd63ea6adab947",
+      "untracked_files": [],
+      "patch_path": "identity/host.patch",
+      "patch_sha256": "f683ccd09d8776328d0ebb2007dd749f17ca9e843cfce3ff232ab521f6859261"
+    },
+    "identity_sha256": "bfb5f49fe897b8649337b2284b834715d695d00f25b255cfd4f0037d1ba922f3"
+  },
+  "apk": {
+    "artifacts": [
+      {
+        "path": "/Users/peter/hosts/aiverify-issue-72/bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+        "bytes": 924817,
+        "sha256": "8f2c045ed117557e222d1e38a28a7c11ff62429436a245acec3e6564731feb69"
+      }
+    ],
+    "identity_sha256": "e15737fe51cd27899ab52bdce7418626a1bd87354c8ed6d132cfa0146f0f071d"
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "api_level": "35",
+    "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "profile": {
+      "kind": "emulator",
+      "name": "aiverify_api35",
+      "model": "sdk_gphone64_arm64",
+      "device": "emu64a"
+    },
+    "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+  },
+  "tools": {
+    "android_cli": {
+      "requested": "android",
+      "resolved_path": "/Users/peter/.local/bin/android",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "version": "1.0.15498356",
+      "identity_sha256": "234115eb377fbc59cb1c243bd769f30ef049f64186491c700e78be4301d450e8"
+    },
+    "adb": {
+      "requested": "adb",
+      "resolved_path": "/opt/homebrew/share/android-commandlinetools/platform-tools/adb",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+      "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/share/android-commandlinetools/platform-tools/adb\nRunning on Darwin 25.3.0 (arm64)",
+      "identity_sha256": "cb42943fa7589293ac27206926e31a50d259fc4af9edfb6ea4ad73ffaa2e0e74"
+    },
+    "codex_cli": {
+      "requested": "codex",
+      "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+      "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+      "version": "codex-cli 0.144.6",
+      "identity_sha256": "8f26cbfe1000bcab862ab5b0c2d031763463c84daecccc82ed204e108cb40079"
+    },
+    "git": {
+      "requested": "git",
+      "resolved_path": "/usr/bin/git",
+      "sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb",
+      "version": "git version 2.50.1 (Apple Git-155)",
+      "identity_sha256": "fddd0e696681e24d624b01cfe9665a4a0d2ba4cb9f91e09874320cc632784f9c"
+    },
+    "python": {
+      "requested": "/Users/peter/projects/ai_verfication/.venv/bin/python",
+      "resolved_path": "/Users/peter/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11",
+      "sha256": "4c78423e7d5986362ac04df40edb18cdd1174f9818d653402e3abbd2a5bbf793",
+      "version": "3.11.15",
+      "identity_sha256": "2a09f73a774426094259d520874d87d7ae688c41e3f5de0ab558536b55ec1530"
+    }
+  },
+  "deployment": {
+    "target": {
+      "device": "emulator-5554",
+      "package": "dev.aiverify.lifecyclefixture",
+      "component": "dev.aiverify.lifecyclefixture/dev.aiverify.lifecyclefixture.CompatibilityActivity"
+    },
+    "process": {
+      "args": [
+        "android",
+        "run",
+        "--device=emulator-5554",
+        "--apks=/Users/peter/hosts/aiverify-issue-72/bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+        "--activity=dev.aiverify.lifecyclefixture.CompatibilityActivity",
+        "--type=ACTIVITY"
+      ],
+      "returncode": 0,
+      "stdout": "App loaded: dev.aiverify.lifecyclefixture\nDebuggable: true\nSelected component: dev.aiverify.lifecyclefixture.CompatibilityActivity\nInstalling APKs: /Users/peter/hosts/aiverify-issue-72/bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk\nInstallation completed successfully\nExecuting: Launching Activity for dev.aiverify.lifecyclefixture\nActivation completed successfully\n",
+      "stderr": "",
+      "identity_sha256": "94bf74a48de31a5721c272775cfc5dc517c6a52f7711568dd061c2294b7c1996"
+    },
+    "installed_artifacts": [
+      {
+        "path": "/data/app/~~MifQK_zdStANdkZVgXkwTw==/dev.aiverify.lifecyclefixture-s7wrulGBVirU8Ne9O3TMOQ==/base.apk",
+        "sha256": "8f2c045ed117557e222d1e38a28a7c11ff62429436a245acec3e6564731feb69"
+      }
+    ],
+    "resolved_component": "dev.aiverify.lifecyclefixture/.CompatibilityActivity",
+    "device": {
+      "serial": "emulator-5554",
+      "api_level": "35",
+      "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+      "profile": {
+        "kind": "emulator",
+        "name": "aiverify_api35",
+        "model": "sdk_gphone64_arm64",
+        "device": "emu64a"
+      },
+      "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+    },
+    "tools": {
+      "android_cli_sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "adb_sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+    },
+    "identity_sha256": "76c5c082543e5c0951a2e7007f031e032dee0b2b068ffc39a8dd3f624a857bde"
+  },
+  "roles": {
+    "journey_driver": {
+      "status": "invoked",
+      "requested_model": null,
+      "invocations": [
+        {
+          "path": "artifacts/compatibility-phone-en-portrait-segment-0/codex-invocation-identity.json",
+          "sha256": "1e45399368f0746afbc9a1747c938c7ba5dff0e6df07b14415627e06e2b0812c"
+        },
+        {
+          "path": "artifacts/compatibility-phone-en-portrait-segment-1/codex-invocation-identity.json",
+          "sha256": "2554460d2fb2f93e5398a900931a5240ee0871119c21a093bb9121cc5d5367d2"
+        },
+        {
+          "path": "artifacts/compatibility-phone-en-portrait-segment-2/codex-invocation-identity.json",
+          "sha256": "6e61d23c6ec4bb0e30a4d3256cc7a9444e1091e3139719ee61191b71063bc605"
+        },
+        {
+          "path": "artifacts/compatibility-phone-en-portrait-segment-3/codex-invocation-identity.json",
+          "sha256": "6b1309a7d0fa986639c87347e79e8fd7f62495c5c53f1397a1da47c316114197"
+        }
+      ],
+      "invocation_ledger": []
+    },
+    "l3_semantic_judge": {
+      "status": "not_applicable",
+      "reason": "scenario_has_no_l3_spec",
+      "requested_model": null,
+      "invocations": [],
+      "invocation_ledger": []
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "attempt_id": "3abc38e0-2e60-4901-aa79-55861031bab1",
+  "scenario": "compatibility-phone-ar-portrait",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-20T14:17:43+00:00",
+  "finished_at": "2026-07-20T14:20:19+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-20T14:17:43+00:00",
+    "finished_at": "2026-07-20T14:20:19+00:00",
+    "total_seconds": 155.531,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.464
+      },
+      {
+        "phase": "compatibility-phone-ar-portrait-segment-0",
+        "kind": "journey",
+        "seconds": 39.238
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.879
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "locale_change",
+        "seconds": 0.034
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 2.888
+      },
+      {
+        "phase": "compatibility-phone-ar-portrait-segment-1",
+        "kind": "journey",
+        "seconds": 26.25
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 2.863
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.065
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 2.848
+      },
+      {
+        "phase": "compatibility-phone-ar-portrait-segment-2",
+        "kind": "journey",
+        "seconds": 25.316
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 2.861
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "locale_change",
+        "seconds": 0.034
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 2.887
+      },
+      {
+        "phase": "compatibility-phone-ar-portrait-segment-3",
+        "kind": "journey",
+        "seconds": 32.922
+      },
+      {
+        "phase": "after-segment-3",
+        "kind": "checkpoint",
+        "seconds": 2.886
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/compatibility-phone-ar-portrait-segment-0/codex-journey-result.normalized.json",
+      "artifacts/compatibility-phone-ar-portrait-segment-1/codex-journey-result.normalized.json",
+      "artifacts/compatibility-phone-ar-portrait-segment-2/codex-journey-result.normalized.json",
+      "artifacts/compatibility-phone-ar-portrait-segment-3/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0",
+      "artifacts/after-event-0",
+      "artifacts/after-segment-1",
+      "artifacts/after-event-1",
+      "artifacts/after-segment-2",
+      "artifacts/after-event-2",
+      "artifacts/after-segment-3"
+    ],
+    "system_events": [
+      "artifacts/system-event-0/event.json",
+      "artifacts/system-event-1/event.json",
+      "artifacts/system-event-2/event.json"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "f490f789ab0f49bebef5cf0d34213f54556fa0bd1540844f63627285bbfa7035"
+    }
+  }
+}

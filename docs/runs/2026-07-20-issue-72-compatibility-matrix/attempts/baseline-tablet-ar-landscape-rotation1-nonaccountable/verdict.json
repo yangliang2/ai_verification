@@ -1,0 +1,268 @@
+{
+  "scenario": "compatibility-tablet-ar-landscape",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-20-issue-72-compatibility-matrix/baseline/tablet-ar-landscape/live-validation-gate.json",
+      "failed_checks": [],
+      "app": {
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.CompatibilityActivity",
+        "target_surface": {
+          "resource_id": "compatibility_create_state"
+        }
+      }
+    }
+  },
+  "metric_context": {
+    "seed_id": "compatibility-tablet-ar-landscape",
+    "seed_kind": "baseline_control",
+    "seed_outcome": "passed_control",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": "L2",
+    "expected_oracle_defect_class": "ui_rendering",
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "pass",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-e074320a",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Tap the button with resource-id compatibility_create_state and verify the sentinel AIVERIFY-ISSUE-72-SENTINEL is visible.",
+      "After the locale event, inspect without interacting and verify the Arabic title and DIRECTION_RTL remain visible with the sentinel.",
+      "After rotation, inspect without interacting and verify the same Arabic RTL state remains visible.",
+      "After cleanup, verify the app locale is restored to en-US; do not modify fixture state.",
+      "[boundary] inject locale_change {'locale': 'ar-EG'}",
+      "[boundary] inject rotate {'rotation': '1'}",
+      "[boundary] inject locale_change {'locale': 'en-US'}"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-94794022",
+    "level": "L2",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Tap the button with resource-id compatibility_create_state and verify the sentinel AIVERIFY-ISSUE-72-SENTINEL is visible.",
+      "After the locale event, inspect without interacting and verify the Arabic title and DIRECTION_RTL remain visible with the sentinel.",
+      "After rotation, inspect without interacting and verify the same Arabic RTL state remains visible.",
+      "After cleanup, verify the app locale is restored to en-US; do not modify fixture state.",
+      "[boundary] inject locale_change {'locale': 'ar-EG'}",
+      "[boundary] inject rotate {'rotation': '1'}",
+      "[boundary] inject locale_change {'locale': 'en-US'}"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "已校验 3 条断言，全部通过",
+        "note": "L2 状态断言全部满足"
+      }
+    ],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "compatibility-tablet-ar-landscape-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty",
+            "adb -s emulator-5556 shell input tap 1280 204",
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Found compatibility_create_state at center [1280,204] and dispatched the tap. The refreshed layout showed AIVERIFY-ISSUE-72-SENTINEL in compatibility_state.",
+          "action": "Tap the button with resource-id compatibility_create_state and verify the sentinel AIVERIFY-ISSUE-72-SENTINEL is visible."
+        }
+      ]
+    },
+    {
+      "journey": "compatibility-tablet-ar-landscape-segment-1",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Inspected without interaction. Observed Arabic title \"اختبار مصفوفة التوافق\", sentinel \"AIVERIFY-ISSUE-72-SENTINEL\", and \"DIRECTION_RTL\" visible. Configuration reported locale=ar-EG and orientation=landscape.",
+          "action": "After the locale event, inspect without interacting and verify the Arabic title and DIRECTION_RTL remain visible with the sentinel."
+        }
+      ]
+    },
+    {
+      "journey": "compatibility-tablet-ar-landscape-segment-2",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Inspected without interaction. Arabic text, sentinel AIVERIFY-ISSUE-72-SENTINEL, and DIRECTION_RTL remained visible. Configuration text reported locale=ar-EG and orientation=portrait.",
+          "action": "After rotation, inspect without interacting and verify the same Arabic RTL state remains visible."
+        }
+      ]
+    },
+    {
+      "journey": "compatibility-tablet-ar-landscape-segment-3",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5556 --pretty"
+          ],
+          "comment": "Observed compatibility_configuration text reporting locale=en-US. Fixture state remained unchanged; no tap or text input was dispatched.",
+          "action": "After cleanup, verify the app locale is restored to en-US; do not modify fixture state."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0",
+    "after-segment-1",
+    "after-event-1",
+    "after-segment-2",
+    "after-event-2",
+    "after-segment-3"
+  ],
+  "injected_events": [
+    {
+      "event": "locale_change",
+      "args": {
+        "locale": "ar-EG"
+      }
+    },
+    {
+      "event": "rotate",
+      "args": {
+        "rotation": "1"
+      }
+    },
+    {
+      "event": "locale_change",
+      "args": {
+        "locale": "en-US"
+      }
+    }
+  ],
+  "system_event_evidence": [
+    "artifacts/system-event-0/event.json",
+    "artifacts/system-event-1/event.json",
+    "artifacts/system-event-2/event.json"
+  ],
+  "timing": {
+    "started_at": "2026-07-20T14:06:07+00:00",
+    "finished_at": "2026-07-20T14:08:46+00:00",
+    "total_seconds": 159.255,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 10.095
+      },
+      {
+        "phase": "compatibility-tablet-ar-landscape-segment-0",
+        "kind": "journey",
+        "seconds": 30.332
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 3.539
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "locale_change",
+        "seconds": 0.095
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 6.592
+      },
+      {
+        "phase": "compatibility-tablet-ar-landscape-segment-1",
+        "kind": "journey",
+        "seconds": 24.3
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 3.623
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.374
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 5.114
+      },
+      {
+        "phase": "compatibility-tablet-ar-landscape-segment-2",
+        "kind": "journey",
+        "seconds": 34.906
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 3.638
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "locale_change",
+        "seconds": 0.142
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 4.688
+      },
+      {
+        "phase": "compatibility-tablet-ar-landscape-segment-3",
+        "kind": "journey",
+        "seconds": 22.998
+      },
+      {
+        "phase": "after-segment-3",
+        "kind": "checkpoint",
+        "seconds": 3.722
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verfication/docs/runs/2026-07-20-issue-72-compatibility-matrix/baseline/tablet-ar-landscape/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "2baee3164f640b950df1ca54a1caebf3d8c2ffec7ef2f52d25a5e181011a35bc"
+  }
+}

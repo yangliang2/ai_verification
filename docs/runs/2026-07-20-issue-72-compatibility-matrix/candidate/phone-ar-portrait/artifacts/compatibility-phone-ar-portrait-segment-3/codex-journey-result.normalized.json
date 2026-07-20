@@ -1,0 +1,14 @@
+{
+  "journey": "compatibility-phone-ar-portrait-segment-3",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Observed compatibility_configuration reporting locale=en-US and DIRECTION_LTR. No taps or text input were dispatched; fixture state remained unchanged.",
+      "action": "After cleanup, verify the app locale is restored to en-US; do not modify fixture state."
+    }
+  ]
+}

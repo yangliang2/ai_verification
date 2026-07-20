@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "role": "journey_driver",
+  "backend": "codex_cli",
+  "binary": {
+    "requested": "codex",
+    "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+    "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+    "version": "codex-cli 0.144.6"
+  },
+  "requested_model": null,
+  "effective_model": "gpt-5.6-sol",
+  "effective_model_source": {
+    "kind": "codex_session_turn_context",
+    "observation_sha256": "4c1da1f1e673a6ea286fdf0cd8f29fe01f61f7888e585902050ffd225509d862",
+    "thread_id": "019f7fd8-777b-74e0-b9f7-79f4ebe572ae",
+    "turn_id": "019f7fd8-781b-7712-a4d4-60f5d17d524b"
+  },
+  "source_observation": {
+    "session_meta": {
+      "id": "019f7fd8-777b-74e0-b9f7-79f4ebe572ae",
+      "cwd": "/Users/peter/hosts/aiverify-issue-72",
+      "cli_version": "0.144.6",
+      "source": "exec"
+    },
+    "turn_context": {
+      "turn_id": "019f7fd8-781b-7712-a4d4-60f5d17d524b",
+      "model": "gpt-5.6-sol"
+    }
+  },
+  "command": {
+    "argv_without_prompt": [
+      "codex",
+      "exec",
+      "--json",
+      "--output-schema",
+      "/Users/peter/projects/ai_verfication/src/aiverify/runner/journey_result_schema.json",
+      "--output-last-message",
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-20-issue-72-compatibility-matrix/baseline/phone-ar-landscape/artifacts/compatibility-phone-ar-landscape-segment-3/codex-journey-result.json",
+      "--skip-git-repo-check",
+      "--cd",
+      "/Users/peter/hosts/aiverify-issue-72",
+      "--dangerously-bypass-approvals-and-sandbox"
+    ],
+    "prompt_sha256": "76dfb830105fd4142e23fca8251c581cfd9e166c98a870ace86e5c99c26c3da4"
+  }
+}

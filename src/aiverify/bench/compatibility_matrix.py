@@ -75,7 +75,13 @@ def judge_cell(
         return _result(cell, "non_accountable", "anchor_geometry_unobservable")
     correct_order = start_x > end_x if cell.direction == "rtl" else start_x < end_x
     if not correct_order or start_x == end_x:
-        return _result(cell, "locally_rejected", "rtl_relative_order_violation")
+        return _result(
+            cell,
+            "locally_rejected",
+            "rtl_relative_order_violation",
+            start_x=start_x,
+            end_x=end_x,
+        )
     return _result(
         cell,
         "locally_supported",
@@ -133,6 +139,7 @@ def judge_matrix_runs(
     root = Path(lane_root)
     layouts: dict[str, list[dict[str, Any]]] = {}
     lane_errors: dict[str, str] = {}
+    lane_identity: dict[str, dict[str, Any]] = {}
     for cell in cells:
         lane = root / cell.id
         try:
@@ -144,6 +151,38 @@ def judge_matrix_runs(
                 or execution.get("accounting_eligible") is not True
             ):
                 raise ValueError("ExecutionRecord is not completed and accountable")
+            provenance = json.loads(
+                (lane / "execution-provenance.json").read_text(encoding="utf-8")
+            )
+            local_apks = provenance.get("apk", {}).get("artifacts", [])
+            installed_apks = provenance.get("deployment", {}).get(
+                "installed_artifacts", []
+            )
+            if (
+                len(local_apks) != 1
+                or len(installed_apks) != 1
+                or local_apks[0].get("sha256") != installed_apks[0].get("sha256")
+            ):
+                raise ValueError("local and installed APK identity do not match")
+            device = provenance.get("device", {})
+            profile = device.get("profile", {})
+            if device.get("api_level") != "35" or not profile.get("name"):
+                raise ValueError("API-35 device profile identity is incomplete")
+            expected_profile = (
+                "aiverify_tablet_api35"
+                if cell.form_factor == "tablet"
+                else "aiverify_api35"
+            )
+            if profile.get("name") != expected_profile:
+                raise ValueError("effective AVD profile contradicts matrix cell")
+            lane_identity[cell.id] = {
+                "attempt_id": record.get("attempt_id"),
+                "host_commit": provenance.get("host", {}).get("commit"),
+                "apk_sha256": local_apks[0]["sha256"],
+                "device_serial": device.get("serial"),
+                "api_level": device.get("api_level"),
+                "profile": profile.get("name"),
+            }
             events = [
                 json.loads(
                     (lane / "artifacts" / f"system-event-{index}" / "event.json")
@@ -172,7 +211,15 @@ def judge_matrix_runs(
         result["conclusion"] = "non_accountable"
         result["reason"] = "runner_lane_evidence_invalid"
         result["accountable"] = False
+    apk_hashes = {
+        identity["apk_sha256"] for identity in lane_identity.values()
+    }
+    if len(apk_hashes) > 1:
+        result["conclusion"] = "non_accountable"
+        result["reason"] = "lane_apk_identity_mismatch"
+        result["accountable"] = False
     result["lane_errors"] = lane_errors
+    result["lane_identity"] = lane_identity
     return result
 
 
