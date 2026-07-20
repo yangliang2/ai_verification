@@ -453,6 +453,33 @@ class DeviceSystemEventInjector:
                     f"expected night={expected}, observed {actual!r}"
                 )
             return
+        if event.event == "locale_change":
+            locale = event.args.get("locale", "")
+            if not re.fullmatch(
+                r"[A-Za-z]{2,3}(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?",
+                locale,
+            ):
+                raise SystemEventInjectionError(
+                    "locale_change requires args.locale to be a canonical language tag; "
+                    f"got {locale!r}"
+                )
+            self._require_success(
+                event.event, self.device.set_app_locales(self.package, locale)
+            )
+            observed = self.device.get_app_locales(self.package)
+            self._require_success(event.event, observed)
+            match = re.search(r"are \[([^]]*)\]", observed.stdout)
+            actual = match.group(1) if match else ""
+            if actual != locale:
+                raise SystemEventInjectionError(
+                    "locale_change postcondition failed: "
+                    f"expected app locales={locale!r}, observed {observed.stdout.strip()!r}"
+                )
+            return SystemEventObservation(
+                event=event.event,
+                requested={"package": self.package, "locales": locale},
+                observed={"package": self.package, "locales": actual},
+            )
         raise SystemEventInjectionError(f"Unsupported system event for MVP injector: {event.event}")
 
     def _perform_backup_restore(

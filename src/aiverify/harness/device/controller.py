@@ -421,6 +421,16 @@ class DeviceController:
         """Read the effective uiMode night setting for event postconditions."""
         return self._shell(["cmd", "uimode", "night"])
 
+    def set_app_locales(self, package: str, locales: str) -> AdbResult:
+        """Set API-33+ per-app locales through Android's locale service."""
+        return self._shell(
+            ["cmd", "locale", "set-app-locales", package, "--locales", locales]
+        )
+
+    def get_app_locales(self, package: str) -> AdbResult:
+        """Read API-33+ per-app locales for a serial-scoped postcondition."""
+        return self._shell(["cmd", "locale", "get-app-locales", package])
+
     # ------------------------------------------------------------------
     # 截图
     # ------------------------------------------------------------------

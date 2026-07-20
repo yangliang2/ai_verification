@@ -1491,6 +1491,59 @@ def test_inject_dark_mode_rejects_unknown_night_value_before_dispatch() -> None:
     assert fake.commands == []
 
 
+def test_inject_locale_change_records_requested_and_observed_locale() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many([
+        AdbResult(stdout="", stderr="", returncode=0),
+        AdbResult(
+            stdout="Locales for org.example for user 0 are [ar-EG]\n",
+            stderr="",
+            returncode=0,
+        ),
+    ])
+
+    observation = injector.inject(
+        SystemEventSpec(step_index=0, event="locale_change", args={"locale": "ar-EG"})
+    )
+
+    assert observation is not None
+    assert observation.as_dict() == {
+        "event": "locale_change",
+        "requested": {"package": "org.example", "locales": "ar-EG"},
+        "observed": {"package": "org.example", "locales": "ar-EG"},
+    }
+    assert fake.commands[-2:] == [
+        ["-s", "emulator-5554", "shell", "cmd", "locale", "set-app-locales", "org.example", "--locales", "ar-EG"],
+        ["-s", "emulator-5554", "shell", "cmd", "locale", "get-app-locales", "org.example"],
+    ]
+
+
+@pytest.mark.parametrize("locale", ["", "ar_EG", "a", "arabic", "ar-EG-extra"])
+def test_inject_locale_change_rejects_invalid_tags_before_dispatch(locale: str) -> None:
+    injector, fake = _injector()
+    with pytest.raises(SystemEventInjectionError, match="canonical language tag"):
+        injector.inject(
+            SystemEventSpec(step_index=0, event="locale_change", args={"locale": locale})
+        )
+    assert fake.commands == []
+
+
+def test_inject_locale_change_fails_closed_on_observed_mismatch() -> None:
+    injector, fake = _injector()
+    fake.enqueue_many([
+        AdbResult(stdout="", stderr="", returncode=0),
+        AdbResult(
+            stdout="Locales for org.example for user 0 are [en-US]\n",
+            stderr="",
+            returncode=0,
+        ),
+    ])
+    with pytest.raises(SystemEventInjectionError, match="postcondition failed"):
+        injector.inject(
+            SystemEventSpec(step_index=0, event="locale_change", args={"locale": "ar-EG"})
+        )
+
+
 @pytest.mark.parametrize(
     ("event", "args"),
     [
