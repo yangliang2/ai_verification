@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "role": "journey_driver",
+  "backend": "codex_cli",
+  "binary": {
+    "requested": "codex",
+    "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+    "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+    "version": "codex-cli 0.144.6"
+  },
+  "requested_model": null,
+  "effective_model": "gpt-5.6-sol",
+  "effective_model_source": {
+    "kind": "codex_session_turn_context",
+    "observation_sha256": "35c7c40ee522bff1ebe27ee866908d43fe5946fd8b61534454b36117d28ac3ab",
+    "thread_id": "019f7fdb-329b-7cb1-828d-8fccfaacdeb9",
+    "turn_id": "019f7fdb-3326-7362-9334-534a1a1e9441"
+  },
+  "source_observation": {
+    "session_meta": {
+      "id": "019f7fdb-329b-7cb1-828d-8fccfaacdeb9",
+      "cwd": "/Users/peter/hosts/aiverify-issue-72",
+      "cli_version": "0.144.6",
+      "source": "exec"
+    },
+    "turn_context": {
+      "turn_id": "019f7fdb-3326-7362-9334-534a1a1e9441",
+      "model": "gpt-5.6-sol"
+    }
+  },
+  "command": {
+    "argv_without_prompt": [
+      "codex",
+      "exec",
+      "--json",
+      "--output-schema",
+      "/Users/peter/projects/ai_verfication/src/aiverify/runner/journey_result_schema.json",
+      "--output-last-message",
+      "/Users/peter/projects/ai_verfication/docs/runs/2026-07-20-issue-72-compatibility-matrix/baseline/tablet-ar-landscape/artifacts/compatibility-tablet-ar-landscape-segment-3/codex-journey-result.json",
+      "--skip-git-repo-check",
+      "--cd",
+      "/Users/peter/hosts/aiverify-issue-72",
+      "--dangerously-bypass-approvals-and-sandbox"
+    ],
+    "prompt_sha256": "119d010eef20424baa3c0a2fef36c03438ee4c6a1bea5ac1f81197d1a5976973"
+  }
+}

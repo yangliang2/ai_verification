@@ -1,0 +1,16 @@
+{
+  "journey": "compatibility-tablet-ar-landscape-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5556 --pretty",
+        "adb -s emulator-5556 shell input tap 1280 204",
+        "android layout --device=emulator-5556 --pretty"
+      ],
+      "comment": "Found compatibility_create_state at center [1280,204] and dispatched the tap. The refreshed layout showed AIVERIFY-ISSUE-72-SENTINEL in compatibility_state.",
+      "action": "Tap the button with resource-id compatibility_create_state and verify the sentinel AIVERIFY-ISSUE-72-SENTINEL is visible."
+    }
+  ]
+}

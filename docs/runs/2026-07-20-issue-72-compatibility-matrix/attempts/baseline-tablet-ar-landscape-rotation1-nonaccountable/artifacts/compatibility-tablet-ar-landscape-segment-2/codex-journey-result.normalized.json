@@ -1,0 +1,14 @@
+{
+  "journey": "compatibility-tablet-ar-landscape-segment-2",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5556 --pretty"
+      ],
+      "comment": "Inspected without interaction. Arabic text, sentinel AIVERIFY-ISSUE-72-SENTINEL, and DIRECTION_RTL remained visible. Configuration text reported locale=ar-EG and orientation=portrait.",
+      "action": "After rotation, inspect without interacting and verify the same Arabic RTL state remains visible."
+    }
+  ]
+}

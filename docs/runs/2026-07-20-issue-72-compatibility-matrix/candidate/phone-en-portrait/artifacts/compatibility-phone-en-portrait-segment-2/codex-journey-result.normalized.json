@@ -1,0 +1,14 @@
+{
+  "journey": "compatibility-phone-en-portrait-segment-2",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Inspected without interaction. The UI retained the sentinel AIVERIFY-ISSUE-72-SENTINEL, DIRECTION_LTR, locale=en-US, and orientation=portrait; START ANCHOR remained left of END ANCHOR.",
+      "action": "After rotation, inspect without interacting and verify the same English LTR state remains visible."
+    }
+  ]
+}

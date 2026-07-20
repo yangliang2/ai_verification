@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "attempt_id": "6d87dcfc-e036-47c3-b728-4f3e58e60a10",
+  "scenario": "compatibility-tablet-ar-landscape",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-20T14:23:54+00:00",
+  "finished_at": "2026-07-20T14:27:08+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-20T14:23:54+00:00",
+    "finished_at": "2026-07-20T14:27:08+00:00",
+    "total_seconds": 193.92,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 13.909
+      },
+      {
+        "phase": "compatibility-tablet-ar-landscape-segment-0",
+        "kind": "journey",
+        "seconds": 34.078
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 3.707
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "locale_change",
+        "seconds": 0.177
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 4.389
+      },
+      {
+        "phase": "compatibility-tablet-ar-landscape-segment-1",
+        "kind": "journey",
+        "seconds": 23.793
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 3.706
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.186
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 3.66
+      },
+      {
+        "phase": "compatibility-tablet-ar-landscape-segment-2",
+        "kind": "journey",
+        "seconds": 24.656
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 3.77
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "locale_change",
+        "seconds": 0.129
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 4.455
+      },
+      {
+        "phase": "compatibility-tablet-ar-landscape-segment-3",
+        "kind": "journey",
+        "seconds": 61.792
+      },
+      {
+        "phase": "after-segment-3",
+        "kind": "checkpoint",
+        "seconds": 3.696
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/compatibility-tablet-ar-landscape-segment-0/codex-journey-result.normalized.json",
+      "artifacts/compatibility-tablet-ar-landscape-segment-1/codex-journey-result.normalized.json",
+      "artifacts/compatibility-tablet-ar-landscape-segment-2/codex-journey-result.normalized.json",
+      "artifacts/compatibility-tablet-ar-landscape-segment-3/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0",
+      "artifacts/after-event-0",
+      "artifacts/after-segment-1",
+      "artifacts/after-event-1",
+      "artifacts/after-segment-2",
+      "artifacts/after-event-2",
+      "artifacts/after-segment-3"
+    ],
+    "system_events": [
+      "artifacts/system-event-0/event.json",
+      "artifacts/system-event-1/event.json",
+      "artifacts/system-event-2/event.json"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "48936fb885f163b4bcadcba6ef8f46a126a8ca4a15ab08cce0d67d870147f6b6"
+    }
+  }
+}

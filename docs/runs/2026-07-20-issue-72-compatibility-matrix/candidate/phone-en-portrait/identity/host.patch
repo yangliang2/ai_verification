@@ -1,0 +1,13 @@
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/CompatibilityActivity.java b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/CompatibilityActivity.java
+index 619366e..f08d86e 100644
+--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/CompatibilityActivity.java
++++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/CompatibilityActivity.java
+@@ -41,7 +41,7 @@ public final class CompatibilityActivity extends Activity {
+ 
+         LinearLayout anchors = new LinearLayout(this);
+         anchors.setOrientation(LinearLayout.HORIZONTAL);
+-        anchors.setLayoutDirection(View.LAYOUT_DIRECTION_LOCALE);
++        anchors.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+         TextView start = text(R.id.compatibility_start_anchor, getString(R.string.compatibility_start));
+         start.setGravity(Gravity.START);
+         TextView end = text(R.id.compatibility_end_anchor, getString(R.string.compatibility_end));

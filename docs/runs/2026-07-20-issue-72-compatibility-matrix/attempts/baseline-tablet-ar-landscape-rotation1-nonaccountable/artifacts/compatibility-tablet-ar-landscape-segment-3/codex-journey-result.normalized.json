@@ -1,0 +1,14 @@
+{
+  "journey": "compatibility-tablet-ar-landscape-segment-3",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5556 --pretty"
+      ],
+      "comment": "Observed compatibility_configuration text reporting locale=en-US. Fixture state remained unchanged; no tap or text input was dispatched.",
+      "action": "After cleanup, verify the app locale is restored to en-US; do not modify fixture state."
+    }
+  ]
+}

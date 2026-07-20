@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-07-20T10:41:00-04:00",
+  "commands": [
+    "adb -s <serial> shell settings put system accelerometer_rotation 0",
+    "adb -s <serial> shell settings put system user_rotation 0",
+    "adb -s <serial> shell cmd locale get-app-locales dev.aiverify.lifecyclefixture",
+    "adb -s <serial> shell settings get system accelerometer_rotation",
+    "adb -s <serial> shell settings get system user_rotation",
+    "adb -s <serial> shell wm size"
+  ],
+  "devices": [
+    {
+      "serial": "emulator-5554",
+      "role": "phone",
+      "app_locales": ["en-US"],
+      "accelerometer_rotation": 0,
+      "user_rotation": 0,
+      "physical_size": "1080x2400"
+    },
+    {
+      "serial": "emulator-5556",
+      "role": "tablet",
+      "app_locales": ["en-US"],
+      "accelerometer_rotation": 0,
+      "user_rotation": 0,
+      "physical_size": "2560x1600"
+    }
+  ],
+  "result": "Both devices restored to natural rotation with the fixture locale set to en-US."
+}

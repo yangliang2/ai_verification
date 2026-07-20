@@ -1,0 +1,14 @@
+{
+  "journey": "compatibility-phone-ar-landscape-segment-3",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Observed compatibility_configuration text: locale=en-US;orientation=landscape;width_dp=914;height_dp=411;smallest_width_dp=411. Locale was restored to en-US. Fixture state was not modified.",
+      "action": "After cleanup, verify the app locale is restored to en-US; do not modify fixture state."
+    }
+  ]
+}

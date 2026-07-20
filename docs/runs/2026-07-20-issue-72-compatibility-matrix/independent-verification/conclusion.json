@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_supported",
+  "accountable": true,
+  "reason": "The committed evidence supports the bounded claim: all four preregistered API-35 baseline cells are accountable and locally supported; the matched candidate remains supported in the English LTR control and is accountably rejected with rtl_relative_order_violation in all three Arabic RTL cells. The audit does not support any broader device, API, accessibility, benchmark, detection-rate, Goldset, upstream-acceptance, or subjective visual-quality claim.",
+  "evidence_checks": [
+    {"check":"Preregistered matrix completeness and exact accounting","status":"passed","evidence":"contract.json declares exactly four cells. Replaying compatibility_matrix.py reproduced both committed aggregates byte-for-byte: baseline locally_supported and candidate locally_rejected, with no undeclared cells or lane errors."},
+    {"check":"Canonical execution accountability","status":"passed","evidence":"All eight canonical ExecutionRecords are completed, accounting eligible, error free, and have distinct attempt IDs; recorded durations total 1382.652 seconds."},
+    {"check":"Evidence integrity","status":"passed","evidence":"All eight canonical lane checksum manifests and the preserved superseded-attempt manifest verified; each covers 64 files."},
+    {"check":"Matched baseline and candidate Journeys","status":"passed","evidence":"Structural comparison of each baseline/candidate Run Spec found only declared role metadata and candidate diff fields; actions, events, assertions, expected behavior, package/activity, APK path, and rotations match."},
+    {"check":"Frozen candidate defect scope","status":"passed","evidence":"The frozen patch and captured candidate host patches contain one source-line change: LAYOUT_DIRECTION_LOCALE to LAYOUT_DIRECTION_LTR; all candidate patch captures hash to f683ccd09d8776328d0ebb2007dd749f17ca9e843cfce3ff232ab521f6859261."},
+    {"check":"APK and deployment identity","status":"passed","evidence":"Every baseline local/installed APK hashes to 1b6df13a0c50ce9a9bd4d70f0d8a80888fc34bab8b190c1a6d3f13f4a9d7efdf; every candidate local/installed APK hashes to 8f2c045ed117557e222d1e38a28a7c11ff62429436a245acec3e6564731feb69."},
+    {"check":"Trusted locale, rotation, and locale-cleanup events","status":"passed","evidence":"Each canonical lane has exactly three passed locale_change, rotate, locale_change receipts; requested/observed values match and every lane observes en-US after cleanup."},
+    {"check":"Final device cleanup","status":"passed","evidence":"verification/device-cleanup.json records both emulators restored to accelerometer_rotation=0 and user_rotation=0 with fixture locale en-US."},
+    {"check":"Effective device, API, and form-factor configuration","status":"passed","evidence":"All provenance records API 35 and the same Google emulator fingerprint; phone smallest width is 411dp and tablet 800dp; telemetry records expected locale and orientation."},
+    {"check":"Localized semantics and sentinel-state preservation","status":"passed","evidence":"All eight layouts expose stable IDs, expected localized title, AIVERIFY-ISSUE-72-SENTINEL, direction telemetry, and effective configuration; all lane verdicts report L2 pass."},
+    {"check":"Baseline RTL/LTR geometry","status":"passed","evidence":"Baseline aggregate centers are English 301/778 and Arabic 778/301, 1768/631, and 1896/664, satisfying logical start/end order without missing or off-screen nodes."},
+    {"check":"Candidate discrimination and healthy control","status":"passed","evidence":"Candidate English control remains supported at 301/778; all three Arabic cells are rejected as rtl_relative_order_violation at 301/778, 631/1768, and 664/1896 while other semantics remain intact."},
+    {"check":"Fail-closed oracle behavior","status":"passed","evidence":"The oracle and tests cover semantic, state, direction, off-screen, order, identity, exact-cell, configuration, execution, cleanup, tablet-rotation, and patch-scope failure modes."},
+    {"check":"Automated verification results","status":"passed","evidence":"Focused JUnit: 176 tests, 0 failures/errors/skips, 0.205s. Full JUnit: 639 tests, 0 failures/errors/skips, 16.591s."},
+    {"check":"Superseded tablet attempt preservation","status":"passed","evidence":"The rotation-1 tablet attempt and verified 64-entry manifest are preserved outside canonical roots; the corrected rotation-0 lane has a fresh attempt ID and is the only counted tablet lane."}
+  ],
+  "limitations": [
+    "Coverage is limited to two local emulator profiles on one API level and one Google emulator fingerprint; it does not cover other APIs, OEMs, physical devices, foldables, night mode, font scale, or additional locales.",
+    "The oracle checks required semantic nodes, off-screen flags, configuration, state, and relative anchor order, not general pairwise rectangle overlap; the bounded fixture conclusion remains supported.",
+    "APK binaries are external to the run directory; durable provenance retains paths, sizes, local and installed hashes, deployment receipts, and equality.",
+    "Named-device screenshots use the documented serial-scoped adb fallback because the Android CLI screenshot path cannot select a device.",
+    "The superseded tablet attempt passed generic runner L2 assertions but is excluded because effective orientation was portrait; the fail-closed matrix oracle supplies its non-accountable classification.",
+    "GitHub issue retrieval encountered one transient GraphQL EOF before succeeding."
+  ]
+}

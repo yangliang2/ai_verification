@@ -291,6 +291,23 @@ class TestNightMode:
         assert fake.commands[-1] == ["shell", "cmd", "uimode", "night", "no"]
 
 
+class TestAppLocales:
+    def test_set_app_locales(self):
+        ctrl, fake = _ctrl(serial="emulator-5554")
+        ctrl.set_app_locales("dev.aiverify.fixture", "ar-EG")
+        assert fake.commands[-1] == [
+            "-s", "emulator-5554", "shell", "cmd", "locale",
+            "set-app-locales", "dev.aiverify.fixture", "--locales", "ar-EG",
+        ]
+
+    def test_get_app_locales(self):
+        ctrl, fake = _ctrl()
+        ctrl.get_app_locales("dev.aiverify.fixture")
+        assert fake.commands[-1] == [
+            "shell", "cmd", "locale", "get-app-locales", "dev.aiverify.fixture",
+        ]
+
+
 # ---------------------------------------------------------------------------
 # 截图
 # ---------------------------------------------------------------------------
