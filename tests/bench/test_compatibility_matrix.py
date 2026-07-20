@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from aiverify.bench.compatibility_matrix import judge_matrix, load_contract
+from aiverify.bench.compatibility_matrix import judge_matrix, judge_matrix_runs, load_contract
 from aiverify.runner.run_spec import load_run_spec
 
 
@@ -77,5 +77,55 @@ def test_preregistered_run_specs_match_contract():
     assert [spec.scenario.id for spec in specs] == [
         f"compatibility-{cell.id}" for cell in cells
     ]
-    assert all(len(spec.scenario.system_events) == 2 for spec in specs)
+    assert all(len(spec.scenario.system_events) == 3 for spec in specs)
     assert all(spec.scenario.system_events[0].event == "locale_change" for spec in specs)
+    assert all(
+        spec.scenario.system_events[-1].args == {"locale": "en-US"}
+        for spec in specs
+    )
+
+
+def test_candidate_specs_match_actions_events_and_assertions():
+    cells, _ = load_contract(CONTRACT)
+    root = Path("bench/capability-slices/compatibility-matrix/run-specs")
+    for cell in cells:
+        baseline = load_run_spec(root / f"{cell.id}.yaml")
+        candidate = load_run_spec(root / f"candidate-{cell.id}.yaml")
+        assert baseline.scenario.user_actions == candidate.scenario.user_actions
+        assert baseline.scenario.system_events == candidate.scenario.system_events
+        assert baseline.scenario.assertions == candidate.scenario.assertions
+        assert baseline.scenario.expected_behavior == candidate.scenario.expected_behavior
+        assert baseline.scenario.metric_context.seed_kind == "baseline_control"
+        assert candidate.scenario.metric_context.seed_kind == "injected_defect"
+        assert candidate.diff and candidate.diff.name == "forced-ltr.patch"
+
+
+def test_runner_lane_replay_requires_cleanup_evidence(tmp_path):
+    cells, _ = load_contract(CONTRACT)
+    for cell in cells:
+        lane = tmp_path / cell.id
+        (lane / "artifacts" / "after-event-1").mkdir(parents=True)
+        (lane / "execution-record.json").write_text(json.dumps({
+            "lifecycle_state": "completed",
+            "execution": {"status": "completed", "accounting_eligible": True},
+        }))
+        (lane / "artifacts" / "after-event-1" / "layout.json").write_text(
+            json.dumps(_layout(cell.id))
+        )
+        for index, (event, locale) in enumerate([
+            ("locale_change", cell.locale), ("rotate", None), ("locale_change", "en-US")
+        ]):
+            event_dir = lane / "artifacts" / f"system-event-{index}"
+            event_dir.mkdir()
+            evidence = {} if locale is None else {"observed": {"locales": locale}}
+            (event_dir / "event.json").write_text(json.dumps({
+                "event": event, "status": "passed", "evidence": evidence
+            }))
+    result = judge_matrix_runs(contract_path=CONTRACT, lane_root=tmp_path)
+    assert result["conclusion"] == "locally_supported"
+    (tmp_path / cells[0].id / "artifacts/system-event-2/event.json").write_text(
+        json.dumps({"event": "locale_change", "status": "passed", "evidence": {}})
+    )
+    result = judge_matrix_runs(contract_path=CONTRACT, lane_root=tmp_path)
+    assert result["conclusion"] == "non_accountable"
+    assert cells[0].id in result["lane_errors"]

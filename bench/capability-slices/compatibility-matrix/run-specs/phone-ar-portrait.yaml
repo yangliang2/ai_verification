@@ -12,9 +12,11 @@ scenario:
     - Tap the button with resource-id compatibility_create_state and verify the sentinel AIVERIFY-ISSUE-72-SENTINEL is visible.
     - After the locale event, inspect without interacting and verify the Arabic title and DIRECTION_RTL remain visible with the sentinel.
     - After rotation, inspect without interacting and verify the same Arabic RTL state remains visible.
+    - After cleanup, verify the app locale is restored to en-US; do not modify fixture state.
   system_events:
     - {step_index: 0, event: locale_change, args: {locale: ar-EG}}
     - {step_index: 1, event: rotate, args: {rotation: "0"}}
+    - {step_index: 2, event: locale_change, args: {locale: en-US}}
   l2_boundary_index: 1
   assertions:
     - {resource_id: compatibility_title, attr: text, expected: اختبار مصفوفة التوافق}

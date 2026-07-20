@@ -1507,7 +1507,7 @@ def test_inject_locale_change_records_requested_and_observed_locale() -> None:
     )
 
     assert observation is not None
-    assert observation.as_dict() == {
+    assert observation == {
         "event": "locale_change",
         "requested": {"package": "org.example", "locales": "ar-EG"},
         "observed": {"package": "org.example", "locales": "ar-EG"},

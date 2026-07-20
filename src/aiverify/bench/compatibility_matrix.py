@@ -125,6 +125,57 @@ def judge_matrix(
     }
 
 
+def judge_matrix_runs(
+    *, contract_path: str | Path, lane_root: str | Path
+) -> dict[str, Any]:
+    """Judge completed runner lanes, including event and execution accountability."""
+    cells, _ = load_contract(contract_path)
+    root = Path(lane_root)
+    layouts: dict[str, list[dict[str, Any]]] = {}
+    lane_errors: dict[str, str] = {}
+    for cell in cells:
+        lane = root / cell.id
+        try:
+            record = json.loads((lane / "execution-record.json").read_text(encoding="utf-8"))
+            execution = record.get("execution", {})
+            if (
+                record.get("lifecycle_state") != "completed"
+                or execution.get("status") != "completed"
+                or execution.get("accounting_eligible") is not True
+            ):
+                raise ValueError("ExecutionRecord is not completed and accountable")
+            events = [
+                json.loads(
+                    (lane / "artifacts" / f"system-event-{index}" / "event.json")
+                    .read_text(encoding="utf-8")
+                )
+                for index in range(3)
+            ]
+            if [event.get("event") for event in events] != [
+                "locale_change", "rotate", "locale_change"
+            ] or any(event.get("status") != "passed" for event in events):
+                raise ValueError("locale/rotation/cleanup event lineage is incomplete")
+            locale_evidence = events[0].get("evidence", {})
+            cleanup_evidence = events[2].get("evidence", {})
+            if locale_evidence.get("observed", {}).get("locales") != cell.locale:
+                raise ValueError("effective cell locale contradicts contract")
+            if cleanup_evidence.get("observed", {}).get("locales") != "en-US":
+                raise ValueError("locale cleanup postcondition is missing")
+            layouts[cell.id] = json.loads(
+                (lane / "artifacts" / "after-event-1" / "layout.json")
+                .read_text(encoding="utf-8")
+            )
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as error:
+            lane_errors[cell.id] = f"{type(error).__name__}: {error}"
+    result = judge_matrix(contract_path=contract_path, layouts=layouts)
+    if lane_errors:
+        result["conclusion"] = "non_accountable"
+        result["reason"] = "runner_lane_evidence_invalid"
+        result["accountable"] = False
+    result["lane_errors"] = lane_errors
+    return result
+
+
 def _center_x(node: dict[str, Any]) -> int:
     match = re.fullmatch(r"\[(-?\d+),(-?\d+)\]", str(node.get("center", "")))
     if match is None:
@@ -146,13 +197,19 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--contract", required=True)
     parser.add_argument("--layouts", required=True, type=Path)
+    parser.add_argument("--runner-lanes", action="store_true")
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args(argv)
-    layouts = {
-        path.stem: json.loads(path.read_text(encoding="utf-8"))
-        for path in args.layouts.glob("*.json")
-    }
-    result = judge_matrix(contract_path=args.contract, layouts=layouts)
+    if args.runner_lanes:
+        result = judge_matrix_runs(
+            contract_path=args.contract, lane_root=args.layouts
+        )
+    else:
+        layouts = {
+            path.stem: json.loads(path.read_text(encoding="utf-8"))
+            for path in args.layouts.glob("*.json")
+        }
+        result = judge_matrix(contract_path=args.contract, layouts=layouts)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     return 0 if result["conclusion"] == "locally_supported" else 1

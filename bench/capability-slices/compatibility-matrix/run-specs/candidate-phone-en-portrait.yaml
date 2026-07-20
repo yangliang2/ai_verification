@@ -2,12 +2,9 @@ host_project: ../../../..
 apk_glob: bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk
 package: dev.aiverify.lifecyclefixture
 activity: dev.aiverify.lifecyclefixture.CompatibilityActivity
+diff: ../patches/forced-ltr.patch
 spec: ../spec.md
-live_validation:
-  timeout_seconds: 30
-  app_smoke:
-    target_resource_id: compatibility_create_state
-    app_settle_seconds: 1
+live_validation: {timeout_seconds: 30, app_smoke: {target_resource_id: compatibility_create_state, app_settle_seconds: 1}}
 scenario:
   id: compatibility-phone-en-portrait
   user_actions:
@@ -16,12 +13,8 @@ scenario:
     - After rotation, inspect without interacting and verify the same English LTR state remains visible.
     - After cleanup, verify the app locale is restored to en-US; do not modify fixture state.
   system_events:
-    - step_index: 0
-      event: locale_change
-      args: {locale: en-US}
-    - step_index: 1
-      event: rotate
-      args: {rotation: "0"}
+    - {step_index: 0, event: locale_change, args: {locale: en-US}}
+    - {step_index: 1, event: rotate, args: {rotation: "0"}}
     - {step_index: 2, event: locale_change, args: {locale: en-US}}
   l2_boundary_index: 1
   assertions:
@@ -29,4 +22,4 @@ scenario:
     - {resource_id: compatibility_direction, attr: text, expected: DIRECTION_LTR}
     - {resource_id: compatibility_state, attr: text, expected: AIVERIFY-ISSUE-72-SENTINEL}
   expected_behavior: English phone portrait retains localized LTR layout and sentinel state.
-  metric_context: {seed_kind: baseline_control, expected_oracle_level: L2, expected_oracle_defect_class: ui_rendering}
+  metric_context: {seed_kind: injected_defect, expected_oracle_level: L2, expected_oracle_defect_class: ui_rendering}

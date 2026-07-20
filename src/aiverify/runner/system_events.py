@@ -479,7 +479,7 @@ class DeviceSystemEventInjector:
                 event=event.event,
                 requested={"package": self.package, "locales": locale},
                 observed={"package": self.package, "locales": actual},
-            )
+            ).as_dict()
         raise SystemEventInjectionError(f"Unsupported system event for MVP injector: {event.event}")
 
     def _perform_backup_restore(
