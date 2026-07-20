@@ -17,6 +17,12 @@ def judge_performance_resource(contract: dict[str, Any], evidence: dict[str, Any
     missing = sorted(required - evidence.keys())
     if missing:
         return _result("non_accountable", "missing_performance_evidence", missing)
+    identity = evidence.get("apk_identity", {})
+    if not identity.get("local_sha256") or identity.get("local_sha256") != identity.get("installed_sha256"):
+        return _result("non_accountable", "performance_apk_identity_unbound", [])
+    receipts = evidence.get("raw_receipts", {})
+    if any(not receipts.get(name) for name in ("startup", "frame", "resource", "runtime")):
+        return _result("non_accountable", "performance_raw_receipts_unbound", [])
     device = evidence["device"]
     if device.get("api_level") != contract.get("api_level") or not device.get("serial") or not device.get("build_fingerprint"):
         return _result("non_accountable", "device_identity_mismatch_or_incomplete", [])
@@ -52,7 +58,14 @@ def judge_intent_security(contract: dict[str, Any], evidence: dict[str, Any]) ->
     ids = [item.get("id") for item in scenarios]
     if len(ids) != len(set(ids)) or set(ids) != expected:
         return _result("non_accountable", "security_scenario_set_mismatch", sorted(expected - set(ids)))
-    if not evidence.get("package_identity", {}).get("sha256") or evidence.get("runtime", {}).get("crashes", 0):
+    package_sha = evidence.get("package_identity", {}).get("sha256")
+    identity = evidence.get("apk_identity", {})
+    if not package_sha or package_sha != identity.get("local_sha256") or package_sha != identity.get("installed_sha256"):
+        return _result("non_accountable", "security_apk_identity_unbound", [])
+    receipts = evidence.get("raw_receipts", {})
+    if any(not receipts.get(name) for name in ("security", "pending_intent", "runtime")):
+        return _result("non_accountable", "security_raw_receipts_unbound", [])
+    if evidence.get("runtime", {}).get("crashes", 0):
         return _result("non_accountable", "security_identity_or_runtime_untrusted", [])
     findings = [item["id"] for item in scenarios if item.get("observed") is not True]
     return _result("locally_rejected" if findings else "locally_supported", "intent_security_violations" if findings else "intent_security_contract_satisfied", findings)
@@ -71,13 +84,26 @@ def judge_slice(contract: dict[str, Any], evidence: dict[str, Any]) -> dict[str,
     return {"schema_version": 1, "conclusion": conclusion, "reason": reason, "accountable": conclusion != "non_accountable", "domains": domains}
 
 
+def validate_receipt_files(evidence: dict[str, Any], root: Path) -> list[str]:
+    missing: list[str] = []
+    for domain in ("performance_resource", "intent_security"):
+        for receipt in evidence.get(domain, {}).get("raw_receipts", {}).values():
+            if not isinstance(receipt, str) or not (root / receipt).is_file():
+                missing.append(f"{domain}:{receipt}")
+    return missing
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--contract", required=True, type=Path)
     parser.add_argument("--evidence", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args(argv)
-    result = judge_slice(json.loads(args.contract.read_text()), json.loads(args.evidence.read_text()))
+    evidence = json.loads(args.evidence.read_text())
+    result = judge_slice(json.loads(args.contract.read_text()), evidence)
+    missing_receipts = validate_receipt_files(evidence, args.evidence.parent)
+    if missing_receipts:
+        result = {"schema_version": 1, "conclusion": "non_accountable", "reason": "raw_receipt_files_missing", "accountable": False, "missing_receipts": missing_receipts, "domains": result["domains"]}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     return 0 if result["conclusion"] == "locally_supported" else 1

@@ -5,9 +5,9 @@ Date: 2026-07-20. Device: `emulator-5554`, API 35, fingerprint recorded in
 target SDK 35. APK SHA-256 is recorded in `raw/apk.sha256`.
 
 The preregistered cold-start threshold was 1000 ms; three baseline cold starts
-were 175, 223, and 214 ms (median 214 ms). Baseline FrameMetrics reported no frame at
+were 158, 192, and 184 ms (median 184 ms). Baseline FrameMetrics reported no frame at
 or above the 700 ms frozen boundary. The narrow performance candidate recorded a
-980 ms total frame and 901 ms draw workload and was rejected. The narrow security
+967 ms total frame and 901 ms draw workload and was rejected. The narrow security
 candidate forwarded the package-confined nested Intent and reached `SensitiveActivity`;
 it was rejected while the performance domain remained supported.
 

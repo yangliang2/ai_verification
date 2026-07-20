@@ -25,6 +25,8 @@ public final class PerformanceSecurityActivity extends Activity {
         metricsThread = new HandlerThread("issue74-frame-metrics");
         metricsThread.start();
         getWindow().addOnFrameMetricsAvailableListener((window, metrics, dropped) -> {
+            long count = getSharedPreferences("issue74", MODE_PRIVATE)
+                    .getLong("frame_count", 0) + 1;
             long totalMs = metrics.getMetric(FrameMetrics.TOTAL_DURATION) / 1_000_000;
             long previous = getSharedPreferences("issue74", MODE_PRIVATE)
                     .getLong("max_frame_total_ms", 0);
@@ -32,6 +34,8 @@ public final class PerformanceSecurityActivity extends Activity {
                 getSharedPreferences("issue74", MODE_PRIVATE).edit()
                         .putLong("max_frame_total_ms", totalMs).apply();
             }
+            getSharedPreferences("issue74", MODE_PRIVATE).edit()
+                    .putLong("frame_count", count).apply();
         }, new Handler(metricsThread.getLooper()));
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);

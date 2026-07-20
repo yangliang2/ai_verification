@@ -2,7 +2,7 @@ import copy
 import json
 from pathlib import Path
 
-from aiverify.bench.performance_intent_slice import judge_slice
+from aiverify.bench.performance_intent_slice import judge_slice, validate_receipt_files
 from aiverify.runner.run_spec import load_run_spec
 
 
@@ -13,6 +13,8 @@ def evidence():
     receipts = {name: {"exit_code": 0, "observed": True} for name in ("storage_setup", "battery_setup", "storage_cleanup", "battery_cleanup")}
     return {
         "performance_resource": {
+            "apk_identity": {"local_sha256": "abc", "installed_sha256": "abc"},
+            "raw_receipts": {"startup": "startup.txt", "frame": "frame.xml", "resource": "resource.txt", "runtime": "runtime.txt"},
             "device": {"serial": "emulator-5554", "api_level": 35, "build_fingerprint": "fixture/fingerprint"},
             "startup": {"total_time_ms": 320},
             "frames": {"total_frames": 20, "slow_frames": 0, "frozen_frames": 0, "max_frame_ms": 12.0},
@@ -21,6 +23,8 @@ def evidence():
             "runtime": {"crashes": 0, "anrs": 0},
         },
         "intent_security": {
+            "apk_identity": {"local_sha256": "abc", "installed_sha256": "abc"},
+            "raw_receipts": {"security": "security.txt", "pending_intent": "prefs.xml", "runtime": "runtime.txt"},
             "package_identity": {"sha256": "abc"},
             "runtime": {"crashes": 0},
             "scenarios": [{"id": item["id"], "observed": True} for item in CONTRACT["security_scenarios"]],
@@ -75,6 +79,11 @@ def test_boolean_or_negative_metrics_are_not_accepted_as_numbers():
         data = evidence()
         data["performance_resource"]["frames"]["total_frames"] = value
         assert judge_slice(CONTRACT, data)["conclusion"] == "non_accountable"
+
+
+def test_receipt_files_must_exist_for_cli_accountability(tmp_path):
+    data = evidence()
+    assert validate_receipt_files(data, tmp_path)
 
 
 def test_three_run_specs_are_matched_and_candidates_are_narrow():

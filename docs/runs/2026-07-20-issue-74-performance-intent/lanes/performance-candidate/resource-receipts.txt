@@ -1,22 +1,30 @@
-2026-07-20T16:10:56Z
-c762ad2798980dfec6e2716066bc31631bad5c41b9a08d0ed8aa8e6b25be832e  /tmp/issue74-performance2.apk
-8
+2026-07-20T16:21:45Z
+3999b340fce745ea89c54c449651dfe6f202a9d40f3f741d7c049003e2cd17d3  /tmp/issue74-p3.apk
+cmd devicestoragemonitor force-low -f
+20
+storage_setup_exit=0
 Known volumes:
   Default:
-    level=LOW lastUsableBytes=4177862656 
+    level=LOW lastUsableBytes=4177649664
     lowBytes=311405772 fullBytes=1048576
     path=/data
 
-mSeq=8 mForceState=LOW 
+mSeq=20 mForceState=LOW
 
-9
+cmd devicestoragemonitor reset -f
+21
+storage_cleanup_exit=0
 Known volumes:
   Default:
-    level=NORMAL lastUsableBytes=4177862656 
+    level=NORMAL lastUsableBytes=4177649664
     lowBytes=311405772 fullBytes=1048576
     path=/data
 
-mSeq=9 mForceState=UNKNOWN 
+mSeq=21 mForceState=UNKNOWN
 
+dumpsys battery unplug/set level 10
+battery_setup_exit=0
   level: 10
+dumpsys battery reset
+battery_cleanup_exit=0
   level: 100
