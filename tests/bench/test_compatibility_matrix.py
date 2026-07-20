@@ -123,8 +123,19 @@ def test_runner_lane_replay_requires_cleanup_evidence(tmp_path):
         lane = tmp_path / cell.id
         (lane / "artifacts" / "after-event-1").mkdir(parents=True)
         (lane / "execution-record.json").write_text(json.dumps({
+            "attempt_id": f"attempt-{cell.id}",
             "lifecycle_state": "completed",
             "execution": {"status": "completed", "accounting_eligible": True},
+        }))
+        (lane / "execution-provenance.json").write_text(json.dumps({
+            "host": {"commit": "a" * 40},
+            "apk": {"artifacts": [{"sha256": "b" * 64}]},
+            "deployment": {"installed_artifacts": [{"sha256": "b" * 64}]},
+            "device": {
+                "serial": "emulator-5556" if cell.form_factor == "tablet" else "emulator-5554",
+                "api_level": "35",
+                "profile": {"name": "aiverify_tablet_api35" if cell.form_factor == "tablet" else "aiverify_api35"},
+            },
         }))
         (lane / "artifacts" / "after-event-1" / "layout.json").write_text(
             json.dumps(_layout(cell.id))
