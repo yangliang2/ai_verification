@@ -32,6 +32,7 @@ public final class ConcurrencyActivity extends Activity {
     private static final class Controller {
         private final ConcurrentHashMap<String, CountDownLatch> barriers = new ConcurrentHashMap<>();
         private final ConcurrentHashMap<String, CountDownLatch> completions = new ConcurrentHashMap<>();
+        private CountDownLatch destroyedCompletion;
         private Context context;
         private ConcurrencyActivity activity;
         private String schedule;
@@ -47,6 +48,7 @@ public final class ConcurrencyActivity extends Activity {
             sequence = 0;
             latestGeneration = 0;
             destroyed = false;
+            destroyedCompletion = new CountDownLatch(1);
             finalState = "empty";
             barriers.clear();
             completions.clear();
@@ -101,13 +103,16 @@ public final class ConcurrencyActivity extends Activity {
 
         boolean command(String command) {
             if ("DESTROY".equals(command)) {
-                synchronized (this) {
-                    destroyed = true;
-                    event("DESTROY");
-                    event("CANCEL");
-                    if (activity != null) activity.finish();
-                }
+                if (activity != null) activity.finish();
                 return true;
+            }
+            if ("AWAIT_DESTROY".equals(command)) {
+                try {
+                    return destroyedCompletion.await(5, TimeUnit.SECONDS);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
             }
             String operation = command.replace("RELEASE_", "");
             CountDownLatch barrier = barriers.get(operation);
@@ -139,5 +144,18 @@ public final class ConcurrencyActivity extends Activity {
                     .putBoolean("completed", true)
                     .commit();
         }
+
+        synchronized void onActivityDestroyed(ConcurrencyActivity owner) {
+            if (owner != activity || destroyed) return;
+            destroyed = true;
+            event("DESTROY");
+            event("CANCEL");
+            destroyedCompletion.countDown();
+        }
+    }
+
+    @Override protected void onDestroy() {
+        CONTROLLER.onActivityDestroyed(this);
+        super.onDestroy();
     }
 }

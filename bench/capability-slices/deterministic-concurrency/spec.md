@@ -3,8 +3,9 @@
 Run both preregistered schedules on the named API 35 emulator. For
 `new-before-old`, launch the fixture, release NEW, wait for its acknowledged
 completion, then release OLD and wait for the terminal event. For
-`destroy-before-release`, launch the fixture, issue DESTROY and observe its
-acknowledged lifecycle/cancellation events, then release PENDING and wait for the
+`destroy-before-release`, launch the fixture, issue DESTROY, require a successful
+AWAIT_DESTROY acknowledgement from the real `onDestroy` callback, then release
+PENDING and wait for the
 terminal event. Each control broadcast blocks for at most five seconds while the
 explicit worker barrier completes; arbitrary sleeps are not schedule controls.
 

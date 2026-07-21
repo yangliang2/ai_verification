@@ -60,6 +60,8 @@ def test_wrong_terminal_state_and_unfinished_execution_are_non_accountable():
     assert judge_concurrency(CONTRACT, wrong)["conclusion"] == "locally_rejected"
     unfinished = evidence(); unfinished["runtime"]["completed"] = False
     assert judge_concurrency(CONTRACT, unfinished)["conclusion"] == "non_accountable"
+    timeout = evidence(); timeout["journal"][8]["event"] = "TIMEOUT"
+    assert judge_concurrency(CONTRACT, timeout)["conclusion"] == "non_accountable"
 
 
 def test_run_specs_are_matched_and_candidate_patches_are_narrow():

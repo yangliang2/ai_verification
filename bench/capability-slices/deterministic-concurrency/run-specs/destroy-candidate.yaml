@@ -8,7 +8,7 @@ scenario:
   id: issue78-deterministic-concurrency-destroy-candidate
   user_actions:
     - Execute new-before-old by releasing NEW and then OLD through acknowledged explicit barriers.
-    - Reset, execute destroy-before-release by acknowledging destruction/cancellation and then releasing PENDING.
+    - Reset, execute destroy-before-release by requiring AWAIT_DESTROY acknowledgement from onDestroy and then releasing PENDING.
     - Capture both terminal journals and bounded runtime evidence.
   system_events: []
   assertions:
