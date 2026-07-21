@@ -38,6 +38,6 @@ not establish stress/fuzz coverage, general Android concurrency correctness,
 multi-process/database/kernel correctness, a detection rate, Goldset status, or
 upstream acceptance.
 
-The checksum inventory contains 35 artifacts. Exactly one independent
+The checksum inventory contains 43 artifacts. Exactly one independent
 Verification Agent audit is added only after this evidence commit so its review
 can name an immutable source/evidence revision.
