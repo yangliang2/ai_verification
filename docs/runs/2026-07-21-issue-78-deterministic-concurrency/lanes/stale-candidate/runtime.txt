@@ -1,0 +1,11 @@
+window_start_utc=2026-07-21T00:26:15Z
+window_end_utc=2026-07-21T00:26:15Z
+7fe6dc29bc5073124b3d2327e0e2caf5111b147cdb5c043dce425adf5f4b8a8a  /tmp/issue78-stale.apk
+adb -s emulator-5554 logcat -d -b crash
+crash_query_exit=0
+crash_count=0
+adb -s emulator-5554 logcat -d -v brief | match fixture ANR
+anr_query_exit=0
+anr_count=0
+cleanup_command=adb -s emulator-5554 shell am force-stop dev.aiverify.lifecyclefixture
+cleanup_exit=0

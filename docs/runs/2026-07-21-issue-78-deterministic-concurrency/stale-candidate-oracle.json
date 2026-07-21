@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_rejected",
+  "reason": "one_or_more_schedules_rejected",
+  "accountable": true,
+  "findings": [],
+  "schedules": [
+    {
+      "schedule_id": "new-before-old",
+      "conclusion": "locally_rejected",
+      "reason": "concurrency_invariant_violated",
+      "accountable": true,
+      "findings": [
+        "stale_result_applied"
+      ]
+    },
+    {
+      "schedule_id": "destroy-before-release",
+      "conclusion": "locally_supported",
+      "reason": "concurrency_contract_satisfied",
+      "accountable": true,
+      "findings": []
+    }
+  ]
+}

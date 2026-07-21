@@ -2,7 +2,7 @@ import copy
 import json
 from pathlib import Path
 
-from aiverify.bench.concurrency_slice import judge_concurrency
+from aiverify.bench.concurrency_slice import judge_concurrency, judge_lane, validate_raw_receipts
 from aiverify.runner.run_spec import load_run_spec
 
 
@@ -70,3 +70,19 @@ def test_run_specs_are_matched_and_candidate_patches_are_narrow():
     assert specs[0].diff is None
     assert "APPLY_STALE" in specs[1].diff.read_text()
     assert "APPLY_AFTER_DESTROY" in specs[2].diff.read_text()
+
+
+def test_lane_aggregate_requires_both_schedules_and_does_not_mask():
+    baseline = judge_lane(CONTRACT, {"schedules": [evidence(), evidence("destroy-before-release")]})
+    assert baseline["conclusion"] == "locally_supported"
+    stale = evidence(); stale["journal"][8]["event"] = "APPLY_STALE"; stale["final_state"] = "old"
+    rejected = judge_lane(CONTRACT, {"schedules": [stale, evidence("destroy-before-release")]})
+    assert rejected["conclusion"] == "locally_rejected"
+    incomplete = evidence("destroy-before-release"); incomplete["runtime"]["completed"] = False
+    result = judge_lane(CONTRACT, {"schedules": [stale, incomplete]})
+    assert result["conclusion"] == "non_accountable"
+    assert result["schedules"][0]["conclusion"] == "locally_rejected"
+
+
+def test_missing_raw_receipts_fail_cli_validation(tmp_path):
+    assert validate_raw_receipts({"lane": "baseline", "schedules": [evidence(), evidence("destroy-before-release")]}, tmp_path) == ["apk_receipts_missing"]

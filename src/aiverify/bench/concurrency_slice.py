@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
@@ -57,13 +58,72 @@ def judge_concurrency(contract: dict[str, Any], evidence: dict[str, Any]) -> dic
     return _result("locally_rejected" if findings else "locally_supported", "concurrency_invariant_violated" if findings else "concurrency_contract_satisfied", findings)
 
 
+def judge_lane(contract: dict[str, Any], evidence: dict[str, Any]) -> dict[str, Any]:
+    schedules = evidence.get("schedules")
+    if not isinstance(schedules, list):
+        return {"schema_version": 1, **_result("non_accountable", "schedule_evidence_missing", []), "schedules": []}
+    expected = [item["id"] for item in contract.get("schedules", [])]
+    observed = [item.get("schedule_id") for item in schedules]
+    if observed != expected:
+        return {"schema_version": 1, **_result("non_accountable", "schedule_set_or_order_mismatch", []), "schedules": []}
+    results = [{"schedule_id": item["schedule_id"], **judge_concurrency(contract, item)} for item in schedules]
+    if any(not item["accountable"] for item in results):
+        conclusion, reason = "non_accountable", "one_or_more_schedules_non_accountable"
+    elif any(item["conclusion"] == "locally_rejected" for item in results):
+        conclusion, reason = "locally_rejected", "one_or_more_schedules_rejected"
+    else:
+        conclusion, reason = "locally_supported", "all_schedules_supported"
+    return {"schema_version": 1, **_result(conclusion, reason, []), "schedules": results}
+
+
+def validate_raw_receipts(evidence: dict[str, Any], root: Path) -> list[str]:
+    errors: list[str] = []
+    lane = evidence.get("lane")
+    lane_root = root / "lanes" / str(lane)
+    local = lane_root / "local-apk.sha256"
+    installed = lane_root / "installed-apk.sha256"
+    runtime = lane_root / "runtime.txt"
+    if not local.is_file() or not installed.is_file():
+        return ["apk_receipts_missing"]
+    local_hash = local.read_text().split()[0]
+    installed_hash = installed.read_text().split()[0]
+    if not runtime.is_file():
+        errors.append("runtime_receipt_missing")
+    else:
+        runtime_text = runtime.read_text()
+        markers = ("window_start_utc=", "window_end_utc=", "crash_query_exit=0", "crash_count=0", "anr_query_exit=0", "anr_count=0", "cleanup_exit=0")
+        if any(marker not in runtime_text for marker in markers):
+            errors.append("runtime_receipt_incomplete")
+    receipt_names = {"new-before-old": "ordering-journal.xml", "destroy-before-release": "destroy-journal.xml"}
+    for schedule in evidence.get("schedules", []):
+        identity = schedule.get("identity", {})
+        if identity.get("local_apk_sha256") != local_hash or identity.get("installed_apk_sha256") != installed_hash:
+            errors.append(f"{schedule.get('schedule_id')}:apk_receipt_mismatch")
+        receipt = lane_root / receipt_names.get(schedule.get("schedule_id"), "missing")
+        if not receipt.is_file():
+            errors.append(f"{schedule.get('schedule_id')}:journal_receipt_missing")
+            continue
+        values = {node.attrib.get("name"): node.text for node in ET.parse(receipt).getroot() if node.tag == "string"}
+        observed = []
+        for line in (values.get("journal") or "").strip().splitlines():
+            sequence, schedule_id, event = line.strip().split("|", 2)
+            observed.append({"sequence": int(sequence), "schedule_id": schedule_id, "event": event})
+        if observed != schedule.get("journal") or values.get("final_state") != schedule.get("final_state"):
+            errors.append(f"{schedule.get('schedule_id')}:journal_receipt_mismatch")
+    return errors
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--contract", required=True, type=Path)
     parser.add_argument("--evidence", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args(argv)
-    result = judge_concurrency(json.loads(args.contract.read_text()), json.loads(args.evidence.read_text()))
+    evidence = json.loads(args.evidence.read_text())
+    result = judge_lane(json.loads(args.contract.read_text()), evidence)
+    receipt_errors = validate_raw_receipts(evidence, args.evidence.parent)
+    if receipt_errors:
+        result = {"schema_version": 1, **_result("non_accountable", "raw_receipt_validation_failed", receipt_errors), "schedules": result.get("schedules", [])}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     return 0 if result["conclusion"] == "locally_supported" else 1
