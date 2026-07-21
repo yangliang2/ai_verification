@@ -1,0 +1,68 @@
+schema_version: 3
+slice_id: m3-verification-agent-reliability-issue80-fresh
+comparison_manifest: bench/goldset/m3-reliability-slice-v2.yaml
+attempt_ledger: docs/runs/2026-07-21-issue-80-m3-fresh/attempt-ledger.jsonl
+preregistration:
+  frozen_at: "2026-07-21T06:13:23-04:00"
+  source_revision: d77555c
+  host_commit: 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b
+  host_workspace: ${WIKIPEDIA_SOURCE}
+  application_package: org.wikipedia.dev
+  application_version_code: 50594
+  device_serial: emulator-5554
+  device_avd: aiverify_api35
+  device_api_level: 35
+  device_fingerprint: google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys
+  backend: codex_cli
+  backend_version: 0.144.6
+  journey_driver_model: gpt-5.6-sol
+  l3_judge_model: gpt-5.6-sol
+  public_runner: python -m aiverify.runner
+  live_validation_gate: required_for_every_attempt
+  planned_lanes: 30
+  selected_seeds: 5
+  baseline_lanes: 15
+  defect_lanes: 15
+  repetitions_per_role: 3
+  max_attempts_per_lane: 2
+  historical_denominators_combined: false
+max_attempts_per_lane: 2
+
+_templates:
+  anr: &anr {seed_id: wikipedia-coroutine-concurrency-03-main-thread-anr, run_spec: bench/goldset/run-specs/wikipedia-coroutine-concurrency-03-main-thread-anr-portable.yaml, expected_oracle_level: L1, expected_oracle_defect_class: crash_stability}
+  oversized: &oversized {seed_id: wikipedia-process-death-03-oversized-saved-state, run_spec: bench/goldset/run-specs/wikipedia-process-death-03-oversized-saved-state-portable.yaml, expected_oracle_level: L1, expected_oracle_defect_class: crash_stability}
+  query: &query {seed_id: wikipedia-config-change-02-query-duplication, run_spec: bench/goldset/run-specs/wikipedia-config-change-02-query-duplication-portable.yaml, expected_oracle_level: L2, expected_oracle_defect_class: state_loss}
+  swallowed: &swallowed {seed_id: wikipedia-navigation-02-back-button-swallowed, run_spec: bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed-portable.yaml, expected_oracle_level: L2, expected_oracle_defect_class: state_loss}
+  search: &search {seed_id: wikipedia-ui-rendering-02-search-card-copy-mismatch, run_spec: bench/goldset/run-specs/wikipedia-ui-rendering-02-search-card-copy-mismatch-portable.yaml, expected_oracle_level: L3, expected_oracle_defect_class: ui_rendering}
+
+lanes:
+  - {<<: *anr, id: issue80-anr-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/anr/lanes/issue80-anr-baseline-1}
+  - {<<: *anr, id: issue80-anr-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/anr/lanes/issue80-anr-baseline-2}
+  - {<<: *anr, id: issue80-anr-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/anr/lanes/issue80-anr-baseline-3}
+  - {<<: *anr, id: issue80-anr-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/anr/lanes/issue80-anr-defect-1}
+  - {<<: *anr, id: issue80-anr-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/anr/lanes/issue80-anr-defect-2}
+  - {<<: *anr, id: issue80-anr-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/anr/lanes/issue80-anr-defect-3}
+  - {<<: *oversized, id: issue80-oversized-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/oversized/lanes/issue80-oversized-baseline-1}
+  - {<<: *oversized, id: issue80-oversized-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/oversized/lanes/issue80-oversized-baseline-2}
+  - {<<: *oversized, id: issue80-oversized-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/oversized/lanes/issue80-oversized-baseline-3}
+  - {<<: *oversized, id: issue80-oversized-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/oversized/lanes/issue80-oversized-defect-1}
+  - {<<: *oversized, id: issue80-oversized-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/oversized/lanes/issue80-oversized-defect-2}
+  - {<<: *oversized, id: issue80-oversized-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/oversized/lanes/issue80-oversized-defect-3}
+  - {<<: *query, id: issue80-query-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/query/lanes/issue80-query-baseline-1}
+  - {<<: *query, id: issue80-query-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/query/lanes/issue80-query-baseline-2}
+  - {<<: *query, id: issue80-query-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/query/lanes/issue80-query-baseline-3}
+  - {<<: *query, id: issue80-query-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/query/lanes/issue80-query-defect-1}
+  - {<<: *query, id: issue80-query-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/query/lanes/issue80-query-defect-2}
+  - {<<: *query, id: issue80-query-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/query/lanes/issue80-query-defect-3}
+  - {<<: *swallowed, id: issue80-swallowed-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/swallowed/lanes/issue80-swallowed-baseline-1}
+  - {<<: *swallowed, id: issue80-swallowed-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/swallowed/lanes/issue80-swallowed-baseline-2}
+  - {<<: *swallowed, id: issue80-swallowed-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/swallowed/lanes/issue80-swallowed-baseline-3}
+  - {<<: *swallowed, id: issue80-swallowed-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/swallowed/lanes/issue80-swallowed-defect-1}
+  - {<<: *swallowed, id: issue80-swallowed-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/swallowed/lanes/issue80-swallowed-defect-2}
+  - {<<: *swallowed, id: issue80-swallowed-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/swallowed/lanes/issue80-swallowed-defect-3}
+  - {<<: *search, id: issue80-search-baseline-1, role: baseline, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/search/lanes/issue80-search-baseline-1}
+  - {<<: *search, id: issue80-search-baseline-2, role: baseline, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/search/lanes/issue80-search-baseline-2}
+  - {<<: *search, id: issue80-search-baseline-3, role: baseline, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/search/lanes/issue80-search-baseline-3}
+  - {<<: *search, id: issue80-search-defect-1, role: defect, repetition: 1, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/search/lanes/issue80-search-defect-1}
+  - {<<: *search, id: issue80-search-defect-2, role: defect, repetition: 2, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/search/lanes/issue80-search-defect-2}
+  - {<<: *search, id: issue80-search-defect-3, role: defect, repetition: 3, evidence_dir: docs/runs/2026-07-21-issue-80-m3-fresh/search/lanes/issue80-search-defect-3}
