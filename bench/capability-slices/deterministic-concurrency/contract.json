@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "api_level": 35,
+  "timeout_ms": 5000,
+  "schedules": [
+    {
+      "id": "new-before-old",
+      "required_events": ["RESET", "START_OLD", "START_NEW", "RELEASE_NEW", "COMPLETE_NEW", "APPLY_NEW", "RELEASE_OLD", "COMPLETE_OLD", "TERMINAL"],
+      "decision_events": ["REJECT_STALE", "APPLY_STALE"],
+      "allowed_events": ["RESET", "START_OLD", "START_NEW", "RELEASE_NEW", "COMPLETE_NEW", "APPLY_NEW", "RELEASE_OLD", "COMPLETE_OLD", "REJECT_STALE", "APPLY_STALE", "TERMINAL"],
+      "partial_order": [["START_OLD", "START_NEW"], ["START_NEW", "RELEASE_NEW"], ["RELEASE_NEW", "COMPLETE_NEW"], ["COMPLETE_NEW", "APPLY_NEW"], ["APPLY_NEW", "RELEASE_OLD"], ["RELEASE_OLD", "COMPLETE_OLD"], ["COMPLETE_OLD", "TERMINAL"]],
+      "expected_final_state": "new"
+    },
+    {
+      "id": "destroy-before-release",
+      "required_events": ["RESET", "START_PENDING", "DESTROY", "CANCEL", "RELEASE_PENDING", "COMPLETE_PENDING", "TERMINAL"],
+      "decision_events": ["REJECT_DESTROYED", "APPLY_AFTER_DESTROY"],
+      "allowed_events": ["RESET", "START_PENDING", "DESTROY", "CANCEL", "RELEASE_PENDING", "COMPLETE_PENDING", "REJECT_DESTROYED", "APPLY_AFTER_DESTROY", "TERMINAL"],
+      "partial_order": [["START_PENDING", "DESTROY"], ["DESTROY", "CANCEL"], ["CANCEL", "RELEASE_PENDING"], ["RELEASE_PENDING", "COMPLETE_PENDING"], ["COMPLETE_PENDING", "TERMINAL"]],
+      "expected_final_state": "cancelled"
+    }
+  ]
+}

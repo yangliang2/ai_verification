@@ -1,0 +1,10 @@
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java
+--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java
++++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java
+@@ -79,4 +79,4 @@ public final class ConcurrencyActivity extends Activity {
+                     if (destroyed) {
+-                        finalState = "cancelled";
+-                        event("REJECT_DESTROYED");
++                        finalState = "pending";
++                        event("APPLY_AFTER_DESTROY");
+                     } else if (generation != latestGeneration) {

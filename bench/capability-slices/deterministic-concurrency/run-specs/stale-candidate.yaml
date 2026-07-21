@@ -1,0 +1,18 @@
+host_project: ../../../..
+apk_glob: bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk
+package: dev.aiverify.lifecyclefixture
+activity: dev.aiverify.lifecyclefixture.ConcurrencyActivity
+spec: ../spec.md
+live_validation: {timeout_seconds: 30, app_smoke: {target_text: Concurrency fixture ready, app_settle_seconds: 1}}
+scenario:
+  id: issue78-deterministic-concurrency-stale-candidate
+  user_actions:
+    - Execute new-before-old by releasing NEW and then OLD through acknowledged explicit barriers.
+    - Reset, execute destroy-before-release by acknowledging destruction/cancellation and then releasing PENDING.
+    - Capture both terminal journals and bounded runtime evidence.
+  system_events: []
+  assertions:
+    - {resource_id: concurrency_status, attr: text, expected: Concurrency fixture ready}
+  expected_behavior: The stale-result schedule is rejected while lifecycle cancellation remains evaluated.
+  metric_context: {seed_kind: injected_defect, expected_oracle_level: L2, expected_oracle_defect_class: state_loss}
+diff: ../patches/apply-stale-result.patch
