@@ -1,11 +1,10 @@
-window_start_utc=2026-07-21T00:26:15Z
-window_end_utc=2026-07-21T00:26:16Z
-5fa23e071be384336a15e082da41c519e6e1412efd564e6f1c6da9d12d41523c  /tmp/issue78-destroy.apk
-adb -s emulator-5554 logcat -d -b crash
+window_start_utc=2026-07-21T00:34:17Z
+window_end_utc=2026-07-21T00:34:17Z
+45d1b8a686f09da0aa5a3ce230a7ad8f52a158363098bf6ca641368d48be8e1c  /tmp/i78-d.apk
+crash_query=adb -s emulator-5554 logcat -d -b crash
 crash_query_exit=0
 crash_count=0
-adb -s emulator-5554 logcat -d -v brief | match fixture ANR
+anr_query=adb -s emulator-5554 logcat -d -v brief package ANR match
 anr_query_exit=0
 anr_count=0
-cleanup_command=adb -s emulator-5554 shell am force-stop dev.aiverify.lifecyclefixture
 cleanup_exit=0

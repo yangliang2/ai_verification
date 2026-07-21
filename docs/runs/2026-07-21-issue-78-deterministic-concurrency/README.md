@@ -1,6 +1,6 @@
 # Issue #78 deterministic concurrency run
 
-This run binds source commit `669ef68` to three matched API 35 lanes on
+This run binds source commit `d5d1e3b` to three matched API 35 lanes on
 `emulator-5554`. Each lane executes two explicit-barrier schedules. Control
 broadcasts return only after the released worker reaches its completion latch,
 with a five-second bound; sleeps and retries do not determine the event order.

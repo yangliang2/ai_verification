@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -83,10 +84,26 @@ def validate_raw_receipts(evidence: dict[str, Any], root: Path) -> list[str]:
     local = lane_root / "local-apk.sha256"
     installed = lane_root / "installed-apk.sha256"
     runtime = lane_root / "runtime.txt"
+    source = lane_root / "source-identity.txt"
+    patch_receipt = lane_root / "patch.sha256"
     if not local.is_file() or not installed.is_file():
         return ["apk_receipts_missing"]
     local_hash = local.read_text().split()[0]
     installed_hash = installed.read_text().split()[0]
+    if not source.is_file() or f"source_commit={evidence.get('source_commit')}" not in source.read_text() or "source_code_diff_exit=0" not in source.read_text():
+        errors.append("source_identity_unbound")
+    expected_patches = {"baseline": None, "stale-candidate": "apply-stale-result.patch", "destroy-candidate": "apply-after-destroy.patch"}
+    expected_patch = expected_patches.get(lane)
+    if not patch_receipt.is_file():
+        errors.append("patch_receipt_missing")
+    elif expected_patch is None:
+        if patch_receipt.read_text().strip() != "patch=none" or evidence.get("patch") is not None:
+            errors.append("baseline_patch_identity_invalid")
+    else:
+        project_root = root.parents[2]
+        patch_path = project_root / "bench" / "capability-slices" / "deterministic-concurrency" / "patches" / expected_patch
+        if evidence.get("patch") != expected_patch or not patch_path.is_file() or patch_receipt.read_text().split()[0] != hashlib.sha256(patch_path.read_bytes()).hexdigest():
+            errors.append("candidate_patch_identity_invalid")
     if not runtime.is_file():
         errors.append("runtime_receipt_missing")
     else:

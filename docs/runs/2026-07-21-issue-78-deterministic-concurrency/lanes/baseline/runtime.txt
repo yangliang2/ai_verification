@@ -1,11 +1,10 @@
-window_start_utc=2026-07-21T00:26:14Z
-window_end_utc=2026-07-21T00:26:14Z
-186bfce6c31318edb037913d91301a00d0cab19cf7bddc17d09b7efbf32f3aa2  /tmp/issue78-baseline.apk
-adb -s emulator-5554 logcat -d -b crash
+window_start_utc=2026-07-21T00:34:11Z
+window_end_utc=2026-07-21T00:34:11Z
+3ad9ddd0a19379c20b098d47fc17a62a0463aab8eb8a14ad9b7b27af51eee8fa  /tmp/i78-b.apk
+crash_query=adb -s emulator-5554 logcat -d -b crash
 crash_query_exit=0
 crash_count=0
-adb -s emulator-5554 logcat -d -v brief | match fixture ANR
+anr_query=adb -s emulator-5554 logcat -d -v brief package ANR match
 anr_query_exit=0
 anr_count=0
-cleanup_command=adb -s emulator-5554 shell am force-stop dev.aiverify.lifecyclefixture
 cleanup_exit=0
