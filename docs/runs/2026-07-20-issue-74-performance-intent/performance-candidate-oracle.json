@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "conclusion": "locally_rejected",
+  "reason": "one_or_more_domains_rejected",
+  "accountable": true,
+  "domains": {
+    "performance_resource": {
+      "conclusion": "locally_rejected",
+      "reason": "performance_resource_violations",
+      "accountable": true,
+      "findings": [
+        "cold_start_threshold_exceeded",
+        "frozen_frame_threshold_exceeded"
+      ]
+    },
+    "intent_security": {
+      "conclusion": "locally_supported",
+      "reason": "intent_security_contract_satisfied",
+      "accountable": true,
+      "findings": []
+    }
+  }
+}

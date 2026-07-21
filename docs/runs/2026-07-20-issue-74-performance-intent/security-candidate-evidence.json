@@ -1,0 +1,23 @@
+{
+  "performance_resource": {
+    "apk_identity": {"local_sha256": "55ac08cc455750ffd559a95942492a62017798435bdcb16cfa4775c740b86d99", "installed_sha256": "55ac08cc455750ffd559a95942492a62017798435bdcb16cfa4775c740b86d99"},
+    "raw_receipts": {"startup": "lanes/security-candidate/startup.txt", "frame": "lanes/security-candidate/performance-preferences.xml", "resource": "lanes/security-candidate/resource-receipts.txt", "runtime": "lanes/security-candidate/runtime-receipts.txt"},
+    "device": {"serial": "emulator-5554", "api_level": 35, "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys"},
+    "startup": {"samples_ms": [180, 196, 184], "total_time_ms": 184}, "frames": {"total_frames": 54, "slow_frames": 0, "frozen_frames": 0, "max_frame_ms": 61},
+    "resource_pressure": {
+      "storage_setup": {"exit_code": 0, "observed": true}, "battery_setup": {"exit_code": 0, "observed": true},
+      "storage_cleanup": {"exit_code": 0, "observed": true}, "battery_cleanup": {"exit_code": 0, "observed": true}
+    },
+    "wakelocks": {"fixture_held": []}, "runtime": {"crashes": 0, "anrs": 0}
+  },
+  "intent_security": {
+    "apk_identity": {"local_sha256": "55ac08cc455750ffd559a95942492a62017798435bdcb16cfa4775c740b86d99", "installed_sha256": "55ac08cc455750ffd559a95942492a62017798435bdcb16cfa4775c740b86d99"},
+    "raw_receipts": {"security": "lanes/security-candidate/security-receipts.txt", "pending_intent": "lanes/security-candidate/preferences.xml", "runtime": "lanes/security-candidate/runtime-receipts.txt"},
+    "package_identity": {"sha256": "55ac08cc455750ffd559a95942492a62017798435bdcb16cfa4775c740b86d99"}, "runtime": {"crashes": 0},
+    "scenarios": [
+      {"id": "malformed_extra_rejected", "observed": true}, {"id": "nested_intent_rejected", "observed": false},
+      {"id": "exported_gateway_allowed", "observed": true}, {"id": "nonexported_sensitive_denied", "observed": true},
+      {"id": "pending_intent_immutable", "observed": true}, {"id": "pending_intent_one_shot_replay_denied", "observed": true}
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+2026-07-20T16:21:45Z
+55ac08cc455750ffd559a95942492a62017798435bdcb16cfa4775c740b86d99  /tmp/issue74-s3.apk
+Stopping: dev.aiverify.lifecyclefixture
+Starting: Intent { cmp=dev.aiverify.lifecyclefixture/.PerformanceSecurityActivity (has extras) }
+Status: ok
+LaunchState: COLD
+Activity: dev.aiverify.lifecyclefixture/.PerformanceSecurityActivity
+TotalTime: 171
+WaitTime: 172
+Complete
+text="Status: malformed rejected"
+text="RENDER FRAME"
+Stopping: dev.aiverify.lifecyclefixture
+Starting: Intent { cmp=dev.aiverify.lifecyclefixture/.PerformanceSecurityActivity (has extras) }
+Status: ok
+LaunchState: COLD
+Activity: dev.aiverify.lifecyclefixture/.SensitiveActivity
+TotalTime: 175
+WaitTime: 176
+Complete
+text="Sensitive marker reached"
+Starting: Intent { cmp=dev.aiverify.lifecyclefixture/.SensitiveActivity }
+
+Exception occurred while executing 'start':
+java.lang.SecurityException: Permission Denial: starting Intent { flg=0x10000000 cmp=dev.aiverify.lifecyclefixture/.SensitiveActivity } from null (pid=15262, uid=2000) not exported from uid 10209
+	at com.android.server.wm.ActivityTaskSupervisor.checkStartAnyActivityPermission(ActivityTaskSupervisor.java:1170)
+	at com.android.server.wm.ActivityStarter.executeRequest(ActivityStarter.java:1118)
+	at com.android.server.wm.ActivityStarter.execute(ActivityStarter.java:782)
+	at com.android.server.wm.ActivityTaskManagerService.startActivityAndWait(ActivityTaskManagerService.java:1582)
+	at com.android.server.am.ActivityManagerService.startActivityAndWait(ActivityManagerService.java:3348)
+	at com.android.server.am.ActivityManagerShellCommand.runStartActivity(ActivityManagerShellCommand.java:795)
+	at com.android.server.am.ActivityManagerShellCommand.onCommand(ActivityManagerShellCommand.java:246)
+	at com.android.modules.utils.BasicShellCommandHandler.exec(BasicShellCommandHandler.java:97)
+	at android.os.ShellCommand.exec(ShellCommand.java:38)
+	at com.android.server.am.ActivityManagerService.onShellCommand(ActivityManagerService.java:10471)
+	at android.os.Binder.shellCommand(Binder.java:1230)
+	at android.os.Binder.onTransact(Binder.java:1043)
+	at android.app.IActivityManager$Stub.onTransact(IActivityManager.java:5675)
+	at com.android.server.am.ActivityManagerService.onTransact(ActivityManagerService.java:2812)
+	at android.os.Binder.execTransactInternal(Binder.java:1505)
+	at android.os.Binder.execTransact(Binder.java:1444)
+nonexported_exit=255
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="pending_intent_action">dev.aiverify.lifecyclefixture.SAFE_TOKEN</string>
+    <long name="last_render_work_ms" value="0" />
+    <long name="max_frame_total_ms" value="48" />
+    <boolean name="pending_intent_replay_denied" value="true" />
+    <long name="frame_count" value="11" />
+</map>

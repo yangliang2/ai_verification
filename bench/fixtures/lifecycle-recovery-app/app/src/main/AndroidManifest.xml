@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -24,6 +26,15 @@
         <activity
             android:name=".AccessibilityActivity"
             android:exported="true" />
+        <activity
+            android:name=".PerformanceSecurityActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SensitiveActivity"
+            android:exported="false" />
+        <receiver
+            android:name=".PendingIntentReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

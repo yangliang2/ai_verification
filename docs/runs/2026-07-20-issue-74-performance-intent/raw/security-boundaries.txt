@@ -1,0 +1,121 @@
+Starting: Intent { cmp=dev.aiverify.lifecyclefixture/.PerformanceSecurityActivity (has extras) }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: dev.aiverify.lifecyclefixture/.PerformanceSecurityActivity
+TotalTime: 0
+WaitTime: 18
+Complete
+Starting: Intent { cmp=dev.aiverify.lifecyclefixture/.SensitiveActivity }
+
+Exception occurred while executing 'start':
+java.lang.SecurityException: Permission Denial: starting Intent { flg=0x10000000 cmp=dev.aiverify.lifecyclefixture/.SensitiveActivity } from null (pid=11128, uid=2000) not exported from uid 10209
+	at com.android.server.wm.ActivityTaskSupervisor.checkStartAnyActivityPermission(ActivityTaskSupervisor.java:1170)
+	at com.android.server.wm.ActivityStarter.executeRequest(ActivityStarter.java:1118)
+	at com.android.server.wm.ActivityStarter.execute(ActivityStarter.java:782)
+	at com.android.server.wm.ActivityTaskManagerService.startActivityAndWait(ActivityTaskManagerService.java:1582)
+	at com.android.server.am.ActivityManagerService.startActivityAndWait(ActivityManagerService.java:3348)
+	at com.android.server.am.ActivityManagerShellCommand.runStartActivity(ActivityManagerShellCommand.java:795)
+	at com.android.server.am.ActivityManagerShellCommand.onCommand(ActivityManagerShellCommand.java:246)
+	at com.android.modules.utils.BasicShellCommandHandler.exec(BasicShellCommandHandler.java:97)
+	at android.os.ShellCommand.exec(ShellCommand.java:38)
+	at com.android.server.am.ActivityManagerService.onShellCommand(ActivityManagerService.java:10471)
+	at android.os.Binder.shellCommand(Binder.java:1230)
+	at android.os.Binder.onTransact(Binder.java:1043)
+	at android.app.IActivityManager$Stub.onTransact(IActivityManager.java:5675)
+	at com.android.server.am.ActivityManagerService.onTransact(ActivityManagerService.java:2812)
+	at android.os.Binder.execTransactInternal(Binder.java:1505)
+	at android.os.Binder.execTransact(Binder.java:1444)
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        bd39b98 dev.aiverify.lifecyclefixture/.MainActivity filter 211bff1
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+
+Domain verification status:
+
+Key Set Manager:
+  [dev.aiverify.lifecyclefixture]
+      Signing KeySets: 60
+
+Packages:
+  Package [dev.aiverify.lifecyclefixture] (b3ee771):
+    appId=10209
+    pkg=Package{3df2b63 dev.aiverify.lifecyclefixture}
+    codePath=/data/app/~~mp84BqkSGs9IBgHDbYQ0cg==/dev.aiverify.lifecyclefixture--79zeYgjUH53aiJxjnetcg==
+    resourcePath=/data/app/~~mp84BqkSGs9IBgHDbYQ0cg==/dev.aiverify.lifecyclefixture--79zeYgjUH53aiJxjnetcg==
+    legacyNativeLibraryDir=/data/app/~~mp84BqkSGs9IBgHDbYQ0cg==/dev.aiverify.lifecyclefixture--79zeYgjUH53aiJxjnetcg==/lib
+    extractNativeLibs=false
+    primaryCpuAbi=null
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=2 minSdk=23 targetSdk=35
+    minExtensionVersions=[]
+    versionName=2.0
+    hiddenApiEnforcementPolicy=2
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=2
+    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2026-07-20 11:56:44
+    lastUpdateTime=2026-07-20 11:56:44
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=com.android.shell
+    originatingPackageName=null
+    packageSource=1
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{f95f6c5 version:2, signatures:[5efdfc8a], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    requested permissions:
+      android.permission.WAKE_LOCK
+    install permissions:
+      android.permission.WAKE_LOCK: granted=true
+    User 0: ceDataInode=376955 deDataInode=58119 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=/data/user/0/dev.aiverify.lifecyclefixture
+      firstInstallTime=2026-07-19 02:36:25
+      uninstallReason=0
+      overlay paths:
+        /product/overlay/EmulationPixel8/EmulationPixel8Overlay.apk
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+      legacy overlay paths:
+        /product/overlay/EmulationPixel8/EmulationPixel8Overlay.apk
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+      runtime permissions:
+
+Queries:
+  system apps queryable: false
+  queries via forceQueryable:
+  queries via package name:
+  queries via component:
+    com.google.android.as:
+      dev.aiverify.lifecyclefixture
+    com.google.android.settings.intelligence:
+      dev.aiverify.lifecyclefixture
+  queryable via interaction:
+    User 0:
+      [com.android.dynsystem,com.android.emulator.multidisplay,com.android.inputdevices,android,com.android.settings,com.android.DeviceAsWebcam,com.android.location.fused,com.android.localtransport,com.android.server.telecom,com.android.providers.settings,com.android.keychain]:
+        dev.aiverify.lifecyclefixture
+      com.google.android.inputmethod.latin:
+        dev.aiverify.lifecyclefixture
+  queryable via uses-library:
+
+Dexopt state:
+  [dev.aiverify.lifecyclefixture]
+    path: /data/app/~~mp84BqkSGs9IBgHDbYQ0cg==/dev.aiverify.lifecyclefixture--79zeYgjUH53aiJxjnetcg==/base.apk
+      arm64: [status=run-from-apk] [reason=unknown] [primary-abi]
+        [location is error]
+
+Compiler stats:
+  [dev.aiverify.lifecyclefixture]
+    (No recorded stats)
