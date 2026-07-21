@@ -1,0 +1,9 @@
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java
+--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java
++++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java
+@@ -82,3 +82,4 @@ public final class ConcurrencyActivity extends Activity {
+                     } else if (generation != latestGeneration) {
+-                        event("REJECT_STALE");
++                        finalState = operation.toLowerCase(Locale.ROOT);
++                        event("APPLY_STALE");
+                     } else {

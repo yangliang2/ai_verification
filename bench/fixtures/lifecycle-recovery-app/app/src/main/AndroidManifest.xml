@@ -35,6 +35,16 @@
         <receiver
             android:name=".PendingIntentReceiver"
             android:exported="false" />
+        <activity
+            android:name=".ConcurrencyActivity"
+            android:exported="true" />
+        <receiver
+            android:name=".ConcurrencyControlReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
