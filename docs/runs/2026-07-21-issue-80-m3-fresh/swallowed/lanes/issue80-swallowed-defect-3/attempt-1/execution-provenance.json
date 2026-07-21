@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "attempt_id": "19bd22a2-cf93-4d45-bc09-5c977de46746",
+  "scenario": "wikipedia-navigation-02-back-button-swallowed",
+  "captured_at": "2026-07-21T11:03:38+00:00",
+  "run_spec": {
+    "invocation_path": "/Users/peter/projects/ai_verification-issue-80/bench/goldset/run-specs/wikipedia-navigation-02-back-button-swallowed-portable.yaml",
+    "consumed_sha256": "69f1263663584c8e7b1707d519ec159a419bb550d3bc3ca59e1d3f957c3421e7",
+    "snapshot_path": "identity/run-spec.yaml",
+    "snapshot_sha256": "69f1263663584c8e7b1707d519ec159a419bb550d3bc3ca59e1d3f957c3421e7",
+    "scenario": "wikipedia-navigation-02-back-button-swallowed",
+    "host_project": "/Users/peter/hosts/wikipedia",
+    "apk_glob": "app/build/outputs/apk/dev/debug/*.apk",
+    "package": "org.wikipedia.dev",
+    "activity": "org.wikipedia.DefaultIcon",
+    "host_locator": {
+      "root": "${WIKIPEDIA_SOURCE}",
+      "resolution": "environment",
+      "resolved_path": "/Users/peter/hosts/wikipedia",
+      "expected_origin": "https://github.com/wikimedia/apps-android-wikipedia",
+      "expected_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b"
+    },
+    "identity_sha256": "d21d9d8881c67cb035821762588108127de22131d0d59d5832863d3fbd90684b"
+  },
+  "host": {
+    "repository_root": "/Users/peter/hosts/wikipedia",
+    "origin": "https://github.com/wikimedia/apps-android-wikipedia",
+    "commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b",
+    "worktree": {
+      "clean": true,
+      "status": "",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_files": [],
+      "patch_path": "identity/host.patch",
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "identity_sha256": "c92fafe890bcc989100ed47b786e6cacecfaee72c1ef358738b07b35751656f2"
+  },
+  "apk": {
+    "artifacts": [
+      {
+        "path": "/Users/peter/hosts/wikipedia/aiverify-builds/issue80/swallowed-defect-app-dev-debug.apk",
+        "bytes": 120998321,
+        "sha256": "d02ec356b39da7ab0f02a223e4bf21c725718cba7c815f2fb1dac2e8d7a4f593"
+      }
+    ],
+    "identity_sha256": "9d4574515c1279db2e9ed009ea35f5c7487534a4d62830f42af7998f8092a333"
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "api_level": "35",
+    "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "profile": {
+      "kind": "emulator",
+      "name": "aiverify_api35",
+      "model": "sdk_gphone64_arm64",
+      "device": "emu64a"
+    },
+    "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+  },
+  "tools": {
+    "android_cli": {
+      "requested": "android",
+      "resolved_path": "/Users/peter/.local/bin/android",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "version": "1.0.15498356",
+      "identity_sha256": "234115eb377fbc59cb1c243bd769f30ef049f64186491c700e78be4301d450e8"
+    },
+    "adb": {
+      "requested": "adb",
+      "resolved_path": "/opt/homebrew/Caskroom/android-platform-tools/37.0.0/platform-tools/adb",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+      "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)",
+      "identity_sha256": "38a82d1bcccaed89f0701833718dcde923cfde9a6080b8c42a1b5a5b6d341987"
+    },
+    "codex_cli": {
+      "requested": "codex",
+      "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+      "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+      "version": "codex-cli 0.144.6",
+      "identity_sha256": "8f26cbfe1000bcab862ab5b0c2d031763463c84daecccc82ed204e108cb40079"
+    },
+    "git": {
+      "requested": "git",
+      "resolved_path": "/usr/bin/git",
+      "sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb",
+      "version": "git version 2.50.1 (Apple Git-155)",
+      "identity_sha256": "fddd0e696681e24d624b01cfe9665a4a0d2ba4cb9f91e09874320cc632784f9c"
+    },
+    "python": {
+      "requested": "/Users/peter/projects/ai_verfication/.venv/bin/python",
+      "resolved_path": "/Users/peter/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11",
+      "sha256": "4c78423e7d5986362ac04df40edb18cdd1174f9818d653402e3abbd2a5bbf793",
+      "version": "3.11.15",
+      "identity_sha256": "2a09f73a774426094259d520874d87d7ae688c41e3f5de0ab558536b55ec1530"
+    }
+  },
+  "deployment": {
+    "target": {
+      "device": "emulator-5554",
+      "package": "org.wikipedia.dev",
+      "component": "org.wikipedia.dev/org.wikipedia.DefaultIcon"
+    },
+    "process": {
+      "args": [
+        "android",
+        "run",
+        "--device=emulator-5554",
+        "--apks=/Users/peter/hosts/wikipedia/aiverify-builds/issue80/swallowed-defect-app-dev-debug.apk",
+        "--activity=org.wikipedia.DefaultIcon",
+        "--type=ACTIVITY"
+      ],
+      "returncode": 0,
+      "stdout": "App loaded: org.wikipedia.dev\nDebuggable: true\nSelected component: org.wikipedia.DefaultIcon\nInstalling APKs: /Users/peter/hosts/wikipedia/aiverify-builds/issue80/swallowed-defect-app-dev-debug.apk\nInstallation completed successfully\nExecuting: Launching Activity for org.wikipedia.dev\nActivation completed successfully\n",
+      "stderr": "",
+      "identity_sha256": "61a34830607dc34b911048f32b3a8f076f79b4a0d8ef34b7e7cd56265a6adb11"
+    },
+    "installed_artifacts": [
+      {
+        "path": "/data/app/~~XcncNC9AsIQdJ9MylCfcpg==/org.wikipedia.dev-oNBi2jHzlU5DPhN1U-nmig==/base.apk",
+        "sha256": "d02ec356b39da7ab0f02a223e4bf21c725718cba7c815f2fb1dac2e8d7a4f593"
+      }
+    ],
+    "resolved_component": "org.wikipedia.dev/org.wikipedia.DefaultIcon",
+    "device": {
+      "serial": "emulator-5554",
+      "api_level": "35",
+      "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+      "profile": {
+        "kind": "emulator",
+        "name": "aiverify_api35",
+        "model": "sdk_gphone64_arm64",
+        "device": "emu64a"
+      },
+      "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+    },
+    "tools": {
+      "android_cli_sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "adb_sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+    },
+    "identity_sha256": "72be300e47cc5c898cdca7c4f0509d2f3bd8b1b98c1ec9cba65603f4fa9114dd"
+  },
+  "roles": {
+    "journey_driver": {
+      "status": "invoked",
+      "requested_model": null,
+      "invocations": [
+        {
+          "path": "artifacts/wikipedia-navigation-02-back-button-swallowed-segment-0/codex-invocation-identity.json",
+          "sha256": "ed3170c14f4d0ff10f4e3ffd00dfd164614c81da6908e490e695e2068adb2054"
+        }
+      ],
+      "invocation_ledger": []
+    },
+    "l3_semantic_judge": {
+      "status": "not_applicable",
+      "reason": "scenario_has_no_l3_spec",
+      "requested_model": null,
+      "invocations": [],
+      "invocation_ledger": []
+    }
+  }
+}

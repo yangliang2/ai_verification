@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "device": "emulator-5554",
+  "failed_checks": [],
+  "checks": [
+    {
+      "name": "adb-device-present",
+      "args": [
+        "adb",
+        "devices",
+        "-l"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "List of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:3\n\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-completed",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "1\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-animation-stopped",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "init.svc.bootanim"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "stopped\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "android-layout-json",
+      "args": [
+        "android",
+        "layout",
+        "--pretty",
+        "--device",
+        "emulator-5554"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "[\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,824]\",\n    \"resource-id\": \"search_container\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Navigate up\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[73,215]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"focusable\"\n    ],\n    \"center\": \"[542,215]\",\n    \"resource-id\": \"search_cab_view\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Wikipedia languages\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[1006,215]\",\n    \"resource-id\": \"search_lang_button\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"EN\",\n    \"center\": \"[1005,215]\",\n    \"resource-id\": \"langCodeText\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"scrollable\"\n    ],\n    \"center\": \"[540,908]\",\n    \"bounds\": \"[0,300][1080,1517]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,415]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,646]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,877]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,1108]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,1339]\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,1486]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"A\",\n    \"center\": \"[56,381]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"First letter of the Latin alphabet\",\n    \"center\": \"[316,449]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Association football\",\n    \"center\": \"[243,612]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Team sport played with a ball\",\n    \"center\": \"[296,680]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Australia\",\n    \"center\": \"[131,843]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Country in Oceania\",\n    \"center\": \"[206,911]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Animal\",\n    \"center\": \"[111,1074]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Biological kingdom\",\n    \"center\": \"[207,1142]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Argentina\",\n    \"center\": \"[138,1305]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Country in South America\",\n    \"center\": \"[262,1373]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Arthropod\",\n    \"center\": \"[143,1507]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"a\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"state\": [\n      \"focused\"\n    ],\n    \"center\": \"[490,215]\",\n    \"resource-id\": \"search_src_text\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Clear query\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[864,214]\",\n    \"resource-id\": \"search_close_btn\",\n    \"key\": 3506402\n  }\n]\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "uiautomator-dump",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/window_dump.xml"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "UI hierchary dumped to: /sdcard/window_dump.xml\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    }
+  ]
+}

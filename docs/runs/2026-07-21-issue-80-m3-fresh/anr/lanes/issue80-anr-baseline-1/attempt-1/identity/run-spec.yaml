@@ -1,0 +1,26 @@
+host_project:
+  root: ${WIKIPEDIA_SOURCE}
+  origin: https://github.com/wikimedia/apps-android-wikipedia
+  commit: 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-coroutine-concurrency-03-main-thread-anr.patch
+scenario:
+  id: wikipedia-coroutine-concurrency-03-main-thread-anr
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: coroutine-concurrency
+    taxonomy_pattern_id: coroutine-concurrency-03
+    expected_oracle_level: L1
+    expected_oracle_defect_class: crash_stability
+  user_actions:
+    - "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
+    - "点搜索输入框 search_src_text，输入文本 'anrtest'"
+  system_events: []
+  assertions: []
+  expected_behavior: >
+    在搜索框输入文本时，onQueryTextChange 在主线程阻塞 6 秒，超过 ANR 阈值，
+    系统记录 "ANR in org.wikipedia.dev"。期望 L1 outcome=fail、
+    defect_class_hypothesis=crash_stability；L2 因无系统事件不适用（inconclusive）。
+    baseline（无缺陷）输入不阻塞，无 ANR，L1=inconclusive。

@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "attempt_id": "07d24cda-70f9-4ee7-bb96-eeefcc916d97",
+  "scenario": "wikipedia-navigation-02-back-button-swallowed",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-21T10:58:25+00:00",
+  "finished_at": "2026-07-21T11:00:01+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 1
+  },
+  "timing": {
+    "started_at": "2026-07-21T10:58:25+00:00",
+    "finished_at": "2026-07-21T11:00:01+00:00",
+    "total_seconds": 96.349,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.688
+      },
+      {
+        "phase": "wikipedia-navigation-02-back-button-swallowed-segment-0",
+        "kind": "journey",
+        "seconds": 82.21
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.846
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "dark_mode",
+        "seconds": 0.06
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 2.997
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/wikipedia-navigation-02-back-button-swallowed-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0",
+      "artifacts/after-event-0"
+    ],
+    "system_events": [
+      "artifacts/system-event-0/event.json"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "7dcb53d79a672d096cdd2f5bf8a22ce14a4caf59d137051689a58e6af478519d"
+    }
+  }
+}

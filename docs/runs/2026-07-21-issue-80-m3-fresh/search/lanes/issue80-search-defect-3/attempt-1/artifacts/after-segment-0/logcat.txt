@@ -1,0 +1,822 @@
+--------- beginning of main
+07-21 07:11:06.775 11094 11118 I HWUI    : Davey! duration=966ms; Flags=1, FrameTimelineVsyncId=401551, IntendedVsync=76283787011709, Vsync=76284403678351, InputEventId=0, HandleInputStart=76284416941457, AnimationStart=76284416943791, PerformTraversalsStart=76284417008291, DrawStart=76284711050791, FrameDeadline=76283803678375, FrameInterval=76284415786916, FrameStartTime=16666666, SyncQueued=76284723110457, SyncStart=76284723295499, IssueDrawCommandsStart=76284723611249, SwapBuffers=76284750234707, FrameCompleted=76284753798457, DequeueBufferDuration=3083, QueueBufferDuration=165417, GpuCompleted=76284753798457, SwapBuffersCompleted=76284753088916, DisplayPresentTime=0, CommandSubmissionCompleted=76284750234707, 
+07-21 07:11:06.776   574   595 W ziparchive: Unable to open '/data/app/~~yjtaZL7ju9TV6thl-D7cuQ==/org.wikipedia.dev--o6pyLODBB3p2Mk1nt4tKA==/base.dm': No such file or directory
+07-21 07:11:06.777  1045  1045 W GCM     : Invalid request, no callback for what: 4
+07-21 07:11:06.777   574   595 I ActivityTaskManager: Displayed org.wikipedia.dev/org.wikipedia.DefaultIcon for user 0: +1s546ms
+07-21 07:11:06.777 11094 11182 D LeakCanary: LeakCanary is currently disabled: LeakCanary.Config.dumpHeap is set to false.
+07-21 07:11:06.779 11094 11228 W org.wikipedia.analytics.testkitchen.LogAdapterImpl: warn():17: Configuration is missing, enqueued events are not sent.
+07-21 07:11:06.783 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():28: Skipping recurring task, remote-config-refresher. Last execution was Tue Jul 21 06:24:32 EDT 2026.
+07-21 07:11:06.783 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():24: Executing recurring task, dailyEventTask. Last execution was Wed Dec 31 19:00:00 EST 1969.
+07-21 07:11:06.795 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():28: Skipping recurring task, talkOfflineCleanupTask. Last execution was Sat Jul 18 00:02:58 EDT 2026.
+07-21 07:11:06.795 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():28: Skipping recurring task, categoriesTableCleanupTask. Last execution was Sat Jul 18 00:02:58 EDT 2026.
+07-21 07:11:06.795 11094 11274 I OkHttp  : --> GET https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json
+07-21 07:11:06.797 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():28: Skipping recurring task, generateRecommendedReadingListTask. Last execution was Wed Dec 31 19:00:00 EST 1969.
+07-21 07:11:06.797   371 11254 I resolv  : res_nsend: used send_dg 50 terrno: 0
+07-21 07:11:06.797   371 11254 I resolv  : doQuery: rcode=0, ancount=1, return value=50
+07-21 07:11:06.798   371 11253 I resolv  : res_nsend: used send_dg 62 terrno: 0
+07-21 07:11:06.798   371 11253 I resolv  : doQuery: rcode=0, ancount=1, return value=62
+07-21 07:11:06.799   371 11275 I resolv  : GetAddrInfoHandler::run: {102 102 102 983142 10207 0}
+07-21 07:11:06.799   371 11276 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+07-21 07:11:06.799   371 11277 I resolv  : res_nmkquery: (QUERY, IN, A)
+07-21 07:11:06.803 11094 11278 D TrafficStats: tagSocket(186) with statsTag=0xffffffff, statsUid=-1
+07-21 07:11:06.842 11094 11279 I OkHttp  : --> GET https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json
+07-21 07:11:06.844   574   689 I ImeTracker: org.wikipedia.dev:1c84224f: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+07-21 07:11:06.844   574   689 I ImeTracker: org.wikipedia.dev:1c84224f: onCancelled at PHASE_SERVER_SHOULD_HIDE
+07-21 07:11:06.844   371 11280 I resolv  : GetAddrInfoHandler::run: {102 102 102 983142 10207 0}
+07-21 07:11:06.845   371 11282 I resolv  : res_nmkquery: (QUERY, IN, A)
+07-21 07:11:06.845   371 11281 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+07-21 07:11:06.845  1274  1274 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():3157 
+07-21 07:11:06.846  1274  1274 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 0, locked = false
+07-21 07:11:06.846  1274  1274 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1986 onStartInput(EditorInfo{EditorInfo{packageName=org.wikipedia.dev, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+07-21 07:11:06.846  1274  1274 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 1, locked = false
+07-21 07:11:06.846  1274  1274 I AndroidIME: InputBundleManager.loadActiveInputBundleId():450 loadActiveInputBundleId: und-Latn-x-password, password
+--------- beginning of system
+07-21 07:11:06.846   574  1804 W PackageConfigPersister: App-specific configuration not found for packageName: org.wikipedia.dev and userId: 0
+07-21 07:11:06.867  1094  1094 D BaseDepthController: setSurface:
+07-21 07:11:06.867  1094  1094 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+07-21 07:11:06.867  1094  1094 D BaseDepthController: 	mSurface: null
+07-21 07:11:06.867  1094  1094 D BaseDepthController: mSurface is null and mCurrentBlur is: 0
+07-21 07:11:06.867  1094  1094 D StateManager: goToState - fromState: Normal, toState: Normal, partial trace:
+07-21 07:11:06.867  1094  1094 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:4)
+07-21 07:11:06.867  1094  1094 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:1)
+07-21 07:11:06.867  1094  1094 D StateManager: 	at com.android.launcher3.statemanager.StatefulActivity.onStop(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:34)
+07-21 07:11:06.867  1094  1094 D StatsLog: LAUNCHER_ONSTOP
+07-21 07:11:06.868   574  1805 I AppWidgetServiceImpl: setAppWidgetHidden() 0
+07-21 07:11:06.868  1094  1094 D StatsLog: LAUNCHER_GOOGLE_SEARCH_RESTORE_LIST_SIZE_AFTER_ACTIVITY_RESTART
+07-21 07:11:06.868  1094  1517 D OneSearchSuggestProvider: Shut down the binder channel
+07-21 07:11:06.869  1094  1298 I IPCThreadState: oneway function results for code 2 on binder at 0xb4000079c84609f0 will be dropped but finished with status UNKNOWN_TRANSACTION
+07-21 07:11:06.877   574  1805 W ActivityTaskManager: callingPackage for (uid=2000, pid=11286) has no WPC
+07-21 07:11:06.877   574  1805 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+07-21 07:11:06.877   574  1805 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+07-21 07:11:06.877   574  1805 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+07-21 07:11:06.877   574  1805 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10207, packageName = null, attributionTag = null, token = android.os.Binder@316c9f5, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+07-21 07:11:06.877   574  1805 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+07-21 07:11:06.877   574  1805 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+07-21 07:11:06.880   574  1805 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=org.wikipedia.dev/org.wikipedia.DefaultIcon} with LAUNCH_MULTIPLE from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+07-21 07:11:06.880   817   850 V WindowManagerShell: Transition requested (#455): android.os.BinderProxy@1dbfa10 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=753 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.MULTIWINDOW_LAUNCHER] flg=0x10000000 cmp=org.wikipedia.dev/org.wikipedia.DefaultIcon } baseActivity=ComponentInfo{org.wikipedia.dev/org.wikipedia.main.MainActivity} topActivity=ComponentInfo{org.wikipedia.dev/org.wikipedia.main.MainActivity} origActivity=ComponentInfo{org.wikipedia.dev/org.wikipedia.DefaultIcon} realActivity=ComponentInfo{org.wikipedia.dev/org.wikipedia.main.MainActivity} numActivities=2 lastActiveTime=76284859 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@93a8909} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{9a3470e org.wikipedia.DefaultIcon} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=1080 topActivityLetterboxHeight=2400 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 455 }
+07-21 07:11:06.884 11094 11094 W org.wikipedia.analytics.testkitchen.LogAdapterImpl: warn():17: Configuration is missing, enqueued events are not sent.
+07-21 07:11:06.885   574  1805 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ENABLE_FAKE_FOCUS
+07-21 07:11:06.907 11094 11094 W WindowOnBackDispatcher: OnBackInvokedCallback is not enabled for the application.
+07-21 07:11:06.907 11094 11094 W WindowOnBackDispatcher: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+07-21 07:11:06.909 11094 11094 D org.wikipedia.analytics.eventplatform.BreadCrumbLogEvent: <init>():31: >>> MainActivity.HOME.show
+07-21 07:11:06.913 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():28: Skipping recurring task, remote-config-refresher. Last execution was Tue Jul 21 06:24:32 EDT 2026.
+07-21 07:11:06.913 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():24: Executing recurring task, dailyEventTask. Last execution was Wed Dec 31 19:00:00 EST 1969.
+07-21 07:11:06.915 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():28: Skipping recurring task, talkOfflineCleanupTask. Last execution was Sat Jul 18 00:02:58 EDT 2026.
+07-21 07:11:06.915 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():28: Skipping recurring task, categoriesTableCleanupTask. Last execution was Sat Jul 18 00:02:58 EDT 2026.
+07-21 07:11:06.915 11094 11290 I OkHttp  : --> GET https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json
+07-21 07:11:06.915 11094 11094 D org.wikipedia.recurring.RecurringTask: runIfNecessary():28: Skipping recurring task, generateRecommendedReadingListTask. Last execution was Wed Dec 31 19:00:00 EST 1969.
+07-21 07:11:06.916   371 11291 I resolv  : GetAddrInfoHandler::run: {102 102 102 983142 10207 0}
+07-21 07:11:06.916   371 11292 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+07-21 07:11:06.916   371 11292 I resolv  : resolv_cache_lookup: Waiting for previous request
+07-21 07:11:06.916   371 11293 I resolv  : res_nmkquery: (QUERY, IN, A)
+07-21 07:11:06.916   371 11293 I resolv  : resolv_cache_lookup: Waiting for previous request
+07-21 07:11:06.917   574  1804 D CoreBackPreview: Window{1b1e0c7 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@2f6fe1d, mPriority=0, mIsAnimationCallback=false}
+07-21 07:11:06.923 11094 11094 D AutofillManager: Fill dialog is enabled:false, hints=[password, passwordAuto, creditCardNumber, creditCardSecurityCode, creditCardExpirationDate]
+07-21 07:11:06.923   418   418 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+07-21 07:11:06.929 11094 11295 I OkHttp  : --> GET https://en.wikipedia.org/api/rest_v1/feed/featured/2026/07/21?lang=en
+07-21 07:11:06.935 11094 11296 D TrafficStats: tagSocket(215) with statsTag=0xffffffff, statsUid=-1
+07-21 07:11:06.966   574   595 I ActivityTaskManager: Displayed org.wikipedia.dev/org.wikipedia.DefaultIcon for user 0: +88ms
+07-21 07:11:06.966   817  1439 V WindowManagerShell: onTransitionReady(transaction=2465311251697)
+07-21 07:11:06.966   817   850 V WindowManagerShell: onTransitionReady (#455) android.os.BinderProxy@1dbfa10: {id=455 t=OPEN f=0x0 trk=0 opt={t=FROM_STYLE} r=[0@Point(0, 0)] c=[{null m=OPEN f=FILLS_TASK leash=Surface(name=ActivityRecord{fec0930 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon)/@0x91cfb28 sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) d=-1->0 r=-1->0:-1 bc=fff8f9fa component=org.wikipedia.dev/org.wikipedia.main.MainActivity},{null m=TO_BACK f=FILLS_TASK|IS_BEHIND_STARTING_WINDOW leash=Surface(name=ActivityRecord{b2a2be0 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon)/@0xecd5041 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 bc=fff8f9fa component=org.wikipedia.dev/org.wikipedia.main.MainActivity}]}
+07-21 07:11:06.966   817   850 V WindowManagerShell: Playing animation for (#455) android.os.BinderProxy@1dbfa10@0
+07-21 07:11:06.966   817   850 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@5770784
+07-21 07:11:06.966   817   850 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@c109b6d
+07-21 07:11:06.966   817   850 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@5bb93a2
+07-21 07:11:06.966   817   850 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@9256833
+07-21 07:11:06.966   817   850 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@51f17f0
+07-21 07:11:06.966   817   850 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+07-21 07:11:06.966   817   850 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@b288169
+07-21 07:11:06.966   817   850 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@7e347ee
+07-21 07:11:06.966   817   850 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=455 t=OPEN f=0x0 trk=0 opt={t=FROM_STYLE} r=[0@Point(0, 0)] c=[{null m=OPEN f=FILLS_TASK leash=Surface(name=ActivityRecord{fec0930 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon)/@0x91cfb28 sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) d=-1->0 r=-1->0:-1 bc=fff8f9fa component=org.wikipedia.dev/org.wikipedia.main.MainActivity},{null m=TO_BACK f=FILLS_TASK|IS_BEHIND_STARTING_WINDOW leash=Surface(name=ActivityRecord{b2a2be0 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon)/@0xecd5041 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 bc=fff8f9fa component=org.wikipedia.dev/org.wikipedia.main.MainActivity}]}
+07-21 07:11:06.966   817   850 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=undefined independent=true modes=[OPEN,TO_FRONT] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null},{atype=undefined independent=true modes=[CLOSE,TO_BACK] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@64efeb6, appThread = android.app.IApplicationThread$Stub$Proxy@80217b7, debugName = OverlaySwipeBack }}
+07-21 07:11:06.966   817   850 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@aa80b24, appThread = android.app.IApplicationThread$Stub$Proxy@ec9e68d, debugName = LauncherToDream }}
+07-21 07:11:06.966   817   850 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@e445042, appThread = android.app.IApplicationThread$Stub$Proxy@8967853, debugName = QuickstepLaunchHome }}
+07-21 07:11:06.966   817   850 V WindowManagerShell:  Delegate animation for (#455) to null
+07-21 07:11:06.966   817   850 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@bc4548f
+07-21 07:11:06.966   817   850 V WindowManagerShell: start default transition animation, info = {id=455 t=OPEN f=0x0 trk=0 opt={t=FROM_STYLE} r=[0@Point(0, 0)] c=[{null m=OPEN f=FILLS_TASK leash=Surface(name=ActivityRecord{fec0930 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon)/@0x91cfb28 sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) d=-1->0 r=-1->0:-1 bc=fff8f9fa component=org.wikipedia.dev/org.wikipedia.main.MainActivity},{null m=TO_BACK f=FILLS_TASK|IS_BEHIND_STARTING_WINDOW leash=Surface(name=ActivityRecord{b2a2be0 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon)/@0xecd5041 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 bc=fff8f9fa component=org.wikipedia.dev/org.wikipedia.main.MainActivity}]}
+07-21 07:11:06.967   817   850 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@709fe72 animAttr=0x5 type=OPEN isEntrance=false
+07-21 07:11:06.968   574   595 V WindowManager: Sent Transition (#455) createdAt=07-21 07:11:06.877 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=753 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.MULTIWINDOW_LAUNCHER] flg=0x10000000 cmp=org.wikipedia.dev/org.wikipedia.DefaultIcon } baseActivity=ComponentInfo{org.wikipedia.dev/org.wikipedia.main.MainActivity} topActivity=ComponentInfo{org.wikipedia.dev/org.wikipedia.main.MainActivity} origActivity=ComponentInfo{org.wikipedia.dev/org.wikipedia.DefaultIcon} realActivity=ComponentInfo{org.wikipedia.dev/org.wikipedia.main.MainActivity} numActivities=2 lastActiveTime=76284859 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{d8d03c6 Task{353840b #753 type=standard A=10207:org.wikipedia.dev}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{858d3d5 org.wikipedia.DefaultIcon} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=1080 topActivityLetterboxHeight=2400 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 455 }
+07-21 07:11:06.968   574   595 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+07-21 07:11:06.968   574   595 V WindowManager:     info={id=455 t=OPEN f=0x0 trk=0 opt={t=FROM_STYLE} r=[0@Point(0, 0)] c=[
+07-21 07:11:06.968   574   595 V WindowManager:         {null m=OPEN f=FILLS_TASK leash=Surface(name=ActivityRecord{fec0930 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon)/@0xca421bf sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) d=-1->0 r=-1->0:-1 bc=fff8f9fa component=org.wikipedia.dev/org.wikipedia.main.MainActivity},
+07-21 07:11:06.968   574   595 V WindowManager:         {null m=TO_BACK f=FILLS_TASK|IS_BEHIND_STARTING_WINDOW leash=Surface(name=ActivityRecord{b2a2be0 u0 org.wikipedia.dev/org.wikipedia.DefaultIcon)/@0x93a4bde sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0 bc=fff8f9fa component=org.wikipedia.dev/org.wikipedia.main.MainActivity}
+07-21 07:11:06.968   574   595 V WindowManager:     ]}
+07-21 07:11:06.970   574   949 W UserManagerService: Requested status bar icon for non-badged user 0
+07-21 07:11:06.976  1045  2092 I FontLog : Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+07-21 07:11:06.976  1045  2092 I FontLog : Query [emojicompat-emoji-font] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+07-21 07:11:06.978   817   850 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@64e481f animAttr=0x4 type=OPEN isEntrance=true
+07-21 07:11:06.979  1045  2092 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+07-21 07:11:06.980  1045  2092 I FontLog : Pulling font file for id = 60, cache size = 4 [CONTEXT service_id=132 ]
+07-21 07:11:06.981  1045  2092 I FontLog : Pulling font file for id = 60, cache size = 4 [CONTEXT service_id=132 ]
+07-21 07:11:07.000   371 11281 I resolv  : res_nsend: used send_dg 77 terrno: 0
+07-21 07:11:07.000   371 11282 I resolv  : res_nsend: used send_dg 65 terrno: 0
+07-21 07:11:07.000   371 11277 I resolv  : res_nsend: used send_dg 65 terrno: 0
+07-21 07:11:07.000   371 11276 I resolv  : res_nsend: used send_dg 77 terrno: 0
+07-21 07:11:07.000   371 11281 I resolv  : doQuery: rcode=0, ancount=1, return value=77
+07-21 07:11:07.000   371 11293 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0xb4000071cfca16f0
+07-21 07:11:07.000   371 11293 I resolv  : doQuery: rcode=0, ancount=1, return value=65
+07-21 07:11:07.000   371 11277 I resolv  : resolv_cache_add: ALREADY IN CACHE (0xb4000071cfca16f0) ? IGNORING ADD
+07-21 07:11:07.000   371 11277 I resolv  : doQuery: rcode=0, ancount=1, return value=65
+07-21 07:11:07.000   371 11292 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0xb4000071cfc9e6d0
+07-21 07:11:07.000   371 11276 I resolv  : resolv_cache_add: ALREADY IN CACHE (0xb4000071cfc9e6d0) ? IGNORING ADD
+07-21 07:11:07.000   371 11276 I resolv  : doQuery: rcode=0, ancount=1, return value=77
+07-21 07:11:07.000   371 11292 I resolv  : doQuery: rcode=0, ancount=1, return value=77
+07-21 07:11:07.001   371 11282 I resolv  : doQuery: rcode=0, ancount=1, return value=65
+07-21 07:11:07.003  1438 11028 W Conscrypt: Could not set socket write timeout: java.net.SocketException: Socket closed
+07-21 07:11:07.003  1438 11028 W Conscrypt: 	at com.google.android.gms.org.conscrypt.Platform.setSocketWriteTimeout(:com.google.android.gms@242335038@24.23.35 (190400-646585959):204)
+07-21 07:11:07.003  1438 11028 W Conscrypt: 	at com.google.android.gms.org.conscrypt.ConscryptFileDescriptorSocket.setSoWriteTimeout(:com.google.android.gms@242335038@24.23.35 (190400-646585959):4)
+07-21 07:11:07.005   817   850 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@bc4548f
+07-21 07:11:07.005   817   850 W Looper  : Slow dispatch took 39ms wmshell.main h=android.os.Handler c=com.android.wm.shell.transition.Transitions$TransitionPlayerImpl$$ExternalSyntheticLambda0@a19473b m=0
+07-21 07:11:07.005 11094 11298 D TrafficStats: tagSocket(206) with statsTag=0xffffffff, statsUid=-1
+07-21 07:11:07.006 11094 11278 D TrafficStats: tagSocket(222) with statsTag=0xffffffff, statsUid=-1
+07-21 07:11:07.012 11094 11296 D TrafficStats: tagSocket(232) with statsTag=0xffffffff, statsUid=-1
+07-21 07:11:07.112   574   689 I ImeTracker: org.wikipedia.dev:3c94adac: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+07-21 07:11:07.112   574   689 I ImeTracker: org.wikipedia.dev:3c94adac: onCancelled at PHASE_SERVER_SHOULD_HIDE
+07-21 07:11:07.112  1274  1274 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():3157 
+07-21 07:11:07.113  1274  1274 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 0, locked = false
+07-21 07:11:07.113  1274  1274 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1986 onStartInput(EditorInfo{EditorInfo{packageName=org.wikipedia.dev, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+07-21 07:11:07.113  1274  1274 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2248 repeatCheckTimes = 1, locked = false
+07-21 07:11:07.113  1274  1274 I AndroidIME: InputBundleManager.loadActiveInputBundleId():450 loadActiveInputBundleId: und-Latn-x-password, password
+07-21 07:11:07.114   574  1805 W PackageConfigPersister: App-specific configuration not found for packageName: org.wikipedia.dev and userId: 0
+07-21 07:11:07.144   817   875 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@3002f3f
+07-21 07:11:07.144   574  1804 D CoreBackPreview: Window{7461f5c u0 Splash Screen org.wikipedia.dev EXITING}: Setting back callback null
+07-21 07:11:07.144   817   875 D SplashScreenView: Shell removed splash screen. Releasing SurfaceControlViewHost on thread #30
+07-21 07:11:07.145   574  1804 W WindowManager: Failed looking up window session=Session{e5cc415 817:u0a10178} callers=com.android.server.wm.WindowManagerService.removeClientToken:2058 com.android.server.wm.Session.remove:274 android.view.IWindowSession$Stub.onTransact:685 
+07-21 07:11:07.145   574  1804 W InputManager-JNI: Input channel object 'Embedded{} (client)' was disposed without first being removed with the input manager!
+07-21 07:11:07.146   574  1804 W InputManager-JNI: Input channel object '7461f5c Splash Screen org.wikipedia.dev (client)' was disposed without first being removed with the input manager!
+07-21 07:11:07.160   371   371 I netd    : tetherGetStats() -> {[]} <0.32ms>
+07-21 07:11:07.457   817   850 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#455) android.os.BinderProxy@1dbfa10@0
+07-21 07:11:07.458   574   595 V WindowManager: Finish Transition (#455): created at 07-21 07:11:06.877 collect-started=0.007ms request-sent=1.958ms started=2.284ms ready=8.309ms sent=88.39ms finished=579.914ms
+07-21 07:11:07.458   817   850 V WindowManagerShell: Track 0 became idle
+07-21 07:11:07.459   817   850 V WindowManagerShell: All active transition animations finished
+07-21 07:11:07.459   574  1805 W UserManagerService: Requested status bar icon for non-badged user 0
+07-21 07:11:07.459   574  1805 W UserManagerService: Requested status bar icon for non-badged user 0
+07-21 07:11:07.476 11094 11094 D VRI[DefaultIcon]: visibilityChanged oldVisibility=true newVisibility=false
+07-21 07:11:07.645  1438  7882 I AppLinksAsyncVerifierV2: Verification result: checking for a statement with source https://wikipedia.org, relation delegate_permission/common.handle_all_urls, and target org.wikipedia.dev --> false. [CONTEXT service_id=244 ]
+07-21 07:11:07.645  1438 11078 I AppLinksHostsVerifierV2: Verification org.wikipedia.dev complete. Successful hosts: . Failed hosts: *.wikipedia.org. Error hosts: . [CONTEXT service_id=244 ]
+07-21 07:11:07.647  1438 11078 I WebApkHostsVerifierV2: Processing 1 input requests [CONTEXT service_id=244 ]
+07-21 07:11:07.647  1438 11078 I AppLinksUtilsV1: Legacy cross-profile verification enabled [CONTEXT service_id=244 ]
+07-21 07:11:07.647  1438 11078 I WebApkHostsVerifierV2: Returning 1 non-WebAPK requests [CONTEXT service_id=244 ]
+07-21 07:11:07.996   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:07.996   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:07.996   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:07.996   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:07.996   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:08.010 11094 11233 D EGL_emulation: app_time_stats: avg=8.33ms min=0.71ms max=34.51ms count=61
+07-21 07:11:08.369   574  1804 D ShortcutService: Getting shortcuts for launcher= com.google.android.asuser=0 pkg=org.wikipedia.dev
+07-21 07:11:08.370   574  1804 D ShortcutService: Getting shortcuts for launcher= com.google.android.asuser=0 pkg=org.wikipedia.dev
+07-21 07:11:08.472  1045  3188 D TrafficStats: tagSocket(156) with statsTag=0x1065fff, statsUid=-1
+07-21 07:11:08.851  1045  3188 D TrafficStats: tagSocket(136) with statsTag=0x1065fff, statsUid=10143
+07-21 07:11:08.960   803   803 I wpa_supplicant: wlan0: CTRL-EVENT-BEACON-LOSS 
+07-21 07:11:09.012 11094 11233 D EGL_emulation: app_time_stats: avg=1.40ms min=0.74ms max=4.77ms count=60
+07-21 07:11:09.208 11094 11250 I OkHttp  : <-- 200 https://en.wikipedia.org/api/rest_v1/feed/featured/2026/07/21?lang=en (2605ms, unknown-length body)
+07-21 07:11:09.254   574  1405 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+07-21 07:11:09.430 11094 11279 I OkHttp  : <-- 403 https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json (2587ms, 2205-byte body)
+07-21 07:11:09.432 11094 11094 E org.wikipedia.analytics.eventplatform.EventPlatformClient$setUpStreamConfigs$$inlined$CoroutinhandleException():50: 
+07-21 07:11:09.432 11094 11094 E org.wikipedia.analytics.eventplatform.EventPlatformClient$setUpStreamConfigs$$inlined$Coroutinorg.wikipedia.dataclient.okhttp.HttpStatusException: Code: 403, URL: https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json
+07-21 07:11:09.432 11094 11094 E org.wikipedia.analytics.eventplatform.EventPlatformClient$setUpStreamConfigs$$inlined$Coroutin	at org.wikipedia.dataclient.okhttp.UnsuccessfulResponseInterceptor.intercept(UnsuccessfulResponseInterceptor.kt:22)
+07-21 07:11:09.432 11094 11094 E org.wikipedia.analytics.eventplatform.EventPlatformClient$setUpStreamConfigs$$inlined$Coroutin	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:126)
+07-21 07:11:09.432 11094 11094 E org.wikipedia.analytics.eventplatform.EventPlatformClient$setUpStreamConfigs$$inlined$Coroutin	at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:226)
+07-21 07:11:09.432 11094 11094 E org.wikipedia.analytics.eventplatform.EventPlatformClient$setUpStreamConfigs$$inlined$Coroutin	at okhttp3.internal.connection.RealCall$AsyncCall.run(RealCall.kt:574)
+07-21 07:11:09.432 11094 11094 E org.wikipedia.analytics.eventplatform.EventPlatformClient$setUpStreamConfigs$$inlined$Coroutin	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+07-21 07:11:09.432 11094 11094 E org.wikipedia.analytics.eventplatform.EventPlatformClient$setUpStreamConfigs$$inlined$Coroutin	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+07-21 07:11:09.432 11094 11094 E org.wikipedia.analytics.eventplatform.EventPlatformClient$setUpStreamConfigs$$inlined$Coroutin	at java.lang.Thread.run(Thread.java:1012)
+07-21 07:11:09.443 11094 11274 I OkHttp  : <-- 403 https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json (2647ms, 2204-byte body)
+07-21 07:11:09.444 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandlerhandleException():50: 
+07-21 07:11:09.444 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandlerorg.wikipedia.dataclient.okhttp.HttpStatusException: Code: 403, URL: https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json
+07-21 07:11:09.444 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at org.wikipedia.dataclient.okhttp.UnsuccessfulResponseInterceptor.intercept(UnsuccessfulResponseInterceptor.kt:22)
+07-21 07:11:09.444 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:126)
+07-21 07:11:09.444 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:226)
+07-21 07:11:09.444 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at okhttp3.internal.connection.RealCall$AsyncCall.run(RealCall.kt:574)
+07-21 07:11:09.444 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+07-21 07:11:09.444 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+07-21 07:11:09.444 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at java.lang.Thread.run(Thread.java:1012)
+07-21 07:11:09.462 11094 11290 I OkHttp  : <-- 403 https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json (2547ms, 2205-byte body)
+07-21 07:11:09.463 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandlerhandleException():50: 
+07-21 07:11:09.463 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandlerorg.wikipedia.dataclient.okhttp.HttpStatusException: Code: 403, URL: https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json
+07-21 07:11:09.463 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at org.wikipedia.dataclient.okhttp.UnsuccessfulResponseInterceptor.intercept(UnsuccessfulResponseInterceptor.kt:22)
+07-21 07:11:09.463 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:126)
+07-21 07:11:09.463 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:226)
+07-21 07:11:09.463 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at okhttp3.internal.connection.RealCall$AsyncCall.run(RealCall.kt:574)
+07-21 07:11:09.463 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+07-21 07:11:09.463 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+07-21 07:11:09.463 11094 11094 E org.wikipedia.recurring.RecurringTasksExecutor$run$lambda$1$$inlined$CoroutineExceptionHandler	at java.lang.Thread.run(Thread.java:1012)
+07-21 07:11:10.029 11094 11233 D EGL_emulation: app_time_stats: avg=1.17ms min=0.73ms max=4.69ms count=61
+07-21 07:11:10.306   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-21 07:11:10.306   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-21 07:11:10.306   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10131} in 0ms
+07-21 07:11:10.306   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-21 07:11:10.306   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-21 07:11:10.306   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={20131} in 1ms
+07-21 07:11:10.384  1045 10922 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.clearcut.uploader.QosUploaderService finished executing. cause:4 result: 1 elapsed_millis: 4237 uptime_millis: 4237 exec_start_elapsed_seconds: 76284 [CONTEXT service_id=218 ]
+07-21 07:11:11.001   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:11.001   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:11.001   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:11.002   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:11.002   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:11.003   574   728 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:11.005  1045  1056 I ChimeraSrvcProxy: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl
+07-21 07:11:11.005  1045  1056 W .gms.persistent: Large reply transaction of 1056768 bytes, interface descriptor , code 1
+07-21 07:11:11.007  1369  1951 I BugleRcsEngine: handleMessage processing message:[NOTIFY_UPTIME_IGNORE_STATE_CHANGED] with [non-null]:RcsEngineImpl reference [CONTEXT log_prefix="RcsEngineImpl[DUAL_REG]:[8a768734-1be9]>Handler" thread_id=61 ]
+07-21 07:11:11.008  1369  1683 I BugleRcsEngine: Connected state: [1], networkType: [WIFI] [CONTEXT thread_id=56 ]
+07-21 07:11:11.010  1369  1951 I BugleRcsEngine: No RCS Configuration was found in Bugle for simID: redacted-pii:sim_id[chars:20,last3:897] [CONTEXT log_prefix="ProvisioningEngineDataRetriever" thread_id=61 ]
+07-21 07:11:11.045 11094 11233 D EGL_emulation: app_time_stats: avg=1.70ms min=0.69ms max=6.78ms count=61
+07-21 07:11:11.842   371   371 I netd    : tetherGetStats() -> {[]} <0.51ms>
+07-21 07:11:11.845   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-21 07:11:11.845   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-21 07:11:11.845   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10154} in 0ms
+07-21 07:11:11.845   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-21 07:11:11.845   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-21 07:11:11.845   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={20154} in 0ms
+07-21 07:11:12.061 11094 11233 D EGL_emulation: app_time_stats: avg=1.25ms min=0.67ms max=9.68ms count=61
+07-21 07:11:12.166 11094 11302 D ProfileInstaller: Installing profile for org.wikipedia.dev
+07-21 07:11:12.568 11094 11295 I OkHttp  : <-- 200 https://en.wikipedia.org/api/rest_v1/feed/featured/2026/07/21?lang=en (5639ms, unknown-length body)
+07-21 07:11:14.008   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:14.009   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:14.009   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:14.010   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:14.011   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:14.015   574   728 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:14.016  1369  1683 I BugleRcsEngine: Connected state: [1], networkType: [WIFI] [CONTEXT thread_id=56 ]
+07-21 07:11:14.016  1369  1951 I BugleRcsEngine: handleMessage processing message:[NOTIFY_UPTIME_IGNORE_STATE_CHANGED] with [non-null]:RcsEngineImpl reference [CONTEXT log_prefix="RcsEngineImpl[DUAL_REG]:[8a768734-1be9]>Handler" thread_id=61 ]
+07-21 07:11:14.019  1045  1918 I ChimeraSrvcProxy: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl
+07-21 07:11:14.019  1045  1918 W .gms.persistent: Large reply transaction of 1056768 bytes, interface descriptor , code 1
+07-21 07:11:14.020  1369  1951 I BugleRcsEngine: No RCS Configuration was found in Bugle for simID: redacted-pii:sim_id[chars:20,last3:897] [CONTEXT log_prefix="ProvisioningEngineDataRetriever" thread_id=61 ]
+07-21 07:11:15.322   371   371 I netd    : tetherGetStats() -> {[]} <0.83ms>
+07-21 07:11:15.349   574   669 D ActivityManager: freezing 27012 com.google.android.partnersetup
+07-21 07:11:15.350   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-21 07:11:15.350   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-21 07:11:15.350   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10131} in 0ms
+07-21 07:11:16.824   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-21 07:11:16.825   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-21 07:11:16.825   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10139} in 1ms
+07-21 07:11:16.825   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-21 07:11:16.826   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-21 07:11:16.826   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={20139} in 1ms
+07-21 07:11:16.844   574   669 D ActivityManager: freezing 27402 com.google.android.webview:webview_service
+07-21 07:11:16.846   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-21 07:11:16.846   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-21 07:11:16.846   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10154} in 1ms
+07-21 07:11:16.872   574   669 D ActivityManager: freezing 26853 com.google.android.googlequicksearchbox:search
+07-21 07:11:16.896   803   803 I wpa_supplicant: wlan0: CTRL-EVENT-BEACON-LOSS 
+07-21 07:11:17.016   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:17.016   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:17.016   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:17.016   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:17.017   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+--------- beginning of kernel
+07-21 07:11:17.670  2806  2806 I logd    : start watching /data/system/packages.list ...
+07-21 07:11:17.670  2806  2806 I logd    : ReadPackageList, total packages: 217
+07-21 07:11:20.025   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:20.026   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:20.026   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:20.027   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:20.027   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:20.158   574   608 I ActivityManager: Waited long enough for: ServiceRecord{6cbf6e3 u0 com.google.android.gms/.statementservice.OperationService c:com.google.android.gms}
+07-21 07:11:20.781  1438  1438 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+07-21 07:11:21.848  1438  1438 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+07-21 07:11:21.869   371   371 I netd    : tetherGetStats() -> {[]} <0.70ms>
+07-21 07:11:23.037   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:23.037   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:23.038   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:23.039   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:23.040   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:24.611  1328  4095 W MediaProvider: Ignoring param:deletedata post U for external apps
+07-21 07:11:24.611  1328  4095 I MediaProvider: Deleted 0 0 0 0 0 0 1 items on external_primary due to com.android.shell
+07-21 07:11:24.629  1045 10922 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 76302 [CONTEXT service_id=218 ]
+07-21 07:11:24.632  1045 10922 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 5 uptime_millis: 5 exec_start_elapsed_seconds: 76302 [CONTEXT service_id=218 ]
+07-21 07:11:24.656 11305 11305 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+07-21 07:11:24.658 11305 11305 I AndroidRuntime: Using default boot image
+07-21 07:11:24.658 11305 11305 I AndroidRuntime: Leaving lock profiling enabled
+07-21 07:11:24.659 11305 11305 I app_process: Core platform API reporting enabled, enforcing=false
+07-21 07:11:24.659 11305 11305 I app_process: Using CollectorTypeCMC GC.
+07-21 07:11:24.685 11305 11305 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+07-21 07:11:24.688 11305 11305 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-21 07:11:24.689 11305 11305 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/8/icu") succeeded. 
+07-21 07:11:24.689 11305 11305 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt75l.dat
+07-21 07:11:24.689 11305 11305 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-21 07:11:24.689 11305 11305 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-21 07:11:24.690 11305 11305 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[])
+07-21 07:11:24.691 11305 11305 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*2496447986]#PCL[/system/framework/android.test.base.jar*724373495]} | PCL[/system/framework/android.test.runner.jar*2496447986])
+07-21 07:11:24.697 11305 11305 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+07-21 07:11:24.697 11305 11305 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+07-21 07:11:24.698 11305 11305 D UiAutomationConnection: Created on user UserHandle{0}
+07-21 07:11:24.698 11305 11305 I UiAutomation: Initialized for user 0 on display 0
+07-21 07:11:24.698 11305 11305 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+07-21 07:11:24.699   574   591 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+07-21 07:11:24.699   574   591 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+07-21 07:11:24.700   574   591 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-21 07:11:24.700  1341  1779 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-21 07:11:24.700   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:24.700 11305 11319 V UiAutomation: Init UiAutomation@f23e4ab[id=379, displayId=0, flags=0]
+07-21 07:11:24.700  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:24.700  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:24.700  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:24.700  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.700  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.700  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:24.700  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:24.700  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:24.700  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:24.700  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.700   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:24.701  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.701   574   949 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-21 07:11:24.701  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:24.701  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:24.701  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:24.701  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:24.701  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.701  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.701  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:24.701   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:24.701   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:24.701   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:24.701   574   574 D BatterySaverPolicy: accessibility changed to true, updating policy.
+07-21 07:11:24.702 26367 27277 D AccessibilitySourceService: enabled a11y services count 0
+07-21 07:11:24.702  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-21 07:11:24.702 26367 27277 D AccessibilitySourceService: a11y source sending 0 issue to sc
+07-21 07:11:24.703   574  1705 D SafetySourceDataValidat: No cert check requested for package com.google.android.permissioncontroller
+07-21 07:11:24.703  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+07-21 07:11:24.703  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-21 07:11:24.704  1094  1094 D SsBaseTemplateCard: No text view can be set up
+07-21 07:11:24.704  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:24.704  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:24.704  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:24.704  1094  1094 I SsBaseTemplateCard: Secondary card pane is null
+07-21 07:11:24.704  1341  1779 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-21 07:11:24.704  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:24.704  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:24.704  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:24.704  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.704  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.705  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:24.705  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:24.705  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:24.705  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:24.705  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.705  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.705   817   817 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-21 07:11:24.705   817   817 D SsMediaDataProvider: Forwarding Smartspace updates []
+07-21 07:11:24.705  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:24.705  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:24.705  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:24.705  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:24.705  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.705  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:24.705  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:24.706  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-21 07:11:24.706   817   817 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-21 07:11:24.706  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+07-21 07:11:24.706   817   817 D SsMediaDataProvider: Forwarding Smartspace updates []
+07-21 07:11:24.706  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-21 07:11:24.707  1094  1094 D SsBaseTemplateCard: No text view can be set up
+07-21 07:11:24.707  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:24.707  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:24.707  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:24.707  1094  1094 I SsBaseTemplateCard: Secondary card pane is null
+07-21 07:11:24.832   803   803 I wpa_supplicant: wlan0: CTRL-EVENT-BEACON-LOSS 
+07-21 07:11:25.346   574   669 D ActivityManager: freezing 26367 com.google.android.permissioncontroller
+07-21 07:11:25.346   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+07-21 07:11:25.346   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+07-21 07:11:25.346   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10200} in 1ms
+07-21 07:11:25.685 11094 11107 W g.wikipedia.dev: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~hkmCR8mTulwwIEGs_n7YrA==/com.google.android.webview-3cwRYTAQg3haQa6cEyCicw==/WebViewGoogle.apk' with 2 weak references
+07-21 07:11:25.708  1328  1676 W MediaProvider: isAppCloneUserPair for user 0: false
+07-21 07:11:25.721  1045 11308 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 76303 [CONTEXT service_id=218 ]
+07-21 07:11:25.722  1045 11031 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 4 uptime_millis: 4 exec_start_elapsed_seconds: 76303 [CONTEXT service_id=218 ]
+07-21 07:11:25.729 11094 11233 D EGL_emulation: app_time_stats: avg=318.25ms min=0.66ms max=12937.20ms count=41
+07-21 07:11:25.750 11305 11305 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@1fc22; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(290, 2148 - 358, 2232); boundsInWindow: Rect(290, 2148 - 358, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:25.752 11305 11305 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@221ac; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(506, 2148 - 574, 2232); boundsInWindow: Rect(506, 2148 - 574, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:25.753 11305 11305 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@24375; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(722, 2148 - 790, 2232); boundsInWindow: Rect(722, 2148 - 790, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:25.754 11305 11305 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@268ff; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(938, 2148 - 1006, 2232); boundsInWindow: Rect(938, 2148 - 1006, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:25.793 11305 11305 W AccessibilityNodeInfoDumper: Fetch time: 88ms
+07-21 07:11:25.795   574  1805 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-21 07:11:25.795   574  1805 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+07-21 07:11:25.795   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:25.795   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:25.795   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:25.795   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:25.795   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:25.795   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:25.795   574   574 D BatterySaverPolicy: accessibility changed to false, updating policy.
+07-21 07:11:25.795 11305 11305 D AndroidRuntime: Shutting down VM
+07-21 07:11:25.796  1341  1897 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-21 07:11:25.797  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:25.797  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:25.797  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:25.797  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:25.797  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:25.797  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:25.797  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:25.797  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:25.797  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:25.797  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:25.797  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:25.797  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:25.797  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:25.797  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:25.797  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:25.797  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:25.797  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:25.797  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:25.797  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-21 07:11:25.797  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+07-21 07:11:25.797  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-21 07:11:25.798  1094  1094 D SsBaseTemplateCard: No text view can be set up
+07-21 07:11:25.798  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:25.798  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:25.798  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:25.798  1094  1094 I SsBaseTemplateCard: Secondary card pane is null
+07-21 07:11:25.799   817   817 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-21 07:11:25.800   817   817 D SsMediaDataProvider: Forwarding Smartspace updates []
+07-21 07:11:26.050   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:26.051   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:26.051   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:26.051   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:26.051   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:27.693  1438  1447 W gle.android.gms: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~yjtaZL7ju9TV6thl-D7cuQ==/org.wikipedia.dev--o6pyLODBB3p2Mk1nt4tKA==/base.apk' with 1 weak references
+07-21 07:11:29.061   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:29.062   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:29.062   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:29.063   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:29.063   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:30.000  1438 11323 I GmscoreIpa: Starting mediastore instant index [CONTEXT service_id=255 ]
+07-21 07:11:30.962 11094 11094 D org.wikipedia.analytics.eventplatform.BreadCrumbLogEvent: <init>():31: >>> MainActivity.HOME.nav_tab_search.click
+07-21 07:11:30.977   413 11097 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+07-21 07:11:30.977   574  1705 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 15
+07-21 07:11:31.008   413   525 D AudioFlinger: mixer(0xb4000074eab848e0) throttle end: throttle time(34)
+07-21 07:11:31.024 11094 11233 D EGL_emulation: app_time_stats: avg=5294.62ms min=5294.62ms max=5294.62ms count=1
+07-21 07:11:31.167   413   525 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+07-21 07:11:32.070   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:32.071   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:32.071   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:32.072   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:32.072   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:32.150   574   669 D ActivityManager: freezing 11927 com.google.android.gms.unstable
+07-21 07:11:32.732 11094 11233 D EGL_emulation: app_time_stats: avg=33.45ms min=11.22ms max=870.77ms count=51
+07-21 07:11:33.025   803   803 I wpa_supplicant: wlan0: CTRL-EVENT-BEACON-LOSS 
+07-21 07:11:34.046   375  4330 D android.hardware.audio@7.1-impl.ranchu: threadLoop: entering standby, frames: 16824832
+07-21 07:11:34.409  1328  1677 W MediaProvider: Ignoring param:deletedata post U for external apps
+07-21 07:11:34.410  1328  1677 I MediaProvider: Deleted 0 0 0 0 0 0 1 items on external_primary due to com.android.shell
+07-21 07:11:34.422  1045 11308 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 76312 [CONTEXT service_id=218 ]
+07-21 07:11:34.424  1045 11321 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 4 uptime_millis: 4 exec_start_elapsed_seconds: 76312 [CONTEXT service_id=218 ]
+07-21 07:11:34.450 11337 11337 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+07-21 07:11:34.452 11337 11337 I AndroidRuntime: Using default boot image
+07-21 07:11:34.452 11337 11337 I AndroidRuntime: Leaving lock profiling enabled
+07-21 07:11:34.453 11337 11337 I app_process: Core platform API reporting enabled, enforcing=false
+07-21 07:11:34.453 11337 11337 I app_process: Using CollectorTypeCMC GC.
+07-21 07:11:34.479 11337 11337 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+07-21 07:11:34.483 11337 11337 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-21 07:11:34.483 11337 11337 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/8/icu") succeeded. 
+07-21 07:11:34.483 11337 11337 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt75l.dat
+07-21 07:11:34.483 11337 11337 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-21 07:11:34.483 11337 11337 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-21 07:11:34.484 11337 11337 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[])
+07-21 07:11:34.485 11337 11337 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*2496447986]#PCL[/system/framework/android.test.base.jar*724373495]} | PCL[/system/framework/android.test.runner.jar*2496447986])
+07-21 07:11:34.491 11337 11337 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+07-21 07:11:34.491 11337 11337 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+07-21 07:11:34.493 11337 11337 D UiAutomationConnection: Created on user UserHandle{0}
+07-21 07:11:34.493 11337 11337 I UiAutomation: Initialized for user 0 on display 0
+07-21 07:11:34.493 11337 11337 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+07-21 07:11:34.493   574   591 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+07-21 07:11:34.493   574   591 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+07-21 07:11:34.494   574   591 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-21 07:11:34.494   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.494  1341  1897 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-21 07:11:34.495   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.495 11337 11349 V UiAutomation: Init UiAutomation@a1f4b05[id=380, displayId=0, flags=0]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:34.495  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:34.495  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:34.495  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:34.495  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:34.495  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:34.495  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:34.495  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:34.495  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.495  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:34.495  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-21 07:11:34.495  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+07-21 07:11:34.495   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.495  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-21 07:11:34.496   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.496   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.496   817   817 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-21 07:11:34.496   817   817 D SsMediaDataProvider: Forwarding Smartspace updates []
+07-21 07:11:34.496   574   591 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-21 07:11:34.496   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.496  1341  1897 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-21 07:11:34.496   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.496   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.496  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:34.496  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:34.496  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:34.496  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.496  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.496  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:34.497  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:34.497  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:34.497  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:34.497  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.497  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.497  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:34.497  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:34.497  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:34.497  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:34.497  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.497  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:34.497  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:34.497  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-21 07:11:34.497  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+07-21 07:11:34.497  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-21 07:11:34.497  1094  1094 D SsBaseTemplateCard: No text view can be set up
+07-21 07:11:34.497  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:34.497  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:34.497  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:34.497  1094  1094 I SsBaseTemplateCard: Secondary card pane is null
+07-21 07:11:34.497  1094  1094 D SsBaseTemplateCard: No text view can be set up
+07-21 07:11:34.497  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:34.497  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:34.497  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:34.497  1094  1094 I SsBaseTemplateCard: Secondary card pane is null
+07-21 07:11:34.498   817   817 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-21 07:11:34.498   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.498   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.498   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.498   817   817 D SsMediaDataProvider: Forwarding Smartspace updates []
+07-21 07:11:34.498   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.498   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.498   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.498   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:34.498   574   574 D BatterySaverPolicy: accessibility changed to true, updating policy.
+07-21 07:11:35.078   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:35.078   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:35.078   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:35.078   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:35.079   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:35.504  1328  4095 W MediaProvider: isAppCloneUserPair for user 0: false
+07-21 07:11:35.505 11337 11337 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2961c; boundsInParent: Rect(0, 0 - 0, 147); boundsInScreen: Rect(1080, 142 - 1080, 289); boundsInWindow: Rect(1080, 142 - 1080, 289); packageName: org.wikipedia.dev; className: androidx.appcompat.widget.LinearLayoutCompat; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:35.505 11337 11337 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@1da6a; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(74, 2148 - 142, 2232); boundsInWindow: Rect(74, 2148 - 142, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:35.505 11337 11337 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@1fc33; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(290, 2148 - 358, 2232); boundsInWindow: Rect(290, 2148 - 358, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:35.509 11337 11337 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@24386; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(722, 2148 - 790, 2232); boundsInWindow: Rect(722, 2148 - 790, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:35.510 11337 11337 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@26910; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(938, 2148 - 1006, 2232); boundsInWindow: Rect(938, 2148 - 1006, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:35.511 11337 11337 W AccessibilityNodeInfoDumper: Fetch time: 7ms
+07-21 07:11:35.512   574  1731 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-21 07:11:35.512   574  1731 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+07-21 07:11:35.512   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:35.512   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:35.512   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:35.512   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:35.512   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:35.512   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:35.512   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:35.512   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:35.512   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:35.512   574   574 D BatterySaverPolicy: accessibility changed to false, updating policy.
+07-21 07:11:35.513 11337 11337 D AndroidRuntime: Shutting down VM
+07-21 07:11:35.513  1341  1779 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-21 07:11:35.513  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:35.514  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:35.514  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:35.514  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:35.514  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:35.514  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:35.514  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:35.514  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:35.514  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:35.514  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:35.514  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:35.514  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:35.514  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:35.514  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:35.514  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:35.514  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:35.514  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:35.514  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:35.514  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-21 07:11:35.514  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+07-21 07:11:35.514  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-21 07:11:35.515   817   817 D SsMediaDataProvider: Forwarding Smartspace updates []
+07-21 07:11:35.515   817   817 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-21 07:11:35.516  1094  1094 D SsBaseTemplateCard: No text view can be set up
+07-21 07:11:35.516  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:35.516  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:35.516  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:35.516  1094  1094 I SsBaseTemplateCard: Secondary card pane is null
+07-21 07:11:35.517  1045 10922 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 76313 [CONTEXT service_id=218 ]
+07-21 07:11:35.518  1045 11308 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 6 uptime_millis: 6 exec_start_elapsed_seconds: 76313 [CONTEXT service_id=218 ]
+07-21 07:11:36.391 11094 11094 W org.wikipedia.analytics.testkitchen.LogAdapterImpl: warn():17: Configuration is missing, enqueued events are not sent.
+07-21 07:11:38.087   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:38.087   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:38.088   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:38.088   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:38.089   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:40.962   803   803 I wpa_supplicant: wlan0: CTRL-EVENT-BEACON-LOSS 
+07-21 07:11:41.094   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:41.094   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:41.095   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:41.095   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:41.096   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:41.099   574   728 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:41.099   574   728 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:41.099   574   728 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:41.099   574   728 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:41.099   574   728 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:41.100  1045  2233 I ChimeraSrvcProxy: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl
+07-21 07:11:41.100  1045  2233 W .gms.persistent: Large reply transaction of 1056768 bytes, interface descriptor , code 1
+07-21 07:11:41.101  1369  1683 I BugleRcsEngine: Connected state: [1], networkType: [WIFI] [CONTEXT thread_id=56 ]
+07-21 07:11:41.101  1369  1951 I BugleRcsEngine: handleMessage processing message:[NOTIFY_UPTIME_IGNORE_STATE_CHANGED] with [non-null]:RcsEngineImpl reference [CONTEXT log_prefix="RcsEngineImpl[DUAL_REG]:[8a768734-1be9]>Handler" thread_id=61 ]
+07-21 07:11:41.106  1369  1951 I BugleRcsEngine: No RCS Configuration was found in Bugle for simID: redacted-pii:sim_id[chars:20,last3:897] [CONTEXT log_prefix="ProvisioningEngineDataRetriever" thread_id=61 ]
+07-21 07:11:44.104   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:44.104   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:44.105   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:44.105   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:44.106   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:45.231   574   669 D ActivityManager: freezing 27232 com.android.keychain
+07-21 07:11:45.232   574   669 D ActivityManager: freezing 26788 com.android.settings
+07-21 07:11:45.770  1328  4095 W MediaProvider: Ignoring param:deletedata post U for external apps
+07-21 07:11:45.773  1328  4095 I MediaProvider: Deleted 0 0 0 0 0 0 1 items on external_primary due to com.android.shell
+07-21 07:11:45.793  1045 11308 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 76323 [CONTEXT service_id=218 ]
+07-21 07:11:45.796  1045 11357 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 7 uptime_millis: 7 exec_start_elapsed_seconds: 76323 [CONTEXT service_id=218 ]
+07-21 07:11:45.819 11354 11354 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+07-21 07:11:45.821 11354 11354 I AndroidRuntime: Using default boot image
+07-21 07:11:45.821 11354 11354 I AndroidRuntime: Leaving lock profiling enabled
+07-21 07:11:45.822 11354 11354 I app_process: Core platform API reporting enabled, enforcing=false
+07-21 07:11:45.822 11354 11354 I app_process: Using CollectorTypeCMC GC.
+07-21 07:11:45.850 11354 11354 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+07-21 07:11:45.853 11354 11354 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-21 07:11:45.853 11354 11354 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/8/icu") succeeded. 
+07-21 07:11:45.853 11354 11354 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt75l.dat
+07-21 07:11:45.854 11354 11354 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-21 07:11:45.854 11354 11354 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+07-21 07:11:45.855 11354 11354 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[])
+07-21 07:11:45.855 11354 11354 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*2496447986]#PCL[/system/framework/android.test.base.jar*724373495]} | PCL[/system/framework/android.test.runner.jar*2496447986])
+07-21 07:11:45.863 11354 11354 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+07-21 07:11:45.863 11354 11354 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+07-21 07:11:45.864 11354 11354 D UiAutomationConnection: Created on user UserHandle{0}
+07-21 07:11:45.864 11354 11354 I UiAutomation: Initialized for user 0 on display 0
+07-21 07:11:45.864 11354 11354 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+07-21 07:11:45.865   574  1800 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+07-21 07:11:45.865   574  1800 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+07-21 07:11:45.865   574  1800 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-21 07:11:45.865  1341  1779 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-21 07:11:45.866  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:45.866  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:45.866  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:45.866  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.866  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.866  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:45.866  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:45.866  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:45.866  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:45.866  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.866  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.866  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:45.866  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:45.866  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:45.866  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:45.866  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.866  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.866  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:45.866  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-21 07:11:45.866  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+07-21 07:11:45.866  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-21 07:11:45.866   817   817 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-21 07:11:45.866   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.866   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.866   817   817 D SsMediaDataProvider: Forwarding Smartspace updates []
+07-21 07:11:45.866   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.866   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.866   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.866 11354 11369 V UiAutomation: Init UiAutomation@9670868[id=381, displayId=0, flags=0]
+07-21 07:11:45.866   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.867   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.867   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.867   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.867   574   574 D BatterySaverPolicy: accessibility changed to true, updating policy.
+07-21 07:11:45.867  1094  1094 D SsBaseTemplateCard: No text view can be set up
+07-21 07:11:45.867  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:45.867  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:45.867  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:45.867  1094  1094 I SsBaseTemplateCard: Secondary card pane is null
+07-21 07:11:45.868   574  1731 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-21 07:11:45.869  1341  1897 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-21 07:11:45.869  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:45.869  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:45.869  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:45.869  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.869  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.869  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:45.869  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:45.869  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:45.869  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:45.869  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.869  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.869  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:45.869  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:45.869  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:45.869  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:45.869  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.869  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:45.869  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:45.869  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-21 07:11:45.869  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+07-21 07:11:45.869  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-21 07:11:45.869   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.869   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.869   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.869   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.869   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.869   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:45.871  1094  1094 D SsBaseTemplateCard: No text view can be set up
+07-21 07:11:45.871  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:45.871  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:45.871  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:45.871  1094  1094 I SsBaseTemplateCard: Secondary card pane is null
+07-21 07:11:45.880   817   817 D SsMediaDataProvider: Forwarding Smartspace updates []
+07-21 07:11:45.880   817   817 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-21 07:11:46.876  1328  1676 W MediaProvider: isAppCloneUserPair for user 0: false
+07-21 07:11:46.877 11354 11354 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@29620; boundsInParent: Rect(0, 0 - 0, 147); boundsInScreen: Rect(1080, 142 - 1080, 289); boundsInWindow: Rect(1080, 142 - 1080, 289); packageName: org.wikipedia.dev; className: androidx.appcompat.widget.LinearLayoutCompat; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:46.878 11354 11354 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@1da6e; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(74, 2148 - 142, 2232); boundsInWindow: Rect(74, 2148 - 142, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:46.878 11354 11354 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@1fc37; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(290, 2148 - 358, 2232); boundsInWindow: Rect(290, 2148 - 358, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:46.882 11354 11354 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@2438a; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(722, 2148 - 790, 2232); boundsInWindow: Rect(722, 2148 - 790, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:46.883 11354 11354 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@26914; boundsInParent: Rect(0, 0 - 168, 84); boundsInScreen: Rect(938, 2148 - 1006, 2232); boundsInWindow: Rect(938, 2148 - 1006, 2232); packageName: org.wikipedia.dev; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: org.wikipedia.dev:id/navigation_bar_item_active_indicator_view; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+07-21 07:11:46.884 11354 11354 W AccessibilityNodeInfoDumper: Fetch time: 10ms
+07-21 07:11:46.886   574  1705 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+07-21 07:11:46.886   574  1705 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+07-21 07:11:46.886   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:46.886   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:46.886   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:46.886   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:46.886   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:46.887   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:46.887 11354 11354 D AndroidRuntime: Shutting down VM
+07-21 07:11:46.888  1341  1779 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+07-21 07:11:46.888   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:46.888   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:46.888  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:46.888  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:46.888  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:46.888  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:46.888  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:46.888  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:46.888  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:46.888  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:46.888  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:46.888  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:46.888  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:46.888  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:46.888  1341  1600 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+07-21 07:11:46.888  1341  1600 I AiAiEcho: EchoTargets: 
+07-21 07:11:46.888  1341  1600 I AiAiEcho: Filtered by AiAi flag check: 
+07-21 07:11:46.888  1341  1600 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:46.888  1341  1600 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+07-21 07:11:46.888  1341  1600 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+07-21 07:11:46.888  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+07-21 07:11:46.888  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+07-21 07:11:46.888  1341  1600 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+07-21 07:11:46.888   574   574 W IPCThreadState: Sending oneway calls to frozen process.
+07-21 07:11:46.889  1094  1094 D SsBaseTemplateCard: No text view can be set up
+07-21 07:11:46.889  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:46.889  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:46.889  1094  1094 D SsBaseTemplateCard: Passed-in item info is null
+07-21 07:11:46.889  1094  1094 I SsBaseTemplateCard: Secondary card pane is null
+07-21 07:11:46.889   574   574 D BatterySaverPolicy: accessibility changed to false, updating policy.
+07-21 07:11:46.891   817   817 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+07-21 07:11:46.891   817   817 D SsMediaDataProvider: Forwarding Smartspace updates []
+07-21 07:11:46.892  1045 11308 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 76324 [CONTEXT service_id=218 ]
+07-21 07:11:46.893  1045 11358 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 7 uptime_millis: 7 exec_start_elapsed_seconds: 76324 [CONTEXT service_id=218 ]
+07-21 07:11:47.110   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:47.110   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:47.110   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:47.111   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:47.111   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+07-21 07:11:48.237 11372 11372 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+07-21 07:11:48.237 11372 11372 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+07-21 07:11:48.243   163   163 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+07-21 07:11:48.243 11372 11374 I Gralloc4: mapper 4.x is not supported
+07-21 07:11:48.246   162   162 I servicemanager: Caller(pid=11372,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+07-21 07:11:48.329   574  1731 I ActivityManager: Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+07-21 07:11:48.329   574  1731 I ActivityManager: Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+07-21 07:11:48.330   574  1740 W JobInfo : Job 'com.google.android.providers.media.module/com.android.providers.media.MediaService#-300' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+07-21 07:11:48.332   574   595 I ActivityManager: Broadcast completed: result=0
+07-21 07:11:48.333  1328  1877 I MediaProvider: Begin Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+07-21 07:11:48.330  1328  1328 W com.google.android.providers.media.module: type=1400 audit(0.0:1758): avc:  denied  { search } for  comm=4173796E635461736B202331 name="tmp" dev="dm-44" ino=65538 scontext=u:r:mediaprovider_app:s0:c188,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+07-21 07:11:48.330  1328  1328 W com.google.android.providers.media.module: type=1400 audit(0.0:1759): avc:  denied  { getattr } for  comm=4173796E635461736B202331 path="/data/local/tmp" dev="dm-44" ino=65538 scontext=u:r:mediaprovider_app:s0:c188,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+07-21 07:11:48.330  1328  1328 W com.google.android.providers.media.module: type=1400 audit(0.0:1760): avc:  denied  { search } for  comm=4173796E635461736B202331 name="tmp" dev="dm-44" ino=65538 scontext=u:r:mediaprovider_app:s0:c188,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+07-21 07:11:48.330  1328  1328 W com.google.android.providers.media.module: type=1400 audit(0.0:1761): avc:  denied  { getattr } for  comm=4173796E635461736B202331 path="/data/local/tmp" dev="dm-44" ino=65538 scontext=u:r:mediaprovider_app:s0:c188,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+07-21 07:11:48.330  1328  1328 W com.google.android.providers.media.module: type=1400 audit(0.0:1762): avc:  denied  { search } for  comm=4173796E635461736B202331 name="tmp" dev="dm-44" ino=65538 scontext=u:r:mediaprovider_app:s0:c188,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+07-21 07:11:48.334  1328  1877 W ModernMediaScanner: Failed to visit /data/local/tmp/aiverify-after-segment-0-e6f9c0ec44b842b4a053ef50f5a60697.png: java.nio.file.AccessDeniedException: /data/local/tmp/aiverify-after-segment-0-e6f9c0ec44b842b4a053ef50f5a60697.png
+07-21 07:11:48.337  1877  1877 W audit   : audit_lost=493 audit_rate_limit=5 audit_backlog_limit=64
+07-21 07:11:48.337  1877  1877 E audit   : rate limit exceeded
+07-21 07:11:48.334  1328  1877 I MediaProvider: Scanned internal due to REASON_DEMAND, found 0 items in 1ms, 0 inserts 0 updates 0 deletes
+07-21 07:11:48.335  1328  1877 I MediaProvider: End Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+07-21 07:11:48.393   172   172 I logd    : logdr: UID=2000 GID=2000 PID=11382 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
