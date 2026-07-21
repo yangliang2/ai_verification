@@ -1360,6 +1360,76 @@ def test_summary_derives_passed_control_from_runner_evidence(tmp_path: Path) -> 
     assert summary.judge_seconds == 0.0
 
 
+def test_attempt_ledger_records_and_reconciles_preserved_invocation(
+    tmp_path: Path,
+) -> None:
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, attempt_ledger=True), repo_root=tmp_path
+    )
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(_completed_verdict()),
+    )
+
+    events = [
+        json.loads(line)
+        for line in manifest.attempt_ledger.read_text(encoding="utf-8").splitlines()
+    ]
+    assert [event["event"] for event in events] == ["started", "finished"]
+    assert events[0]["invocation_id"] == events[1]["invocation_id"]
+    assert events[1]["attempt_id"] == attempt.attempt_id
+    assert build_summary(manifest).eventual_accountable == 1
+
+
+def test_attempt_ledger_fails_closed_when_filesystem_attempt_is_unrecorded(
+    tmp_path: Path,
+) -> None:
+    manifest_path = _write_fixture_manifest(tmp_path, attempt_ledger=True)
+    manifest = load_manifest(manifest_path, repo_root=tmp_path)
+    unledgered = replace(manifest, attempt_ledger=None)
+    run_lane(
+        unledgered,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(_completed_verdict()),
+    )
+
+    with pytest.raises(ValueError, match="attempt ledger is missing"):
+        build_summary(manifest)
+
+
+def test_attempt_ledger_preserves_wrapper_failure_and_blocks_aggregation(
+    tmp_path: Path,
+) -> None:
+    class RaisingRunner(CommandRunner):
+        def run(self, args, **kwargs):
+            raise RuntimeError("wrapper exploded")
+
+    manifest = load_manifest(
+        _write_fixture_manifest(tmp_path, attempt_ledger=True), repo_root=tmp_path
+    )
+    with pytest.raises(RuntimeError, match="wrapper exploded"):
+        run_lane(
+            manifest,
+            lane_id="fixture-baseline-1",
+            device="emulator-5554",
+            workdir=tmp_path,
+            runner=RaisingRunner(),
+        )
+
+    events = [
+        json.loads(line)
+        for line in manifest.attempt_ledger.read_text(encoding="utf-8").splitlines()
+    ]
+    assert events[-1]["result"] == "wrapper_error"
+    with pytest.raises(ValueError, match="unpreserved wrapper invocation"):
+        build_progress(manifest)
+
+
 def test_summary_derives_l3_judge_time_from_runner_evidence(tmp_path: Path) -> None:
     manifest = load_manifest(
         _write_fixture_manifest(tmp_path, oracle_level="L3"), repo_root=tmp_path
@@ -1583,6 +1653,25 @@ def test_summary_fails_closed_on_invalid_attempt_lineage(tmp_path: Path) -> None
 
     with pytest.raises(ValueError, match="invalid attempt lineage"):
         build_summary(manifest)
+
+
+@pytest.mark.parametrize("aggregate", [build_summary, build_progress])
+def test_aggregate_fails_closed_on_quarantined_attempt_evidence(
+    tmp_path: Path, aggregate
+) -> None:
+    manifest = load_manifest(_write_fixture_manifest(tmp_path), repo_root=tmp_path)
+    attempt = run_lane(
+        manifest,
+        lane_id="fixture-baseline-1",
+        device="emulator-5554",
+        workdir=tmp_path,
+        runner=VerdictWritingRunner(_completed_verdict()),
+    )
+    quarantine = attempt.directory.parent / "quarantine" / "hidden-attempt"
+    quarantine.mkdir(parents=True)
+
+    with pytest.raises(ValueError, match="undeclared attempt evidence.*quarantine"):
+        aggregate(manifest)
 
 
 def test_summary_fails_closed_when_attempt_checksum_is_invalid(tmp_path: Path) -> None:
@@ -2579,7 +2668,11 @@ def test_committed_search_card_lanes_match_the_live_l3_contract() -> None:
 
 
 def _write_fixture_manifest(
-    tmp_path: Path, *, role: str = "baseline", oracle_level: str = "L1"
+    tmp_path: Path,
+    *,
+    role: str = "baseline",
+    oracle_level: str = "L1",
+    attempt_ledger: bool = False,
 ) -> Path:
     run_spec = tmp_path / "run-spec.yaml"
     run_spec.write_text(
@@ -2603,6 +2696,7 @@ scenario:
         f"""\
 schema_version: 1
 slice_id: fixture-reliability
+{"attempt_ledger: evidence/attempt-ledger.jsonl" if attempt_ledger else ""}
 max_attempts_per_lane: 2
 lanes:
   - id: fixture-{role}-1
