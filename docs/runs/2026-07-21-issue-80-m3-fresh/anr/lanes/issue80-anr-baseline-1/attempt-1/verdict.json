@@ -1,0 +1,130 @@
+{
+  "scenario": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verification-issue-80/docs/runs/2026-07-21-issue-80-m3-fresh/anr/lanes/issue80-anr-baseline-1/attempt-1/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "missed",
+    "taxonomy_category": "coroutine-concurrency",
+    "taxonomy_pattern_id": "coroutine-concurrency-03",
+    "expected_oracle_level": "L1",
+    "expected_oracle_defect_class": "crash_stability",
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "inconclusive",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-a4d77b0d",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入",
+      "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 371",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Main feed was already visible. Tapped nav_tab_search at [540,2232], observed search_card, tapped it at [540,371], and observed focused search_src_text.",
+          "action": "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
+        },
+        {
+          "action_id": "action-2",
+          "status": "PASSED",
+          "commands": [
+            "adb -s emulator-5554 shell input tap 542 215",
+            "adb -s emulator-5554 shell input text \"anrtest\"",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Tapped search_src_text at [542,215] and dispatched text input. Final layout showed focused search_src_text with text \"anrtest\" and visible search results.",
+          "action": "点搜索输入框 search_src_text，输入文本 'anrtest'"
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "system_event_evidence": [],
+  "timing": {
+    "started_at": "2026-07-21T10:24:21+00:00",
+    "finished_at": "2026-07-21T10:25:53+00:00",
+    "total_seconds": 91.187,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 5.019
+      },
+      {
+        "phase": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+        "kind": "journey",
+        "seconds": 79.272
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.874
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verification-issue-80/docs/runs/2026-07-21-issue-80-m3-fresh/anr/lanes/issue80-anr-baseline-1/attempt-1/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "1d0090003bc90e3c1b23777caafdbad330e49d2f278ed53a85dde7f6d7b69f8c"
+  }
+}

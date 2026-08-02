@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "attempt_id": "2bcf4f62-df80-49c5-9479-ba2ee6e6a486",
+  "scenario": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-21T11:06:41+00:00",
+  "finished_at": "2026-07-21T11:08:13+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-21T11:06:41+00:00",
+    "finished_at": "2026-07-21T11:08:13+00:00",
+    "total_seconds": 92.092,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.73
+      },
+      {
+        "phase": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+        "kind": "journey",
+        "seconds": 62.639
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.957
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 18.12
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "34269f9e6e776a930e856689520dd81b33eb3ed51ad82f1201cef4a616757a04"
+    }
+  }
+}

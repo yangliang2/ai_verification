@@ -1,0 +1,35 @@
+host_project:
+  root: ${WIKIPEDIA_SOURCE}
+  origin: https://github.com/wikimedia/apps-android-wikipedia
+  commit: 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-config-change-02-query-duplication.patch
+spec: ../specs/wikipedia-config-change-02-query-duplication.md
+scenario:
+  id: wikipedia-config-change-02-query-duplication
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: config-change
+    taxonomy_pattern_id: config-change-02
+    expected_oracle_level: L2
+    expected_oracle_defect_class: state_loss
+  user_actions:
+    - "org.wikipedia.dev 已由 runner 或人工预启动；不要通过 launcher 搜索或打开 app。若看到 onboarding，点击 Forward 直到可点击 Skip，并点击 Skip 进入主 feed；然后点底部 Search tab，点 search_card 进入搜索输入"
+    - "点搜索输入框 search_src_text，输入 sentinel 文本 'zzsentinelqx'；确认 search_src_text 显示该文本后，按一次系统 Back 收起软键盘，但保持在 SearchActivity 搜索页"
+  system_events:
+    - step_index: 1
+      event: dark_mode
+      args:
+        night: "yes"
+  assertions:
+    - resource_id: search_src_text
+      attr: text
+      expected: zzsentinelqx
+  expected_behavior: >
+    注入缺陷后，在段边界切换深色模式（uiMode 配置变更）强制 SearchActivity 重建。
+    SearchView 已恢复的查询文本会被错误地再次 append，一次配置变更后
+    search_src_text 从 'zzsentinelqx' 变成 'zzsentinelqxzzsentinelqx'。期望 L2
+    outcome=fail；当前 schema 的 defect_class_hypothesis 仍为 state_loss，但
+    evidence 中应包含 duplicated actual value。无崩溃，L1=inconclusive。

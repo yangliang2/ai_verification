@@ -1,0 +1,36 @@
+host_project:
+  root: ${WIKIPEDIA_SOURCE}
+  origin: https://github.com/wikimedia/apps-android-wikipedia
+  commit: 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b
+apk_glob: app/build/outputs/apk/dev/debug/*.apk
+package: org.wikipedia.dev
+activity: org.wikipedia.DefaultIcon
+diff: ../patches/wikipedia-ui-rendering-02-search-card-copy-mismatch.patch
+spec: ../specs/wikipedia-ui-rendering-02-search-card-copy-mismatch.md
+scenario:
+  id: wikipedia-ui-rendering-02-search-card-copy-mismatch
+  metric_context:
+    seed_kind: injected_defect
+    taxonomy_category: ui-rendering
+    taxonomy_pattern_id: ui-rendering-02
+    expected_oracle_level: L3
+    expected_oracle_defect_class: ui_rendering
+  user_actions:
+    - "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+  system_events: []
+  assertions: []
+  l3_spec: >
+    On the bottom Search tab, the visible search entry card must describe the
+    Search feature. The node with resource-id "search_card" should be visible,
+    and its child text node "search_text_view" or icon content description
+    "search_icon" should clearly invite the user to search Wikipedia or search/ask
+    anything. It must not describe reading history, recently viewed articles,
+    saved pages, edit activity, or any non-search feature. If the Search tab or
+    search_card is not visible, return inconclusive rather than fail.
+  expected_behavior: >
+    Defect build: the Search tab opens normally and no node disappears, but
+    search_text_view/search_icon show History copy ("Track what you've been
+    reading here.") instead of Search copy. Expected oracle outcomes: L1
+    inconclusive, L2 inconclusive/not applicable, L3 fail with
+    defect_class_hypothesis=ui_rendering. Baseline build under the same scenario
+    and same l3_spec should pass L3.

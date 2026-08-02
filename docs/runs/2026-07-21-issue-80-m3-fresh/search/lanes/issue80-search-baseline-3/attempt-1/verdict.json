@@ -1,0 +1,154 @@
+{
+  "scenario": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verification-issue-80/docs/runs/2026-07-21-issue-80-m3-fresh/search/lanes/issue80-search-baseline-3/attempt-1/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-ui-rendering-02-search-card-copy-mismatch",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "missed",
+    "taxonomy_category": "ui-rendering",
+    "taxonomy_pattern_id": "ui-rendering-02",
+    "expected_oracle_level": "L3",
+    "expected_oracle_defect_class": "ui_rendering",
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "inconclusive",
+      "L3": "pass"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-cf209bf4",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": {
+    "verdict_id": "L3-7a3f9c21",
+    "level": "L3",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "应用已处于主 Feed 页面",
+      "点击底部导航栏的 Search 标签（nav_tab_search）",
+      "确认 Search 标签处于 selected 状态且 search_card 可见",
+      "停留在 Search 标签页，未点击 search_card 或进入 SearchActivity"
+    ],
+    "evidence": [
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0 UI layout: nav_tab_search",
+        "note": "nav_tab_search 明确处于 selected 状态，满足已进入底部 Search 标签页的前提。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0 UI layout: search_card",
+        "note": "resource-id 为 search_card 的节点存在且可点击、可聚焦，表明搜索入口卡片可见。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "after-segment-0 UI layout: search_text_view and search_icon",
+        "note": "search_text_view 文本和 search_icon 内容描述均为“Search Wikipedia”，清楚邀请用户搜索 Wikipedia，未错误描述阅读历史、最近浏览、已保存页面、编辑活动或其他非搜索功能。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "scenario journey result action-1",
+        "note": "动作执行状态为 PASSED，且执行说明确认未进入 SearchActivity，checkpoint 与规格要求的验证位置一致。"
+      }
+    ],
+    "confidence": 0.99
+  },
+  "journey_results": [
+    {
+      "journey": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Main feed was already visible. Located nav_tab_search at [540,2232] and tapped it. Fresh layout confirmed nav_tab_search is selected and search_card is visible. Did not tap search_card or enter SearchActivity.",
+          "action": "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search) and stop there. Confirm the Search tab is selected and search_card is visible; do not tap search_card or enter SearchActivity."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "system_event_evidence": [],
+  "timing": {
+    "started_at": "2026-07-21T11:06:41+00:00",
+    "finished_at": "2026-07-21T11:08:13+00:00",
+    "total_seconds": 92.092,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.73
+      },
+      {
+        "phase": "wikipedia-ui-rendering-02-search-card-copy-mismatch-segment-0",
+        "kind": "journey",
+        "seconds": 62.639
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.957
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 18.12
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verification-issue-80/docs/runs/2026-07-21-issue-80-m3-fresh/search/lanes/issue80-search-baseline-3/attempt-1/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "34269f9e6e776a930e856689520dd81b33eb3ed51ad82f1201cef4a616757a04"
+  }
+}

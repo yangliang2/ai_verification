@@ -1,0 +1,159 @@
+{
+  "scenario": "wikipedia-navigation-02-back-button-swallowed",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verification-issue-80/docs/runs/2026-07-21-issue-80-m3-fresh/swallowed/lanes/issue80-swallowed-defect-1/attempt-1/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "wikipedia-navigation-02-back-button-swallowed",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "caught",
+    "taxonomy_category": "navigation",
+    "taxonomy_pattern_id": "navigation-02",
+    "expected_oracle_level": "L2",
+    "expected_oracle_defect_class": "state_loss",
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "fail",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": "state_loss",
+      "L3": null
+    },
+    "failed_oracles": [
+      "L2"
+    ]
+  },
+  "l1": {
+    "verdict_id": "L1-c2705d4d",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity.",
+      "Tap search_src_text, type sentinel text 'zznavbackqx', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity. Then press system Back a second time; this is the navigation Back. After that command completes, do not judge the destination, press Back again, or navigate further; finish the segment so the runner can capture the observation for L2.",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-cd7a6003",
+    "level": "L2",
+    "outcome": "fail",
+    "defect_class_hypothesis": "state_loss",
+    "trigger_steps": [
+      "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity.",
+      "Tap search_src_text, type sentinel text 'zznavbackqx', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity. Then press system Back a second time; this is the navigation Back. After that command completes, do not judge the destination, press Back again, or navigate further; finish the segment so the runner can capture the observation for L2.",
+      "[boundary] inject dark_mode {'night': 'yes'}"
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "resource-id='search_card'：操作后节点消失。操作前 resource-id='<absent>'，期望保留 resource-id='search_card'",
+        "note": "节点 'search_card' 在操作后从 accessibility tree 中消失"
+      }
+    ],
+    "confidence": 0.9
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "wikipedia-navigation-02-back-button-swallowed-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 371"
+          ],
+          "comment": "Main feed was already visible. Located and tapped nav_tab_search, then located and tapped search_card to open SearchActivity.",
+          "action": "org.wikipedia.dev is already launched by the runner or by setup; do not use launcher search or intents. If onboarding appears, tap Forward until Skip is available, then tap Skip. From the main feed, tap the bottom Search tab (nav_tab_search), then tap search_card to open SearchActivity."
+        },
+        {
+          "action_id": "action-2",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 542 215",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input text \"zznavbackqx\"",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input keyevent KEYCODE_BACK"
+          ],
+          "comment": "Tapped search_src_text and typed the sentinel. The fresh layout confirmed search_src_text displayed \"zznavbackqx\". After the first Back, SearchActivity remained visible with the query and the field no longer focused. Dispatched the second navigation Back and performed no further inspection or interaction.",
+          "action": "Tap search_src_text, type sentinel text 'zznavbackqx', and confirm search_src_text shows it. Press system Back once to hide the soft keyboard while staying in SearchActivity. Then press system Back a second time; this is the navigation Back. After that command completes, do not judge the destination, press Back again, or navigate further; finish the segment so the runner can capture the observation for L2."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0"
+  ],
+  "injected_events": [
+    {
+      "event": "dark_mode",
+      "args": {
+        "night": "yes"
+      }
+    }
+  ],
+  "system_event_evidence": [
+    "artifacts/system-event-0/event.json"
+  ],
+  "timing": {
+    "started_at": "2026-07-21T10:58:25+00:00",
+    "finished_at": "2026-07-21T11:00:01+00:00",
+    "total_seconds": 96.349,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.688
+      },
+      {
+        "phase": "wikipedia-navigation-02-back-button-swallowed-segment-0",
+        "kind": "journey",
+        "seconds": 82.21
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.846
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "dark_mode",
+        "seconds": 0.06
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 2.997
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verification-issue-80/docs/runs/2026-07-21-issue-80-m3-fresh/swallowed/lanes/issue80-swallowed-defect-1/attempt-1/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "7dcb53d79a672d096cdd2f5bf8a22ce14a4caf59d137051689a58e6af478519d"
+  }
+}

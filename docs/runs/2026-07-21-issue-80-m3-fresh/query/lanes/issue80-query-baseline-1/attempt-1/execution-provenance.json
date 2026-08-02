@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "attempt_id": "d047e200-388f-4ac8-8132-9fcba277c945",
+  "scenario": "wikipedia-config-change-02-query-duplication",
+  "captured_at": "2026-07-21T10:43:23+00:00",
+  "run_spec": {
+    "invocation_path": "/Users/peter/projects/ai_verification-issue-80/bench/goldset/run-specs/wikipedia-config-change-02-query-duplication-portable.yaml",
+    "consumed_sha256": "f465f641964ef1e98083650df9490eb3cccd3f7f112c333579cb9d00d9089254",
+    "snapshot_path": "identity/run-spec.yaml",
+    "snapshot_sha256": "f465f641964ef1e98083650df9490eb3cccd3f7f112c333579cb9d00d9089254",
+    "scenario": "wikipedia-config-change-02-query-duplication",
+    "host_project": "/Users/peter/hosts/wikipedia",
+    "apk_glob": "app/build/outputs/apk/dev/debug/*.apk",
+    "package": "org.wikipedia.dev",
+    "activity": "org.wikipedia.DefaultIcon",
+    "host_locator": {
+      "root": "${WIKIPEDIA_SOURCE}",
+      "resolution": "environment",
+      "resolved_path": "/Users/peter/hosts/wikipedia",
+      "expected_origin": "https://github.com/wikimedia/apps-android-wikipedia",
+      "expected_commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b"
+    },
+    "identity_sha256": "1521e37a92e07a06b6701c71d43f6b2e8c1d44dc95a2c53a89a600ae1a09636c"
+  },
+  "host": {
+    "repository_root": "/Users/peter/hosts/wikipedia",
+    "origin": "https://github.com/wikimedia/apps-android-wikipedia",
+    "commit": "6ccb8d85a21a8e34b96e4813d3caee5c690ece9b",
+    "worktree": {
+      "clean": true,
+      "status": "",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_files": [],
+      "patch_path": "identity/host.patch",
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "identity_sha256": "c92fafe890bcc989100ed47b786e6cacecfaee72c1ef358738b07b35751656f2"
+  },
+  "apk": {
+    "artifacts": [
+      {
+        "path": "/Users/peter/hosts/wikipedia/aiverify-builds/issue80/baseline-app-dev-debug.apk",
+        "bytes": 121282950,
+        "sha256": "7af65b50f282a2204595cb6e7a78a61a7c3370a06da2ee1306eb696982a1c957"
+      }
+    ],
+    "identity_sha256": "bcaf0dfaa0942b9a90542a8ce015a2b5823d7f636630753ac3bc9fa0ca0bf322"
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "api_level": "35",
+    "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "profile": {
+      "kind": "emulator",
+      "name": "aiverify_api35",
+      "model": "sdk_gphone64_arm64",
+      "device": "emu64a"
+    },
+    "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+  },
+  "tools": {
+    "android_cli": {
+      "requested": "android",
+      "resolved_path": "/Users/peter/.local/bin/android",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "version": "1.0.15498356",
+      "identity_sha256": "234115eb377fbc59cb1c243bd769f30ef049f64186491c700e78be4301d450e8"
+    },
+    "adb": {
+      "requested": "adb",
+      "resolved_path": "/opt/homebrew/Caskroom/android-platform-tools/37.0.0/platform-tools/adb",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+      "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)",
+      "identity_sha256": "38a82d1bcccaed89f0701833718dcde923cfde9a6080b8c42a1b5a5b6d341987"
+    },
+    "codex_cli": {
+      "requested": "codex",
+      "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+      "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+      "version": "codex-cli 0.144.6",
+      "identity_sha256": "8f26cbfe1000bcab862ab5b0c2d031763463c84daecccc82ed204e108cb40079"
+    },
+    "git": {
+      "requested": "git",
+      "resolved_path": "/usr/bin/git",
+      "sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb",
+      "version": "git version 2.50.1 (Apple Git-155)",
+      "identity_sha256": "fddd0e696681e24d624b01cfe9665a4a0d2ba4cb9f91e09874320cc632784f9c"
+    },
+    "python": {
+      "requested": "/Users/peter/projects/ai_verfication/.venv/bin/python",
+      "resolved_path": "/Users/peter/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11",
+      "sha256": "4c78423e7d5986362ac04df40edb18cdd1174f9818d653402e3abbd2a5bbf793",
+      "version": "3.11.15",
+      "identity_sha256": "2a09f73a774426094259d520874d87d7ae688c41e3f5de0ab558536b55ec1530"
+    }
+  },
+  "deployment": {
+    "target": {
+      "device": "emulator-5554",
+      "package": "org.wikipedia.dev",
+      "component": "org.wikipedia.dev/org.wikipedia.DefaultIcon"
+    },
+    "process": {
+      "args": [
+        "android",
+        "run",
+        "--device=emulator-5554",
+        "--apks=/Users/peter/hosts/wikipedia/aiverify-builds/issue80/baseline-app-dev-debug.apk",
+        "--activity=org.wikipedia.DefaultIcon",
+        "--type=ACTIVITY"
+      ],
+      "returncode": 0,
+      "stdout": "App loaded: org.wikipedia.dev\nDebuggable: true\nSelected component: org.wikipedia.DefaultIcon\nInstalling APKs: /Users/peter/hosts/wikipedia/aiverify-builds/issue80/baseline-app-dev-debug.apk\nInstallation completed successfully\nExecuting: Launching Activity for org.wikipedia.dev\nActivation completed successfully\n",
+      "stderr": "",
+      "identity_sha256": "161b64e4acc70a0fab6e202368232fd5a052918694b42a5c8de7d7da5045a984"
+    },
+    "installed_artifacts": [
+      {
+        "path": "/data/app/~~FSoMBm2ahf3EUAUKY8c4Vw==/org.wikipedia.dev-5Pa7IyOploWacxSCwKbJpQ==/base.apk",
+        "sha256": "7af65b50f282a2204595cb6e7a78a61a7c3370a06da2ee1306eb696982a1c957"
+      }
+    ],
+    "resolved_component": "org.wikipedia.dev/org.wikipedia.DefaultIcon",
+    "device": {
+      "serial": "emulator-5554",
+      "api_level": "35",
+      "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+      "profile": {
+        "kind": "emulator",
+        "name": "aiverify_api35",
+        "model": "sdk_gphone64_arm64",
+        "device": "emu64a"
+      },
+      "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+    },
+    "tools": {
+      "android_cli_sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "adb_sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+    },
+    "identity_sha256": "b939fb6e9ee7080ef82266e890df9ff86d8d82ff0d07ef3735f9a4a7f0f003e0"
+  },
+  "roles": {
+    "journey_driver": {
+      "status": "invoked",
+      "requested_model": null,
+      "invocations": [
+        {
+          "path": "artifacts/wikipedia-config-change-02-query-duplication-segment-0/codex-invocation-identity.json",
+          "sha256": "7289f40f798ed98556cc69d9077cab57a3ff001716d9980d723d80b8097ed939"
+        }
+      ],
+      "invocation_ledger": []
+    },
+    "l3_semantic_judge": {
+      "status": "not_applicable",
+      "reason": "scenario_has_no_l3_spec",
+      "requested_model": null,
+      "invocations": [],
+      "invocation_ledger": []
+    }
+  }
+}

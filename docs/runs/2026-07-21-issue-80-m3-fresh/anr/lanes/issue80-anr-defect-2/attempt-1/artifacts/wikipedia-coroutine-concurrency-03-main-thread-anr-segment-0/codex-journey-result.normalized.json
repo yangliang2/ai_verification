@@ -1,0 +1,30 @@
+{
+  "journey": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 2232",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 371",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Main feed was already visible. Tapped nav_tab_search at [540,2232], observed search_card, tapped it at [540,371], and observed focused search_src_text at [542,215].",
+      "action": "打开 org.wikipedia.dev，走完 onboarding 到主 feed，点底部 Search tab，点 search_card 进入搜索输入"
+    },
+    {
+      "action_id": "action-2",
+      "status": "PASSED",
+      "commands": [
+        "adb -s emulator-5554 shell input tap 542 215",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input text \"anrtest\"",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Observed focused search_src_text, dispatched the tap and text-input command. The resulting UI showed only \"at\" in search_src_text and displayed search results, rather than the full requested text \"anrtest\".",
+      "action": "点搜索输入框 search_src_text，输入文本 'anrtest'"
+    }
+  ]
+}

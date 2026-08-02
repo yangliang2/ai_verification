@@ -11,6 +11,7 @@ from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
 import yaml
 
@@ -59,6 +60,7 @@ class ReliabilityManifest:
     lanes: tuple[ReliabilityLane, ...]
     comparison_manifest: Path | None = None
     preregistration: dict | None = None
+    attempt_ledger: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -148,6 +150,12 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
     preregistration = None
     if schema_version == 3:
         preregistration = _load_preregistration(raw.get("preregistration"))
+    attempt_ledger = None
+    raw_ledger = raw.get("attempt_ledger")
+    if raw_ledger is not None:
+        if not isinstance(raw_ledger, str) or not raw_ledger.strip():
+            raise ValueError("M3 attempt_ledger is invalid")
+        attempt_ledger = repo_root / raw_ledger
 
     manifest = ReliabilityManifest(
         schema_version=schema_version,
@@ -156,6 +164,7 @@ def load_manifest(path: Path, *, repo_root: Path) -> ReliabilityManifest:
         lanes=lanes,
         comparison_manifest=comparison_manifest,
         preregistration=preregistration,
+        attempt_ledger=attempt_ledger,
     )
     if preregistration is not None:
         expected_counts = {
@@ -295,6 +304,17 @@ def run_lane(
     attempt_number = _next_attempt_number(lane, manifest=manifest)
     attempt_dir = lane.evidence_dir / f"attempt-{attempt_number}"
     artifact_dir = attempt_dir / "artifacts"
+    invocation_id = str(uuid4())
+    _append_attempt_ledger_event(
+        manifest,
+        {
+            "event": "started",
+            "invocation_id": invocation_id,
+            "lane_id": lane.lane_id,
+            "attempt_number": attempt_number,
+            "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        },
+    )
     attempt_dir.mkdir(parents=True, exist_ok=False)
 
     command = [
@@ -312,10 +332,25 @@ def run_lane(
     if deployed_apk:
         os.environ["AIVERIFY_DEPLOYED_APK"] = deployed_apk
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    command_result = (runner or SubprocessCommandRunner()).run(
-        command,
-        cwd=workdir,
-    )
+    try:
+        command_result = (runner or SubprocessCommandRunner()).run(
+            command,
+            cwd=workdir,
+        )
+    except BaseException as error:
+        _append_attempt_ledger_event(
+            manifest,
+            {
+                "event": "finished",
+                "invocation_id": invocation_id,
+                "lane_id": lane.lane_id,
+                "attempt_number": attempt_number,
+                "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "result": "wrapper_error",
+                "error_type": type(error).__name__,
+            },
+        )
+        raise
     finished_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     (attempt_dir / "runner.stdout.txt").write_text(
         command_result.stdout, encoding="utf-8"
@@ -357,6 +392,19 @@ def run_lane(
         json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     write_manifest(attempt_dir)
+    _append_attempt_ledger_event(
+        manifest,
+        {
+            "event": "finished",
+            "invocation_id": invocation_id,
+            "lane_id": lane.lane_id,
+            "attempt_number": attempt_number,
+            "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "result": "preserved",
+            "runner_exit_code": command_result.returncode,
+            "attempt_id": execution_record["attempt_id"],
+        },
+    )
     return AttemptRecord(
         lane_id=lane.lane_id,
         attempt_number=attempt_number,
@@ -448,6 +496,7 @@ def build_progress(manifest: ReliabilityManifest) -> ReliabilityProgress:
 def _build_progress(
     manifest: ReliabilityManifest, *, allow_pending: bool
 ) -> ReliabilityProgress:
+    validate_attempt_ledger(manifest)
     first_accountable = 0
     eventual_accountable = 0
     retry_count = 0
@@ -753,6 +802,7 @@ def _lane_by_id(manifest: ReliabilityManifest, lane_id: str) -> ReliabilityLane:
 def _next_attempt_number(
     lane: ReliabilityLane, *, manifest: ReliabilityManifest
 ) -> int:
+    validate_attempt_ledger(manifest)
     attempts = attempt_directories(lane)
     if not attempts:
         return 1
@@ -772,6 +822,15 @@ def _next_attempt_number(
 def attempt_directories(lane: ReliabilityLane) -> list[Path]:
     """Return a lane's contiguous preserved attempt directories."""
     attempts = sorted(lane.evidence_dir.glob("attempt-*"))
+    if lane.evidence_dir.exists():
+        unexpected = sorted(
+            path for path in lane.evidence_dir.iterdir() if path not in attempts
+        )
+        if unexpected:
+            raise ValueError(
+                f"lane {lane.lane_id} contains undeclared attempt evidence: "
+                + ", ".join(path.name for path in unexpected)
+            )
     expected = [
         lane.evidence_dir / f"attempt-{number}"
         for number in range(1, len(attempts) + 1)
@@ -779,6 +838,93 @@ def attempt_directories(lane: ReliabilityLane) -> list[Path]:
     if attempts != expected or any(not path.is_dir() for path in attempts):
         raise ValueError(f"lane {lane.lane_id} has invalid attempt lineage")
     return attempts
+
+
+def validate_attempt_ledger(manifest: ReliabilityManifest) -> None:
+    """Reconcile an opt-in append-only invocation ledger with lane evidence."""
+    if manifest.attempt_ledger is None:
+        return
+    if not manifest.attempt_ledger.is_file():
+        if any(lane.evidence_dir.exists() for lane in manifest.lanes):
+            raise ValueError("attempt ledger is missing for existing lane evidence")
+        return
+
+    starts: dict[str, dict] = {}
+    finishes: dict[str, dict] = {}
+    known_lanes = {lane.lane_id: lane for lane in manifest.lanes}
+    for line_number, raw_line in enumerate(
+        manifest.attempt_ledger.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        try:
+            event = json.loads(raw_line)
+        except json.JSONDecodeError as error:
+            raise ValueError(
+                f"attempt ledger line {line_number} is invalid JSON"
+            ) from error
+        if not isinstance(event, dict):
+            raise ValueError(f"attempt ledger line {line_number} is not an object")
+        invocation_id = event.get("invocation_id")
+        lane_id = event.get("lane_id")
+        attempt_number = event.get("attempt_number")
+        if (
+            not isinstance(invocation_id, str)
+            or not invocation_id
+            or lane_id not in known_lanes
+            or not isinstance(attempt_number, int)
+            or isinstance(attempt_number, bool)
+            or attempt_number < 1
+        ):
+            raise ValueError(f"attempt ledger line {line_number} identity is invalid")
+        target = starts if event.get("event") == "started" else finishes
+        if event.get("event") not in {"started", "finished"}:
+            raise ValueError(f"attempt ledger line {line_number} event is invalid")
+        if invocation_id in target:
+            raise ValueError(f"attempt ledger duplicates {event['event']} event")
+        target[invocation_id] = event
+
+    if set(starts) != set(finishes):
+        raise ValueError("attempt ledger contains an unfinished or orphan invocation")
+    lane_attempts: dict[tuple[str, int], str] = {}
+    for invocation_id, started in starts.items():
+        finished = finishes[invocation_id]
+        identity = (started["lane_id"], started["attempt_number"])
+        if identity in lane_attempts:
+            raise ValueError("attempt ledger duplicates a lane attempt number")
+        if (
+            finished["lane_id"],
+            finished["attempt_number"],
+        ) != identity:
+            raise ValueError("attempt ledger start/finish identity mismatch")
+        if finished.get("result") != "preserved":
+            raise ValueError("attempt ledger contains an unpreserved wrapper invocation")
+        lane_attempts[identity] = invocation_id
+
+    filesystem_attempts = {
+        (lane.lane_id, number)
+        for lane in manifest.lanes
+        for number, _ in enumerate(attempt_directories(lane), start=1)
+    }
+    if set(lane_attempts) != filesystem_attempts:
+        raise ValueError("attempt ledger and filesystem attempt inventory mismatch")
+
+
+def _append_attempt_ledger_event(
+    manifest: ReliabilityManifest, event: dict[str, object]
+) -> None:
+    if manifest.attempt_ledger is None:
+        return
+    manifest.attempt_ledger.parent.mkdir(parents=True, exist_ok=True)
+    payload = (json.dumps(event, sort_keys=True, separators=(",", ":")) + "\n").encode()
+    descriptor = os.open(
+        manifest.attempt_ledger,
+        os.O_APPEND | os.O_CREAT | os.O_WRONLY,
+        0o644,
+    )
+    try:
+        os.write(descriptor, payload)
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
 
 
 def load_verified_attempt(

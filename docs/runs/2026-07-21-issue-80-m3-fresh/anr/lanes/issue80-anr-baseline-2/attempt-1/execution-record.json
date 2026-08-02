@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "attempt_id": "56f9f370-c076-4a8d-98ce-04b7e98f4418",
+  "scenario": "wikipedia-coroutine-concurrency-03-main-thread-anr",
+  "lifecycle_state": "completed",
+  "started_at": "2026-07-21T10:25:53+00:00",
+  "finished_at": "2026-07-21T10:27:10+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-07-21T10:25:53+00:00",
+    "finished_at": "2026-07-21T10:27:10+00:00",
+    "total_seconds": 77.096,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.649
+      },
+      {
+        "phase": "wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0",
+        "kind": "journey",
+        "seconds": 64.459
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 3.477
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/wikipedia-coroutine-concurrency-03-main-thread-anr-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "f6a5f12f91a645c1e123189be0cc84c6a3aa5c45caa2f90c04e67e32bf626b6b"
+    }
+  }
+}
