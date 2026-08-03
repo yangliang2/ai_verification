@@ -599,6 +599,51 @@ def test_replacement_ledger_binds_exclusion_and_frozen_rank_order(
     _assert_invalid(tmp_path, skipped, "skips unexcluded earlier candidates")
 
 
+def test_ordered_replacements_can_fill_multiple_slots(tmp_path: Path) -> None:
+    document = _manifest(tmp_path)
+    _apply_valid_historical_replacement(tmp_path, document)
+
+    second = deepcopy(document["replacement_pool"][0])
+    second["candidate_id"] = "H-ALT-02"
+    second["rank"] = 2
+    second["source"] = _source("T7002", "9" * 40)
+    second["historical"]["pre_fix_revision"] = "9" * 40
+    second["historical"]["fixed_revision"] = "a" * 40
+    document["replacement_pool"].append(second)
+
+    slot = document["slots"][1]
+    original_source = deepcopy(slot["source"])
+    slot["source"] = deepcopy(second["source"])
+    slot["historical"]["upstream_task_id"] = "T7002"
+    slot["historical"]["pre_fix_revision"] = "9" * 40
+    slot["historical"]["fixed_revision"] = "a" * 40
+    exclusion_evidence = _write_artifact(tmp_path, "h-02-replacement-exclusion")
+    document["exclusions"].append(
+        {
+            "candidate_id": "H-02",
+            "track": "historical",
+            "source": original_source,
+            "reason": "exact-revision preflight did not reproduce",
+            "evidence": exclusion_evidence,
+            "excluded_at": "2026-08-02T19:10:00Z",
+        }
+    )
+    document["replacement_events"].append(
+        {
+            "slot_id": "H-02",
+            "candidate_id": "H-ALT-02",
+            "replaced_candidate_id": "H-02",
+            "occurred_at": "2026-08-02T19:20:00Z",
+            "before_first_formal_invocation": True,
+            "exclusion_evidence": exclusion_evidence,
+        }
+    )
+
+    manifest = _load(tmp_path, document)
+
+    assert manifest.summary()["replacement_events"] == 2
+
+
 def test_excluded_source_cannot_remain_in_admitted_denominator(
     tmp_path: Path,
 ) -> None:

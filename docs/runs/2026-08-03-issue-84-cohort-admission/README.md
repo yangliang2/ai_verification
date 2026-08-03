@@ -48,13 +48,31 @@ The prospective track is **not** ready for freezing:
 
 All three prospective slots now have stable, machine-checkable failing oracles:
 G-04 (T425733), G-06 (T426893), and G-08 (T427224). The six-slot manifest is
-not frozen yet; it must still pass the schema, overlap, checksum, and
-replacement-ledger admission checks.
+now frozen at `bench/m6/m6-qualification-v1.yaml`; schema, overlap, checksum,
+and replacement-ledger admission checks pass.
 
 The approved addendum for T426893 (G-06) and T427224 (G-08) is documented in
 `ADDENDUM.md`; both candidates received only the authorized isolated local
 preflight. No upstream task, assignment, comment, branch, commit, pull
 request, or repository state was changed.
+
+## Frozen six-slot manifest gate
+
+Manifest: `bench/m6/m6-qualification-v1.yaml`
+
+- status: `frozen`
+- source SHA-256:
+  `45e8ce551653542734b24ab5ae7f763383847fc9004360ff1ebabc10bbcff7b9`
+- canonical SHA-256:
+  `38e43f98f63c2b9a399d2bbc70969a077e016a6b70b1499435c30f9e975ec2f7`
+- exactly 3 historical + 3 prospective slots
+- exactly 36 planned lanes (3 baseline + 3 candidate repetitions per slot)
+- four risk families: G-03, G-04, G-06, G-08
+- 7 replacement candidates; 3 pre-invocation replacement events
+- formal invocations started: 0
+
+Validator evidence is under `validator/README.md`; focused validator tests are
+17/17 and the full repository suite is 696/696.
 
 ## Environment
 
@@ -428,6 +446,9 @@ request, or repository state was changed.
 | `prospective/replacement-t425733/` | build/install/instrumentation/logcat/timing and two screenshots |
 | `prospective/replacement-t426893/` | build/install/instrumentation/logcat for gallery metadata oracle |
 | `prospective/replacement-t427224/` | build/install/instrumentation/logcat for Polish Read More oracle |
+| `validator/` | frozen manifest validation JSON, focused/full JUnit, and validator timings |
+| `selection-evidence.md` | immutable slot selection, exclusion, and replacement binding |
+| `bench/m6/m6-qualification-v1.yaml` | frozen six-slot cohort manifest (project path) |
 | `external-snapshots/` | official task HTML, PR JSON, PR-search JSON, and T427224 reporter screenshot |
 | `ADDENDUM.md` | proposed candidate-pool amendment and decision boundary |
 | `.gitattributes` | preserve raw generated whitespace without `diff --check` false positives |
@@ -435,8 +456,8 @@ request, or repository state was changed.
 
 ## Known gaps and next gate
 
-- A frozen six-slot manifest does not yet exist; the next gate is manifest/schema
-  validation and freeze review.
+- The six-slot manifest is frozen and validator/checksum gates pass; formal
+  qualification lanes remain intentionally unstarted.
 - All three prospective replacement slots now have admissible bounded failing
   oracles (T425733/G-04, T426893/G-06, T427224/G-08).
 - T426893 and T427224 were approved for isolated local preflight only; neither
@@ -449,9 +470,10 @@ request, or repository state was changed.
 - The prospective base was locally modified only with test fixtures; no
   upstream source commit was produced.
 
-The next gate is creation and validation of the six-slot manifest. It can freeze
-only if the three historical pairs, the three prospective failure oracles, and
-all schema, overlap, checksum, and replacement-ledger checks pass.
+The next gate after this admission PR is maintainer review/merge of the project
+evidence. Formal execution remains prohibited until the downstream qualification
+issues authorize it; no rate or confidence claim may be emitted from this
+preflight.
 
 ## Evidence integrity commands
 
