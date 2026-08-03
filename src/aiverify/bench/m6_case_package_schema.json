@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "M6 Qualification Case Package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "package_id",
+    "cohort",
+    "source",
+    "contract",
+    "execution_identity",
+    "attempt_inventory",
+    "verification",
+    "adjudication",
+    "timing",
+    "claim_boundary"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "package_id": {"type": "string", "pattern": "^m6-[a-z0-9][a-z0-9-]*$"},
+    "cohort": {"$ref": "#/$defs/cohort"},
+    "source": {"$ref": "#/$defs/source"},
+    "contract": {"$ref": "#/$defs/contract"},
+    "execution_identity": {"$ref": "#/$defs/executionIdentity"},
+    "attempt_inventory": {"$ref": "#/$defs/attemptInventory"},
+    "verification": {"$ref": "#/$defs/verification"},
+    "adjudication": {"$ref": "#/$defs/adjudication"},
+    "timing": {"$ref": "#/$defs/timing"},
+    "claim_boundary": {"$ref": "#/$defs/claimBoundary"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "uri": {"type": "string", "format": "uri"},
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role", "backend", "model", "session_id"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "role": {"type": "string", "minLength": 1},
+        "backend": {"type": "string", "minLength": 1},
+        "model": {"type": "string", "minLength": 1},
+        "session_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "cohort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifest", "cohort_id", "slot_id", "track"],
+      "properties": {
+        "manifest": {"$ref": "#/$defs/artifactRef"},
+        "cohort_id": {"type": "string", "minLength": 1},
+        "slot_id": {"type": "string", "pattern": "^[HP]-[0-9]{2}$"},
+        "track": {"enum": ["historical", "prospective"]}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_url", "task_url", "base_revision", "final_diff"],
+      "properties": {
+        "repository_url": {"$ref": "#/$defs/uri"},
+        "task_url": {"$ref": "#/$defs/uri"},
+        "base_revision": {"$ref": "#/$defs/revision"},
+        "final_diff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["revision", "patch"],
+          "properties": {
+            "revision": {"$ref": "#/$defs/revision"},
+            "patch": {"$ref": "#/$defs/artifactRef"}
+          }
+        }
+      }
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_behavior",
+        "run_spec",
+        "journey",
+        "oracle",
+        "environment"
+      ],
+      "properties": {
+        "primary_behavior": {"type": "string", "minLength": 1},
+        "run_spec": {"$ref": "#/$defs/artifactRef"},
+        "journey": {"$ref": "#/$defs/artifactRef"},
+        "oracle": {"$ref": "#/$defs/artifactRef"},
+        "environment": {"$ref": "#/$defs/artifactRef"}
+      }
+    },
+    "executionIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host", "tools", "backend", "build", "deployment", "device"],
+      "properties": {
+        "host": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "os", "commit", "patch"],
+          "properties": {
+            "id": {"type": "string", "minLength": 1},
+            "os": {"type": "string", "minLength": 1},
+            "commit": {"$ref": "#/$defs/revision"},
+            "patch": {"$ref": "#/$defs/artifactRef"}
+          }
+        },
+        "tools": {"type": "object", "minProperties": 1},
+        "backend": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "version", "model"],
+          "properties": {
+            "name": {"type": "string", "minLength": 1},
+            "version": {"type": "string", "minLength": 1},
+            "model": {"type": "string", "minLength": 1}
+          }
+        },
+        "build": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["revision", "variant", "duration_seconds", "log"],
+          "properties": {
+            "revision": {"$ref": "#/$defs/revision"},
+            "variant": {"type": "string", "minLength": 1},
+            "duration_seconds": {"type": "number", "minimum": 0},
+            "log": {"$ref": "#/$defs/artifactRef"}
+          }
+        },
+        "deployment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "package",
+            "activity",
+            "apk",
+            "installed_binary",
+            "deployment_receipt"
+          ],
+          "properties": {
+            "package": {"type": "string", "minLength": 1},
+            "activity": {"type": "string", "minLength": 1},
+            "apk": {"$ref": "#/$defs/artifactRef"},
+            "installed_binary": {"$ref": "#/$defs/artifactRef"},
+            "deployment_receipt": {"$ref": "#/$defs/artifactRef"}
+          }
+        },
+        "device": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["serial", "api_level", "avd", "model", "locale", "orientation"],
+          "properties": {
+            "serial": {"type": "string", "minLength": 1},
+            "api_level": {"type": "integer", "minimum": 21},
+            "avd": {"type": "string", "minLength": 1},
+            "model": {"type": "string", "minLength": 1},
+            "locale": {"type": "string", "minLength": 2},
+            "orientation": {"enum": ["portrait", "landscape"]}
+          }
+        }
+      }
+    },
+    "ledgerEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "event", "attempt_id", "lane_id", "attempt_number", "occurred_at"],
+      "properties": {
+        "event_id": {"type": "string", "minLength": 1},
+        "event": {"enum": ["started", "finished"]},
+        "attempt_id": {"type": "string", "minLength": 1},
+        "lane_id": {"type": "string", "minLength": 1},
+        "attempt_number": {"type": "integer", "minimum": 1},
+        "occurred_at": {"type": "string", "format": "date-time"},
+        "process_exit_code": {"type": ["integer", "null"]},
+        "accountability": {"enum": ["accountable", "non_accountable", null]}
+      }
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attempt_id",
+        "lane_id",
+        "attempt_number",
+        "evidence_root",
+        "execution_record",
+        "provenance",
+        "verdict",
+        "process",
+        "accountability",
+        "retry_eligible",
+        "artifacts",
+        "started_at",
+        "finished_at"
+      ],
+      "properties": {
+        "attempt_id": {"type": "string", "minLength": 1},
+        "lane_id": {"type": "string", "minLength": 1},
+        "attempt_number": {"type": "integer", "minimum": 1},
+        "evidence_root": {"type": "string", "minLength": 1},
+        "execution_record": {"$ref": "#/$defs/artifactRef"},
+        "provenance": {"$ref": "#/$defs/artifactRef"},
+        "verdict": {"$ref": "#/$defs/artifactRef"},
+        "process": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["exit_code"],
+          "properties": {"exit_code": {"type": "integer"}}
+        },
+        "accountability": {"enum": ["accountable", "non_accountable"]},
+        "retry_eligible": {"type": "boolean"},
+        "quarantined": {"type": "boolean"},
+        "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifactRef"}},
+        "started_at": {"type": "string", "format": "date-time"},
+        "finished_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "attemptInventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_attempts_per_lane",
+        "discovered_attempt_ids",
+        "quarantined_attempt_ids",
+        "ledger",
+        "attempts"
+      ],
+      "properties": {
+        "max_attempts_per_lane": {"const": 2},
+        "discovered_attempt_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "quarantined_attempt_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "ledger": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/ledgerEvent"}},
+        "attempts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/attempt"}}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agent", "conclusion", "verdict", "oracle_output", "frozen_at"],
+      "properties": {
+        "agent": {"$ref": "#/$defs/identity"},
+        "conclusion": {"enum": ["locally_supported", "locally_rejected", "inconclusive", "non_accountable"]},
+        "verdict": {"$ref": "#/$defs/artifactRef"},
+        "oracle_output": {"$ref": "#/$defs/artifactRef"},
+        "frozen_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "adjudication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agent", "conclusion", "agreement", "evidence"],
+      "properties": {
+        "agent": {"$ref": "#/$defs/identity"},
+        "conclusion": {"enum": ["locally_supported", "locally_rejected", "inconclusive", "non_accountable"]},
+        "agreement": {"const": true},
+        "evidence": {"$ref": "#/$defs/artifactRef"}
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["duration_seconds", "interventions", "gaps"],
+      "properties": {
+        "duration_seconds": {"type": "number", "minimum": 0},
+        "interventions": {"type": "array", "items": {"type": "string"}},
+        "gaps": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "claimBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["local_only", "allowed", "forbidden"],
+      "properties": {
+        "local_only": {"const": true},
+        "allowed": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "forbidden": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
+      }
+    }
+  }
+}
