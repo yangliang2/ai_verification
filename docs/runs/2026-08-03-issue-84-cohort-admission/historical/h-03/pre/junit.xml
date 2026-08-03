@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="org.wikipedia.m6.M6H03ActivityResultCodesTest" tests="1" failures="1" errors="0" skipped="0" time="0.578" timestamp="2026-08-03T15:50:00" hostname="localhost">
+  <properties>
+    <property name="device" value="aiverify_api35(AVD) - 15" />
+    <property name="flavor" value="dev" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="searchResultCallbacksUseDistinctResultCodes" classname="org.wikipedia.m6.M6H03ActivityResultCodesTest" time="0.003">
+    <failure>java.lang.AssertionError: Link-success and language-change callbacks must not collide.. Actual: 1
+at org.junit.Assert.fail(Assert.java:89)
+at org.junit.Assert.failEquals(Assert.java:187)
+at org.junit.Assert.assertNotEquals(Assert.java:163)
+at org.wikipedia.m6.M6H03ActivityResultCodesTest.searchResultCallbacksUseDistinctResultCodes(M6H03ActivityResultCodesTest.kt:14)
+</failure>
+  </testcase>
+</testsuite>

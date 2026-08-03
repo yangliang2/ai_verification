@@ -1,0 +1,582 @@
+schema_version: 1
+cohort_id: m6-qualification-v1
+status: frozen
+frozen_at: "2026-08-03T17:15:00Z"
+maintainer_approval:
+  issue_url: https://github.com/yangliang2/ai_verification/issues/84
+  comment_url: https://github.com/yangliang2/ai_verification/issues/84#issuecomment-5169494604
+  approved_by: yangliang2
+  approved_at: "2026-08-03T17:14:30Z"
+
+environment:
+  execution_base: android_cli_first
+  adb_fallback: bounded_recorded
+  verification_backend: codex_cli
+  public_runner: python -m aiverify.runner
+  default_device: &default_device
+    api_level: 35
+    avd: sdk_gphone64_arm64
+    form_factor: phone
+    locale: en-US
+    orientation: portrait
+
+policy:
+  formal_lanes:
+    planned_cases: 6
+    baseline_repetitions_per_case: 3
+    candidate_repetitions_per_case: 3
+    planned_lanes: 36
+  retry:
+    max_attempts_per_lane: 2
+    retryable_failure_classes:
+      - preflight_environment
+      - execution_infrastructure
+    no_retry_after_accountable: true
+  replacement:
+    before_first_formal_invocation_only: true
+    preserve_exclusions_outside_denominator: true
+    same_track_only: true
+  blinding:
+    separate_development_and_verification_sessions: true
+    candidate_frozen_before_verification: true
+    withhold_task_identity: true
+    withhold_fix_history: true
+    verifier_network_policy: disabled
+  claims:
+    track_denominators_separate: true
+    historical_allowed:
+      - matched_fail_pass_observations
+      - local_conclusions
+      - accountability
+      - operational_metrics
+    prospective_allowed:
+      - blinded_case_observations
+      - local_conclusions
+      - adjudication_agreement
+      - accountability
+      - operational_metrics
+    forbidden:
+      - combined_track_denominator
+      - detection_rate
+      - false_positive_rate
+      - confidence_claim
+      - prospective_goldset
+      - general_android_coverage
+      - upstream_acceptance
+  qualification_thresholds:
+    eventually_accountable_lanes: 36
+    historical_fixed_controls_pass: 9
+    historical_prefix_revisions_fail_expected_oracle: 9
+    prospective_conclusions_independently_adjudicated: 3
+    unexplained_contradictions: 0
+    independent_final_auditors: 1
+  failure_routes:
+    fixture: exclude before formal invocation
+    execution: classify and apply bounded retry
+    oracle: mark non-accountable and adjudicate
+    adjudication: route contradiction to final auditor
+
+slots:
+  - id: H-01
+    track: historical
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T425894
+      base_revision: b88c6a672e18167727fcc9d913c9ed57e50e03ce
+    risk_family: G-03
+    primary_behavior: Wiktionary definition output must not expose formatting or style code.
+    fixture:
+      id: M6H01WiktionaryStyleTagsTest
+      contract:
+        path: bench/m6/admission-fixtures/historical/h-01/M6H01WiktionaryStyleTagsTest.kt
+        sha256: d7d4b7412554020f82bf2a362c02d9bcc69eaa568ac50d8f1db8ad988a02b327
+      status: qualified
+    run_spec:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+    oracle:
+      contract:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+        sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+      expected_class: exact-revision matched fail/pass; no CSS/style payload in fixed output
+    device_configuration: *default_device
+    repetitions: {baseline: 3, candidate: 3}
+    retry_policy_ref: policy.retry
+    evidence_root: docs/runs/2026-08-03-issue-84-cohort-admission/historical/h-01
+    replacement_eligibility: {eligible: true, cutoff: before_first_formal_invocation}
+    admission:
+      status: qualified
+      evidence:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+        sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+      admitted_at: "2026-08-03T17:13:00Z"
+    historical:
+      upstream_task_id: T425894
+      pair_kind: exact_revision
+      pre_fix_revision: b88c6a672e18167727fcc9d913c9ed57e50e03ce
+      fixed_revision: 996ad8592fbd41e59ea195da72a3e9a728181006
+      matched_fail_pass: true
+      reverse_applied: false
+      synthetic: false
+      pre_fix_expected: locally_rejected
+      fixed_expected: locally_supported
+
+  - id: H-02
+    track: historical
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T379777
+      base_revision: 675b930624c80498b3d3881592ac1c3f179a2709
+    risk_family: G-04
+    primary_behavior: Selected search language must filter local tab, history, and reading-list results.
+    fixture:
+      id: M6H02LocalSearchLanguageTest
+      contract:
+        path: bench/m6/admission-fixtures/historical/h-02/M6H02LocalSearchLanguageTest.kt
+        sha256: 8a0f41f25f8fe44810826780b9cc8ce519d57b78c2078515504a161c224eda92
+      status: qualified
+    run_spec:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+    oracle:
+      contract:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+        sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+      expected_class: exact-revision matched fail/pass; eswiki suggestions remain language-local
+    device_configuration: *default_device
+    repetitions: {baseline: 3, candidate: 3}
+    retry_policy_ref: policy.retry
+    evidence_root: docs/runs/2026-08-03-issue-84-cohort-admission/historical/h-02
+    replacement_eligibility: {eligible: true, cutoff: before_first_formal_invocation}
+    admission:
+      status: qualified
+      evidence:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+        sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+      admitted_at: "2026-08-03T17:13:00Z"
+    historical:
+      upstream_task_id: T379777
+      pair_kind: exact_revision
+      pre_fix_revision: 675b930624c80498b3d3881592ac1c3f179a2709
+      fixed_revision: c7250ce14feaa24e52d3a2468fb86b15fa56cfff
+      matched_fail_pass: true
+      reverse_applied: false
+      synthetic: false
+      pre_fix_expected: locally_rejected
+      fixed_expected: locally_supported
+
+  - id: H-03
+    track: historical
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T382892
+      base_revision: d67ec44adc1d8c4d8dc7dcb736c0faa9f1b6934c
+    risk_family: G-03
+    primary_behavior: Places language-selection return path must not crash due to duplicate result codes.
+    fixture:
+      id: M6H03ActivityResultCodesTest
+      contract:
+        path: bench/m6/admission-fixtures/historical/h-03/M6H03ActivityResultCodesTest.kt
+        sha256: 2c1c552745faabcf3c4e3c0c7322fb264a4b21f12394f33caa27bb9aaf37088d
+      status: qualified
+    run_spec:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+    oracle:
+      contract:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+        sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+      expected_class: exact-revision matched fail/pass; language-change callback is one-shot
+    device_configuration: *default_device
+    repetitions: {baseline: 3, candidate: 3}
+    retry_policy_ref: policy.retry
+    evidence_root: docs/runs/2026-08-03-issue-84-cohort-admission/historical/h-03
+    replacement_eligibility: {eligible: true, cutoff: before_first_formal_invocation}
+    admission:
+      status: qualified
+      evidence:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+        sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+      admitted_at: "2026-08-03T17:13:00Z"
+    historical:
+      upstream_task_id: T382892
+      pair_kind: exact_revision
+      pre_fix_revision: d67ec44adc1d8c4d8dc7dcb736c0faa9f1b6934c
+      fixed_revision: fdc4ffb9ef3be93a96500bf630057c1e66ac7b8f
+      matched_fail_pass: true
+      reverse_applied: false
+      synthetic: false
+      pre_fix_expected: locally_rejected
+      fixed_expected: locally_supported
+
+  - id: P-01
+    track: prospective
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T425733
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    risk_family: G-04
+    primary_behavior: Fresh-install onboarding screens retain one light system theme across the first two pages.
+    fixture:
+      id: M6T425733OnboardingThemeTest
+      contract:
+        path: bench/m6/admission-fixtures/prospective/replacement-t425733/M6T425733OnboardingThemeTest.kt
+        sha256: 36485f95b5cbf6a40c6dca19eb7f36451fc8a9e551960067c8b02dc63c377cbe
+      status: qualified
+    run_spec:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t425733/README.md
+      sha256: 56d42052dac90a50ce01de99ed1eefa8bcc2a5adbdc1b77ed3bb9ebcd6b84879
+    oracle:
+      contract:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t425733/README.md
+        sha256: 56d42052dac90a50ce01de99ed1eefa8bcc2a5adbdc1b77ed3bb9ebcd6b84879
+      expected_class: bounded G-04 onboarding theme mismatch under LIGHT
+    device_configuration: *default_device
+    repetitions: {baseline: 3, candidate: 3}
+    retry_policy_ref: policy.retry
+    evidence_root: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t425733
+    replacement_eligibility: {eligible: true, cutoff: before_first_formal_invocation}
+    admission:
+      status: qualified
+      evidence:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t425733/README.md
+        sha256: 56d42052dac90a50ce01de99ed1eefa8bcc2a5adbdc1b77ed3bb9ebcd6b84879
+      admitted_at: "2026-08-03T17:14:31Z"
+    prospective:
+      upstream_task_id: T425733
+      upstream_state: open
+      assignee: null
+      competing_implementation: false
+      eligibility_snapshot:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/external-snapshots/T425733.html
+        sha256: bda5fdb1e25df3e4cc54930be21595f8bc3d10e09c88a54a165500eca3d63904
+      development_input:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+        sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+      separate_sessions_required: true
+      candidate_freeze_required: true
+      withhold_task_identity: true
+      withhold_fix_history: true
+      verifier_network_policy: disabled
+      no_upstream_interaction: true
+
+  - id: P-02
+    track: prospective
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T426893
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    risk_family: G-06
+    primary_behavior: Gallery image metadata must participate in the offline-cache contract.
+    fixture:
+      id: M6T426893GalleryMetadataOfflineTest
+      contract:
+        path: bench/m6/admission-fixtures/prospective/replacement-t426893/M6T426893GalleryMetadataOfflineTest.kt
+        sha256: cf723d68747df12cb00a1f472c4230c90eb00a2bb3fb0478f04192c4971410e1
+      status: qualified
+    run_spec:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t426893/README.md
+      sha256: 6a42854b8fc2f1b34e33886e9786be89f5d56bbff0242ec64830593b41b14994
+    oracle:
+      contract:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t426893/README.md
+        sha256: 6a42854b8fc2f1b34e33886e9786be89f5d56bbff0242ec64830593b41b14994
+      expected_class: bounded G-06 gallery metadata/cache header gap
+    device_configuration: *default_device
+    repetitions: {baseline: 3, candidate: 3}
+    retry_policy_ref: policy.retry
+    evidence_root: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t426893
+    replacement_eligibility: {eligible: true, cutoff: before_first_formal_invocation}
+    admission:
+      status: qualified
+      evidence:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t426893/README.md
+        sha256: 6a42854b8fc2f1b34e33886e9786be89f5d56bbff0242ec64830593b41b14994
+      admitted_at: "2026-08-03T17:14:32Z"
+    prospective:
+      upstream_task_id: T426893
+      upstream_state: open
+      assignee: null
+      competing_implementation: false
+      eligibility_snapshot:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/external-snapshots/T426893.html
+        sha256: 4fec57c11b44687504167c170733b5c5f03640414ce89c07a9ed93536f58e5b5
+      development_input:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+        sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+      separate_sessions_required: true
+      candidate_freeze_required: true
+      withhold_task_identity: true
+      withhold_fix_history: true
+      verifier_network_policy: disabled
+      no_upstream_interaction: true
+
+  - id: P-03
+    track: prospective
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T427224
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    risk_family: G-08
+    primary_behavior: Recorded Polish Read More identities remain unique across footer setup and lazy append.
+    fixture:
+      id: M6T427224ReadMoreLifecycleTest
+      contract:
+        path: bench/m6/admission-fixtures/prospective/replacement-t427224/M6T427224ReadMoreLifecycleTest.kt
+        sha256: f187237847f36e24ba88a9775795896fdb93d95f3b286d8a67fdd9d3dce55573
+      status: qualified
+    run_spec:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t427224/README.md
+      sha256: 8ec721cec93f6cb57c7d6a8a13119f4d5c91f529e76dbde3bb44f78723fc3252
+    oracle:
+      contract:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t427224/README.md
+        sha256: 8ec721cec93f6cb57c7d6a8a13119f4d5c91f529e76dbde3bb44f78723fc3252
+      expected_class: bounded G-08 duplicate Read More lifecycle projection
+    device_configuration: *default_device
+    repetitions: {baseline: 3, candidate: 3}
+    retry_policy_ref: policy.retry
+    evidence_root: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t427224
+    replacement_eligibility: {eligible: true, cutoff: before_first_formal_invocation}
+    admission:
+      status: qualified
+      evidence:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t427224/README.md
+        sha256: 8ec721cec93f6cb57c7d6a8a13119f4d5c91f529e76dbde3bb44f78723fc3252
+      admitted_at: "2026-08-03T17:14:33Z"
+    prospective:
+      upstream_task_id: T427224
+      upstream_state: open
+      assignee: null
+      competing_implementation: false
+      eligibility_snapshot:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/external-snapshots/T427224.html
+        sha256: afcea14f907ebe8c31eb59b30bd805417bdccdcdc7af00ed387ac5607ffdb74e
+      development_input:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+        sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+      separate_sessions_required: true
+      candidate_freeze_required: true
+      withhold_task_identity: true
+      withhold_fix_history: true
+      verifier_network_policy: disabled
+      no_upstream_interaction: true
+
+replacement_pool:
+  - candidate_id: H-ALT-01
+    track: historical
+    rank: 1
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T427021
+      base_revision: 8268b4a251e420968cc11d9866c928d42af3e467
+    risk_family: G-03
+    primary_behavior: Historical replacement exact pair for a bounded lifecycle defect.
+    preliminary_fixture: bench/m6/admission-fixtures/historical/README.md
+    admission_required: true
+    historical:
+      pre_fix_revision: 8268b4a251e420968cc11d9866c928d42af3e467
+      fixed_revision: f74f20081276f551de451129c1224a1e50f56e24
+      pair_kind: exact_revision
+
+  - candidate_id: H-ALT-02
+    track: historical
+    rank: 2
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T417816
+      base_revision: 517351d4cd5c64b904be64f68f528fccfc6571cc
+    risk_family: G-03
+    primary_behavior: Historical replacement exact pair for a bounded stuck-state defect.
+    preliminary_fixture: bench/m6/admission-fixtures/historical/README.md
+    admission_required: true
+    historical:
+      pre_fix_revision: 517351d4cd5c64b904be64f68f528fccfc6571cc
+      fixed_revision: e17bbd4e4964247f2cc1708cb651a83dd1cac473
+      pair_kind: exact_revision
+
+  - candidate_id: P-ALT-01
+    track: prospective
+    rank: 1
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T426527
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    risk_family: G-04
+    primary_behavior: Reading-challenge widget day/language state remains synchronized.
+    preliminary_fixture: bench/m6/admission-fixtures/prospective/README.md
+    admission_required: true
+    prospective:
+      upstream_state: open
+      assignee: null
+      competing_implementation: false
+      eligibility_snapshot:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/external-snapshots/T426527.html
+        sha256: 52dd0e85d1fbfc986ff04ae8360ae85013c6519e4fde6f4bf5ddbcd6b10000bb
+      no_upstream_interaction: true
+
+  - candidate_id: P-ALT-02
+    track: prospective
+    rank: 2
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T419910
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    risk_family: G-06
+    primary_behavior: Saved/Discover large local corpus remains bounded before network phase.
+    preliminary_fixture: bench/m6/admission-fixtures/prospective/replacement-t419910/M6T419910DiscoverCorpusPreflightTest.kt
+    admission_required: true
+    prospective:
+      upstream_state: open
+      assignee: null
+      competing_implementation: false
+      eligibility_snapshot:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/external-snapshots/T419910.html
+        sha256: 0a0cddf2e5cff9d565d69f7daa123016b5ebb7e2f89b2634122076d7706f9088
+      no_upstream_interaction: true
+
+  - candidate_id: P-ALT-03
+    track: prospective
+    rank: 3
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T425733
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    risk_family: G-04
+    primary_behavior: Fresh-install onboarding screens retain one light system theme.
+    preliminary_fixture: bench/m6/admission-fixtures/prospective/replacement-t425733/M6T425733OnboardingThemeTest.kt
+    admission_required: true
+    prospective:
+      upstream_state: open
+      assignee: null
+      competing_implementation: false
+      eligibility_snapshot:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/external-snapshots/T425733.html
+        sha256: bda5fdb1e25df3e4cc54930be21595f8bc3d10e09c88a54a165500eca3d63904
+      no_upstream_interaction: true
+
+  - candidate_id: P-ALT-04
+    track: prospective
+    rank: 4
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T426893
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    risk_family: G-06
+    primary_behavior: Gallery image metadata participates in offline caching.
+    preliminary_fixture: bench/m6/admission-fixtures/prospective/replacement-t426893/M6T426893GalleryMetadataOfflineTest.kt
+    admission_required: true
+    prospective:
+      upstream_state: open
+      assignee: null
+      competing_implementation: false
+      eligibility_snapshot:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/external-snapshots/T426893.html
+        sha256: 4fec57c11b44687504167c170733b5c5f03640414ce89c07a9ed93536f58e5b5
+      no_upstream_interaction: true
+
+  - candidate_id: P-ALT-05
+    track: prospective
+    rank: 5
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T427224
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    risk_family: G-08
+    primary_behavior: Polish Read More identities remain unique across footer lifecycle commands.
+    preliminary_fixture: bench/m6/admission-fixtures/prospective/replacement-t427224/M6T427224ReadMoreLifecycleTest.kt
+    admission_required: true
+    prospective:
+      upstream_state: open
+      assignee: null
+      competing_implementation: false
+      eligibility_snapshot:
+        path: docs/runs/2026-08-03-issue-84-cohort-admission/external-snapshots/T427224.html
+        sha256: afcea14f907ebe8c31eb59b30bd805417bdccdcdc7af00ed387ac5607ffdb74e
+      no_upstream_interaction: true
+
+exclusions:
+  - candidate_id: P-01
+    track: prospective
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T431797
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    reason: API-35 live locale switch updated the reported article chrome, search, and bottom navigation; no stale reproduction.
+    evidence:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+    excluded_at: "2026-08-03T17:10:00Z"
+  - candidate_id: P-02
+    track: prospective
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T429913
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    reason: Bounded registered-offline cleanup passed; reporter-scale 4.39 GB/OEM behavior remains outside the local oracle.
+    evidence:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+    excluded_at: "2026-08-03T17:10:30Z"
+  - candidate_id: P-03
+    track: prospective
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T424161
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    reason: PR 6575 is merged and its merge commit is already an ancestor of the frozen base.
+    evidence:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+    excluded_at: "2026-08-03T17:11:00Z"
+  - candidate_id: P-ALT-01
+    track: prospective
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T426527
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    reason: Reporter traced the behavior to power saving and the time-bounded campaign is over.
+    evidence:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+    excluded_at: "2026-08-03T17:11:30Z"
+  - candidate_id: P-ALT-02
+    track: prospective
+    source:
+      repository_url: https://github.com/wikimedia/apps-android-wikipedia
+      task_url: https://phabricator.wikimedia.org/T419910
+      base_revision: 79ef892e5e88dfea705350bbfa1be2ee14458b47
+    reason: Local 273-page corpus passed; remaining live-network phase has no stable local failure oracle.
+    evidence:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+    excluded_at: "2026-08-03T17:12:00Z"
+
+replacement_events:
+  - slot_id: P-01
+    candidate_id: P-ALT-03
+    replaced_candidate_id: P-01
+    occurred_at: "2026-08-03T17:14:31Z"
+    before_first_formal_invocation: true
+    exclusion_evidence:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+  - slot_id: P-02
+    candidate_id: P-ALT-04
+    replaced_candidate_id: P-02
+    occurred_at: "2026-08-03T17:14:32Z"
+    before_first_formal_invocation: true
+    exclusion_evidence:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+  - slot_id: P-03
+    candidate_id: P-ALT-05
+    replaced_candidate_id: P-03
+    occurred_at: "2026-08-03T17:14:33Z"
+    before_first_formal_invocation: true
+    exclusion_evidence:
+      path: docs/runs/2026-08-03-issue-84-cohort-admission/selection-evidence.md
+      sha256: a4056ede3fa78f2a155b52a58a656adef5f2586b8d7ba3aa97c89d62d3ec3db5
+
+execution_state:
+  formal_invocations_started: []

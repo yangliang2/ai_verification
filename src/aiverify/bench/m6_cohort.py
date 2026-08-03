@@ -655,10 +655,23 @@ def _replacement_errors(document: dict[str, Any]) -> list[str]:
             if earlier["track"] == candidate["track"]
             and earlier["rank"] < candidate["rank"]
         ]
+        # A ranked replacement can be admitted into an earlier slot while a
+        # later slot is still waiting for the next candidate. Such a consumed
+        # candidate is no longer an available fallback, but it is not an
+        # exclusion either. Keep it in the ledger as an earlier admission so a
+        # single ordered pool can fill multiple slots without falsely failing
+        # the "all earlier candidates must be accounted for" check.
+        consumed_before_event = {
+            earlier_event["candidate_id"]
+            for earlier_event in document["replacement_events"]
+            if earlier_event is not event
+            and _parse_datetime(earlier_event["occurred_at"]) < event_at
+        }
         missing_prior_exclusions = sorted(
             earlier["candidate_id"]
             for earlier in earlier_candidates
             if earlier["candidate_id"] not in exclusions
+            and earlier["candidate_id"] not in consumed_before_event
         )
         if missing_prior_exclusions:
             errors.append(
