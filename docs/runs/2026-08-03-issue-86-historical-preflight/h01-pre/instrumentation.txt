@@ -1,0 +1,49 @@
+
+org.wikipedia.m6.M6H01WiktionaryStyleTagsTest:
+Error in stylePayloadIsNotRenderedInAnyDefinitionField(org.wikipedia.m6.M6H01WiktionaryStyleTagsTest):
+java.lang.AssertionError: Failed to assert count of nodes.
+Reason: Did not expect any node but found '3' nodes that satisfy: (Text + InputText + EditableText contains '.mw-parser-output' (ignoreCase: false) as substring)
+Nodes found:
+1) Node #3 at (l=0.0, t=11.0, r=1080.0, b=140.0)px
+Text = '[<style data-mw-deduplicate="TemplateStyles:r886049734">.mw-parser-output .defdate{font-size:smaller}</style>noun]'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+Has 2 siblings
+2) Node #7 at (l=0.0, t=162.0, r=1021.0, b=205.0)px
+Text = '[1. .mw-parser-output .defdate{font-size:smaller}a durable fabric]'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+3) Node #10 at (l=42.0, t=216.0, r=1008.0, b=259.0)px
+Text = '[.mw-parser-output .defdate{font-size:smaller}a chambray shirt]'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+
+	at androidx.compose.ui.test.AssertionsKt.assertCountEquals(Assertions.kt:282)
+	at org.wikipedia.m6.M6H01WiktionaryStyleTagsTest.stylePayloadIsNotRenderedInAnyDefinitionField(M6H01WiktionaryStyleTagsTest.kt:40)
+
+
+Time: 0.908
+There was 1 failure:
+1) stylePayloadIsNotRenderedInAnyDefinitionField(org.wikipedia.m6.M6H01WiktionaryStyleTagsTest)
+java.lang.AssertionError: Failed to assert count of nodes.
+Reason: Did not expect any node but found '3' nodes that satisfy: (Text + InputText + EditableText contains '.mw-parser-output' (ignoreCase: false) as substring)
+Nodes found:
+1) Node #3 at (l=0.0, t=11.0, r=1080.0, b=140.0)px
+Text = '[<style data-mw-deduplicate="TemplateStyles:r886049734">.mw-parser-output .defdate{font-size:smaller}</style>noun]'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+Has 2 siblings
+2) Node #7 at (l=0.0, t=162.0, r=1021.0, b=205.0)px
+Text = '[1. .mw-parser-output .defdate{font-size:smaller}a durable fabric]'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+3) Node #10 at (l=42.0, t=216.0, r=1008.0, b=259.0)px
+Text = '[.mw-parser-output .defdate{font-size:smaller}a chambray shirt]'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+
+	at androidx.compose.ui.test.AssertionsKt.assertCountEquals(Assertions.kt:282)
+	at org.wikipedia.m6.M6H01WiktionaryStyleTagsTest.stylePayloadIsNotRenderedInAnyDefinitionField(M6H01WiktionaryStyleTagsTest.kt:40)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+real 2.10
+user 0.00
+sys 0.00
+instrumentation_exit_code=0
