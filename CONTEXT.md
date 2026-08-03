@@ -55,3 +55,40 @@ _Avoid_: Requested configuration, model label, environment summary
 **Agent-In-The-Loop Execution**:
 A verification run where the runner generates structured Journey instructions and checkpoints, while the current coding agent performs UI navigation using Android CLI layout/screenshot tools and adb input.
 _Avoid_: Fully unattended execution, manual testing
+
+**Local Conclusion**:
+An evidence-bounded outcome for one frozen case: `locally_supported`,
+`locally_rejected`, or `non_accountable`. It describes only the recorded local
+source, binary, environment, Journey, oracle, and evidence. It does not imply
+upstream acceptance or benchmark-wide capability.
+_Avoid_: Correct fix, accepted patch, benchmark pass
+
+**Qualification Case Package**:
+A versioned, checksum-bound M6 evidence envelope for one admitted case. It binds
+cohort/track identity, source and candidate, APK/deployment, Run Spec, Journey,
+oracle, append-only attempt inventory, Verification Agent conclusion, independent
+adjudication, and claim boundary.
+_Avoid_: Run record, test result, benchmark seed
+
+**Qualification Cohort**:
+A preregistered population of Qualification Case Packages with frozen admission,
+exclusion, replacement, repetition, retry, aggregation, and claim rules.
+Historical and prospective tracks remain separate populations.
+_Avoid_: Ad-hoc case list, combined benchmark denominator
+
+## Current Milestone Boundary
+
+As of 2026-08-02, the repository has bounded evidence for the public verification
+chain, fail-closed ExecutionRecord and Effective Execution Identity contracts, the
+fresh #80 30-lane attempt-complete M3.1 gate, the M4 prospective pilot, and M5
+capability slices G-01 through G-08.
+
+These results do not establish general Android coverage, a benchmark-wide
+detection or false-positive rate, physical/OEM/ColorOS coverage, fully unattended
+Journey reliability, visual-only multimodal reliability, or upstream acceptance.
+
+The current milestone is M6 blinded AI-change verification qualification. It
+preregisters three exact historical pairs and three prospective AI-developed
+changes, keeps their denominators separate, and asks whether a separate
+Verification Agent can produce trustworthy and actionable Local Conclusions.
+See `docs/current-capability-claim-matrix.md` for evidence and scope.
