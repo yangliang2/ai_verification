@@ -1,0 +1,929 @@
+--------- beginning of main
+08-03 12:35:16.212   574   952 W JobInfo : Job 'com.google.android.providers.media.module/com.android.providers.media.MediaService#-300' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+08-03 12:35:16.216 11380 11386 W oid.documentsui: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk' with 1 weak references
+08-03 12:35:16.216 11380 11386 W oid.documentsui: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/MtpService/MtpService.apk' with 1 weak references
+08-03 12:35:16.216 11380 11386 W oid.documentsui: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.mediaprovider/priv-app/MediaProviderGoogle@350820300/MediaProviderGoogle.apk' with 1 weak references
+08-03 12:35:16.217 11380 11386 W oid.documentsui: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DownloadProvider/DownloadProvider.apk' with 1 weak references
+08-03 12:35:16.218  9180 10139 I Icing   : doRemovePackageData org.wikipedia.dev
+08-03 12:35:16.220   574   728 D ConnectivityService: releasing NetworkRequest [ REQUEST id=2728, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ] (release request)
+08-03 12:35:16.221   421   421 I adbd    : Remote process closed the socket (on MSG_PEEK)
+08-03 12:35:16.221   372   372 I Zygote  : Process 11692 exited due to signal 9 (Killed)
+08-03 12:35:16.221   574  1740 D SafetySourceDataValidat: No cert check requested for package com.google.android.permissioncontroller
+08-03 12:35:16.223   574   610 I libprocessgroup: Removed cgroup /sys/fs/cgroup/uid_10234/pid_11692
+08-03 12:35:16.223   574   610 I libprocessgroup: Removed cgroup /sys/fs/cgroup/uid_99077/pid_11731
+08-03 12:35:16.230  1328  1877 I MediaProvider: Begin Intent { act=android.intent.action.PACKAGE_DATA_CLEARED dat=package: flg=0x5000010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+08-03 12:35:16.232  1328  1877 D MediaProvider: Deleted 0 Android/media items belonging to org.wikipedia.dev on /data/user/0/com.google.android.providers.media.module/databases/external.db
+08-03 12:35:16.232 25007 25007 D PersistedStoragePackageUninstalledReceiver: Received android.intent.action.PACKAGE_DATA_CLEARED for org.wikipedia.dev for u0
+08-03 12:35:16.234  1328  1877 D MediaGrants: Removed 0 media_grants for 0 user for [org.wikipedia.dev, org.wikipedia.dev]. Reason: Package orphaned
+08-03 12:35:16.236  1328  1877 I MediaProvider: End Intent { act=android.intent.action.PACKAGE_DATA_CLEARED dat=package: flg=0x5000010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+08-03 12:35:16.241  9169 11889 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_DATA_CLEARED [CONTEXT service_id=17 ]
+08-03 12:35:16.244  9180 11888 I Auth    : [SupervisedAccountIntentOperation] onHandleIntent(): android.intent.action.PACKAGE_ADDED
+08-03 12:35:16.244  9180 11896 V Backup  : [PhotosPackagedAddedIO] Flag is disabled.
+08-03 12:35:16.245  9180 11895 W SQLiteLog: (28) double-quoted string literal: "org.wikipedia.test"
+08-03 12:35:16.245  9180  9180 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+08-03 12:35:16.246  9180  9180 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+08-03 12:35:16.247  9169 11891 I ProximityAuth: [RecentAppsMediator] Package added: (user=UserHandle{0}) org.wikipedia.test
+08-03 12:35:16.248  9169 11908 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_REMOVED [CONTEXT service_id=17 ]
+08-03 12:35:16.253  9169 11890 I FontLog : Package org.wikipedia.test has no metadata [CONTEXT service_id=132 ]
+--------- beginning of system
+08-03 12:35:16.280   574   776 D ShortcutService: Saving package item com.google.android.as to /data/system_ce/0/shortcut_service/launchers/com.google.android.as0.xml
+08-03 12:35:16.284   574   776 D ShortcutService: Saving package item com.google.android.apps.nexuslauncher to /data/system_ce/0/shortcut_service/launchers/com.google.android.apps.nexuslauncher0.xml
+08-03 12:35:16.286   574   776 D ShortcutService: Saving package item com.android.systemui to /data/system_ce/0/shortcut_service/launchers/com.android.systemui0.xml
+08-03 12:35:16.372 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/YouTube/YouTube.apk' with 1 weak references
+08-03 12:35:16.372 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationCorner/DisplayCutoutEmulationCornerOverlay.apk' with 1 weak references
+08-03 12:35:16.372 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.extservices/priv-app/GoogleExtServices@350820300/GoogleExtServices.apk' with 1 weak references
+08-03 12:35:16.372 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationDouble/DisplayCutoutEmulationDoubleOverlay.apk' with 1 weak references
+08-03 12:35:16.372 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/TelephonyProvider/TelephonyProvider.apk' with 1 weak references
+08-03 12:35:16.372 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/TelephonyProvider__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+08-03 12:35:16.372 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DynamicSystemInstallationService/DynamicSystemInstallationService.apk' with 1 weak references
+08-03 12:35:16.372 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/Velvet/Velvet.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/CalendarProvider/CalendarProvider.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/GoogleOneTimeInitializer/GoogleOneTimeInitializer.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/GoogleExtShared/GoogleExtShared.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/HTMLViewer/HTMLViewer.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CompanionDeviceManager/CompanionDeviceManager.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DownloadProvider/DownloadProvider.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/PrebuiltBugle/PrebuiltBugle.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/SoundPickerPrebuilt/SoundPickerPrebuilt.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.mediaprovider/priv-app/MediaProviderGoogle@350820300/MediaProviderGoogle.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/SafetyHubPrebuilt/SafetyHubPrebuilt.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/DownloadProviderUi/DownloadProviderUi.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.wifi/app/OsuLoginGoogle@350820300/OsuLoginGoogle.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/PacProcessor/PacProcessor.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/SimAppDialog/SimAppDialog.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/product/overlay/SimAppDialog__sdk_gphone64_arm64__auto_generated_rro_product.apk' with 1 weak references
+08-03 12:35:16.373 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.adservices/priv-app/AdServicesApkGoogle@350820260/AdServicesApkGoogle.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationHole/DisplayCutoutEmulationHoleOverlay.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/DisplayCutoutEmulationTall/DisplayCutoutEmulationTallOverlay.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/CertInstaller/CertInstaller.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/talkback/talkback.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '/vendor/overlay/EmulatorTalkBackOverlay/EmulatorTalkBackOverlay.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/NavigationBarMode3Button/NavigationBarMode3ButtonOverlay.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/Camera2/Camera2.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/EasterEgg/EasterEgg.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/priv-app/MtpService/MtpService.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /apex/com.android.nfcservices/priv-app/NfcNciApexGoogle@AE3A.240806.043/NfcNciApexGoogle.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /system/app/Stk/Stk.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~z8Upk0t8djwQBwohOzDRkw==/org.wikipedia.dev-1dJTFAulMmtb1VgY1L_jYg==/base.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~yhDV6J9OT3yjaqmA5PfpdA==/dev.aiverify.lifecyclefixture-WsvG9EoF7ztQ9ENwJBg0Ww==/base.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/PrebuiltDeskClockGoogle/PrebuiltDeskClockGoogle.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/overlay/NavigationBarMode2Button/NavigationBarMode2ButtonOverlay.apk' with 1 weak references
+08-03 12:35:16.374 23790 23798 W .apps.wellbeing: ApkAssets: Deleting an ApkAssets object '<empty> and /product/priv-app/DevicePersonalizationPrebuiltPixel2021-aiai_20240329.00_RC16/DevicePersonalizationPrebuiltPixel2021-aiai_20240329.00_RC16.apk' with 1 weak references
+08-03 12:35:16.416 11918 11918 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+08-03 12:35:16.417 11918 11918 I AndroidRuntime: Using default boot image
+08-03 12:35:16.417 11918 11918 I AndroidRuntime: Leaving lock profiling enabled
+08-03 12:35:16.419 11918 11918 I app_process: Core platform API reporting enabled, enforcing=false
+08-03 12:35:16.419 11918 11918 I app_process: Using CollectorTypeCMC GC.
+08-03 12:35:16.494 11918 11918 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+08-03 12:35:16.503 11918 11918 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+08-03 12:35:16.503 11918 11918 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/8/icu") succeeded. 
+08-03 12:35:16.503 11918 11918 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt75l.dat
+08-03 12:35:16.504 11918 11918 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+08-03 12:35:16.504 11918 11918 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+08-03 12:35:16.515 11918 11918 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+08-03 12:35:16.515 11918 11918 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+08-03 12:35:16.516 11918 11918 D UiAutomationConnection: Created on user UserHandle{0}
+08-03 12:35:16.516   574  1804 I ActivityManager: Force stopping org.wikipedia.dev appid=10234 user=0: start instr
+08-03 12:35:16.517   574  1804 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10234, packageName = null, attributionTag = null, token = android.os.Binder@316c9f5, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+08-03 12:35:16.520   372   372 D Zygote  : Forked child process 11929
+08-03 12:35:16.520   574   609 I ActivityManager: Start proc 11929:org.wikipedia.dev/u0a234 for added application org.wikipedia.dev
+08-03 12:35:16.545 11929 11929 I g.wikipedia.dev: Late-enabling -Xcheck:jni
+08-03 12:35:16.559 11929 11929 I g.wikipedia.dev: Using CollectorTypeCMC GC.
+08-03 12:35:16.560   421   451 I adbd    : jdwp connection from 11929
+08-03 12:35:16.563 11929 11929 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+08-03 12:35:16.589 11929 11929 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[org.wikipedia.dev]: arm64-v8a, null instrumentation[org.wikipedia.test]: null, null
+08-03 12:35:16.589 11929 11929 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/org.apache.http.legacy.jar
+08-03 12:35:16.590 11929 11929 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+08-03 12:35:16.590 11929 11929 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+08-03 12:35:16.590 11929 11929 W ziparchive: Unable to open '/data/app/~~8srDl7vyWo82d89VUYHz4A==/org.wikipedia.test-nDlJ52bV_6bgMKGXaollow==/base.dm': No such file or directory
+08-03 12:35:16.590 11929 11929 W ziparchive: Unable to open '/data/app/~~8srDl7vyWo82d89VUYHz4A==/org.wikipedia.test-nDlJ52bV_6bgMKGXaollow==/base.dm': No such file or directory
+08-03 12:35:16.600  1354  1354 I GsaVoiceInteractionSrv: (REDACTED) O received %s
+08-03 12:35:16.602  9169 11792 W Conscrypt: Could not set socket write timeout: java.net.SocketException: Socket closed
+08-03 12:35:16.602  1354  1354 I GsaVoiceInteractionSrv: (REDACTED) O received %s
+08-03 12:35:16.602  1354  1354 I GsaVoiceInteractionSrv: (REDACTED) O received %s
+08-03 12:35:16.602  9169 11792 W Conscrypt: 	at com.google.android.gms.org.conscrypt.Platform.setSocketWriteTimeout(:com.google.android.gms@242335038@24.23.35 (190400-646585959):204)
+08-03 12:35:16.603  9169 11792 W Conscrypt: 	at com.google.android.gms.org.conscrypt.ConscryptFileDescriptorSocket.setSoWriteTimeout(:com.google.android.gms@242335038@24.23.35 (190400-646585959):4)
+08-03 12:35:16.606   574  1804 D ActivityManager: sync unfroze 3131 com.google.android.googlequicksearchbox:search for 6
+08-03 12:35:16.606   574  1804 D ActivityManager: sync unfroze 10871 com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0 for 6
+08-03 12:35:16.607 10871 10871 D ActivityThread: Package [org.wikipedia.test] reported as REPLACED, but missing application info. Assuming REMOVED.
+08-03 12:35:16.609  3131  3131 D ActivityThread: Package [org.wikipedia.test] reported as REPLACED, but missing application info. Assuming REMOVED.
+08-03 12:35:16.609  1341  1932 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+08-03 12:35:16.611  1341  1932 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+08-03 12:35:16.611  1341  1932 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+08-03 12:35:16.612  1341  1932 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+08-03 12:35:16.612  1341  1932 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+08-03 12:35:16.612  1341  1932 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+08-03 12:35:16.613  1341  1932 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+08-03 12:35:16.613  1341  1932 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+08-03 12:35:16.614  1341  1932 I AiAiTextClassifier: [VisualCortexAdapter]: provideRegistration: Registered Prominent Screen Entities for updates.
+08-03 12:35:16.643  3131  3169 I MicroDetectionState: (REDACTED) Updating hotword opa ineligibility to %b
+08-03 12:35:16.643  3131  3169 I A       : getLocaleToModelSpecsMap
+08-03 12:35:16.643  3131  3169 I A       : Fetching latest config from MDD...
+08-03 12:35:16.643  3131  3169 I A       : (REDACTED) Found map of size: %d
+08-03 12:35:16.644  3131  3169 I MicroDetectionWorker: (REDACTED) Initializing MicroDataManager InitializeType-%d, isForced-%b, isActivePhoneEnrollment-%b isActiveGoogleHomeEnrollment-%b
+08-03 12:35:16.644  3131  3169 I A       : getLocaleToModelSpecsMap
+08-03 12:35:16.644  3131  3169 I A       : Fetching latest config from MDD...
+08-03 12:35:16.644  3131  3169 I A       : (REDACTED) Found map of size: %d
+08-03 12:35:16.644  3131  3169 I MicroDataManager: (REDACTED) Location for model with model type: %s and locale: %s, is : %s
+08-03 12:35:16.645  3131  3169 I MicroDetectionState: (REDACTED) #takeChangeMicroDetectorMode [mIsBargeInEnabled: %b, mCurrentDetectionMode: %s]
+08-03 12:35:16.645  3131  3169 I MicroDetectionState: (REDACTED) Should stop hotword detection immediately - %b
+08-03 12:35:16.645  3131  3169 I MicroDetectionState: (REDACTED) #takeChangeMicroDetectorMode [mIsBargeInEnabled: %b, mCurrentDetectionMode: %s]
+08-03 12:35:16.645  3131  3169 I MicroDetectionState: (REDACTED) Should stop hotword detection immediately - %b
+08-03 12:35:16.646  3131  3169 I A       : getLocaleToModelSpecsMap
+08-03 12:35:16.646  3131  3169 I A       : Fetching latest config from MDD...
+08-03 12:35:16.646  3131  3169 I A       : (REDACTED) Found map of size: %d
+08-03 12:35:16.646  3131  3169 W SearchServiceCore: Abort, client detached.
+08-03 12:35:16.646  3131  3169 W SearchServiceCore: Abort, client detached.
+08-03 12:35:16.646  3131  3169 W SearchServiceCore: Abort, client detached.
+08-03 12:35:16.649   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:16.650   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:16.650   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:16.650   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:16.650   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:16.653  1369  1951 I BugleRcsEngine: handleMessage processing message:[NOTIFY_UPTIME_IGNORE_STATE_CHANGED] with [non-null]:RcsEngineImpl reference [CONTEXT log_prefix="RcsEngineImpl[DUAL_REG]:[8a768734-1be9]>Handler" thread_id=61 ]
+08-03 12:35:16.653  1369  1683 I BugleRcsEngine: Connected state: [1], networkType: [WIFI] [CONTEXT thread_id=56 ]
+08-03 12:35:16.655  1369  1951 I BugleRcsEngine: No RCS Configuration was found in Bugle for simID: redacted-pii:sim_id[chars:20,last3:897] [CONTEXT log_prefix="ProvisioningEngineDataRetriever" thread_id=61 ]
+08-03 12:35:16.659 11929 11929 W ziparchive: Unable to open '/data/app/~~z8Upk0t8djwQBwohOzDRkw==/org.wikipedia.dev-1dJTFAulMmtb1VgY1L_jYg==/base.dm': No such file or directory
+08-03 12:35:16.659 11929 11929 W ziparchive: Unable to open '/data/app/~~z8Upk0t8djwQBwohOzDRkw==/org.wikipedia.dev-1dJTFAulMmtb1VgY1L_jYg==/base.dm': No such file or directory
+08-03 12:35:16.879   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+08-03 12:35:16.879   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+08-03 12:35:16.879   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10205} in 1ms
+08-03 12:35:16.880   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+08-03 12:35:16.880   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+08-03 12:35:16.880   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={20205} in 0ms
+08-03 12:35:16.976 11929 11929 D nativeloader: Configuring clns-7 for other apk /data/app/~~8srDl7vyWo82d89VUYHz4A==/org.wikipedia.test-nDlJ52bV_6bgMKGXaollow==/base.apk:/data/app/~~z8Upk0t8djwQBwohOzDRkw==/org.wikipedia.dev-1dJTFAulMmtb1VgY1L_jYg==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~8srDl7vyWo82d89VUYHz4A==/org.wikipedia.test-nDlJ52bV_6bgMKGXaollow==/lib/arm64:/data/app/~~z8Upk0t8djwQBwohOzDRkw==/org.wikipedia.dev-1dJTFAulMmtb1VgY1L_jYg==/lib/arm64:/data/app/~~8srDl7vyWo82d89VUYHz4A==/org.wikipedia.test-nDlJ52bV_6bgMKGXaollow==/base.apk!/lib/arm64-v8a:/data/app/~~z8Upk0t8djwQBwohOzDRkw==/org.wikipedia.dev-1dJTFAulMmtb1VgY1L_jYg==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/org.wikipedia.dev
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e5240a4 com.android.cts.priv.ctsshim/10203} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b8fae0d com.google.android.youtube/10167} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fd3f18a com.android.internal.display.cutout.emulation.corner/10014} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b9213fb com.android.internal.display.cutout.emulation.double/10079} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e4341c2 com.google.android.googlequicksearchbox/10143} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{eb84bd3 com.google.android.onetimeinitializer/10128} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3c4c310 com.google.android.ext.shared/10116} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c961e09 com.android.virtualmachine.res/10196} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ef2f1c4 com.android.managedprovisioning.auto_generated_rro_product__/10015} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{4b2d8ad com.android.carrierconfig.auto_generated_rro_vendor__/10088} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d07b80e com.google.android.server.deviceconfig.resources/10198} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f090773 com.android.systemui.emulation.pixel_3_xl/10009} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d0f6630 com.android.systemui.emulation.pixel_4_xl/10076} BLOCKED
+08-03 12:35:16.976   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{9d152a9 com.android.systemui.emulation.pixel_fold/10040} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d05e02e com.android.providers.telephony.auto_generated_characteristics_rro/10065} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{762a7cf com.android.simappdialog.auto_generated_rro_product__/10016} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f31d22f com.android.htmlviewer/10115} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{59b003c com.google.android.health.connect.backuprestore/10202} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{313d13a com.android.systemui.auto_generated_rro_product__/10050} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{77991c5 com.google.android.apps.messaging/10137} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c8b471a com.google.android.soundpicker/10163} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{affade1 com.google.android.marvin.talkbackoverlay/10087} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f13624b com.google.android.configupdater/10140} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fb5c1c7 com.android.internal.emulation.pixel_3a_xl/10049} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{85853f4 com.android.internal.emulation.pixel_6_pro/10038} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{9e8471d com.android.internal.emulation.pixel_7_pro/10019} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{aff4d92 com.android.internal.emulation.pixel_8_pro/10039} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{942b363 com.android.internal.emulation.pixel_9_pro/10008} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5a0bb60 com.android.internal.emulation.pixel_3a/10045} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ac73819 com.android.internal.emulation.pixel_4a/10022} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{640b0de com.android.internal.emulation.pixel_6a/10055} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{92322bf com.android.internal.emulation.pixel_7a/10063} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{7462d8c com.android.internal.emulation.pixel_8a/10006} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{10a3cd5 com.google.android.overlay.googlewebview/10037} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{435e428 com.google.android.apps.safetyhub/10135} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5668541 com.google.android.hotspot2.osulogin/10193} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a86bae6 com.android.simappdialog/10120} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f3ed151 com.android.internal.display.cutout.emulation.hole/10031} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{72bfdb6 com.android.internal.display.cutout.emulation.tall/10021} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5ccaab7 com.android.internal.systemui.navbar.threebutton/10081} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c33d827 com.android.camera2/10152} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{94e318d com.android.internal.ranchu.commonoverlay/10060} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cf1a801 dev.aiverify.lifecyclefixture/10209} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{989bc90 com.android.systemui.auto_generated_rro_vendor__/10090} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3191ad4 com.google.android.deskclock/10151} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{be90d8e com.android.internal.systemui.navbar.twobutton/10062} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bd5347d com.google.android.as/10132} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5739f72 com.google.android.gm/10166} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{7150545 com.android.systemui.emulation.pixel_3/10003} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3ec749a com.android.systemui.emulation.pixel_4/10069} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{50c1cb com.android.systemui.emulation.pixel_5/10073} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b708da8 com.android.systemui.emulation.pixel_6/10007} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{205b0c1 com.android.systemui.emulation.pixel_7/10072} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e8d4066 com.android.systemui.emulation.pixel_8/10077} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a7afa7 com.android.systemui.emulation.pixel_9/10058} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fbcfc3 com.android.printspooler/10113} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{dfb97fd com.google.android.connectivity.resources.goldfish.overlay/10085} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{8571040 com.android.dreams.basic/10127} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{1959f43 com.google.android.networkstack.tethering.emulator/10018} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{40d69c0 com.android.providers.settings.auto_generated_rro_product__/10056} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5859b79 com.google.android.as.oss/10142} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a79f63e com.android.traceur.auto_generated_rro_product__/10017} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e8ec9f com.android.internal.emulation.pixel_9_pro_fold/10041} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{7d840be com.google.android.devicelockcontroller/10189} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bc1a51f com.google.android.dialer/10133} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{31b384a com.android.internal.emulation.pixel_3/10061} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f9b3bb com.android.internal.emulation.pixel_4/10052} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cb6b0d8 com.android.internal.emulation.pixel_5/10000} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2bb4c31 com.android.internal.emulation.pixel_6/10032} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{9dc8f16 com.android.internal.emulation.pixel_7/10078} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{785d097 com.android.internal.emulation.pixel_8/10020} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5520284 com.android.internal.emulation.pixel_9/10011} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6bcf06c com.google.android.captiveportallogin/10112} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{78a86a2 android.auto_generated_characteristics_rro/10010} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f3b7635 com.google.android.appsearch.apk/10184} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c53aaca com.android.musicfx/10093} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{83d970b org.wikipedia/10208} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fe5743b com.google.android.markup/10156} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{43a40b1 com.google.android.rkpdapp/10205} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{669a996 com.google.android.contacts/10155} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{4d51e1c com.android.server.telecom.auto_generated_rro_product__/10030} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3928a25 com.android.phone.auto_generated_characteristics_rro/10075} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{91a47fa com.google.android.overlay.googleconfig/10051} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{77b01ab com.android.bips.auto_generated_rro_product__/10013} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cad1917 com.google.android.apps.customization.pixel/10164} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{222e104 com.google.android.tag/10097} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6b4e9c6 com.google.android.overlay.permissioncontroller/10036} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{68136ed com.google.android.partnersetup/10131} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c0ec922 com.google.android.apps.wallpaper.nexus/10146} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5e02fb3 com.google.android.apps.nexuslauncher/10177} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{705dc52 com.android.theme.font.notoserifsource/10012} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{66f0970 com.google.android.safetycenter.resources/10199} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bb0c820 com.android.internal.display.cutout.emulation.waterfall/10024} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fff25d9 com.android.internal.systemui.navbar.transparent/10001} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ec754e9 com.google.android.connectivity.resources/10206} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{599267f com.android.providers.contacts.auto_generated_rro_product__/10074} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bf4556e com.google.android.feedback/10175} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a24140f com.google.android.printservice.recommendation/10125} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2134c9c com.google.android.apps.photos/10168} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3756a5 com.google.android.documentsui/10108} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{db7b38 com.android.systemui.emulation.pixel_3a_xl/10002} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{24eb711 com.android.systemui.emulation.pixel_6_pro/10033} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f715076 com.android.systemui.emulation.pixel_7_pro/10023} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b076677 com.android.systemui.emulation.pixel_8_pro/10026} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a6912e4 com.android.systemui.emulation.pixel_9_pro/10057} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2d6b34d com.android.carrierconfig.auto_generated_rro_product__/10084} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a99fe02 com.android.devicediagnostics.auto_generated_rro_product__/10025} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c945a7a com.android.providers.partnerbookmarks/10122} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{317e22b com.android.wallpaper.livepicker/10105} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3683749 com.android.providers.telephony.auto_generated_rro_product__/10005} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fadf84e com.android.phone.auto_generated_rro_vendor__/10089} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{569688 com.android.imsserviceentitlement/10141} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6f1da7c com.android.internal.emulation.pixel_9_pro_xl/10070} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bebb821 com.google.android.healthconnect.controller/10201} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{4f54b5a com.android.internal.emulation.pixel_2_xl/10035} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b02b18b com.android.internal.emulation.pixel_3_xl/10048} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ec02268 com.android.internal.emulation.pixel_4_xl/10080} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6ba8681 com.android.internal.emulation.pixel_fold/10064} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ffda446 com.android.bookmarkprovider/10119} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ae8db67 com.google.android.overlay.pixelconfigcommon/10029} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a8fd14 com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10082} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{68809bd com.android.systemui.emulation.pixel_3a/10066} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{11ebb2 com.android.systemui.emulation.pixel_4a/10043} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b1dc703 com.android.systemui.emulation.pixel_6a/10044} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{da2d680 com.android.systemui.emulation.pixel_7a/10034} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2b084b9 com.android.systemui.emulation.pixel_8a/10042} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b307607 com.google.android.settings.intelligence/10138} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b533296 com.google.android.projection.gearhead/10136} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{8029334 com.google.android.uwb.resources/10197} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{1da6e17 com.android.cts.ctsshim/10204} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2ab55d com.google.android.wifi.resources/10192} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{85fbed2 com.google.android.wifi.dialog/10194} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5546ba3 com.android.wallpaper/10174} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cfaea0 com.google.android.apps.wallpaper/10181} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f624a59 com.google.android.odad/10129} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{43111f1 com.android.settings.auto_generated_rro_product__/10028} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{dc241d6 com.android.systemui.emulation.pixel_9_pro_xl/10067} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d496c57 com.android.companiondevicemanager.auto_generated_characteristics_rro/10053} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{98fd344 com.android.internal.systemui.navbar.gestural/10059} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{956f61e com.google.android.apps.youtube.music/10158} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2381eff com.android.bluetoothmidiservice/10110} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{10e76f3 com.android.storagemanager.auto_generated_rro_product__/10083} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{39114cc com.google.android.cellbroadcastreceiver/10195} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{21f0e29 com.android.phone.auto_generated_rro_product__/10054} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a3fb5ae com.android.systemui.emulation.pixel_9_pro_fold/10047} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{90f8f4f android.auto_generated_rro_product__/10071} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ae43315 com.google.android.inputmethod.latin/10165} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{57163e5 android.auto_generated_rro_vendor__/10086} BLOCKED
+08-03 12:35:16.977   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{1f8562a com.google.android.apps.restore/10134} BLOCKED
+08-03 12:35:17.014 11929 11929 V GraphicsEnvironment: Currently set values for:
+08-03 12:35:17.015 11929 11929 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+08-03 12:35:17.015 11929 11929 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+08-03 12:35:17.015 11929 11929 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+08-03 12:35:17.015 11929 11929 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+08-03 12:35:17.018 11929 11929 W ziparchive: Unable to open '/data/app/~~8srDl7vyWo82d89VUYHz4A==/org.wikipedia.test-nDlJ52bV_6bgMKGXaollow==/base.dm': No such file or directory
+08-03 12:35:17.018 11929 11929 W ziparchive: Unable to open '/data/app/~~8srDl7vyWo82d89VUYHz4A==/org.wikipedia.test-nDlJ52bV_6bgMKGXaollow==/base.dm': No such file or directory
+08-03 12:35:17.052 11929 11929 W ziparchive: Unable to open '/data/app/~~z8Upk0t8djwQBwohOzDRkw==/org.wikipedia.dev-1dJTFAulMmtb1VgY1L_jYg==/base.dm': No such file or directory
+08-03 12:35:17.052 11929 11929 W ziparchive: Unable to open '/data/app/~~z8Upk0t8djwQBwohOzDRkw==/org.wikipedia.dev-1dJTFAulMmtb1VgY1L_jYg==/base.dm': No such file or directory
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: Voilatile gRPC failure INVALID_ARGUMENT: Application credential header not valid. Please fix the client to pass a valid application credential header. [CONTEXT service_id=6 ]
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: gbzz: INVALID_ARGUMENT: Application credential header not valid. Please fix the client to pass a valid application credential header.
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at gbzy.h(:com.google.android.gms@242335038@24.23.35 (190400-646585959):3)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at anbi.u(:com.google.android.gms@242335038@24.23.35 (190400-646585959):29)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at anbi.g(:com.google.android.gms@242335038@24.23.35 (190400-646585959):97)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at efkz.b(:com.google.android.gms@242335038@24.23.35 (190400-646585959):39)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at efkr.a(:com.google.android.gms@242335038@24.23.35 (190400-646585959):274)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at ehaz.call(:com.google.android.gms@242335038@24.23.35 (190400-646585959):1026)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at angs.c(:com.google.android.gms@242335038@24.23.35 (190400-646585959):50)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at angs.run(:com.google.android.gms@242335038@24.23.35 (190400-646585959):76)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at anmg.run(:com.google.android.gms@242335038@24.23.35 (190400-646585959):8)
+08-03 12:35:17.227  9169 11815 W GlsClientGrpc: 	at java.lang.Thread.run(Thread.java:1012)
+08-03 12:35:17.229  9169  9305 W AlarmManager: alarm window unlikely to be respected [CONTEXT service_id=231 ]
+08-03 12:35:17.229  9169  9305 W AlarmManager: java.lang.IllegalArgumentException: alarm "NetworkLocationLocator" has short window length
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at boaw.b(:com.google.android.gms@242335038@24.23.35 (190400-646585959):52)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at ehbk.f(:com.google.android.gms@242335038@24.23.35 (190400-646585959):119)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at egxu.q(:com.google.android.gms@242335038@24.23.35 (190400-646585959):107)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at egxu.e(:com.google.android.gms@242335038@24.23.35 (190400-646585959):27)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at egxq.apply(:com.google.android.gms@242335038@24.23.35 (190400-646585959):19)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at etvw.d(:com.google.android.gms@242335038@24.23.35 (190400-646585959):3)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at etvx.run(:com.google.android.gms@242335038@24.23.35 (190400-646585959):42)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at android.os.Handler.handleCallback(Handler.java:959)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at android.os.Handler.dispatchMessage(Handler.java:100)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at bphk.nR(:com.google.android.gms@242335038@24.23.35 (190400-646585959):1)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at bphk.dispatchMessage(:com.google.android.gms@242335038@24.23.35 (190400-646585959):138)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at android.os.Looper.loopOnce(Looper.java:232)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at android.os.Looper.loop(Looper.java:317)
+08-03 12:35:17.229  9169  9305 W AlarmManager: 	at android.os.HandlerThread.run(HandlerThread.java:85)
+08-03 12:35:17.231  9169  9305 I ActivityScheduler: nextTriggerTime: 1219004933, in 75377ms, detectorType: 39, FULL_TYPE alarmWindowMillis: 80000
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e5240a4 com.android.cts.priv.ctsshim/10203} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b8fae0d com.google.android.youtube/10167} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fd3f18a com.android.internal.display.cutout.emulation.corner/10014} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b9213fb com.android.internal.display.cutout.emulation.double/10079} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e4341c2 com.google.android.googlequicksearchbox/10143} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{eb84bd3 com.google.android.onetimeinitializer/10128} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3c4c310 com.google.android.ext.shared/10116} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c961e09 com.android.virtualmachine.res/10196} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ef2f1c4 com.android.managedprovisioning.auto_generated_rro_product__/10015} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{4b2d8ad com.android.carrierconfig.auto_generated_rro_vendor__/10088} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d07b80e com.google.android.server.deviceconfig.resources/10198} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f090773 com.android.systemui.emulation.pixel_3_xl/10009} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d0f6630 com.android.systemui.emulation.pixel_4_xl/10076} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{9d152a9 com.android.systemui.emulation.pixel_fold/10040} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d05e02e com.android.providers.telephony.auto_generated_characteristics_rro/10065} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{762a7cf com.android.simappdialog.auto_generated_rro_product__/10016} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f31d22f com.android.htmlviewer/10115} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{59b003c com.google.android.health.connect.backuprestore/10202} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{313d13a com.android.systemui.auto_generated_rro_product__/10050} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{77991c5 com.google.android.apps.messaging/10137} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c8b471a com.google.android.soundpicker/10163} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{affade1 com.google.android.marvin.talkbackoverlay/10087} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f13624b com.google.android.configupdater/10140} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fb5c1c7 com.android.internal.emulation.pixel_3a_xl/10049} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{85853f4 com.android.internal.emulation.pixel_6_pro/10038} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{9e8471d com.android.internal.emulation.pixel_7_pro/10019} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{aff4d92 com.android.internal.emulation.pixel_8_pro/10039} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{942b363 com.android.internal.emulation.pixel_9_pro/10008} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5a0bb60 com.android.internal.emulation.pixel_3a/10045} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ac73819 com.android.internal.emulation.pixel_4a/10022} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{640b0de com.android.internal.emulation.pixel_6a/10055} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{92322bf com.android.internal.emulation.pixel_7a/10063} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{7462d8c com.android.internal.emulation.pixel_8a/10006} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{10a3cd5 com.google.android.overlay.googlewebview/10037} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{435e428 com.google.android.apps.safetyhub/10135} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5668541 com.google.android.hotspot2.osulogin/10193} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a86bae6 com.android.simappdialog/10120} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f3ed151 com.android.internal.display.cutout.emulation.hole/10031} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{72bfdb6 com.android.internal.display.cutout.emulation.tall/10021} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5ccaab7 com.android.internal.systemui.navbar.threebutton/10081} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c33d827 com.android.camera2/10152} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{94e318d com.android.internal.ranchu.commonoverlay/10060} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cf1a801 dev.aiverify.lifecyclefixture/10209} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{989bc90 com.android.systemui.auto_generated_rro_vendor__/10090} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3191ad4 com.google.android.deskclock/10151} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{be90d8e com.android.internal.systemui.navbar.twobutton/10062} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bd5347d com.google.android.as/10132} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5739f72 com.google.android.gm/10166} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{7150545 com.android.systemui.emulation.pixel_3/10003} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3ec749a com.android.systemui.emulation.pixel_4/10069} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{50c1cb com.android.systemui.emulation.pixel_5/10073} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b708da8 com.android.systemui.emulation.pixel_6/10007} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{205b0c1 com.android.systemui.emulation.pixel_7/10072} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e8d4066 com.android.systemui.emulation.pixel_8/10077} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a7afa7 com.android.systemui.emulation.pixel_9/10058} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fbcfc3 com.android.printspooler/10113} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{dfb97fd com.google.android.connectivity.resources.goldfish.overlay/10085} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{8571040 com.android.dreams.basic/10127} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{1959f43 com.google.android.networkstack.tethering.emulator/10018} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{40d69c0 com.android.providers.settings.auto_generated_rro_product__/10056} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5859b79 com.google.android.as.oss/10142} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a79f63e com.android.traceur.auto_generated_rro_product__/10017} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e8ec9f com.android.internal.emulation.pixel_9_pro_fold/10041} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{7d840be com.google.android.devicelockcontroller/10189} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bc1a51f com.google.android.dialer/10133} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{31b384a com.android.internal.emulation.pixel_3/10061} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f9b3bb com.android.internal.emulation.pixel_4/10052} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cb6b0d8 com.android.internal.emulation.pixel_5/10000} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2bb4c31 com.android.internal.emulation.pixel_6/10032} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{9dc8f16 com.android.internal.emulation.pixel_7/10078} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{785d097 com.android.internal.emulation.pixel_8/10020} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5520284 com.android.internal.emulation.pixel_9/10011} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6bcf06c com.google.android.captiveportallogin/10112} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{78a86a2 android.auto_generated_characteristics_rro/10010} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f3b7635 com.google.android.appsearch.apk/10184} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c53aaca com.android.musicfx/10093} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{83d970b org.wikipedia/10208} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fe5743b com.google.android.markup/10156} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{43a40b1 com.google.android.rkpdapp/10205} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{669a996 com.google.android.contacts/10155} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{4d51e1c com.android.server.telecom.auto_generated_rro_product__/10030} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3928a25 com.android.phone.auto_generated_characteristics_rro/10075} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{91a47fa com.google.android.overlay.googleconfig/10051} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{77b01ab com.android.bips.auto_generated_rro_product__/10013} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cad1917 com.google.android.apps.customization.pixel/10164} BLOCKED
+08-03 12:35:17.351   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{222e104 com.google.android.tag/10097} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6b4e9c6 com.google.android.overlay.permissioncontroller/10036} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{68136ed com.google.android.partnersetup/10131} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c0ec922 com.google.android.apps.wallpaper.nexus/10146} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5e02fb3 com.google.android.apps.nexuslauncher/10177} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{705dc52 com.android.theme.font.notoserifsource/10012} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{66f0970 com.google.android.safetycenter.resources/10199} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bb0c820 com.android.internal.display.cutout.emulation.waterfall/10024} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fff25d9 com.android.internal.systemui.navbar.transparent/10001} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ec754e9 com.google.android.connectivity.resources/10206} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{599267f com.android.providers.contacts.auto_generated_rro_product__/10074} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bf4556e com.google.android.feedback/10175} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a24140f com.google.android.printservice.recommendation/10125} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2134c9c com.google.android.apps.photos/10168} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3756a5 com.google.android.documentsui/10108} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{db7b38 com.android.systemui.emulation.pixel_3a_xl/10002} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{24eb711 com.android.systemui.emulation.pixel_6_pro/10033} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f715076 com.android.systemui.emulation.pixel_7_pro/10023} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b076677 com.android.systemui.emulation.pixel_8_pro/10026} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a6912e4 com.android.systemui.emulation.pixel_9_pro/10057} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2d6b34d com.android.carrierconfig.auto_generated_rro_product__/10084} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a99fe02 com.android.devicediagnostics.auto_generated_rro_product__/10025} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c945a7a com.android.providers.partnerbookmarks/10122} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{317e22b com.android.wallpaper.livepicker/10105} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3683749 com.android.providers.telephony.auto_generated_rro_product__/10005} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fadf84e com.android.phone.auto_generated_rro_vendor__/10089} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{569688 com.android.imsserviceentitlement/10141} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6f1da7c com.android.internal.emulation.pixel_9_pro_xl/10070} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bebb821 com.google.android.healthconnect.controller/10201} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{4f54b5a com.android.internal.emulation.pixel_2_xl/10035} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b02b18b com.android.internal.emulation.pixel_3_xl/10048} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ec02268 com.android.internal.emulation.pixel_4_xl/10080} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6ba8681 com.android.internal.emulation.pixel_fold/10064} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ffda446 com.android.bookmarkprovider/10119} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ae8db67 com.google.android.overlay.pixelconfigcommon/10029} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a8fd14 com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10082} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{68809bd com.android.systemui.emulation.pixel_3a/10066} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{11ebb2 com.android.systemui.emulation.pixel_4a/10043} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b1dc703 com.android.systemui.emulation.pixel_6a/10044} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{da2d680 com.android.systemui.emulation.pixel_7a/10034} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2b084b9 com.android.systemui.emulation.pixel_8a/10042} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b307607 com.google.android.settings.intelligence/10138} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b533296 com.google.android.projection.gearhead/10136} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{8029334 com.google.android.uwb.resources/10197} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{1da6e17 com.android.cts.ctsshim/10204} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2ab55d com.google.android.wifi.resources/10192} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{85fbed2 com.google.android.wifi.dialog/10194} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5546ba3 com.android.wallpaper/10174} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cfaea0 com.google.android.apps.wallpaper/10181} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f624a59 com.google.android.odad/10129} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{43111f1 com.android.settings.auto_generated_rro_product__/10028} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{dc241d6 com.android.systemui.emulation.pixel_9_pro_xl/10067} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d496c57 com.android.companiondevicemanager.auto_generated_characteristics_rro/10053} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{98fd344 com.android.internal.systemui.navbar.gestural/10059} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{956f61e com.google.android.apps.youtube.music/10158} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2381eff com.android.bluetoothmidiservice/10110} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{10e76f3 com.android.storagemanager.auto_generated_rro_product__/10083} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{39114cc com.google.android.cellbroadcastreceiver/10195} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{21f0e29 com.android.phone.auto_generated_rro_product__/10054} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a3fb5ae com.android.systemui.emulation.pixel_9_pro_fold/10047} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{90f8f4f android.auto_generated_rro_product__/10071} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ae43315 com.google.android.inputmethod.latin/10165} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{57163e5 android.auto_generated_rro_vendor__/10086} BLOCKED
+08-03 12:35:17.352   574   945 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{1f8562a com.google.android.apps.restore/10134} BLOCKED
+08-03 12:35:17.360 11929 11929 I AndroidJUnitRunner: newApplication org.wikipedia.WikipediaApp
+08-03 12:35:17.383 11929 11929 I FirebaseApp: Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+08-03 12:35:17.393 11929 11929 I FirebaseInitProvider: FirebaseApp initialization successful
+08-03 12:35:17.412   574   945 D ConnectivityService: Returning BLOCKED NetworkInfo to uid=10234
+08-03 12:35:17.415 11929 11929 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+08-03 12:35:17.478  9180  9918 I cr_CronetUrlRequestContext: destroyNativeStreamLocked org.chromium.net.impl.CronetBidirectionalStream@813e935
+08-03 12:35:17.479  9180  9292 I NotificationsModuleTask: Registering accounts to Chime Failed & Rescheduled for later. [CONTEXT service_id=358 ]
+08-03 12:35:17.480 11929 11929 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+08-03 12:35:17.480 11929 11929 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+08-03 12:35:17.481  9169 11914 I NetworkScheduler.Stats: Task com.google.android.gms/com.google.android.gms.notifications.registration.service.NotificationsRegistrationTaskBoundService finished executing. cause:4 result: 3 elapsed_millis: 8989 uptime_millis: 8989 exec_start_elapsed_seconds: 1218920 [CONTEXT service_id=218 ]
+08-03 12:35:17.482  9180  9180 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.notifications.registration.service.NotificationsRegistrationTaskBoundService.ACTION_TASK_READY dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+08-03 12:35:17.483 11929 11959 D WM-ForceStopRunnable: The default process name was not specified.
+08-03 12:35:17.483 11929 11959 D WM-ForceStopRunnable: Performing cleanup operations.
+08-03 12:35:17.523 11929 11959 D WM-ForceStopRunnable: Application was force-stopped, rescheduling.
+08-03 12:35:17.535   574  1740 D ShortcutService: rescanPackageIfNeeded 0@org.wikipedia.dev, forceRescan=false , isNewApp=false
+08-03 12:35:17.535   574  1740 D ShortcutService: Package org.wikipedia.dev has 0 manifest shortcut(s), and 0 share target(s)
+08-03 12:35:17.535   574  1740 D ShortcutService: Package org.wikipedia.dev updated, version -1 -> 50600
+08-03 12:35:17.535   574  1740 D ShortcutService: Package org.wikipedia.dev: publishing manifest shortcuts
+08-03 12:35:17.540   574   945 D ShortcutService: rescanPackageIfNeeded 0@org.wikipedia.dev, forceRescan=false , isNewApp=false
+08-03 12:35:17.540 11929 11962 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+08-03 12:35:17.555   574   945 D ShortcutService: rescanPackageIfNeeded 0@org.wikipedia.dev, forceRescan=false , isNewApp=false
+08-03 12:35:17.555   574   945 D ShortcutService: org.wikipedia.dev: last reset=0, now=1785774917555, last=1785727530224: resetting
+08-03 12:35:17.556 11929 11929 W g.wikipedia.dev: Accessing hidden method Landroid/view/WindowManagerGlobal;->getInstance()Landroid/view/WindowManagerGlobal; (unsupported, reflection, allowed)
+08-03 12:35:17.556 11929 11929 W g.wikipedia.dev: Accessing hidden field Landroid/view/WindowManagerGlobal;->mViews:Ljava/util/ArrayList; (unsupported, reflection, allowed)
+08-03 12:35:17.556 11929 11929 W g.wikipedia.dev: Accessing hidden field Landroid/app/ActivityThread;->mH:Landroid/app/ActivityThread$H; (unsupported, reflection, allowed)
+08-03 12:35:17.557 11929 11929 W g.wikipedia.dev: Accessing hidden method Landroid/app/ActivityThread;->currentActivityThread()Landroid/app/ActivityThread; (unsupported, reflection, allowed)
+08-03 12:35:17.557 11929 11929 W g.wikipedia.dev: Accessing hidden field Landroid/os/Handler;->mCallback:Landroid/os/Handler$Callback; (unsupported, reflection, allowed)
+08-03 12:35:17.557 11929 11929 W g.wikipedia.dev: Accessing hidden field Landroid/util/Singleton;->mInstance:Ljava/lang/Object; (unsupported, reflection, allowed)
+08-03 12:35:17.557 11929 11929 W g.wikipedia.dev: Accessing hidden method Landroid/util/Singleton;->get()Ljava/lang/Object; (unsupported, reflection, allowed)
+08-03 12:35:17.557 11929 11929 W g.wikipedia.dev: Accessing hidden field Landroid/app/ActivityManager;->IActivityManagerSingleton:Landroid/util/Singleton; (unsupported, reflection, allowed)
+08-03 12:35:17.566 11929 11929 I AndroidJUnitRunner: onCreate Bundle[mParcelledData.dataSize=112]
+08-03 12:35:17.566 11929 11929 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+08-03 12:35:17.582 11929 11929 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+08-03 12:35:17.583 11929 11963 D AndroidJUnitRunner: onStart is called.
+08-03 12:35:17.586   574   945 D ConnectivityService: requestNetwork for uid/pid:10234/11929 activeRequest: null callbackRequest: 2729 [NetworkRequest [ REQUEST id=2730, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false
+08-03 12:35:17.587   574   721 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=2730, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+08-03 12:35:17.587   574   721 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=2730, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+08-03 12:35:17.587   574   721 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=2730, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+08-03 12:35:17.587   574   721 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=2730, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+08-03 12:35:17.587   574   728 D ConnectivityService: NetReassign [2730 : null → 102] [c 0] [a 0] [i 0]
+08-03 12:35:17.589 11929 11929 D LeakCanary: Updated LeakCanary.config: Config(dumpHeap=false)
+08-03 12:35:17.594 11929 11929 I WebViewFactory: Loading com.google.android.webview version 124.0.6367.219 (code 636771932)
+08-03 12:35:17.596 11929 11929 V ResourcesManager: The following library key has been added: ResourcesKey{ mHash=ff544ea3 mResDir=null mSplitDirs=[] mOverlayDirs=[/product/overlay/EmulationPixel8/EmulationPixel8Overlay.apk,/product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk] mLibDirs=[/data/app/~~hkmCR8mTulwwIEGs_n7YrA==/com.google.android.webview-3cwRYTAQg3haQa6cEyCicw==/WebViewGoogle.apk,/data/app/~~VlOB1T83Ev4PVOwf-7HU7w==/com.google.android.trichromelibrary_636771932-MPltfZSPQnmVVqT_4YrYjQ==/TrichromeLibrary.apk,/system_ext/framework/androidx.window.extensions.jar] mDisplayId=0 mOverrideConfig=v35 mCompatInfo={420dpi always-compat} mLoaders=[]}
+08-03 12:35:17.597 11929 11929 W ziparchive: Unable to open '/data/app/~~VlOB1T83Ev4PVOwf-7HU7w==/com.google.android.trichromelibrary_636771932-MPltfZSPQnmVVqT_4YrYjQ==/TrichromeLibrary.dm': No such file or directory
+08-03 12:35:17.597 11929 11929 W ziparchive: Unable to open '/data/app/~~VlOB1T83Ev4PVOwf-7HU7w==/com.google.android.trichromelibrary_636771932-MPltfZSPQnmVVqT_4YrYjQ==/TrichromeLibrary.dm': No such file or directory
+08-03 12:35:17.597 11929 11929 W g.wikipedia.dev: Entry not found
+08-03 12:35:17.598 11929 11929 D nativeloader: Configuring clns-8 for other apk /data/app/~~VlOB1T83Ev4PVOwf-7HU7w==/com.google.android.trichromelibrary_636771932-MPltfZSPQnmVVqT_4YrYjQ==/TrichromeLibrary.apk. target_sdk_version=34, uses_libraries=ALL, library_path=/data/app/~~hkmCR8mTulwwIEGs_n7YrA==/com.google.android.webview-3cwRYTAQg3haQa6cEyCicw==/lib/arm64:/data/app/~~hkmCR8mTulwwIEGs_n7YrA==/com.google.android.webview-3cwRYTAQg3haQa6cEyCicw==/WebViewGoogle.apk!/lib/arm64-v8a:/data/app/~~VlOB1T83Ev4PVOwf-7HU7w==/com.google.android.trichromelibrary_636771932-MPltfZSPQnmVVqT_4YrYjQ==/TrichromeLibrary.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand
+08-03 12:35:17.600 11929 11929 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+08-03 12:35:17.600 11929 11929 D nativeloader: Configuring clns-9 for other apk /data/app/~~hkmCR8mTulwwIEGs_n7YrA==/com.google.android.webview-3cwRYTAQg3haQa6cEyCicw==/WebViewGoogle.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~hkmCR8mTulwwIEGs_n7YrA==/com.google.android.webview-3cwRYTAQg3haQa6cEyCicw==/lib/arm64:/data/app/~~hkmCR8mTulwwIEGs_n7YrA==/com.google.android.webview-3cwRYTAQg3haQa6cEyCicw==/WebViewGoogle.apk!/lib/arm64-v8a:/data/app/~~VlOB1T83Ev4PVOwf-7HU7w==/com.google.android.trichromelibrary_636771932-MPltfZSPQnmVVqT_4YrYjQ==/TrichromeLibrary.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e5240a4 com.android.cts.priv.ctsshim/10203} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b8fae0d com.google.android.youtube/10167} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fd3f18a com.android.internal.display.cutout.emulation.corner/10014} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b9213fb com.android.internal.display.cutout.emulation.double/10079} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e4341c2 com.google.android.googlequicksearchbox/10143} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{eb84bd3 com.google.android.onetimeinitializer/10128} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3c4c310 com.google.android.ext.shared/10116} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c961e09 com.android.virtualmachine.res/10196} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ef2f1c4 com.android.managedprovisioning.auto_generated_rro_product__/10015} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{4b2d8ad com.android.carrierconfig.auto_generated_rro_vendor__/10088} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d07b80e com.google.android.server.deviceconfig.resources/10198} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f090773 com.android.systemui.emulation.pixel_3_xl/10009} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d0f6630 com.android.systemui.emulation.pixel_4_xl/10076} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{9d152a9 com.android.systemui.emulation.pixel_fold/10040} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d05e02e com.android.providers.telephony.auto_generated_characteristics_rro/10065} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{762a7cf com.android.simappdialog.auto_generated_rro_product__/10016} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f31d22f com.android.htmlviewer/10115} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{59b003c com.google.android.health.connect.backuprestore/10202} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{313d13a com.android.systemui.auto_generated_rro_product__/10050} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{77991c5 com.google.android.apps.messaging/10137} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c8b471a com.google.android.soundpicker/10163} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{affade1 com.google.android.marvin.talkbackoverlay/10087} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f13624b com.google.android.configupdater/10140} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fb5c1c7 com.android.internal.emulation.pixel_3a_xl/10049} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{85853f4 com.android.internal.emulation.pixel_6_pro/10038} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{9e8471d com.android.internal.emulation.pixel_7_pro/10019} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{aff4d92 com.android.internal.emulation.pixel_8_pro/10039} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{942b363 com.android.internal.emulation.pixel_9_pro/10008} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5a0bb60 com.android.internal.emulation.pixel_3a/10045} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ac73819 com.android.internal.emulation.pixel_4a/10022} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{640b0de com.android.internal.emulation.pixel_6a/10055} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{92322bf com.android.internal.emulation.pixel_7a/10063} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{7462d8c com.android.internal.emulation.pixel_8a/10006} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{10a3cd5 com.google.android.overlay.googlewebview/10037} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{435e428 com.google.android.apps.safetyhub/10135} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5668541 com.google.android.hotspot2.osulogin/10193} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a86bae6 com.android.simappdialog/10120} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f3ed151 com.android.internal.display.cutout.emulation.hole/10031} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{72bfdb6 com.android.internal.display.cutout.emulation.tall/10021} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5ccaab7 com.android.internal.systemui.navbar.threebutton/10081} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c33d827 com.android.camera2/10152} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{94e318d com.android.internal.ranchu.commonoverlay/10060} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cf1a801 dev.aiverify.lifecyclefixture/10209} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{989bc90 com.android.systemui.auto_generated_rro_vendor__/10090} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3191ad4 com.google.android.deskclock/10151} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{be90d8e com.android.internal.systemui.navbar.twobutton/10062} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bd5347d com.google.android.as/10132} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5739f72 com.google.android.gm/10166} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{7150545 com.android.systemui.emulation.pixel_3/10003} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3ec749a com.android.systemui.emulation.pixel_4/10069} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{50c1cb com.android.systemui.emulation.pixel_5/10073} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b708da8 com.android.systemui.emulation.pixel_6/10007} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{205b0c1 com.android.systemui.emulation.pixel_7/10072} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e8d4066 com.android.systemui.emulation.pixel_8/10077} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a7afa7 com.android.systemui.emulation.pixel_9/10058} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fbcfc3 com.android.printspooler/10113} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{dfb97fd com.google.android.connectivity.resources.goldfish.overlay/10085} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{8571040 com.android.dreams.basic/10127} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{1959f43 com.google.android.networkstack.tethering.emulator/10018} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{40d69c0 com.android.providers.settings.auto_generated_rro_product__/10056} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5859b79 com.google.android.as.oss/10142} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a79f63e com.android.traceur.auto_generated_rro_product__/10017} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{e8ec9f com.android.internal.emulation.pixel_9_pro_fold/10041} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{7d840be com.google.android.devicelockcontroller/10189} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bc1a51f com.google.android.dialer/10133} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{31b384a com.android.internal.emulation.pixel_3/10061} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f9b3bb com.android.internal.emulation.pixel_4/10052} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cb6b0d8 com.android.internal.emulation.pixel_5/10000} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2bb4c31 com.android.internal.emulation.pixel_6/10032} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{9dc8f16 com.android.internal.emulation.pixel_7/10078} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{785d097 com.android.internal.emulation.pixel_8/10020} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5520284 com.android.internal.emulation.pixel_9/10011} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6bcf06c com.google.android.captiveportallogin/10112} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{78a86a2 android.auto_generated_characteristics_rro/10010} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f3b7635 com.google.android.appsearch.apk/10184} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c53aaca com.android.musicfx/10093} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{83d970b org.wikipedia/10208} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fe5743b com.google.android.markup/10156} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{43a40b1 com.google.android.rkpdapp/10205} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{669a996 com.google.android.contacts/10155} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{4d51e1c com.android.server.telecom.auto_generated_rro_product__/10030} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3928a25 com.android.phone.auto_generated_characteristics_rro/10075} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{91a47fa com.google.android.overlay.googleconfig/10051} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{77b01ab com.android.bips.auto_generated_rro_product__/10013} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cad1917 com.google.android.apps.customization.pixel/10164} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{222e104 com.google.android.tag/10097} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6b4e9c6 com.google.android.overlay.permissioncontroller/10036} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{68136ed com.google.android.partnersetup/10131} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c0ec922 com.google.android.apps.wallpaper.nexus/10146} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5e02fb3 com.google.android.apps.nexuslauncher/10177} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{705dc52 com.android.theme.font.notoserifsource/10012} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{66f0970 com.google.android.safetycenter.resources/10199} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bb0c820 com.android.internal.display.cutout.emulation.waterfall/10024} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fff25d9 com.android.internal.systemui.navbar.transparent/10001} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ec754e9 com.google.android.connectivity.resources/10206} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{599267f com.android.providers.contacts.auto_generated_rro_product__/10074} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bf4556e com.google.android.feedback/10175} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a24140f com.google.android.printservice.recommendation/10125} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2134c9c com.google.android.apps.photos/10168} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3756a5 com.google.android.documentsui/10108} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{db7b38 com.android.systemui.emulation.pixel_3a_xl/10002} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{24eb711 com.android.systemui.emulation.pixel_6_pro/10033} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f715076 com.android.systemui.emulation.pixel_7_pro/10023} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b076677 com.android.systemui.emulation.pixel_8_pro/10026} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a6912e4 com.android.systemui.emulation.pixel_9_pro/10057} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2d6b34d com.android.carrierconfig.auto_generated_rro_product__/10084} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a99fe02 com.android.devicediagnostics.auto_generated_rro_product__/10025} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{c945a7a com.android.providers.partnerbookmarks/10122} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{317e22b com.android.wallpaper.livepicker/10105} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{3683749 com.android.providers.telephony.auto_generated_rro_product__/10005} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{fadf84e com.android.phone.auto_generated_rro_vendor__/10089} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{569688 com.android.imsserviceentitlement/10141} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6f1da7c com.android.internal.emulation.pixel_9_pro_xl/10070} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{bebb821 com.google.android.healthconnect.controller/10201} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{4f54b5a com.android.internal.emulation.pixel_2_xl/10035} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b02b18b com.android.internal.emulation.pixel_3_xl/10048} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ec02268 com.android.internal.emulation.pixel_4_xl/10080} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{6ba8681 com.android.internal.emulation.pixel_fold/10064} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ffda446 com.android.bookmarkprovider/10119} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ae8db67 com.google.android.overlay.pixelconfigcommon/10029} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a8fd14 com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10082} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{68809bd com.android.systemui.emulation.pixel_3a/10066} BLOCKED
+08-03 12:35:17.600   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{11ebb2 com.android.systemui.emulation.pixel_4a/10043} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b1dc703 com.android.systemui.emulation.pixel_6a/10044} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{da2d680 com.android.systemui.emulation.pixel_7a/10034} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2b084b9 com.android.systemui.emulation.pixel_8a/10042} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b307607 com.google.android.settings.intelligence/10138} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{b533296 com.google.android.projection.gearhead/10136} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{8029334 com.google.android.uwb.resources/10197} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{1da6e17 com.android.cts.ctsshim/10204} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2ab55d com.google.android.wifi.resources/10192} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{85fbed2 com.google.android.wifi.dialog/10194} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{5546ba3 com.android.wallpaper/10174} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{cfaea0 com.google.android.apps.wallpaper/10181} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{f624a59 com.google.android.odad/10129} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{43111f1 com.android.settings.auto_generated_rro_product__/10028} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{dc241d6 com.android.systemui.emulation.pixel_9_pro_xl/10067} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{d496c57 com.android.companiondevicemanager.auto_generated_characteristics_rro/10053} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{98fd344 com.android.internal.systemui.navbar.gestural/10059} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{956f61e com.google.android.apps.youtube.music/10158} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{2381eff com.android.bluetoothmidiservice/10110} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{10e76f3 com.android.storagemanager.auto_generated_rro_product__/10083} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{39114cc com.google.android.cellbroadcastreceiver/10195} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{21f0e29 com.android.phone.auto_generated_rro_product__/10054} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{a3fb5ae com.android.systemui.emulation.pixel_9_pro_fold/10047} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{90f8f4f android.auto_generated_rro_product__/10071} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{ae43315 com.google.android.inputmethod.latin/10165} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{57163e5 android.auto_generated_rro_vendor__/10086} BLOCKED
+08-03 12:35:17.601   574  1740 I AppsFilter: interaction: PackageSetting{46d4014 org.wikipedia.dev/10234} -> PackageSetting{1f8562a com.google.android.apps.restore/10134} BLOCKED
+08-03 12:35:17.606 11929 11959 D WM-SystemJobScheduler: Scheduling work ID 05d86159-f785-4f3c-a5a7-e0503069226eJob ID 0
+08-03 12:35:17.609   574  1740 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+08-03 12:35:17.609   574  1740 D PackageManager: Clear ephemeral installer activity
+08-03 12:35:17.610 11929 11960 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver enabled
+08-03 12:35:17.614 11929 11929 I cr_WVCFactoryProvider: Loaded version=124.0.6367.219 minSdkVersion=29 isBundle=false multiprocess=true packageId=2
+08-03 12:35:17.616 11929 11929 D nativeloader: Load /data/app/~~VlOB1T83Ev4PVOwf-7HU7w==/com.google.android.trichromelibrary_636771932-MPltfZSPQnmVVqT_4YrYjQ==/TrichromeLibrary.apk!/lib/arm64-v8a/libmonochrome_64.so using ns clns-9 from class loader (caller=/data/app/~~hkmCR8mTulwwIEGs_n7YrA==/com.google.android.webview-3cwRYTAQg3haQa6cEyCicw==/WebViewGoogle.apk): ok
+08-03 12:35:17.617 11929 11929 D nativeloader: Load /system/lib64/libwebviewchromium_plat_support.so using ns clns-9 from class loader (caller=/data/app/~~hkmCR8mTulwwIEGs_n7YrA==/com.google.android.webview-3cwRYTAQg3haQa6cEyCicw==/WebViewGoogle.apk): ok
+08-03 12:35:17.619 11929 11968 I chromium: [0803/123517.619110:INFO:variations_seed_loader.cc(66)] Failed to open file for reading.: No such file or directory (2)
+08-03 12:35:17.619 11929 11968 I cr_VariationsUtils: Failed reading seed file "/data/user/0/org.wikipedia.dev/app_webview/variations_seed_new"
+08-03 12:35:17.619 11929 11968 I chromium: [0803/123517.619366:INFO:variations_seed_loader.cc(66)] Failed to open file for reading.: No such file or directory (2)
+08-03 12:35:17.619 11929 11968 I cr_VariationsUtils: Failed reading seed file "/data/user/0/org.wikipedia.dev/app_webview/variations_seed"
+08-03 12:35:17.619 11929 11969 I cr_VariationsUtils: Requesting new seed from IVariationsSeedServer
+08-03 12:35:17.621   574  1740 D ActivityManager: sync unfroze 11624 com.google.android.webview:webview_service for 6
+08-03 12:35:17.622 11929 11929 I cr_LibraryLoader: Successfully loaded native library
+08-03 12:35:17.622 11929 11929 I cr_CachingUmaRecorder: Flushed 6 samples from 6 histograms, 0 samples were dropped.
+08-03 12:35:17.624 11929 11929 I cr_CombinedPProvider: #registerProvider() provider:WV.V7@d71b521 isPolicyCacheEnabled:false policyProvidersSize:0
+08-03 12:35:17.625 11929 11929 I cr_PolicyProvider: #setManagerAndSource() 0
+08-03 12:35:17.627   574   945 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 99078, packageName = null, attributionTag = null, token = android.os.Binder@316c9f5, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+08-03 12:35:17.628  9180  9180 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+08-03 12:35:17.628  9180  9180 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+08-03 12:35:17.630   862   862 D Zygote  : Forked child process 11972
+08-03 12:35:17.631 11972 11972 E libc    : SetHeapTaggingLevel: re-enabling tagging after it was disabled is not supported
+08-03 12:35:17.631 11624 11624 D ActivityThread: Package [org.wikipedia.test] reported as REPLACED, but missing application info. Assuming REMOVED.
+08-03 12:35:17.632 11972 11972 I ocessService0:0: Using CollectorTypeCMC GC.
+08-03 12:35:17.633 11972 11972 E ocessService0:0: Not starting debugger since process cannot load the jdwp agent.
+08-03 12:35:17.633 11972 11972 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+08-03 12:35:17.635   371   436 I netd    : tetherGetStats() -> {[]} <0.32ms>
+08-03 12:35:17.637   574  1709 I ActivityManager: Start proc 11972:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i78 for  {org.wikipedia.dev/org.chromium.content.app.SandboxedProcessService0:0}
+08-03 12:35:17.638 11972 11972 D CompatChangeReporter: Compat change id reported: 242716250; UID 99078; state: ENABLED
+08-03 12:35:17.640 11972 11972 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+08-03 12:35:17.642 11972 11972 I LoadedApk: No resource references to update in package com.google.android.trichromelibrary
+08-03 12:35:17.642 11972 11972 I cr_WebViewApkApp: Launched version=124.0.6367.219 minSdkVersion=29 isBundle=false processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+--------- beginning of kernel
+08-03 12:35:17.639   162   162 W servicemanager: Isolated app with UID 99078 requested 'network_management', but the service is not allowed for isolated apps.
+08-03 12:35:17.640   162   162 W servicemanager: Isolated app with UID 99078 requested 'connectivity', but the service is not allowed for isolated apps.
+08-03 12:35:17.643 11929 11929 I cr_CombinedPProvider: #linkNativeInternal() 1
+08-03 12:35:17.643 11929 11929 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+08-03 12:35:17.643 11929 11929 I cr_PolicyProvider: #notifySettingsAvailable() 0
+08-03 12:35:17.643 11929 11929 I cr_CombinedPProvider: #onSettingsAvailable() 0
+08-03 12:35:17.643 11929 11929 I cr_CombinedPProvider: #flushPolicies()
+08-03 12:35:17.644 11972 11972 I cr_ChildProcessService: Creating new ChildProcessService pid=11972
+08-03 12:35:17.642   162   162 W servicemanager: Isolated app with UID 99078 requested 'content_capture', but the service is not allowed for isolated apps.
+08-03 12:35:17.652 11929 11987 W chromium: [WARNING:dns_config_service_android.cc(81)] Failed to read DnsConfig.
+08-03 12:35:17.655   574   607 D ShortcutService: Getting shortcuts for launcher= com.google.android.asuser=0 pkg=org.wikipedia.dev
+08-03 12:35:17.656   574   607 D ShortcutService: Getting shortcuts for launcher= com.android.systemuiuser=0 pkg=org.wikipedia.dev
+08-03 12:35:17.656   574   607 D ShortcutService: Getting shortcuts for launcher= com.google.android.apps.nexuslauncheruser=0 pkg=org.wikipedia.dev
+08-03 12:35:17.657   574   776 D ShortcutService: Saving package item org.wikipedia.dev to /data/system_ce/0/shortcut_service/packages/org.wikipedia.dev.xml
+08-03 12:35:17.687   574  1804 D ShortcutService: rescanPackageIfNeeded 0@org.wikipedia.dev, forceRescan=false , isNewApp=false
+08-03 12:35:17.688   574   945 D ShortcutService: rescanPackageIfNeeded 0@org.wikipedia.dev, forceRescan=false , isNewApp=false
+08-03 12:35:17.689   574   607 W NotificationHistory: Attempted to remove conversation for locked/gone/disabled user 0
+08-03 12:35:17.696   574  1804 D ConnectivityService: Returning UNBLOCKED NetworkInfo to uid=10234
+08-03 12:35:17.698  9169  9169 W GCM     : Invalid request, no callback for what: 4
+08-03 12:35:17.702 11929 11961 D LeakCanary: LeakCanary is currently disabled: LeakCanary.Config.dumpHeap is set to false.
+08-03 12:35:17.703 11929 11963 I InstrConnection: Could not send broadcast or register receiver (isolatedProcess?)
+08-03 12:35:17.703 11624 11673 I cr_VariationsUtils: Seed download job already scheduled
+08-03 12:35:17.703 11624 11673 I cr_VariationsUtils: Writing new seed to app's data directory
+08-03 12:35:17.706 11929 12004 W org.wikipedia.analytics.testkitchen.LogAdapterImpl: warn():17: Configuration is missing, enqueued events are not sent.
+08-03 12:35:17.706 11929 12004 W org.wikipedia.analytics.testkitchen.LogAdapterImpl: warn():17: Configuration is missing, enqueued events are not sent.
+08-03 12:35:17.723   371 12010 I resolv  : GetAddrInfoHandler::run: {102 102 102 983142 10234 0}
+08-03 12:35:17.723   371 12012 I resolv  : res_nmkquery: (QUERY, IN, A)
+08-03 12:35:17.723   371 12011 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+08-03 12:35:17.728 11929 11963 I TestRunner: run started: 1 tests
+08-03 12:35:17.728 11929 11963 I TestRunner: started: removingAllOfflinePagesReclaimsAssociatedFiles(org.wikipedia.m6.M6P02OfflineCleanupTest)
+08-03 12:35:17.763 11929 12013 I OkHttp  : --> GET https://meta.wikimedia.beta.wmflabs.org/w/api.php?format=json&formatversion=2&errorformat=html&errorsuselocal=1&action=streamconfigs&format=json
+08-03 12:35:17.767 11929 11959 D WM-Processor: Processor cancelling 05d86159-f785-4f3c-a5a7-e0503069226e
+08-03 12:35:17.767 11929 11959 D WM-Processor: WorkerWrapper could not be found for 05d86159-f785-4f3c-a5a7-e0503069226e
+08-03 12:35:17.770 11929 11959 D WM-GreedyScheduler: Cancelling work ID 05d86159-f785-4f3c-a5a7-e0503069226e
+08-03 12:35:17.774   371 12014 I resolv  : GetAddrInfoHandler::run: {102 102 102 983142 10234 0}
+08-03 12:35:17.774   371 12016 I resolv  : res_nmkquery: (QUERY, IN, A)
+08-03 12:35:17.774   371 12015 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+08-03 12:35:17.777   574  1709 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+08-03 12:35:17.777   574  1709 D PackageManager: Clear ephemeral installer activity
+08-03 12:35:17.778 11929 11959 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver disabled
+08-03 12:35:17.790   574   776 D ShortcutService: Saving package item org.wikipedia.dev to /data/system_ce/0/shortcut_service/packages/org.wikipedia.dev.xml
+08-03 12:35:17.790   574   607 D ShortcutService: Getting shortcuts for launcher= com.google.android.asuser=0 pkg=org.wikipedia.dev
+08-03 12:35:17.793   574   607 D ShortcutService: Getting shortcuts for launcher= com.android.systemuiuser=0 pkg=org.wikipedia.dev
+08-03 12:35:17.793   574   607 D ShortcutService: Getting shortcuts for launcher= com.google.android.apps.nexuslauncheruser=0 pkg=org.wikipedia.dev
+08-03 12:35:17.891 11929 11962 D WM-SystemJobScheduler: Scheduling work ID 211e3051-407d-4e40-9f8c-1b2d3a944b63Job ID 1
+08-03 12:35:17.892 11929 11962 W g.wikipedia.dev: Accessing hidden method Landroid/database/sqlite/SQLiteDatabase;->getThreadSession()Landroid/database/sqlite/SQLiteSession; (unsupported, reflection, allowed)
+08-03 12:35:17.892 11929 11962 W g.wikipedia.dev: Accessing hidden method Landroid/database/sqlite/SQLiteSession;->beginTransaction(ILandroid/database/sqlite/SQLiteTransactionListener;ILandroid/os/CancellationSignal;)V (unsupported, reflection, allowed)
+08-03 12:35:17.894   574  1709 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+08-03 12:35:17.894   574  1709 D PackageManager: Clear ephemeral installer activity
+08-03 12:35:17.894 11929 11962 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver enabled
+08-03 12:35:17.977   371 12015 I resolv  : res_nsend: used send_dg 77 terrno: 0
+08-03 12:35:17.977   371 12016 I resolv  : res_nsend: used send_dg 65 terrno: 0
+08-03 12:35:17.977   371 12015 I resolv  : doQuery: rcode=0, ancount=1, return value=77
+08-03 12:35:17.977   371 12012 I resolv  : res_nsend: used send_dg 70 terrno: 0
+08-03 12:35:17.977   371 12012 I resolv  : doQuery: rcode=0, ancount=1, return value=70
+08-03 12:35:17.977   371 12011 I resolv  : res_nsend: used send_dg 82 terrno: 0
+08-03 12:35:17.977   371 12011 I resolv  : doQuery: rcode=0, ancount=1, return value=82
+08-03 12:35:17.977   371 12016 I resolv  : doQuery: rcode=0, ancount=1, return value=65
+08-03 12:35:17.978 11929 12009 D TrafficStats: tagSocket(176) with statsTag=0x8001, statsUid=-1
+08-03 12:35:17.980 11929 12023 D TrafficStats: tagSocket(177) with statsTag=0xffffffff, statsUid=-1
+08-03 12:35:18.613   574   632 I AppsFilter: interaction: PackageSetting{83d970b org.wikipedia/10208} -> PackageSetting{9cf60cd org.wikipedia.dev/10234} BLOCKED
+08-03 12:35:18.613   574   632 I AppsFilter: interaction: PackageSetting{cf1a801 dev.aiverify.lifecyclefixture/10209} -> PackageSetting{9cf60cd org.wikipedia.dev/10234} BLOCKED
+08-03 12:35:18.615   574   757 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_CHANGED on user 0
+08-03 12:35:18.616   574   757 D AppWidgetServiceImpl: Trying to notify widget providers changed
+08-03 12:35:18.616   574   776 D ShortcutService: received package broadcast intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x45000010 (has extras) }
+08-03 12:35:18.616   962   962 D CarrierSvcBindHelper: onPackageModified: org.wikipedia.dev
+08-03 12:35:18.617  1094  1151 D PackageUpdatedTask: Package updated: mOp=UPDATE packages=[org.wikipedia.dev]
+08-03 12:35:18.619   962   962 D CarrierSvcBindHelper: No carrier app for: 0
+08-03 12:35:18.619  1341  1341 I AiAiEcho: AppFetcherImpl onPackageChanged org.wikipedia.dev.
+08-03 12:35:18.620  1341 11853 I AiAiEcho: AppIndexer Package:[org.wikipedia.dev] UserProfile:[0] Enabled:[true].
+08-03 12:35:18.620  1341 11853 I AiAiEcho: AppFetcherImplV2 updateApps package:[org.wikipedia.dev], userId:[0], reason:[package is updated.].
+08-03 12:35:18.621   574   776 D ShortcutService: changing package: org.wikipedia.dev userId0
+08-03 12:35:18.621   574   776 D ShortcutService: handlePackageChanged: org.wikipedia.dev user=0
+08-03 12:35:18.621 25007  1842 I PermissionControllerServiceImpl: Updating user sensitive for uid 10234
+08-03 12:35:18.621   574   776 D ShortcutService: rescanPackageIfNeeded 0@org.wikipedia.dev, forceRescan=true , isNewApp=false
+08-03 12:35:18.621   574   776 D ShortcutService: Package org.wikipedia.dev has 0 manifest shortcut(s), and 0 share target(s)
+08-03 12:35:18.621   574   776 D ShortcutService: Package org.wikipedia.dev updated, version 50600 -> 50600
+08-03 12:35:18.622   574   607 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+08-03 12:35:18.622   574   776 D ShortcutService: Package org.wikipedia.dev: publishing manifest shortcuts
+08-03 12:35:18.623   817   817 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+08-03 12:35:18.623   574   672 I RoleService: Granting default roles...
+08-03 12:35:18.624   962   962 E SmsApplication: com.google.android.apps.messaging lost android:read_cell_broadcasts:  (fixing)
+08-03 12:35:18.626   574  1740 W AppOpService: Ignored setUidMode call for runtime permission app op: uid = 10137, code = READ_CELL_BROADCASTS, mode = allow, callingUid = 1001, oldMode = allow
+08-03 12:35:18.628   962   962 E CellBroadcastUtils: getDefaultCellBroadcastReceiverPackageName: no package found
+08-03 12:35:18.628   574  1709 W AppOpService: Ignored setUidMode call for runtime permission app op: uid = 1001, code = READ_SMS, mode = allow, callingUid = 1001, oldMode = allow
+08-03 12:35:18.628   574  3217 W Role    : Default holder doesn't have required signing certificate: com.google.android.retaildemo:6547c73dee150c103980bfdffe55cc9a011d785dd694a5f99afd8205bcaf1f80
+08-03 12:35:18.629   574  1740 W AppOpService: Ignored setUidMode call for runtime permission app op: uid = 1001, code = RECEIVE_SMS, mode = allow, callingUid = 1001, oldMode = allow
+08-03 12:35:18.629   574  1709 W AppOpService: Ignored setUidMode call for runtime permission app op: uid = 1001, code = RECEIVE_WAP_PUSH, mode = allow, callingUid = 1001, oldMode = allow
+08-03 12:35:18.629   574  1804 W AppOpService: Ignored setUidMode call for runtime permission app op: uid = 1001, code = SEND_SMS, mode = allow, callingUid = 1001, oldMode = allow
+08-03 12:35:18.629   574  1804 W AppOpService: Ignored setUidMode call for runtime permission app op: uid = 1001, code = READ_CELL_BROADCASTS, mode = allow, callingUid = 1001, oldMode = allow
+08-03 12:35:18.630   574  3217 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms.supervision, role: android.app.role.SYSTEM_SUPERVISION
+08-03 12:35:18.632   962  1154 D ImsResolver: maybeAddedImsService, packageName: org.wikipedia.dev
+08-03 12:35:18.632   574  3217 W Role    : Default holder doesn't have required signing certificate: com.google.android.apps.work.clouddpc:23962F4B43B9857638EA66F4D419518EAE282491ACDA4B94707BD59003C45E58
+08-03 12:35:18.640   574  3217 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms, role: android.app.role.WALLET
+08-03 12:35:18.642   574  3217 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.devicelockcontroller, role: android.app.role.SYSTEM_FINANCED_DEVICE_CONTROLLER
+08-03 12:35:18.650  1094  1094 D StatsLog: LAUNCHER_ALLAPPS_COUNT
+08-03 12:35:18.651   574   945 I AppWidgetServiceImpl: getInstalledProvidersForProfiles() 0
+08-03 12:35:18.652   574   945 W ParceledListSlice: Element #24 is 21116 bytes.
+08-03 12:35:18.652   574   945 W ParceledListSlice: Element #25 is 21152 bytes.
+08-03 12:35:18.652   574   945 W ParceledListSlice: Element #26 is 20996 bytes.
+08-03 12:35:18.652   574   945 W ParceledListSlice: Overly large reply size: 83992
+08-03 12:35:18.652   574   945 W ParceledListSlice: Element #27 is 20904 bytes.
+08-03 12:35:18.652   574   945 W ParceledListSlice: Element #28 is 21016 bytes.
+08-03 12:35:18.654  1094  1151 W PackageManager: Failure retrieving text 0x7f130786 in package com.android.systemui
+08-03 12:35:18.654  1094  1151 W PackageManager: android.content.res.Resources$NotFoundException: String resource ID #0x7f130786
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at android.content.res.Resources.getText(Resources.java:466)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at android.app.ApplicationPackageManager.getText(ApplicationPackageManager.java:2405)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at android.appwidget.AppWidgetProviderInfo.loadDescription(AppWidgetProviderInfo.java:484)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at com.android.launcher3.model.WidgetItem.<init>(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:4)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at com.android.launcher3.model.WidgetsModel.update(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:72)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at com.android.launcher3.p0.execute(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:16)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at com.android.launcher3.LauncherModel.a(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:27)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at com.android.launcher3.t0.run(go/retraceme 31f9979659277bb965985aff1272c33e3c3c9e755b77166d20a2465454178f2c:12)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at android.os.Handler.handleCallback(Handler.java:959)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at android.os.Handler.dispatchMessage(Handler.java:100)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at android.os.Looper.loopOnce(Looper.java:232)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at android.os.Looper.loop(Looper.java:317)
+08-03 12:35:18.654  1094  1151 W PackageManager: 	at android.os.HandlerThread.run(HandlerThread.java:85)
+08-03 12:35:18.654   574   945 I AppWidgetServiceImpl: getWidgetPreview() 0
+08-03 12:35:18.655   574   945 I AppWidgetServiceImpl: getWidgetPreview() 0
+08-03 12:35:18.726   574   607 D ShortcutService: Getting shortcuts for launcher= com.google.android.asuser=0 pkg=org.wikipedia.dev
+08-03 12:35:18.726   574   776 D ShortcutService: Saving package item org.wikipedia.dev to /data/system_ce/0/shortcut_service/packages/org.wikipedia.dev.xml
+08-03 12:35:18.730   574   607 D ShortcutService: Getting shortcuts for launcher= com.android.systemuiuser=0 pkg=org.wikipedia.dev
+08-03 12:35:18.730   574   607 D ShortcutService: Getting shortcuts for launcher= com.google.android.apps.nexuslauncheruser=0 pkg=org.wikipedia.dev
+08-03 12:35:19.129  1759  1801 I Bugle   : BroadcastReceiverAsyncWorkTracker: Acknowledging broadcast of buoi@f579c32
+08-03 12:35:19.185   574  1804 D ShortcutService: Getting shortcuts for launcher= com.google.android.asuser=0 pkg=org.wikipedia.dev
+08-03 12:35:19.188   574  1804 D ShortcutService: Getting shortcuts for launcher= com.google.android.asuser=0 pkg=org.wikipedia.dev
+08-03 12:35:19.653   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.653   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.653   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.654   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.654   574   721 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.889 11929 11929 D WM-DelayedWorkTracker: Scheduling work 211e3051-407d-4e40-9f8c-1b2d3a944b63
+08-03 12:35:19.890 11929 11929 D WM-GreedyScheduler: Starting tracking for 211e3051-407d-4e40-9f8c-1b2d3a944b63
+08-03 12:35:19.894   574   659 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.894   574   659 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.894   574   659 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.894   574   659 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.895   574   659 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.896 11929 11960 D WM-WorkConstraintsTrack: NetworkRequestConstraintController register shared callback
+08-03 12:35:19.897   574  1804 D ConnectivityService: requestNetwork for uid/pid:10234/11929 activeRequest: null callbackRequest: 2731 [NetworkRequest [ REQUEST id=2732, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false
+08-03 12:35:19.899   574   728 D ConnectivityService: NetReassign [2732 : null → 102] [c 0] [a 0] [i 1]
+08-03 12:35:19.899   574   721 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=2732, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+08-03 12:35:19.899   574   721 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=2732, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+08-03 12:35:19.899   574   721 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=2732, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+08-03 12:35:19.899   574   721 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=2732, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ]
+08-03 12:35:19.900 11929 11964 D WM-WorkConstraintsTrack: NetworkRequestConstraintController onCapabilitiesChanged callback
+08-03 12:35:19.900 11929 11964 D WM-WorkConstraintsTrack: Not dispatching constraint state yet: isBlocked=null, capabilitiesInitialized=true
+08-03 12:35:19.900 11929 11964 D WM-WorkConstraintsTrack: NetworkRequestConstraintController onBlockedStatusChanged callback false
+08-03 12:35:19.902 11929 11929 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=211e3051-407d-4e40-9f8c-1b2d3a944b63, generation=0)
+08-03 12:35:19.910 11929 11959 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=211e3051-407d-4e40-9f8c-1b2d3a944b63, generation=0)
+08-03 12:35:19.910 11929 11959 D WM-GreedyScheduler: Constraints met: Scheduling work ID WorkGenerationalId(workSpecId=211e3051-407d-4e40-9f8c-1b2d3a944b63, generation=0)
+08-03 12:35:19.915 11929 11929 D WM-WorkerWrapper: Starting work for org.wikipedia.savedpages.SavedPageSyncService
+08-03 12:35:19.917 11929 11959 D WM-Processor: Work WorkGenerationalId(workSpecId=211e3051-407d-4e40-9f8c-1b2d3a944b63, generation=0) is already enqueued for processing
+08-03 12:35:19.942 11929 11962 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=211e3051-407d-4e40-9f8c-1b2d3a944b63, tags={ org.wikipedia.savedpages.SavedPageSyncService } ]
+08-03 12:35:19.943 11929 11929 D WM-Processor: Processor 211e3051-407d-4e40-9f8c-1b2d3a944b63 executed; reschedule = false
+08-03 12:35:19.943 11929 11929 D WM-GreedyScheduler: Stopping tracking for WorkGenerationalId(workSpecId=211e3051-407d-4e40-9f8c-1b2d3a944b63, generation=0)
+08-03 12:35:19.943 11929 11929 D WM-SystemJobService: 211e3051-407d-4e40-9f8c-1b2d3a944b63 executed on JobScheduler
+08-03 12:35:19.943   574   945 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.944   574   945 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.944   574   945 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.944   574   945 W BestClock: java.time.DateTimeException: Missing network time fix
+08-03 12:35:19.945 11929 11929 W g.wikipedia.dev: Accessing hidden field Landroid/app/ActivityThread;->mServices:Landroid/util/ArrayMap; (unsupported, reflection, allowed)
+08-03 12:35:19.945 11929 11962 D WM-GreedyScheduler: Cancelling work ID 211e3051-407d-4e40-9f8c-1b2d3a944b63
+08-03 12:35:19.945 11929 11929 D LeakCanary: Watching instance of androidx.work.impl.background.systemjob.SystemJobService (androidx.work.impl.background.systemjob.SystemJobService received Service#onDestroy() callback) with key 1a36337c-8ee1-4336-8d90-60c125dd2335
+08-03 12:35:19.948 11929 11962 D WM-WorkConstraintsTrack: NetworkRequestConstraintController unregister shared callback
+08-03 12:35:19.949   574  1804 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+08-03 12:35:19.949   574  1804 D PackageManager: Clear ephemeral installer activity
+08-03 12:35:19.950 11929 11962 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver disabled
+08-03 12:35:20.212 11929 11963 I System.out: M6_P02_RESULT pages=24 objects=96 bytes_before=6294584 bytes_after=0 remaining_files=0 remaining_objects=0 worker_state=SUCCEEDED elapsed_ms=2292
+08-03 12:35:20.266 11929 11963 I TestRunner: finished: removingAllOfflinePagesReclaimsAssociatedFiles(org.wikipedia.m6.M6P02OfflineCleanupTest)
+08-03 12:35:20.267 11929 11963 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+08-03 12:35:20.269   574  1804 I ActivityManager: Force stopping org.wikipedia.dev appid=10234 user=0: finished inst
+08-03 12:35:20.269   574  1804 E ActivityManager: Unable to freeze binder for 11929: -11
+08-03 12:35:20.268  1804  1804 I binder  : 574:1804 ioctl 400c620e 77aaf5822c returned -11
+08-03 12:35:20.268  1804  1804 I binder  : 574:1804 ioctl 400c620e 77aaf5822c returned -11
+08-03 12:35:20.270 11918 11918 I app_process: System.exit called, status: 0
+08-03 12:35:20.270 11918 11918 I AndroidRuntime: VM exiting with result code 0.
+08-03 12:35:20.270   574   596 D DisplayManagerService: Drop pending events for gone uid 10234
+08-03 12:35:20.271   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+08-03 12:35:20.271   574   728 D InetDiagMessage: Destroyed 2 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+08-03 12:35:20.271   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={10234} in 0ms
+08-03 12:35:20.271   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+08-03 12:35:20.271   574   728 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+08-03 12:35:20.271   574   728 D InetDiagMessage: Destroyed live tcp sockets for uids={20234} in 1ms
+08-03 12:35:20.271   574  1804 I ActivityManager: Killing 11929:org.wikipedia.dev/u0a234 (adj 0): stop org.wikipedia.dev due to finished inst
+08-03 12:35:20.272   574  1804 I ActivityManager: Killing 11972:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0a234i78 (adj 0): isolated not needed
+08-03 12:35:20.273  9180  9180 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.safetynet.service.START pkg=com.google.android.gms }
+08-03 12:35:20.275   862   862 I Zygote  : Process 11972 exited due to signal 9 (Killed)
+08-03 12:35:20.275   574   596 D DisplayManagerService: Drop pending events for gone uid 99078
+08-03 12:35:20.274  8061  8061 I binder  : undelivered transaction 97746491, process died.
+08-03 12:35:20.274  8061  8061 I binder  : undelivered transaction 97746492, process died.
+08-03 12:35:20.274  8061  8061 I binder  : undelivered transaction 97746496, process died.
+08-03 12:35:20.280   574  1709 V ActivityManager: Got obituary of 11929:org.wikipedia.dev
+08-03 12:35:20.280   574  1804 E AppOps  : Operation not started: uid=10234 pkg=org.wikipedia.dev(null) op=WAKE_LOCK
+08-03 12:35:20.280   421   421 I adbd    : Remote process closed the socket (on MSG_PEEK)
+08-03 12:35:20.280   574   728 D ConnectivityService: releasing NetworkRequest [ REQUEST id=2730, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: org.wikipedia.dev UnderlyingNetworks: Null] ] (release request)
+08-03 12:35:20.279 27586 27586 I binder  : undelivered TRANSACTION_COMPLETE
+08-03 12:35:20.279 27586 27586 I binder  : undelivered transaction 97746505, process died.
+08-03 12:35:20.279 27586 27586 I binder  : undelivered transaction 97746483, process died.
+08-03 12:35:20.281   372   372 I Zygote  : Process 11929 exited due to signal 9 (Killed)
+08-03 12:35:20.287   574   610 I libprocessgroup: Removed cgroup /sys/fs/cgroup/uid_10234/pid_11929
+08-03 12:35:20.287   371   436 I netd    : tetherGetStats() -> {[]} <0.22ms>
+08-03 12:35:20.287   574   610 I libprocessgroup: Removed cgroup /sys/fs/cgroup/uid_99078/pid_11972
