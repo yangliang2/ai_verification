@@ -43,16 +43,18 @@ The prospective track is **not** ready for freezing:
 | T426527 | replacement rank 1 | reporter traced the behavior to power saving; the time-bounded campaign is over | exclude as non-reproducible/currently inapplicable |
 | T419910 | replacement rank 2 | 273 local pages load and sample deterministically; the remaining phase is live network/server behavior | exclude; no stable local failure oracle |
 | T425733 | replacement rank 3 | first onboarding page is black while the second is light under a light system theme | **admissible G-04 failure oracle** |
+| T426893 | replacement rank 4 | gallery media-list exposes four offline-header slots but image metadata exposes none | **admissible G-06 bounded failure oracle** |
+| T427224 | replacement rank 5 | the three recorded Polish related-page identities are projected twice across footer setup and lazy append | **admissible G-08 bounded failure oracle** |
 
-Only one of three prospective slots currently has an admissible failing oracle.
-Freezing a 3+3 manifest now would either admit already-fixed/non-reproducible
-work or relabel a G-04/G-06 behavior as G-08. Both would violate the approved
-contract.
+All three prospective slots now have stable, machine-checkable failing oracles:
+G-04 (T425733), G-06 (T426893), and G-08 (T427224). The six-slot manifest is
+not frozen yet; it must still pass the schema, overlap, checksum, and
+replacement-ledger admission checks.
 
-The proposed next candidates, T426893 (G-06) and T427224 (G-08), are documented
-in `ADDENDUM.md`. They have only received read-only eligibility/source review;
-they have not been admitted or test-preflighted and require explicit maintainer
-approval before that work begins.
+The approved addendum for T426893 (G-06) and T427224 (G-08) is documented in
+`ADDENDUM.md`; both candidates received only the authorized isolated local
+preflight. No upstream task, assignment, comment, branch, commit, pull
+request, or repository state was changed.
 
 ## Environment
 
@@ -306,6 +308,90 @@ Screenshots were visually inspected:
 This is a stable, machine-checkable G-04 failing oracle and is eligible for a
 prospective slot after the replacement transition is frozen.
 
+### T426893 — gallery metadata offline-cache seam
+
+Fixture:
+`bench/m6/admission-fixtures/prospective/replacement-t426893/M6T426893GalleryMetadataOfflineTest.kt`
+
+Fixture SHA-256:
+`cf723d68747df12cb00a1f472c4230c90eb00a2bb3fb0478f04192c4971410e1`
+
+Accountable commands:
+
+```bash
+./gradlew :app:assembleDevDebugAndroidTest
+
+adb -s emulator-5554 install -r \
+  app/build/outputs/apk/androidTest/dev/debug/app-dev-debug-androidTest.apk
+
+/usr/bin/time -p adb -s emulator-5554 shell am instrument -w \
+  -e class org.wikipedia.m6.M6T426893GalleryMetadataOfflineTest \
+  org.wikipedia.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Results:
+
+- AndroidTest build exit 0; 83 actionable tasks (all up-to-date); wall 0.55s
+- combined approved-candidate test APK SHA-256:
+  `147ff6fafbbbebe472b170cde201a6c7307c5d76124f292f6e2fb9d031bfe866`
+- 1 test, 1 expected failure; runner 0.028s; wall 1.24s
+- result: `media_list_header_slots=4 image_info_header_slots=0 expected_min=3`
+- assertion: image metadata does not expose the save/lang/title headers required
+  by the offline-cache contract
+
+This is a bounded production-seam oracle: Retrofit reflection observes the
+actual `RestService.getMediaList` and `Service.getImageInfo` declarations. It
+does not claim an OEM storage failure, a live Wikimedia response, or a full
+offline gallery/WebView reproduction. The full accountable output is under
+`prospective/replacement-t426893/`, including the raw logcat line and test
+runner failure.
+
+### T427224 — Polish Read More lifecycle deduplication
+
+Fixture:
+`bench/m6/admission-fixtures/prospective/replacement-t427224/M6T427224ReadMoreLifecycleTest.kt`
+
+Fixture SHA-256:
+`f187237847f36e24ba88a9775795896fdb93d95f3b286d8a67fdd9d3dce55573`
+
+The external reporter screenshot is preserved at
+`external-snapshots/T427224-Duplicate_related_articles.png` (SHA-256:
+`6cd078bdf06625febacb4c9f8b4bb47f852facac22bd7868795ae32d875bba5a`). It shows
+the same three Polish related-page identities twice:
+`(2039) Payne-Gaposchkin`, `Annie Jump Cannon`, and `Harvard College
+Observatory`.
+
+Accountable commands:
+
+```bash
+./gradlew :app:assembleDevDebugAndroidTest
+
+adb -s emulator-5554 install -r \
+  app/build/outputs/apk/androidTest/dev/debug/app-dev-debug-androidTest.apk
+
+/usr/bin/time -p adb -s emulator-5554 shell am instrument -w \
+  -e class org.wikipedia.m6.M6T427224ReadMoreLifecycleTest \
+  org.wikipedia.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Results:
+
+- AndroidTest build exit 0; 83 actionable tasks; wall 1.99s
+- test APK SHA-256:
+  `147ff6fafbbbebe472b170cde201a6c7307c5d76124f292f6e2fb9d031bfe866`
+- 1 test, 1 expected failure; runner 0.038s; wall 1.39s
+- result: `lang=pl recorded_identities=3 unique_identities=3
+  footer_calls=2 read_more_commands=2 item_counts=[3, 3]
+  projected_occurrences=6 expected_unique_occurrences=3`
+- assertion: the three recorded identities are projected twice across the
+  production footer setup and lazy append commands
+
+This is a deterministic command/lifecycle oracle tied to
+`JavaScriptActionHandler.setFooter()` and `appendReadMode()`. It is not a live
+PCS response replay and does not claim visual or device-specific reproduction;
+the screenshot is retained as the external reporter artifact. Full logs are in
+`prospective/replacement-t427224/`.
+
 ## External snapshots and read-only candidate discovery
 
 `external-snapshots/` contains the exact public task HTML, GitHub PR metadata,
@@ -325,8 +411,9 @@ and open-PR searches used for admission decisions. Important facts:
 - T392440 and T350895 were not proposed because their reporters/team could not
   provide a stable reproduction order.
 
-The two proposed additions received source-readiness review only. No fixture,
-APK change, instrumentation, or manual reproduction was performed for them.
+The two approved additions received isolated fixture/build/instrumentation
+preflight only. No upstream task, assignment, comment, branch, commit, pull
+request, or repository state was changed.
 
 ## Artifact inventory
 
@@ -339,16 +426,21 @@ APK change, instrumentation, or manual reproduction was performed for them.
 | `prospective/p-02/` | three fixture attempts, build/install/instrumentation/logcat/timing |
 | `prospective/replacement-t419910/` | build/install/instrumentation/logcat/timing |
 | `prospective/replacement-t425733/` | build/install/instrumentation/logcat/timing and two screenshots |
-| `external-snapshots/` | official task HTML, PR JSON, and PR-search JSON |
+| `prospective/replacement-t426893/` | build/install/instrumentation/logcat for gallery metadata oracle |
+| `prospective/replacement-t427224/` | build/install/instrumentation/logcat for Polish Read More oracle |
+| `external-snapshots/` | official task HTML, PR JSON, PR-search JSON, and T427224 reporter screenshot |
 | `ADDENDUM.md` | proposed candidate-pool amendment and decision boundary |
 | `.gitattributes` | preserve raw generated whitespace without `diff --check` false positives |
 | `checksums.sha256` | deterministic SHA-256 inventory generated after this README |
 
 ## Known gaps and next gate
 
-- A frozen six-slot manifest does not yet exist.
-- Only one prospective task has an admissible failing oracle.
-- T426893 and T427224 have not been approved or preflighted.
+- A frozen six-slot manifest does not yet exist; the next gate is manifest/schema
+  validation and freeze review.
+- All three prospective replacement slots now have admissible bounded failing
+  oracles (T425733/G-04, T426893/G-06, T427224/G-08).
+- T426893 and T427224 were approved for isolated local preflight only; neither
+  has any upstream state change.
 - No physical device, OEM matrix, long-duration storage pressure, production
   network replay, or authenticated account flow was exercised.
 - H-03 required one bounded install downgrade recovery.
@@ -357,9 +449,8 @@ APK change, instrumentation, or manual reproduction was performed for them.
 - The prospective base was locally modified only with test fixtures; no
   upstream source commit was produced.
 
-The next gate is explicit maintainer approval of `ADDENDUM.md`. After approval,
-only T426893 and T427224 may receive checkout/build/test admission preflight.
-The six-slot manifest can freeze only if both produce stable failing oracles and
+The next gate is creation and validation of the six-slot manifest. It can freeze
+only if the three historical pairs, the three prospective failure oracles, and
 all schema, overlap, checksum, and replacement-ledger checks pass.
 
 ## Evidence integrity commands
@@ -376,8 +467,8 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python \
   docs/runs/2026-08-03-issue-84-cohort-admission
 ```
 
-Result before commit:
+Result before the next evidence commit:
 
 - `git diff --check`: exit 0
-- inventory generation: exit 0; 89 listed artifacts
+- inventory generation: exit 0; artifact count recorded in `checksums.sha256`
 - inventory verification: exit 0; `checksum inventory verified`

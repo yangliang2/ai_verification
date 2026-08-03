@@ -58,10 +58,9 @@ T427224 also has an app-local seam:
   load paths.
 
 The proposed oracle is identity/count based. It does not depend on visual
-judgment or a live production response after the fixture is recorded.
-
-These observations establish only preflight feasibility. They are not evidence
-that either task reproduces or should be admitted.
+judgment or a live production response after the fixture is recorded. The
+approved preflight below confirms that both bounded oracles fail on the frozen
+base; this does not elevate either result to a formal M6 lane observation.
 
 ## Explicit non-selections
 
@@ -77,9 +76,9 @@ that either task reproduces or should be admitted.
   language-specific, current reproduction target. It remains a related-task
   risk to audit before admission.
 
-## Decision requested
+## Decision recorded
 
-Maintainer approval is requested for:
+The maintainer approved:
 
 1. appending T426893 and T427224 as prospective replacement ranks 4 and 5;
 2. assigning them G-06 and G-08 respectively, subject to preflight validation;
@@ -88,7 +87,28 @@ Maintainer approval is requested for:
 4. performing isolated local checkout/build/test preflights for these two
    candidates under the existing no-upstream-state-change boundary.
 
-Approval does not admit either candidate, freeze the cohort, or begin a formal
-M6 lane. Any candidate that passes on the frozen base, cannot reproduce, has an
-active competing implementation, or lacks a stable oracle must be excluded
-before formal invocation.
+This approval admitted neither candidate to a formal M6 lane and did not
+authorize upstream state changes. Both candidates passed the bounded admission
+preflight below; the six-slot manifest remains the next gate before any formal
+invocation.
+
+## Approval and preflight outcome
+
+The maintainer approved this addendum and the same isolated local
+checkout/build/test admission boundary in the Codex session on 2026-08-03.
+Neither approval nor preflight authorized any upstream state change.
+
+Both candidates produced stable, machine-checkable failing oracles on the exact
+frozen base:
+
+- T426893: `media_list_header_slots=4 image_info_header_slots=0`; one expected
+  failure, G-06 bounded gallery metadata/cache seam.
+- T427224: three recorded Polish identities projected six times across footer
+  setup and lazy append instead of three; one expected failure, G-08 bounded
+  lifecycle/dedup seam.
+
+The detailed accountable commands, timings, APK identities, raw logcat, and
+claim boundaries are in the candidate sub-records under
+`prospective/replacement-t426893/` and `prospective/replacement-t427224/`.
+They are admission evidence, not formal M6 lane results. The next gate is the
+versioned six-slot manifest and its validator/checksum admission checks.
