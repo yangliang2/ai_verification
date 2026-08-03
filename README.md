@@ -1,95 +1,101 @@
 # AI Verification
 
-验证 AI coding 结果是否真的经得起 Android 行为层故障场景，而不是只看静态 diff、单元测试或 happy path。
+验证 AI coding 结果是否经得起 Android 行为层故障场景，而不是只看静态 diff、
+单元测试或 happy path。
 
-当前 MVP 已经打通一条可审计的验证链；下一阶段不是重造一个裸 LLM provider，也不是直接跳到 100+ 缺陷的大规模注入基准，而是先把已验证链路扩展成可度量的 M2 基准范围：
+当前公共验证链为：
 
 ```text
-run-spec.yaml
+Run Spec
 → Codex CLI Verification Agent Backend
-→ Android CLI / adb 执行与证据采集
-→ Journey Segment Boundary 系统事件注入
-→ L1/L2/L3 oracle
-→ verdict + run record + issue evidence
+→ Android CLI / adb
+→ Journey Segment Boundary
+→ L1 / L2 / L3 与 capability-specific oracle
+→ fail-closed ExecutionRecord
+→ Local Conclusion + durable run record
 ```
 
-## 当前范围
+项目已有这条链路的可审计实现与多组有界证据，但不因此声称具备 Android 通用
+覆盖、benchmark-wide 检测率或 upstream acceptance。当前声明的唯一入口是
+[`docs/current-capability-claim-matrix.md`](docs/current-capability-claim-matrix.md)。
 
-### MVP 已验证能力
+## 当前状态
 
-- 使用 **Codex CLI** 作为第一种 Verification Agent Backend，保留真实生产形态的 agent 执行能力。
-- 使用 Google **Android CLI** 作为 Android agent-first 操作入口，覆盖 APK 部署、layout/screenshot 采集、docs/skills 查询；adb 作为系统事件和 logcat fallback。
-- 使用开源 Android 宿主 **wikimedia/apps-android-wikipedia** 跑通 smoke/M1，而不是一开始接入 ColorOS 内部构建系统。
-- 用 **Run Spec** 描述一次可复现验证运行，并通过 `python -m aiverify.runner` 产出 verdict。
-- 在 **Journey Segment Boundary** 注入配置变更、进程死亡等行为层事件。
-- 用 M1 五个 Goldset-derived Behavior-Layer Defect 证明 L1/L2 oracle 能抓住 crash、ANR、state loss。
-- 用第六个 ui-rendering seed 证明 L3 semantic oracle 能抓住 L1/L2 不可见的语义 UI 错误。
-- 把每次非平凡验证写成 `docs/runs/<date>-<slug>/`，并在 GitHub issue 中留下可审计证据。
+截至 2026-08-02：
 
-### 暂不声称完成
+- #58 已由 fresh #80 M3.1 population 的有效证据收口。#80 在冻结的五 seed、
+  30 lane 人口上得到 30/30 first-attempt 和 eventual accountability、
+  15/15 controls passed、15/15 expected defects caught、0 retries，以及
+  30/30 complete execution provenance。
+- #59 已按 retrospective pilot 收口。M4 的原始结果保持为两个 accountable
+  `locally_supported` case 和一个 `non_accountable` case；M4 早于后来有效的
+  #80 gate，因此仍是 chronology exception，不能追认为 entry-gate 顺序合规。
+- M5 parent #68 已收口。G-01～G-08 都有稳定 fixture、机器可检查 oracle 与
+  committed run record；每项只支持该记录声明范围内的 bounded conclusion。
+- 当前里程碑是 [M6 parent #82](https://github.com/yangliang2/ai_verification/issues/82)：
+  以三个 exact historical pairs 和三个 blinded prospective AI changes 资格化
+  Verification Agent，而不是继续增加与真实案例无关的孤立 tracer。
 
-- 100+ AI 自动注入缺陷基准。
-- M2/M3 级别的多种子检测率基准。
-- ColorOS 一方应用迁移。
-- 完全无人值守的 LLM UI driver。
-- 对外可信的抓取率、误报率或全基准吞吐指标。
-- 视觉/多模态 L3 稳定性或全基准吞吐指标。
+## 当前可支持的有界结论
 
-这些仍是后续方向，但不是当前已验证的 MVP 状态。
+| 层次 | 有界证据 |
+|---|---|
+| 公共执行链 | [MVP run](docs/runs/2026-06-15-afk-verification/README.md)、[end-to-end runner](docs/runs/2026-07-05-end-to-end-cli-codex/README.md) |
+| fail-closed attempt accounting | [#60 ExecutionRecord/system-event run](docs/runs/2026-07-17-issue-60-execution-record-system-event/README.md) |
+| 执行身份 | [#61 Effective Execution Identity run](docs/runs/2026-07-17-issue-61-effective-execution-identity/README.md) |
+| 可移植 host identity | [#67 host-locator run](docs/runs/2026-07-18-issue-67-portable-host-locator/README.md) |
+| 当前信任 gate | [#80 fresh M3.1 run](docs/runs/2026-07-21-issue-80-m3-fresh/README.md) |
+| M4 prospective pilot | [M4 aggregate](docs/runs/2026-07-18-m4-aggregate/README.md) |
+| M5 G-01～G-08 | [capability gap register](docs/research/2026-07-19-verification-gap-register.md) |
 
-## 已验证状态
+M1/M2/M3 的历史人口、M4 chronology、M5 各能力切片、未度量方向和明确不声明
+事项都在 claim matrix 中逐行记录。不同人口不可合并成一个检测率 denominator。
 
-截至 2026-07-09：
+## 当前不声明
 
-- GitHub PRD #1 已完成并关闭：<https://github.com/yangliang2/ai_verification/issues/1>
-- M2-beta PRD #24 已完成子 issue #25-#29，并产出 audited benchmark slice report。
-- Run record: [`docs/runs/2026-06-15-afk-verification/README.md`](docs/runs/2026-06-15-afk-verification/README.md)
-- M1 report: [`docs/M1-goldset-report.md`](docs/M1-goldset-report.md)
-- M2-beta report: [`docs/M2-beta-benchmark-slice-report.md`](docs/M2-beta-benchmark-slice-report.md)
-- M2-beta aggregate summary: [`docs/M2-beta-aggregate-summary.md`](docs/M2-beta-aggregate-summary.md)
-- M2-beta inclusion rules: [`docs/M2-beta-inclusion-rules.md`](docs/M2-beta-inclusion-rules.md)
-- M2-beta #23 quarantine/resolution note: [`docs/M2-beta-oversized-saved-state-quarantine.md`](docs/M2-beta-oversized-saved-state-quarantine.md)
-- M2 text-layout L3 summary: [`docs/M2-l3-text-layout-summary.md`](docs/M2-l3-text-layout-summary.md)
-- M2 scoped milestone note: [`docs/M2-scoped-milestone-note.md`](docs/M2-scoped-milestone-note.md)
-- M2 metric schema: [`docs/M2-metric-schema.md`](docs/M2-metric-schema.md)
-- L3 run record: [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)
-- Latest M2 seed run record: [`docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/`](docs/runs/2026-07-08-wikipedia-ui-rendering-02-search-card-copy-mismatch/README.md)
-- Latest L3 repeatability run record: [`docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/`](docs/runs/2026-07-08-l3-repeatability-ui-rendering-02/README.md)
-- 当前 M2-beta aggregate：10 included injected-defect seeds, 0 blocked/candidate seeds, 2 repeatability-only packages。
-- 本地测试：`.venv/bin/pytest` -> `281 collected, exit 0, 2 warnings`
+- benchmark-wide detection rate、false-positive rate 或统计置信度；
+- Android 通用、cross-host、physical/OEM/device-fleet 或 ColorOS 覆盖；
+- fully unattended Journey reliability；
+- visual-only/general multimodal L3 reliability；
+- prospective task 是 Goldset，或本地结论等于 upstream acceptance；
+- M4 满足“先过有效 entry gate、再执行”的时间顺序。
 
-Wikipedia host 实测：
+## 历史冻结结果
 
-- Host path: `/Users/peter/hosts/wikipedia`
-- Host commit: `6ccb8d85a21a8e34b96e4813d3caee5c690ece9b`
-- Build: `./gradlew assembleDevDebug --no-daemon` -> `BUILD SUCCESSFUL in 9m 48s`
-- APK: `/Users/peter/hosts/wikipedia/app/build/outputs/apk/dev/debug/app-dev-debug.apk`
-- Package: `org.wikipedia.dev`
-- Android CLI deploy: `android run --apks=... --device=emulator-5554 --activity=org.wikipedia.DefaultIcon`
-- Evidence artifacts: [`docs/runs/2026-06-15-afk-verification/artifacts/`](docs/runs/2026-06-15-afk-verification/artifacts/)
+### M2-beta（截至 2026-07-09）
+
+- [`docs/M2-beta-benchmark-slice-report.md`](docs/M2-beta-benchmark-slice-report.md)
+- [`docs/M2-beta-aggregate-summary.md`](docs/M2-beta-aggregate-summary.md)
+- 10 included injected-defect seeds, 0 blocked/candidate seeds，10 matched
+  baseline controls passed；两个 L3 repeatability-only packages 单独记账。
+- #23 oversized saved-state seed 已通过 matched pair 纳入 M2-beta denominator。
+
+### M3/M3.1
+
+- 原 M3 population：27/30 eventually accountable，milestone `FAILED`。
+- M3 v2：独立人口 29/30 eventually accountable；保留自身身份边界。
+- #62 M3.1 v3：6/30 eventually accountable，`FAILED`，记录保持不可变。
+- #80 fresh M3.1：30/30 accountable、15/15 controls、15/15 defects、
+  0 retries；这是当前 execution-trust baseline，不覆盖其他 host/backend/fleet。
 
 ## 目录结构
 
 ```text
 src/aiverify/
-  providers/          LLM provider 抽象、Codex CLI L3 judge、异源约束
-  harness/device/     adb 设备编排、系统事件原语、logcat/UI dump
-  harness/build/      patch、批量构建、APK 缓存等后续基准能力
-  agent/planner/      driver-agnostic 验证计划 schema 与 generator
-  agent/oracle/       L1/L2/L3 分层判定与 verdict schema
-  runner/             当前 MVP runner contracts
-    run_spec.py       单次验证运行输入契约
-    codex_backend.py  Codex CLI backend contract
-    evidence.py       Android CLI evidence checkpoints
-    journey.py        Journey segment boundary 编排
-    system_events.py  runner 到 DeviceController 的系统事件注入
-    cli.py            Run Spec 到 Codex driver、evidence、L1/L2/L3 verdict 的端到端入口
-    verdict.py        Android CLI layout JSON 到 L2Oracle verdict
+  providers/          Verification Agent Backend、L3 judge 与异源约束
+  harness/device/     Android CLI / adb 设备编排、系统事件与证据采集
+  harness/build/      source patch、构建、APK 与缓存能力
+  agent/planner/      driver-agnostic Journey 与验证计划
+  agent/oracle/       L1/L2/L3 分层 oracle 与 verdict
+  runner/             Run Spec、ExecutionRecord、identity、Journey 与 CLI
+  bench/              evidence-derived aggregate、审计与 checksum 工具
 
-bench/goldset/        真实历史行为层缺陷候选素材
-docs/adr/             当前架构决策
-docs/agents/          agent/issue tracker/triage 约定
-docs/runs/            可审计运行记录与 evidence artifacts
+bench/goldset/        版本化行为层 fixture、Run Spec 与历史素材
+docs/adr/             架构决策
+docs/agents/          tracker、triage 与 domain 约定
+docs/research/        能力研究与 gap register
+docs/runs/            committed run record 与 evidence artifact
+tests/                contracts、fixtures、aggregates 与文档一致性检查
 ```
 
 ## 本地开发
@@ -97,10 +103,10 @@ docs/runs/            可审计运行记录与 evidence artifacts
 ```bash
 uv venv .venv
 uv pip install --python .venv/bin/python pytest pyyaml jsonschema
-.venv/bin/pytest
+PYTHONPATH=src .venv/bin/python -m pytest
 ```
 
-Android smoke 需要额外环境：
+Android live run 还需要：
 
 ```bash
 android update
@@ -109,14 +115,12 @@ android info
 adb devices
 ```
 
-当前实测 Android CLI 版本为 `1.0.15498356`，Codex CLI 版本为 `codex-cli 0.139.0`。
+具体 Android CLI、Codex CLI、host commit、device 与 package 版本必须从目标 run
+record 的 Effective Execution Identity 读取；不要把本机当前环境当成历史运行身份。
 
-## 端到端运行（Codex CLI backend）
+## 端到端运行
 
-把一份 run-spec 从头跑到 verdict，无需手动驱动：Codex CLI 作为 Verification Agent
-Backend 驱动应用，runner 注入行为层事件并采证据，oracle 判定：
-
-新的 Run Spec 应使用可移植 host locator，而不是冻结某台机器的绝对路径：
+新 Run Spec 使用可移植 host locator，并绑定预期 origin 与 commit：
 
 ```yaml
 host_project:
@@ -125,7 +129,7 @@ host_project:
   commit: 6ccb8d85a21a8e34b96e4813d3caee5c690ece9b
 ```
 
-运行时可以设置 locator 声明的环境变量，或使用显式 CLI override：
+可以由 locator 环境变量或显式 override 解析本机路径：
 
 ```bash
 WIKIPEDIA_SOURCE=/Users/me/hosts/wikipedia \
@@ -139,58 +143,37 @@ PYTHONPATH=src python -m aiverify.runner run-spec.yaml \
   --artifact-dir docs/runs/<slug>/artifacts
 ```
 
-locator 会同时冻结预期 Git origin 和 commit。runner 在部署前校验实际仓库身份，
-并在 Effective Execution Identity 中保留 locator、解析来源和本机绝对路径。若环境
-变量缺失、CLI override 与环境冲突、或仓库身份不一致，执行会 fail closed。旧的
-字符串 `host_project` 仅为历史 Run Spec 和证据重放继续兼容。
-
-```bash
-PYTHONPATH=src python -m aiverify.runner \
-  bench/goldset/run-specs/wikipedia-config-change-01-defect.yaml \
-  --device emulator-5554 \
-  --artifact-dir docs/runs/<slug>/artifacts
-```
-
-任一 oracle（L1/L2/L3）返回 `fail` 时进程以非零码退出（便于 CI gate）。实测见
-[`docs/runs/2026-07-05-end-to-end-cli-codex/`](docs/runs/2026-07-05-end-to-end-cli-codex/README.md)
-和 [`docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/`](docs/runs/2026-07-06-wikipedia-ui-rendering-01-nav-label-swap/README.md)。
+runner 在外部副作用前建立持久 ExecutionRecord，并在执行前后校验 source、
+worktree、APK、installed binary、device、tool 与 agent role identity。缺失、
+漂移或矛盾身份 fail closed；任一 oracle fail 时 CLI 非零退出。
 
 ## 文档入口
 
-- 项目语言与术语：[`CONTEXT.md`](CONTEXT.md)
-- 当前交接和下一步：[`HANDOFF.md`](HANDOFF.md)
-- Agent 工作规范：[`AGENTS.md`](AGENTS.md)
-- Android CLI execution ADR：[`docs/adr/0001-android-cli-first-execution-base.md`](docs/adr/0001-android-cli-first-execution-base.md)
+- 当前声明边界：[`docs/current-capability-claim-matrix.md`](docs/current-capability-claim-matrix.md)
+- 当前交接：[`HANDOFF.md`](HANDOFF.md)
+- 项目术语：[`CONTEXT.md`](CONTEXT.md)
+- Agent 与 Issue 规范：[`AGENTS.md`](AGENTS.md)
+- Android CLI-first ADR：[`docs/adr/0001-android-cli-first-execution-base.md`](docs/adr/0001-android-cli-first-execution-base.md)
 - Codex CLI backend ADR：[`docs/adr/0002-codex-cli-as-verification-agent-backend.md`](docs/adr/0002-codex-cli-as-verification-agent-backend.md)
-- Host app 选型：[`docs/host-app-selection.md`](docs/host-app-selection.md)
-- 历史初版计划：[`.omc/plans/ralplan-ai-behavior-verification.md`](.omc/plans/ralplan-ai-behavior-verification.md)
+- M5 gap register：[`docs/research/2026-07-19-verification-gap-register.md`](docs/research/2026-07-19-verification-gap-register.md)
 
-历史初版计划保留为背景资料，但已经被当前 PRD #1、ADR、run record 和 GitHub issue 状态 supersede；不要按旧 AC1-AC10 直接判断当前 MVP 是否完成。
+历史初版计划保留为背景资料，但已经被当前 PRD、ADR、run record 和 GitHub
+issue 状态 supersede；不要按旧 AC1-AC10 判断当前能力。
 
-## 下一步
+## 下一步：M6 qualification
 
-当前 M2-beta 入口：
+依赖顺序为：
 
-- #24：M2-beta audited aggregate benchmark slice PRD。
-- #25：M2-beta inclusion rules 已完成；定义 included/control/repeatability-only/candidate/blocked/excluded accounting。
-- #26：M2-beta metric context backfill 已完成；M1/M2 seed run specs 可被 aggregate 读取。
-- #27：#23 oversized saved-state seed 已通过 matched pair 纳入 M2-beta denominator。
-- #28：M2-beta aggregate summary path 已完成；`python -m aiverify.bench.m2_beta_summary` 可生成汇总。
-- #29：M2-beta final benchmark-slice report 已完成。
+```text
+#83 current claim matrix
+  → #84 freeze six-case cohort (human-required)
+  → #85 common Qualification Case Package
+  → #86 historical track ┐
+                         ├→ #88 aggregate, independent audit, M7 decision
+  → #87 prospective track┘
+```
 
-此前 M2-alpha / M2-follow-up 的入口：
-
-- #14：`ui-rendering-01` 的 L3 repeatability 已完成；fixed evidence 下 baseline 5/5 pass、defect 5/5 fail/ui_rendering。
-- #15：config-change duplicated-state Goldset seed 已完成；baseline L2 pass、defect L2 fail，覆盖“恢复时叠加/重复”模式。
-- #13：M2 scoping 已给出第一轮范围，作为 M2-alpha 的决策记录。
-- #9：M1 five-Goldset report 已完成并关闭。
-- #1：父 PRD 已完成并关闭。
-- #16：navigation back-button Goldset seed 已完成；baseline L2 pass、defect L2 fail，覆盖“Back 被吞掉 / 需要额外返回一次”的非崩溃导航状态缺陷。
-- #17：第二个 L3 text-layout semantic seed 已完成；Search tab `search_card` baseline L3 pass、defect L3 fail/ui_rendering。
-- #18：`ui-rendering-02` 的 L3 repeatability 已完成；fixed evidence 下 baseline 5/5 pass、defect 5/5 fail/ui_rendering。
-- #19：M2 text-layout L3 小结已完成；记录两个 repeatability-gated seed 的可用范围和限制。
-- #20：M2 scoped milestone note 已完成；把 M1 seed-count、M2 seed expansion、text-layout L3 repeatability 和剩余 benchmark gap 分开记录。
-- #21：M2 metric/schema cleanup 已完成；新增 `scenario.metric_context` 和顶层 `verdict.json.metric_context`，把 seed outcome、oracle symptom class、taxonomy category 分开。
-- #22：checkpoint evidence recovery hardening 已完成；成功/失败的 evidence capture 都会写 `capture-manifest.json`，失败时也保留 `commands.json`。
-
-推荐下一步继续扩展新的 M2 seed，或用 `metric_context` 做一个 aggregate M2 report。
+正式执行前必须先完成 #84：冻结 admission、exclusion/replacement、repetition、
+retry、identity、blinding 与 claim rules。M6 的 historical/prospective 两个
+track 永远分开记账；没有新的明确授权，不进行任何 upstream comment、task claim
+或 pull request。
