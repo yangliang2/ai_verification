@@ -1,0 +1,108 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Configuration on demand is an incubating feature.
+
+> Configure project :app
+"/Users/peter/.sign/signing.properties" not found
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+
+> Task :app:clean
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDevDebugBuild UP-TO-DATE
+> Task :app:mergeDevDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:dataBindingMergeDependencyArtifactsDevDebug
+> Task :app:generateDevDebugResValues FROM-CACHE
+> Task :app:processDevDebugGoogleServices FROM-CACHE
+> Task :app:extractDevDebugSupportedLocales FROM-CACHE
+> Task :app:generateDevDebugLocaleConfig FROM-CACHE
+> Task :app:generateDevDebugResources FROM-CACHE
+> Task :app:mergeDevDebugResources FROM-CACHE
+> Task :app:packageDevDebugResources FROM-CACHE
+> Task :app:parseDevDebugLocalResources FROM-CACHE
+> Task :app:dataBindingGenBaseClassesDevDebug FROM-CACHE
+> Task :app:generateDevDebugBuildConfig FROM-CACHE
+> Task :app:mapDevDebugSourceSetPaths
+> Task :app:createDevDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDevDebug FROM-CACHE
+> Task :app:checkDevDebugAarMetadata
+> Task :app:processDevDebugMainManifest FROM-CACHE
+> Task :app:processDevDebugManifest FROM-CACHE
+> Task :app:processDevDebugManifestForPackage FROM-CACHE
+> Task :app:processDevDebugResources FROM-CACHE
+> Task :app:kspDevDebugKotlin FROM-CACHE
+> Task :app:compileDevDebugKotlin FROM-CACHE
+> Task :app:javaPreCompileDevDebug FROM-CACHE
+> Task :app:compileDevDebugJavaWithJavac FROM-CACHE
+> Task :app:mergeDevDebugShaders
+> Task :app:compileDevDebugShaders NO-SOURCE
+> Task :app:generateDevDebugAssets UP-TO-DATE
+> Task :app:mergeDevDebugAssets
+> Task :app:compressDevDebugAssets FROM-CACHE
+> Task :app:l8DexDesugarLibDevDebug FROM-CACHE
+> Task :app:desugarDevDebugFileDependencies FROM-CACHE
+> Task :app:dexBuilderDevDebug FROM-CACHE
+> Task :app:mergeDevDebugGlobalSynthetics FROM-CACHE
+> Task :app:processDevDebugJavaRes
+> Task :app:mergeDevDebugJniLibFolders
+> Task :app:validateSigningDevDebug
+> Task :app:writeDevDebugAppMetadata
+> Task :app:checkDevDebugDuplicateClasses
+> Task :app:writeDevDebugSigningConfigVersions
+> Task :app:mergeDevDebugNativeLibs
+> Task :app:mergeExtDexDevDebug FROM-CACHE
+> Task :app:mergeLibDexDevDebug FROM-CACHE
+> Task :app:mergeProjectDexDevDebug FROM-CACHE
+> Task :app:preDevDebugAndroidTestBuild SKIPPED
+
+> Task :app:stripDevDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, liblanguage_id_l2c_jni.so, libmaplibre.so.
+
+> Task :app:mergeDevDebugJavaResource
+> Task :app:dataBindingMergeDependencyArtifactsDevDebugAndroidTest
+> Task :app:generateDevDebugAndroidTestResValues FROM-CACHE
+> Task :app:generateDevDebugAndroidTestResources FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestResources FROM-CACHE
+> Task :app:bundleDevDebugClassesToCompileJar
+> Task :app:dataBindingGenBaseClassesDevDebugAndroidTest FROM-CACHE
+> Task :app:processDevDebugAndroidTestManifest
+> Task :app:generateDevDebugAndroidTestBuildConfig FROM-CACHE
+> Task :app:checkDevDebugAndroidTestAarMetadata
+> Task :app:mapDevDebugAndroidTestSourceSetPaths
+> Task :app:processDevDebugAndroidTestResources FROM-CACHE
+> Task :app:kspDevDebugAndroidTestKotlin FROM-CACHE
+> Task :app:compileDevDebugAndroidTestKotlin FROM-CACHE
+> Task :app:javaPreCompileDevDebugAndroidTest FROM-CACHE
+> Task :app:compileDevDebugAndroidTestJavaWithJavac FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestShaders
+> Task :app:compileDevDebugAndroidTestShaders NO-SOURCE
+> Task :app:generateDevDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeDevDebugAndroidTestAssets
+> Task :app:compressDevDebugAndroidTestAssets FROM-CACHE
+> Task :app:desugarDevDebugAndroidTestFileDependencies FROM-CACHE
+> Task :app:dexBuilderDevDebugAndroidTest FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestGlobalSynthetics FROM-CACHE
+> Task :app:processDevDebugAndroidTestJavaRes
+> Task :app:mergeDevDebugAndroidTestJniLibFolders
+> Task :app:checkDevDebugAndroidTestDuplicateClasses
+> Task :app:mergeDevDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:mergeExtDexDevDebugAndroidTest FROM-CACHE
+> Task :app:mergeLibDexDevDebugAndroidTest FROM-CACHE
+> Task :app:mergeProjectDexDevDebugAndroidTest FROM-CACHE
+> Task :app:stripDevDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningDevDebugAndroidTest
+> Task :app:writeDevDebugAndroidTestSigningConfigVersions
+> Task :app:mergeDevDebugAndroidTestJavaResource
+> Task :app:packageDevDebugAndroidTest
+> Task :app:createDevDebugAndroidTestApkListingFileRedirect
+> Task :app:assembleDevDebugAndroidTest
+> Task :app:packageDevDebug
+> Task :app:createDevDebugApkListingFileRedirect
+> Task :app:assembleDevDebug
+
+BUILD SUCCESSFUL in 9s
+77 actionable tasks: 33 executed, 44 from cache
+real 9.77
+user 29.20
+sys 5.44
+build_exit_code=0
