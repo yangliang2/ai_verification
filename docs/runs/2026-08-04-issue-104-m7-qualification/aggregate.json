@@ -1,0 +1,91 @@
+{
+  "accountable_lanes": 12,
+  "adjudication_agreements": 12,
+  "cells": {
+    "change-control": {
+      "accountable_lanes": 3,
+      "adjudication_agreements": 3,
+      "admitted_attacks": 3,
+      "local_conclusions": [
+        "rejected",
+        "rejected",
+        "rejected"
+      ],
+      "observed_lanes": 3,
+      "planned_lanes": 3,
+      "retry_count": 0,
+      "target_mode": "change",
+      "variant": "control"
+    },
+    "change-defect": {
+      "accountable_lanes": 3,
+      "adjudication_agreements": 3,
+      "admitted_attacks": 3,
+      "local_conclusions": [
+        "supported",
+        "supported",
+        "supported"
+      ],
+      "observed_lanes": 3,
+      "planned_lanes": 3,
+      "retry_count": 0,
+      "target_mode": "change",
+      "variant": "defect"
+    },
+    "project-control": {
+      "accountable_lanes": 3,
+      "adjudication_agreements": 3,
+      "admitted_attacks": 3,
+      "local_conclusions": [
+        "rejected",
+        "rejected",
+        "rejected"
+      ],
+      "observed_lanes": 3,
+      "planned_lanes": 3,
+      "retry_count": 0,
+      "target_mode": "project",
+      "variant": "control"
+    },
+    "project-defect": {
+      "accountable_lanes": 3,
+      "adjudication_agreements": 3,
+      "admitted_attacks": 3,
+      "local_conclusions": [
+        "supported",
+        "supported",
+        "supported"
+      ],
+      "observed_lanes": 3,
+      "planned_lanes": 3,
+      "retry_count": 0,
+      "target_mode": "project",
+      "variant": "defect"
+    }
+  },
+  "claim_boundary": "local fixture and discovery/admission/evidence seam only",
+  "contradictory_preflight_excluded": true,
+  "defect_supporting_conclusions": 6,
+  "matched_control_non_supporting_conclusions": 6,
+  "modes": {
+    "change": {
+      "accountable_lanes": 6,
+      "control_conclusions": 3,
+      "defect_conclusions": 3,
+      "observed_lanes": 6,
+      "planned_lanes": 6
+    },
+    "project": {
+      "accountable_lanes": 6,
+      "control_conclusions": 3,
+      "defect_conclusions": 3,
+      "observed_lanes": 6,
+      "planned_lanes": 6
+    }
+  },
+  "next_route": "proceed_to_bounded_runtime_probe",
+  "observed_lanes": 12,
+  "planned_lanes": 12,
+  "qualification_id": "m7-temporal-discovery-v1",
+  "retry_count": 0
+}

@@ -176,6 +176,19 @@ Finding.
 The current explored frontier for a target: Findings, Residual Risk, explored
 context facts, and the remaining coverage frontier.
 
+**Blinded M7 Qualification**:
+A frozen, local-only four-cell qualification (change/project × defect/control)
+with three repetitions per cell. Verifier-facing packets omit the hidden
+variant, expected evidence, and verdict; an auditor applies the preregistered
+mapping only after Risk Hypothesis freeze and Attack Plan admission. It
+qualifies the discovery/admission/evidence seam, not Android execution or a
+detection rate.
+
+**Qualification Manifest**:
+The checksum-bound JSON contract that freezes M7 cells, repetitions, retry and
+blinding policy, contradiction exclusion, and claim boundary before formal
+lanes begin.
+
 ## Current Milestone Boundary
 
 As of 2026-08-04, the repository has bounded evidence for the public verification
@@ -196,7 +209,13 @@ detection or false-positive rate, physical/OEM/ColorOS coverage, fully unattende
 Journey reliability, visual-only multimodal reliability, or upstream acceptance.
 
 The current milestone is M7 white-box adversarial quality-risk discovery. Parent
-#98 coordinates #99 source-of-truth reconciliation, #100's Discovery Campaign
+#98 coordinated #99 source-of-truth reconciliation, #100's Discovery Campaign
 contracts, the #101/#102 discovery slices, #103 orchestration, and #104 blinded
-qualification. See `docs/current-capability-claim-matrix.md` and the M6 aggregate
-for the evidence and claim boundaries.
+qualification. The #104 local qualification completed 12/12 accountable lanes
+across the four frozen cells, 0 retries, 12/12 admitted attacks, and 12/12
+independent adjudication agreements. The contradictory P-03-class preflight was
+rejected before the formal denominator with no side effects. The result supports
+only a bounded next route to a separately admitted runtime probe; it is not an
+Android execution, benchmark-rate, completeness, or upstream-acceptance claim.
+See `docs/runs/2026-08-04-issue-104-m7-qualification/README.md` and
+`docs/current-capability-claim-matrix.md` for the evidence and claim boundaries.

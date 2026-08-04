@@ -387,6 +387,7 @@ def test_build_configuration_packages_the_schema() -> None:
     assert configuration["tool"]["setuptools"]["package-data"]["aiverify.bench"] == [
         "m6_cohort_schema.json",
         "m6_case_package_schema.json",
+        "m7_qualification_schema.json",
     ]
 
 

@@ -1,0 +1,892 @@
+{
+  "aggregate": {
+    "accountable_lanes": 12,
+    "adjudication_agreements": 12,
+    "cells": {
+      "change-control": {
+        "accountable_lanes": 3,
+        "adjudication_agreements": 3,
+        "admitted_attacks": 3,
+        "local_conclusions": [
+          "rejected",
+          "rejected",
+          "rejected"
+        ],
+        "observed_lanes": 3,
+        "planned_lanes": 3,
+        "retry_count": 0,
+        "target_mode": "change",
+        "variant": "control"
+      },
+      "change-defect": {
+        "accountable_lanes": 3,
+        "adjudication_agreements": 3,
+        "admitted_attacks": 3,
+        "local_conclusions": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "observed_lanes": 3,
+        "planned_lanes": 3,
+        "retry_count": 0,
+        "target_mode": "change",
+        "variant": "defect"
+      },
+      "project-control": {
+        "accountable_lanes": 3,
+        "adjudication_agreements": 3,
+        "admitted_attacks": 3,
+        "local_conclusions": [
+          "rejected",
+          "rejected",
+          "rejected"
+        ],
+        "observed_lanes": 3,
+        "planned_lanes": 3,
+        "retry_count": 0,
+        "target_mode": "project",
+        "variant": "control"
+      },
+      "project-defect": {
+        "accountable_lanes": 3,
+        "adjudication_agreements": 3,
+        "admitted_attacks": 3,
+        "local_conclusions": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "observed_lanes": 3,
+        "planned_lanes": 3,
+        "retry_count": 0,
+        "target_mode": "project",
+        "variant": "defect"
+      }
+    },
+    "claim_boundary": "local fixture and discovery/admission/evidence seam only",
+    "contradictory_preflight_excluded": true,
+    "defect_supporting_conclusions": 6,
+    "matched_control_non_supporting_conclusions": 6,
+    "modes": {
+      "change": {
+        "accountable_lanes": 6,
+        "control_conclusions": 3,
+        "defect_conclusions": 3,
+        "observed_lanes": 6,
+        "planned_lanes": 6
+      },
+      "project": {
+        "accountable_lanes": 6,
+        "control_conclusions": 3,
+        "defect_conclusions": 3,
+        "observed_lanes": 6,
+        "planned_lanes": 6
+      }
+    },
+    "next_route": "proceed_to_bounded_runtime_probe",
+    "observed_lanes": 12,
+    "planned_lanes": 12,
+    "qualification_id": "m7-temporal-discovery-v1",
+    "retry_count": 0
+  },
+  "claim_boundary": {
+    "local_only": true,
+    "no_android_execution_claim": true,
+    "no_rate_claim": true
+  },
+  "lanes": [
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "supported"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-01-1",
+      "campaign_status": "concluded",
+      "cell_id": "change-defect",
+      "finding_conclusion": "supported",
+      "hidden_variant": "defect",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-6b54bf3de66af79f",
+      "lane_id": "lane-01",
+      "oracle_outcome": "supported",
+      "package_sha256": "60887be71848e630bd2ae9f7d48e64b7269c9ac65dacd0db7b59dcd6ed5b8e88",
+      "packet_id": "packet-lane-01",
+      "plan_admitted": true,
+      "plan_id": "plan-ec4d1896b9f5f7eb",
+      "repetition": 1,
+      "retry_count": 0,
+      "target_mode": "change"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "supported"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-02-1",
+      "campaign_status": "concluded",
+      "cell_id": "change-defect",
+      "finding_conclusion": "supported",
+      "hidden_variant": "defect",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-2519c4bdb5be3bec",
+      "lane_id": "lane-02",
+      "oracle_outcome": "supported",
+      "package_sha256": "1d4aa36b7214891028a19dfd3b7ad02619aff26ab456003175a50942fb014108",
+      "packet_id": "packet-lane-02",
+      "plan_admitted": true,
+      "plan_id": "plan-fa14bd92845e1a46",
+      "repetition": 2,
+      "retry_count": 0,
+      "target_mode": "change"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "supported"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-03-1",
+      "campaign_status": "concluded",
+      "cell_id": "change-defect",
+      "finding_conclusion": "supported",
+      "hidden_variant": "defect",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-92956dc3d567c93a",
+      "lane_id": "lane-03",
+      "oracle_outcome": "supported",
+      "package_sha256": "eb551c8a172e0b34c211bdab64ed8582166e4e1de643d758eae208d785ee3776",
+      "packet_id": "packet-lane-03",
+      "plan_admitted": true,
+      "plan_id": "plan-581a6a2d65dff979",
+      "repetition": 3,
+      "retry_count": 0,
+      "target_mode": "change"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "rejected"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-04-1",
+      "campaign_status": "concluded",
+      "cell_id": "change-control",
+      "finding_conclusion": "rejected",
+      "hidden_variant": "control",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-f7b04c0413ed9520",
+      "lane_id": "lane-04",
+      "oracle_outcome": "rejected",
+      "package_sha256": "07cb0b06a9cf9c0ebefb7a2f35daaa63ef59b93c704712e31308b9ef0bead7cd",
+      "packet_id": "packet-lane-04",
+      "plan_admitted": true,
+      "plan_id": "plan-78bf5c18cc7699da",
+      "repetition": 1,
+      "retry_count": 0,
+      "target_mode": "change"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "rejected"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-05-1",
+      "campaign_status": "concluded",
+      "cell_id": "change-control",
+      "finding_conclusion": "rejected",
+      "hidden_variant": "control",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-8e570fb299d9345f",
+      "lane_id": "lane-05",
+      "oracle_outcome": "rejected",
+      "package_sha256": "326aa4e40603bfd33fe52694fe823999f0f6f518dc236f341e42b41ea56a9a96",
+      "packet_id": "packet-lane-05",
+      "plan_admitted": true,
+      "plan_id": "plan-0bf0845c050e02cc",
+      "repetition": 2,
+      "retry_count": 0,
+      "target_mode": "change"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "rejected"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-06-1",
+      "campaign_status": "concluded",
+      "cell_id": "change-control",
+      "finding_conclusion": "rejected",
+      "hidden_variant": "control",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-dfcf0893a08200e3",
+      "lane_id": "lane-06",
+      "oracle_outcome": "rejected",
+      "package_sha256": "19c0ab5eb1599cc3615ec0f78828e5826a33a5855222e1341ad2e3b83d2f51a1",
+      "packet_id": "packet-lane-06",
+      "plan_admitted": true,
+      "plan_id": "plan-f687a49d2f8a7729",
+      "repetition": 3,
+      "retry_count": 0,
+      "target_mode": "change"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "supported"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-07-1",
+      "campaign_status": "concluded",
+      "cell_id": "project-defect",
+      "finding_conclusion": "supported",
+      "hidden_variant": "defect",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-bccb9a57d53fbe0b",
+      "lane_id": "lane-07",
+      "oracle_outcome": "supported",
+      "package_sha256": "609afc7d705317880bb858999545540425eba781cfb9643435990554380a704b",
+      "packet_id": "packet-lane-07",
+      "plan_admitted": true,
+      "plan_id": "plan-be1672eec5d6d140",
+      "repetition": 1,
+      "retry_count": 0,
+      "target_mode": "project"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "supported"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-08-1",
+      "campaign_status": "concluded",
+      "cell_id": "project-defect",
+      "finding_conclusion": "supported",
+      "hidden_variant": "defect",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-a30e9a27d37c7ef4",
+      "lane_id": "lane-08",
+      "oracle_outcome": "supported",
+      "package_sha256": "744de1efe3440d7dc6ad73c7f6f7367dbd6e5290ea94706f9f45c9cdc81abc1e",
+      "packet_id": "packet-lane-08",
+      "plan_admitted": true,
+      "plan_id": "plan-80f6143dfff85580",
+      "repetition": 2,
+      "retry_count": 0,
+      "target_mode": "project"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "supported"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-09-1",
+      "campaign_status": "concluded",
+      "cell_id": "project-defect",
+      "finding_conclusion": "supported",
+      "hidden_variant": "defect",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-27e9dc0f5e815187",
+      "lane_id": "lane-09",
+      "oracle_outcome": "supported",
+      "package_sha256": "4a5d3d09a0fc8a847541a032f46cc4dcc5a21abe762d6996d7564ff64e6a8cbc",
+      "packet_id": "packet-lane-09",
+      "plan_admitted": true,
+      "plan_id": "plan-5848f652a5e692e5",
+      "repetition": 3,
+      "retry_count": 0,
+      "target_mode": "project"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "rejected"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-10-1",
+      "campaign_status": "concluded",
+      "cell_id": "project-control",
+      "finding_conclusion": "rejected",
+      "hidden_variant": "control",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-e32232ff8fabcf16",
+      "lane_id": "lane-10",
+      "oracle_outcome": "rejected",
+      "package_sha256": "6092189c17bb916c35003c49f667d6a32b0c4ddeac7e0a83004cc231321d43a7",
+      "packet_id": "packet-lane-10",
+      "plan_admitted": true,
+      "plan_id": "plan-18391ca28e3c8be2",
+      "repetition": 1,
+      "retry_count": 0,
+      "target_mode": "project"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "rejected"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-11-1",
+      "campaign_status": "concluded",
+      "cell_id": "project-control",
+      "finding_conclusion": "rejected",
+      "hidden_variant": "control",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-dc745e533c57db86",
+      "lane_id": "lane-11",
+      "oracle_outcome": "rejected",
+      "package_sha256": "f00507d91d7924386eeb7c2fd6cd78f12fb13121914b8bc957c4569a3ea19e83",
+      "packet_id": "packet-lane-11",
+      "plan_admitted": true,
+      "plan_id": "plan-f4c52e5699714870",
+      "repetition": 2,
+      "retry_count": 0,
+      "target_mode": "project"
+    },
+    {
+      "accountable": true,
+      "adjudication": {
+        "agreement": true,
+        "auditor_id": "m7-independent-adjudicator-v1",
+        "checks": {
+          "accountable_receipt": true,
+          "causal_chain": true,
+          "experiment_validity": true,
+          "finding_support": true,
+          "hypothesis_frozen_before_oracle": true,
+          "hypothesis_relevance": true,
+          "leakage_boundary": true,
+          "mode_bound": true,
+          "plan_admitted_before_oracle": true,
+          "residual_risk_honesty": true
+        },
+        "claim_boundary": "local fixture, campaign package, and deterministic auditor receipt only",
+        "expected_local_conclusion": "rejected"
+      },
+      "attempt_count": 1,
+      "attempt_id": "attempt-lane-12-1",
+      "campaign_status": "concluded",
+      "cell_id": "project-control",
+      "finding_conclusion": "rejected",
+      "hidden_variant": "control",
+      "hypothesis_frozen": true,
+      "hypothesis_id": "hypothesis-7f92051aff56e145",
+      "lane_id": "lane-12",
+      "oracle_outcome": "rejected",
+      "package_sha256": "cd439f51cd65919f0b5cc4630976adc327e9e3c18bb4f6d5ac074b2311466243",
+      "packet_id": "packet-lane-12",
+      "plan_admitted": true,
+      "plan_id": "plan-bafeb68344abd203",
+      "repetition": 3,
+      "retry_count": 0,
+      "target_mode": "project"
+    }
+  ],
+  "leakage_audit": {
+    "checks": [
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-01",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-02",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-03",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-04",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-05",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-06",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-07",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-08",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-09",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-10",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-11",
+        "status": "pass",
+        "variant_withheld": true
+      },
+      {
+        "evidence_withheld": true,
+        "forbidden_terms": [],
+        "outcome_withheld": true,
+        "packet_id": "packet-lane-12",
+        "status": "pass",
+        "variant_withheld": true
+      }
+    ],
+    "network_policy": "disabled",
+    "packet_count": 12,
+    "status": "pass",
+    "variant_mapping_available_only_to_auditor": true
+  },
+  "manifest": {
+    "canonical_sha256": "4ff545b70734ef285c1e5838c45e32d8edc2246b434c3525d75d3865dac2936a",
+    "path": "/Users/peter/projects/ai_verification-m7-104/bench/m7/m7-qualification-v1.json",
+    "sha256": "24c174931543d7e041860585ce611d832a4015db37325b78976af50710312788"
+  },
+  "packets": [
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "diff_ref": "bench/m7/inputs/weather-delay.diff",
+      "diff_sha256": "4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66",
+      "discovery_budget": 8,
+      "lane_id": "lane-01",
+      "packet_id": "packet-lane-01",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-change-target-01",
+      "target_mode": "change",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "diff_ref": "bench/m7/inputs/weather-delay.diff",
+      "diff_sha256": "4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66",
+      "discovery_budget": 8,
+      "lane_id": "lane-02",
+      "packet_id": "packet-lane-02",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-change-target-02",
+      "target_mode": "change",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "diff_ref": "bench/m7/inputs/weather-delay.diff",
+      "diff_sha256": "4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66",
+      "discovery_budget": 8,
+      "lane_id": "lane-03",
+      "packet_id": "packet-lane-03",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-change-target-03",
+      "target_mode": "change",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "diff_ref": "bench/m7/inputs/weather-delay.diff",
+      "diff_sha256": "4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66",
+      "discovery_budget": 8,
+      "lane_id": "lane-04",
+      "packet_id": "packet-lane-04",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-change-target-04",
+      "target_mode": "change",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "diff_ref": "bench/m7/inputs/weather-delay.diff",
+      "diff_sha256": "4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66",
+      "discovery_budget": 8,
+      "lane_id": "lane-05",
+      "packet_id": "packet-lane-05",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-change-target-05",
+      "target_mode": "change",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "diff_ref": "bench/m7/inputs/weather-delay.diff",
+      "diff_sha256": "4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66",
+      "discovery_budget": 8,
+      "lane_id": "lane-06",
+      "packet_id": "packet-lane-06",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-change-target-06",
+      "target_mode": "change",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "discovery_budget": 8,
+      "lane_id": "lane-07",
+      "packet_id": "packet-lane-07",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-project-target-07",
+      "target_mode": "project",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "discovery_budget": 8,
+      "lane_id": "lane-08",
+      "packet_id": "packet-lane-08",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-project-target-08",
+      "target_mode": "project",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "discovery_budget": 8,
+      "lane_id": "lane-09",
+      "packet_id": "packet-lane-09",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-project-target-09",
+      "target_mode": "project",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "discovery_budget": 8,
+      "lane_id": "lane-10",
+      "packet_id": "packet-lane-10",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-project-target-10",
+      "target_mode": "project",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "discovery_budget": 8,
+      "lane_id": "lane-11",
+      "packet_id": "packet-lane-11",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-project-target-11",
+      "target_mode": "project",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    },
+    {
+      "context_manifest_ref": "/Users/peter/projects/ai_verification-m7-104/bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "context_manifest_sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b",
+      "discovery_budget": 8,
+      "lane_id": "lane-12",
+      "packet_id": "packet-lane-12",
+      "schema_version": 1,
+      "scope": [
+        "weather-service",
+        "systemui-consumer"
+      ],
+      "source_commit": "synchronous-weather-v1",
+      "source_origin": "https://example.invalid/aiverify-m7-fixture",
+      "target_id": "m7-project-target-12",
+      "target_mode": "project",
+      "worktree": "/workspace/aiverify-m7-fixture"
+    }
+  ],
+  "preflight": {
+    "formal_denominator": false,
+    "reason": "campaign risk derivation rejected: no synchronous path to a critical caller was established",
+    "route": "exclude_before_formal_invocation",
+    "side_effects": false,
+    "status": "rejected"
+  },
+  "qualification_id": "m7-temporal-discovery-v1",
+  "schema_version": 1
+}
