@@ -86,23 +86,33 @@ def test_living_docs_preserve_m3_and_m4_audit_facts() -> None:
     assert "M4 早于后来有效的 #80 gate" in combined
 
 
-def test_living_docs_point_to_m6_without_merging_track_denominators() -> None:
+def test_living_docs_point_to_m6_closeout_and_m7_boundary() -> None:
     for path in (_ROOT / "README.md", _ROOT / "HANDOFF.md", _MATRIX, _GAP_REGISTER):
         text = path.read_text(encoding="utf-8")
         assert "#82" in text
-        assert "#83" in text
         assert "#84" in text
-        assert "#85" in text
-        assert "#86" in text
-        assert "#87" in text
-        assert "#88" in text
+        assert "#97" in text
+        assert "#98" in text
+        assert "#99" in text
+        assert "#100" in text
         assert "historical" in text
         assert "prospective" in text
 
     combined = "\n".join(path.read_text(encoding="utf-8") for path in _LIVING_DOCS)
     assert "denominator" in combined
     assert "不能合并" in combined or "保持分离" in combined
-    assert "不得启动 formal M6 lane" in combined
+    assert "36/36" in combined
+    assert "P-03" in combined
+    assert "inconclusive" in combined
+    assert "remediate_fixture_execution_oracle_adjudication_gaps" in combined
+    assert "fail closed" in combined
+
+
+def test_living_docs_do_not_present_m6_as_the_current_milestone() -> None:
+    for path in _LIVING_DOCS:
+        text = path.read_text(encoding="utf-8")
+        assert "current milestone is M6" not in text
+        assert "M6 计划" not in text
 
 
 def test_all_relative_links_in_living_docs_resolve() -> None:

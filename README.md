@@ -21,7 +21,7 @@ Run Spec
 
 ## 当前状态
 
-截至 2026-08-02：
+截至 2026-08-04：
 
 - #58 已由 fresh #80 M3.1 population 的有效证据收口。#80 在冻结的五 seed、
   30 lane 人口上得到 30/30 first-attempt 和 eventual accountability、
@@ -32,9 +32,17 @@ Run Spec
   #80 gate，因此仍是 chronology exception，不能追认为 entry-gate 顺序合规。
 - M5 parent #68 已收口。G-01～G-08 都有稳定 fixture、机器可检查 oracle 与
   committed run record；每项只支持该记录声明范围内的 bounded conclusion。
-- 当前里程碑是 [M6 parent #82](https://github.com/yangliang2/ai_verification/issues/82)：
-  以三个 exact historical pairs 和三个 blinded prospective AI changes 资格化
-  Verification Agent，而不是继续增加与真实案例无关的孤立 tracer。
+- M6 已通过 PR #97 完成并关闭 [parent #82](https://github.com/yangliang2/ai_verification/issues/82)。
+  已提交的 [M6 aggregate](docs/runs/2026-08-03-issue-88-aggregate/README.md) 固定了
+  六个 Qualification Case Packages、36/36 accountable lanes、0 retries 和 6/6
+  adjudication agreement；historical 与 prospective populations 仍分开记账。
+- M6 的 prospective P-01/P-02 为 `locally_supported`，P-03 因冻结的
+  fixture/oracle 内部矛盾保持 `inconclusive`。这不是 M7 scale pass；唯一前进路线是
+  `remediate_fixture_execution_oracle_adjudication_gaps`，只适用于未来 admission，
+  不改写、不重跑冻结的 P-03。
+- M7 已进入 [parent #98](https://github.com/yangliang2/ai_verification/issues/98)：
+  #99 收口 M6 source of truth，#100 已建立 Discovery Campaign 与风险契约；后续
+  工作必须继承上述 forward-only、fail-closed admission boundary。
 
 ## 当前可支持的有界结论
 
@@ -160,9 +168,9 @@ worktree、APK、installed binary、device、tool 与 agent role identity。缺�
 历史初版计划保留为背景资料，但已经被当前 PRD、ADR、run record 和 GitHub
 issue 状态 supersede；不要按旧 AC1-AC10 判断当前能力。
 
-## 下一步：M6 qualification
+## M6 资格化收口与 M7 入口
 
-依赖顺序为：
+M6 的已完成依赖顺序为：
 
 ```text
 #83 current claim matrix
@@ -173,7 +181,19 @@ issue 状态 supersede；不要按旧 AC1-AC10 判断当前能力。
   → #87 prospective track┘
 ```
 
-正式执行前必须先完成 #84：冻结 admission、exclusion/replacement、repetition、
-retry、identity、blinding 与 claim rules。M6 的 historical/prospective 两个
-track 永远分开记账；没有新的明确授权，不进行任何 upstream comment、task claim
-或 pull request。
+`#82` parent 与 `#84` cohort freeze 已在 M6 aggregate 合并后完成关闭；冻结的
+admission、exclusion/replacement、repetition、retry、identity、blinding 与 claim
+rules 仍是历史测量合同。M6 的 historical/prospective 两个 track 永远分开记账，
+P-03 的矛盾只进入未来 admission 规则。
+
+M7 的下一步依赖为：
+
+```text
+#99 ────────────────────────────────┐
+                                    ├→ #104 blinded qualification
+#100 → (#101 || #102) → #103 ───────┘
+```
+
+M7 先做 project/change discovery 与风险契约，再生成可执行的 Run Spec；没有新的
+明确授权，不进行任何 upstream comment、task claim、外部仓库写入或超出本地声明边界
+的 scale claim。
