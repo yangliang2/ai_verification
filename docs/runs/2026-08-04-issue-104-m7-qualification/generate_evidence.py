@@ -107,6 +107,9 @@ build or install an APK, drive a device, or support a runtime detection rate.
 - Manifest: `bench/m7/m7-qualification-v1.json`
 - Qualification: `{report.manifest.qualification_id}`
 - Four cells × three repetitions = 12 lanes: change/project × defect/control.
+- The manifest freezes fixture/source identity, change-input checksum, offline
+  environment, discovery/context budgets, exclusions, evidence requirements,
+  and independent-adjudication checks before lane generation.
 - Verifier packets withhold variant, expected evidence, verdict, and outcome;
   the auditor-only mapping is applied after hypothesis freeze and plan admission.
 - The contradictory P-03-class context is rejected before formal invocation,
@@ -122,7 +125,7 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest t
 7 passed
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -ra
-761 passed in 21.26s
+761 passed in 21.32s
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m py_compile src/aiverify/bench/m7_qualification.py
 passed

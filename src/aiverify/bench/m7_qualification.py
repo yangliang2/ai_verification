@@ -322,6 +322,19 @@ def run_qualification(
     context_path = Path(context_manifest_path).resolve()
     context_bytes = context_path.read_bytes()
     context_sha = sha256(context_bytes).hexdigest()
+    frozen_context = manifest.document["source_identity"]["context_manifest"]
+    if (
+        context_path.name != Path(frozen_context["path"]).name
+        or context_sha != frozen_context["sha256"]
+    ):
+        raise M7QualificationError(("context manifest differs from frozen source identity",))
+    change_identity = manifest.document["source_identity"]["change_input"]
+    change_path = manifest.source_path.parents[2] / change_identity["path"]
+    if (
+        not change_path.is_file()
+        or sha256(change_path.read_bytes()).hexdigest() != change_identity["sha256"]
+    ):
+        raise M7QualificationError(("change input differs from frozen source identity",))
     packets = _build_packets(manifest, context_path, context_sha)
     leakage_checks = tuple(audit_packet(packet) for packet in packets)
     if any(check["status"] != "pass" for check in leakage_checks):
@@ -333,7 +346,7 @@ def run_qualification(
         "network_policy": "disabled",
         "variant_mapping_available_only_to_auditor": True,
     }
-    preflight = _contradictory_preflight(context_path)
+    preflight = _contradictory_preflight(manifest, context_path)
     if preflight["status"] != "rejected" or preflight["formal_denominator"] is not False:
         raise M7QualificationError(("contradictory preflight did not fail closed",))
     lanes = tuple(
@@ -356,6 +369,9 @@ def _build_packets(
     context_path: Path,
     context_sha: str,
 ) -> tuple[M7VerificationPacket, ...]:
+    source = manifest.document["source_identity"]
+    change_input = source["change_input"]
+    budgets = manifest.document["budgets"]
     packets: list[M7VerificationPacket] = []
     for cell in manifest.cells:
         for repetition in range(1, int(cell["repetitions"]) + 1):
@@ -363,27 +379,23 @@ def _build_packets(
             lane_id = f"lane-{lane_number:02d}"
             mode = str(cell["target_mode"])
             target_id = f"m7-{mode}-target-{lane_number:02d}"
-            diff_ref = f"inputs/{lane_id}/change.diff" if mode == "change" else None
-            diff_sha = (
-                sha256(b"neutral temporal contract change input v1").hexdigest()
-                if mode == "change"
-                else None
-            )
+            diff_ref = change_input["path"] if mode == "change" else None
+            diff_sha = change_input["sha256"] if mode == "change" else None
             packets.append(
                 M7VerificationPacket(
                     packet_id=f"packet-{lane_id}",
                     lane_id=lane_id,
                     target_mode=mode,
                     target_id=target_id,
-                    source_origin="https://example.invalid/aiverify-m7-fixture",
-                    source_commit="synchronous-weather-v1",
-                    worktree="/workspace/aiverify-m7-fixture",
+                    source_origin=source["source_origin"],
+                    source_commit=source["source_commit"],
+                    worktree=source["worktree"],
                     scope=("weather-service", "systemui-consumer"),
                     diff_ref=diff_ref,
                     diff_sha256=diff_sha,
                     context_manifest_ref=context_path.as_posix(),
                     context_manifest_sha256=context_sha,
-                    discovery_budget=8,
+                    discovery_budget=budgets["discovery_budget"],
                 )
             )
     return tuple(packets)
@@ -422,7 +434,7 @@ def _run_lane(
         target_id=target.target_id,
         required_predicates=("caller_thread", "quality_contract"),
         probe_refs=("probe:runtime-thread",),
-        budget=1,
+        budget=manifest.document["budgets"]["context_expansion_budget"],
         unresolved_questions=("runtime thread remains unknown",),
     )
     created = create_campaign(
@@ -547,14 +559,40 @@ def _adjudicate_lane(
     reduction: Any,
 ) -> dict[str, Any]:
     expected = "supported" if hidden_variant == "defect" else "rejected"
+    hypothesis = admitted.campaign.hypotheses[0]
+    plan = admitted.campaign.attack_plans[0]
     finding = reduction.finding
     checks = {
         "mode_bound": packet.target_mode in _MODES,
-        "hypothesis_frozen_before_oracle": admitted.campaign.hypotheses[0].status == "frozen",
-        "plan_admitted_before_oracle": admitted.campaign.attack_plans[0].status == "admitted",
+        "hypothesis_frozen_before_oracle": hypothesis.status == "frozen",
+        "plan_admitted_before_oracle": plan.status == "admitted",
+        "hypothesis_relevance": bool(
+            hypothesis.quality_property
+            and hypothesis.supporting_fact_ids
+            and hypothesis.required_evidence
+        ),
+        "causal_chain": bool(
+            hypothesis.failure_chain_id
+            and hypothesis.mechanism
+            and hypothesis.consequence
+        ),
+        "experiment_validity": bool(
+            plan.operator_id
+            and plan.observations
+            and plan.evidence_expectations
+            and plan.abort_boundary
+            and plan.claim_boundary
+        ),
         "accountable_receipt": final_package.attempts[0].accountable is True,
-        "expected_local_conclusion": finding is not None and finding.conclusion == expected,
-        "no_residual_for_accountable": not final_package.campaign.residual_risks,
+        "finding_support": bool(
+            finding
+            and finding.hypothesis_id == hypothesis.hypothesis_id
+            and finding.evidence_refs
+            and finding.claim_boundary
+            and finding.conclusion == expected
+        ),
+        "residual_risk_honesty": not final_package.campaign.residual_risks,
+        "leakage_boundary": audit_packet(packet)["status"] == "pass",
     }
     return {
         "auditor_id": "m7-independent-adjudicator-v1",
@@ -565,14 +603,17 @@ def _adjudicate_lane(
     }
 
 
-def _contradictory_preflight(context_path: Path) -> dict[str, Any]:
+def _contradictory_preflight(
+    manifest: M7QualificationManifest,
+    context_path: Path,
+) -> dict[str, Any]:
     target = ProjectTarget(
         target_id="m7-preflight-contradictory",
-        source_origin="https://example.invalid/aiverify-m7-fixture",
-        source_commit="synchronous-weather-v1",
-        worktree="/workspace/aiverify-m7-fixture",
+        source_origin=manifest.document["source_identity"]["source_origin"],
+        source_commit=manifest.document["source_identity"]["source_commit"],
+        worktree=manifest.document["source_identity"]["worktree"],
         scope=("weather-service", "systemui-consumer"),
-        discovery_budget=1,
+        discovery_budget=manifest.document["budgets"]["discovery_budget"],
     )
     graph = load_context_manifest(context_path, target).graph
     contradictory_facts = tuple(
@@ -705,8 +746,19 @@ def _manifest_errors(document: Mapping[str, Any]) -> list[str]:
         errors.append("cells must be exactly change/project defect/control in frozen order")
     if len(set(ids)) != len(ids):
         errors.append("cell ids must be unique")
+    expected_cells = {
+        "change-defect": ("change", "defect"),
+        "change-control": ("change", "control"),
+        "project-defect": ("project", "defect"),
+        "project-control": ("project", "control"),
+    }
     for cell in cells:
-        if cell.get("target_mode") not in _MODES or cell.get("variant") not in _VARIANTS:
+        expected = expected_cells.get(str(cell.get("cell_id")))
+        if (
+            cell.get("target_mode") not in _MODES
+            or cell.get("variant") not in _VARIANTS
+            or expected != (cell.get("target_mode"), cell.get("variant"))
+        ):
             errors.append(f"cell {cell.get('cell_id')} has invalid mode or variant")
         if cell.get("repetitions") != 3:
             errors.append(f"cell {cell.get('cell_id')} must have exactly three repetitions")
@@ -727,6 +779,33 @@ def _manifest_errors(document: Mapping[str, Any]) -> list[str]:
         or retry.get("no_retry_after_accountable") is not True
     ):
         errors.append("M7 formal lanes must be single-attempt and non-retryable")
+    source = document.get("source_identity", {})
+    if source.get("fixture_id") != "synchronous-weather-v1":
+        errors.append("source identity must be the frozen synchronous-weather fixture")
+    if source.get("source_origin") != "https://example.invalid/aiverify-m7-fixture":
+        errors.append("source origin differs from frozen fixture identity")
+    if source.get("source_commit") != "synchronous-weather-v1":
+        errors.append("source commit differs from frozen fixture identity")
+    if source.get("worktree") != "/workspace/aiverify-m7-fixture":
+        errors.append("worktree differs from frozen fixture identity")
+    if document.get("environment", {}).get("network") != "disabled":
+        errors.append("M7 qualification network must be disabled")
+    if document.get("environment", {}).get("android_execution") is not False:
+        errors.append("M7 qualification must not claim Android execution")
+    budgets = document.get("budgets", {})
+    if budgets.get("discovery_budget") != 8 or budgets.get("context_expansion_budget") != 1:
+        errors.append("M7 discovery and context budgets are not frozen")
+    if document.get("exclusions", {}).get("m6_lanes_in_denominator") is not False:
+        errors.append("M6 lanes must remain outside the M7 denominator")
+    evidence = document.get("evidence", {})
+    if evidence.get("checksums_required") is not True or not evidence.get("durable_run_record"):
+        errors.append("M7 evidence must have checksums and a durable run record")
+    adjudication = document.get("adjudication", {})
+    if (
+        adjudication.get("independent") is not True
+        or adjudication.get("auditor_id") != "m7-independent-adjudicator-v1"
+    ):
+        errors.append("M7 independent adjudication identity is not frozen")
     contradiction = document.get("contradictory_preflight", {})
     if contradiction.get("formal_denominator") is not False:
         errors.append("contradictory preflight must remain outside formal denominator")

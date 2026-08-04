@@ -40,6 +40,19 @@ def test_frozen_manifest_schema_and_semantics() -> None:
     ]
     assert all(cell["repetitions"] == 3 for cell in manifest.cells)
     assert manifest.document["policy"]["blinding"]["network_disabled"] is True
+    assert manifest.document["source_identity"]["fixture_id"] == "synchronous-weather-v1"
+    assert manifest.document["source_identity"]["change_input"]["path"].endswith(
+        "weather-delay.diff"
+    )
+    assert manifest.document["environment"] == {
+        "runner": "local-python",
+        "network": "disabled",
+        "android_execution": False,
+        "device": "none",
+    }
+    assert manifest.document["budgets"]["discovery_budget"] == 8
+    assert manifest.document["evidence"]["checksums_required"] is True
+    assert manifest.document["adjudication"]["independent"] is True
     assert manifest.document["contradictory_preflight"]["formal_denominator"] is False
 
 
@@ -104,8 +117,13 @@ def test_each_lane_freezes_and_admits_before_one_accountable_attempt() -> None:
         assert record["adjudication"]["agreement"] is True
         assert record["adjudication"]["checks"]["hypothesis_frozen_before_oracle"] is True
         assert record["adjudication"]["checks"]["plan_admitted_before_oracle"] is True
+        assert record["adjudication"]["checks"]["hypothesis_relevance"] is True
+        assert record["adjudication"]["checks"]["causal_chain"] is True
+        assert record["adjudication"]["checks"]["experiment_validity"] is True
         assert record["adjudication"]["checks"]["accountable_receipt"] is True
-        assert record["adjudication"]["checks"]["no_residual_for_accountable"] is True
+        assert record["adjudication"]["checks"]["finding_support"] is True
+        assert record["adjudication"]["checks"]["residual_risk_honesty"] is True
+        assert record["adjudication"]["checks"]["leakage_boundary"] is True
         assert lane.final_package.campaign.residual_risks == ()
 
 

@@ -5,7 +5,9 @@
   "additionalProperties": false,
   "required": [
     "schema_version", "qualification_id", "status", "frozen_at",
-    "maintainer_approval", "policy", "cells", "contradictory_preflight"
+    "maintainer_approval", "source_identity", "environment", "budgets",
+    "policy", "cells", "exclusions", "evidence", "adjudication",
+    "contradictory_preflight"
   ],
   "properties": {
     "schema_version": {"const": 1},
@@ -21,6 +23,40 @@
         "comment_url": {"type": "string", "format": "uri"},
         "approved_by": {"type": "string", "minLength": 1},
         "approved_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "source_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixture_id", "source_origin", "source_commit", "worktree", "context_manifest", "change_input"],
+      "properties": {
+        "fixture_id": {"type": "string", "minLength": 1},
+        "source_origin": {"type": "string", "format": "uri"},
+        "source_commit": {"type": "string", "minLength": 1},
+        "worktree": {"type": "string", "minLength": 1},
+        "context_manifest": {"$ref": "#/$defs/artifact"},
+        "change_input": {"$ref": "#/$defs/artifact"}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runner", "network", "android_execution", "device"],
+      "properties": {
+        "runner": {"const": "local-python"},
+        "network": {"const": "disabled"},
+        "android_execution": {"const": false},
+        "device": {"const": "none"}
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discovery_budget", "context_expansion_budget", "max_attempts_per_lane"],
+      "properties": {
+        "discovery_budget": {"const": 8},
+        "context_expansion_budget": {"const": 1},
+        "max_attempts_per_lane": {"const": 1}
       }
     },
     "policy": {
@@ -53,6 +89,46 @@
         "claim_boundary": {"type": "string", "minLength": 1}
       }
     },
+    "exclusions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["m6_lanes_in_denominator", "android_runtime_claim", "benchmark_rate_claim"],
+      "properties": {
+        "m6_lanes_in_denominator": {"const": false},
+        "android_runtime_claim": {"const": false},
+        "benchmark_rate_claim": {"const": false}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_refs", "checksums_required", "durable_run_record", "claim_boundary"],
+      "properties": {
+        "required_refs": {
+          "type": "array",
+          "const": ["execution_record", "execution_identity", "oracle"]
+        },
+        "checksums_required": {"const": true},
+        "durable_run_record": {"type": "string", "minLength": 1},
+        "claim_boundary": {"type": "string", "minLength": 1}
+      }
+    },
+    "adjudication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["independent", "auditor_id", "required_checks"],
+      "properties": {
+        "independent": {"const": true},
+        "auditor_id": {"const": "m7-independent-adjudicator-v1"},
+        "required_checks": {
+          "type": "array",
+          "const": [
+            "hypothesis_relevance", "causal_chain", "experiment_validity",
+            "finding_support", "residual_risk_honesty", "leakage_boundary"
+          ]
+        }
+      }
+    },
     "cells": {
       "type": "array",
       "minItems": 4,
@@ -71,6 +147,15 @@
     }
   },
   "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
     "cell": {
       "type": "object",
       "additionalProperties": false,

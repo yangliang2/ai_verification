@@ -10,6 +10,9 @@ build or install an APK, drive a device, or support a runtime detection rate.
 - Manifest: `bench/m7/m7-qualification-v1.json`
 - Qualification: `m7-temporal-discovery-v1`
 - Four cells × three repetitions = 12 lanes: change/project × defect/control.
+- The manifest freezes fixture/source identity, change-input checksum, offline
+  environment, discovery/context budgets, exclusions, evidence requirements,
+  and independent-adjudication checks before lane generation.
 - Verifier packets withhold variant, expected evidence, verdict, and outcome;
   the auditor-only mapping is applied after hypothesis freeze and plan admission.
 - The contradictory P-03-class context is rejected before formal invocation,
@@ -18,7 +21,7 @@ build or install an APK, drive a device, or support a runtime detection rate.
 
 ## Exact commands and results
 
-All commands ran in the dedicated worktree on commit `5c2b8eeec758f685febcee1adba09f3b52ebfbad`.
+All commands ran in the dedicated worktree on commit `b483a1a57ab7c561dad5c3f78d695483920b6216`.
 
 ```text
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest tests/bench/test_m7_qualification.py -q
@@ -34,7 +37,7 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m compilea
 passed
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python docs/runs/2026-08-04-issue-104-m7-qualification/generate_evidence.py
-schema validation passed; 12 lanes generated in 0.027s
+schema validation passed; 12 lanes generated in 0.033s
 
 git diff --check
 passed

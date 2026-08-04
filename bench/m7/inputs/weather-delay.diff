@@ -1,0 +1,10 @@
+diff --git a/bench/discovery-fixtures/synchronous-weather/WeatherService.kt b/bench/discovery-fixtures/synchronous-weather/WeatherService.kt
+index fixture..m7delay 100644
+--- a/bench/discovery-fixtures/synchronous-weather/WeatherService.kt
++++ b/bench/discovery-fixtures/synchronous-weather/WeatherService.kt
+@@
+-    override fun current(): Weather = Weather(summary = "fixture-data")
++    override fun current(): Weather {
++        Thread.sleep(250)
++        return Weather(summary = "fixture-data")
++    }

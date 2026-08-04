@@ -9,6 +9,31 @@
     "approved_by": "maintainer",
     "approved_at": "2026-08-04T17:50:00Z"
   },
+  "source_identity": {
+    "fixture_id": "synchronous-weather-v1",
+    "source_origin": "https://example.invalid/aiverify-m7-fixture",
+    "source_commit": "synchronous-weather-v1",
+    "worktree": "/workspace/aiverify-m7-fixture",
+    "context_manifest": {
+      "path": "bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+      "sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b"
+    },
+    "change_input": {
+      "path": "bench/m7/inputs/weather-delay.diff",
+      "sha256": "4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66"
+    }
+  },
+  "environment": {
+    "runner": "local-python",
+    "network": "disabled",
+    "android_execution": false,
+    "device": "none"
+  },
+  "budgets": {
+    "discovery_budget": 8,
+    "context_expansion_budget": 1,
+    "max_attempts_per_lane": 1
+  },
   "policy": {
     "planned_lanes": 12,
     "repetitions_per_cell": 3,
@@ -30,6 +55,29 @@
     {"cell_id": "project-defect", "target_mode": "project", "variant": "defect", "repetitions": 3},
     {"cell_id": "project-control", "target_mode": "project", "variant": "control", "repetitions": 3}
   ],
+  "exclusions": {
+    "m6_lanes_in_denominator": false,
+    "android_runtime_claim": false,
+    "benchmark_rate_claim": false
+  },
+  "evidence": {
+    "required_refs": ["execution_record", "execution_identity", "oracle"],
+    "checksums_required": true,
+    "durable_run_record": "docs/runs/2026-08-04-issue-104-m7-qualification/README.md",
+    "claim_boundary": "local fixture and discovery/admission/evidence seam only"
+  },
+  "adjudication": {
+    "independent": true,
+    "auditor_id": "m7-independent-adjudicator-v1",
+    "required_checks": [
+      "hypothesis_relevance",
+      "causal_chain",
+      "experiment_validity",
+      "finding_support",
+      "residual_risk_honesty",
+      "leakage_boundary"
+    ]
+  },
   "contradictory_preflight": {
     "id": "m7-p03-class-contradictory-context",
     "formal_denominator": false,
