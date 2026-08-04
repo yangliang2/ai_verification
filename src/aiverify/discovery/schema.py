@@ -21,6 +21,8 @@ _CONTRACT_DEFINITIONS = {
     "context_graph": "contextGraph",
     "quality_contract": "qualityContract",
     "contract_drift": "contractDrift",
+    "behavior_delta": "behaviorDelta",
+    "risk_priority": "riskPriority",
     "risk_prior": "riskPrior",
     "attack_operator": "attackOperator",
     "failure_chain": "failureChain",

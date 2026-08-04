@@ -26,7 +26,7 @@ _DRIFT_STATUSES = frozenset({"suspected", "observed", "contradictory", "unknown"
 _HYPOTHESIS_STATUSES = frozenset(
     {"draft", "frozen", "supported", "rejected", "inconclusive"}
 )
-_PLAN_STATUSES = frozenset({"draft", "admitted", "rejected"})
+_PLAN_STATUSES = frozenset({"draft", "frozen", "admitted", "rejected"})
 _FINDING_CONCLUSIONS = frozenset({"supported", "rejected", "inconclusive"})
 _CAMPAIGN_STATUSES = frozenset({"draft", "admitted", "running", "completed", "inconclusive"})
 
@@ -320,6 +320,7 @@ class FailureChain:
     steps: tuple[str, ...]
     consequence: str
     fact_ids: tuple[str, ...] = ()
+    causal_roles: tuple[str, ...] = ()
     schema_version: int = 1
 
     def __post_init__(self) -> None:
@@ -327,6 +328,19 @@ class FailureChain:
         _text_tuple(self.steps, "steps", allow_empty=False)
         _required_text(self.consequence, "consequence")
         _text_tuple(self.fact_ids, "fact_ids")
+        _text_tuple(self.causal_roles, "causal_roles")
+        if self.causal_roles and len(self.causal_roles) != len(self.steps):
+            raise DiscoveryContractError("causal_roles must align with steps")
+        if any(
+            role not in {
+                "local_behavior",
+                "dependency_propagation",
+                "caller_constraint",
+                "system_impact",
+            }
+            for role in self.causal_roles
+        ):
+            raise DiscoveryContractError("invalid failure chain causal role")
         _version(self.schema_version, "failure chain")
 
     def to_dict(self) -> dict[str, Any]:
@@ -336,18 +350,34 @@ class FailureChain:
             "steps": list(self.steps),
             "consequence": self.consequence,
             "fact_ids": list(self.fact_ids),
+            "causal_roles": list(self.causal_roles),
         }
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "FailureChain":
         if not isinstance(data, Mapping):
             raise DiscoveryContractError("failure chain must be an object")
-        _reject_unknown(data, {"schema_version", "chain_id", "steps", "consequence", "fact_ids"})
+        _reject_unknown(
+            data,
+            {
+                "schema_version",
+                "chain_id",
+                "steps",
+                "consequence",
+                "fact_ids",
+                "causal_roles",
+            },
+        )
         return cls(
             chain_id=_required(data, "chain_id"),
             steps=tuple(_list_to_tuple(data, "steps")),
             consequence=_required(data, "consequence"),
             fact_ids=tuple(_list_to_tuple(data, "fact_ids")) if "fact_ids" in data else (),
+            causal_roles=(
+                tuple(_list_to_tuple(data, "causal_roles"))
+                if "causal_roles" in data
+                else ()
+            ),
             schema_version=data.get("schema_version", 1),
         )
 
@@ -371,6 +401,9 @@ class RiskHypothesis:
     prior_id: str | None = None
     failure_chain_id: str | None = None
     unknowns: tuple[str, ...] = ()
+    behavior_delta_id: str | None = None
+    contract_drift_id: str | None = None
+    priority_id: str | None = None
     schema_version: int = 1
 
     def __post_init__(self) -> None:
@@ -395,6 +428,10 @@ class RiskHypothesis:
             _required_text(self.prior_id, "prior_id")
         if self.failure_chain_id is not None:
             _required_text(self.failure_chain_id, "failure_chain_id")
+        for field in ("behavior_delta_id", "contract_drift_id", "priority_id"):
+            value = getattr(self, field)
+            if value is not None:
+                _required_text(value, field)
         _version(self.schema_version, "risk hypothesis")
 
     def to_dict(self) -> dict[str, Any]:
@@ -418,6 +455,12 @@ class RiskHypothesis:
             result["prior_id"] = self.prior_id
         if self.failure_chain_id is not None:
             result["failure_chain_id"] = self.failure_chain_id
+        if self.behavior_delta_id is not None:
+            result["behavior_delta_id"] = self.behavior_delta_id
+        if self.contract_drift_id is not None:
+            result["contract_drift_id"] = self.contract_drift_id
+        if self.priority_id is not None:
+            result["priority_id"] = self.priority_id
         return result
 
     @classmethod
@@ -443,6 +486,9 @@ class RiskHypothesis:
                 "prior_id",
                 "failure_chain_id",
                 "unknowns",
+                "behavior_delta_id",
+                "contract_drift_id",
+                "priority_id",
             },
         )
         return cls(
@@ -461,6 +507,9 @@ class RiskHypothesis:
             prior_id=data.get("prior_id"),
             failure_chain_id=data.get("failure_chain_id"),
             unknowns=tuple(_list_to_tuple(data, "unknowns")) if "unknowns" in data else (),
+            behavior_delta_id=data.get("behavior_delta_id"),
+            contract_drift_id=data.get("contract_drift_id"),
+            priority_id=data.get("priority_id"),
             schema_version=data.get("schema_version", 1),
         )
 
@@ -1056,8 +1105,8 @@ def admit_attack_plan(
     """Validate all preconditions before a plan can cause an external side effect."""
 
     errors: list[str] = []
-    if plan.status != "draft":
-        errors.append("attack plan must be draft before admission")
+    if plan.status not in {"draft", "frozen"}:
+        errors.append("attack plan must be draft or frozen before admission")
     if plan.target_id != hypothesis.target_id:
         errors.append("attack plan target does not match hypothesis")
     if plan.target_id != context_graph.target_id:
