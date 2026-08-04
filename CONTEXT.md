@@ -112,9 +112,19 @@ more Context Facts.
 An evidence-referenced, bounded before/after change in a Quality Contract. It is
 the bridge from a code or project signal to a falsifiable risk hypothesis.
 
+**Behavior Delta**:
+A change-scoped, source-referenced before/after description kept explicitly
+separate from observed Context Facts. An inferred delta can motivate a probe, but
+cannot become a Finding by itself.
+
 **Risk Prior**:
 A versioned, named family of signals that makes a risk direction worth probing;
 it is a search prior, not a conclusion.
+
+**Risk Priority**:
+Transparent impact, propagation reach, context sensitivity, uncertainty,
+evidence-gap, and estimated probe-cost factors used only to order hypotheses.
+Its deterministic score is not a probability or a verdict.
 
 **Attack Operator**:
 A bounded perturbation or observation strategy selected by a Risk Prior, with an
@@ -129,6 +139,11 @@ _Avoid_: Finding, verdict, unsupported suspicion
 **Failure Chain**:
 An ordered causal path from trigger through mechanism to consequence, with any
 supporting Context Fact references.
+
+**Synchronous Critical Path**:
+A dependency path whose relevant edges are synchronous and whose caller carries a
+bounded responsiveness Quality Contract. An asynchronous edge or unresolved
+caller context breaks this bounded risk slice.
 
 **Attack Plan**:
 A pre-execution binding of one Risk Hypothesis to an Attack Operator, trigger,

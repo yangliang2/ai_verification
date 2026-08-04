@@ -194,6 +194,48 @@
         "rationale": {"type": "string", "minLength": 1}
       }
     },
+    "behaviorDelta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "delta_id", "target_id", "subject", "before", "after",
+        "source_fact_ids", "confidence", "status", "rationale"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "delta_id": {"type": "string", "minLength": 1},
+        "target_id": {"type": "string", "minLength": 1},
+        "subject": {"type": "string", "minLength": 1},
+        "before": {"type": "string", "minLength": 1},
+        "after": {"type": "string", "minLength": 1},
+        "source_fact_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "status": {"enum": ["inferred", "observed", "unknown", "contradictory"]},
+        "contract_drift_id": {"type": "string", "minLength": 1},
+        "rationale": {"type": "string"}
+      }
+    },
+    "riskPriority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "priority_id", "impact", "propagation_reach",
+        "context_sensitivity", "uncertainty", "evidence_gap", "estimated_probe_cost",
+        "rationale", "score"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "priority_id": {"type": "string", "minLength": 1},
+        "impact": {"type": "number", "minimum": 0, "maximum": 1},
+        "propagation_reach": {"type": "number", "minimum": 0, "maximum": 1},
+        "context_sensitivity": {"type": "number", "minimum": 0, "maximum": 1},
+        "uncertainty": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence_gap": {"type": "number", "minimum": 0, "maximum": 1},
+        "estimated_probe_cost": {"type": "number", "minimum": 0, "maximum": 1},
+        "rationale": {"type": "string", "minLength": 1},
+        "score": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
     "riskPrior": {
       "type": "object",
       "additionalProperties": false,
@@ -230,7 +272,13 @@
         "chain_id": {"type": "string", "minLength": 1},
         "steps": {"$ref": "#/$defs/textArray", "minItems": 1},
         "consequence": {"type": "string", "minLength": 1},
-        "fact_ids": {"$ref": "#/$defs/textArray"}
+        "fact_ids": {"$ref": "#/$defs/textArray"},
+        "causal_roles": {
+          "$ref": "#/$defs/textArray",
+          "items": {
+            "enum": ["local_behavior", "dependency_propagation", "caller_constraint", "system_impact"]
+          }
+        }
       }
     },
     "riskHypothesis": {
@@ -257,6 +305,9 @@
         "supporting_fact_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
         "prior_id": {"type": "string", "minLength": 1},
         "failure_chain_id": {"type": "string", "minLength": 1},
+        "behavior_delta_id": {"type": "string", "minLength": 1},
+        "contract_drift_id": {"type": "string", "minLength": 1},
+        "priority_id": {"type": "string", "minLength": 1},
         "unknowns": {"$ref": "#/$defs/textArray"}
       }
     },
@@ -282,7 +333,7 @@
         "claim_boundary": {"type": "string"},
         "fixture_refs": {"$ref": "#/$defs/textArray"},
         "experiment_refs": {"$ref": "#/$defs/textArray"},
-        "status": {"enum": ["draft", "admitted", "rejected"]}
+        "status": {"enum": ["draft", "frozen", "admitted", "rejected"]}
       }
     },
     "finding": {
