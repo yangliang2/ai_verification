@@ -18,9 +18,7 @@ build or install an APK, drive a device, or support a runtime detection rate.
 
 ## Exact commands and results
 
-All commands ran in the dedicated worktree from base commit
-`7884a566eac35d69b75a805fbe604df37d1ca220`; the #104 changes are the working
-tree under qualification and are committed with this run record.
+All commands ran in the dedicated worktree on commit `5c2b8eeec758f685febcee1adba09f3b52ebfbad`.
 
 ```text
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest tests/bench/test_m7_qualification.py -q
@@ -36,7 +34,7 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m compilea
 passed
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python docs/runs/2026-08-04-issue-104-m7-qualification/generate_evidence.py
-schema validation passed; 12 lanes generated in 0.028s
+schema validation passed; 12 lanes generated in 0.027s
 
 git diff --check
 passed
