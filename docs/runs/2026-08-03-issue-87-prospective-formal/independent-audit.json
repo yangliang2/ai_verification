@@ -1,0 +1,122 @@
+{
+  "audit_id": "m6-prospective-independent-audit-2026-08-03",
+  "auditor": {
+    "backend": "deterministic-package-audit",
+    "id": "independent-auditor-m6-prospective",
+    "model": "package-contract-v1",
+    "role": "final-auditor",
+    "session_id": "audit-session-m6-prospective-2026-08-03"
+  },
+  "checks": [
+    {
+      "actual": 3,
+      "expected": 3,
+      "name": "three_prospective_packages",
+      "status": "pass"
+    },
+    {
+      "actual": 6,
+      "expected": 6,
+      "name": "P-01_six_attempts",
+      "status": "pass"
+    },
+    {
+      "name": "P-01_independent_adjudication",
+      "status": "pass"
+    },
+    {
+      "actual": 6,
+      "expected": 6,
+      "name": "P-02_six_attempts",
+      "status": "pass"
+    },
+    {
+      "name": "P-02_independent_adjudication",
+      "status": "pass"
+    },
+    {
+      "actual": 6,
+      "expected": 6,
+      "name": "P-03_six_attempts",
+      "status": "pass"
+    },
+    {
+      "name": "P-03_independent_adjudication",
+      "status": "pass"
+    },
+    {
+      "actual": 18,
+      "expected": 18,
+      "name": "eighteen_accountable_attempts",
+      "status": "pass"
+    },
+    {
+      "actual": 9,
+      "expected": 9,
+      "name": "control_fail_observations",
+      "status": "pass"
+    },
+    {
+      "actual": 6,
+      "expected": 6,
+      "name": "candidate_pass_observations",
+      "status": "pass"
+    },
+    {
+      "actual": 3,
+      "expected": 3,
+      "name": "candidate_freeze_has_three_commits",
+      "status": "pass"
+    },
+    {
+      "name": "verifier_task_identity_withheld",
+      "status": "pass"
+    },
+    {
+      "actual": {
+        "inconclusive": 1,
+        "locally_supported": 2
+      },
+      "expected": {
+        "inconclusive": 1,
+        "locally_supported": 2
+      },
+      "name": "adjudicated_conclusions",
+      "status": "pass"
+    },
+    {
+      "name": "local_only_boundary",
+      "status": "pass"
+    }
+  ],
+  "claim_boundary": {
+    "local_only": true,
+    "note": "Observations are local, blinded-session and package-integrity evidence only."
+  },
+  "counts": {
+    "accountable_attempts": 18,
+    "conclusions": {
+      "inconclusive": 1,
+      "locally_supported": 2
+    },
+    "raw_failures": {
+      "candidate": 3,
+      "control": 9
+    },
+    "raw_tests": {
+      "candidate": 9,
+      "control": 9
+    },
+    "source_states": {
+      "candidate": 9,
+      "control": 9
+    }
+  },
+  "schema_version": 1,
+  "scope": {
+    "attempt_count": 18,
+    "package_count": 3,
+    "track": "prospective"
+  },
+  "status": "pass"
+}

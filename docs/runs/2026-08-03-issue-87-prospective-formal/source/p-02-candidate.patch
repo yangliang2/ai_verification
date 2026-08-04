@@ -1,0 +1,16 @@
+diff --git a/app/src/main/java/org/wikipedia/dataclient/Service.kt b/app/src/main/java/org/wikipedia/dataclient/Service.kt
+index b01423bd0..27e360ff0 100644
+--- a/app/src/main/java/org/wikipedia/dataclient/Service.kt
++++ b/app/src/main/java/org/wikipedia/dataclient/Service.kt
+@@ -157,7 +157,10 @@ interface Service {
+     @GET(MW_API_PREFIX + "action=query&prop=imageinfo&iiprop=timestamp|user|url|mime|metadata|extmetadata&iiurlwidth=" + PREFERRED_THUMB_SIZE)
+     suspend fun getImageInfo(
+         @Query("titles") titles: String,
+-        @Query("iiextmetadatalanguage") lang: String
++        @Query("iiextmetadatalanguage") lang: String,
++        @Header(OfflineCacheInterceptor.SAVE_HEADER) saveHeader: String? = null,
++        @Header(OfflineCacheInterceptor.LANG_HEADER) langHeader: String? = null,
++        @Header(OfflineCacheInterceptor.TITLE_HEADER) titleHeader: String? = null
+     ): MwQueryResponse
+ 
+     @GET(MW_API_PREFIX + "action=query&prop=videoinfo&viprop=timestamp|user|url|mime|metadata|extmetadata|derivatives&viurlwidth=" + PREFERRED_THUMB_SIZE)

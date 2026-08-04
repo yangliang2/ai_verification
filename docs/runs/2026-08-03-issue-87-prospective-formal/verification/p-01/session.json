@@ -1,0 +1,37 @@
+{
+  "agent": {
+    "backend": "codex_cli",
+    "id": "verification-agent-p-01",
+    "model": "gpt-5",
+    "role": "verification-agent"
+  },
+  "candidate_mutable": false,
+  "development_reasoning_provided": false,
+  "fix_history_provided": false,
+  "inputs": {
+    "behavior_spec": "Fresh-install onboarding screens retain one light system theme across the first two pages.",
+    "candidate_patch": {
+      "path": "docs/runs/2026-08-03-issue-87-prospective-formal/source/p-01-candidate.patch",
+      "sha256": "c3ab83ec60490da307b5d5d4fe33db5662b966dd3f6bcde978ccb3719fc81a03"
+    },
+    "candidate_revision": "bb9a5a5c2c7ae616ee7c560b5688697c09d60f9f",
+    "environment": {
+      "path": "docs/runs/2026-08-03-issue-87-prospective-formal/environment.txt",
+      "sha256": "56acc0bb12541dedb993d9ce0a0bbe954679f899a4ba702c4a30f7a3c35d0200"
+    },
+    "fixture": {
+      "path": "bench/m6/admission-fixtures/prospective/replacement-t425733/M6T425733OnboardingThemeTest.kt",
+      "sha256": "36485f95b5cbf6a40c6dca19eb7f36451fc8a9e551960067c8b02dc63c377cbe"
+    },
+    "run_spec": {
+      "path": "docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t425733/README.md",
+      "sha256": "56d42052dac90a50ce01de99ed1eefa8bcc2a5adbdc1b77ed3bb9ebcd6b84879"
+    }
+  },
+  "interventions": [],
+  "network_policy": "disabled",
+  "opaque_case_id": "M6-PROSPECTIVE-P-01",
+  "session_id": "verification-p-01-2026-08-03",
+  "task_identity_provided": false,
+  "task_url_provided": false
+}

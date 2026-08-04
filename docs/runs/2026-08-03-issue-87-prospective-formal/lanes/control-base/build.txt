@@ -1,0 +1,152 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Configuration on demand is an incubating feature.
+Calculating task graph as no cached configuration is available for tasks: clean :app:assembleDevDebug :app:assembleDevDebugAndroidTest
+
+> Configure project :app
+"/Users/peter/.sign/signing.properties" not found
+
+> Task :analytics:testkitchen:preBuild UP-TO-DATE
+> Task :app:generateDevDebugAndroidTestAssets UP-TO-DATE
+> Task :app:generateDevDebugAssets UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :analytics:testkitchen:generateDevDebugAssets UP-TO-DATE
+> Task :app:preDevDebugBuild UP-TO-DATE
+> Task :analytics:testkitchen:preDevDebugBuild UP-TO-DATE
+> Task :analytics:testkitchen:clean UP-TO-DATE
+> Task :analytics:testkitchen:extractDevDebugSupportedLocales FROM-CACHE
+> Task :analytics:testkitchen:javaPreCompileDevDebug FROM-CACHE
+> Task :analytics:testkitchen:generateDevDebugResources FROM-CACHE
+> Task :analytics:testkitchen:generateDevDebugBuildConfig FROM-CACHE
+> Task :analytics:testkitchen:extractDeepLinksDevDebug FROM-CACHE
+> Task :analytics:testkitchen:processDevDebugNavigationResources FROM-CACHE
+> Task :analytics:testkitchen:writeDevDebugAarMetadata
+> Task :analytics:testkitchen:mapDevDebugSourceSetPaths
+> Task :analytics:testkitchen:processDevDebugManifest FROM-CACHE
+> Task :analytics:testkitchen:mergeDevDebugJniLibFolders
+> Task :analytics:testkitchen:mergeDevDebugAssets
+> Task :analytics:testkitchen:packageDevDebugResources FROM-CACHE
+> Task :analytics:testkitchen:compileDevDebugLibraryResources FROM-CACHE
+> Task :analytics:testkitchen:mergeDevDebugNativeLibs NO-SOURCE
+> Task :analytics:testkitchen:copyDevDebugJniLibsProjectOnly
+> Task :analytics:testkitchen:parseDevDebugLocalResources FROM-CACHE
+> Task :analytics:testkitchen:generateDevDebugRFile FROM-CACHE
+> Task :analytics:testkitchen:kspDevDebugKotlin SKIPPED
+> Task :analytics:testkitchen:compileDevDebugKotlin FROM-CACHE
+> Task :analytics:testkitchen:processDevDebugJavaRes
+> Task :analytics:testkitchen:compileDevDebugJavaWithJavac FROM-CACHE
+> Task :app:clean
+> Task :app:mergeDevDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDevDebugBuildConfig FROM-CACHE
+> Task :app:processDevDebugGoogleServices FROM-CACHE
+> Task :app:generateDevDebugGlobalSynthetics FROM-CACHE
+> Task :app:javaPreCompileDevDebug FROM-CACHE
+> Task :analytics:testkitchen:bundleLibCompileToJarDevDebug
+> Task :app:l8DexDesugarLibDevDebug FROM-CACHE
+> Task :app:extractDevDebugSupportedLocales FROM-CACHE
+> Task :app:generateDevDebugResources FROM-CACHE
+> Task :app:mapDevDebugSourceSetPaths
+> Task :app:extractDeepLinksDevDebug FROM-CACHE
+> Task :app:createDevDebugCompatibleScreenManifests
+> Task :app:generateDevDebugLocaleConfig FROM-CACHE
+> Task :analytics:testkitchen:bundleLibRuntimeToJarDevDebug
+> Task :app:mergeDevDebugJniLibFolders
+> Task :app:processDevDebugNavigationResources FROM-CACHE
+> Task :app:dataBindingMergeDependencyArtifactsDevDebug
+> Task :app:validateSigningDevDebug
+> Task :app:compileDevDebugNavigationResources FROM-CACHE
+> Task :app:writeDevDebugAppMetadata
+> Task :app:preDevDebugAndroidTestBuild SKIPPED
+> Task :app:mergeDevDebugAssets
+> Task :app:writeDevDebugSigningConfigVersions
+> Task :app:generateDevDebugAndroidTestResources FROM-CACHE
+> Task :app:compressDevDebugAssets FROM-CACHE
+> Task :app:desugarDevDebugFileDependencies FROM-CACHE
+> Task :app:packageDevDebugAndroidTestResources FROM-CACHE
+> Task :app:checkDevDebugAarMetadata
+> Task :app:processDevDebugAndroidTestNavigationResources FROM-CACHE
+> Task :app:javaPreCompileDevDebugAndroidTest FROM-CACHE
+> Task :app:parseDevDebugAndroidTestLocalResources FROM-CACHE
+> Task :app:generateDevDebugAndroidTestRFile FROM-CACHE
+> Task :app:generateDevDebugAndroidTestGlobalSynthetics FROM-CACHE
+> Task :app:dataBindingMergeDependencyArtifactsDevDebugAndroidTest
+> Task :app:mergeDevDebugAndroidTestAssets
+> Task :app:desugarDevDebugAndroidTestFileDependencies FROM-CACHE
+> Task :app:compressDevDebugAndroidTestAssets FROM-CACHE
+> Task :app:mapDevDebugAndroidTestSourceSetPaths
+> Task :app:compileDevDebugAndroidTestNavigationResources FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestJniLibFolders
+> Task :app:validateSigningDevDebugAndroidTest
+> Task :app:writeDevDebugAndroidTestSigningConfigVersions
+> Task :app:checkDevDebugAndroidTestAarMetadata
+> Task :app:mergeDevDebugAndroidTestResources FROM-CACHE
+> Task :app:processDevDebugMainManifest FROM-CACHE
+> Task :app:processDevDebugManifest FROM-CACHE
+> Task :app:processDevDebugManifestForPackage FROM-CACHE
+> Task :app:checkDevDebugAndroidTestDuplicateClasses
+> Task :app:mergeDevDebugAndroidTestManifest
+> Task :app:processDevDebugAndroidTestManifest
+> Task :app:generateDevDebugAndroidTestBuildConfig FROM-CACHE
+> Task :app:mergeLibDexDevDebugAndroidTest FROM-CACHE
+> Task :app:dataBindingGenBaseClassesDevDebugAndroidTest FROM-CACHE
+> Task :app:packageDevDebugResources FROM-CACHE
+> Task :app:parseDevDebugLocalResources FROM-CACHE
+> Task :app:generateDevDebugRFile FROM-CACHE
+> Task :app:checkDevDebugDuplicateClasses
+> Task :app:mergeLibDexDevDebug FROM-CACHE
+> Task :app:mergeDevDebugNativeLibs
+> Task :app:mergeDevDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDevDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:mergeExtDexDevDebugAndroidTest FROM-CACHE
+
+> Task :app:stripDevDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, liblanguage_id_l2c_jni.so, libmaplibre.so. Run with --info option to learn more.
+
+> Task :app:processDevDebugAndroidTestResources FROM-CACHE
+> Task :app:mergeExtDexDevDebug FROM-CACHE
+> Task :app:mergeDevDebugResources FROM-CACHE
+> Task :app:dataBindingGenBaseClassesDevDebug FROM-CACHE
+> Task :app:processDevDebugResources FROM-CACHE
+
+> Task :app:kspDevDebugKotlin
+w: [ksp] /Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/history/db/HistoryEntryWithImageDao.kt:22: The query returns some columns [prevId] which are not used by org.wikipedia.history.db.HistoryEntryWithImage. You can use @ColumnInfo annotation on the properties to specify the mapping. You can annotate the function with @RewriteQueriesToDropUnusedColumns to direct Room to rewrite your query to avoid fetching unused columns.  You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: authority, lang, apiTitle, displayTitle, id, namespace, timestamp, source, prevId, lang, namespace, apiTitle, imageName, description, timeSpentSec, geoLat, geoLon.
+w: [ksp] /Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/db/ReadingListPageDao.kt:79: The DAO function return type (kotlin.collections.List<kotlin.String?>) with the nullable type argument is meaningless because for now Room will never put a null value in a result.
+
+> Task :app:compileDevDebugKotlin FROM-CACHE
+> Task :app:compileDevDebugJavaWithJavac FROM-CACHE
+> Task :app:processDevDebugJavaRes
+> Task :app:bundleDevDebugClassesToCompileJar
+> Task :app:kspDevDebugAndroidTestKotlin SKIPPED
+> Task :app:dexBuilderDevDebug FROM-CACHE
+> Task :app:mergeProjectDexDevDebug FROM-CACHE
+> Task :app:mergeDevDebugJavaResource
+> Task :app:packageDevDebug
+> Task :app:assembleDevDebug
+> Task :app:createDevDebugApkListingFileRedirect
+
+> Task :app:compileDevDebugAndroidTestKotlin
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/androidTest/java/org/wikipedia/TestUtil.kt:157:43 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/androidTest/java/org/wikipedia/base/BaseTest.kt:61:27 'fun createComposeRule(effectContext: CoroutineContext = ...): ComposeContentTestRule' is deprecated. Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, which aligns with standard coroutine behavior by queuing tasks rather than executing them immediately. Tests relying on immediate execution may require explicit synchronization. Please refer to the migration guide for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/androidTest/java/org/wikipedia/database/UpgradeFromPreRoomTest.kt:54:14 'fun fallbackToDestructiveMigration(): RoomDatabase.Builder<AppDatabase>' is deprecated. Replace by overloaded version with parameter to indicate if all tables should be dropped or not.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/androidTest/java/org/wikipedia/m6/M6T425733OnboardingThemeTest.kt:36:23 'fun <reified A : ComponentActivity> createAndroidComposeRule(effectContext: CoroutineContext = ...): AndroidComposeTestRule<ActivityScenarioRule<A>, A>' is deprecated. Use `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule` instead. The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, which aligns with standard coroutine behavior by queuing tasks rather than executing them immediately. Tests relying on immediate execution may require explicit synchronization. Please refer to the migration guide for more details.
+
+> Task :app:processDevDebugAndroidTestJavaRes
+> Task :app:mergeDevDebugAndroidTestJavaResource
+> Task :app:compileDevDebugAndroidTestJavaWithJavac
+> Task :app:dexBuilderDevDebugAndroidTest
+> Task :app:mergeProjectDexDevDebugAndroidTest
+> Task :app:packageDevDebugAndroidTest
+> Task :app:assembleDevDebugAndroidTest
+> Task :app:createDevDebugAndroidTestApkListingFileRedirect
+
+BUILD SUCCESSFUL in 26s
+103 actionable tasks: 45 executed, 57 from cache, 1 up-to-date
+Configuration cache entry stored.
+real 27.60
+user 0.71
+sys 0.09
+build_exit_code=0

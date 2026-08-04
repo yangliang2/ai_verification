@@ -195,7 +195,7 @@
         "event": {"enum": ["started", "finished"]},
         "attempt_id": {"type": "string", "minLength": 1},
         "lane_id": {"type": "string", "minLength": 1},
-        "source_state": {"enum": ["pre_fix", "fixed", "candidate"]},
+        "source_state": {"enum": ["control", "pre_fix", "fixed", "candidate"]},
         "attempt_number": {"type": "integer", "minimum": 1},
         "occurred_at": {"type": "string", "format": "date-time"},
         "process_exit_code": {"type": ["integer", "null"]},
@@ -224,7 +224,7 @@
       "properties": {
         "attempt_id": {"type": "string", "minLength": 1},
         "lane_id": {"type": "string", "minLength": 1},
-        "source_state": {"enum": ["pre_fix", "fixed", "candidate"]},
+        "source_state": {"enum": ["control", "pre_fix", "fixed", "candidate"]},
         "attempt_number": {"type": "integer", "minimum": 1},
         "evidence_root": {"type": "string", "minLength": 1},
         "execution_record": {"$ref": "#/$defs/artifactRef"},

@@ -1,0 +1,37 @@
+{
+  "agent": {
+    "backend": "codex_cli",
+    "id": "verification-agent-p-02",
+    "model": "gpt-5",
+    "role": "verification-agent"
+  },
+  "candidate_mutable": false,
+  "development_reasoning_provided": false,
+  "fix_history_provided": false,
+  "inputs": {
+    "behavior_spec": "Gallery image metadata must participate in the offline-cache contract.",
+    "candidate_patch": {
+      "path": "docs/runs/2026-08-03-issue-87-prospective-formal/source/p-02-candidate.patch",
+      "sha256": "695dabd9b117758284e7fcaf712110c2bf34ee5be4995952750fce1f39549a40"
+    },
+    "candidate_revision": "2a957912de43cc43e87f8ed81b34a1755ed0a737",
+    "environment": {
+      "path": "docs/runs/2026-08-03-issue-87-prospective-formal/environment.txt",
+      "sha256": "56acc0bb12541dedb993d9ce0a0bbe954679f899a4ba702c4a30f7a3c35d0200"
+    },
+    "fixture": {
+      "path": "bench/m6/admission-fixtures/prospective/replacement-t426893/M6T426893GalleryMetadataOfflineTest.kt",
+      "sha256": "cf723d68747df12cb00a1f472c4230c90eb00a2bb3fb0478f04192c4971410e1"
+    },
+    "run_spec": {
+      "path": "docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t426893/README.md",
+      "sha256": "6a42854b8fc2f1b34e33886e9786be89f5d56bbff0242ec64830593b41b14994"
+    }
+  },
+  "interventions": [],
+  "network_policy": "disabled",
+  "opaque_case_id": "M6-PROSPECTIVE-P-02",
+  "session_id": "verification-p-02-2026-08-03",
+  "task_identity_provided": false,
+  "task_url_provided": false
+}

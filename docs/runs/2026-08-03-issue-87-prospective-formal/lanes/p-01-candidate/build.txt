@@ -1,0 +1,422 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Configuration on demand is an incubating feature.
+Reusing configuration cache.
+> Task :app:generateDevDebugAndroidTestAssets UP-TO-DATE
+> Task :app:generateDevDebugAssets UP-TO-DATE
+> Task :analytics:testkitchen:preBuild UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :analytics:testkitchen:generateDevDebugAssets UP-TO-DATE
+> Task :app:preDevDebugBuild UP-TO-DATE
+> Task :analytics:testkitchen:preDevDebugBuild UP-TO-DATE
+> Task :analytics:testkitchen:clean
+> Task :analytics:testkitchen:extractDevDebugSupportedLocales FROM-CACHE
+> Task :analytics:testkitchen:javaPreCompileDevDebug FROM-CACHE
+> Task :analytics:testkitchen:extractDeepLinksDevDebug FROM-CACHE
+> Task :analytics:testkitchen:generateDevDebugBuildConfig FROM-CACHE
+> Task :analytics:testkitchen:processDevDebugNavigationResources FROM-CACHE
+> Task :analytics:testkitchen:generateDevDebugResources FROM-CACHE
+> Task :analytics:testkitchen:processDevDebugManifest FROM-CACHE
+> Task :analytics:testkitchen:packageDevDebugResources FROM-CACHE
+> Task :analytics:testkitchen:parseDevDebugLocalResources FROM-CACHE
+> Task :analytics:testkitchen:generateDevDebugRFile FROM-CACHE
+> Task :analytics:testkitchen:kspDevDebugKotlin SKIPPED
+> Task :analytics:testkitchen:mapDevDebugSourceSetPaths
+> Task :analytics:testkitchen:compileDevDebugLibraryResources FROM-CACHE
+> Task :analytics:testkitchen:writeDevDebugAarMetadata
+> Task :analytics:testkitchen:mergeDevDebugJniLibFolders
+> Task :analytics:testkitchen:mergeDevDebugAssets
+> Task :analytics:testkitchen:mergeDevDebugNativeLibs NO-SOURCE
+> Task :analytics:testkitchen:copyDevDebugJniLibsProjectOnly
+> Task :analytics:testkitchen:compileDevDebugKotlin FROM-CACHE
+> Task :analytics:testkitchen:compileDevDebugJavaWithJavac FROM-CACHE
+> Task :analytics:testkitchen:processDevDebugJavaRes
+> Task :analytics:testkitchen:bundleLibRuntimeToJarDevDebug
+> Task :analytics:testkitchen:bundleLibCompileToJarDevDebug
+> Task :app:clean
+> Task :app:mergeDevDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDevDebugBuildConfig FROM-CACHE
+> Task :app:generateDevDebugGlobalSynthetics FROM-CACHE
+> Task :app:processDevDebugGoogleServices FROM-CACHE
+> Task :app:javaPreCompileDevDebug FROM-CACHE
+> Task :app:l8DexDesugarLibDevDebug FROM-CACHE
+> Task :app:createDevDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDevDebug FROM-CACHE
+> Task :app:extractDevDebugSupportedLocales FROM-CACHE
+> Task :app:generateDevDebugResources FROM-CACHE
+> Task :app:mapDevDebugSourceSetPaths
+> Task :app:validateSigningDevDebug
+> Task :app:writeDevDebugAppMetadata
+> Task :app:mergeDevDebugJniLibFolders
+> Task :app:writeDevDebugSigningConfigVersions
+> Task :app:preDevDebugAndroidTestBuild SKIPPED
+> Task :app:generateDevDebugLocaleConfig FROM-CACHE
+> Task :app:dataBindingMergeDependencyArtifactsDevDebugAndroidTest
+> Task :app:dataBindingMergeDependencyArtifactsDevDebug
+> Task :app:processDevDebugNavigationResources FROM-CACHE
+> Task :app:generateDevDebugAndroidTestResources FROM-CACHE
+> Task :app:desugarDevDebugFileDependencies FROM-CACHE
+> Task :app:compileDevDebugNavigationResources FROM-CACHE
+> Task :app:packageDevDebugAndroidTestResources FROM-CACHE
+> Task :app:processDevDebugAndroidTestNavigationResources FROM-CACHE
+> Task :app:mergeDevDebugAssets
+> Task :app:parseDevDebugAndroidTestLocalResources FROM-CACHE
+> Task :app:checkDevDebugDuplicateClasses
+> Task :app:generateDevDebugAndroidTestRFile FROM-CACHE
+> Task :app:compressDevDebugAssets FROM-CACHE
+> Task :app:mergeLibDexDevDebug FROM-CACHE
+> Task :app:javaPreCompileDevDebugAndroidTest FROM-CACHE
+> Task :app:generateDevDebugAndroidTestGlobalSynthetics FROM-CACHE
+> Task :app:checkDevDebugAarMetadata
+> Task :app:mergeDevDebugAndroidTestAssets
+> Task :app:compressDevDebugAndroidTestAssets FROM-CACHE
+> Task :app:desugarDevDebugAndroidTestFileDependencies FROM-CACHE
+> Task :app:mapDevDebugAndroidTestSourceSetPaths
+> Task :app:compileDevDebugAndroidTestNavigationResources FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestJniLibFolders
+> Task :app:validateSigningDevDebugAndroidTest
+> Task :app:writeDevDebugAndroidTestSigningConfigVersions
+> Task :app:checkDevDebugAndroidTestAarMetadata
+> Task :app:processDevDebugMainManifest FROM-CACHE
+> Task :app:checkDevDebugAndroidTestDuplicateClasses
+> Task :app:mergeLibDexDevDebugAndroidTest FROM-CACHE
+> Task :app:processDevDebugManifest FROM-CACHE
+> Task :app:processDevDebugManifestForPackage FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestResources FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestManifest
+> Task :app:processDevDebugAndroidTestManifest
+> Task :app:generateDevDebugAndroidTestBuildConfig FROM-CACHE
+> Task :app:mergeDevDebugNativeLibs
+> Task :app:mergeDevDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDevDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:mergeExtDexDevDebugAndroidTest FROM-CACHE
+
+> Task :app:stripDevDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, liblanguage_id_l2c_jni.so, libmaplibre.so. Run with --info option to learn more.
+
+> Task :app:dataBindingGenBaseClassesDevDebugAndroidTest FROM-CACHE
+> Task :app:processDevDebugAndroidTestResources FROM-CACHE
+> Task :app:packageDevDebugResources FROM-CACHE
+> Task :app:parseDevDebugLocalResources FROM-CACHE
+> Task :app:generateDevDebugRFile FROM-CACHE
+> Task :app:mergeExtDexDevDebug FROM-CACHE
+> Task :app:mergeDevDebugResources FROM-CACHE
+> Task :app:dataBindingGenBaseClassesDevDebug FROM-CACHE
+> Task :app:processDevDebugResources FROM-CACHE
+
+> Task :app:kspDevDebugKotlin
+w: [ksp] /Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/history/db/HistoryEntryWithImageDao.kt:22: The query returns some columns [prevId] which are not used by org.wikipedia.history.db.HistoryEntryWithImage. You can use @ColumnInfo annotation on the properties to specify the mapping. You can annotate the function with @RewriteQueriesToDropUnusedColumns to direct Room to rewrite your query to avoid fetching unused columns.  You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: authority, lang, apiTitle, displayTitle, id, namespace, timestamp, source, prevId, lang, namespace, apiTitle, imageName, description, timeSpentSec, geoLat, geoLon.
+w: [ksp] /Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/db/ReadingListPageDao.kt:79: The DAO function return type (kotlin.collections.List<kotlin.String?>) with the nullable type argument is meaningless because for now Room will never put a null value in a result.
+
+> Task :app:compileDevDebugKotlin
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/ActivityLifecycleHandler.kt:72:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/activity/BaseActivity.kt:122:35 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/activity/BaseActivity.kt:270:16 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/activity/FragmentUtil.kt:8:42 'val targetFragment: Fragment?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/activity/FragmentUtil.kt:9:29 'val targetFragment: Fragment?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/activity/SingleFragmentActivity.kt:24:100 Unchecked cast of 'Fragment?' to 'T? (of class SingleFragmentActivity<T : Fragment>)'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/analytics/eventplatform/BreadCrumbLogEvent.kt:64:96 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/auth/AccountUtil.kt:31:32 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/auth/WikimediaAuthenticator.kt:49:16 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/auth/WikimediaAuthenticator.kt:59:16 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/auth/WikimediaAuthenticator.kt:63:16 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/bridge/CommunicationBridge.kt:53:54 'var allowUniversalAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/categories/CategoryActivity.kt:157:42 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/categories/CategoryDialog.kt:125:57 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/commons/FilePageFragment.kt:241:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/commons/FilePageView.kt:116:39 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/commons/ImagePreviewDialog.kt:104:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/dataclient/okhttp/OfflineCacheInterceptor.kt:153:29 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/dataclient/okhttp/OkHttpWebViewClient.kt:28:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/dataclient/okhttp/OkHttpWebViewClient.kt:71:45 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ResponseBody'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/dataclient/okhttp/OkHttpWebViewClient.kt:71:85 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ResponseBody'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/dataclient/okhttp/OkHttpWebViewClient.kt:72:29 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ResponseBody'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/dataclient/okhttp/OkHttpWebViewClient.kt:76:29 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/descriptions/DescriptionEditTutorialFragment.kt:34:55 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/descriptions/DescriptionEditTutorialFragment.kt:62:25 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/descriptions/DescriptionEditViewModel.kt:173:54 'fun getString(title: PageTitle, resId: Int): String' is deprecated. Use Context extension instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/diff/ArticleEditDetailsActivity.kt:28:20 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/diff/ArticleEditDetailsFragment.kt:709:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/diff/EmptyLineSpan.kt:9:21 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/diff/EmptyLineSpan.kt:9:51 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/donate/DonateDialog.kt:162:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/donate/donationreminder/DonationReminderScreen.kt:761:44 'fun rememberPlainTooltipPositionProvider(spacingBetweenTooltipAndAnchor: Dp = ...): PopupPositionProvider' is deprecated. Deprecated in favor of rememberTooltipPositionProvider API.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/edit/SyntaxHighlightableEditText.kt:119:19 Unnecessary safe call on a non-null receiver of type 'Canvas'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/edit/SyntaxHighlightableEditText.kt:127:27 Unnecessary safe call on a non-null receiver of type 'Canvas'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/edit/insertmedia/InsertMediaActivity.kt:259:56 The corresponding parameter in the supertype 'ImageLoadListener' is named 'width'. This may cause problems when calling this function with named arguments.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/edit/insertmedia/InsertMediaActivity.kt:259:71 The corresponding parameter in the supertype 'ImageLoadListener' is named 'height'. This may cause problems when calling this function with named arguments.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/edit/richtext/ColorSpanEx.kt:7:45 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/extensions/Context.kt:22:37 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/extensions/Context.kt:26:37 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/extensions/Context.kt:30:24 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/extensions/Context.kt:54:24 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/extensions/View.kt:29:62 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/feed/news/NewsActivity.kt:19:16 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/feed/news/NewsFragment.kt:137:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/feed/onthisday/OnThisDayActivity.kt:17:20 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/feed/onthisday/OnThisDayFragment.kt:284:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/feed/topread/TopReadFragment.kt:109:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/gallery/GalleryActivity.kt:86:35 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/gallery/GalleryItemFragment.kt:299:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/gallery/MediaDownloadReceiver.kt:80:21 'fun allowScanningByMediaScanner(): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/games/onthisday/OnThisDayGameArticleBottomSheet.kt:162:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/games/onthisday/OnThisDayGameMainMenuFragment.kt:164:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/games/onthisday/OnThisDayGameResultFragment.kt:416:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/history/HistoryEntry.kt:14:8 'object DateSerializer : KSerializer<Date>' is deprecated. This serializer is used only for HistoryEntry items in our Tabs structure andshould be removed once we switch to saving tabs in the database instead of serializing.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/history/HistoryEntry.kt:33:26 'object DateSerializer : KSerializer<Date>' is deprecated. This serializer is used only for HistoryEntry items in our Tabs structure andshould be removed once we switch to saving tabs in the database instead of serializing.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/json/DateSerializer.kt:21:26 'static fun parse(p0: String!): Long' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/language/AppLanguageState.kt:139:53 'fun getString(resId: Int): String' is deprecated. Use getString from current Activity's context instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/language/AppLanguageState.kt:140:54 'fun getString(resId: Int): String' is deprecated. Use getString from current Activity's context instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/language/LanguageUtil.kt:40:85 Elvis operator (?:) always returns the left operand of non-nullable type '(Mutable)List<InputMethodSubtype!>'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/language/LanguageUtil.kt:45:44 'val locale: String' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/language/LanguageUtil.kt:104:49 'static fun equalsAny(p0: CharSequence!, vararg p1: CharSequence!): Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/language/LanguageUtil.kt:105:49 'static fun equalsAny(p0: CharSequence!, vararg p1: CharSequence!): Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/language/LanguageUtil.kt:106:49 'static fun equalsAny(p0: CharSequence!, vararg p1: CharSequence!): Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/language/LanguageUtil.kt:107:50 'static fun equalsAny(p0: CharSequence!, vararg p1: CharSequence!): Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/main/MainFragment.kt:239:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/main/MainFragment.kt:273:19 'fun onActivityResult(p0: Int, p1: Int, p2: Intent?): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/main/MainFragment.kt:315:21 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/main/MainFragment.kt:372:13 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/main/MainFragment.kt:451:9 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/main/MainFragment.kt:488:9 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/main/MainFragment.kt:559:9 'fun startActivityForResult(p0: Intent, p1: Int, p2: Bundle?): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/main/MainFragment.kt:630:17 'var retainInstance: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/notifications/NotificationCategory.kt:20:33 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/notifications/NotificationCategory.kt:21:33 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/notifications/NotificationCategory.kt:22:33 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/notifications/NotificationCategory.kt:23:33 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/page/PageActivity.kt:170:22 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/page/PageFragment.kt:1321:22 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/page/action/PageActionItem.kt:11:39 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/page/action/PageActionItem.kt:12:39 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/page/linkpreview/LinkPreviewContents.kt:13:26 'fun getString(title: PageTitle, resId: Int): String' is deprecated. Use Context extension instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/page/linkpreview/LinkPreviewDialog.kt:449:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/page/linkpreview/LinkPreviewErrorType.kt:10:33 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/page/linkpreview/LinkPreviewErrorType.kt:11:33 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/page/linkpreview/LinkPreviewErrorType.kt:12:33 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/places/PlacesFragment.kt:520:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/places/PlacesFragment.kt:521:20 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/places/PlacesFragment.kt:824:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/AddToReadingListDialog.kt:52:43 'fun getSerializable(p0: String?): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/AddToReadingListDialog.kt:216:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/MoveToReadingListDialog.kt:81:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/ReadingListActivity.kt:36:35 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/ReadingListActivity.kt:38:39 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/ReadingListFragment.kt:120:47 'fun getSerializable(p0: String?): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/ReadingListFragment.kt:122:43 'fun getSerializable(p0: String?): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/ReadingListFragment.kt:1212:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/ReadingListFragment.kt:1218:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/ReadingListFragmentViewModel.kt:50:77 'fun getString(resId: Int): String' is deprecated. Use getString from current Activity's context instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/ReadingListItemActionsDialog.kt:114:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/ReadingListsFragment.kt:114:9 'var retainInstance: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/SortReadingListsDialog.kt:86:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/database/ReadingList.kt:37:46 'fun getString(resId: Int): String' is deprecated. Use getString from current Activity's context instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/database/ReadingList.kt:41:35 'fun getString(resId: Int): String' is deprecated. Use getString from current Activity's context instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/db/ReadingListDao.kt:114:40 'fun getString(resId: Int): String' is deprecated. Use getString from current Activity's context instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/recommended/RecommendedReadingListOptions.kt:7:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/recommended/RecommendedReadingListOptions.kt:8:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/recommended/RecommendedReadingListOptions.kt:9:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/sync/ReadingListSyncAdapter.kt:542:24 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/readinglist/sync/ReadingListSyncAdapter.kt:547:24 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/richtext/URLSpanNoUnderline.kt:7:44 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/search/HybridSearchOnboardingActivity.kt:112:29 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/search/SearchActivity.kt:47:29 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/search/SearchFragment.kt:111:43 'fun getSerializable(p0: String?): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/search/SearchFragment.kt:404:33 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/settings/languages/WikipediaLanguagesActivity.kt:13:35 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/settings/languages/WikipediaLanguagesFragment.kt:49:49 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/settings/languages/WikipediaLanguagesFragment.kt:57:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/settings/languages/WikipediaLanguagesFragment.kt:58:15 'fun onActivityResult(p0: Int, p1: Int, p2: Intent?): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/settings/languages/WikipediaLanguagesFragment.kt:193:25 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/settings/languages/WikipediaLanguagesFragment.kt:264:47 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/settings/languages/WikipediaLanguagesFragment.kt:357:34 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsCardsFragment.kt:98:64 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsCardsFragment.kt:259:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsCardsFragment.kt:260:15 'fun onActivityResult(p0: Int, p1: Int, p2: Intent?): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsCardsFragment.kt:302:13 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsCardsFragment.kt:430:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsImageRecsDialog.kt:81:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsImageRecsFragment.kt:471:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsImageTagDialog.kt:205:32 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsImageTagEditActivity.kt:46:63 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsItemFragment.kt:18:9 'var retainInstance: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestedEditsRecentEditsOnboardingFragment.kt:32:55 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/suggestededits/SuggestionsActivity.kt:27:35 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/talk/ArchivedTalkPagesActivity.kt:107:42 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/talk/TalkTopicsActivity.kt:190:31 'fun getSerializableExtra(p0: String!): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/talk/TalkTopicsActivity.kt:358:17 'fun overridePendingTransition(p0: Int, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/talk/template/TalkTemplatesFragment.kt:525:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/talk/template/TalkTemplatesViewModel.kt:60:62 'fun getString(languageCode: String, resId: Int): String' is deprecated. Use Context extension instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/talk/template/TalkTemplatesViewModel.kt:61:39 'fun getString(languageCode: String, resId: Int): String' is deprecated. Use Context extension instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/theme/ThemeChooserDialog.kt:144:43 'fun getSerializable(p0: String?): Serializable?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/theme/ThemeChooserDialog.kt:350:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/usercontrib/UserInformationDialog.kt:110:32 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/DeviceUtil.kt:38:57 'static field SHOW_IMPLICIT: Int' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/DeviceUtil.kt:64:20 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/DeviceUtil.kt:111:22 'fun getNetworkInfo(p0: Int): NetworkInfo?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/DeviceUtil.kt:111:57 'static field TYPE_WIFI: Int' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/DeviceUtil.kt:112:41 'val isConnected: Boolean' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/FeedbackUtil.kt:168:15 'var view: View?' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/L10nUtil.kt:35:55 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/L10nUtil.kt:47:44 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/L10nUtil.kt:53:44 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/util/L10nUtil.kt:98:47 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/DefaultViewHolder.kt:9:26 Unchecked cast of 'View' to 'T (of class DefaultViewHolder<T : View>)'.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/FindInPageActionProvider.kt:42:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/MessageCardView.kt:56:68 Redundant call of conversion method.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/NotificationActionsOverflowView.kt:56:31 'static fun showAsDropDown(p0: PopupWindow, p1: View, p2: Int, p3: Int, p4: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/SurveyDialog.kt:165:33 'when' is exhaustive so 'else' is redundant here.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/SwipeableItemTouchHelperCallback.kt:24:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/WikiErrorView.kt:109:26 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/WikiErrorView.kt:110:26 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/WikiErrorView.kt:111:26 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/views/WikiErrorView.kt:112:26 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/watchlist/WatchlistExpiry.kt:8:28 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/watchlist/WatchlistExpiry.kt:9:28 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/watchlist/WatchlistExpiryDialog.kt:116:32 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/watchlist/WatchlistFilterTypes.kt:9:45 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/watchlist/WatchlistViewModel.kt:215:172 'fun getString(resId: Int): String' is deprecated. Use getString from current Activity's context instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/wiktionary/WiktionaryDialog.kt:63:29 'fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle' is deprecated. This method does not provide type safety at compile time. Use the platform `Bundle` class directly instead.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/main/java/org/wikipedia/yearinreview/YearInReviewViewModel.kt:210:52 'fun getFromLocation(p0: Double, p1: Double, p2: Int): (Mutable)List<Address!>?' is deprecated. Deprecated in Java.
+
+> Task :app:compileDevDebugJavaWithJavac
+> Task :app:processDevDebugJavaRes
+> Task :app:bundleDevDebugClassesToCompileJar
+> Task :app:kspDevDebugAndroidTestKotlin SKIPPED
+> Task :app:mergeDevDebugJavaResource
+
+> Task :app:compileDevDebugAndroidTestKotlin
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/androidTest/java/org/wikipedia/TestUtil.kt:157:43 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/androidTest/java/org/wikipedia/base/BaseTest.kt:61:27 'fun createComposeRule(effectContext: CoroutineContext = ...): ComposeContentTestRule' is deprecated. Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, which aligns with standard coroutine behavior by queuing tasks rather than executing them immediately. Tests relying on immediate execution may require explicit synchronization. Please refer to the migration guide for more details.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/androidTest/java/org/wikipedia/database/UpgradeFromPreRoomTest.kt:54:14 'fun fallbackToDestructiveMigration(): RoomDatabase.Builder<AppDatabase>' is deprecated. Replace by overloaded version with parameter to indicate if all tables should be dropped or not.
+w: file:///Users/peter/projects/wikipedia-m6-historical/app/src/androidTest/java/org/wikipedia/m6/M6T425733OnboardingThemeTest.kt:36:23 'fun <reified A : ComponentActivity> createAndroidComposeRule(effectContext: CoroutineContext = ...): AndroidComposeTestRule<ActivityScenarioRule<A>, A>' is deprecated. Use `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule` instead. The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, which aligns with standard coroutine behavior by queuing tasks rather than executing them immediately. Tests relying on immediate execution may require explicit synchronization. Please refer to the migration guide for more details.
+
+> Task :app:processDevDebugAndroidTestJavaRes
+> Task :app:mergeDevDebugAndroidTestJavaResource
+> Task :app:compileDevDebugAndroidTestJavaWithJavac
+> Task :app:dexBuilderDevDebugAndroidTest
+> Task :app:mergeProjectDexDevDebugAndroidTest
+> Task :app:packageDevDebugAndroidTest
+> Task :app:assembleDevDebugAndroidTest
+> Task :app:createDevDebugAndroidTestApkListingFileRedirect
+> Task :app:dexBuilderDevDebug
+> Task :app:mergeProjectDexDevDebug
+> Task :app:packageDevDebug
+> Task :app:assembleDevDebug
+> Task :app:createDevDebugApkListingFileRedirect
+
+BUILD SUCCESSFUL in 1m 10s
+103 actionable tasks: 50 executed, 53 from cache
+Configuration cache entry reused.
+real 70.98
+user 0.77
+sys 0.10
+build_exit_code=0
