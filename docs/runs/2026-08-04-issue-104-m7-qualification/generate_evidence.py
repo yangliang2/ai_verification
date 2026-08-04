@@ -133,6 +133,9 @@ passed
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m compileall -q src
 passed
 
+(cd docs/runs/2026-08-04-issue-104-m7-qualification && shasum -a 256 -c checksums.sha256)
+8 artifact checksums verified
+
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python docs/runs/2026-08-04-issue-104-m7-qualification/generate_evidence.py
 schema validation passed; 12 lanes generated in {duration:.3f}s
 
