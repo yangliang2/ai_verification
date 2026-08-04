@@ -1,0 +1,92 @@
+{
+  "conclusion": "locally_supported",
+  "fixed": {
+    "expected": "locally_supported",
+    "failures_per_run": [
+      0,
+      0,
+      0
+    ],
+    "observed": 3
+  },
+  "local_only": true,
+  "observations": [
+    {
+      "attempt_id": "attempt-h-01-pre_fix-01",
+      "failures": 1,
+      "outcome": "fail",
+      "raw_instrumentation": {
+        "path": "docs/runs/2026-08-03-issue-86-historical-formal/lanes/h-01-pre_fix/repetition-1/instrumentation.txt",
+        "sha256": "2fe4a3fb5d454dbc40218c3946f865bf92b0d4913828129dc2d9336bf5a81dcb"
+      },
+      "source_state": "pre_fix",
+      "tests_run": 1
+    },
+    {
+      "attempt_id": "attempt-h-01-pre_fix-02",
+      "failures": 1,
+      "outcome": "fail",
+      "raw_instrumentation": {
+        "path": "docs/runs/2026-08-03-issue-86-historical-formal/lanes/h-01-pre_fix/repetition-2/instrumentation.txt",
+        "sha256": "3c370173954aa69ffb7ba8706483781125bcbde0d32ac5f46642918752166ac9"
+      },
+      "source_state": "pre_fix",
+      "tests_run": 1
+    },
+    {
+      "attempt_id": "attempt-h-01-pre_fix-03",
+      "failures": 1,
+      "outcome": "fail",
+      "raw_instrumentation": {
+        "path": "docs/runs/2026-08-03-issue-86-historical-formal/lanes/h-01-pre_fix/repetition-3/instrumentation.txt",
+        "sha256": "8fc1e61c1c25f7c32a7e9e6dd113f4a790be9e56bbe91a68092eddbeb997a0fc"
+      },
+      "source_state": "pre_fix",
+      "tests_run": 1
+    },
+    {
+      "attempt_id": "attempt-h-01-fixed-01",
+      "failures": 0,
+      "outcome": "pass",
+      "raw_instrumentation": {
+        "path": "docs/runs/2026-08-03-issue-86-historical-formal/lanes/h-01-fixed/repetition-1/instrumentation.txt",
+        "sha256": "0c0fb1ac787aa37a646cddcc4db158c7e51cf948c028611c627f1107bc01d798"
+      },
+      "source_state": "fixed",
+      "tests_run": 1
+    },
+    {
+      "attempt_id": "attempt-h-01-fixed-02",
+      "failures": 0,
+      "outcome": "pass",
+      "raw_instrumentation": {
+        "path": "docs/runs/2026-08-03-issue-86-historical-formal/lanes/h-01-fixed/repetition-2/instrumentation.txt",
+        "sha256": "c17e17cd851b5da2c1e54ed89f1f32a0ce1144dd1e638459c990dd5c8333a800"
+      },
+      "source_state": "fixed",
+      "tests_run": 1
+    },
+    {
+      "attempt_id": "attempt-h-01-fixed-03",
+      "failures": 0,
+      "outcome": "pass",
+      "raw_instrumentation": {
+        "path": "docs/runs/2026-08-03-issue-86-historical-formal/lanes/h-01-fixed/repetition-3/instrumentation.txt",
+        "sha256": "db2e303913c2a46abd690c21edc18f2024c119b53c45a97cb983cbb7b74acdaa"
+      },
+      "source_state": "fixed",
+      "tests_run": 1
+    }
+  ],
+  "pre_fix": {
+    "expected": "locally_rejected",
+    "failures_per_run": [
+      1,
+      1,
+      1
+    ],
+    "observed": 3
+  },
+  "slot_id": "H-01",
+  "track": "historical"
+}
