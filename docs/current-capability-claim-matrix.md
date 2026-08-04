@@ -1,6 +1,6 @@
 # AI Verification 当前能力与声明矩阵
 
-更新时间：2026-08-02
+更新时间：2026-08-04
 
 本矩阵是当前里程碑声明的入口。它把“仓库中存在实现”与“已有可审计证据
 支持某个声明”分开，并使用以下状态：
@@ -38,6 +38,7 @@ Agent 的结论为 `locally_supported`。
 | #62 M3.1 v3 population | 有界失败证据 | 6/30 eventually accountable；FAILED | stale identity/环境失败的不可变记录 | M4 entry gate PASS |
 | #80 fresh M3.1 population | 有界证据支持 | 30/30 accountable；15 controls passed；15 defects caught | 当前执行信任 gate 在声明范围内通过 | 跨 host、跨 backend、设备 fleet 或 benchmark-wide reliability |
 | M4 prospective pilot | 2 个有界支持 + 1 个 non_accountable | T426553、T426989 `locally_supported`；T409797 `non_accountable`；T337177 excluded | 三个 admitted case 的原始本地结论与操作事实 | detection/false-positive rate、Goldset、upstream acceptance、原 entry gate 顺序合规 |
+| M6 blinded AI-change qualification | aggregate integrity PASS；M7 scale gate 未通过 | 6 个 frozen packages、36/36 lanes accountable、0 retries、6/6 adjudication agreement；historical 18 lanes 保持独立；prospective P-01/P-02 `locally_supported`，P-03 `inconclusive` | 六个 package、各自 track denominator、P-03 contradiction 与单一路线的本地事实 | M7 scale pass、benchmark-wide detection/false-positive rate、P-03 修复或重跑、upstream acceptance |
 
 M4 的实现和 aggregate 已提交，但执行时间早于后来有效的 #80 gate。#59 以
 retrospective pilot 加明确 chronology exception 关闭；该历史事实不能被后来的
@@ -59,12 +60,24 @@ PASS 追认为顺序合规。
 | G-07 | nested Intent、exported boundary、immutable one-shot token | 有界证据支持 | [#74](runs/2026-07-20-issue-74-performance-intent/README.md)：unsafe nested-Intent candidate rejected；组件边界与 token receipts retained | 一般 Android 安全、渗透测试、认证结论 |
 | G-08 | deterministic ordering、cancellation、destroy lifecycle race | 有界证据支持 | [#78](runs/2026-07-21-issue-78-deterministic-concurrency/README.md)：baseline supported；stale/destroy candidates rejected | stress/fuzz、真实网络并发、一般并发正确性 |
 
+## M6 收口与 M7 forward boundary
+
+M6 已通过 PR #97 完成，parent [#82](https://github.com/yangliang2/ai_verification/issues/82)
+与 cohort freeze [#84](https://github.com/yangliang2/ai_verification/issues/84) 已关闭。
+完整输入、逐 lane 观察、独立审计和 checksum 见
+[M6 aggregate](runs/2026-08-03-issue-88-aggregate/README.md)。
+
+P-03 的 `inconclusive` 原因是冻结 fixture/oracle contract 内部矛盾；它保持冻结，
+不被替换、修复或重跑。唯一 forward route 是
+`remediate_fixture_execution_oracle_adjudication_gaps`：任何未来 formal discovery
+experiment 在 hypothesis、fixture、expected evidence、oracle 或 claim boundary
+缺失或矛盾时，必须在外部副作用前 fail closed。这条路线不构成 M7 scale pass。
+
 ## 尚未度量与当前不声明
 
 | 项目 | 状态 | 进入声明所需条件 |
 |---|---|---|
-| exact historical pre-fix/fixed qualification population | 尚未度量 | 精确 revision、稳定 fixture、matched fail/pass、冻结 cohort、共同 case package |
-| blinded prospective AI-change cohort | 尚未度量 | Development/Verification Agent 分离、冻结 candidate、blinded verification、独立 adjudication |
+| M7 project/change risk-discovery qualification | 尚未度量 | #99 source-of-truth boundary、#101/#102/#103 discovery slices、#104 blinded 4-cell/12-lane qualification |
 | benchmark-wide detection/false-positive rate | 当前不声明 | 合格且足够规模的独立 ground-truth population 与预注册统计契约 |
 | physical/OEM/device-fleet 与 ColorOS | 当前不声明 | 独立的设备/host admission、身份、矩阵与 durable evidence |
 | fully unattended Journey reliability | 当前不声明 | 无 agent-in-the-loop 的版本化执行人口和 accountability 测量 |
@@ -73,11 +86,12 @@ PASS 追认为顺序合规。
 
 ## 当前下一步
 
-M6 parent [#82](https://github.com/yangliang2/ai_verification/issues/82) 将验证
-“面对冻结、质量未知的 AI coding change，独立 Verification Agent 能否给出可信、
-可复核、可行动的结论”。执行顺序为：
+M7 parent [#98](https://github.com/yangliang2/ai_verification/issues/98) 将验证
+“AI 能力能否围绕软件工程质量契约，针对 change/project target 发现可复核、可攻击
+的风险假设”。执行顺序为：
 
-`#83 → #84 → #85 → (#86 与 #87) → #88`
+`#99 → (#101 与 #102) → #103 → #104`
 
-M6 计划三个 exact historical pairs 与三个 blinded prospective changes，共 36
-条正式 lane。两个 track 的 denominator 永不合并；本阶段不计算统计检测率。
+#100 已定义 Discovery Campaign 与 Run Spec 的边界；#101/#102 可并行，#103 依赖
+两者，#104 依赖 #99 与 #103。M7 继续保持 local-only claim boundary，不把任何
+discovery finding 写成 upstream acceptance 或 benchmark-wide rate。

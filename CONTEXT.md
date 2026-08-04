@@ -151,17 +151,25 @@ context facts, and the remaining coverage frontier.
 
 ## Current Milestone Boundary
 
-As of 2026-08-02, the repository has bounded evidence for the public verification
+As of 2026-08-04, the repository has bounded evidence for the public verification
 chain, fail-closed ExecutionRecord and Effective Execution Identity contracts, the
-fresh #80 30-lane attempt-complete M3.1 gate, the M4 prospective pilot, and M5
-capability slices G-01 through G-08.
+fresh #80 30-lane attempt-complete M3.1 gate, the M4 prospective pilot, M5
+capability slices G-01 through G-08, and the completed M6 aggregate through PR #97.
+
+M6 consists of six frozen Qualification Case Packages and 36 accountable lanes
+with 0 retries and 6/6 adjudication agreement. Historical and prospective tracks
+remain separate; P-01/P-02 are `locally_supported`, while P-03 remains
+`inconclusive` because its frozen fixture/oracle contract is internally
+contradictory. The sole forward route is
+`remediate_fixture_execution_oracle_adjudication_gaps`; it is an admission rule
+for future experiments, not an M7 scale pass, and it does not rewrite or rerun P-03.
 
 These results do not establish general Android coverage, a benchmark-wide
 detection or false-positive rate, physical/OEM/ColorOS coverage, fully unattended
 Journey reliability, visual-only multimodal reliability, or upstream acceptance.
 
-The current milestone is M6 blinded AI-change verification qualification. It
-preregisters three exact historical pairs and three prospective AI-developed
-changes, keeps their denominators separate, and asks whether a separate
-Verification Agent can produce trustworthy and actionable Local Conclusions.
-See `docs/current-capability-claim-matrix.md` for evidence and scope.
+The current milestone is M7 white-box adversarial quality-risk discovery. Parent
+#98 coordinates #99 source-of-truth reconciliation, #100's Discovery Campaign
+contracts, the #101/#102 discovery slices, #103 orchestration, and #104 blinded
+qualification. See `docs/current-capability-claim-matrix.md` and the M6 aggregate
+for the evidence and claim boundaries.

@@ -1,11 +1,12 @@
 # HANDOFF
 
-更新时间：2026-08-02
+更新时间：2026-08-04
 
-项目当前从“补齐 Android capability slice”转向“M6 blinded AI-change
-verification qualification”。接手者应先读
+项目已完成 M6 blinded AI-change verification qualification，当前转向 M7
+white-box adversarial quality-risk discovery。接手者应先读
 [`docs/current-capability-claim-matrix.md`](docs/current-capability-claim-matrix.md)，
-不要从旧 issue 编号或聊天记录推断当前声明。
+再读 M6 aggregate 与 M7 parent/child issue，不要从旧 issue 编号或聊天记录推断当前
+声明。
 
 ## 当前 tracker 状态
 
@@ -17,19 +18,36 @@ verification qualification”。接手者应先读
   #80 gate，chronology violation 永久保留。
 - M5 parent #68 与 G-01～G-08 children 已关闭；结论都是 fixture-bound，不是
   Android 通用覆盖。
-- M6 parent 是 #82。执行依赖：
+- M6 已通过 PR #97 与 [#88 aggregate](docs/runs/2026-08-03-issue-88-aggregate/README.md)
+  完成；#82 parent 与 #84 cohort freeze 已在 source-of-truth 收口后关闭。
+  六个 package、36 lanes、0 retries、6/6 adjudication agreement 是不可变的本地事实。
+- M6 执行依赖（已完成）为：
 
 ```text
 #83 → #84 → #85 → (#86 与 #87) → #88
 ```
 
-- #83 发布当前 claim matrix 并同步 living docs。
-- #84 是 human-required：冻结三个 historical exact-revision pairs、三个
-  prospective tasks 与 replacement pool。它完成前不得启动 formal M6 lane。
-- #85 建立统一 Qualification Case Package 与 evidence-derived aggregate。
-- #86 运行 historical track；#87 运行 blinded prospective track。两者可在
-  #85 后独立推进，但 denominator 不能合并。
-- #88 聚合、独立审计并形成 M7 go/no-go。
+- #83 发布 claim matrix，#84 冻结 cohort，#85 建立 common Qualification Case
+  Package，#86/#87 分开运行两个 track，#88 聚合并独立审计。
+- P-01/P-02 为 `locally_supported`，P-03 因冻结的 fixture/oracle contradiction
+  保持 `inconclusive`；historical/prospective denominator 不合并。
+- M7 唯一 forward route 是
+  `remediate_fixture_execution_oracle_adjudication_gaps`。它只约束未来 admission，
+  不替换、修复或重跑冻结的 P-03。
+
+- M7 parent 是 #98。当前依赖：
+
+```text
+#99 ────────────────────────────────┐
+                                    ├→ #104 blinded qualification
+#100 → (#101 || #102) → #103 ───────┘
+```
+
+- #99 收口 living source of truth 与 forward remediation boundary；#100 已合入，
+  提供 Discovery Campaign、Project/Change Target、Quality Context Graph、Risk
+  Hypothesis、Attack Plan、Finding、Residual Risk 及 fail-closed admission 契约。
+- #101/#102 可在 #100 后并行；#103 依赖两者；#104 依赖 #99 与 #103，冻结 4 cells ×
+  3 repetitions = 12 lanes 的 blinded dual-entry qualification。
 
 ## 当前证据基线
 
@@ -172,11 +190,14 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
 
 ## 接手时的正确下一步
 
-1. 确认 #83 的 claim matrix PR 已合入且 #83 已关闭。
-2. 处理 #84 的 human-required cohort freeze；未冻结前只允许准备资料，不允许
-   formal case execution。
-3. #84 完成后实现 #85 common Qualification Case Package。
-4. #85 通过后分别推进 #86、#87；最后由 #88 聚合并独立审计。
+1. 确认 #99 source-of-truth PR 已合入且 #82/#84 已关闭；不得改写 M6 aggregate 或
+   重跑 P-03。
+2. 在 #100 契约之上推进 #101 provenance-bound Quality Context Graph 与 #102
+   synchronous-critical-path Risk Hypothesis/Attack Plan；两者可并行。
+3. #101/#102 完成后推进 #103 ChangeTarget/ProjectTarget Discovery Campaign
+   orchestration。
+4. #99 与 #103 完成后，按 #104 的 4 cells × 3 repetitions、blinding、admission、
+   evidence 与 adjudication 规则开展 formal qualification。
 
 任何文档或报告都必须同时说明支持结论和非声明范围。若实现、run record 与
 tracker 冲突，以 committed raw evidence 为准，先修 source-of-truth，再继续下游

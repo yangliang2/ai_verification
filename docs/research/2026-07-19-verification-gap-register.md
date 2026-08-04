@@ -1,6 +1,6 @@
 # Android 验证能力 Gap Register
 
-更新时间：2026-08-02
+更新时间：2026-08-04
 依据：[Android 错误范式与当前覆盖研究](./2026-07-19-android-error-pattern-coverage.md)、
 [#80 fresh M3.1 trust gate](../runs/2026-07-21-issue-80-m3-fresh/README.md)、
 [M4 aggregate](../runs/2026-07-18-m4-aggregate/README.md) 和 M5 child run records。
@@ -28,7 +28,7 @@ acceptance。
 | G-07 | nested Intent、exported boundary、token mutability | covered (bounded)：[#74](https://github.com/yangliang2/ai_verification/issues/74)，[run](../runs/2026-07-20-issue-74-performance-intent/README.md) | unsafe nested-Intent candidate rejected；component boundary 与 one-shot token checked | 一般 Android security、渗透测试、认证结论 |
 | G-08 | deterministic concurrency、cancellation、lifecycle races | covered (bounded)：[#78](https://github.com/yangliang2/ai_verification/issues/78)，[run](../runs/2026-07-21-issue-78-deterministic-concurrency/README.md) | baseline ordering/cancellation supported；stale/destroy candidates rejected | stress/fuzz、真实网络并发、一般并发正确性 |
 
-## M5 收口与 M6 入口
+## M5 收口与 M6 结果
 
 - #68 的 gap milestone 已关闭；G-01～G-08 均有各自的 bounded fixture/run
   record，但不能合并成 Android 通用检测率。
@@ -39,14 +39,21 @@ acceptance。
   retrospective chronology exception 关闭。
 - [当前能力与声明矩阵](../current-capability-claim-matrix.md) 是声明边界入口。
 
-M6 不继续增加未被真实资格案例触发的 capability gap。它先以三个 exact
-historical pairs 和三个 blinded prospective AI changes 验证已有能力能否转化为
-可信、可行动的 Verification Agent Local Conclusion。两个 track 的 denominator
-保持分离；任何新 gap 必须由 M6 的具体 fixture/execution/oracle 证据触发。
+M6 已通过 PR #97 和 [aggregate](../runs/2026-08-03-issue-88-aggregate/README.md)
+完成：六个 frozen packages、36/36 accountable lanes、0 retries、6/6 adjudication
+agreement。historical 18 lanes 与 prospective 18 lanes 的 denominator 保持分离；
+P-01/P-02 为 `locally_supported`，P-03 因冻结 fixture/oracle contradiction 保持
+`inconclusive`，不改写、不替换、不重跑。
 
-M6 parent 为 #82；依赖顺序是
-`#83 → #84 → #85 → (#86 与 #87) → #88`。#84 冻结 cohort 前不得启动 formal
-qualification lane。
+M6 唯一 M7 route 是 `remediate_fixture_execution_oracle_adjudication_gaps`。
+它是 forward-only admission boundary：未来 formal discovery experiment 的
+hypothesis、fixture、expected evidence、oracle 或 claim boundary 缺失/矛盾时，
+必须在任何外部副作用前 fail closed；这条路线不构成 M7 scale pass。
+
+M6 parent #82 与 cohort freeze #84 已关闭。M7 parent 为 #98；#99 收口本 source of
+truth，#100 已提供 Discovery Campaign 契约，接下来是
+`#99 → (#101 与 #102) → #103 → #104`。任何新 capability gap 必须由后续
+discovery/qualification 的具体 fixture、execution、oracle 和 evidence 触发。
 
 ## 持续推进规则
 
@@ -56,5 +63,7 @@ qualification lane。
    no-retry-after-accountable 和 fail-closed 纪律。
 3. 每个 non-trivial case 必须有独立 issue、committed run record、Effective
    Execution Identity、artifact inventory、checksums 和 known gaps。
-4. 未经独立 ground truth 与预注册统计契约，不声明 benchmark-wide rates。
-5. 未经单独授权，不进行 upstream task claim/comment 或 pull request。
+4. 未来 formal discovery admission 继承 M6 route：hypothesis、fixture、expected
+   evidence、oracle、claim boundary 任一缺失或矛盾，先 fail closed。
+5. 未经独立 ground truth 与预注册统计契约，不声明 benchmark-wide rates。
+6. 未经单独授权，不进行 upstream task claim/comment 或 pull request。
