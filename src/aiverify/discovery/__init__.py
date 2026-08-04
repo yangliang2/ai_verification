@@ -2,13 +2,23 @@
 
 from aiverify.discovery.models import (
     ChangeTarget,
+    ContextEdge,
     ContextFact,
+    ContextNode,
+    ContextPath,
     DiscoveryContractError,
     DiscoveryTarget,
     ProvenanceRef,
     ProjectTarget,
     QualityContextGraph,
     target_from_dict,
+)
+from aiverify.discovery.context import (
+    ContextCollectionResult,
+    collect_context,
+    load_context_manifest,
+    trace_backward,
+    trace_forward,
 )
 from aiverify.discovery.contracts import (
     AdmissionResult,
@@ -35,10 +45,14 @@ from aiverify.discovery.schema import (
 
 __all__ = [
     "ChangeTarget",
+    "ContextCollectionResult",
+    "ContextEdge",
     "AdmissionResult",
     "AttackOperator",
     "AttackPlan",
     "ContextFact",
+    "ContextNode",
+    "ContextPath",
     "ContractDrift",
     "DiscoveryContractError",
     "DiscoveryCampaign",
@@ -55,9 +69,13 @@ __all__ = [
     "RiskPrior",
     "admit_attack_plan",
     "admit_experiment",
+    "collect_context",
+    "load_context_manifest",
     "load_schema",
     "self_validate_schema",
     "target_from_dict",
+    "trace_backward",
+    "trace_forward",
     "validate_contract",
     "validate_discovery_document",
 ]

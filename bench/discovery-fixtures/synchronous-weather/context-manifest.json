@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "graph_id": "synchronous-weather-context-v1",
+  "facts": [
+    {
+      "fact_id": "fact-service-component",
+      "subject": "WeatherService",
+      "predicate": "component_kind",
+      "value": "provider",
+      "source_kind": "declared",
+      "provenance": [{"ref": "WeatherService.kt", "locator": "class WeatherService"}],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 1.0,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-api-boundary",
+      "subject": "WeatherProvider.current",
+      "predicate": "api_boundary",
+      "value": "WeatherProvider.current(): Weather",
+      "source_kind": "declared",
+      "provenance": [{"ref": "WeatherService.kt", "locator": "interface WeatherProvider"}],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 1.0,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-service-operation",
+      "subject": "WeatherService.current",
+      "predicate": "implements",
+      "value": "WeatherProvider.current",
+      "source_kind": "derived",
+      "provenance": [{"ref": "WeatherService.kt", "locator": "override fun current"}],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 0.98,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-sync-call",
+      "subject": "SystemUiWeatherConsumer.refresh",
+      "predicate": "calls_synchronously",
+      "value": "WeatherProvider.current",
+      "source_kind": "derived",
+      "provenance": [{"ref": "SystemUiWeatherConsumer.kt", "locator": "val weather = provider.current()"}],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 0.97,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-consumer-component",
+      "subject": "SystemUiWeatherConsumer",
+      "predicate": "component_kind",
+      "value": "critical_ui_consumer",
+      "source_kind": "declared",
+      "provenance": [{"ref": "SystemUiWeatherConsumer.kt", "locator": "class SystemUiWeatherConsumer"}],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 1.0,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-caller-thread",
+      "subject": "SystemUiWeatherConsumer.refresh",
+      "predicate": "caller_thread",
+      "value": "ui-main",
+      "source_kind": "declared",
+      "provenance": [{"ref": "SystemUiWeatherConsumer.kt", "locator": "UI-style consumer contract"}],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 0.75,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-caller-process",
+      "subject": "SystemUiWeatherConsumer",
+      "predicate": "caller_process",
+      "value": "system-ui-process",
+      "source_kind": "declared",
+      "provenance": [{"ref": "build-metadata.json", "locator": "consumer"}],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 0.7,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-quality-contract",
+      "subject": "SystemUiWeatherConsumer.refresh",
+      "predicate": "quality_contract",
+      "value": "critical UI path remains within bounded response latency",
+      "source_kind": "declared",
+      "provenance": [{"ref": "build-metadata.json", "locator": "consumer"}],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 0.8,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-criticality",
+      "subject": "SystemUiWeatherConsumer.refresh",
+      "predicate": "criticality",
+      "value": "high",
+      "source_kind": "declared",
+      "provenance": [{"ref": "build-metadata.json", "locator": "consumer"}],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 0.8,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-runtime-thread",
+      "subject": "SystemUiWeatherConsumer.refresh",
+      "predicate": "runtime_thread_observed",
+      "value": null,
+      "source_kind": "unknown",
+      "provenance": [],
+      "source_version": "synchronous-weather-v1",
+      "confidence": 0.0,
+      "status": "unknown",
+      "rationale": "No runtime trace is collected by this static fixture slice."
+    }
+  ],
+  "nodes": [
+    {"node_id": "service-component", "kind": "component", "label": "WeatherService", "source_fact_ids": ["fact-service-component"]},
+    {"node_id": "service-operation", "kind": "operation", "label": "WeatherService.current", "source_fact_ids": ["fact-service-operation"]},
+    {"node_id": "api-boundary", "kind": "api", "label": "WeatherProvider.current", "source_fact_ids": ["fact-api-boundary"]},
+    {"node_id": "systemui-consumer", "kind": "component", "label": "SystemUiWeatherConsumer.refresh", "source_fact_ids": ["fact-consumer-component", "fact-sync-call", "fact-criticality"]},
+    {"node_id": "systemui-process", "kind": "process", "label": "system-ui-process", "source_fact_ids": ["fact-caller-process"]},
+    {"node_id": "ui-main-thread", "kind": "thread", "label": "ui-main", "source_fact_ids": ["fact-caller-thread"]},
+    {"node_id": "latency-contract", "kind": "quality_contract", "label": "bounded critical UI response latency", "source_fact_ids": ["fact-quality-contract"]},
+    {"node_id": "runtime-thread-unknown", "kind": "thread", "label": "runtime thread (unknown)", "source_fact_ids": ["fact-runtime-thread"], "status": "unknown"}
+  ],
+  "edges": [
+    {"edge_id": "edge-service-operation", "from_node_id": "service-component", "to_node_id": "service-operation", "kind": "provides", "semantics": "synchronous", "source_fact_ids": ["fact-service-operation"]},
+    {"edge_id": "edge-operation-api", "from_node_id": "service-operation", "to_node_id": "api-boundary", "kind": "provides", "semantics": "synchronous", "source_fact_ids": ["fact-api-boundary"]},
+    {"edge_id": "edge-api-consumer", "from_node_id": "api-boundary", "to_node_id": "systemui-consumer", "kind": "calls", "semantics": "synchronous", "source_fact_ids": ["fact-sync-call"]},
+    {"edge_id": "edge-consumer-process", "from_node_id": "systemui-consumer", "to_node_id": "systemui-process", "kind": "runs_in", "semantics": "synchronous", "source_fact_ids": ["fact-caller-process"]},
+    {"edge_id": "edge-consumer-thread", "from_node_id": "systemui-consumer", "to_node_id": "ui-main-thread", "kind": "runs_on", "semantics": "synchronous", "source_fact_ids": ["fact-caller-thread"]},
+    {"edge_id": "edge-consumer-contract", "from_node_id": "systemui-consumer", "to_node_id": "latency-contract", "kind": "constrained_by", "semantics": "synchronous", "source_fact_ids": ["fact-quality-contract"]},
+    {"edge_id": "edge-runtime-thread-unknown", "from_node_id": "systemui-consumer", "to_node_id": "runtime-thread-unknown", "kind": "runs_on", "semantics": "unknown", "source_fact_ids": ["fact-runtime-thread"], "status": "unknown"}
+  ],
+  "unresolved": ["Runtime thread/process observation is not available in the static fixture."],
+  "suggested_probes": ["Capture a runtime thread/process trace before formal execution."]
+}
