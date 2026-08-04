@@ -43,26 +43,41 @@ def _base_package(repo_root: Path, slot_id: str) -> dict:
     )
     if final_revision == slot["source"]["base_revision"]:
         final_revision = "b" * 40
-    started = "2026-08-03T18:00:00Z"
-    finished = "2026-08-03T18:00:01Z"
-    attempt_id = f"attempt-{slot_id.lower()}"
     attempt_ref = _artifact(ref)
-    attempt = {
-        "attempt_id": attempt_id,
-        "lane_id": f"{slot_id}-baseline-01",
-        "attempt_number": 1,
-        "evidence_root": f"docs/runs/m6/{slot_id.lower()}",
-        "execution_record": attempt_ref,
-        "provenance": _artifact(ref),
-        "verdict": _artifact(ref),
-        "process": {"exit_code": 0},
-        "accountability": "accountable",
-        "retry_eligible": False,
-        "quarantined": False,
-        "artifacts": [attempt_ref, _artifact(ref), _artifact(ref)],
-        "started_at": started,
-        "finished_at": finished,
-    }
+    attempts = []
+    ledger = []
+    for index in range(6):
+        state = "pre_fix" if index < 3 and slot["track"] == "historical" else "fixed"
+        if slot["track"] == "prospective":
+            state = "candidate"
+        attempt_id = f"attempt-{slot_id.lower()}-{index + 1}"
+        lane_number = index % 3 + 1 if slot["track"] == "historical" else index + 1
+        lane_id = f"{slot_id}-{state}-{lane_number:02d}"
+        started = f"2026-08-03T18:00:{index * 2:02d}Z"
+        finished = f"2026-08-03T18:00:{index * 2 + 1:02d}Z"
+        attempt = {
+            "attempt_id": attempt_id,
+            "lane_id": lane_id,
+            "source_state": state,
+            "attempt_number": 1,
+            "evidence_root": f"docs/runs/m6/{slot_id.lower()}/{state}/{index + 1}",
+            "execution_record": _artifact(attempt_ref),
+            "provenance": _artifact(ref),
+            "verdict": _artifact(ref),
+            "process": {"exit_code": 0},
+            "accountability": "accountable",
+            "retry_eligible": False,
+            "quarantined": False,
+            "artifacts": [_artifact(attempt_ref), _artifact(ref), _artifact(ref)],
+            "started_at": started,
+            "finished_at": finished,
+        }
+        attempts.append(attempt)
+        ledger.extend([
+            {"event_id": f"{attempt_id}-start", "event": "started", "attempt_id": attempt_id, "lane_id": lane_id, "source_state": state, "attempt_number": 1, "occurred_at": started, "process_exit_code": None, "accountability": None},
+            {"event_id": f"{attempt_id}-finish", "event": "finished", "attempt_id": attempt_id, "lane_id": lane_id, "source_state": state, "attempt_number": 1, "occurred_at": finished, "process_exit_code": 0, "accountability": "accountable"},
+        ])
+    attempt_ids = [attempt["attempt_id"] for attempt in attempts]
     identity = {
         "id": f"agent-{slot_id}",
         "role": "verification-agent",
@@ -85,6 +100,36 @@ def _base_package(repo_root: Path, slot_id: str) -> dict:
             "base_revision": slot["source"]["base_revision"],
             "final_diff": {"revision": final_revision, "patch": _artifact(ref)},
         },
+        **(
+            {
+                "historical_pair": {
+                    "pre_fix_revision": slot["source"]["base_revision"],
+                    "fixed_revision": final_revision,
+                    "pre_fix_build": {
+                        "revision": slot["source"]["base_revision"],
+                        "variant": "debug",
+                        "duration_seconds": 1.0,
+                        "log": _artifact(ref),
+                        "apk": _artifact(ref),
+                        "installed_binary": _artifact(ref),
+                        "deployment_receipt": _artifact(ref),
+                    },
+                    "fixed_build": {
+                        "revision": final_revision,
+                        "variant": "debug",
+                        "duration_seconds": 1.0,
+                        "log": _artifact(ref),
+                        "apk": _artifact(ref),
+                        "installed_binary": _artifact(ref),
+                        "deployment_receipt": _artifact(ref),
+                    },
+                    "pre_fix_expected": "locally_rejected",
+                    "fixed_expected": "locally_supported",
+                }
+            }
+            if slot["track"] == "historical"
+            else {}
+        ),
         "contract": {
             "primary_behavior": slot["primary_behavior"],
             "run_spec": _artifact(ref),
@@ -115,20 +160,17 @@ def _base_package(repo_root: Path, slot_id: str) -> dict:
         },
         "attempt_inventory": {
             "max_attempts_per_lane": 2,
-            "discovered_attempt_ids": [attempt_id],
+            "discovered_attempt_ids": attempt_ids,
             "quarantined_attempt_ids": [],
-            "ledger": [
-                {"event_id": f"{attempt_id}-start", "event": "started", "attempt_id": attempt_id, "lane_id": attempt["lane_id"], "attempt_number": 1, "occurred_at": started, "process_exit_code": None, "accountability": None},
-                {"event_id": f"{attempt_id}-finish", "event": "finished", "attempt_id": attempt_id, "lane_id": attempt["lane_id"], "attempt_number": 1, "occurred_at": finished, "process_exit_code": 0, "accountability": "accountable"},
-            ],
-            "attempts": [attempt],
+            "ledger": ledger,
+            "attempts": attempts,
         },
         "verification": {
             "agent": identity,
             "conclusion": "locally_supported",
             "verdict": _artifact(ref),
             "oracle_output": _artifact(ref),
-            "frozen_at": "2026-08-03T18:00:02Z",
+            "frozen_at": "2026-08-03T18:00:20Z",
         },
         "adjudication": {
             "agent": {**identity, "id": f"auditor-{slot_id}", "session_id": f"audit-{slot_id}"},
@@ -197,6 +239,25 @@ def test_ledger_hidden_attempt_and_forbidden_claims_fail(tmp_path: Path) -> None
     with pytest.raises(CasePackageValidationError, match="discovered attempt"):
         load_case_package(_write_package(tmp_path, package), repo_root=Path.cwd(), verify_references=False)
 
+
+def test_historical_pair_is_required_and_revision_bound(tmp_path: Path) -> None:
+    package = _base_package(Path.cwd(), "H-01")
+    del package["historical_pair"]
+    with pytest.raises(CasePackageValidationError, match="historical_pair"):
+        load_case_package(_write_package(tmp_path, package), repo_root=Path.cwd(), verify_references=False)
+
+    package = _base_package(Path.cwd(), "H-01")
+    package["historical_pair"]["pre_fix_build"]["revision"] = "d" * 40
+    with pytest.raises(CasePackageValidationError, match="pre-fix build"):
+        load_case_package(_write_package(tmp_path, package), repo_root=Path.cwd(), verify_references=False)
+
+
+def test_historical_source_state_is_bound_in_ledger(tmp_path: Path) -> None:
+    package = _base_package(Path.cwd(), "H-01")
+    package["attempt_inventory"]["ledger"][0]["source_state"] = "fixed"
+    with pytest.raises(CasePackageValidationError, match="source state contradicts"):
+        load_case_package(_write_package(tmp_path, package), repo_root=Path.cwd(), verify_references=False)
+
     package = _base_package(Path.cwd(), "H-01")
     package["claim_boundary"]["allowed"].append("detection_rate")
     with pytest.raises(CasePackageValidationError, match="allowed claim"):
@@ -227,8 +288,8 @@ def test_contradictory_adjudication_and_post_accountable_retry_fail(tmp_path: Pa
     package["attempt_inventory"]["attempts"].append(retry)
     package["attempt_inventory"]["discovered_attempt_ids"].append("attempt-retry")
     package["attempt_inventory"]["ledger"].extend([
-        {"event_id": "retry-start", "event": "started", "attempt_id": "attempt-retry", "lane_id": original["lane_id"], "attempt_number": 2, "occurred_at": retry["started_at"], "process_exit_code": None, "accountability": None},
-        {"event_id": "retry-finish", "event": "finished", "attempt_id": "attempt-retry", "lane_id": original["lane_id"], "attempt_number": 2, "occurred_at": retry["finished_at"], "process_exit_code": 0, "accountability": "accountable"},
+        {"event_id": "retry-start", "event": "started", "attempt_id": "attempt-retry", "lane_id": original["lane_id"], "source_state": original["source_state"], "attempt_number": 2, "occurred_at": retry["started_at"], "process_exit_code": None, "accountability": None},
+        {"event_id": "retry-finish", "event": "finished", "attempt_id": "attempt-retry", "lane_id": original["lane_id"], "source_state": original["source_state"], "attempt_number": 2, "occurred_at": retry["finished_at"], "process_exit_code": 0, "accountability": "accountable"},
     ])
     with pytest.raises(CasePackageValidationError, match="retries after an accountable"):
         load_case_package(_write_package(tmp_path, package), repo_root=Path.cwd(), verify_references=False)

@@ -16,6 +16,18 @@
     "timing",
     "claim_boundary"
   ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "cohort": {
+            "properties": {"track": {"const": "historical"}}
+          }
+        }
+      },
+      "then": {"required": ["historical_pair"]}
+    }
+  ],
   "properties": {
     "schema_version": {"const": 1},
     "package_id": {"type": "string", "pattern": "^m6-[a-z0-9][a-z0-9-]*$"},
@@ -27,7 +39,8 @@
     "verification": {"$ref": "#/$defs/verification"},
     "adjudication": {"$ref": "#/$defs/adjudication"},
     "timing": {"$ref": "#/$defs/timing"},
-    "claim_boundary": {"$ref": "#/$defs/claimBoundary"}
+    "claim_boundary": {"$ref": "#/$defs/claimBoundary"},
+    "historical_pair": {"$ref": "#/$defs/historicalPair"}
   },
   "$defs": {
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -176,12 +189,13 @@
     "ledgerEvent": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["event_id", "event", "attempt_id", "lane_id", "attempt_number", "occurred_at"],
+      "required": ["event_id", "event", "attempt_id", "lane_id", "source_state", "attempt_number", "occurred_at"],
       "properties": {
         "event_id": {"type": "string", "minLength": 1},
         "event": {"enum": ["started", "finished"]},
         "attempt_id": {"type": "string", "minLength": 1},
         "lane_id": {"type": "string", "minLength": 1},
+        "source_state": {"enum": ["pre_fix", "fixed", "candidate"]},
         "attempt_number": {"type": "integer", "minimum": 1},
         "occurred_at": {"type": "string", "format": "date-time"},
         "process_exit_code": {"type": ["integer", "null"]},
@@ -194,6 +208,7 @@
       "required": [
         "attempt_id",
         "lane_id",
+        "source_state",
         "attempt_number",
         "evidence_root",
         "execution_record",
@@ -209,6 +224,7 @@
       "properties": {
         "attempt_id": {"type": "string", "minLength": 1},
         "lane_id": {"type": "string", "minLength": 1},
+        "source_state": {"enum": ["pre_fix", "fixed", "candidate"]},
         "attempt_number": {"type": "integer", "minimum": 1},
         "evidence_root": {"type": "string", "minLength": 1},
         "execution_record": {"$ref": "#/$defs/artifactRef"},
@@ -287,6 +303,48 @@
         "local_only": {"const": true},
         "allowed": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
         "forbidden": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
+      }
+    },
+    "historicalPair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pre_fix_revision",
+        "fixed_revision",
+        "pre_fix_build",
+        "fixed_build",
+        "pre_fix_expected",
+        "fixed_expected"
+      ],
+      "properties": {
+        "pre_fix_revision": {"$ref": "#/$defs/revision"},
+        "fixed_revision": {"$ref": "#/$defs/revision"},
+        "pre_fix_build": {"$ref": "#/$defs/matchedBuild"},
+        "fixed_build": {"$ref": "#/$defs/matchedBuild"},
+        "pre_fix_expected": {"const": "locally_rejected"},
+        "fixed_expected": {"const": "locally_supported"}
+      }
+    },
+    "matchedBuild": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "revision",
+        "variant",
+        "duration_seconds",
+        "log",
+        "apk",
+        "installed_binary",
+        "deployment_receipt"
+      ],
+      "properties": {
+        "revision": {"$ref": "#/$defs/revision"},
+        "variant": {"type": "string", "minLength": 1},
+        "duration_seconds": {"type": "number", "minimum": 0},
+        "log": {"$ref": "#/$defs/artifactRef"},
+        "apk": {"$ref": "#/$defs/artifactRef"},
+        "installed_binary": {"$ref": "#/$defs/artifactRef"},
+        "deployment_receipt": {"$ref": "#/$defs/artifactRef"}
       }
     }
   }
