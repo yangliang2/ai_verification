@@ -21,14 +21,14 @@ build or install an APK, drive a device, or support a runtime detection rate.
 
 ## Exact commands and results
 
-All commands ran in the dedicated worktree on commit `b483a1a57ab7c561dad5c3f78d695483920b6216`.
+All commands ran in the dedicated worktree on commit `8cf8dfe5f69a2471a3059e9b645b716a40ddd9d8`.
 
 ```text
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest tests/bench/test_m7_qualification.py -q
 7 passed
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -ra
-761 passed in 21.26s
+761 passed in 21.32s
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m py_compile src/aiverify/bench/m7_qualification.py
 passed
@@ -37,7 +37,7 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m compilea
 passed
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python docs/runs/2026-08-04-issue-104-m7-qualification/generate_evidence.py
-schema validation passed; 12 lanes generated in 0.033s
+schema validation passed; 12 lanes generated in 0.034s
 
 git diff --check
 passed
