@@ -1100,13 +1100,14 @@ def compile_attack_plan_to_run_spec(
         )
     if not isinstance(scenario, ScenarioSpec):
         raise DiscoveryContractError("compiler requires a ScenarioSpec")
+    execution_scenario = _discovery_scenario(scenario)
     run_spec = parse_run_spec(
         _run_spec_mapping(
             host_project=host_project,
             apk_glob=apk_glob,
             package_name=package_name,
             activity=activity,
-            scenario=scenario,
+            scenario=execution_scenario,
             diff=diff,
             spec=spec,
             live_validation=live_validation,
@@ -1123,7 +1124,7 @@ def compile_attack_plan_to_run_spec(
             "campaign": package.campaign.to_dict(),
             "plan": plan.to_dict(),
             "hypothesis": hypothesis.to_dict(),
-            "scenario": _scenario_mapping(scenario),
+            "scenario": _scenario_mapping(execution_scenario),
         }
     )
     campaign = replace(
@@ -1465,6 +1466,24 @@ def _scenario_mapping(scenario: ScenarioSpec) -> dict[str, Any]:
         },
         "l3_spec": scenario.l3_spec,
     }
+
+
+def _discovery_scenario(scenario: ScenarioSpec) -> ScenarioSpec:
+    """Remove benchmark outcome labels before a campaign emits a Run Spec."""
+
+    metric = replace(
+        scenario.metric_context,
+        taxonomy_category=None,
+        taxonomy_pattern_id=None,
+        expected_oracle_level=None,
+        expected_oracle_defect_class=None,
+        seed_kind="unspecified",
+    )
+    return replace(
+        scenario,
+        expected_behavior="",
+        metric_context=metric,
+    )
 
 
 def _live_validation_mapping(spec: LiveValidationSpec) -> dict[str, Any]:

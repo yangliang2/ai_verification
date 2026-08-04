@@ -26,7 +26,7 @@ from aiverify.discovery import (
     seed_project_campaign,
     validate_contract,
 )
-from aiverify.runner.run_spec import ScenarioSpec
+from aiverify.runner.run_spec import MetricContextSpec, ScenarioSpec
 
 
 _FIXTURE = Path("bench/discovery-fixtures/synchronous-weather/context-manifest.json")
@@ -170,6 +170,30 @@ def test_change_and_project_modes_share_admission_and_run_spec_seam() -> None:
             assert compiled.run_spec.diff is None
         else:
             assert compiled.run_spec.diff is not None
+
+    marked_scenario = ScenarioSpec(
+        id="marked",
+        expected_behavior="hidden expected defect outcome",
+        metric_context=MetricContextSpec(
+            seed_kind="injected_defect",
+            taxonomy_category="hidden",
+            taxonomy_pattern_id="hidden-pattern",
+            expected_oracle_level="L3",
+            expected_oracle_defect_class="performance_regression",
+        ),
+    )
+    admitted_project = admit_campaign_plan(project).package
+    sanitized = compile_attack_plan_to_run_spec(
+        admitted_project,
+        host_project="/workspace/discovery",
+        apk_glob="build/*.apk",
+        package_name="com.example.systemui",
+        activity=".MainActivity",
+        scenario=marked_scenario,
+    )
+    assert sanitized.run_spec.scenario.expected_behavior == ""
+    assert sanitized.run_spec.scenario.metric_context.seed_kind == "unspecified"
+    assert sanitized.run_spec.scenario.metric_context.taxonomy_category is None
 
 
 def test_selection_ledger_is_append_only_and_tamper_evident() -> None:

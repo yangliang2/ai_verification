@@ -22,10 +22,10 @@ Commands ran from `/Users/peter/projects/ai_verification-m7-103`:
   tests/discovery/test_risk_derivation.py \
   tests/discovery/test_contracts.py \
   tests/discovery/test_context_graph.py
-38 passed in 0.43s
+38 passed in 0.45s
 
 /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -o addopts='' -q
-754 passed in 21.21s
+754 passed in 20.89s
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python - <<'PY'
 from aiverify.discovery import self_validate_schema
@@ -59,8 +59,8 @@ Relevant tool versions: `uv 0.11.7`, `git 2.50.1`, Python `3.11.15`, pytest
 - `admit_campaign_plan` is side-effect-free and requires a frozen hypothesis,
   complete plan, known supporting facts, oracle, evidence expectations, abort
   boundary, and claim boundary. `compile_attack_plan_to_run_spec` calls the
-  existing Run Spec parser only after admission and performs no build/device
-  action.
+  existing Run Spec parser only after admission, strips benchmark outcome labels
+  from the emitted scenario, and performs no build/device action.
 - `AttemptEvidence.from_execution` delegates to the existing
   `validate_execution_record` and `validate_verdict` contracts. An accountable
   terminal receipt requires evidence references and an execution-identity
