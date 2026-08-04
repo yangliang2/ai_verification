@@ -1,0 +1,209 @@
+{
+  "audit_id": "m6-historical-independent-audit-2026-08-03",
+  "auditor": {
+    "backend": "deterministic-package-audit",
+    "id": "independent-auditor-m6-historical",
+    "model": "package-contract-v1",
+    "role": "final-auditor",
+    "session_id": "audit-session-m6-historical-2026-08-03"
+  },
+  "checks": [
+    {
+      "actual": 3,
+      "expected": 3,
+      "name": "three_historical_packages",
+      "status": "pass"
+    },
+    {
+      "actual": 6,
+      "expected": 6,
+      "name": "H-01_six_attempts",
+      "status": "pass"
+    },
+    {
+      "name": "H-01_independent_adjudication",
+      "status": "pass"
+    },
+    {
+      "actual": 6,
+      "expected": 6,
+      "name": "H-02_six_attempts",
+      "status": "pass"
+    },
+    {
+      "name": "H-02_independent_adjudication",
+      "status": "pass"
+    },
+    {
+      "actual": 6,
+      "expected": 6,
+      "name": "H-03_six_attempts",
+      "status": "pass"
+    },
+    {
+      "name": "H-03_independent_adjudication",
+      "status": "pass"
+    },
+    {
+      "actual": 18,
+      "expected": 18,
+      "name": "eighteen_accountable_attempts",
+      "status": "pass"
+    },
+    {
+      "actual": 9,
+      "expected": 9,
+      "name": "three_pre_fix_fail_observations",
+      "status": "pass"
+    },
+    {
+      "actual": 9,
+      "expected": 9,
+      "name": "three_fixed_pass_observations",
+      "status": "pass"
+    },
+    {
+      "actual": 15,
+      "expected": 15,
+      "name": "raw_pre_fix_assertion_failures",
+      "status": "pass"
+    },
+    {
+      "actual": 0,
+      "expected": 0,
+      "name": "raw_fixed_failures",
+      "status": "pass"
+    },
+    {
+      "name": "no_non_accountable_attempts",
+      "status": "pass"
+    },
+    {
+      "name": "local_only_boundary",
+      "status": "pass"
+    }
+  ],
+  "claim_boundary": {
+    "local_only": true,
+    "note": "This audit records local matched observations and package integrity only."
+  },
+  "counts": {
+    "accountable_attempts": 18,
+    "outcomes": {
+      "fail": 9,
+      "pass": 9
+    },
+    "raw_failures": {
+      "fixed": 0,
+      "pre_fix": 15
+    },
+    "raw_tests": {
+      "fixed": 15,
+      "pre_fix": 15
+    },
+    "source_states": {
+      "fixed": 9,
+      "pre_fix": 9
+    }
+  },
+  "revision_bindings": [
+    {
+      "attempt_id": "attempt-h-01-pre_fix-01",
+      "source_revision": "b88c6a672e18167727fcc9d913c9ed57e50e03ce",
+      "source_state": "pre_fix"
+    },
+    {
+      "attempt_id": "attempt-h-01-pre_fix-02",
+      "source_revision": "b88c6a672e18167727fcc9d913c9ed57e50e03ce",
+      "source_state": "pre_fix"
+    },
+    {
+      "attempt_id": "attempt-h-01-pre_fix-03",
+      "source_revision": "b88c6a672e18167727fcc9d913c9ed57e50e03ce",
+      "source_state": "pre_fix"
+    },
+    {
+      "attempt_id": "attempt-h-01-fixed-01",
+      "source_revision": "996ad8592fbd41e59ea195da72a3e9a728181006",
+      "source_state": "fixed"
+    },
+    {
+      "attempt_id": "attempt-h-01-fixed-02",
+      "source_revision": "996ad8592fbd41e59ea195da72a3e9a728181006",
+      "source_state": "fixed"
+    },
+    {
+      "attempt_id": "attempt-h-01-fixed-03",
+      "source_revision": "996ad8592fbd41e59ea195da72a3e9a728181006",
+      "source_state": "fixed"
+    },
+    {
+      "attempt_id": "attempt-h-02-pre_fix-01",
+      "source_revision": "675b930624c80498b3d3881592ac1c3f179a2709",
+      "source_state": "pre_fix"
+    },
+    {
+      "attempt_id": "attempt-h-02-pre_fix-02",
+      "source_revision": "675b930624c80498b3d3881592ac1c3f179a2709",
+      "source_state": "pre_fix"
+    },
+    {
+      "attempt_id": "attempt-h-02-pre_fix-03",
+      "source_revision": "675b930624c80498b3d3881592ac1c3f179a2709",
+      "source_state": "pre_fix"
+    },
+    {
+      "attempt_id": "attempt-h-02-fixed-01",
+      "source_revision": "c7250ce14feaa24e52d3a2468fb86b15fa56cfff",
+      "source_state": "fixed"
+    },
+    {
+      "attempt_id": "attempt-h-02-fixed-02",
+      "source_revision": "c7250ce14feaa24e52d3a2468fb86b15fa56cfff",
+      "source_state": "fixed"
+    },
+    {
+      "attempt_id": "attempt-h-02-fixed-03",
+      "source_revision": "c7250ce14feaa24e52d3a2468fb86b15fa56cfff",
+      "source_state": "fixed"
+    },
+    {
+      "attempt_id": "attempt-h-03-pre_fix-01",
+      "source_revision": "d67ec44adc1d8c4d8dc7dcb736c0faa9f1b6934c",
+      "source_state": "pre_fix"
+    },
+    {
+      "attempt_id": "attempt-h-03-pre_fix-02",
+      "source_revision": "d67ec44adc1d8c4d8dc7dcb736c0faa9f1b6934c",
+      "source_state": "pre_fix"
+    },
+    {
+      "attempt_id": "attempt-h-03-pre_fix-03",
+      "source_revision": "d67ec44adc1d8c4d8dc7dcb736c0faa9f1b6934c",
+      "source_state": "pre_fix"
+    },
+    {
+      "attempt_id": "attempt-h-03-fixed-01",
+      "source_revision": "fdc4ffb9ef3be93a96500bf630057c1e66ac7b8f",
+      "source_state": "fixed"
+    },
+    {
+      "attempt_id": "attempt-h-03-fixed-02",
+      "source_revision": "fdc4ffb9ef3be93a96500bf630057c1e66ac7b8f",
+      "source_state": "fixed"
+    },
+    {
+      "attempt_id": "attempt-h-03-fixed-03",
+      "source_revision": "fdc4ffb9ef3be93a96500bf630057c1e66ac7b8f",
+      "source_state": "fixed"
+    }
+  ],
+  "schema_version": 1,
+  "scope": {
+    "attempt_count": 18,
+    "package_count": 3,
+    "source_repository": "https://github.com/wikimedia/apps-android-wikipedia",
+    "track": "historical"
+  },
+  "status": "pass"
+}

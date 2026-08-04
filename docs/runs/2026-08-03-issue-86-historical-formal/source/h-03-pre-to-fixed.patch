@@ -1,0 +1,26 @@
+diff --git a/app/src/main/java/org/wikipedia/search/SearchActivity.kt b/app/src/main/java/org/wikipedia/search/SearchActivity.kt
+index e6c34dc32..0fdbf959a 100644
+--- a/app/src/main/java/org/wikipedia/search/SearchActivity.kt
++++ b/app/src/main/java/org/wikipedia/search/SearchActivity.kt
+@@ -28,7 +28,7 @@ class SearchActivity : SingleFragmentActivity<SearchFragment>() {
+         const val EXTRA_RETURN_LINK = "returnLink"
+         const val EXTRA_RETURN_LINK_TITLE = "returnLinkTitle"
+         const val EXTRA_SUGGESTED_QUERY = "suggestedQuery"
+-        const val RESULT_LINK_SUCCESS = 1
++        const val RESULT_LINK_SUCCESS = 97
+ 
+         fun newIntent(context: Context, source: InvokeSource, query: String?, returnLink: Boolean = false, suggestedSearchQuery: String? = null): Intent {
+             return Intent(context, SearchActivity::class.java)
+diff --git a/app/src/main/java/org/wikipedia/search/SearchFragment.kt b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+index 26112e318..69e2bc40e 100644
+--- a/app/src/main/java/org/wikipedia/search/SearchFragment.kt
++++ b/app/src/main/java/org/wikipedia/search/SearchFragment.kt
+@@ -372,7 +372,7 @@ class SearchFragment : Fragment(), SearchResultsFragment.Callback, RecentSearche
+         private const val PANEL_RECENT_SEARCHES = 0
+         private const val PANEL_SEARCH_RESULTS = 1
+         private const val INTENT_DELAY_MILLIS = 500L
+-        const val RESULT_LANG_CHANGED = 1
++        const val RESULT_LANG_CHANGED = 98
+ 
+         fun newInstance(source: InvokeSource, query: String?, returnLink: Boolean = false): SearchFragment =
+                 SearchFragment().apply {

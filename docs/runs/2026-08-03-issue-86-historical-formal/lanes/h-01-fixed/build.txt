@@ -1,0 +1,133 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Configuration on demand is an incubating feature.
+Reusing configuration cache.
+> Task :analytics:testkitchen:preBuild UP-TO-DATE
+> Task :analytics:testkitchen:generateDevDebugAssets UP-TO-DATE
+> Task :app:generateDevDebugAndroidTestAssets UP-TO-DATE
+> Task :app:generateDevDebugAssets UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDevDebugBuild UP-TO-DATE
+> Task :analytics:testkitchen:preDevDebugBuild UP-TO-DATE
+> Task :analytics:testkitchen:clean
+> Task :analytics:testkitchen:generateDevDebugBuildConfig FROM-CACHE
+> Task :analytics:testkitchen:javaPreCompileDevDebug FROM-CACHE
+> Task :analytics:testkitchen:processDevDebugNavigationResources FROM-CACHE
+> Task :analytics:testkitchen:extractDeepLinksDevDebug FROM-CACHE
+> Task :analytics:testkitchen:generateDevDebugResources FROM-CACHE
+> Task :analytics:testkitchen:extractDevDebugSupportedLocales FROM-CACHE
+> Task :analytics:testkitchen:kspDevDebugKotlin SKIPPED
+> Task :analytics:testkitchen:processDevDebugManifest FROM-CACHE
+> Task :analytics:testkitchen:packageDevDebugResources FROM-CACHE
+> Task :analytics:testkitchen:parseDevDebugLocalResources FROM-CACHE
+> Task :analytics:testkitchen:generateDevDebugRFile FROM-CACHE
+> Task :analytics:testkitchen:mapDevDebugSourceSetPaths
+> Task :analytics:testkitchen:compileDevDebugLibraryResources FROM-CACHE
+> Task :analytics:testkitchen:writeDevDebugAarMetadata
+> Task :analytics:testkitchen:mergeDevDebugAssets
+> Task :analytics:testkitchen:mergeDevDebugJniLibFolders
+> Task :analytics:testkitchen:mergeDevDebugNativeLibs NO-SOURCE
+> Task :analytics:testkitchen:copyDevDebugJniLibsProjectOnly
+> Task :analytics:testkitchen:compileDevDebugKotlin FROM-CACHE
+> Task :analytics:testkitchen:compileDevDebugJavaWithJavac FROM-CACHE
+> Task :analytics:testkitchen:processDevDebugJavaRes
+> Task :analytics:testkitchen:bundleLibRuntimeToJarDevDebug
+> Task :analytics:testkitchen:bundleLibCompileToJarDevDebug
+> Task :app:clean
+> Task :app:mergeDevDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDevDebugBuildConfig FROM-CACHE
+> Task :app:generateDevDebugGlobalSynthetics FROM-CACHE
+> Task :app:processDevDebugGoogleServices FROM-CACHE
+> Task :app:javaPreCompileDevDebug FROM-CACHE
+> Task :app:l8DexDesugarLibDevDebug FROM-CACHE
+> Task :app:createDevDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDevDebug FROM-CACHE
+> Task :app:generateDevDebugResources FROM-CACHE
+> Task :app:extractDevDebugSupportedLocales FROM-CACHE
+> Task :app:mapDevDebugSourceSetPaths
+> Task :app:validateSigningDevDebug
+> Task :app:mergeDevDebugJniLibFolders
+> Task :app:writeDevDebugAppMetadata
+> Task :app:writeDevDebugSigningConfigVersions
+> Task :app:preDevDebugAndroidTestBuild SKIPPED
+> Task :app:generateDevDebugLocaleConfig FROM-CACHE
+> Task :app:dataBindingMergeDependencyArtifactsDevDebug
+> Task :app:processDevDebugNavigationResources FROM-CACHE
+> Task :app:desugarDevDebugFileDependencies FROM-CACHE
+> Task :app:compileDevDebugNavigationResources FROM-CACHE
+> Task :app:dataBindingMergeDependencyArtifactsDevDebugAndroidTest
+> Task :app:generateDevDebugAndroidTestResources FROM-CACHE
+> Task :app:checkDevDebugDuplicateClasses
+> Task :app:processDevDebugAndroidTestNavigationResources FROM-CACHE
+> Task :app:mergeLibDexDevDebug FROM-CACHE
+> Task :app:packageDevDebugAndroidTestResources FROM-CACHE
+> Task :app:parseDevDebugAndroidTestLocalResources FROM-CACHE
+> Task :app:generateDevDebugAndroidTestRFile FROM-CACHE
+> Task :app:javaPreCompileDevDebugAndroidTest FROM-CACHE
+> Task :app:processDevDebugMainManifest FROM-CACHE
+> Task :app:processDevDebugManifest FROM-CACHE
+> Task :app:processDevDebugManifestForPackage FROM-CACHE
+> Task :app:generateDevDebugAndroidTestGlobalSynthetics FROM-CACHE
+> Task :app:mergeDevDebugAssets
+> Task :app:mergeDevDebugAndroidTestAssets
+> Task :app:checkDevDebugAndroidTestDuplicateClasses
+> Task :app:compressDevDebugAssets FROM-CACHE
+> Task :app:checkDevDebugAarMetadata
+> Task :app:mergeLibDexDevDebugAndroidTest FROM-CACHE
+> Task :app:compressDevDebugAndroidTestAssets FROM-CACHE
+> Task :app:checkDevDebugAndroidTestAarMetadata
+> Task :app:validateSigningDevDebugAndroidTest
+> Task :app:mapDevDebugAndroidTestSourceSetPaths
+> Task :app:desugarDevDebugAndroidTestFileDependencies FROM-CACHE
+> Task :app:writeDevDebugAndroidTestSigningConfigVersions
+> Task :app:compileDevDebugAndroidTestNavigationResources FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestJniLibFolders
+> Task :app:processDevDebugAndroidTestManifest
+> Task :app:generateDevDebugAndroidTestBuildConfig FROM-CACHE
+> Task :app:mergeExtDexDevDebugAndroidTest FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestResources FROM-CACHE
+> Task :app:mergeDevDebugNativeLibs
+> Task :app:dataBindingGenBaseClassesDevDebugAndroidTest FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDevDebugAndroidTestDebugSymbols NO-SOURCE
+
+> Task :app:stripDevDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, liblanguage_id_l2c_jni.so, libmaplibre.so. Run with --info option to learn more.
+
+> Task :app:processDevDebugAndroidTestResources FROM-CACHE
+> Task :app:mergeExtDexDevDebug FROM-CACHE
+> Task :app:packageDevDebugResources FROM-CACHE
+> Task :app:parseDevDebugLocalResources FROM-CACHE
+> Task :app:generateDevDebugRFile FROM-CACHE
+> Task :app:mergeDevDebugResources FROM-CACHE
+> Task :app:dataBindingGenBaseClassesDevDebug FROM-CACHE
+> Task :app:kspDevDebugKotlin FROM-CACHE
+> Task :app:processDevDebugResources FROM-CACHE
+> Task :app:compileDevDebugKotlin FROM-CACHE
+> Task :app:compileDevDebugJavaWithJavac FROM-CACHE
+> Task :app:processDevDebugJavaRes
+> Task :app:bundleDevDebugClassesToCompileJar
+> Task :app:kspDevDebugAndroidTestKotlin FROM-CACHE
+> Task :app:compileDevDebugAndroidTestKotlin FROM-CACHE
+> Task :app:processDevDebugAndroidTestJavaRes
+> Task :app:compileDevDebugAndroidTestJavaWithJavac FROM-CACHE
+> Task :app:dexBuilderDevDebugAndroidTest FROM-CACHE
+> Task :app:mergeProjectDexDevDebugAndroidTest FROM-CACHE
+> Task :app:mergeDevDebugAndroidTestJavaResource
+> Task :app:dexBuilderDevDebug FROM-CACHE
+> Task :app:mergeDevDebugJavaResource
+> Task :app:mergeProjectDexDevDebug FROM-CACHE
+> Task :app:packageDevDebugAndroidTest
+> Task :app:assembleDevDebugAndroidTest
+> Task :app:createDevDebugAndroidTestApkListingFileRedirect
+> Task :app:packageDevDebug
+> Task :app:assembleDevDebug
+> Task :app:createDevDebugApkListingFileRedirect
+
+BUILD SUCCESSFUL in 7s
+103 actionable tasks: 40 executed, 63 from cache
+Configuration cache entry reused.
+real 8.08
+user 26.11
+sys 6.66
+build_exit_code=0
