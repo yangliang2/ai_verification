@@ -131,13 +131,57 @@ class QualificationAggregate:
     packages: tuple[QualificationCasePackage, ...]
     historical: Mapping[str, Any]
     prospective: Mapping[str, Any]
+    references_verified: bool = True
 
     @property
     def package_ids(self) -> tuple[str, ...]:
         return tuple(package.package_id for package in self.packages)
 
+    @property
+    def qualification(self) -> Mapping[str, Any]:
+        """Return the lane-accountability facts for the frozen cohort."""
+        return _qualification_summary(
+            self.manifest,
+            self.packages,
+            self.historical,
+            self.prospective,
+            references_verified=self.references_verified,
+        )
+
+    @property
+    def recommendation(self) -> Mapping[str, Any]:
+        """Return the single evidence-gated M7 route."""
+        return _recommendation(self.manifest, self.qualification, self.historical, self.prospective)
+
     def to_dict(self) -> dict[str, Any]:
         """Return the stable structured report model."""
+        operational = _operational_summary(self.packages)
+        build_items = list(self.historical.get("build", {}).get("items", [])) + list(
+            self.prospective.get("build", {}).get("items", [])
+        )
+        seen_builds: set[tuple[str, str]] = set()
+        unique_build_items = []
+        for item in sorted(build_items, key=lambda value: (str(value.get("state")), str(value.get("revision")))):
+            key = (str(item.get("state")), str(item.get("revision")))
+            if key in seen_builds:
+                continue
+            seen_builds.add(key)
+            unique_build_items.append(item)
+        operational.update(
+            {
+                "build_seconds": round(
+                    sum(float(item["duration_seconds"]) for item in unique_build_items),
+                    3,
+                ),
+                "build_count": len(unique_build_items),
+                "builds": unique_build_items,
+                "execution_seconds": round(
+                    float(self.historical.get("execution_seconds", 0.0))
+                    + float(self.prospective.get("execution_seconds", 0.0)),
+                    3,
+                ),
+            }
+        )
         return {
             "schema_version": 1,
             "cohort": {
@@ -149,6 +193,7 @@ class QualificationAggregate:
                 "manifest_sha256": self.manifest.source_sha256,
                 "slot_count": len(self.packages),
             },
+            "checksums_verified": self.references_verified,
             "packages": [
                 {
                     "package_id": package.package_id,
@@ -162,6 +207,9 @@ class QualificationAggregate:
             ],
             "historical": dict(self.historical),
             "prospective": dict(self.prospective),
+            "qualification": dict(self.qualification),
+            "recommendation": dict(self.recommendation),
+            "operational": operational,
             "claim_boundary": {"local_only": True},
         }
 
@@ -362,11 +410,30 @@ def aggregate_packages(
         raise CasePackageValidationError(errors)
 
     ordered = tuple(sorted(packages, key=lambda package: package.slot_id))
+    errors.extend(
+        _aggregate_integrity_errors(
+            manifest,
+            ordered,
+            repo_root=root,
+            verify_references=verify_references,
+        )
+    )
+    if errors:
+        raise CasePackageValidationError(errors)
     return QualificationAggregate(
         manifest=manifest,
         packages=ordered,
-        historical=_track_summary([p for p in ordered if p.track == "historical"]),
-        prospective=_track_summary([p for p in ordered if p.track == "prospective"]),
+        historical=_track_summary(
+            [p for p in ordered if p.track == "historical"],
+            repo_root=root,
+            verify_references=verify_references,
+        ),
+        prospective=_track_summary(
+            [p for p in ordered if p.track == "prospective"],
+            repo_root=root,
+            verify_references=verify_references,
+        ),
+        references_verified=verify_references,
     )
 
 
@@ -382,6 +449,8 @@ def render_structured(aggregate: QualificationAggregate) -> str:
 def render_markdown(aggregate: QualificationAggregate) -> str:
     """Render the same aggregate model as deterministic Markdown."""
     model = aggregate.to_dict()
+    qualification = model["qualification"]
+    recommendation = model["recommendation"]
     lines = [
         "# M6 Qualification Case Package Aggregate",
         "",
@@ -403,6 +472,68 @@ def render_markdown(aggregate: QualificationAggregate) -> str:
             f"{summary['accountable_attempts']} | {summary['non_accountable_attempts']} | "
             f"{summary['operational_seconds']} |"
         )
+    lines.extend(
+        [
+            "",
+            "## Lane accountability",
+            "",
+            f"Planned lanes: `{qualification['planned_lanes']}`; observed lanes: `{qualification['observed_lanes']}`; "
+            f"first-attempt accountable: `{qualification['first_attempt_accountable']}`; "
+            f"eventual accountable: `{qualification['eventual_accountable']}`; "
+            f"retries: `{qualification['retries']}`.",
+            "",
+            "Historical and prospective lane populations are reconciled independently; their denominators are not merged.",
+            "",
+            "## Historical exact observations",
+            "",
+            "| State | Lanes | Raw tests | Raw failures | Outcomes |",
+            "|---|---:|---:|---:|---|",
+        ]
+    )
+    for state in ("pre_fix", "fixed"):
+        state_summary = model["historical"]["source_states"].get(
+            state,
+            {"lanes": 0, "raw_tests": 0, "raw_failures": 0, "outcomes": {}},
+        )
+        lines.append(
+            f"| {state} | {state_summary['lanes']} | {state_summary['raw_tests']} | "
+            f"{state_summary['raw_failures']} | `{json.dumps(state_summary['outcomes'], sort_keys=True)}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Prospective local conclusions",
+            "",
+            "| Slot | Conclusion | Adjudication agreement | Gaps |",
+            "|---|---|---|---:|",
+        ]
+    )
+    for package in model["packages"]:
+        if package["track"] != "prospective":
+            continue
+        prospective_package = next(
+            item for item in aggregate.packages if item.slot_id == package["slot_id"]
+        )
+        lines.append(
+            f"| {package['slot_id']} | {package['conclusion']} | "
+            f"{str(prospective_package.document['adjudication']['agreement']).lower()} | "
+            f"{len(prospective_package.document['timing']['gaps'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## M7 route",
+            "",
+            f"Recommendation: **{recommendation['label']}** (`{recommendation['route']}`).",
+            f"Reason: {recommendation['reason']}",
+            "",
+            "## Operational record",
+            "",
+            f"Package duration seconds: `{model['operational']['package_duration_seconds']}`; "
+            f"backend time seconds: `{model['operational']['backend_time_seconds']}`; "
+            f"judge time seconds: `{model['operational']['judge_time_seconds']}`.",
+        ]
+    )
     lines.extend(
         [
             "",
@@ -561,11 +692,18 @@ def _historical_pair_errors(document: dict[str, Any]) -> list[str]:
     states = [attempt.get("source_state") for attempt in attempts]
     if any(state not in {"pre_fix", "fixed"} for state in states):
         errors.append("historical attempts must declare pre_fix or fixed source_state")
-    if states.count("pre_fix") != 3 or states.count("fixed") != 3:
-        errors.append("historical package must contain exactly three pre_fix and three fixed attempts")
-    lanes = [str(attempt["lane_id"]) for attempt in attempts]
-    if len(lanes) != len(set(lanes)):
-        errors.append("historical lane ids must be unique")
+    lanes_by_state = {
+        state: {str(attempt["lane_id"]) for attempt in attempts if attempt.get("source_state") == state}
+        for state in ("pre_fix", "fixed")
+    }
+    if len(lanes_by_state["pre_fix"]) != 3 or len(lanes_by_state["fixed"]) != 3:
+        errors.append("historical package must contain exactly three pre_fix and three fixed lanes")
+    lane_attempts = [
+        (str(attempt["lane_id"]), int(attempt["attempt_number"]))
+        for attempt in attempts
+    ]
+    if len(lane_attempts) != len(set(lane_attempts)):
+        errors.append("historical lane attempt identities must be unique")
     return errors
 
 
@@ -715,6 +853,12 @@ def _cross_check_attempt_artifacts(
                 errors.append(f"attempt {attempt_id} process outcome contradicts ExecutionRecord")
             if record.get("started_at") != attempt["started_at"] or record.get("finished_at") != attempt["finished_at"]:
                 errors.append(f"attempt {attempt_id} timestamps contradict ExecutionRecord")
+            _verify_nested_artifact_refs(
+                record,
+                repo_root=repo_root,
+                label=f"attempt {attempt_id} execution record",
+                errors=errors,
+            )
 
     for label in ("provenance", "verdict"):
         path = _resolve_repo_path(
@@ -732,9 +876,15 @@ def _cross_check_attempt_artifacts(
         if label == "provenance" and isinstance(value, dict):
             if value.get("source_state") != attempt.get("source_state"):
                 errors.append(f"attempt {attempt_id} provenance source state mismatch")
+            if value.get("lane_id") is not None and value.get("lane_id") != attempt.get("lane_id"):
+                errors.append(f"attempt {attempt_id} provenance lane identity mismatch")
+            if value.get("attempt_number") is not None and value.get("attempt_number") != attempt.get("attempt_number"):
+                errors.append(f"attempt {attempt_id} provenance attempt number mismatch")
         if label == "provenance" and isinstance(value, dict) and "attempt_id" not in value:
             errors.append(f"attempt {attempt_id} provenance omits attempt identity")
         if label == "verdict" and isinstance(value, dict):
+            if value.get("source_state") is not None and value.get("source_state") != attempt.get("source_state"):
+                errors.append(f"attempt {attempt_id} verdict source state mismatch")
             execution = value.get("execution")
             if isinstance(execution, dict):
                 accountable = execution.get("accounting_eligible") is True
@@ -742,6 +892,39 @@ def _cross_check_attempt_artifacts(
                     errors.append(f"attempt {attempt_id} verdict accountability contradicts package")
                 if execution.get("status") == "completed" and attempt["process"]["exit_code"] not in {0, 1}:
                     errors.append(f"attempt {attempt_id} verdict is completed with invalid process exit")
+        _verify_nested_artifact_refs(
+            value,
+            repo_root=repo_root,
+            label=f"attempt {attempt_id} {label}",
+            errors=errors,
+        )
+
+
+def _verify_nested_artifact_refs(
+    value: Any,
+    *,
+    repo_root: Path,
+    label: str,
+    errors: list[str],
+) -> None:
+    """Verify checksum-bound references embedded in provenance or verdict JSON."""
+    for nested_label, reference in _artifact_refs(value):
+        resolved = _resolve_repo_path(
+            reference["path"],
+            repo_root=repo_root,
+            label=f"{label}.{nested_label}",
+            errors=errors,
+        )
+        if resolved is None or not resolved.is_file():
+            if resolved is not None:
+                errors.append(f"{label}.{nested_label} artifact does not exist: {reference['path']}")
+            continue
+        actual = _sha256_file(resolved)
+        if actual != reference["sha256"]:
+            errors.append(
+                f"{label}.{nested_label} checksum mismatch for {reference['path']}: "
+                f"expected {reference['sha256']}, got {actual}"
+            )
 
 
 def _conclusion_errors(
@@ -906,27 +1089,667 @@ def _meaningful_mapping(value: Any) -> bool:
     )
 
 
-def _track_summary(packages: Sequence[QualificationCasePackage]) -> dict[str, Any]:
-    conclusions = Counter(package.conclusion for package in packages)
-    attempts = [attempt for package in packages for attempt in package.attempts]
+_EXPECTED_HISTORICAL_STATES = ("pre_fix", "fixed")
+_EXPECTED_PROSPECTIVE_STATES = ("control", "candidate")
+_M7_ROUTES = frozenset(
+    {
+        "scale_historical_pair_cohort",
+        "add_accountable_prospective_cases",
+        "remediate_fixture_execution_oracle_adjudication_gaps",
+        "stop_or_defer",
+    }
+)
+
+
+def _track_summary(
+    packages: Sequence[QualificationCasePackage],
+    *,
+    repo_root: Path | None = None,
+    verify_references: bool = False,
+) -> dict[str, Any]:
+    """Derive raw observations without merging the two qualification tracks."""
+    ordered_packages = tuple(sorted(packages, key=lambda item: item.slot_id))
+    conclusions = Counter(package.conclusion for package in ordered_packages)
+    attempts = [attempt for package in ordered_packages for attempt in package.attempts]
     accountable = sum(attempt["accountability"] == "accountable" for attempt in attempts)
     non_accountable = len(attempts) - accountable
+    by_lane: defaultdict[str, list[Mapping[str, Any]]] = defaultdict(list)
+    by_state: defaultdict[str, list[Mapping[str, Any]]] = defaultdict(list)
+    observations: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
+    for attempt in attempts:
+        lane_id = str(attempt["lane_id"])
+        by_lane[lane_id].append(attempt)
+        by_state[str(attempt["source_state"])].append(attempt)
+        observation = _attempt_observation(
+            attempt,
+            repo_root=repo_root,
+            verify_references=verify_references,
+        )
+        if observation is not None:
+            observations[str(attempt["source_state"])].append(observation)
+
+    first_attempt_accountable = sum(
+        any(int(item["attempt_number"]) == 1 and item["accountability"] == "accountable" for item in lane_attempts)
+        for lane_attempts in by_lane.values()
+    )
+    eventual_accountable = sum(
+        any(item["accountability"] == "accountable" for item in lane_attempts)
+        for lane_attempts in by_lane.values()
+    )
+    retries = sum(max(0, len(lane_attempts) - 1) for lane_attempts in by_lane.values())
     operational_seconds = round(
+        sum(float(package.document["timing"]["duration_seconds"]) for package in ordered_packages),
+        3,
+    )
+    interventions_list = sorted(
+        intervention
+        for package in ordered_packages
+        for intervention in package.document["timing"]["interventions"]
+    )
+    gaps_list = sorted(
+        gap
+        for package in ordered_packages
+        for gap in package.document["timing"]["gaps"]
+    )
+    state_summary: dict[str, Any] = {}
+    for state in sorted(by_state):
+        state_attempts = by_state[state]
+        state_lanes = {str(attempt["lane_id"]) for attempt in state_attempts}
+        state_observations = observations.get(state, [])
+        outcome_counts = Counter(
+            str(item["outcome"])
+            for item in state_observations
+            if item.get("outcome") is not None
+        )
+        state_summary[state] = {
+            "lanes": len(state_lanes),
+            "attempts": len(state_attempts),
+            "first_attempt_accountable": sum(
+                item["accountability"] == "accountable"
+                and int(item["attempt_number"]) == 1
+                for item in state_attempts
+            ),
+            "eventual_accountable": sum(
+                any(
+                    item["accountability"] == "accountable"
+                    for item in by_lane[lane_id]
+                )
+                for lane_id in state_lanes
+            ),
+            "raw_tests": sum(int(item.get("tests", 0)) for item in state_observations),
+            "raw_failures": sum(int(item.get("failures", 0)) for item in state_observations),
+            "outcomes": dict(sorted(outcome_counts.items())),
+        }
+    case_details = _case_details(
+        ordered_packages,
+        observations=observations,
+        by_lane=by_lane,
+    )
+    agreements = sum(
+        bool(package.document["adjudication"]["agreement"])
+        for package in ordered_packages
+    )
+    independent_pairs = sum(
+        package.document["verification"]["agent"]["id"]
+        != package.document["adjudication"]["agent"]["id"]
+        for package in ordered_packages
+    )
+    return {
+        "cases": len(ordered_packages),
+        "slot_ids": [package.slot_id for package in ordered_packages],
+        "attempts": len(attempts),
+        "lanes": len(by_lane),
+        "accountable_attempts": accountable,
+        "non_accountable_attempts": non_accountable,
+        "first_attempt_accountable": first_attempt_accountable,
+        "eventual_accountable": eventual_accountable,
+        "retries": retries,
+        "source_states": state_summary,
+        "case_details": case_details,
+        "pairs": case_details if ordered_packages and ordered_packages[0].track == "historical" else [],
+        "cases_detail": case_details if ordered_packages and ordered_packages[0].track == "prospective" else [],
+        "conclusions": dict(sorted(conclusions.items())),
+        "adjudication": {
+            "agreements": agreements,
+            "disagreements": len(ordered_packages) - agreements,
+            "independent_pairs": independent_pairs,
+        },
+        "observations": {
+            state: sorted(items, key=lambda item: str(item["attempt_id"]))
+            for state, items in sorted(observations.items())
+        },
+        "operational_seconds": operational_seconds,
+        "interventions": len(interventions_list),
+        "intervention_values": interventions_list,
+        "gaps": len(gaps_list),
+        "gap_values": gaps_list,
+        "build": _build_summary(
+            ordered_packages,
+            repo_root=repo_root,
+            verify_references=verify_references,
+        ),
+        "execution_seconds": _execution_seconds(
+            attempts,
+            repo_root=repo_root,
+            verify_references=verify_references,
+        ),
+    }
+
+
+def _case_details(
+    packages: Sequence[QualificationCasePackage],
+    *,
+    observations: Mapping[str, Sequence[Mapping[str, Any]]],
+    by_lane: Mapping[str, Sequence[Mapping[str, Any]]],
+) -> list[dict[str, Any]]:
+    details: list[dict[str, Any]] = []
+    for package in sorted(packages, key=lambda item: item.slot_id):
+        package_attempts = list(package.attempts)
+        state_names = (
+            _EXPECTED_HISTORICAL_STATES
+            if package.track == "historical"
+            else _EXPECTED_PROSPECTIVE_STATES
+        )
+        state_details: dict[str, Any] = {}
+        for state in state_names:
+            state_attempts = [
+                attempt
+                for attempt in package_attempts
+                if attempt["source_state"] == state
+            ]
+            state_ids = {str(attempt["attempt_id"]) for attempt in state_attempts}
+            state_observations = [
+                item
+                for item in observations.get(state, [])
+                if str(item.get("attempt_id")) in state_ids
+            ]
+            outcome_counts = Counter(
+                str(item["outcome"])
+                for item in state_observations
+                if item.get("outcome") is not None
+            )
+            state_details[state] = {
+                "lanes": len({str(attempt["lane_id"]) for attempt in state_attempts}),
+                "attempts": len(state_attempts),
+                "first_attempt_accountable": sum(
+                    attempt["accountability"] == "accountable"
+                    and int(attempt["attempt_number"]) == 1
+                    for attempt in state_attempts
+                ),
+                "eventual_accountable": sum(
+                    any(
+                        item["accountability"] == "accountable"
+                        for item in by_lane[str(attempt["lane_id"])]
+                    )
+                    for attempt in state_attempts
+                    if int(attempt["attempt_number"]) == 1
+                ),
+                "raw_tests": sum(int(item.get("tests", 0)) for item in state_observations),
+                "raw_failures": sum(int(item.get("failures", 0)) for item in state_observations),
+                "outcomes": dict(sorted(outcome_counts.items())),
+            }
+        detail: dict[str, Any] = {
+            "slot_id": package.slot_id,
+            "package_id": package.package_id,
+            "conclusion": package.conclusion,
+            "adjudication_agreement": bool(package.document["adjudication"]["agreement"]),
+            "timing_seconds": round(float(package.document["timing"]["duration_seconds"]), 3),
+            "interventions": list(package.document["timing"]["interventions"]),
+            "gaps": list(package.document["timing"]["gaps"]),
+            "source_states": state_details,
+        }
+        if package.track == "historical":
+            pair = package.document["historical_pair"]
+            detail["historical_pair"] = {
+                "pre_fix_revision": pair["pre_fix_revision"],
+                "fixed_revision": pair["fixed_revision"],
+                "pre_fix_expected": pair["pre_fix_expected"],
+                "fixed_expected": pair["fixed_expected"],
+                "pre_fix": state_details["pre_fix"],
+                "fixed": state_details["fixed"],
+            }
+        else:
+            detail["prospective_observations"] = {
+                "control": state_details["control"],
+                "candidate": state_details["candidate"],
+            }
+        details.append(detail)
+    return details
+
+
+def _attempt_observation(
+    attempt: Mapping[str, Any],
+    *,
+    repo_root: Path | None,
+    verify_references: bool,
+) -> dict[str, Any] | None:
+    """Read the raw per-attempt oracle values when the referenced file is present."""
+    if not verify_references or repo_root is None:
+        return None
+    errors: list[str] = []
+    verdict_path = _resolve_repo_path(
+        attempt["verdict"]["path"],
+        repo_root=repo_root,
+        label=f"attempt {attempt['attempt_id']} verdict",
+        errors=errors,
+    )
+    if verdict_path is None or not verdict_path.is_file():
+        return None
+    try:
+        verdict = _load_json_file(verdict_path)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, _DuplicateKeyError):
+        return None
+    if not isinstance(verdict, dict):
+        return None
+    state = str(attempt["source_state"])
+    summary = verdict.get("summary")
+    state_summary = summary.get(state) if isinstance(summary, dict) else None
+    if not isinstance(state_summary, dict):
+        state_summary = {}
+    tests = verdict.get("tests_run")
+    if tests is None:
+        tests = state_summary.get("tests", state_summary.get("observations", 0))
+    failures = verdict.get("failures")
+    if failures is None:
+        failures = state_summary.get("failures", state_summary.get("raw_failures", 0))
+    try:
+        tests = int(tests)
+    except (TypeError, ValueError):
+        tests = 0
+    try:
+        failures = int(failures)
+    except (TypeError, ValueError):
+        failures = 0
+    return {
+        "attempt_id": str(attempt["attempt_id"]),
+        "source_state": state,
+        "outcome": verdict.get("outcome"),
+        "tests": tests,
+        "failures": failures,
+    }
+
+
+def _build_summary(
+    packages: Sequence[QualificationCasePackage],
+    *,
+    repo_root: Path | None,
+    verify_references: bool,
+) -> dict[str, Any]:
+    """Return build durations and identities, de-duplicating shared controls."""
+    builds: dict[tuple[str, str], dict[str, Any]] = {}
+    for package in packages:
+        if package.track == "historical":
+            pair = package.document.get("historical_pair", {})
+            for state, key in (("pre_fix", "pre_fix_build"), ("fixed", "fixed_build")):
+                build = pair.get(key)
+                if isinstance(build, Mapping):
+                    _record_build(builds, state, build)
+        else:
+            _record_build(
+                builds,
+                "candidate",
+                package.document.get("execution_identity", {}).get("build", {}),
+            )
+            if verify_references and repo_root is not None:
+                for attempt in package.attempts:
+                    if attempt.get("source_state") != "control":
+                        continue
+                    provenance = _read_artifact_json(
+                        attempt["provenance"],
+                        repo_root=repo_root,
+                    )
+                    if not isinstance(provenance, Mapping):
+                        continue
+                    build_ref = provenance.get("build")
+                    build_receipt = _read_artifact_json(build_ref, repo_root=repo_root)
+                    if isinstance(build_receipt, Mapping):
+                        _record_build(builds, "control", build_receipt)
+    values = sorted(builds.values(), key=lambda item: (str(item["state"]), str(item["revision"])))
+    return {
+        "count": len(values),
+        "seconds": round(sum(float(item["duration_seconds"]) for item in values), 3),
+        "items": values,
+    }
+
+
+def _record_build(
+    builds: dict[tuple[str, str], dict[str, Any]],
+    state: str,
+    build: Mapping[str, Any],
+) -> None:
+    revision = build.get("revision")
+    duration = build.get("duration_seconds")
+    if not isinstance(revision, str) or not revision:
+        return
+    try:
+        duration_value = round(float(duration), 3)
+    except (TypeError, ValueError):
+        return
+    key = (state, revision)
+    builds.setdefault(
+        key,
+        {
+            "state": state,
+            "revision": revision,
+            "variant": str(build.get("variant", "")),
+            "duration_seconds": duration_value,
+        },
+    )
+
+
+def _read_artifact_json(reference: Any, *, repo_root: Path) -> Any:
+    if not isinstance(reference, Mapping) or not isinstance(reference.get("path"), str):
+        return None
+    errors: list[str] = []
+    path = _resolve_repo_path(
+        reference["path"],
+        repo_root=repo_root,
+        label="aggregate nested artifact",
+        errors=errors,
+    )
+    if path is None or not path.is_file():
+        return None
+    try:
+        return _load_json_file(path)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, _DuplicateKeyError):
+        return None
+
+
+def _execution_seconds(
+    attempts: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: Path | None,
+    verify_references: bool,
+) -> float:
+    if not verify_references or repo_root is None:
+        return 0.0
+    seconds = 0.0
+    for attempt in attempts:
+        errors: list[str] = []
+        path = _resolve_repo_path(
+            attempt["execution_record"]["path"],
+            repo_root=repo_root,
+            label="aggregate execution record",
+            errors=errors,
+        )
+        if path is None or not path.is_file():
+            continue
+        record = _load_json_file(path)
+        if not isinstance(record, Mapping):
+            continue
+        timing = record.get("timing")
+        value = timing.get("total_seconds") if isinstance(timing, Mapping) else None
+        if value is None:
+            value = record.get("total_seconds")
+        try:
+            seconds += float(value)
+        except (TypeError, ValueError):
+            continue
+    return round(seconds, 3)
+
+
+def _operational_summary(packages: Sequence[QualificationCasePackage]) -> dict[str, Any]:
+    """Expose operational values without inventing unrecorded backend timings."""
+    package_seconds = round(
         sum(float(package.document["timing"]["duration_seconds"]) for package in packages),
         3,
     )
-    interventions = sum(len(package.document["timing"]["interventions"]) for package in packages)
-    gaps = sum(len(package.document["timing"]["gaps"]) for package in packages)
+    backend_values = []
+    judge_values = []
+    for package in packages:
+        timing = package.document.get("timing", {})
+        if isinstance(timing, Mapping):
+            for key in ("backend_seconds", "backend_time_seconds"):
+                if isinstance(timing.get(key), (int, float)):
+                    backend_values.append(float(timing[key]))
+            for key in ("judge_seconds", "judge_time_seconds"):
+                if isinstance(timing.get(key), (int, float)):
+                    judge_values.append(float(timing[key]))
     return {
-        "cases": len(packages),
-        "slot_ids": [package.slot_id for package in sorted(packages, key=lambda item: item.slot_id)],
-        "attempts": len(attempts),
-        "accountable_attempts": accountable,
+        "package_duration_seconds": package_seconds,
+        "backend_time_seconds": round(sum(backend_values), 3) if backend_values else None,
+        "judge_time_seconds": round(sum(judge_values), 3) if judge_values else None,
+        "backend_time_recorded": bool(backend_values),
+        "judge_time_recorded": bool(judge_values),
+        "unrecorded_fields": sorted(
+            field
+            for field, recorded in (
+                ("backend_time_seconds", bool(backend_values)),
+                ("judge_time_seconds", bool(judge_values)),
+            )
+            if not recorded
+        ),
+    }
+
+
+def _aggregate_integrity_errors(
+    manifest: QualificationCohortManifest,
+    packages: Sequence[QualificationCasePackage],
+    *,
+    repo_root: Path,
+    verify_references: bool,
+) -> list[str]:
+    """Reconcile the six package envelopes into the frozen 36-lane inventory."""
+    errors: list[str] = []
+    attempt_ids: dict[str, str] = {}
+    lane_ids: dict[str, str] = {}
+    artifact_paths: dict[tuple[str, str], str] = {}
+    for package in packages:
+        expected_states = (
+            _EXPECTED_HISTORICAL_STATES
+            if package.track == "historical"
+            else _EXPECTED_PROSPECTIVE_STATES
+        )
+        state_lanes: defaultdict[str, set[str]] = defaultdict(set)
+        for attempt in package.attempts:
+            state_lanes[str(attempt["source_state"])].add(str(attempt["lane_id"]))
+        for state in expected_states:
+            if len(state_lanes[state]) != 3:
+                errors.append(
+                    f"package {package.package_id} must contain exactly three {state} lanes; "
+                    f"got {len(state_lanes[state])}"
+                )
+        unexpected = sorted(set(state_lanes) - set(expected_states))
+        if unexpected:
+            errors.append(
+                f"package {package.package_id} contains invalid source states: "
+                + ", ".join(unexpected)
+            )
+        for attempt in package.attempts:
+            attempt_id = str(attempt["attempt_id"])
+            lane_id = str(attempt["lane_id"])
+            prior_attempt = attempt_ids.get(attempt_id)
+            if prior_attempt is not None:
+                errors.append(
+                    f"duplicate attempt id across packages: {attempt_id} "
+                    f"({prior_attempt}, {package.package_id})"
+                )
+            attempt_ids[attempt_id] = package.package_id
+            prior_lane = lane_ids.get(lane_id)
+            if prior_lane is not None and prior_lane != package.package_id:
+                errors.append(
+                    f"duplicate lane id across packages: {lane_id} "
+                    f"({prior_lane}, {package.package_id})"
+                )
+            lane_ids[lane_id] = package.package_id
+            if verify_references:
+                for label in ("execution_record", "provenance", "verdict"):
+                    path = str(attempt[label]["path"])
+                    key = (label, path)
+                    prior = artifact_paths.get(key)
+                    if prior is not None:
+                        errors.append(
+                            f"overwritten/shared {label} artifact {path} "
+                            f"is claimed by {prior} and {attempt_id}"
+                        )
+                    artifact_paths[key] = attempt_id
+    planned_lanes = int(manifest.document["policy"]["formal_lanes"]["planned_lanes"])
+    if len(lane_ids) != planned_lanes:
+        errors.append(
+            f"aggregate lane inventory must reconcile exactly {planned_lanes} lanes; "
+            f"got {len(lane_ids)}"
+        )
+    if len(attempt_ids) < len(lane_ids):
+        errors.append("aggregate attempt inventory cannot hide a lane attempt")
+    return errors
+
+
+def _qualification_summary(
+    manifest: QualificationCohortManifest,
+    packages: Sequence[QualificationCasePackage],
+    historical: Mapping[str, Any],
+    prospective: Mapping[str, Any],
+    *,
+    references_verified: bool,
+) -> dict[str, Any]:
+    planned_lanes = int(manifest.document["policy"]["formal_lanes"]["planned_lanes"])
+    lane_count = int(historical.get("lanes", 0)) + int(prospective.get("lanes", 0))
+    attempt_count = int(historical.get("attempts", 0)) + int(prospective.get("attempts", 0))
+    first_accountable = int(historical.get("first_attempt_accountable", 0)) + int(
+        prospective.get("first_attempt_accountable", 0)
+    )
+    eventual_accountable = int(historical.get("eventual_accountable", 0)) + int(
+        prospective.get("eventual_accountable", 0)
+    )
+    non_accountable = int(historical.get("non_accountable_attempts", 0)) + int(
+        prospective.get("non_accountable_attempts", 0)
+    )
+    gaps = sorted(
+        list(historical.get("gap_values", []))
+        + list(prospective.get("gap_values", []))
+    )
+    interventions = sorted(
+        list(historical.get("intervention_values", []))
+        + list(prospective.get("intervention_values", []))
+    )
+    return {
+        "planned_lanes": planned_lanes,
+        "observed_lanes": lane_count,
+        "observed_attempts": attempt_count,
+        "first_attempt_accountable": first_accountable,
+        "eventual_accountable": eventual_accountable,
         "non_accountable_attempts": non_accountable,
-        "conclusions": dict(sorted(conclusions.items())),
-        "operational_seconds": operational_seconds,
+        "retries": int(historical.get("retries", 0)) + int(prospective.get("retries", 0)),
+        "all_lanes_eventually_accountable": eventual_accountable == planned_lanes,
+        "complete_provenance": bool(references_verified)
+        and all(
+            all(
+                attempt.get("evidence_root")
+                and attempt.get("execution_record")
+                and attempt.get("provenance")
+                and attempt.get("verdict")
+                for attempt in package.attempts
+            )
+            for package in packages
+        ),
+        "track_lanes": {
+            "historical": int(historical.get("lanes", 0)),
+            "prospective": int(prospective.get("lanes", 0)),
+        },
+        "track_cases": {
+            "historical": int(historical.get("cases", 0)),
+            "prospective": int(prospective.get("cases", 0)),
+        },
+        "adjudication_agreements": int(historical["adjudication"]["agreements"])
+        + int(prospective["adjudication"]["agreements"]),
+        "adjudication_disagreements": int(historical["adjudication"]["disagreements"])
+        + int(prospective["adjudication"]["disagreements"]),
         "interventions": interventions,
         "gaps": gaps,
+        "exclusions": _manifest_exclusions(manifest),
+        "replacements": _manifest_replacements(manifest),
+        "claim_boundary": "local_only",
+    }
+
+
+def _manifest_exclusions(manifest: QualificationCohortManifest) -> list[dict[str, Any]]:
+    return [
+        {
+            "candidate_id": str(item["candidate_id"]),
+            "track": str(item["track"]),
+            "reason": str(item["reason"]),
+            "excluded_at": str(item["excluded_at"]),
+        }
+        for item in manifest.document["exclusions"]
+    ]
+
+
+def _manifest_replacements(manifest: QualificationCohortManifest) -> list[dict[str, Any]]:
+    return [
+        {
+            "slot_id": str(item["slot_id"]),
+            "candidate_id": str(item["candidate_id"]),
+            "replaced_candidate_id": str(item["replaced_candidate_id"]),
+            "occurred_at": str(item["occurred_at"]),
+            "before_first_formal_invocation": bool(item["before_first_formal_invocation"]),
+        }
+        for item in manifest.document["replacement_events"]
+    ]
+
+
+def _recommendation(
+    manifest: QualificationCohortManifest,
+    qualification: Mapping[str, Any],
+    historical: Mapping[str, Any],
+    prospective: Mapping[str, Any],
+) -> dict[str, Any]:
+    historical_states = historical.get("source_states", {})
+    pre_fix = historical_states.get("pre_fix", {})
+    fixed = historical_states.get("fixed", {})
+    hist_gate = {
+        "six_historical_cases": historical.get("cases") == 3,
+        "historical_lanes_reconciled": historical.get("lanes") == 18,
+        "fixed_observations_pass": fixed.get("outcomes", {}).get("pass", 0) == 9
+        and fixed.get("raw_failures", 0) == 0,
+        "pre_fix_observations_fail": pre_fix.get("outcomes", {}).get("fail", 0) == 9,
+    }
+    prospective_gate = {
+        "three_prospective_cases": prospective.get("cases") == 3,
+        "prospective_lanes_reconciled": prospective.get("lanes") == 18,
+        "independent_adjudication": prospective.get("adjudication", {}).get("agreements") == 3,
+    }
+    integrity_gate = {
+        "six_cases": len(manifest.slots) == 6,
+        "thirty_six_lanes": qualification.get("observed_lanes")
+        == qualification.get("planned_lanes") == 36,
+        "eventually_accountable": bool(qualification.get("all_lanes_eventually_accountable")),
+        "complete_provenance": bool(qualification.get("complete_provenance")),
+        "no_adjudication_disagreement": qualification.get("adjudication_disagreements") == 0,
+        "no_recorded_gaps": not qualification.get("gaps"),
+    }
+    scale_gate = {**integrity_gate, **hist_gate, **prospective_gate}
+    unresolved = list(qualification.get("gaps", []))
+    if prospective.get("conclusions", {}).get("inconclusive", 0):
+        unresolved.append("one or more prospective local conclusions are inconclusive")
+    if qualification.get("non_accountable_attempts", 0):
+        unresolved.append("one or more attempts are non-accountable")
+    unresolved = sorted(dict.fromkeys(unresolved))
+    if unresolved or not all(integrity_gate.values()):
+        route = "remediate_fixture_execution_oracle_adjudication_gaps"
+        reason = "A frozen case or accountability gap remains in the local evidence."
+    elif all(scale_gate.values()):
+        route = "scale_historical_pair_cohort"
+        reason = "All frozen lanes and historical pair observations satisfy the recorded gate."
+    elif prospective.get("eventual_accountable", 0) < 18:
+        route = "add_accountable_prospective_cases"
+        reason = "Prospective evidence is not yet eventually accountable for every frozen lane."
+    else:
+        route = "stop_or_defer"
+        reason = "The recorded observations do not satisfy the historical qualification gate."
+    if route not in _M7_ROUTES:
+        raise AssertionError(f"unsupported M7 route: {route}")
+    return {
+        "route": route,
+        "label": {
+            "scale_historical_pair_cohort": "scale historical-pair cohort",
+            "add_accountable_prospective_cases": "add more accountable prospective cases",
+            "remediate_fixture_execution_oracle_adjudication_gaps": "remediate fixture/execution/oracle/adjudication gaps",
+            "stop_or_defer": "stop/defer",
+        }[route],
+        "reason": reason,
+        "scale_gate": scale_gate,
+        "unresolved": unresolved,
+        "local_only": True,
     }
 
 

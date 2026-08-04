@@ -1,0 +1,11 @@
+Command: docs/runs/2026-08-03-issue-88-aggregate/run-aggregate.sh
+Exit: 0
+Result: aggregate.json and aggregate.md generated from exactly six committed package paths.
+Structured SHA-256: e6bce157336ffd95e017dcd7deffd1424f5ce3abdba9a92ec868415b8a7243a4
+Markdown SHA-256: 9b2ff91d23f5f8df9e5589b5117f12163a1033a3608bf6c1158192edacbcec5d
+
+Regeneration command:
+PYTHONPATH=src uv run --no-project --with pyyaml --with jsonschema --python 3.14 python -m aiverify.bench.m6_case_package aggregate --manifest bench/m6/m6-qualification-v1.yaml --packages docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-01.json docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-02.json docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-03.json docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-01.json docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-02.json docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-03.json --repo-root . --json-output docs/runs/2026-08-03-issue-88-aggregate/regen/aggregate.json --markdown-output docs/runs/2026-08-03-issue-88-aggregate/regen/aggregate.md
+Regeneration exit: 0
+cmp aggregate.json regen/aggregate.json: 0
+cmp aggregate.md regen/aggregate.md: 0
