@@ -33,6 +33,13 @@ def _reject_unknown(data: Mapping[str, Any], allowed: set[str]) -> None:
 
 _SOURCE_KINDS = frozenset({"declared", "derived", "observed", "historical", "unknown"})
 _FACT_STATUSES = frozenset({"known", "unknown", "contradictory", "stale"})
+_NODE_KINDS = frozenset(
+    {"component", "api", "operation", "thread", "process", "quality_contract", "resource"}
+)
+_EDGE_KINDS = frozenset(
+    {"calls", "provides", "depends_on", "runs_on", "runs_in", "constrained_by", "critical_path"}
+)
+_EDGE_SEMANTICS = frozenset({"synchronous", "asynchronous", "unknown"})
 
 
 @dataclass(frozen=True)
@@ -185,6 +192,159 @@ class ContextFact:
             ) from error
 
 
+def _text_tuple(value: object, field: str, *, allow_empty: bool = True) -> tuple[str, ...]:
+    if not isinstance(value, tuple):
+        raise DiscoveryContractError(f"{field} must be a tuple of strings")
+    if not allow_empty and not value:
+        raise DiscoveryContractError(f"{field} must not be empty")
+    if any(not isinstance(item, str) or not item.strip() for item in value):
+        raise DiscoveryContractError(f"{field} must contain non-empty strings")
+    return value
+
+
+@dataclass(frozen=True)
+class ContextNode:
+    """A graph node whose material meaning is backed by Context Facts."""
+
+    node_id: str
+    kind: str
+    label: str
+    source_fact_ids: tuple[str, ...]
+    status: str = "known"
+
+    def __post_init__(self) -> None:
+        _required_text(self.node_id, "node_id")
+        _required_text(self.label, "node label")
+        if self.kind not in _NODE_KINDS:
+            raise DiscoveryContractError("invalid context node kind")
+        _text_tuple(self.source_fact_ids, "node source_fact_ids", allow_empty=False)
+        if self.status not in _FACT_STATUSES:
+            raise DiscoveryContractError("invalid context node status")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "node_id": self.node_id,
+            "kind": self.kind,
+            "label": self.label,
+            "source_fact_ids": list(self.source_fact_ids),
+            "status": self.status,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "ContextNode":
+        if not isinstance(data, Mapping):
+            raise DiscoveryContractError("context node must be an object")
+        _reject_unknown(data, {"node_id", "kind", "label", "source_fact_ids", "status"})
+        try:
+            raw_facts = data["source_fact_ids"]
+            if not isinstance(raw_facts, list):
+                raise DiscoveryContractError("node source_fact_ids must be an array")
+            return cls(
+                node_id=data["node_id"],
+                kind=data["kind"],
+                label=data["label"],
+                source_fact_ids=tuple(raw_facts),
+                status=data.get("status", "known"),
+            )
+        except KeyError as error:
+            raise DiscoveryContractError(f"context node requires {error.args[0]}") from error
+
+
+@dataclass(frozen=True)
+class ContextEdge:
+    """A directed dependency edge with explicit temporal semantics and evidence."""
+
+    edge_id: str
+    from_node_id: str
+    to_node_id: str
+    kind: str
+    semantics: str
+    source_fact_ids: tuple[str, ...]
+    status: str = "known"
+
+    def __post_init__(self) -> None:
+        for field in ("edge_id", "from_node_id", "to_node_id"):
+            _required_text(getattr(self, field), field)
+        if self.kind not in _EDGE_KINDS:
+            raise DiscoveryContractError("invalid context edge kind")
+        if self.semantics not in _EDGE_SEMANTICS:
+            raise DiscoveryContractError("invalid context edge semantics")
+        _text_tuple(self.source_fact_ids, "edge source_fact_ids", allow_empty=False)
+        if self.status not in _FACT_STATUSES:
+            raise DiscoveryContractError("invalid context edge status")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "edge_id": self.edge_id,
+            "from_node_id": self.from_node_id,
+            "to_node_id": self.to_node_id,
+            "kind": self.kind,
+            "semantics": self.semantics,
+            "source_fact_ids": list(self.source_fact_ids),
+            "status": self.status,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "ContextEdge":
+        if not isinstance(data, Mapping):
+            raise DiscoveryContractError("context edge must be an object")
+        _reject_unknown(
+            data,
+            {
+                "edge_id",
+                "from_node_id",
+                "to_node_id",
+                "kind",
+                "semantics",
+                "source_fact_ids",
+                "status",
+            },
+        )
+        try:
+            raw_facts = data["source_fact_ids"]
+            if not isinstance(raw_facts, list):
+                raise DiscoveryContractError("edge source_fact_ids must be an array")
+            return cls(
+                edge_id=data["edge_id"],
+                from_node_id=data["from_node_id"],
+                to_node_id=data["to_node_id"],
+                kind=data["kind"],
+                semantics=data["semantics"],
+                source_fact_ids=tuple(raw_facts),
+                status=data.get("status", "known"),
+            )
+        except KeyError as error:
+            raise DiscoveryContractError(f"context edge requires {error.args[0]}") from error
+
+
+@dataclass(frozen=True)
+class ContextPath:
+    """A deterministic graph traversal result with unresolved evidence retained."""
+
+    direction: str
+    start_node_id: str
+    node_ids: tuple[str, ...]
+    edge_ids: tuple[str, ...]
+    unresolved_edge_ids: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.direction not in {"forward", "backward"}:
+            raise DiscoveryContractError("path direction must be forward or backward")
+        _required_text(self.start_node_id, "start_node_id")
+        _text_tuple(self.node_ids, "path node_ids", allow_empty=False)
+        _text_tuple(self.edge_ids, "path edge_ids")
+        _text_tuple(self.unresolved_edge_ids, "path unresolved_edge_ids")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "direction": self.direction,
+            "start_node_id": self.start_node_id,
+            "node_ids": list(self.node_ids),
+            "edge_ids": list(self.edge_ids),
+            "unresolved_edge_ids": list(self.unresolved_edge_ids),
+        }
+
+
 @dataclass(frozen=True)
 class QualityContextGraph:
     """An immutable snapshot of context facts used by discovery reasoning."""
@@ -193,6 +353,8 @@ class QualityContextGraph:
     target_id: str
     facts: tuple[ContextFact, ...]
     schema_version: int = 1
+    nodes: tuple[ContextNode, ...] = ()
+    edges: tuple[ContextEdge, ...] = ()
 
     def __post_init__(self) -> None:
         _required_text(self.graph_id, "graph_id")
@@ -210,6 +372,35 @@ class QualityContextGraph:
         fact_ids = [fact.fact_id for fact in self.facts]
         if len(set(fact_ids)) != len(fact_ids):
             raise DiscoveryContractError("fact ids must be unique")
+        if not isinstance(self.nodes, tuple) or any(
+            not isinstance(node, ContextNode) for node in self.nodes
+        ):
+            raise DiscoveryContractError("nodes must contain ContextNode values")
+        if not isinstance(self.edges, tuple) or any(
+            not isinstance(edge, ContextEdge) for edge in self.edges
+        ):
+            raise DiscoveryContractError("edges must contain ContextEdge values")
+        _text_tuple(tuple(node.node_id for node in self.nodes), "node ids")
+        _text_tuple(tuple(edge.edge_id for edge in self.edges), "edge ids")
+        if len({node.node_id for node in self.nodes}) != len(self.nodes):
+            raise DiscoveryContractError("node ids must be unique")
+        if len({edge.edge_id for edge in self.edges}) != len(self.edges):
+            raise DiscoveryContractError("edge ids must be unique")
+        fact_ids_set = set(fact_ids)
+        node_ids = {node.node_id for node in self.nodes}
+        if any(
+            not set(node.source_fact_ids).issubset(fact_ids_set) for node in self.nodes
+        ):
+            raise DiscoveryContractError("node references missing context fact")
+        if any(
+            edge.from_node_id not in node_ids or edge.to_node_id not in node_ids
+            for edge in self.edges
+        ):
+            raise DiscoveryContractError("edge references missing context node")
+        if any(
+            not set(edge.source_fact_ids).issubset(fact_ids_set) for edge in self.edges
+        ):
+            raise DiscoveryContractError("edge references missing context fact")
 
     def fact(self, fact_id: str) -> ContextFact:
         for fact in self.facts:
@@ -223,13 +414,18 @@ class QualityContextGraph:
             "graph_id": self.graph_id,
             "target_id": self.target_id,
             "facts": [fact.to_dict() for fact in self.facts],
+            "nodes": [node.to_dict() for node in self.nodes],
+            "edges": [edge.to_dict() for edge in self.edges],
         }
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "QualityContextGraph":
         if not isinstance(data, Mapping):
             raise DiscoveryContractError("context graph must be an object")
-        _reject_unknown(data, {"schema_version", "graph_id", "target_id", "facts"})
+        _reject_unknown(
+            data,
+            {"schema_version", "graph_id", "target_id", "facts", "nodes", "edges"},
+        )
         try:
             raw_facts = data["facts"]
             if not isinstance(raw_facts, list):
@@ -239,11 +435,75 @@ class QualityContextGraph:
                 target_id=data["target_id"],
                 facts=tuple(ContextFact.from_dict(item) for item in raw_facts),
                 schema_version=data.get("schema_version", 1),
+                nodes=tuple(
+                    ContextNode.from_dict(item)
+                    for item in data.get("nodes", [])
+                ),
+                edges=tuple(
+                    ContextEdge.from_dict(item)
+                    for item in data.get("edges", [])
+                ),
             )
         except KeyError as error:
             raise DiscoveryContractError(
                 f"context graph requires {error.args[0]}"
             ) from error
+
+    def trace_forward(self, start_node_id: str) -> ContextPath:
+        return self._trace(start_node_id, "forward")
+
+    def trace_backward(self, start_node_id: str) -> ContextPath:
+        return self._trace(start_node_id, "backward")
+
+    def _trace(self, start_node_id: str, direction: str) -> ContextPath:
+        node_ids = {node.node_id for node in self.nodes}
+        if start_node_id not in node_ids:
+            raise KeyError(start_node_id)
+        facts = {fact.fact_id: fact for fact in self.facts}
+        nodes_by_id = {node.node_id: node for node in self.nodes}
+        frontier = [start_node_id]
+        visited = {start_node_id}
+        ordered_nodes = [start_node_id]
+        ordered_edges: list[str] = []
+        unresolved: list[str] = []
+        while frontier:
+            current = frontier.pop(0)
+            candidates = [
+                edge
+                for edge in self.edges
+                if (
+                    edge.from_node_id == current
+                    if direction == "forward"
+                    else edge.to_node_id == current
+                )
+            ]
+            for edge in candidates:
+                next_node = (
+                    edge.to_node_id if direction == "forward" else edge.from_node_id
+                )
+                if (
+                    nodes_by_id[current].status != "known"
+                    or nodes_by_id[next_node].status != "known"
+                    or edge.status != "known"
+                    or any(
+                        facts[fact_id].status != "known"
+                        for fact_id in edge.source_fact_ids
+                    )
+                ):
+                    unresolved.append(edge.edge_id)
+                    continue
+                ordered_edges.append(edge.edge_id)
+                if next_node not in visited:
+                    visited.add(next_node)
+                    ordered_nodes.append(next_node)
+                    frontier.append(next_node)
+        return ContextPath(
+            direction=direction,
+            start_node_id=start_node_id,
+            node_ids=tuple(ordered_nodes),
+            edge_ids=tuple(ordered_edges),
+            unresolved_edge_ids=tuple(unresolved),
+        )
 
 
 @dataclass(frozen=True)

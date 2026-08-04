@@ -65,6 +65,39 @@
         }
       ]
     },
+    "contextNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node_id", "kind", "label", "source_fact_ids", "status"],
+      "properties": {
+        "node_id": {"type": "string", "minLength": 1},
+        "kind": {
+          "enum": ["component", "api", "operation", "thread", "process", "quality_contract", "resource"]
+        },
+        "label": {"type": "string", "minLength": 1},
+        "source_fact_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "status": {"enum": ["known", "unknown", "contradictory", "stale"]}
+      }
+    },
+    "contextEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edge_id", "from_node_id", "to_node_id", "kind", "semantics",
+        "source_fact_ids", "status"
+      ],
+      "properties": {
+        "edge_id": {"type": "string", "minLength": 1},
+        "from_node_id": {"type": "string", "minLength": 1},
+        "to_node_id": {"type": "string", "minLength": 1},
+        "kind": {
+          "enum": ["calls", "provides", "depends_on", "runs_on", "runs_in", "constrained_by", "critical_path"]
+        },
+        "semantics": {"enum": ["synchronous", "asynchronous", "unknown"]},
+        "source_fact_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "status": {"enum": ["known", "unknown", "contradictory", "stale"]}
+      }
+    },
     "contextGraph": {
       "type": "object",
       "additionalProperties": false,
@@ -76,6 +109,14 @@
         "facts": {
           "type": "array",
           "items": {"$ref": "#/$defs/contextFact"}
+        },
+        "nodes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/contextNode"}
+        },
+        "edges": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/contextEdge"}
         }
       }
     },
