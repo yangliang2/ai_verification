@@ -1,0 +1,174 @@
+{
+  "artifacts": {
+    "aggregate_json_sha256": "e6bce157336ffd95e017dcd7deffd1424f5ce3abdba9a92ec868415b8a7243a4",
+    "aggregate_markdown_sha256": "9b2ff91d23f5f8df9e5589b5117f12163a1033a3608bf6c1158192edacbcec5d",
+    "package_sha256": {
+      "docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-01.json": "3af5d84bdffd2210d41fa0ce2eca97517633a31273e08e830b12858b0ec224ea",
+      "docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-02.json": "dc05bd5b23c6d1c2558ecbe671596c7bf0a5ee794b91d41b79ac1e362c010e04",
+      "docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-03.json": "2fe06d8ccf892812f808d6c9f43d3c67bcbd0a3ac8a9bc53dbe5d7dcd3f38116",
+      "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-01.json": "94b2f6a473019b5cc1a68a347f07304c50ed9cff69629a170b26925ec3d84fa4",
+      "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-02.json": "900fd46023b802abed30a9e70de8f96145cdb1e200a1bfa60e331ada6eeae3f5",
+      "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-03.json": "b96cc4c67e184c223a3ca5076eb03b08ba08218902179afebf8d9e32b621ba88"
+    }
+  },
+  "audit_id": "m6-aggregate-independent-audit-2026-08-03",
+  "auditor": {
+    "backend": "deterministic-package-audit",
+    "id": "independent-verification-agent-m6-aggregate",
+    "model": "aggregate-contract-v1",
+    "role": "final-auditor",
+    "session_id": "audit-session-m6-aggregate-2026-08-03"
+  },
+  "checks": [
+    {
+      "actual": 6,
+      "expected": 6,
+      "name": "six_packages_loaded",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "package_checksums_verified",
+      "status": "pass"
+    },
+    {
+      "actual": 36,
+      "expected": 36,
+      "name": "thirty_six_lanes",
+      "status": "pass"
+    },
+    {
+      "actual": 36,
+      "expected": 36,
+      "name": "eventual_accountability",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "historical_pair_observations",
+      "status": "pass"
+    },
+    {
+      "actual": {
+        "inconclusive": 1,
+        "locally_supported": 2
+      },
+      "expected": {
+        "inconclusive": 1,
+        "locally_supported": 2
+      },
+      "name": "prospective_conclusions",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "adjudications_agree",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "provenance_complete",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "single_route",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "route_matches_frozen_gap",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "route_is_local_only",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "json_regenerates_byte_for_byte",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "markdown_regenerates_byte_for_byte",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "claim_boundary_is_clean",
+      "status": "pass"
+    },
+    {
+      "actual": null,
+      "expected": null,
+      "name": "package_hash_inventory",
+      "status": "pass"
+    },
+    {
+      "actual": 36,
+      "expected": 36,
+      "name": "attempt_ids_unique",
+      "status": "pass"
+    },
+    {
+      "actual": 36,
+      "expected": 36,
+      "name": "lane_ids_unique",
+      "status": "pass"
+    }
+  ],
+  "claim_boundary": {
+    "local_only": true
+  },
+  "recommendation": {
+    "label": "remediate fixture/execution/oracle/adjudication gaps",
+    "local_only": true,
+    "reason": "A frozen case or accountability gap remains in the local evidence.",
+    "route": "remediate_fixture_execution_oracle_adjudication_gaps",
+    "scale_gate": {
+      "complete_provenance": true,
+      "eventually_accountable": true,
+      "fixed_observations_pass": true,
+      "historical_lanes_reconciled": true,
+      "independent_adjudication": true,
+      "no_adjudication_disagreement": true,
+      "no_recorded_gaps": false,
+      "pre_fix_observations_fail": true,
+      "prospective_lanes_reconciled": true,
+      "six_cases": true,
+      "six_historical_cases": true,
+      "thirty_six_lanes": true,
+      "three_prospective_cases": true
+    },
+    "unresolved": [
+      "P-03 frozen oracle contradiction adjudicated inconclusive",
+      "one or more prospective local conclusions are inconclusive"
+    ]
+  },
+  "schema_version": 1,
+  "scope": {
+    "lanes": 36,
+    "manifest": "bench/m6/m6-qualification-v1.yaml",
+    "packages": [
+      "docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-01.json",
+      "docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-02.json",
+      "docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-03.json",
+      "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-01.json",
+      "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-02.json",
+      "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-03.json"
+    ]
+  },
+  "status": "pass"
+}

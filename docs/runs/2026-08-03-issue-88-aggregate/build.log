@@ -1,0 +1,335 @@
+Building source distribution...
+running egg_info
+creating src/aiverify.egg-info
+writing src/aiverify.egg-info/PKG-INFO
+writing dependency_links to src/aiverify.egg-info/dependency_links.txt
+writing requirements to src/aiverify.egg-info/requires.txt
+writing top-level names to src/aiverify.egg-info/top_level.txt
+writing manifest file 'src/aiverify.egg-info/SOURCES.txt'
+reading manifest file 'src/aiverify.egg-info/SOURCES.txt'
+writing manifest file 'src/aiverify.egg-info/SOURCES.txt'
+running sdist
+running egg_info
+writing src/aiverify.egg-info/PKG-INFO
+writing dependency_links to src/aiverify.egg-info/dependency_links.txt
+writing requirements to src/aiverify.egg-info/requires.txt
+writing top-level names to src/aiverify.egg-info/top_level.txt
+reading manifest file 'src/aiverify.egg-info/SOURCES.txt'
+writing manifest file 'src/aiverify.egg-info/SOURCES.txt'
+running check
+creating aiverify-0.1.0
+creating aiverify-0.1.0/src/aiverify
+creating aiverify-0.1.0/src/aiverify.egg-info
+creating aiverify-0.1.0/src/aiverify/agent
+creating aiverify-0.1.0/src/aiverify/agent/oracle
+creating aiverify-0.1.0/src/aiverify/agent/planner
+creating aiverify-0.1.0/src/aiverify/bench
+creating aiverify-0.1.0/src/aiverify/bench/taxonomy
+creating aiverify-0.1.0/src/aiverify/harness
+creating aiverify-0.1.0/src/aiverify/harness/build
+creating aiverify-0.1.0/src/aiverify/harness/device
+creating aiverify-0.1.0/src/aiverify/providers
+creating aiverify-0.1.0/src/aiverify/runner
+creating aiverify-0.1.0/tests
+copying files to aiverify-0.1.0...
+copying README.md -> aiverify-0.1.0
+copying pyproject.toml -> aiverify-0.1.0
+copying src/aiverify/__init__.py -> aiverify-0.1.0/src/aiverify
+copying src/aiverify.egg-info/PKG-INFO -> aiverify-0.1.0/src/aiverify.egg-info
+copying src/aiverify.egg-info/SOURCES.txt -> aiverify-0.1.0/src/aiverify.egg-info
+copying src/aiverify.egg-info/dependency_links.txt -> aiverify-0.1.0/src/aiverify.egg-info
+copying src/aiverify.egg-info/requires.txt -> aiverify-0.1.0/src/aiverify.egg-info
+copying src/aiverify.egg-info/top_level.txt -> aiverify-0.1.0/src/aiverify.egg-info
+copying src/aiverify/agent/__init__.py -> aiverify-0.1.0/src/aiverify/agent
+copying src/aiverify/agent/oracle/__init__.py -> aiverify-0.1.0/src/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/l1.py -> aiverify-0.1.0/src/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/l2.py -> aiverify-0.1.0/src/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/l3.py -> aiverify-0.1.0/src/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/schema.py -> aiverify-0.1.0/src/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/verdict_schema.json -> aiverify-0.1.0/src/aiverify/agent/oracle
+copying src/aiverify/agent/planner/__init__.py -> aiverify-0.1.0/src/aiverify/agent/planner
+copying src/aiverify/agent/planner/generator.py -> aiverify-0.1.0/src/aiverify/agent/planner
+copying src/aiverify/agent/planner/models.py -> aiverify-0.1.0/src/aiverify/agent/planner
+copying src/aiverify/agent/planner/plan_schema.json -> aiverify-0.1.0/src/aiverify/agent/planner
+copying src/aiverify/bench/__init__.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/accessibility_slice.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/compatibility_matrix.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/concurrency_slice.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/l3_repeatability.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/lifecycle_recovery.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/live_validation_gate.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/m2_beta_summary.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/m3_audit.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/m3_reliability.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/m6_case_package.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/m6_case_package_schema.json -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/m6_cohort.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/m6_cohort_schema.json -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/network_reliability.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/performance_intent_slice.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/run_record_checksums.py -> aiverify-0.1.0/src/aiverify/bench
+copying src/aiverify/bench/taxonomy/__init__.py -> aiverify-0.1.0/src/aiverify/bench/taxonomy
+copying src/aiverify/bench/taxonomy/loader.py -> aiverify-0.1.0/src/aiverify/bench/taxonomy
+copying src/aiverify/harness/__init__.py -> aiverify-0.1.0/src/aiverify/harness
+copying src/aiverify/harness/build/__init__.py -> aiverify-0.1.0/src/aiverify/harness/build
+copying src/aiverify/harness/build/batcher.py -> aiverify-0.1.0/src/aiverify/harness/build
+copying src/aiverify/harness/build/builder.py -> aiverify-0.1.0/src/aiverify/harness/build
+copying src/aiverify/harness/build/patcher.py -> aiverify-0.1.0/src/aiverify/harness/build
+copying src/aiverify/harness/device/__init__.py -> aiverify-0.1.0/src/aiverify/harness/device
+copying src/aiverify/harness/device/adb.py -> aiverify-0.1.0/src/aiverify/harness/device
+copying src/aiverify/harness/device/controller.py -> aiverify-0.1.0/src/aiverify/harness/device
+copying src/aiverify/harness/device/logcat.py -> aiverify-0.1.0/src/aiverify/harness/device
+copying src/aiverify/providers/__init__.py -> aiverify-0.1.0/src/aiverify/providers
+copying src/aiverify/providers/base.py -> aiverify-0.1.0/src/aiverify/providers
+copying src/aiverify/providers/codex_cli.py -> aiverify-0.1.0/src/aiverify/providers
+copying src/aiverify/providers/parsing.py -> aiverify-0.1.0/src/aiverify/providers
+copying src/aiverify/runner/__init__.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/__main__.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/cli.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/codex_backend.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/codex_identity.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/command.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/evidence.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/execution_identity.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/execution_record.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/journey.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/journey_result_schema.json -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/run_spec.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/system_events.py -> aiverify-0.1.0/src/aiverify/runner
+copying src/aiverify/runner/verdict.py -> aiverify-0.1.0/src/aiverify/runner
+copying tests/test_codex_cli_provider.py -> aiverify-0.1.0/tests
+copying tests/test_providers.py -> aiverify-0.1.0/tests
+copying src/aiverify.egg-info/SOURCES.txt -> aiverify-0.1.0/src/aiverify.egg-info
+Writing aiverify-0.1.0/setup.cfg
+Creating tar archive
+removing 'aiverify-0.1.0' (and everything under it)
+Building wheel from source distribution...
+running egg_info
+writing src/aiverify.egg-info/PKG-INFO
+writing dependency_links to src/aiverify.egg-info/dependency_links.txt
+writing requirements to src/aiverify.egg-info/requires.txt
+writing top-level names to src/aiverify.egg-info/top_level.txt
+reading manifest file 'src/aiverify.egg-info/SOURCES.txt'
+writing manifest file 'src/aiverify.egg-info/SOURCES.txt'
+running bdist_wheel
+running build
+running build_py
+creating build/lib/aiverify
+copying src/aiverify/__init__.py -> build/lib/aiverify
+creating build/lib/aiverify/bench
+copying src/aiverify/bench/m3_audit.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/compatibility_matrix.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/m2_beta_summary.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/concurrency_slice.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/accessibility_slice.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/m3_reliability.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/run_record_checksums.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/lifecycle_recovery.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/m6_case_package.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/__init__.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/live_validation_gate.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/l3_repeatability.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/network_reliability.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/performance_intent_slice.py -> build/lib/aiverify/bench
+copying src/aiverify/bench/m6_cohort.py -> build/lib/aiverify/bench
+creating build/lib/aiverify/runner
+copying src/aiverify/runner/execution_record.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/command.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/__init__.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/cli.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/journey.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/run_spec.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/system_events.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/execution_identity.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/codex_identity.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/evidence.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/__main__.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/codex_backend.py -> build/lib/aiverify/runner
+copying src/aiverify/runner/verdict.py -> build/lib/aiverify/runner
+creating build/lib/aiverify/providers
+copying src/aiverify/providers/parsing.py -> build/lib/aiverify/providers
+copying src/aiverify/providers/__init__.py -> build/lib/aiverify/providers
+copying src/aiverify/providers/codex_cli.py -> build/lib/aiverify/providers
+copying src/aiverify/providers/base.py -> build/lib/aiverify/providers
+creating build/lib/aiverify/agent
+copying src/aiverify/agent/__init__.py -> build/lib/aiverify/agent
+creating build/lib/aiverify/harness
+copying src/aiverify/harness/__init__.py -> build/lib/aiverify/harness
+creating build/lib/aiverify/bench/taxonomy
+copying src/aiverify/bench/taxonomy/__init__.py -> build/lib/aiverify/bench/taxonomy
+copying src/aiverify/bench/taxonomy/loader.py -> build/lib/aiverify/bench/taxonomy
+creating build/lib/aiverify/agent/planner
+copying src/aiverify/agent/planner/models.py -> build/lib/aiverify/agent/planner
+copying src/aiverify/agent/planner/__init__.py -> build/lib/aiverify/agent/planner
+copying src/aiverify/agent/planner/generator.py -> build/lib/aiverify/agent/planner
+creating build/lib/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/l3.py -> build/lib/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/l2.py -> build/lib/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/__init__.py -> build/lib/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/l1.py -> build/lib/aiverify/agent/oracle
+copying src/aiverify/agent/oracle/schema.py -> build/lib/aiverify/agent/oracle
+creating build/lib/aiverify/harness/device
+copying src/aiverify/harness/device/logcat.py -> build/lib/aiverify/harness/device
+copying src/aiverify/harness/device/controller.py -> build/lib/aiverify/harness/device
+copying src/aiverify/harness/device/__init__.py -> build/lib/aiverify/harness/device
+copying src/aiverify/harness/device/adb.py -> build/lib/aiverify/harness/device
+creating build/lib/aiverify/harness/build
+copying src/aiverify/harness/build/__init__.py -> build/lib/aiverify/harness/build
+copying src/aiverify/harness/build/builder.py -> build/lib/aiverify/harness/build
+copying src/aiverify/harness/build/patcher.py -> build/lib/aiverify/harness/build
+copying src/aiverify/harness/build/batcher.py -> build/lib/aiverify/harness/build
+running egg_info
+writing src/aiverify.egg-info/PKG-INFO
+writing dependency_links to src/aiverify.egg-info/dependency_links.txt
+writing requirements to src/aiverify.egg-info/requires.txt
+writing top-level names to src/aiverify.egg-info/top_level.txt
+reading manifest file 'src/aiverify.egg-info/SOURCES.txt'
+writing manifest file 'src/aiverify.egg-info/SOURCES.txt'
+copying src/aiverify/bench/m6_case_package_schema.json -> build/lib/aiverify/bench
+copying src/aiverify/bench/m6_cohort_schema.json -> build/lib/aiverify/bench
+copying src/aiverify/runner/journey_result_schema.json -> build/lib/aiverify/runner
+copying src/aiverify/agent/planner/plan_schema.json -> build/lib/aiverify/agent/planner
+copying src/aiverify/agent/oracle/verdict_schema.json -> build/lib/aiverify/agent/oracle
+installing to build/bdist.macosx-11.0-arm64/wheel
+running install
+running install_lib
+creating build/bdist.macosx-11.0-arm64/wheel
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/bench
+copying build/lib/aiverify/bench/m3_audit.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/compatibility_matrix.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/m2_beta_summary.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/concurrency_slice.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/accessibility_slice.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/m3_reliability.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/run_record_checksums.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/lifecycle_recovery.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/m6_case_package.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/live_validation_gate.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/bench/taxonomy
+copying build/lib/aiverify/bench/taxonomy/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench/taxonomy
+copying build/lib/aiverify/bench/taxonomy/loader.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench/taxonomy
+copying build/lib/aiverify/bench/l3_repeatability.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/network_reliability.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/performance_intent_slice.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/m6_cohort.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/m6_case_package_schema.json -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+copying build/lib/aiverify/bench/m6_cohort_schema.json -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/bench
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/runner
+copying build/lib/aiverify/runner/execution_record.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/command.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/cli.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/journey.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/run_spec.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/journey_result_schema.json -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/system_events.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/execution_identity.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/codex_identity.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/evidence.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/__main__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/codex_backend.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+copying build/lib/aiverify/runner/verdict.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/runner
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/providers
+copying build/lib/aiverify/providers/parsing.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/providers
+copying build/lib/aiverify/providers/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/providers
+copying build/lib/aiverify/providers/codex_cli.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/providers
+copying build/lib/aiverify/providers/base.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/providers
+copying build/lib/aiverify/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/agent
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/agent/planner
+copying build/lib/aiverify/agent/planner/models.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/planner
+copying build/lib/aiverify/agent/planner/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/planner
+copying build/lib/aiverify/agent/planner/generator.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/planner
+copying build/lib/aiverify/agent/planner/plan_schema.json -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/planner
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/agent/oracle
+copying build/lib/aiverify/agent/oracle/l3.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/oracle
+copying build/lib/aiverify/agent/oracle/l2.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/oracle
+copying build/lib/aiverify/agent/oracle/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/oracle
+copying build/lib/aiverify/agent/oracle/verdict_schema.json -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/oracle
+copying build/lib/aiverify/agent/oracle/l1.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/oracle
+copying build/lib/aiverify/agent/oracle/schema.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent/oracle
+copying build/lib/aiverify/agent/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/agent
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/harness
+copying build/lib/aiverify/harness/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/harness
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/harness/device
+copying build/lib/aiverify/harness/device/logcat.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/harness/device
+copying build/lib/aiverify/harness/device/controller.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/harness/device
+copying build/lib/aiverify/harness/device/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/harness/device
+copying build/lib/aiverify/harness/device/adb.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/harness/device
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify/harness/build
+copying build/lib/aiverify/harness/build/__init__.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/harness/build
+copying build/lib/aiverify/harness/build/builder.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/harness/build
+copying build/lib/aiverify/harness/build/patcher.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/harness/build
+copying build/lib/aiverify/harness/build/batcher.py -> build/bdist.macosx-11.0-arm64/wheel/./aiverify/harness/build
+running install_egg_info
+Copying src/aiverify.egg-info to build/bdist.macosx-11.0-arm64/wheel/./aiverify-0.1.0-py3.11.egg-info
+running install_scripts
+creating build/bdist.macosx-11.0-arm64/wheel/aiverify-0.1.0.dist-info/WHEEL
+creating '/Users/peter/projects/ai_verification-issue-86/dist/.tmp-cbwx1amt/aiverify-0.1.0-py3-none-any.whl' and adding 'build/bdist.macosx-11.0-arm64/wheel' to it
+adding 'aiverify/__init__.py'
+adding 'aiverify/agent/__init__.py'
+adding 'aiverify/agent/oracle/__init__.py'
+adding 'aiverify/agent/oracle/l1.py'
+adding 'aiverify/agent/oracle/l2.py'
+adding 'aiverify/agent/oracle/l3.py'
+adding 'aiverify/agent/oracle/schema.py'
+adding 'aiverify/agent/oracle/verdict_schema.json'
+adding 'aiverify/agent/planner/__init__.py'
+adding 'aiverify/agent/planner/generator.py'
+adding 'aiverify/agent/planner/models.py'
+adding 'aiverify/agent/planner/plan_schema.json'
+adding 'aiverify/bench/__init__.py'
+adding 'aiverify/bench/accessibility_slice.py'
+adding 'aiverify/bench/compatibility_matrix.py'
+adding 'aiverify/bench/concurrency_slice.py'
+adding 'aiverify/bench/l3_repeatability.py'
+adding 'aiverify/bench/lifecycle_recovery.py'
+adding 'aiverify/bench/live_validation_gate.py'
+adding 'aiverify/bench/m2_beta_summary.py'
+adding 'aiverify/bench/m3_audit.py'
+adding 'aiverify/bench/m3_reliability.py'
+adding 'aiverify/bench/m6_case_package.py'
+adding 'aiverify/bench/m6_case_package_schema.json'
+adding 'aiverify/bench/m6_cohort.py'
+adding 'aiverify/bench/m6_cohort_schema.json'
+adding 'aiverify/bench/network_reliability.py'
+adding 'aiverify/bench/performance_intent_slice.py'
+adding 'aiverify/bench/run_record_checksums.py'
+adding 'aiverify/bench/taxonomy/__init__.py'
+adding 'aiverify/bench/taxonomy/loader.py'
+adding 'aiverify/harness/__init__.py'
+adding 'aiverify/harness/build/__init__.py'
+adding 'aiverify/harness/build/batcher.py'
+adding 'aiverify/harness/build/builder.py'
+adding 'aiverify/harness/build/patcher.py'
+adding 'aiverify/harness/device/__init__.py'
+adding 'aiverify/harness/device/adb.py'
+adding 'aiverify/harness/device/controller.py'
+adding 'aiverify/harness/device/logcat.py'
+adding 'aiverify/providers/__init__.py'
+adding 'aiverify/providers/base.py'
+adding 'aiverify/providers/codex_cli.py'
+adding 'aiverify/providers/parsing.py'
+adding 'aiverify/runner/__init__.py'
+adding 'aiverify/runner/__main__.py'
+adding 'aiverify/runner/cli.py'
+adding 'aiverify/runner/codex_backend.py'
+adding 'aiverify/runner/codex_identity.py'
+adding 'aiverify/runner/command.py'
+adding 'aiverify/runner/evidence.py'
+adding 'aiverify/runner/execution_identity.py'
+adding 'aiverify/runner/execution_record.py'
+adding 'aiverify/runner/journey.py'
+adding 'aiverify/runner/journey_result_schema.json'
+adding 'aiverify/runner/run_spec.py'
+adding 'aiverify/runner/system_events.py'
+adding 'aiverify/runner/verdict.py'
+adding 'aiverify-0.1.0.dist-info/METADATA'
+adding 'aiverify-0.1.0.dist-info/WHEEL'
+adding 'aiverify-0.1.0.dist-info/top_level.txt'
+adding 'aiverify-0.1.0.dist-info/RECORD'
+removing build/bdist.macosx-11.0-arm64/wheel
+Successfully built dist/aiverify-0.1.0.tar.gz
+Successfully built dist/aiverify-0.1.0-py3-none-any.whl

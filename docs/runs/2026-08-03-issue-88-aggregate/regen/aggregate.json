@@ -1,0 +1,1433 @@
+{
+  "checksums_verified": true,
+  "claim_boundary": {
+    "local_only": true
+  },
+  "cohort": {
+    "cohort_id": "m6-qualification-v1",
+    "manifest_path": "bench/m6/m6-qualification-v1.yaml",
+    "manifest_sha256": "45e8ce551653542734b24ab5ae7f763383847fc9004360ff1ebabc10bbcff7b9",
+    "slot_count": 6
+  },
+  "historical": {
+    "accountable_attempts": 18,
+    "adjudication": {
+      "agreements": 3,
+      "disagreements": 0,
+      "independent_pairs": 3
+    },
+    "attempts": 18,
+    "build": {
+      "count": 6,
+      "items": [
+        {
+          "duration_seconds": 8.08,
+          "revision": "996ad8592fbd41e59ea195da72a3e9a728181006",
+          "state": "fixed",
+          "variant": "devDebug"
+        },
+        {
+          "duration_seconds": 10.52,
+          "revision": "c7250ce14feaa24e52d3a2468fb86b15fa56cfff",
+          "state": "fixed",
+          "variant": "devDebug"
+        },
+        {
+          "duration_seconds": 10.42,
+          "revision": "fdc4ffb9ef3be93a96500bf630057c1e66ac7b8f",
+          "state": "fixed",
+          "variant": "devDebug"
+        },
+        {
+          "duration_seconds": 12.07,
+          "revision": "675b930624c80498b3d3881592ac1c3f179a2709",
+          "state": "pre_fix",
+          "variant": "devDebug"
+        },
+        {
+          "duration_seconds": 7.14,
+          "revision": "b88c6a672e18167727fcc9d913c9ed57e50e03ce",
+          "state": "pre_fix",
+          "variant": "devDebug"
+        },
+        {
+          "duration_seconds": 11.07,
+          "revision": "d67ec44adc1d8c4d8dc7dcb736c0faa9f1b6934c",
+          "state": "pre_fix",
+          "variant": "devDebug"
+        }
+      ],
+      "seconds": 59.3
+    },
+    "case_details": [
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "historical_pair": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "fixed_expected": "locally_supported",
+          "fixed_revision": "996ad8592fbd41e59ea195da72a3e9a728181006",
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          },
+          "pre_fix_expected": "locally_rejected",
+          "pre_fix_revision": "b88c6a672e18167727fcc9d913c9ed57e50e03ce"
+        },
+        "interventions": [],
+        "package_id": "m6-h-01",
+        "slot_id": "H-01",
+        "source_states": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 27.55
+      },
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "historical_pair": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 9
+          },
+          "fixed_expected": "locally_supported",
+          "fixed_revision": "c7250ce14feaa24e52d3a2468fb86b15fa56cfff",
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 9,
+            "raw_tests": 9
+          },
+          "pre_fix_expected": "locally_rejected",
+          "pre_fix_revision": "675b930624c80498b3d3881592ac1c3f179a2709"
+        },
+        "interventions": [],
+        "package_id": "m6-h-02",
+        "slot_id": "H-02",
+        "source_states": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 9
+          },
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 9,
+            "raw_tests": 9
+          }
+        },
+        "timing_seconds": 29.12
+      },
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "historical_pair": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "fixed_expected": "locally_supported",
+          "fixed_revision": "fdc4ffb9ef3be93a96500bf630057c1e66ac7b8f",
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          },
+          "pre_fix_expected": "locally_rejected",
+          "pre_fix_revision": "d67ec44adc1d8c4d8dc7dcb736c0faa9f1b6934c"
+        },
+        "interventions": [],
+        "package_id": "m6-h-03",
+        "slot_id": "H-03",
+        "source_states": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 27.82
+      }
+    ],
+    "cases": 3,
+    "cases_detail": [],
+    "conclusions": {
+      "locally_supported": 3
+    },
+    "eventual_accountable": 18,
+    "execution_seconds": 25.19,
+    "first_attempt_accountable": 18,
+    "gap_values": [],
+    "gaps": 0,
+    "intervention_values": [],
+    "interventions": 0,
+    "lanes": 18,
+    "non_accountable_attempts": 0,
+    "observations": {
+      "fixed": [
+        {
+          "attempt_id": "attempt-h-01-fixed-01",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "fixed",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-01-fixed-02",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "fixed",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-01-fixed-03",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "fixed",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-02-fixed-01",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "fixed",
+          "tests": 3
+        },
+        {
+          "attempt_id": "attempt-h-02-fixed-02",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "fixed",
+          "tests": 3
+        },
+        {
+          "attempt_id": "attempt-h-02-fixed-03",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "fixed",
+          "tests": 3
+        },
+        {
+          "attempt_id": "attempt-h-03-fixed-01",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "fixed",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-03-fixed-02",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "fixed",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-03-fixed-03",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "fixed",
+          "tests": 1
+        }
+      ],
+      "pre_fix": [
+        {
+          "attempt_id": "attempt-h-01-pre_fix-01",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "pre_fix",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-01-pre_fix-02",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "pre_fix",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-01-pre_fix-03",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "pre_fix",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-02-pre_fix-01",
+          "failures": 3,
+          "outcome": "fail",
+          "source_state": "pre_fix",
+          "tests": 3
+        },
+        {
+          "attempt_id": "attempt-h-02-pre_fix-02",
+          "failures": 3,
+          "outcome": "fail",
+          "source_state": "pre_fix",
+          "tests": 3
+        },
+        {
+          "attempt_id": "attempt-h-02-pre_fix-03",
+          "failures": 3,
+          "outcome": "fail",
+          "source_state": "pre_fix",
+          "tests": 3
+        },
+        {
+          "attempt_id": "attempt-h-03-pre_fix-01",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "pre_fix",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-03-pre_fix-02",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "pre_fix",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-h-03-pre_fix-03",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "pre_fix",
+          "tests": 1
+        }
+      ]
+    },
+    "operational_seconds": 84.49,
+    "pairs": [
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "historical_pair": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "fixed_expected": "locally_supported",
+          "fixed_revision": "996ad8592fbd41e59ea195da72a3e9a728181006",
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          },
+          "pre_fix_expected": "locally_rejected",
+          "pre_fix_revision": "b88c6a672e18167727fcc9d913c9ed57e50e03ce"
+        },
+        "interventions": [],
+        "package_id": "m6-h-01",
+        "slot_id": "H-01",
+        "source_states": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 27.55
+      },
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "historical_pair": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 9
+          },
+          "fixed_expected": "locally_supported",
+          "fixed_revision": "c7250ce14feaa24e52d3a2468fb86b15fa56cfff",
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 9,
+            "raw_tests": 9
+          },
+          "pre_fix_expected": "locally_rejected",
+          "pre_fix_revision": "675b930624c80498b3d3881592ac1c3f179a2709"
+        },
+        "interventions": [],
+        "package_id": "m6-h-02",
+        "slot_id": "H-02",
+        "source_states": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 9
+          },
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 9,
+            "raw_tests": 9
+          }
+        },
+        "timing_seconds": 29.12
+      },
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "historical_pair": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "fixed_expected": "locally_supported",
+          "fixed_revision": "fdc4ffb9ef3be93a96500bf630057c1e66ac7b8f",
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          },
+          "pre_fix_expected": "locally_rejected",
+          "pre_fix_revision": "d67ec44adc1d8c4d8dc7dcb736c0faa9f1b6934c"
+        },
+        "interventions": [],
+        "package_id": "m6-h-03",
+        "slot_id": "H-03",
+        "source_states": {
+          "fixed": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "pre_fix": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 27.82
+      }
+    ],
+    "retries": 0,
+    "slot_ids": [
+      "H-01",
+      "H-02",
+      "H-03"
+    ],
+    "source_states": {
+      "fixed": {
+        "attempts": 9,
+        "eventual_accountable": 9,
+        "first_attempt_accountable": 9,
+        "lanes": 9,
+        "outcomes": {
+          "pass": 9
+        },
+        "raw_failures": 0,
+        "raw_tests": 15
+      },
+      "pre_fix": {
+        "attempts": 9,
+        "eventual_accountable": 9,
+        "first_attempt_accountable": 9,
+        "lanes": 9,
+        "outcomes": {
+          "fail": 9
+        },
+        "raw_failures": 15,
+        "raw_tests": 15
+      }
+    }
+  },
+  "operational": {
+    "backend_time_recorded": false,
+    "backend_time_seconds": null,
+    "build_count": 10,
+    "build_seconds": 300.72,
+    "builds": [
+      {
+        "duration_seconds": 71.67,
+        "revision": "2a957912de43cc43e87f8ed81b34a1755ed0a737",
+        "state": "candidate",
+        "variant": "devDebug"
+      },
+      {
+        "duration_seconds": 71.17,
+        "revision": "a6d33f1479c2a52ff5c4b13bb11242755c614993",
+        "state": "candidate",
+        "variant": "devDebug"
+      },
+      {
+        "duration_seconds": 70.98,
+        "revision": "bb9a5a5c2c7ae616ee7c560b5688697c09d60f9f",
+        "state": "candidate",
+        "variant": "devDebug"
+      },
+      {
+        "duration_seconds": 27.6,
+        "revision": "79ef892e5e88dfea705350bbfa1be2ee14458b47",
+        "state": "control",
+        "variant": "devDebug"
+      },
+      {
+        "duration_seconds": 8.08,
+        "revision": "996ad8592fbd41e59ea195da72a3e9a728181006",
+        "state": "fixed",
+        "variant": "devDebug"
+      },
+      {
+        "duration_seconds": 10.52,
+        "revision": "c7250ce14feaa24e52d3a2468fb86b15fa56cfff",
+        "state": "fixed",
+        "variant": "devDebug"
+      },
+      {
+        "duration_seconds": 10.42,
+        "revision": "fdc4ffb9ef3be93a96500bf630057c1e66ac7b8f",
+        "state": "fixed",
+        "variant": "devDebug"
+      },
+      {
+        "duration_seconds": 12.07,
+        "revision": "675b930624c80498b3d3881592ac1c3f179a2709",
+        "state": "pre_fix",
+        "variant": "devDebug"
+      },
+      {
+        "duration_seconds": 7.14,
+        "revision": "b88c6a672e18167727fcc9d913c9ed57e50e03ce",
+        "state": "pre_fix",
+        "variant": "devDebug"
+      },
+      {
+        "duration_seconds": 11.07,
+        "revision": "d67ec44adc1d8c4d8dc7dcb736c0faa9f1b6934c",
+        "state": "pre_fix",
+        "variant": "devDebug"
+      }
+    ],
+    "execution_seconds": 54.41,
+    "judge_time_recorded": false,
+    "judge_time_seconds": null,
+    "package_duration_seconds": 410.33,
+    "unrecorded_fields": [
+      "backend_time_seconds",
+      "judge_time_seconds"
+    ]
+  },
+  "packages": [
+    {
+      "canonical_sha256": "317a91b768161d1460fbafa39c54863ab99db63ad0c3e71f7bdaad3a4fde7cf0",
+      "conclusion": "locally_supported",
+      "package_id": "m6-h-01",
+      "slot_id": "H-01",
+      "source_sha256": "3af5d84bdffd2210d41fa0ce2eca97517633a31273e08e830b12858b0ec224ea",
+      "track": "historical"
+    },
+    {
+      "canonical_sha256": "edfa6c6905f59df827a4c736217c3cbdb154e411e4e82e14db87539f4914386a",
+      "conclusion": "locally_supported",
+      "package_id": "m6-h-02",
+      "slot_id": "H-02",
+      "source_sha256": "dc05bd5b23c6d1c2558ecbe671596c7bf0a5ee794b91d41b79ac1e362c010e04",
+      "track": "historical"
+    },
+    {
+      "canonical_sha256": "3d2205326024e20db2777d68c8e3515c0823b7d875b28d0872d7d93d6c9142ae",
+      "conclusion": "locally_supported",
+      "package_id": "m6-h-03",
+      "slot_id": "H-03",
+      "source_sha256": "2fe06d8ccf892812f808d6c9f43d3c67bcbd0a3ac8a9bc53dbe5d7dcd3f38116",
+      "track": "historical"
+    },
+    {
+      "canonical_sha256": "8cef7bfe002d49e174e8ce00e7db697bd26f4396820c7d2319a83a1c934414d4",
+      "conclusion": "locally_supported",
+      "package_id": "m6-p-01",
+      "slot_id": "P-01",
+      "source_sha256": "94b2f6a473019b5cc1a68a347f07304c50ed9cff69629a170b26925ec3d84fa4",
+      "track": "prospective"
+    },
+    {
+      "canonical_sha256": "b84f8d55b3cb1217e93f21a66893f4a20c213a996b46dac7e50832f615f3c997",
+      "conclusion": "locally_supported",
+      "package_id": "m6-p-02",
+      "slot_id": "P-02",
+      "source_sha256": "900fd46023b802abed30a9e70de8f96145cdb1e200a1bfa60e331ada6eeae3f5",
+      "track": "prospective"
+    },
+    {
+      "canonical_sha256": "31eb4af73572528dba707f670d34a93748a82bd5db3e0fb452fb4614bbf3bb8c",
+      "conclusion": "inconclusive",
+      "package_id": "m6-p-03",
+      "slot_id": "P-03",
+      "source_sha256": "b96cc4c67e184c223a3ca5076eb03b08ba08218902179afebf8d9e32b621ba88",
+      "track": "prospective"
+    }
+  ],
+  "prospective": {
+    "accountable_attempts": 18,
+    "adjudication": {
+      "agreements": 3,
+      "disagreements": 0,
+      "independent_pairs": 3
+    },
+    "attempts": 18,
+    "build": {
+      "count": 4,
+      "items": [
+        {
+          "duration_seconds": 71.67,
+          "revision": "2a957912de43cc43e87f8ed81b34a1755ed0a737",
+          "state": "candidate",
+          "variant": "devDebug"
+        },
+        {
+          "duration_seconds": 71.17,
+          "revision": "a6d33f1479c2a52ff5c4b13bb11242755c614993",
+          "state": "candidate",
+          "variant": "devDebug"
+        },
+        {
+          "duration_seconds": 70.98,
+          "revision": "bb9a5a5c2c7ae616ee7c560b5688697c09d60f9f",
+          "state": "candidate",
+          "variant": "devDebug"
+        },
+        {
+          "duration_seconds": 27.6,
+          "revision": "79ef892e5e88dfea705350bbfa1be2ee14458b47",
+          "state": "control",
+          "variant": "devDebug"
+        }
+      ],
+      "seconds": 241.42
+    },
+    "case_details": [
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "interventions": [
+          "development candidate frozen before verification"
+        ],
+        "package_id": "m6-p-01",
+        "prospective_observations": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "slot_id": "P-01",
+        "source_states": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 113.4
+      },
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "interventions": [
+          "development candidate frozen before verification"
+        ],
+        "package_id": "m6-p-02",
+        "prospective_observations": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "slot_id": "P-02",
+        "source_states": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 106.5
+      },
+      {
+        "adjudication_agreement": true,
+        "conclusion": "inconclusive",
+        "gaps": [
+          "P-03 frozen oracle contradiction adjudicated inconclusive"
+        ],
+        "interventions": [
+          "development candidate frozen before verification"
+        ],
+        "package_id": "m6-p-03",
+        "prospective_observations": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "inconclusive": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "slot_id": "P-03",
+        "source_states": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "inconclusive": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 105.94
+      }
+    ],
+    "cases": 3,
+    "cases_detail": [
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "interventions": [
+          "development candidate frozen before verification"
+        ],
+        "package_id": "m6-p-01",
+        "prospective_observations": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "slot_id": "P-01",
+        "source_states": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 113.4
+      },
+      {
+        "adjudication_agreement": true,
+        "conclusion": "locally_supported",
+        "gaps": [],
+        "interventions": [
+          "development candidate frozen before verification"
+        ],
+        "package_id": "m6-p-02",
+        "prospective_observations": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "slot_id": "P-02",
+        "source_states": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "pass": 3
+            },
+            "raw_failures": 0,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 106.5
+      },
+      {
+        "adjudication_agreement": true,
+        "conclusion": "inconclusive",
+        "gaps": [
+          "P-03 frozen oracle contradiction adjudicated inconclusive"
+        ],
+        "interventions": [
+          "development candidate frozen before verification"
+        ],
+        "package_id": "m6-p-03",
+        "prospective_observations": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "inconclusive": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "slot_id": "P-03",
+        "source_states": {
+          "candidate": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "inconclusive": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          },
+          "control": {
+            "attempts": 3,
+            "eventual_accountable": 3,
+            "first_attempt_accountable": 3,
+            "lanes": 3,
+            "outcomes": {
+              "fail": 3
+            },
+            "raw_failures": 3,
+            "raw_tests": 3
+          }
+        },
+        "timing_seconds": 105.94
+      }
+    ],
+    "conclusions": {
+      "inconclusive": 1,
+      "locally_supported": 2
+    },
+    "eventual_accountable": 18,
+    "execution_seconds": 29.22,
+    "first_attempt_accountable": 18,
+    "gap_values": [
+      "P-03 frozen oracle contradiction adjudicated inconclusive"
+    ],
+    "gaps": 1,
+    "intervention_values": [
+      "development candidate frozen before verification",
+      "development candidate frozen before verification",
+      "development candidate frozen before verification"
+    ],
+    "interventions": 3,
+    "lanes": 18,
+    "non_accountable_attempts": 0,
+    "observations": {
+      "candidate": [
+        {
+          "attempt_id": "attempt-p-01-candidate-01",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "candidate",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-01-candidate-02",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "candidate",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-01-candidate-03",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "candidate",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-02-candidate-01",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "candidate",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-02-candidate-02",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "candidate",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-02-candidate-03",
+          "failures": 0,
+          "outcome": "pass",
+          "source_state": "candidate",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-03-candidate-01",
+          "failures": 1,
+          "outcome": "inconclusive",
+          "source_state": "candidate",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-03-candidate-02",
+          "failures": 1,
+          "outcome": "inconclusive",
+          "source_state": "candidate",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-03-candidate-03",
+          "failures": 1,
+          "outcome": "inconclusive",
+          "source_state": "candidate",
+          "tests": 1
+        }
+      ],
+      "control": [
+        {
+          "attempt_id": "attempt-p-01-control-01",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "control",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-01-control-02",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "control",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-01-control-03",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "control",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-02-control-01",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "control",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-02-control-02",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "control",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-02-control-03",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "control",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-03-control-01",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "control",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-03-control-02",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "control",
+          "tests": 1
+        },
+        {
+          "attempt_id": "attempt-p-03-control-03",
+          "failures": 1,
+          "outcome": "fail",
+          "source_state": "control",
+          "tests": 1
+        }
+      ]
+    },
+    "operational_seconds": 325.84,
+    "pairs": [],
+    "retries": 0,
+    "slot_ids": [
+      "P-01",
+      "P-02",
+      "P-03"
+    ],
+    "source_states": {
+      "candidate": {
+        "attempts": 9,
+        "eventual_accountable": 9,
+        "first_attempt_accountable": 9,
+        "lanes": 9,
+        "outcomes": {
+          "inconclusive": 3,
+          "pass": 6
+        },
+        "raw_failures": 3,
+        "raw_tests": 9
+      },
+      "control": {
+        "attempts": 9,
+        "eventual_accountable": 9,
+        "first_attempt_accountable": 9,
+        "lanes": 9,
+        "outcomes": {
+          "fail": 9
+        },
+        "raw_failures": 9,
+        "raw_tests": 9
+      }
+    }
+  },
+  "qualification": {
+    "adjudication_agreements": 6,
+    "adjudication_disagreements": 0,
+    "all_lanes_eventually_accountable": true,
+    "claim_boundary": "local_only",
+    "complete_provenance": true,
+    "eventual_accountable": 36,
+    "exclusions": [
+      {
+        "candidate_id": "P-01",
+        "excluded_at": "2026-08-03T17:10:00Z",
+        "reason": "API-35 live locale switch updated the reported article chrome, search, and bottom navigation; no stale reproduction.",
+        "track": "prospective"
+      },
+      {
+        "candidate_id": "P-02",
+        "excluded_at": "2026-08-03T17:10:30Z",
+        "reason": "Bounded registered-offline cleanup passed; reporter-scale 4.39 GB/OEM behavior remains outside the local oracle.",
+        "track": "prospective"
+      },
+      {
+        "candidate_id": "P-03",
+        "excluded_at": "2026-08-03T17:11:00Z",
+        "reason": "PR 6575 is merged and its merge commit is already an ancestor of the frozen base.",
+        "track": "prospective"
+      },
+      {
+        "candidate_id": "P-ALT-01",
+        "excluded_at": "2026-08-03T17:11:30Z",
+        "reason": "Reporter traced the behavior to power saving and the time-bounded campaign is over.",
+        "track": "prospective"
+      },
+      {
+        "candidate_id": "P-ALT-02",
+        "excluded_at": "2026-08-03T17:12:00Z",
+        "reason": "Local 273-page corpus passed; remaining live-network phase has no stable local failure oracle.",
+        "track": "prospective"
+      }
+    ],
+    "first_attempt_accountable": 36,
+    "gaps": [
+      "P-03 frozen oracle contradiction adjudicated inconclusive"
+    ],
+    "interventions": [
+      "development candidate frozen before verification",
+      "development candidate frozen before verification",
+      "development candidate frozen before verification"
+    ],
+    "non_accountable_attempts": 0,
+    "observed_attempts": 36,
+    "observed_lanes": 36,
+    "planned_lanes": 36,
+    "replacements": [
+      {
+        "before_first_formal_invocation": true,
+        "candidate_id": "P-ALT-03",
+        "occurred_at": "2026-08-03T17:14:31Z",
+        "replaced_candidate_id": "P-01",
+        "slot_id": "P-01"
+      },
+      {
+        "before_first_formal_invocation": true,
+        "candidate_id": "P-ALT-04",
+        "occurred_at": "2026-08-03T17:14:32Z",
+        "replaced_candidate_id": "P-02",
+        "slot_id": "P-02"
+      },
+      {
+        "before_first_formal_invocation": true,
+        "candidate_id": "P-ALT-05",
+        "occurred_at": "2026-08-03T17:14:33Z",
+        "replaced_candidate_id": "P-03",
+        "slot_id": "P-03"
+      }
+    ],
+    "retries": 0,
+    "track_cases": {
+      "historical": 3,
+      "prospective": 3
+    },
+    "track_lanes": {
+      "historical": 18,
+      "prospective": 18
+    }
+  },
+  "recommendation": {
+    "label": "remediate fixture/execution/oracle/adjudication gaps",
+    "local_only": true,
+    "reason": "A frozen case or accountability gap remains in the local evidence.",
+    "route": "remediate_fixture_execution_oracle_adjudication_gaps",
+    "scale_gate": {
+      "complete_provenance": true,
+      "eventually_accountable": true,
+      "fixed_observations_pass": true,
+      "historical_lanes_reconciled": true,
+      "independent_adjudication": true,
+      "no_adjudication_disagreement": true,
+      "no_recorded_gaps": false,
+      "pre_fix_observations_fail": true,
+      "prospective_lanes_reconciled": true,
+      "six_cases": true,
+      "six_historical_cases": true,
+      "thirty_six_lanes": true,
+      "three_prospective_cases": true
+    },
+    "unresolved": [
+      "P-03 frozen oracle contradiction adjudicated inconclusive",
+      "one or more prospective local conclusions are inconclusive"
+    ]
+  },
+  "schema_version": 1
+}

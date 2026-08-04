@@ -21,6 +21,17 @@ from aiverify.bench.m6_case_package import (
 
 
 MANIFEST = Path("bench/m6/m6-qualification-v1.yaml")
+FORMAL_PACKAGES = tuple(
+    Path(path)
+    for path in (
+        "docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-01.json",
+        "docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-02.json",
+        "docs/runs/2026-08-03-issue-86-historical-formal/packages/m6-h-03.json",
+        "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-01.json",
+        "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-02.json",
+        "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-03.json",
+    )
+)
 
 
 def _sha(path: Path) -> str:
@@ -316,3 +327,153 @@ def test_aggregate_is_exactly_six_and_renders_deterministically(tmp_path: Path) 
 
     with pytest.raises(CasePackageValidationError, match="exactly 6"):
         aggregate_packages(package_paths[:-1], manifest_path=MANIFEST, repo_root=Path.cwd(), verify_references=False)
+
+
+def test_committed_formal_aggregate_reconciles_tracks_and_selects_one_route() -> None:
+    aggregate = aggregate_packages(
+        FORMAL_PACKAGES,
+        manifest_path=MANIFEST,
+        repo_root=Path.cwd(),
+        verify_references=True,
+    )
+    model = aggregate.to_dict()
+    assert model["checksums_verified"] is True
+    assert model["qualification"]["planned_lanes"] == 36
+    assert model["qualification"]["observed_lanes"] == 36
+    assert model["qualification"]["eventual_accountable"] == 36
+    assert model["historical"]["source_states"]["pre_fix"]["outcomes"] == {"fail": 9}
+    assert model["historical"]["source_states"]["fixed"]["outcomes"] == {"pass": 9}
+    assert model["prospective"]["conclusions"] == {
+        "inconclusive": 1,
+        "locally_supported": 2,
+    }
+    assert len(model["historical"]["pairs"]) == 3
+    assert len(model["prospective"]["cases_detail"]) == 3
+    assert model["recommendation"]["route"] == "remediate_fixture_execution_oracle_adjudication_gaps"
+    assert model["recommendation"]["local_only"] is True
+    assert model["operational"]["build_seconds"] > 0
+    assert model["operational"]["backend_time_recorded"] is False
+    for rendered in (render_structured(aggregate), render_markdown(aggregate)):
+        lowered = rendered.lower()
+        assert "detection_rate" not in lowered
+        assert "false_positive_rate" not in lowered
+        assert "confidence" not in lowered
+        assert "goldset" not in lowered
+        assert "general_android" not in lowered
+        assert "upstream_acceptance" not in lowered
+
+
+def test_aggregate_rejects_duplicate_lane_and_cross_track_package(tmp_path: Path) -> None:
+    packages = [
+        _base_package(Path.cwd(), slot_id)
+        for slot_id in ("H-01", "H-02", "H-03", "P-01", "P-02", "P-03")
+    ]
+    packages[1]["attempt_inventory"]["attempts"][0]["lane_id"] = packages[0]["attempt_inventory"]["attempts"][0]["lane_id"]
+    packages[1]["attempt_inventory"]["ledger"][0]["lane_id"] = packages[1]["attempt_inventory"]["attempts"][0]["lane_id"]
+    packages[1]["attempt_inventory"]["ledger"][1]["lane_id"] = packages[1]["attempt_inventory"]["attempts"][0]["lane_id"]
+    with pytest.raises(CasePackageValidationError, match="duplicate lane id"):
+        aggregate_packages(
+            [_write_package(tmp_path, package) for package in packages],
+            manifest_path=MANIFEST,
+            repo_root=Path.cwd(),
+            verify_references=False,
+        )
+
+    packages = [
+        _base_package(Path.cwd(), slot_id)
+        for slot_id in ("H-01", "H-02", "H-03", "P-01", "P-02", "P-03")
+    ]
+    packages[3]["cohort"]["track"] = "historical"
+    with pytest.raises(CasePackageValidationError, match="historical_pair|source state"):
+        aggregate_packages(
+            [_write_package(tmp_path, package) for package in packages],
+            manifest_path=MANIFEST,
+            repo_root=Path.cwd(),
+            verify_references=False,
+        )
+
+
+def test_formal_aggregate_rejects_checksum_drift_and_attempt_identity(tmp_path: Path) -> None:
+    tampered = json.loads(FORMAL_PACKAGES[-1].read_text(encoding="utf-8"))
+    tampered["attempt_inventory"]["attempts"][0]["verdict"]["sha256"] = "0" * 64
+    tampered_path = _write_package(tmp_path, tampered)
+    with pytest.raises(CasePackageValidationError, match="checksum mismatch"):
+        aggregate_packages(
+            [*FORMAL_PACKAGES[:-1], tampered_path],
+            manifest_path=MANIFEST,
+            repo_root=Path.cwd(),
+            verify_references=True,
+        )
+
+
+def test_aggregate_counts_a_bounded_retry_without_changing_lane_denominator(tmp_path: Path) -> None:
+    packages = {
+        slot_id: _base_package(Path.cwd(), slot_id)
+        for slot_id in ("H-01", "H-02", "H-03", "P-01", "P-02", "P-03")
+    }
+    package = packages["H-01"]
+    first = package["attempt_inventory"]["attempts"][0]
+    first["accountability"] = "non_accountable"
+    first["retry_eligible"] = True
+    first["process"]["exit_code"] = 2
+    first["finished_at"] = "2026-08-03T18:00:04Z"
+    retry = copy.deepcopy(first)
+    retry["attempt_id"] = "attempt-h-01-pre_fix-retry"
+    retry["attempt_number"] = 2
+    retry["accountability"] = "accountable"
+    retry["retry_eligible"] = False
+    retry["process"]["exit_code"] = 0
+    retry["started_at"] = "2026-08-03T18:00:05Z"
+    retry["finished_at"] = "2026-08-03T18:00:06Z"
+    package["attempt_inventory"]["attempts"].append(retry)
+    package["attempt_inventory"]["discovered_attempt_ids"].append(retry["attempt_id"])
+    package["attempt_inventory"]["ledger"][1]["process_exit_code"] = 2
+    package["attempt_inventory"]["ledger"][1]["accountability"] = "non_accountable"
+    package["attempt_inventory"]["ledger"][1]["occurred_at"] = first["finished_at"]
+    package["attempt_inventory"]["ledger"].extend(
+        [
+            {
+                "event_id": "retry-start",
+                "event": "started",
+                "attempt_id": retry["attempt_id"],
+                "lane_id": retry["lane_id"],
+                "source_state": retry["source_state"],
+                "attempt_number": 2,
+                "occurred_at": retry["started_at"],
+                "process_exit_code": None,
+                "accountability": None,
+            },
+            {
+                "event_id": "retry-finish",
+                "event": "finished",
+                "attempt_id": retry["attempt_id"],
+                "lane_id": retry["lane_id"],
+                "source_state": retry["source_state"],
+                "attempt_number": 2,
+                "occurred_at": retry["finished_at"],
+                "process_exit_code": 0,
+                "accountability": "accountable",
+            },
+        ]
+    )
+    aggregate = aggregate_packages(
+        [_write_package(tmp_path, packages[slot_id]) for slot_id in packages],
+        manifest_path=MANIFEST,
+        repo_root=Path.cwd(),
+        verify_references=False,
+    )
+    assert aggregate.qualification["observed_lanes"] == 36
+    assert aggregate.qualification["retries"] == 1
+    assert aggregate.qualification["first_attempt_accountable"] == 35
+    assert aggregate.qualification["eventual_accountable"] == 36
+
+    tampered = json.loads(FORMAL_PACKAGES[-1].read_text(encoding="utf-8"))
+    tampered["attempt_inventory"]["ledger"][0]["attempt_number"] = 2
+    tampered_path = _write_package(tmp_path, tampered)
+    with pytest.raises(CasePackageValidationError, match="contradict|contiguous"):
+        aggregate_packages(
+            [*FORMAL_PACKAGES[:-1], tampered_path],
+            manifest_path=MANIFEST,
+            repo_root=Path.cwd(),
+            verify_references=True,
+        )
