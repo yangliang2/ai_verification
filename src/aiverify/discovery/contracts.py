@@ -28,7 +28,22 @@ _HYPOTHESIS_STATUSES = frozenset(
 )
 _PLAN_STATUSES = frozenset({"draft", "frozen", "admitted", "rejected"})
 _FINDING_CONCLUSIONS = frozenset({"supported", "rejected", "inconclusive"})
-_CAMPAIGN_STATUSES = frozenset({"draft", "admitted", "running", "completed", "inconclusive"})
+_CAMPAIGN_STATUSES = frozenset(
+    {
+        "created",
+        "draft",
+        "context-ready",
+        "hypothesis-frozen",
+        "plan-admitted",
+        "admitted",
+        "executing",
+        "running",
+        "concluded",
+        "completed",
+        "inconclusive",
+        "non-accountable",
+    }
+)
 
 
 def _version(value: object, field: str, expected: int = 1) -> None:
@@ -961,6 +976,12 @@ class DiscoveryCampaign:
                 raise DiscoveryContractError("project_risk_map must be a ProjectRiskMap")
             if self.project_risk_map.target_id != self.target.target_id:
                 raise DiscoveryContractError("risk map target does not match campaign target")
+            if self.project_risk_map.findings != self.findings:
+                raise DiscoveryContractError("risk map findings must match campaign findings")
+            if self.project_risk_map.residual_risks != self.residual_risks:
+                raise DiscoveryContractError(
+                    "risk map residual risks must match campaign residual risks"
+                )
         _text_tuple(self.experiment_refs, "experiment_refs")
         if self.status not in _CAMPAIGN_STATUSES:
             raise DiscoveryContractError("invalid discovery campaign status")

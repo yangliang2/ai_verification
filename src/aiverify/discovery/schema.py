@@ -32,6 +32,12 @@ _CONTRACT_DEFINITIONS = {
     "residual_risk": "residualRisk",
     "project_risk_map": "projectRiskMap",
     "discovery_campaign": "discoveryCampaign",
+    "context_expansion_request": "contextExpansionRequest",
+    "context_expansion_result": "contextExpansionResult",
+    "hypothesis_selection_entry": "hypothesisSelectionEntry",
+    "hypothesis_selection_ledger": "hypothesisSelectionLedger",
+    "attempt_evidence": "attemptEvidence",
+    "discovery_campaign_package": "discoveryCampaignPackage",
     "admission_result": "admissionResult",
 }
 
