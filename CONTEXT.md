@@ -76,6 +76,79 @@ exclusion, replacement, repetition, retry, aggregation, and claim rules.
 Historical and prospective tracks remain separate populations.
 _Avoid_: Ad-hoc case list, combined benchmark denominator
 
+**Discovery Campaign**:
+The evidence-bound discovery layer above Run Spec. It selects a target, freezes a
+Quality Context Graph, derives Risk Hypotheses and Attack Plans, and records
+Findings plus Residual Risk. It may reference one or more Run Specs, but it does
+not become an execution scanner.
+_Avoid_: Run Spec, scanner, benchmark manifest
+
+**ChangeTarget**:
+A discovery target seeded by one checksum-bound code change and its source
+provenance. It is the change-scoped entry point for finding contract drift.
+_Avoid_: Diff-only input, Run Spec
+
+**ProjectTarget**:
+A discovery target seeded by a complete source project, immutable source
+provenance, scope, and a bounded discovery budget. It is valid without a diff.
+_Avoid_: Diff with an omitted patch, unbounded repository scan
+
+**Quality Context Graph**:
+An immutable, versioned snapshot of provenance-bound Context Facts used to reason
+about callers, dependencies, quality properties, and execution boundaries.
+_Avoid_: Unverified knowledge graph, prompt context
+
+**Context Fact**:
+A typed subject/predicate/value assertion carrying source kind, provenance,
+source version, confidence, and an explicit known, unknown, contradictory, or
+stale status. Unknown is a first-class state and cannot silently become observed.
+_Avoid_: Guess, observation without a source
+
+**Quality Contract**:
+A named quality property and bounded constraint for a scope, backed by one or
+more Context Facts.
+
+**Contract Drift**:
+An evidence-referenced, bounded before/after change in a Quality Contract. It is
+the bridge from a code or project signal to a falsifiable risk hypothesis.
+
+**Risk Prior**:
+A versioned, named family of signals that makes a risk direction worth probing;
+it is a search prior, not a conclusion.
+
+**Attack Operator**:
+A bounded perturbation or observation strategy selected by a Risk Prior, with an
+explicit safety boundary.
+
+**Risk Hypothesis**:
+A falsifiable explanation containing the threatened quality property,
+assumptions, trigger/context, failure mechanism, consequence, rationale,
+required evidence, confidence, supporting facts, and lifecycle status.
+_Avoid_: Finding, verdict, unsupported suspicion
+
+**Failure Chain**:
+An ordered causal path from trigger through mechanism to consequence, with any
+supporting Context Fact references.
+
+**Attack Plan**:
+A pre-execution binding of one Risk Hypothesis to an Attack Operator, trigger,
+observations, evidence expectations, oracle, fixture references, abort boundary,
+and claim boundary. Admission is fail-closed before side effects.
+
+**Finding**:
+An evidence-backed local conclusion for one hypothesis: supported, rejected, or
+inconclusive. It always carries evidence references and a claim boundary.
+_Avoid_: Residual Risk, unsupported inference
+
+**Residual Risk**:
+An explicit unresolved risk and evidence gap that remains after probing, with a
+bounded scope, basis references, and an optional next probe. It is not a weaker
+Finding.
+
+**Project Risk Map**:
+The current explored frontier for a target: Findings, Residual Risk, explored
+context facts, and the remaining coverage frontier.
+
 ## Current Milestone Boundary
 
 As of 2026-08-02, the repository has bounded evidence for the public verification

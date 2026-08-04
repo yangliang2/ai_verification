@@ -1,0 +1,63 @@
+"""Evidence-bound domain contracts for white-box quality-risk discovery."""
+
+from aiverify.discovery.models import (
+    ChangeTarget,
+    ContextFact,
+    DiscoveryContractError,
+    DiscoveryTarget,
+    ProvenanceRef,
+    ProjectTarget,
+    QualityContextGraph,
+    target_from_dict,
+)
+from aiverify.discovery.contracts import (
+    AdmissionResult,
+    AttackOperator,
+    AttackPlan,
+    ContractDrift,
+    DiscoveryCampaign,
+    FailureChain,
+    Finding,
+    ProjectRiskMap,
+    QualityContract,
+    ResidualRisk,
+    RiskHypothesis,
+    RiskPrior,
+    admit_attack_plan,
+    admit_experiment,
+)
+from aiverify.discovery.schema import (
+    load_schema,
+    self_validate_schema,
+    validate_contract,
+    validate_discovery_document,
+)
+
+__all__ = [
+    "ChangeTarget",
+    "AdmissionResult",
+    "AttackOperator",
+    "AttackPlan",
+    "ContextFact",
+    "ContractDrift",
+    "DiscoveryContractError",
+    "DiscoveryCampaign",
+    "DiscoveryTarget",
+    "FailureChain",
+    "Finding",
+    "ProjectRiskMap",
+    "ProvenanceRef",
+    "ProjectTarget",
+    "QualityContract",
+    "QualityContextGraph",
+    "ResidualRisk",
+    "RiskHypothesis",
+    "RiskPrior",
+    "admit_attack_plan",
+    "admit_experiment",
+    "load_schema",
+    "self_validate_schema",
+    "target_from_dict",
+    "validate_contract",
+    "validate_discovery_document",
+]
