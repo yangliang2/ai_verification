@@ -1,0 +1,625 @@
+{
+  "adjudication": {
+    "agent": {
+      "backend": "deterministic-package-audit",
+      "id": "independent-auditor-m6-prospective",
+      "model": "package-contract-v1",
+      "role": "final-auditor",
+      "session_id": "audit-session-m6-prospective-2026-08-03"
+    },
+    "agreement": true,
+    "conclusion": "locally_supported",
+    "evidence": {
+      "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-02-adjudication.json",
+      "sha256": "e52e7b11cb4f7e8c0b1f270d9cc5704c0d3f6dc52df203063f1ed34b296d4fcd"
+    }
+  },
+  "attempt_inventory": {
+    "attempts": [
+      {
+        "accountability": "accountable",
+        "artifacts": [
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-01/execution-record.json",
+            "sha256": "5614f7c8af555d41c78c9562bbce9e54463cc4999cbdd3a526b36f8aa33ce6af"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-01/provenance.json",
+            "sha256": "d91115302dfe5cc4cdc359bb50c2f0e9fe5e84e112d3a14b06f0053aa3646011"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-01/verdict.json",
+            "sha256": "876f38051ca7ceb89eec59d70720a81a011ae630886ed0dc732d90c26f4e4678"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-control/repetition-1/instrumentation.txt",
+            "sha256": "ccc4a06ad6a6a5e0fdcdfd338f0b1e61d91388630466d6f75b71aa2af1e11f46"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-control/repetition-1/clear.txt",
+            "sha256": "7fc0023a6402c7bd7abd98bb3e580968de4833eed07d88d1cc8d70819d69c7a0"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-control/repetition-1/metadata.txt",
+            "sha256": "205e09e14e7986f85cdda4943f59cdcc5657de0ab00ca1e11018decde4db948a"
+          }
+        ],
+        "attempt_id": "attempt-p-02-control-01",
+        "attempt_number": 1,
+        "evidence_root": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-01",
+        "execution_record": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-01/execution-record.json",
+          "sha256": "5614f7c8af555d41c78c9562bbce9e54463cc4999cbdd3a526b36f8aa33ce6af"
+        },
+        "finished_at": "2026-08-04T01:12:57.459Z",
+        "lane_id": "P-02-control-01",
+        "process": {
+          "exit_code": 0
+        },
+        "provenance": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-01/provenance.json",
+          "sha256": "d91115302dfe5cc4cdc359bb50c2f0e9fe5e84e112d3a14b06f0053aa3646011"
+        },
+        "quarantined": false,
+        "retry_eligible": false,
+        "source_state": "control",
+        "started_at": "2026-08-04T01:12:56.269Z",
+        "verdict": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-01/verdict.json",
+          "sha256": "876f38051ca7ceb89eec59d70720a81a011ae630886ed0dc732d90c26f4e4678"
+        }
+      },
+      {
+        "accountability": "accountable",
+        "artifacts": [
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-02/execution-record.json",
+            "sha256": "e2d23dff53e4d25144e9dda808c0669b6ce184404b743f879d6019ec1633fb0b"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-02/provenance.json",
+            "sha256": "9f5256c34df65d54ee1c7548871f3b1560548e20663de443bb1de69e073be6df"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-02/verdict.json",
+            "sha256": "cc2584b577743f0fe1000a321db77e2b46e98c4ae6c8997fc5b2206257ca59fb"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-control/repetition-2/instrumentation.txt",
+            "sha256": "5a4392600ca9bed8d803b6324df9c214f0a2db96184606066d31d97c9637fa8a"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-control/repetition-2/clear.txt",
+            "sha256": "7fc0023a6402c7bd7abd98bb3e580968de4833eed07d88d1cc8d70819d69c7a0"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-control/repetition-2/metadata.txt",
+            "sha256": "e77b2f9f41f630fad473ee39abc17e450eda86d945f04d8c4c2940f83d1f5f69"
+          }
+        ],
+        "attempt_id": "attempt-p-02-control-02",
+        "attempt_number": 1,
+        "evidence_root": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-02",
+        "execution_record": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-02/execution-record.json",
+          "sha256": "e2d23dff53e4d25144e9dda808c0669b6ce184404b743f879d6019ec1633fb0b"
+        },
+        "finished_at": "2026-08-04T01:12:58.640Z",
+        "lane_id": "P-02-control-02",
+        "process": {
+          "exit_code": 0
+        },
+        "provenance": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-02/provenance.json",
+          "sha256": "9f5256c34df65d54ee1c7548871f3b1560548e20663de443bb1de69e073be6df"
+        },
+        "quarantined": false,
+        "retry_eligible": false,
+        "source_state": "control",
+        "started_at": "2026-08-04T01:12:57.490Z",
+        "verdict": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-02/verdict.json",
+          "sha256": "cc2584b577743f0fe1000a321db77e2b46e98c4ae6c8997fc5b2206257ca59fb"
+        }
+      },
+      {
+        "accountability": "accountable",
+        "artifacts": [
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-03/execution-record.json",
+            "sha256": "147c8b733f8f670b420212fd068769f77b940fa03c4cadea6aa477864fbff9ed"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-03/provenance.json",
+            "sha256": "47fa6398c82a9c38b8b84e403d61a49e377111da44e03895a0a454569c6724c4"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-03/verdict.json",
+            "sha256": "727bdc6450d54c083dcf4b65b61a09d02294904db61a8fd632688ec153126685"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-control/repetition-3/instrumentation.txt",
+            "sha256": "335112cea42d59f3ae22376dcf703a2414c9d47287806f261a98f52cff8da5f3"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-control/repetition-3/clear.txt",
+            "sha256": "7fc0023a6402c7bd7abd98bb3e580968de4833eed07d88d1cc8d70819d69c7a0"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-control/repetition-3/metadata.txt",
+            "sha256": "406ab4645e9bf3c553b89f8b4af98d41b5b5ad7e4e5b3ec333115d956e609b27"
+          }
+        ],
+        "attempt_id": "attempt-p-02-control-03",
+        "attempt_number": 1,
+        "evidence_root": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-03",
+        "execution_record": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-03/execution-record.json",
+          "sha256": "147c8b733f8f670b420212fd068769f77b940fa03c4cadea6aa477864fbff9ed"
+        },
+        "finished_at": "2026-08-04T01:12:59.829Z",
+        "lane_id": "P-02-control-03",
+        "process": {
+          "exit_code": 0
+        },
+        "provenance": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-03/provenance.json",
+          "sha256": "47fa6398c82a9c38b8b84e403d61a49e377111da44e03895a0a454569c6724c4"
+        },
+        "quarantined": false,
+        "retry_eligible": false,
+        "source_state": "control",
+        "started_at": "2026-08-04T01:12:58.669Z",
+        "verdict": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/control/attempt-03/verdict.json",
+          "sha256": "727bdc6450d54c083dcf4b65b61a09d02294904db61a8fd632688ec153126685"
+        }
+      },
+      {
+        "accountability": "accountable",
+        "artifacts": [
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-01/execution-record.json",
+            "sha256": "995ab0c2f1266b617159ad14ede3e4ada99db23a77cc153eb3f7e83c3c45e0a2"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-01/provenance.json",
+            "sha256": "01d487210527d02afebfc5bf66a1fa5535ede98ff0c910e362ef1b6cb0fdb4e2"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-01/verdict.json",
+            "sha256": "00c3cdce6ac2cf46de9492260272a8cb421c203082fba0e2da392e3170c3d24b"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/repetition-1/instrumentation.txt",
+            "sha256": "2ee634b992912ab180a22cd0048e6a61cfe09d28777bc58605d49ddac516b1b8"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/repetition-1/clear.txt",
+            "sha256": "7fc0023a6402c7bd7abd98bb3e580968de4833eed07d88d1cc8d70819d69c7a0"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/repetition-1/metadata.txt",
+            "sha256": "afa87fb0b21538696cdd4a16524ac9bf2450715df9dfd3d06864dfef2a5da7fa"
+          }
+        ],
+        "attempt_id": "attempt-p-02-candidate-01",
+        "attempt_number": 1,
+        "evidence_root": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-01",
+        "execution_record": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-01/execution-record.json",
+          "sha256": "995ab0c2f1266b617159ad14ede3e4ada99db23a77cc153eb3f7e83c3c45e0a2"
+        },
+        "finished_at": "2026-08-04T01:15:36.904Z",
+        "lane_id": "P-02-candidate-01",
+        "process": {
+          "exit_code": 0
+        },
+        "provenance": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-01/provenance.json",
+          "sha256": "01d487210527d02afebfc5bf66a1fa5535ede98ff0c910e362ef1b6cb0fdb4e2"
+        },
+        "quarantined": false,
+        "retry_eligible": false,
+        "source_state": "candidate",
+        "started_at": "2026-08-04T01:15:35.584Z",
+        "verdict": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-01/verdict.json",
+          "sha256": "00c3cdce6ac2cf46de9492260272a8cb421c203082fba0e2da392e3170c3d24b"
+        }
+      },
+      {
+        "accountability": "accountable",
+        "artifacts": [
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-02/execution-record.json",
+            "sha256": "cd0278dafa8327cddd27c1de6adaf21cdc04e4739645a105ad06d6b047ccc5fd"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-02/provenance.json",
+            "sha256": "cd6ddeb119ba4da248f5ddfaba7d039c46df211adfc76250e994c28de1a9297b"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-02/verdict.json",
+            "sha256": "b368165e496317db7c6131829c9bda56bff13471f145bf400032437b35a046c8"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/repetition-2/instrumentation.txt",
+            "sha256": "9533688d6869ae5ad88f1796c5a74f1f3f0f4f41cd6ea18c9cc262cc49079096"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/repetition-2/clear.txt",
+            "sha256": "7fc0023a6402c7bd7abd98bb3e580968de4833eed07d88d1cc8d70819d69c7a0"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/repetition-2/metadata.txt",
+            "sha256": "8440057ae0703abe43549aeaadb39547eeeb86d4704e91d6207d6c6551ad3796"
+          }
+        ],
+        "attempt_id": "attempt-p-02-candidate-02",
+        "attempt_number": 1,
+        "evidence_root": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-02",
+        "execution_record": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-02/execution-record.json",
+          "sha256": "cd0278dafa8327cddd27c1de6adaf21cdc04e4739645a105ad06d6b047ccc5fd"
+        },
+        "finished_at": "2026-08-04T01:15:38.139Z",
+        "lane_id": "P-02-candidate-02",
+        "process": {
+          "exit_code": 0
+        },
+        "provenance": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-02/provenance.json",
+          "sha256": "cd6ddeb119ba4da248f5ddfaba7d039c46df211adfc76250e994c28de1a9297b"
+        },
+        "quarantined": false,
+        "retry_eligible": false,
+        "source_state": "candidate",
+        "started_at": "2026-08-04T01:15:36.939Z",
+        "verdict": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-02/verdict.json",
+          "sha256": "b368165e496317db7c6131829c9bda56bff13471f145bf400032437b35a046c8"
+        }
+      },
+      {
+        "accountability": "accountable",
+        "artifacts": [
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-03/execution-record.json",
+            "sha256": "97754bb842536821c6add7fa1d374e6f11e5e706d77945096d6d7b0cb654bf03"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-03/provenance.json",
+            "sha256": "3e9f0966252041f4d1710e0151bc98443ead012c23b3bdd17fa9e31654d8eea9"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-03/verdict.json",
+            "sha256": "56af6a59f447fd9a587e86b5c1742377a189c64457d590492de25ab02828c491"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/repetition-3/instrumentation.txt",
+            "sha256": "d943b1232b307362bc5dc65a8c70f7b5dc7616576cfd1049d02f56141cf24468"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/repetition-3/clear.txt",
+            "sha256": "7fc0023a6402c7bd7abd98bb3e580968de4833eed07d88d1cc8d70819d69c7a0"
+          },
+          {
+            "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/repetition-3/metadata.txt",
+            "sha256": "31e078e9a8e4ef7a35234b4fcff4f0fef0596d3ad199b69cb1a8a32a15a1e8a6"
+          }
+        ],
+        "attempt_id": "attempt-p-02-candidate-03",
+        "attempt_number": 1,
+        "evidence_root": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-03",
+        "execution_record": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-03/execution-record.json",
+          "sha256": "97754bb842536821c6add7fa1d374e6f11e5e706d77945096d6d7b0cb654bf03"
+        },
+        "finished_at": "2026-08-04T01:15:39.376Z",
+        "lane_id": "P-02-candidate-03",
+        "process": {
+          "exit_code": 0
+        },
+        "provenance": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-03/provenance.json",
+          "sha256": "3e9f0966252041f4d1710e0151bc98443ead012c23b3bdd17fa9e31654d8eea9"
+        },
+        "quarantined": false,
+        "retry_eligible": false,
+        "source_state": "candidate",
+        "started_at": "2026-08-04T01:15:38.166Z",
+        "verdict": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/p-02/candidate/attempt-03/verdict.json",
+          "sha256": "56af6a59f447fd9a587e86b5c1742377a189c64457d590492de25ab02828c491"
+        }
+      }
+    ],
+    "discovered_attempt_ids": [
+      "attempt-p-02-control-01",
+      "attempt-p-02-control-02",
+      "attempt-p-02-control-03",
+      "attempt-p-02-candidate-01",
+      "attempt-p-02-candidate-02",
+      "attempt-p-02-candidate-03"
+    ],
+    "ledger": [
+      {
+        "accountability": null,
+        "attempt_id": "attempt-p-02-control-01",
+        "attempt_number": 1,
+        "event": "started",
+        "event_id": "attempt-p-02-control-01-start",
+        "lane_id": "P-02-control-01",
+        "occurred_at": "2026-08-04T01:12:56.269Z",
+        "process_exit_code": null,
+        "source_state": "control"
+      },
+      {
+        "accountability": "accountable",
+        "attempt_id": "attempt-p-02-control-01",
+        "attempt_number": 1,
+        "event": "finished",
+        "event_id": "attempt-p-02-control-01-finish",
+        "lane_id": "P-02-control-01",
+        "occurred_at": "2026-08-04T01:12:57.459Z",
+        "process_exit_code": 0,
+        "source_state": "control"
+      },
+      {
+        "accountability": null,
+        "attempt_id": "attempt-p-02-control-02",
+        "attempt_number": 1,
+        "event": "started",
+        "event_id": "attempt-p-02-control-02-start",
+        "lane_id": "P-02-control-02",
+        "occurred_at": "2026-08-04T01:12:57.490Z",
+        "process_exit_code": null,
+        "source_state": "control"
+      },
+      {
+        "accountability": "accountable",
+        "attempt_id": "attempt-p-02-control-02",
+        "attempt_number": 1,
+        "event": "finished",
+        "event_id": "attempt-p-02-control-02-finish",
+        "lane_id": "P-02-control-02",
+        "occurred_at": "2026-08-04T01:12:58.640Z",
+        "process_exit_code": 0,
+        "source_state": "control"
+      },
+      {
+        "accountability": null,
+        "attempt_id": "attempt-p-02-control-03",
+        "attempt_number": 1,
+        "event": "started",
+        "event_id": "attempt-p-02-control-03-start",
+        "lane_id": "P-02-control-03",
+        "occurred_at": "2026-08-04T01:12:58.669Z",
+        "process_exit_code": null,
+        "source_state": "control"
+      },
+      {
+        "accountability": "accountable",
+        "attempt_id": "attempt-p-02-control-03",
+        "attempt_number": 1,
+        "event": "finished",
+        "event_id": "attempt-p-02-control-03-finish",
+        "lane_id": "P-02-control-03",
+        "occurred_at": "2026-08-04T01:12:59.829Z",
+        "process_exit_code": 0,
+        "source_state": "control"
+      },
+      {
+        "accountability": null,
+        "attempt_id": "attempt-p-02-candidate-01",
+        "attempt_number": 1,
+        "event": "started",
+        "event_id": "attempt-p-02-candidate-01-start",
+        "lane_id": "P-02-candidate-01",
+        "occurred_at": "2026-08-04T01:15:35.584Z",
+        "process_exit_code": null,
+        "source_state": "candidate"
+      },
+      {
+        "accountability": "accountable",
+        "attempt_id": "attempt-p-02-candidate-01",
+        "attempt_number": 1,
+        "event": "finished",
+        "event_id": "attempt-p-02-candidate-01-finish",
+        "lane_id": "P-02-candidate-01",
+        "occurred_at": "2026-08-04T01:15:36.904Z",
+        "process_exit_code": 0,
+        "source_state": "candidate"
+      },
+      {
+        "accountability": null,
+        "attempt_id": "attempt-p-02-candidate-02",
+        "attempt_number": 1,
+        "event": "started",
+        "event_id": "attempt-p-02-candidate-02-start",
+        "lane_id": "P-02-candidate-02",
+        "occurred_at": "2026-08-04T01:15:36.939Z",
+        "process_exit_code": null,
+        "source_state": "candidate"
+      },
+      {
+        "accountability": "accountable",
+        "attempt_id": "attempt-p-02-candidate-02",
+        "attempt_number": 1,
+        "event": "finished",
+        "event_id": "attempt-p-02-candidate-02-finish",
+        "lane_id": "P-02-candidate-02",
+        "occurred_at": "2026-08-04T01:15:38.139Z",
+        "process_exit_code": 0,
+        "source_state": "candidate"
+      },
+      {
+        "accountability": null,
+        "attempt_id": "attempt-p-02-candidate-03",
+        "attempt_number": 1,
+        "event": "started",
+        "event_id": "attempt-p-02-candidate-03-start",
+        "lane_id": "P-02-candidate-03",
+        "occurred_at": "2026-08-04T01:15:38.166Z",
+        "process_exit_code": null,
+        "source_state": "candidate"
+      },
+      {
+        "accountability": "accountable",
+        "attempt_id": "attempt-p-02-candidate-03",
+        "attempt_number": 1,
+        "event": "finished",
+        "event_id": "attempt-p-02-candidate-03-finish",
+        "lane_id": "P-02-candidate-03",
+        "occurred_at": "2026-08-04T01:15:39.376Z",
+        "process_exit_code": 0,
+        "source_state": "candidate"
+      }
+    ],
+    "max_attempts_per_lane": 2,
+    "quarantined_attempt_ids": []
+  },
+  "claim_boundary": {
+    "allowed": [
+      "blinded_case_observations",
+      "local_conclusions",
+      "adjudication_agreement",
+      "accountability",
+      "operational_metrics"
+    ],
+    "forbidden": [
+      "combined_track_denominator",
+      "detection_rate",
+      "false_positive_rate",
+      "confidence_claim",
+      "prospective_goldset",
+      "general_android_coverage",
+      "upstream_acceptance"
+    ],
+    "local_only": true
+  },
+  "cohort": {
+    "cohort_id": "m6-qualification-v1",
+    "manifest": {
+      "path": "bench/m6/m6-qualification-v1.yaml",
+      "sha256": "45e8ce551653542734b24ab5ae7f763383847fc9004360ff1ebabc10bbcff7b9"
+    },
+    "slot_id": "P-02",
+    "track": "prospective"
+  },
+  "contract": {
+    "environment": {
+      "path": "docs/runs/2026-08-03-issue-87-prospective-formal/environment.txt",
+      "sha256": "56acc0bb12541dedb993d9ce0a0bbe954679f899a4ba702c4a30f7a3c35d0200"
+    },
+    "journey": {
+      "path": "bench/m6/admission-fixtures/prospective/replacement-t426893/M6T426893GalleryMetadataOfflineTest.kt",
+      "sha256": "cf723d68747df12cb00a1f472c4230c90eb00a2bb3fb0478f04192c4971410e1"
+    },
+    "oracle": {
+      "path": "docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t426893/README.md",
+      "sha256": "6a42854b8fc2f1b34e33886e9786be89f5d56bbff0242ec64830593b41b14994"
+    },
+    "primary_behavior": "Gallery image metadata must participate in the offline-cache contract.",
+    "run_spec": {
+      "path": "docs/runs/2026-08-03-issue-84-cohort-admission/prospective/replacement-t426893/README.md",
+      "sha256": "6a42854b8fc2f1b34e33886e9786be89f5d56bbff0242ec64830593b41b14994"
+    }
+  },
+  "execution_identity": {
+    "backend": {
+      "model": "gpt-5",
+      "name": "codex_cli",
+      "version": "2026-08"
+    },
+    "build": {
+      "duration_seconds": 71.67,
+      "log": {
+        "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/build.txt",
+        "sha256": "7d467fe7a64777590549b7de1fea70622d4248b593258f23e345e19c27150512"
+      },
+      "revision": "2a957912de43cc43e87f8ed81b34a1755ed0a737",
+      "variant": "devDebug"
+    },
+    "deployment": {
+      "activity": "org.wikipedia.main.MainActivity",
+      "apk": {
+        "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/apk-receipt.txt",
+        "sha256": "009de7b99529f8be80b9081e5af7213a1f36793da2792abc18c90d03c9c10d1e"
+      },
+      "deployment_receipt": {
+        "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/deployment-receipt.json",
+        "sha256": "6df5e65b6ba414c69887514cf188cda5347ceae4a56aa9340aedd29b1a67426c"
+      },
+      "installed_binary": {
+        "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-02-candidate/installed-binary-receipt.json",
+        "sha256": "2512fa6b1c166fe2d0fe3c9c3fee2eb1532cb653da1a64b202924784c418702e"
+      },
+      "package": "org.wikipedia.dev"
+    },
+    "device": {
+      "api_level": 35,
+      "avd": "sdk_gphone64_arm64",
+      "locale": "en-US",
+      "model": "sdk_gphone64_arm64",
+      "orientation": "portrait",
+      "serial": "emulator-5554"
+    },
+    "host": {
+      "commit": "17654e4ee9a2993d245562b0f50a7033eba822a6",
+      "id": "host-mac-local",
+      "os": "macOS 26.3 aarch64",
+      "patch": {
+        "path": "docs/runs/2026-08-03-issue-87-prospective-formal/run-start.txt",
+        "sha256": "15fd805b00b52a0ec4734bc87422d8b35cb0ac0a4ad0e6e863474dda5f5eb00e"
+      }
+    },
+    "tools": {
+      "adb": "37.0.0-14910828",
+      "android_cli": "1.0.15498356",
+      "gradle": "9.6.1",
+      "java": "17.0.19"
+    }
+  },
+  "package_id": "m6-p-02",
+  "schema_version": 1,
+  "source": {
+    "base_revision": "79ef892e5e88dfea705350bbfa1be2ee14458b47",
+    "final_diff": {
+      "patch": {
+        "path": "docs/runs/2026-08-03-issue-87-prospective-formal/source/p-02-candidate.patch",
+        "sha256": "695dabd9b117758284e7fcaf712110c2bf34ee5be4995952750fce1f39549a40"
+      },
+      "revision": "2a957912de43cc43e87f8ed81b34a1755ed0a737"
+    },
+    "repository_url": "https://github.com/wikimedia/apps-android-wikipedia",
+    "task_url": "https://phabricator.wikimedia.org/T426893"
+  },
+  "timing": {
+    "duration_seconds": 106.5,
+    "gaps": [],
+    "interventions": [
+      "development candidate frozen before verification"
+    ]
+  },
+  "verification": {
+    "agent": {
+      "backend": "codex_cli",
+      "id": "verification-agent-p-02",
+      "model": "gpt-5",
+      "role": "verification-agent",
+      "session_id": "verification-p-02-2026-08-03"
+    },
+    "conclusion": "locally_supported",
+    "frozen_at": "2026-08-04T01:15:40.376Z",
+    "oracle_output": {
+      "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-02-oracle.json",
+      "sha256": "1faec7e231cfb03a6813f32b914d2f174eb1fabef27d77623a480766b25b2ddf"
+    },
+    "verdict": {
+      "path": "docs/runs/2026-08-03-issue-87-prospective-formal/packages/m6-p-02-verdict.json",
+      "sha256": "872dc8df408fdc84f573353586eec4c579152596aa0abf8fa7fd87fc6fde2817"
+    }
+  }
+}

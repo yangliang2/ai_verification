@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/org/wikipedia/onboarding/InitialOnboardingActivity.kt b/app/src/main/java/org/wikipedia/onboarding/InitialOnboardingActivity.kt
+index 1925f9c48..c104c7348 100644
+--- a/app/src/main/java/org/wikipedia/onboarding/InitialOnboardingActivity.kt
++++ b/app/src/main/java/org/wikipedia/onboarding/InitialOnboardingActivity.kt
+@@ -46,7 +46,7 @@ class InitialOnboardingActivity : BaseActivity() {
+             .startFunnel("initial_onboarding")
+ 
+         setContent {
+-            var currentTheme by remember { mutableStateOf(Theme.BLACK) }
++            var currentTheme by remember { mutableStateOf(WikipediaApp.instance.currentTheme) }
+             var currentNavigationBarColor by remember { mutableIntStateOf(ContextCompat.getColor(window.context, android.R.color.black)) }
+             DeviceUtil.setLightSystemUiVisibility(this, !currentTheme.isDark)
+             setNavigationBarColor(currentNavigationBarColor)

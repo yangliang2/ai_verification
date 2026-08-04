@@ -1,0 +1,87 @@
+{
+  "conclusion": "locally_supported",
+  "outcome": "pass",
+  "summary": {
+    "candidate": {
+      "observations": 3,
+      "outcome": "locally_supported",
+      "raw_failures": 0
+    },
+    "control": {
+      "failures": 3,
+      "observations": 3
+    },
+    "finding_actionability": "actionable_candidate_verification",
+    "local_only": true,
+    "observations": [
+      {
+        "attempt_id": "attempt-p-01-control-01",
+        "failures": 1,
+        "outcome": "fail",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-01-control/repetition-1/instrumentation.txt",
+          "sha256": "0582aa44d3bcc5f7edb75af9b66845510fe764cec5a5eea914627db89a6ce136"
+        },
+        "source_state": "control",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-01-control-02",
+        "failures": 1,
+        "outcome": "fail",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-01-control/repetition-2/instrumentation.txt",
+          "sha256": "2b8aed0e29609e4af150317517d04acc40de42022425d7be6e8dc8c5531cc7ba"
+        },
+        "source_state": "control",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-01-control-03",
+        "failures": 1,
+        "outcome": "fail",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-01-control/repetition-3/instrumentation.txt",
+          "sha256": "27e9b34f5a8a645b3f038f756a60a20182de5a47cf2425f5f0b61269e37eaa95"
+        },
+        "source_state": "control",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-01-candidate-01",
+        "failures": 0,
+        "outcome": "pass",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-01-candidate/repetition-1/instrumentation.txt",
+          "sha256": "ba7d5df4783352d98bb8971a194d9a7018e3c70d3b28e8c7b7924c878dc5b1c6"
+        },
+        "source_state": "candidate",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-01-candidate-02",
+        "failures": 0,
+        "outcome": "pass",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-01-candidate/repetition-2/instrumentation.txt",
+          "sha256": "0821524fc4e37e730b786140ff610d7dd81b40a74982da9b406118ee09c3857f"
+        },
+        "source_state": "candidate",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-01-candidate-03",
+        "failures": 0,
+        "outcome": "pass",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-01-candidate/repetition-3/instrumentation.txt",
+          "sha256": "2c2c0cb151b4666a5313b3d0cd44482a8656658bc438764bdfd080a96c0f840a"
+        },
+        "source_state": "candidate",
+        "tests": 1
+      }
+    ],
+    "slot_id": "P-01",
+    "track": "prospective"
+  }
+}

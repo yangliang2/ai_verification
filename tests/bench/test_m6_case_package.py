@@ -49,7 +49,7 @@ def _base_package(repo_root: Path, slot_id: str) -> dict:
     for index in range(6):
         state = "pre_fix" if index < 3 and slot["track"] == "historical" else "fixed"
         if slot["track"] == "prospective":
-            state = "candidate"
+            state = "control" if index < 3 else "candidate"
         attempt_id = f"attempt-{slot_id.lower()}-{index + 1}"
         lane_number = index % 3 + 1 if slot["track"] == "historical" else index + 1
         lane_id = f"{slot_id}-{state}-{lane_number:02d}"

@@ -1,0 +1,87 @@
+{
+  "conclusion": "inconclusive",
+  "outcome": "inconclusive",
+  "summary": {
+    "candidate": {
+      "observations": 3,
+      "outcome": "inconclusive",
+      "raw_failures": 3
+    },
+    "control": {
+      "failures": 3,
+      "observations": 3
+    },
+    "finding_actionability": "oracle_contract_contradiction",
+    "local_only": true,
+    "observations": [
+      {
+        "attempt_id": "attempt-p-03-control-01",
+        "failures": 1,
+        "outcome": "fail",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-03-control/repetition-1/instrumentation.txt",
+          "sha256": "d8455c990994fe01edbdd7740439ef8bd3364d893fe935a371579fbc2303382b"
+        },
+        "source_state": "control",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-03-control-02",
+        "failures": 1,
+        "outcome": "fail",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-03-control/repetition-2/instrumentation.txt",
+          "sha256": "d98792a8ed7bbe06ed4bd40973854da1f323d2be47c0f55e8573b3a64d71595e"
+        },
+        "source_state": "control",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-03-control-03",
+        "failures": 1,
+        "outcome": "fail",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-03-control/repetition-3/instrumentation.txt",
+          "sha256": "d62b1508c38bf8cc34c32c38f224aa065263c93de45f05b291d279dc8108192a"
+        },
+        "source_state": "control",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-03-candidate-01",
+        "failures": 1,
+        "outcome": "inconclusive",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-03-candidate/repetition-1/instrumentation.txt",
+          "sha256": "390162e6699e7338d20f72e5b788027a326ba1ca8716160c4efc3c5e79520817"
+        },
+        "source_state": "candidate",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-03-candidate-02",
+        "failures": 1,
+        "outcome": "inconclusive",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-03-candidate/repetition-2/instrumentation.txt",
+          "sha256": "a2dc635f5968c7dc0541a119bcb6388420a0ac10ae731660486cfafa6f2bbfbf"
+        },
+        "source_state": "candidate",
+        "tests": 1
+      },
+      {
+        "attempt_id": "attempt-p-03-candidate-03",
+        "failures": 1,
+        "outcome": "inconclusive",
+        "raw": {
+          "path": "docs/runs/2026-08-03-issue-87-prospective-formal/lanes/p-03-candidate/repetition-3/instrumentation.txt",
+          "sha256": "c1e2d20c9127f7de65c342a79abd1b41ed9590574781e076a875baea4acd6a45"
+        },
+        "source_state": "candidate",
+        "tests": 1
+      }
+    ],
+    "slot_id": "P-03",
+    "track": "prospective"
+  }
+}
