@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "M7 blinded discovery qualification manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "qualification_id", "status", "frozen_at",
+    "maintainer_approval", "policy", "cells", "contradictory_preflight"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "qualification_id": {"type": "string", "pattern": "^m7-[a-z0-9][a-z0-9-]*-v[1-9][0-9]*$"},
+    "status": {"const": "frozen"},
+    "frozen_at": {"type": "string", "format": "date-time"},
+    "maintainer_approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issue_url", "comment_url", "approved_by", "approved_at"],
+      "properties": {
+        "issue_url": {"type": "string", "format": "uri"},
+        "comment_url": {"type": "string", "format": "uri"},
+        "approved_by": {"type": "string", "minLength": 1},
+        "approved_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["planned_lanes", "repetitions_per_cell", "retry", "blinding", "claim_boundary"],
+      "properties": {
+        "planned_lanes": {"const": 12},
+        "repetitions_per_cell": {"const": 3},
+        "retry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_attempts_per_lane", "no_retry_after_accountable"],
+          "properties": {
+            "max_attempts_per_lane": {"const": 1},
+            "no_retry_after_accountable": {"const": true}
+          }
+        },
+        "blinding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["withhold_variant", "withhold_expected_evidence", "withhold_verdict", "network_disabled"],
+          "properties": {
+            "withhold_variant": {"const": true},
+            "withhold_expected_evidence": {"const": true},
+            "withhold_verdict": {"const": true},
+            "network_disabled": {"const": true}
+          }
+        },
+        "claim_boundary": {"type": "string", "minLength": 1}
+      }
+    },
+    "cells": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {"$ref": "#/$defs/cell"}
+    },
+    "contradictory_preflight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "formal_denominator", "route"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "formal_denominator": {"const": false},
+        "route": {"const": "exclude_before_formal_invocation"}
+      }
+    }
+  },
+  "$defs": {
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cell_id", "target_mode", "variant", "repetitions"],
+      "properties": {
+        "cell_id": {"enum": ["change-defect", "change-control", "project-defect", "project-control"]},
+        "target_mode": {"enum": ["change", "project"]},
+        "variant": {"enum": ["defect", "control"]},
+        "repetitions": {"const": 3}
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "qualification_id": "m7-temporal-discovery-v1",
+  "status": "frozen",
+  "frozen_at": "2026-08-04T17:55:00Z",
+  "maintainer_approval": {
+    "issue_url": "https://github.com/yangliang2/ai_verification/issues/104",
+    "comment_url": "https://github.com/yangliang2/ai_verification/issues/104",
+    "approved_by": "maintainer",
+    "approved_at": "2026-08-04T17:50:00Z"
+  },
+  "policy": {
+    "planned_lanes": 12,
+    "repetitions_per_cell": 3,
+    "retry": {
+      "max_attempts_per_lane": 1,
+      "no_retry_after_accountable": true
+    },
+    "blinding": {
+      "withhold_variant": true,
+      "withhold_expected_evidence": true,
+      "withhold_verdict": true,
+      "network_disabled": true
+    },
+    "claim_boundary": "local fixture and discovery/admission/evidence seam only"
+  },
+  "cells": [
+    {"cell_id": "change-defect", "target_mode": "change", "variant": "defect", "repetitions": 3},
+    {"cell_id": "change-control", "target_mode": "change", "variant": "control", "repetitions": 3},
+    {"cell_id": "project-defect", "target_mode": "project", "variant": "defect", "repetitions": 3},
+    {"cell_id": "project-control", "target_mode": "project", "variant": "control", "repetitions": 3}
+  ],
+  "contradictory_preflight": {
+    "id": "m7-p03-class-contradictory-context",
+    "formal_denominator": false,
+    "route": "exclude_before_formal_invocation"
+  }
+}

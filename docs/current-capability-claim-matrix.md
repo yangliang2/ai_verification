@@ -77,21 +77,34 @@ experiment 在 hypothesis、fixture、expected evidence、oracle 或 claim bound
 
 | 项目 | 状态 | 进入声明所需条件 |
 |---|---|---|
-| M7 project/change risk-discovery qualification | 尚未度量 | #99 source-of-truth boundary、#101/#102/#103 discovery slices、#104 blinded 4-cell/12-lane qualification |
+| M7 project/change risk-discovery qualification | 有界证据支持（discovery/admission/evidence seam） | [#104 run](runs/2026-08-04-issue-104-m7-qualification/README.md)：冻结 4-cell/12-lane；12/12 accountable、0 retries、12/12 admitted attacks、12/12 independent adjudication；contradictory preflight 在 formal denominator 外 fail-closed | 仅 local fixture 与离线 seam；下一步 bounded runtime probe；不声明 Android runtime、benchmark-wide rate、项目完整覆盖或 upstream acceptance |
 | benchmark-wide detection/false-positive rate | 当前不声明 | 合格且足够规模的独立 ground-truth population 与预注册统计契约 |
 | physical/OEM/device-fleet 与 ColorOS | 当前不声明 | 独立的设备/host admission、身份、矩阵与 durable evidence |
 | fully unattended Journey reliability | 当前不声明 | 无 agent-in-the-loop 的版本化执行人口和 accountability 测量 |
 | visual-only/general multimodal L3 | 当前不声明 | 视觉 ground truth、repeatability、false-positive controls 与独立审计 |
 | upstream acceptance | 当前不声明 | 本仓库本地结论不等于 maintainer review 或 merge |
 
+## M7 qualification boundary and next route
+
+M7 #104 的冻结离线 qualification 已完成。它证明 change 与 complete-project
+两种入口都能经过 Context Expansion、Risk Hypothesis freeze、Attack Plan
+admission、accountable Attempt Evidence、Finding/Residual Risk reduction 和
+独立 adjudication；四个 cell 各 3 次，合计 12/12 accountable，0 retries。输入
+packet 的 variant、expected evidence、verdict 和 outcome 均保持盲化；P-03-class
+contradictory context 在正式 invocation 前被排除且不进入 denominator。
+
+这个结果只支持 `proceed_to_bounded_runtime_probe`。它不提供 Android runtime
+执行结果、缺陷检测率、误报率、项目完整性或 upstream acceptance 声明。
+
 ## 当前下一步
 
-M7 parent [#98](https://github.com/yangliang2/ai_verification/issues/98) 将验证
+M7 parent [#98](https://github.com/yangliang2/ai_verification/issues/98) 验证
 “AI 能力能否围绕软件工程质量契约，针对 change/project target 发现可复核、可攻击
-的风险假设”。执行顺序为：
+的风险假设”。已完成的执行顺序为：
 
 `#99 → (#101 与 #102) → #103 → #104`
 
-#100 已定义 Discovery Campaign 与 Run Spec 的边界；#101/#102 可并行，#103 依赖
-两者，#104 依赖 #99 与 #103。M7 继续保持 local-only claim boundary，不把任何
-discovery finding 写成 upstream acceptance 或 benchmark-wide rate。
+#100 定义了 Discovery Campaign 与 Run Spec 的边界；#101/#102 并行完成，#103
+负责编排，#104 完成 qualification。下一步应另行冻结并 admission 一个有界 runtime
+probe；M7 继续保持 local-only claim boundary，不把任何 discovery finding 写成
+upstream acceptance 或 benchmark-wide rate。
