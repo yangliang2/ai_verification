@@ -407,7 +407,129 @@
         "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
         "residual_risks": {"type": "array", "items": {"$ref": "#/$defs/residualRisk"}},
         "project_risk_map": {"$ref": "#/$defs/projectRiskMap"},
-        "status": {"enum": ["draft", "admitted", "running", "completed", "inconclusive"]}
+        "status": {
+          "enum": [
+            "created", "draft", "context-ready", "hypothesis-frozen", "plan-admitted",
+            "admitted", "executing", "running", "concluded", "completed",
+            "inconclusive", "non-accountable"
+          ]
+        }
+      }
+    },
+    "contextExpansionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "request_id", "campaign_id", "target_id",
+        "required_predicates", "probe_refs", "budget", "unresolved_questions"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "request_id": {"type": "string", "minLength": 1},
+        "campaign_id": {"type": "string", "minLength": 1},
+        "target_id": {"type": "string", "minLength": 1},
+        "required_predicates": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "probe_refs": {"$ref": "#/$defs/textArray"},
+        "budget": {"type": "integer", "minimum": 1},
+        "unresolved_questions": {"$ref": "#/$defs/textArray"}
+      }
+    },
+    "contextExpansionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "request_id", "target_id", "graph",
+        "resolved_fact_ids", "unresolved_questions", "probe_refs", "budget_used", "status"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "request_id": {"type": "string", "minLength": 1},
+        "target_id": {"type": "string", "minLength": 1},
+        "graph": {"$ref": "#/$defs/contextGraph"},
+        "resolved_fact_ids": {"$ref": "#/$defs/textArray"},
+        "unresolved_questions": {"$ref": "#/$defs/textArray"},
+        "probe_refs": {"$ref": "#/$defs/textArray"},
+        "budget_used": {"type": "integer", "minimum": 0},
+        "status": {"enum": ["complete", "partial", "rejected"]}
+      }
+    },
+    "hypothesisSelectionEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "entry_id", "sequence", "hypothesis_id", "decision",
+        "priority_score", "rationale", "previous_digest", "entry_digest"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "entry_id": {"type": "string", "minLength": 1},
+        "sequence": {"type": "integer", "minimum": 1},
+        "hypothesis_id": {"type": "string", "minLength": 1},
+        "decision": {"enum": ["considered", "selected", "deferred", "rejected"]},
+        "priority_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "rationale": {"type": "string", "minLength": 1},
+        "previous_digest": {"$ref": "#/$defs/sha256"},
+        "entry_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "hypothesisSelectionLedger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "entries", "head_digest"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "entries": {"type": "array", "items": {"$ref": "#/$defs/hypothesisSelectionEntry"}},
+        "head_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "attemptEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "evidence_id", "target_id", "hypothesis_id", "attempt_ref",
+        "execution_record_ref", "outcome", "evidence_refs", "claim_boundary", "rationale", "accountable"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "evidence_id": {"type": "string", "minLength": 1},
+        "target_id": {"type": "string", "minLength": 1},
+        "hypothesis_id": {"type": "string", "minLength": 1},
+        "attempt_ref": {"type": "string", "minLength": 1},
+        "execution_record_ref": {"type": "string", "minLength": 1},
+        "outcome": {"enum": ["supported", "rejected", "inconclusive", "non_accountable"]},
+        "evidence_refs": {"$ref": "#/$defs/textArray"},
+        "claim_boundary": {"type": "string", "minLength": 1},
+        "rationale": {"type": "string", "minLength": 1},
+        "accountable": {"type": "boolean"},
+        "execution_identity_sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"outcome": {"enum": ["supported", "rejected", "inconclusive"]}}},
+          "then": {
+            "required": ["execution_identity_sha256"],
+            "properties": {"evidence_refs": {"minItems": 1}, "accountable": {"const": true}}
+          }
+        },
+        {
+          "if": {"properties": {"outcome": {"const": "non_accountable"}}},
+          "then": {"properties": {"accountable": {"const": false}}}
+        }
+      ]
+    },
+    "discoveryCampaignPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "campaign", "selection_ledger", "attempts"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "campaign": {"$ref": "#/$defs/discoveryCampaign"},
+        "selection_ledger": {"$ref": "#/$defs/hypothesisSelectionLedger"},
+        "context_request": {"$ref": "#/$defs/contextExpansionRequest"},
+        "context_result": {"$ref": "#/$defs/contextExpansionResult"},
+        "behavior_delta": {"$ref": "#/$defs/behaviorDelta"},
+        "risk_priority": {"$ref": "#/$defs/riskPriority"},
+        "attempts": {"type": "array", "items": {"$ref": "#/$defs/attemptEvidence"}}
       }
     },
     "admissionResult": {

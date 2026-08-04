@@ -74,9 +74,9 @@ Relevant tool versions: `uv 0.11.7`, `git 2.50.1`, Python `3.11.15`, pytest
 The derivation consumes the neutral fixture committed by M7-2:
 
 ```text
-a97585d1e7ba7ef620205b5c3ec6520a7dea05a35470aa6d045c371e172d1edf  synchronous-weather/README.md
-0860238c85757352b9ce2347c37cab5310219234c50e35c92ef2ce561cc9da0d  synchronous-weather/SystemUiWeatherConsumer.kt
-5cc6723879b6a3814c13a8aa6e176d55cd8e5e32f8d983dd925bb665ea277dc6  synchronous-weather/WeatherService.kt
+9c7971f873b1539da60afa84d0bc477fe630bcfaf21e3c766323076041a8e05b  synchronous-weather/README.md
+ebc51ee8363f2d4c23b924f0f6a6cde80459d529b726af0c413458a9cff27e91  synchronous-weather/SystemUiWeatherConsumer.kt
+1f7d39c4deeb955476c93ec4045200abbaf0ed5dfe8b0b9dca2e9fd185c8f1a1  synchronous-weather/WeatherService.kt
 b87b4f1a5b60c1a46d89becb483b66de26608c6f201f252b3117bdff1ce31395  synchronous-weather/build-metadata.json
 135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b  synchronous-weather/context-manifest.json
 ```

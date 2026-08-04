@@ -150,6 +150,18 @@ A pre-execution binding of one Risk Hypothesis to an Attack Operator, trigger,
 observations, evidence expectations, oracle, fixture references, abort boundary,
 and claim boundary. Admission is fail-closed before side effects.
 
+**Campaign State**:
+The bounded orchestration states are `created`, `context-ready`,
+`hypothesis-frozen`, `plan-admitted`, `executing`, and a terminal
+`concluded`/`non-accountable` result. Each transition returns a new campaign
+snapshot; discovery never builds, installs, or drives a device.
+
+**Attempt Evidence**:
+An immutable receipt bound to an attempt reference, ExecutionRecord reference,
+execution-identity digest, oracle evidence, and local claim boundary. Only an
+accountable terminal receipt can create a Finding; a non-accountable receipt
+creates Residual Risk instead.
+
 **Finding**:
 An evidence-backed local conclusion for one hypothesis: supported, rejected, or
 inconclusive. It always carries evidence references and a claim boundary.
