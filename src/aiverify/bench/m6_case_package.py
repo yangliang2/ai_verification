@@ -454,6 +454,7 @@ def _semantic_errors(
     errors: list[str] = []
     errors.extend(_reference_errors(document, repo_root=repo_root, verify_references=verify_references))
     errors.extend(_cohort_and_source_errors(document, repo_root=repo_root, verify_references=verify_references))
+    errors.extend(_historical_pair_errors(document))
     errors.extend(_identity_errors(document))
     errors.extend(_attempt_errors(document, repo_root=repo_root, verify_references=verify_references))
     errors.extend(_conclusion_errors(document, repo_root=repo_root, verify_references=verify_references))
@@ -537,6 +538,37 @@ def _identity_errors(document: dict[str, Any]) -> list[str]:
     return errors
 
 
+def _historical_pair_errors(document: dict[str, Any]) -> list[str]:
+    """Validate the matched pre-fix/fixed identity carried by one historical package."""
+    if document["cohort"]["track"] != "historical":
+        if "historical_pair" in document:
+            return ["prospective package must not carry historical_pair identity"]
+        return []
+    errors: list[str] = []
+    pair = document["historical_pair"]
+    source = document["source"]
+    if pair["pre_fix_revision"] != source["base_revision"]:
+        errors.append("historical pre-fix revision must bind source.base_revision")
+    if pair["fixed_revision"] != source["final_diff"]["revision"]:
+        errors.append("historical fixed revision must bind source.final_diff.revision")
+    if pair["pre_fix_revision"] == pair["fixed_revision"]:
+        errors.append("historical pre-fix and fixed revisions must differ")
+    if pair["pre_fix_build"]["revision"] != pair["pre_fix_revision"]:
+        errors.append("historical pre-fix build does not bind pre-fix revision")
+    if pair["fixed_build"]["revision"] != pair["fixed_revision"]:
+        errors.append("historical fixed build does not bind fixed revision")
+    attempts = document["attempt_inventory"]["attempts"]
+    states = [attempt.get("source_state") for attempt in attempts]
+    if any(state not in {"pre_fix", "fixed"} for state in states):
+        errors.append("historical attempts must declare pre_fix or fixed source_state")
+    if states.count("pre_fix") != 3 or states.count("fixed") != 3:
+        errors.append("historical package must contain exactly three pre_fix and three fixed attempts")
+    lanes = [str(attempt["lane_id"]) for attempt in attempts]
+    if len(lanes) != len(set(lanes)):
+        errors.append("historical lane ids must be unique")
+    return errors
+
+
 def _attempt_errors(
     document: dict[str, Any], *, repo_root: Path, verify_references: bool
 ) -> list[str]:
@@ -607,6 +639,8 @@ def _attempt_errors(
         if attempt is None:
             errors.append(f"orphan ledger event {event_id} names {attempt_id}")
             continue
+        if event["source_state"] != attempt.get("source_state"):
+            errors.append(f"ledger event {event_id} source state contradicts attempt {attempt_id}")
         for key in ("lane_id", "attempt_number"):
             if event[key] != attempt[key]:
                 errors.append(f"ledger event {event_id} contradicts attempt {attempt_id} {key}")
@@ -695,6 +729,9 @@ def _cross_check_attempt_artifacts(
             continue
         if isinstance(value, dict) and "attempt_id" in value and value["attempt_id"] != attempt_id:
             errors.append(f"attempt {attempt_id} {label} identity mismatch")
+        if label == "provenance" and isinstance(value, dict):
+            if value.get("source_state") != attempt.get("source_state"):
+                errors.append(f"attempt {attempt_id} provenance source state mismatch")
         if label == "provenance" and isinstance(value, dict) and "attempt_id" not in value:
             errors.append(f"attempt {attempt_id} provenance omits attempt identity")
         if label == "verdict" and isinstance(value, dict):
