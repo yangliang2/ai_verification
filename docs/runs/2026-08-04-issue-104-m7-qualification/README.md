@@ -21,7 +21,7 @@ build or install an APK, drive a device, or support a runtime detection rate.
 
 ## Exact commands and results
 
-All commands ran in the dedicated worktree on commit `73272e229e44a51cdfabb0eb869888fcb3c77d88`.
+All commands ran in the dedicated worktree on commit `26e9dc1138715ee3957540113978109077c723ab`.
 
 ```text
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest tests/bench/test_m7_qualification.py -q
@@ -37,10 +37,13 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m compilea
 passed
 
 (cd docs/runs/2026-08-04-issue-104-m7-qualification && shasum -a 256 -c checksums.sha256)
-8 artifact checksums verified
+9 artifact checksums verified
+
+tmp_dir=$(mktemp -d /tmp/aiverify-m7-build.XXXXXX); git archive HEAD | tar -x -C "$tmp_dir"; uv build --wheel --offline --no-build-logs --out-dir "$tmp_dir/dist" "$tmp_dir"
+Successfully built aiverify-0.1.0-py3-none-any.whl; wheel checksum cbf9e4f4856c6ffff2a01a2cf72832a78b17aa2f3db4f29240754235ddc42bf0; 0.363s
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python docs/runs/2026-08-04-issue-104-m7-qualification/generate_evidence.py
-schema validation passed; 12 lanes generated in 0.033s
+schema validation passed; 12 lanes generated in 0.035s
 
 git diff --check
 passed
@@ -67,6 +70,7 @@ modes each have `6` lanes. Next bounded route:
 - `lane-results.json`: lane accountability, local conclusions, and hashes.
 - `campaign-packages.json`: admitted and final discovery packages.
 - `independent-adjudication.json`: per-lane independent checks.
+- `package-build.json`: offline Python package-build receipt and wheel checksum.
 - `checksums.sha256`: SHA-256 inventory for every JSON artifact above.
 
 The manifest and fixture inputs remain at their committed repository paths. The
