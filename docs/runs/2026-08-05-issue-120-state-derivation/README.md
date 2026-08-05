@@ -42,7 +42,7 @@ Commands were run from the clean worktree
 | Full suite | `/usr/bin/time -p uv run --with pytest pytest -rA` | 803 passed in 24.61 s; wall real 24.98 s |
 | Lint (changed surface) | `uv run --with ruff ruff check src/aiverify/discovery/state_evolution_risk.py src/aiverify/discovery/__init__.py tests/discovery/test_state_evolution_risk.py` | All checks passed |
 | Bytecode | `/usr/bin/time -p uv run python -m compileall -q src tests` | Exit 0; real 0.04 s |
-| Contract/schema/replay seam | `uv run python - <<'PY' ...` (loads the state context, derives both modes through `derive_with_strategy`, validates all four contracts, round-trips them, checks 4 leakage terms, and asserts no Finding) | `schema_valid=true`, project/change accepted, deterministic IDs, `finding_count=0`, `leakage_checks=4`; real 0.35 s |
+| Contract/schema/replay seam | `/usr/bin/time -p uv run python docs/runs/2026-08-05-issue-120-state-derivation/artifacts/contract_seam_check.py` | `schema_valid=true`, project/change accepted, deterministic IDs, `finding_count=0`, `leakage_checks=4`; real 0.34 s |
 | Package | `/usr/bin/time -p uv build --out-dir /tmp/aiverify-m8-120-dist.cJ9vIc` | Source and wheel built successfully; real 0.96 s |
 
 The package identity was `aiverify` version `0.1.0`. The wheel is 275,937
@@ -53,6 +53,7 @@ digests are in [`artifacts/checksums.sha256`](artifacts/checksums.sha256).
 
 - [`artifacts/aiverify-0.1.0-py3-none-any.whl`](artifacts/aiverify-0.1.0-py3-none-any.whl)
 - [`artifacts/aiverify-0.1.0.tar.gz`](artifacts/aiverify-0.1.0.tar.gz)
+- [`artifacts/contract_seam_check.py`](artifacts/contract_seam_check.py)
 - [`artifacts/checksums.sha256`](artifacts/checksums.sha256)
 
 No Android package, emulator, screenshot, layout dump, logcat, or device
