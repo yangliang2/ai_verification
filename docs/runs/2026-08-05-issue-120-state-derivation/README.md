@@ -3,7 +3,7 @@
 Date: 2026-08-05<br>
 Baseline: `origin/main` at `8b80e6e07a51d72783cac410e813b3b144d1e4f1`<br>
 Working branch: `m8-120-state-derivation`<br>
-Implementation revision: `eabfcb7` (evidence and implementation commit)
+Implementation revision: `8d8c201` (implementation plus hardening; evidence artifacts rebuilt)
 
 ## Scope and result
 
@@ -43,10 +43,10 @@ Commands were run from the clean worktree
 | Lint (changed surface) | `uv run --with ruff ruff check src/aiverify/discovery/state_evolution_risk.py src/aiverify/discovery/__init__.py tests/discovery/test_state_evolution_risk.py` | All checks passed |
 | Bytecode | `/usr/bin/time -p uv run python -m compileall -q src tests` | Exit 0; real 0.10 s |
 | Contract/schema/replay seam | `uv run python - <<'PY' ...` (loads the state context, derives both modes through `derive_with_strategy`, validates all four contracts, round-trips them, checks 4 leakage terms, and asserts no Finding) | `schema_valid=true`, project/change accepted, deterministic IDs, `finding_count=0`, `leakage_checks=4`; real 0.35 s |
-| Package | `/usr/bin/time -p uv build --out-dir /tmp/aiverify-m8-120-dist.hSQrNv` | Source and wheel built successfully; real 0.82 s |
+| Package | `/usr/bin/time -p uv build --out-dir /tmp/aiverify-m8-120-dist.Dj1Tgh` | Source and wheel built successfully; real 2.72 s |
 
-The package identity was `aiverify` version `0.1.0`. The wheel is 275,772
-bytes and the source archive is 246,882 bytes. Durable artifacts and SHA-256
+The package identity was `aiverify` version `0.1.0`. The wheel is 275,880
+bytes and the source archive is 247,043 bytes. Durable artifacts and SHA-256
 digests are in [`artifacts/checksums.sha256`](artifacts/checksums.sha256).
 
 ## Artifact inventory
