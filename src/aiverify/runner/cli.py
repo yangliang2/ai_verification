@@ -21,6 +21,7 @@ import argparse
 import json
 import sys
 import time
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -974,6 +975,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         launch: bool = True, model: str | None = None,
         l3_model: str | None = None,
         instruction_prefix: str | None = None,
+        pre_run_setup: Callable[[], object] | None = None,
         preflight_command_runner: CommandRunner | None = None,
         run_spec_path: Path | None = None,
         identity_command_runner: CommandRunner | None = None,
@@ -989,6 +991,25 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         scenario=spec.scenario.id,
         started_at=started_at,
     )
+    if pre_run_setup is not None:
+        setup_start = time.monotonic()
+        try:
+            pre_run_setup()
+        except Exception as error:  # noqa: BLE001 - setup is an accountable phase
+            return _write_failed_run_verdict(
+                spec=spec,
+                reason="pre_run_setup_error",
+                phase="pre-run-setup",
+                kind="setup",
+                error=error,
+                artifact_dir=artifact_dir,
+                started_at=started_at,
+                run_start=run_start,
+                phase_start=setup_start,
+                preflight_summary=None,
+                preflight_timing=None,
+                execution_record=execution_record,
+            )
     identity_start = time.monotonic()
     if identity_collector is None:
         identity_collector = ExecutionIdentityCollector(

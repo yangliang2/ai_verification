@@ -29,7 +29,8 @@ run.
 - `adb version`: `1.0.41`, platform `37.0.0-14910828`.
 - `codex --version`: `codex-cli 0.144.6` (not invoked in a formal lane because identity failed first).
 - `./gradlew --offline :app:assembleDebug` in each detached variant: control 2.727 s, defect 2.440 s; both APK metadata and no-INTERNET permission checks passed.
-- `uv run pytest -q`: 820 tests collected and passed; latest wall time 26.83 s.
+- `uv run pytest -q`: 821 tests collected and passed; final wall time 55.98 s
+  (the environment had a slower second half than the earlier 28.32 s run).
 - `uv build --out-dir package`: source distribution and wheel built successfully.
 - Isolated wheel import check: `aiverify`, `aiverify.bench.m8_formal`, and `aiverify.runner.execution_identity` imported successfully.
 
@@ -45,8 +46,17 @@ run.
 - `attempt-inventory.jsonl`: append-only 12-row inventory, one attempt each.
 - `independent-adjudication.json`: ordered accounting, mode-separated cells,
   mapping, oracle/reduction and claim checks.
+- `independent-adjudication-final-v2.json`: post-run independent reconciliation that
+  reloads all 12 terminal records, oracle/reduction receipts, per-lane
+  checksums, attribution, leakage, separate denominators, and claim boundary;
+  it explicitly flags the original static migration receipts as unsupported.
+- `admission_check.py` and `audit_reconciliation.py`: exact, side-effect-free
+  regeneration/audit entry points used by the verification receipt.
 - `post-run-diagnosis.json` and `post-run-amendment.json`: root cause, corrective
   action, and explicit no-rerun boundary.
+- `formal-summary-amendment.json`, `verification-commands.json`, and
+  `root-worktree-preservation.json`: final claim, command/timing/tool receipt,
+  and caller dirty-root guard.
 - `package/`: committed wheel and sdist; `package-verification.json` records
   sizes, SHA-256 digests, and isolated import check.
 - `checksums.sha256`, each lane's `checksums.sha256`, and
@@ -54,8 +64,8 @@ run.
 
 Important package checksums:
 
-- wheel: `d655ca03fd08c1977504530264a6f7dd9cd147cb7edf97d5a040794a32424a37` (300563 bytes)
-- sdist: `f22bbd25587242e7825e3fd91ebbf8ecad75080e51bbab5562cf573f6af094e2` (269385 bytes)
+- wheel: `d908096b6f10cd9110fbfbdc049036773644ed367773e47c355cc853fb184fac` (304943 bytes)
+- sdist: `00ae5f930e85250df81e921c5a7564d70535378a5d2cf1e89e37afa25c201412` (273753 bytes)
 - control APK: `ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e` (930614 bytes)
 - defect APK: `32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe` (930611 bytes)
 
@@ -72,3 +82,22 @@ non-accountable/inconclusive.
 Claim boundary: frozen local fixture, exact recorded admission, and terminal
 execution-accounting facts only. No Android generality, OEM/physical-device,
 production, benchmark-rate, or M7-combined claim is made.
+
+## Post-run reconciliation and immutability
+
+The original 12 lane attempts are immutable. The common identity-capture
+failure was diagnosed after the run and fixed in runner commit `22af9b2`; the
+frozen cohort was not retried or replaced. The formal code now verifies the
+checksum-bound Effective Execution Identity before accounting, requires an
+observed old-to-current state transition before issuing migration evidence,
+and fails closed when durable lane artifacts cannot be reloaded. These changes
+are admission hardening for a future freshly frozen qualification and do not
+alter this run's denominator.
+
+`independent-adjudication-final-v2.json` records 12/12 ordered attempts, one attempt
+per lane, 0/12 accountable, separate change/project denominators of 0/6
+accountable (6 excluded in each), and an `inconclusive` qualification
+conclusion. Its artifact reconciliation check fails closed on the pre-fix
+static migration receipts; this is retained as a known evidence gap rather
+than relabeled as runtime support. The original `formal-summary.json`,
+inventory, lane receipts, and no-rerun diagnosis remain preserved.

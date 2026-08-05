@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "purpose": "post-run reconciliation and fail-closed evidence amendment",
+  "source_revision_under_test": "7da121f",
+  "runner_compatibility_fix": "22af9b2",
+  "frozen_manifest_sha256": "95bc0af23a22ee93ba1f8011c6b05734e61dc5d2b9fdb9e044f55714700b361a",
+  "raw_formal_summary": "formal-summary.json",
+  "independent_adjudication": "independent-adjudication-final-v2.json",
+  "lane_accounting": {
+    "ordered_lanes": 12,
+    "attempts_per_lane": 1,
+    "accountable": 0,
+    "non_accountable": 12,
+    "retries_or_replacements": 0,
+    "install_or_launch_reached": false
+  },
+  "separate_denominators": {
+    "change": {"denominator": 6, "accountable": 0, "excluded": 6},
+    "project": {"denominator": 6, "accountable": 0, "excluded": 6}
+  },
+  "qualification_conclusion": "inconclusive",
+  "claim_boundary": "frozen local fixture, exact recorded admission, terminal accounting facts, and no runtime state-evolution claim",
+  "no_rerun_boundary": "the corrected runner and fail-closed migration/identity checks are not substituted into the frozen one-attempt population"
+}

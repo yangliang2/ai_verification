@@ -37,6 +37,8 @@ from aiverify.bench.state_evolution import (
     StateEvolutionContractError,
     judge_state_evolution,
     load_state_evolution_contract,
+    _migration_evidence_accountable,
+    _read_layout_observation,
     verify_state_evolution_matched_pair,
     verify_state_evolution_provenance,
 )
@@ -47,11 +49,16 @@ from aiverify.discovery.state_evolution_risk import (
     make_state_evolution_strategy,
 )
 from aiverify.runner.cli import build_instruction_prefix, run as run_spec
-from aiverify.runner.execution_record import load_execution_record
+from aiverify.runner.execution_identity import (
+    ExecutionIdentityError,
+    verify_execution_provenance,
+)
+from aiverify.runner.execution_record import ExecutionRecordStore, load_execution_record
 from aiverify.runner.run_spec import load_run_spec
 
 
 MERGED_121_COMMIT = "f1027c15e9a6def81f5a1cc7bdf80b2a870ec07b"
+FROZEN_MANIFEST_SHA256 = "95bc0af23a22ee93ba1f8011c6b05734e61dc5d2b9fdb9e044f55714700b361a"
 DEFAULT_MANIFEST = "bench/m8/m8-state-evolution-qualification-v1.json"
 DEFAULT_ARTIFACT_ROOT = "docs/runs/2026-08-05-issue-122-formal-execution"
 DEFAULT_DEVICE = "emulator-5554"
@@ -309,8 +316,73 @@ def _record_state_observations(artifact_dir: Path, out: Path) -> tuple[dict[str,
 
 
 def _migration_receipt(contract: Any, state_observations_path: Path) -> dict[str, Any]:
-    """Bind one observed migration boundary without encoding a result label."""
+    """Bind a migration only when the recorded states show its boundary.
 
+    A contract by itself is not runtime evidence.  In particular, a lane that
+    failed before collecting state observations must not receive a synthetic
+    ``passed/count=1`` migration receipt.
+    """
+
+    provenance = {
+        "artifact_ref": str(state_observations_path),
+        "sha256": _sha256(state_observations_path),
+    }
+    observed = False
+    observation_error: str | None = None
+    try:
+        payload = _load_json(state_observations_path)
+        raw_observations = payload.get("observations")
+        if not isinstance(raw_observations, Mapping):
+            raise ValueError("state observations are missing")
+        observations: dict[str, Any] = {}
+        for name in ("initial", "rotation", "process_death", "backup_restore"):
+            entry = raw_observations.get(name)
+            if not isinstance(entry, Mapping) or entry.get("present") is not True:
+                raise ValueError(f"{name} observation is missing")
+            observations[name] = entry.get("layout")
+        old_state = {
+            "sentinel": contract.old_state.sentinel,
+            "schema_version": str(contract.old_state.schema_version),
+            "revision": str(contract.old_state.revision),
+            "migration_status": contract.old_state.migration_status,
+        }
+        current_state = {
+            "sentinel": contract.current_state.sentinel,
+            "schema_version": str(contract.current_state.schema_version),
+            "revision": str(contract.current_state.revision),
+            "migration_status": contract.current_state.migration_status,
+        }
+        observed = all(
+            _read_layout_observation(observations[name], contract.resources) == old_state
+            for name in ("initial", "rotation", "process_death")
+        ) and _read_layout_observation(
+            observations["backup_restore"], contract.resources
+        ) == current_state
+        if not observed:
+            observation_error = "recorded states do not show one old-to-current migration boundary"
+    except (OSError, TypeError, ValueError, json.JSONDecodeError) as error:
+        observation_error = f"{type(error).__name__}: {error}"
+
+    if not observed:
+        provenance["status"] = "not_observed"
+        return {
+            "schema_version": 1,
+            "status": "not_observed",
+            "count": 0,
+            "edge_id": contract.migration.edge_id,
+            "applied_edge_ids": [],
+            "from_schema": contract.migration.from_schema,
+            "to_schema": contract.migration.to_schema,
+            "from_revision": contract.migration.from_revision,
+            "to_revision": contract.migration.to_revision,
+            "exactly_once": False,
+            "boundary": contract.recovery.boundary_id,
+            "reason": observation_error or "migration boundary was not observed",
+            "provenance": provenance,
+            "claim_boundary": CLAIM_BOUNDARY,
+        }
+
+    provenance["status"] = "passed"
     return {
         "schema_version": 1,
         "status": "passed",
@@ -345,7 +417,7 @@ def _effective_identity(
         "package": PACKAGE,
         "activity": ACTIVITY,
         "state_epoch": STATE_EPOCH,
-        "requested_model": "codex-default",
+        "requested_model": driver.get("requested_model"),
         "effective_model": driver.get("invocations", [{}])[0].get("effective_model")
         if isinstance(driver, Mapping) and driver.get("invocations")
         else None,
@@ -353,6 +425,7 @@ def _effective_identity(
         "execution_provenance": {
             "path": str(provenance_path),
             "sha256": _sha256(provenance_path),
+            "verification": "verify_execution_provenance",
         },
         "host": provenance.get("host"),
         "source": provenance.get("run_spec"),
@@ -385,6 +458,287 @@ def _write_global_checksums(root: Path) -> Path:
     return path
 
 
+def _verify_checksum_file(path: Path) -> tuple[bool, str]:
+    """Verify one durable checksum ledger without trusting its labels."""
+
+    try:
+        lines = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    except OSError as error:
+        return False, f"cannot read checksum ledger: {error}"
+    for line in lines:
+        try:
+            expected, relative = line.split("  ", 1)
+        except ValueError:
+            return False, f"malformed checksum line: {line!r}"
+        target = path.parent / relative
+        try:
+            target.resolve().relative_to(path.parent.resolve())
+        except ValueError:
+            return False, f"checksum target escapes lane: {relative}"
+        if not target.is_file():
+            return False, f"missing checksum target: {relative}"
+        if _sha256(target) != expected:
+            return False, f"checksum mismatch: {relative}"
+    return True, f"{len(lines)} entries verified"
+
+
+def _audit_lane_artifacts(
+    *,
+    lane: Mapping[str, Any],
+    result: Mapping[str, Any],
+    lane_dir: Path,
+    run_spec_data: Mapping[str, Any] | None,
+    contract: Any | None = None,
+) -> tuple[bool, str]:
+    """Reload authoritative lane artifacts for the independent adjudicator."""
+
+    try:
+        record = load_execution_record(lane_dir / "execution-record.json")
+        if record.get("lifecycle_state") == "in_progress":
+            return False, "ExecutionRecord is not terminal"
+        execution = record.get("execution", {})
+        record_accountable = (
+            record.get("lifecycle_state") == "completed"
+            and isinstance(execution, Mapping)
+            and execution.get("status") == "completed"
+            and execution.get("accounting_eligible") is True
+        )
+        if record_accountable != bool(result.get("accountable")):
+            return False, "ExecutionRecord accounting contradicts inventory"
+        oracle = _load_json(lane_dir / "oracle.json")
+        if oracle.get("conclusion") != result.get("oracle_conclusion"):
+            return False, "oracle conclusion contradicts inventory"
+        if bool(oracle.get("accountable")) != bool(result.get("accountable")):
+            return False, "oracle accountability contradicts inventory"
+        reduction = _load_json(lane_dir / "reduction.json")
+        if not result.get("accountable") and reduction.get("residual_risk") is None:
+            return False, "non-accountable lane has no residual risk"
+        attempt = reduction.get("attempt")
+        if not isinstance(attempt, Mapping):
+            return False, "reduction has no attempt receipt"
+        migration = _load_json(lane_dir / "migration-evidence.json")
+        if contract is not None:
+            expected_migration = _migration_receipt(
+                contract, lane_dir / "state-observations.json"
+            )
+            for key in ("status", "count", "edge_id", "exactly_once"):
+                if migration.get(key) != expected_migration.get(key):
+                    return False, f"migration {key} contradicts observed state evidence"
+            if migration.get("provenance", {}).get("sha256") != expected_migration.get("provenance", {}).get("sha256"):
+                return False, "migration provenance does not bind state observations"
+            if result.get("accountable") and not _migration_evidence_accountable(migration, contract):
+                return False, "accountable lane migration receipt contradicts the frozen contract"
+        for key in ("target_id", "hypothesis_id"):
+            if attempt.get(key) != lane.get(key):
+                return False, f"reduction {key} contradicts manifest"
+        checks_ok, checks_detail = _verify_checksum_file(lane_dir / "checksums.sha256")
+        if not checks_ok:
+            return False, checks_detail
+        if result.get("accountable"):
+            verdict = _load_json(lane_dir / "verdict.json")
+            refs = verdict.get("evidence", [])
+            if not isinstance(refs, list) or not refs:
+                return False, "accountable verdict has no evidence references"
+            for item in refs:
+                if not isinstance(item, Mapping) or not isinstance(item.get("ref"), str):
+                    return False, "accountable verdict has an invalid evidence reference"
+                ref_path = Path(item["ref"])
+                if not (ref_path if ref_path.is_absolute() else lane_dir / ref_path).is_file():
+                    return False, f"missing accountable evidence reference: {item['ref']}"
+        if result.get("accountable"):
+            provenance = lane_dir / "execution-provenance.json"
+            identity = lane_dir / "effective-execution-identity.json"
+            if not provenance.is_file() or not identity.is_file():
+                return False, "accountable lane is missing identity artifacts"
+            effective_identity = _load_json(identity)
+            binding = effective_identity.get("execution_provenance")
+            if not isinstance(binding, Mapping) or binding.get("sha256") != _sha256(provenance):
+                return False, "effective identity is not bound to provenance bytes"
+            if not isinstance(run_spec_data, Mapping):
+                return False, "accountable lane is missing Run Spec identity"
+            verify_execution_provenance(
+                {"path": str(provenance), "sha256": _sha256(provenance)},
+                attempt_id=str(record["attempt_id"]),
+                scenario=str(run_spec_data["scenario"]["id"]),
+                base_dir=lane_dir,
+            )
+        return True, f"terminal record, oracle, reduction, and {checks_detail}"
+    except (OSError, KeyError, TypeError, ValueError, ExecutionIdentityError) as error:
+        return False, f"artifact audit failed: {type(error).__name__}: {error}"
+
+
+def _recover_lane_exception(
+    *,
+    lane: Mapping[str, Any],
+    package: Any,
+    lane_dir: Path,
+    error: Exception,
+    build_receipt: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Turn an unexpected lane-driver exception into one durable terminal row."""
+
+    lane_dir.mkdir(parents=True, exist_ok=True)
+    error_path = lane_dir / "lane-exception.json"
+    if not error_path.exists():
+        _write_json(
+            error_path,
+            {"type": type(error).__name__, "message": str(error), "attempt": 1},
+        )
+    record_path = lane_dir / "execution-record.json"
+    if record_path.is_file():
+        record = load_execution_record(record_path)
+        if record.get("lifecycle_state") == "in_progress":
+            started = str(record["started_at"])
+            store = ExecutionRecordStore(
+                path=record_path,
+                attempt_id=str(record["attempt_id"]),
+            )
+            record = store.finalize(
+                lifecycle_state="failed",
+                execution={
+                    "status": "non_accountable",
+                    "accounting_eligible": False,
+                    "reason": "lane_driver_exception",
+                    "message": str(error),
+                },
+                process_exit_code=2,
+                timing={
+                    "started_at": started,
+                    "finished_at": started,
+                    "total_seconds": 0.0,
+                    "phases": [],
+                },
+                phase_errors=[
+                    {
+                        "phase": "formal-lane-driver",
+                        "kind": "driver",
+                        "reason": "lane_driver_exception",
+                        "message": str(error),
+                    }
+                ],
+                evidence_refs={},
+            )
+    else:
+        started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        store = ExecutionRecordStore.establish(
+            lane_dir,
+            artifact_dir=lane_dir / "artifacts",
+            scenario=str(lane.get("scenario_id", lane["lane_id"])),
+            started_at=started,
+        )
+        record = store.finalize(
+            lifecycle_state="failed",
+            execution={
+                "status": "non_accountable",
+                "accounting_eligible": False,
+                "reason": "lane_driver_exception",
+                "message": str(error),
+            },
+            process_exit_code=2,
+            timing={
+                "started_at": started,
+                "finished_at": started,
+                "total_seconds": 0.0,
+                "phases": [],
+            },
+            phase_errors=[
+                {
+                    "phase": "formal-lane-driver",
+                    "kind": "driver",
+                    "reason": "lane_driver_exception",
+                    "message": str(error),
+                }
+            ],
+            evidence_refs={},
+        )
+    state_path = lane_dir / "state-observations.json"
+    if not state_path.exists():
+        _write_json(
+            state_path,
+            {
+                "schema_version": 1,
+                "missing": ["all"],
+                "claim_boundary": CLAIM_BOUNDARY,
+            },
+        )
+    migration_path = lane_dir / "migration-evidence.json"
+    if not migration_path.exists():
+        _write_json(
+            migration_path,
+            {
+                "schema_version": 1,
+                "status": "not_observed",
+                "count": 0,
+                "reason": "lane driver exception before migration observation",
+                "claim_boundary": CLAIM_BOUNDARY,
+            },
+        )
+    oracle_path = lane_dir / "oracle.json"
+    if oracle_path.exists():
+        oracle = _load_json(oracle_path)
+    else:
+        oracle = {
+            "schema_version": 1,
+            "oracle": "m8-state-evolution-v1",
+            "conclusion": "non_accountable",
+            "classification": "inconclusive",
+            "reason": "lane_driver_exception",
+            "accountable": False,
+            "claim_boundary": CLAIM_BOUNDARY,
+        }
+        _write_json(oracle_path, oracle)
+    reduction_path = lane_dir / "reduction.json"
+    if reduction_path.exists():
+        reduction = _load_json(reduction_path)
+        attempt = reduction.get("attempt", {})
+        if not isinstance(attempt, Mapping):
+            raise M8FormalExecutionError("existing lane reduction has no attempt")
+        if not (lane_dir / "checksums.sha256").exists():
+            _write_lane_checksums(lane_dir)
+        return {
+            "lane_id": str(lane["lane_id"]),
+            "cell_id": str(lane["cell_id"]),
+            "target_mode": str(lane["target_mode"]),
+            "target_id": str(lane["target_id"]),
+            "hypothesis_id": str(lane["hypothesis_id"]),
+            "attempt": 1,
+            "accountable": False,
+            "outcome": "non_accountable",
+            "oracle_conclusion": oracle.get("conclusion", "non_accountable"),
+            "oracle_classification": oracle.get("classification"),
+            "oracle_reason": oracle.get("reason"),
+            "reduction": "finding" if reduction.get("finding") is not None else "residual_risk",
+            "reduction_ref": "reduction.json",
+            "execution_record": "execution-record.json",
+            "state_observations": "state-observations.json",
+            "identity": None,
+            "identity_verified": False,
+            "execution_evidence_validated": False,
+            "claim_boundary": CLAIM_BOUNDARY,
+            "status": "non_accountable",
+            "build": dict(build_receipt),
+            "checksums": "checksums.sha256",
+        }
+    result, _ = _terminal_attempt(
+        package=package,
+        lane=lane,
+        lane_dir=lane_dir,
+        record=record,
+        oracle=oracle,
+        identity_path=None,
+        identity_verified=False,
+        verdict=None,
+        state_observations_path=state_path,
+    )
+    _write_lane_checksums(lane_dir)
+    return {
+        **result,
+        "status": "non_accountable",
+        "build": dict(build_receipt),
+        "checksums": "checksums.sha256",
+    }
+
+
 def _terminal_attempt(
     *,
     package: Any,
@@ -393,37 +747,63 @@ def _terminal_attempt(
     record: Mapping[str, Any] | None,
     oracle: Mapping[str, Any],
     identity_path: Path | None,
+    identity_verified: bool,
+    verdict: Mapping[str, Any] | None,
     state_observations_path: Path,
 ) -> tuple[dict[str, Any], Any]:
-    accountable = bool(
+    candidate_accountable = bool(
         record
         and record.get("lifecycle_state") == "completed"
         and isinstance(record.get("execution"), Mapping)
         and record["execution"].get("accounting_eligible") is True
         and identity_path is not None
+        and identity_verified
         and oracle.get("accountable") is True
     )
     conclusion = str(oracle.get("conclusion", "inconclusive"))
+    validated_execution: AttemptEvidence | None = None
+    validation_error: str | None = None
+    if candidate_accountable and verdict is not None and record is not None:
+        try:
+            validated_execution = AttemptEvidence.from_execution(
+                target_id=str(lane["target_id"]),
+                hypothesis_id=str(lane["hypothesis_id"]),
+                attempt_ref=f"{lane['lane_id']}-attempt-01",
+                execution_record_ref="execution-record.json",
+                execution_record=record,
+                verdict=verdict,
+                claim_boundary=CLAIM_BOUNDARY,
+                rationale=str(oracle.get("reason", "state oracle terminal")),
+                execution_identity_sha256=_sha256(identity_path),
+            )
+            expected_outcome = (
+                "supported" if conclusion == "locally_supported" else "rejected"
+            )
+            if validated_execution.outcome != expected_outcome:
+                validation_error = (
+                    "runner verdict outcome contradicts the state oracle: "
+                    f"{validated_execution.outcome} != {expected_outcome}"
+                )
+                validated_execution = None
+        except Exception as error:  # noqa: BLE001 - evidence must fail closed
+            validation_error = f"{type(error).__name__}: {error}"
+    else:
+        validation_error = "authoritative execution artifacts are incomplete"
+    accountable = candidate_accountable and validated_execution is not None
     if accountable:
+        if conclusion not in {"locally_supported", "locally_rejected"}:
+            accountable = False
         outcome = "supported" if conclusion == "locally_supported" else "rejected"
+    if accountable:
         rationale = str(oracle.get("reason", "state oracle terminal"))
-        refs = (
-            "state-observations.json",
-            "migration-evidence.json",
-            "oracle.json",
-            "execution-record.json",
-            "execution-provenance.json",
-            "effective-execution-identity.json",
-            "verdict.json",
-        )
         evidence = AttemptEvidence(
-            evidence_id=f"evidence-{lane['lane_id']}",
+            evidence_id=validated_execution.evidence_id,
             target_id=str(lane["target_id"]),
             hypothesis_id=str(lane["hypothesis_id"]),
             attempt_ref=f"{lane['lane_id']}-attempt-01",
             execution_record_ref="execution-record.json",
             outcome=outcome,
-            evidence_refs=refs,
+            evidence_refs=validated_execution.evidence_refs,
             claim_boundary=CLAIM_BOUNDARY,
             rationale=rationale,
             accountable=True,
@@ -431,6 +811,8 @@ def _terminal_attempt(
         )
     else:
         reason = str(oracle.get("reason", "non-accountable execution"))
+        if validation_error is not None and candidate_accountable:
+            reason = f"execution evidence validation failed: {validation_error}"
         evidence = AttemptEvidence(
             evidence_id=f"evidence-{lane['lane_id']}",
             target_id=str(lane["target_id"]),
@@ -456,6 +838,10 @@ def _terminal_attempt(
     _write_json(lane_dir / "reduction.json", reduction_payload)
     return {
         "lane_id": str(lane["lane_id"]),
+        "cell_id": str(lane["cell_id"]),
+        "target_mode": str(lane["target_mode"]),
+        "target_id": str(lane["target_id"]),
+        "hypothesis_id": str(lane["hypothesis_id"]),
         "attempt": 1,
         "accountable": accountable,
         "outcome": outcome if accountable else "non_accountable",
@@ -467,6 +853,8 @@ def _terminal_attempt(
         "execution_record": "execution-record.json",
         "state_observations": "state-observations.json",
         "identity": "effective-execution-identity.json" if identity_path else None,
+        "identity_verified": identity_verified,
+        "execution_evidence_validated": validated_execution is not None,
         "claim_boundary": CLAIM_BOUNDARY,
     }, updated
 
@@ -484,35 +872,21 @@ def _run_lane(
 ) -> dict[str, Any]:
     lane_dir = artifact_root / str(lane["lane_id"])
     lane_dir.mkdir(parents=True, exist_ok=False)
-    setup = _command(["adb", "-s", device, "shell", "pm", "clear", PACKAGE], timeout=60)
-    _write_json(lane_dir / "lane-setup.json", setup)
-    if setup["returncode"] != 0:
-        oracle = {
-            "schema_version": 1,
-            "oracle": "m8-state-evolution-v1",
-            "conclusion": "inconclusive",
-            "classification": "inconclusive",
-            "reason": "lane_setup_failed",
-            "accountable": False,
-            "claim_boundary": CLAIM_BOUNDARY,
-        }
-        _write_json(lane_dir / "state-observations.json", {"missing": ["all"], "claim_boundary": CLAIM_BOUNDARY})
-        _write_json(lane_dir / "oracle.json", oracle)
-        result, _ = _terminal_attempt(
-            package=package,
-            lane=lane,
-            lane_dir=lane_dir,
-            record=None,
-            oracle=oracle,
-            identity_path=None,
-            state_observations_path=lane_dir / "state-observations.json",
-        )
-        _write_lane_checksums(lane_dir)
-        return {**result, "setup": setup, "status": "non_accountable", "build": dict(build_receipt)}
-
     record: Mapping[str, Any] | None = None
+    verdict: Mapping[str, Any] | None = None
     provenance: Mapping[str, Any] | None = None
     identity_path: Path | None = None
+    identity_verified = False
+
+    def pre_run_setup() -> dict[str, Any]:
+        setup = _command(["adb", "-s", device, "shell", "pm", "clear", PACKAGE], timeout=60)
+        _write_json(lane_dir / "lane-setup.json", setup)
+        if setup["returncode"] != 0:
+            raise M8FormalExecutionError(
+                f"lane setup failed: returncode={setup['returncode']}"
+            )
+        return setup
+
     try:
         spec = load_run_spec(spec_path)
         verdict = run_spec(
@@ -524,6 +898,7 @@ def _run_lane(
             instruction_prefix=_neutral_instruction_prefix(device),
             run_spec_path=spec_path,
             allow_host_project_subdir=True,
+            pre_run_setup=pre_run_setup,
         )
         _write_json(lane_dir / "runner-return.json", verdict)
         record_path = lane_dir / "execution-record.json"
@@ -532,8 +907,24 @@ def _run_lane(
         provenance_path = lane_dir / "execution-provenance.json"
         if provenance_path.is_file():
             provenance = _load_json(provenance_path)
+            if record is None:
+                raise ExecutionIdentityError("execution record is missing for provenance")
+            verified = verify_execution_provenance(
+                {
+                    "path": str(provenance_path),
+                    "sha256": _sha256(provenance_path),
+                },
+                attempt_id=str(record["attempt_id"]),
+                scenario=spec.scenario.id,
+                base_dir=lane_dir,
+            )
             identity_path = lane_dir / "effective-execution-identity.json"
-            _effective_identity(provenance=provenance, provenance_path=provenance_path, out=identity_path)
+            _effective_identity(
+                provenance=verified,
+                provenance_path=provenance_path,
+                out=identity_path,
+            )
+            identity_verified = True
     except Exception as error:  # noqa: BLE001 - one lane must terminate without retry
         _write_json(
             lane_dir / "lane-error.json",
@@ -558,11 +949,11 @@ def _run_lane(
     except Exception as error:  # noqa: BLE001 - oracle must fail closed
         process_event = {"event": "process_death", "status": "missing", "error": str(error)}
         backup_event = {"event": "backup_restore", "status": "missing", "error": str(error)}
-    execution_identity = {
-        "package": PACKAGE,
-        "activity": ACTIVITY,
-        "state_epoch": STATE_EPOCH,
-    }
+    execution_identity: Mapping[str, Any] | None = None
+    if identity_verified and identity_path is not None:
+        # The state oracle consumes the verified effective identity receipt,
+        # rather than a driver-synthesized three-field identity.
+        execution_identity = _load_json(identity_path)
     process_outcome = record.get("process_outcome") if isinstance(record, Mapping) else None
     crash_detected = bool(
         record
@@ -591,13 +982,17 @@ def _run_lane(
         record=record,
         oracle=oracle,
         identity_path=identity_path,
+        identity_verified=identity_verified,
+        verdict=verdict,
         state_observations_path=state_path,
     )
     _write_lane_checksums(lane_dir)
     return {
         **result,
         "status": "completed" if result["accountable"] else "non_accountable",
-        "setup": setup,
+        "setup": _load_json(lane_dir / "lane-setup.json")
+        if (lane_dir / "lane-setup.json").is_file()
+        else None,
         "build": dict(build_receipt),
         "spec": str(spec_path),
         "spec_sha256": _sha256(spec_path),
@@ -613,6 +1008,9 @@ def _audit_reconciliation(
     results: Sequence[Mapping[str, Any]],
     mapping: Mapping[str, str],
     out: Path,
+    preflight: Mapping[str, Any] | None = None,
+    artifact_root: Path | None = None,
+    contract: Any | None = None,
 ) -> dict[str, Any]:
     by_lane = {str(item["lane_id"]): item for item in results}
     expected_lanes = [str(item["lane_id"]) for item in manifest.lanes]
@@ -626,8 +1024,97 @@ def _audit_reconciliation(
     check("no_duplicate_lane", len(by_lane) == len(results) == len(expected_lanes), "append-only inventory has one terminal row per lane")
     check("mapping_release", mapping == {"control": "base", "fault": "changed"}, "matched-pair mapping identity")
 
+    expected_by_lane = {str(lane["lane_id"]): lane for lane in manifest.lanes}
+    attribution_ok = True
+    attribution_detail: list[str] = []
+    for result in results:
+        lane_id = str(result.get("lane_id"))
+        lane = expected_by_lane.get(lane_id)
+        if lane is None:
+            attribution_ok = False
+            attribution_detail.append(f"unknown lane {lane_id}")
+            continue
+        expected_variant = "defect" if str(lane["cell_id"]).endswith("defect") else "control"
+        expected_source = mapping["fault" if expected_variant == "defect" else "control"]
+        observed_variant = result.get("variant") or result.get("build", {}).get("variant")
+        observed_source = result.get("variant_source")
+        if observed_variant is not None and observed_variant != expected_variant:
+            attribution_ok = False
+            attribution_detail.append(f"{lane_id}: variant")
+        if observed_source is not None and observed_source != expected_source:
+            attribution_ok = False
+            attribution_detail.append(f"{lane_id}: source")
+        if result.get("target_id") not in {None, lane.get("target_id")}:
+            attribution_ok = False
+            attribution_detail.append(f"{lane_id}: target")
+        if result.get("hypothesis_id") not in {None, lane.get("hypothesis_id")}:
+            attribution_ok = False
+            attribution_detail.append(f"{lane_id}: hypothesis")
+    check(
+        "attribution",
+        attribution_ok,
+        "manifest target/hypothesis and matched variant attribution agree"
+        if attribution_ok
+        else "; ".join(attribution_detail),
+    )
+    leakage = preflight.get("leakage_audit") if isinstance(preflight, Mapping) else None
+    leakage_ok = (
+        isinstance(leakage, Mapping)
+        and leakage.get("status") == "pass"
+        and leakage.get("packet_count") == len(expected_lanes)
+        and all(item.get("status") == "pass" for item in leakage.get("checks", []))
+    )
+    check("leakage", leakage_ok, "preflight leakage audit passed for every packet")
+    claim_ok = all(
+        result.get("claim_boundary") == CLAIM_BOUNDARY for result in results
+    )
+    check("claim_boundary", claim_ok, "every lane is bounded to the local fixture and execution identity")
+
+    artifact_ok = artifact_root is not None
+    artifact_details: list[str] = []
+    if artifact_root is not None:
+        preflight_lanes = {
+            str(item.get("lane_id")): item
+            for item in (preflight.get("lanes", []) if isinstance(preflight, Mapping) else [])
+        }
+        for lane in manifest.lanes:
+            lane_id = str(lane["lane_id"])
+            result = by_lane.get(lane_id)
+            if result is None:
+                artifact_ok = False
+                artifact_details.append(f"{lane_id}: missing result")
+                continue
+            ok, detail = _audit_lane_artifacts(
+                lane=lane,
+                result=result,
+                lane_dir=artifact_root / lane_id,
+                run_spec_data=preflight_lanes.get(lane_id, {}).get("run_spec"),
+                contract=contract,
+            )
+            if not ok:
+                artifact_ok = False
+                artifact_details.append(f"{lane_id}: {detail}")
+    check(
+        "artifact_reconciliation",
+        artifact_ok,
+        "all lane records/oracles/reductions/checksums reloaded and verified"
+        if artifact_ok
+        else "; ".join(artifact_details) or "artifact root was not supplied",
+    )
+
     cell_results: dict[str, list[Mapping[str, Any]]] = {}
-    for lane, result in zip(manifest.lanes, results, strict=True):
+    for lane in manifest.lanes:
+        result = by_lane.get(
+            str(lane["lane_id"]),
+            {
+                "lane_id": lane["lane_id"],
+                "attempt": 0,
+                "accountable": False,
+                "oracle_conclusion": "missing",
+                "oracle_classification": "inconclusive",
+                "claim_boundary": CLAIM_BOUNDARY,
+            },
+        )
         cell_results.setdefault(str(lane["cell_id"]), []).append(result)
     cells: dict[str, Any] = {}
     for cell in manifest.cells:
@@ -657,11 +1144,23 @@ def _audit_reconciliation(
         mode_pass = bool(selected) and all(value["cell_pass"] for value in selected)
         modes[mode] = {
             "cells": [key for key in cells if key.startswith(mode + "-")],
+            "denominator": sum(len(value["lanes"]) for key, value in cells.items() if key.startswith(mode + "-")),
+            "accountable": sum(value["accountable"] for key, value in cells.items() if key.startswith(mode + "-")),
+            "excluded": sum(len(value["lanes"]) - value["accountable"] for key, value in cells.items() if key.startswith(mode + "-")),
             "locally_supported": mode_pass,
             "claim_boundary": CLAIM_BOUNDARY,
         }
-        check(f"mode:{mode}", mode_pass, f"both frozen {mode} cells reconcile")
-    conclusion = "locally_supported" if all(item["locally_supported"] for item in modes.values()) else "inconclusive"
+        check(
+            f"mode:{mode}",
+            mode_pass,
+            f"separate {mode} denominator: {modes[mode]['accountable']}/{modes[mode]['denominator']} accountable",
+        )
+    checks_passed = all(item["status"] == "pass" for item in checks)
+    conclusion = (
+        "locally_supported"
+        if checks_passed and all(item["locally_supported"] for item in modes.values())
+        else "inconclusive"
+    )
     audit = {
         "schema_version": 1,
         "auditor": "m8-state-evolution-independent-adjudicator-v1",
@@ -707,6 +1206,13 @@ def execute_formal_qualification(
             f"HEAD={head} origin/main={origin_head}"
         )
 
+    manifest_sha256 = _sha256(manifest_file)
+    if manifest_sha256 != FROZEN_MANIFEST_SHA256:
+        raise M8FormalExecutionError(
+            "formal execution requires the exact #121 manifest bytes: "
+            f"expected {FROZEN_MANIFEST_SHA256}, got {manifest_sha256}"
+        )
+
     manifest = load_manifest(manifest_file)
     preflight = admit_qualification(manifest_file, repo_root=root)
     if not preflight.admitted or len(preflight.lanes) != 12:
@@ -719,6 +1225,8 @@ def execute_formal_qualification(
             "source_head": head,
             "origin_main": origin_head,
             "exact_merged_121": MERGED_121_COMMIT,
+            "manifest_sha256_expected": FROZEN_MANIFEST_SHA256,
+            "manifest_sha256_observed": manifest_sha256,
         },
     )
 
@@ -815,16 +1323,30 @@ def execute_formal_qualification(
         run_spec_data = next(item for item in preflight.lanes if item["lane_id"] == lane_id)["run_spec"]
         spec_path = worktree / f".m8-run-spec-{lane_id}.json"
         _write_json(spec_path, run_spec_data)
-        result = _run_lane(
-            lane=lane,
-            package=admitted_packages[lane_id],
-            spec_path=spec_path,
-            worktree=worktree,
-            artifact_root=artifacts,
-            device=device,
-            contract=contract,
-            build_receipt=build_receipts[variant],
-        )
+        try:
+            result = _run_lane(
+                lane=lane,
+                package=admitted_packages[lane_id],
+                spec_path=spec_path,
+                worktree=worktree,
+                artifact_root=artifacts,
+                device=device,
+                contract=contract,
+                build_receipt=build_receipts[variant],
+            )
+        except Exception as error:  # noqa: BLE001 - one terminal row per frozen lane
+            result = _recover_lane_exception(
+                lane=lane,
+                package=admitted_packages[lane_id],
+                lane_dir=artifacts / lane_id,
+                error=error,
+                build_receipt=build_receipts[variant],
+            )
+        result = {
+            **result,
+            "variant": variant,
+            "variant_source": mapping["fault" if variant == "defect" else "control"],
+        }
         with inventory_path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(result, ensure_ascii=False, sort_keys=True) + "\n")
         results.append(result)
@@ -834,6 +1356,9 @@ def execute_formal_qualification(
         results=results,
         mapping=mapping,
         out=artifacts / "independent-adjudication.json",
+        preflight=preflight.to_dict(),
+        artifact_root=artifacts,
+        contract=contract,
     )
     summary = {
         "schema_version": 1,
