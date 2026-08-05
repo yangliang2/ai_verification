@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "completed_non_accountable",
+  "device": "emulator-5554",
+  "api_level": 35,
+  "package": "dev.aiverify.lifecyclefixture",
+  "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+  "apk": "bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+  "apk_sha256": "07d72302bc192172dfc72eb8c18746aefe2aafdae6e6068b3ee8d3aeec21d94f",
+  "runner": "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner",
+  "binding": "StateEvolutionRuntimeAdapter phase event -> SystemEventSpec -> DeviceSystemEventInjector.inject -> DeviceController",
+  "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.runner bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml --device emulator-5554 --artifact-dir <durable-run>/runner",
+  "duration_seconds": 231.123,
+  "checkpoints": {
+    "after-segment-0": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-segment-0"},
+    "after-event-0": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-event-0"},
+    "after-event-1": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-event-1"},
+    "after-event-2": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=2,revision=42,migration=MIGRATED_V1_TO_V2", "evidence": "runner/after-event-2"}
+  },
+  "events": [
+    {"event": "rotate", "status": "passed", "evidence": "runner/system-event-0/event.json"},
+    {"event": "process_death", "status": "passed", "evidence": "runner/system-event-1/event.json"},
+    {"event": "backup_restore", "status": "passed", "evidence": "runner/system-event-2/event.json"}
+  ],
+  "execution": {
+    "status": "non_accountable",
+    "reason": "execution_identity_error",
+    "detail": "The public runner completed the local lifecycle and captured all checkpoints/events, but host identity drifted during finalization; no qualification or Finding is claimed."
+  },
+  "claim_boundary": "local API-35 emulator smoke only; no M8 qualification, rate, OEM, production, or 12-lane claim",
+  "cleanup": "runner system-event-2 cleanup restored the prior backup transport and disabled state; fixture process was stopped and app data was cleared after capture"
+}

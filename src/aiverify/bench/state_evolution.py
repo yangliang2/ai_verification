@@ -728,11 +728,13 @@ def verify_state_evolution_matched_pair(
             and bool(old_headers)
             and bool(new_headers)
             and header_paths == [expected_header, expected_header]
+            and removals[0] == "-        if (source.schemaVersion != LEGACY_SCHEMA) {"
+            and additions[0] == "+        if (source.schemaVersion == LEGACY_SCHEMA) {"
         )
         return localized, (
-            "one file, one hunk, one replacement line, and matching source headers"
+            "one file, one hunk, one migration-guard replacement, and matching source headers"
             if localized
-            else "patch must contain one localized hunk replacing one line in the source file"
+            else "patch must contain the expected one-line migration-guard replacement in the source file"
         )
 
     try:
@@ -897,6 +899,11 @@ def verify_state_evolution_matched_pair(
             raise StateEvolutionContractError("build recipe must be an object")
         host_project_ref = str(build_recipe.get("host_project", ""))
         host_project = (root / host_project_ref).resolve()
+        try:
+            host_project.relative_to(root)
+            host_project_in_root = True
+        except ValueError:
+            host_project_in_root = False
         recipe_protocol = pair_source(str(build_recipe.get("protocol", "")))
         recipe_source = pair_source(str(build_recipe.get("source", "")))
         gradle_tasks = build_recipe.get("gradle_tasks")
@@ -905,6 +912,7 @@ def verify_state_evolution_matched_pair(
             and build_recipe.get("activity") == contract.activity
             and recipe_protocol == protocol_path
             and recipe_source == source_paths["base"] == source_paths["changed"]
+            and host_project_in_root
             and host_project.is_dir()
             and (host_project / str(build_recipe.get("gradle_wrapper", ""))).is_file()
             and gradle_tasks == [":app:assembleDebug"]
@@ -1474,6 +1482,25 @@ def _snapshot_matches(observation: Mapping[str, str | None], expected: StateSnap
     }
 
 
+def _snapshot_is_coherent(
+    observation: Mapping[str, str | None],
+    contract: StateEvolutionFixtureContract,
+) -> bool:
+    """Accept only a state shape the contract can classify."""
+
+    return (
+        _snapshot_matches(observation, contract.old_state)
+        or _snapshot_matches(observation, contract.current_state)
+        or observation
+        == {
+            "sentinel": "UNINITIALIZED",
+            "schema_version": str(contract.current_state.schema_version),
+            "revision": "0",
+            "migration_status": "RESET_DEFAULTS",
+        }
+    )
+
+
 def _migration_evidence_accountable(
     evidence: object,
     contract: StateEvolutionFixtureContract,
@@ -1483,7 +1510,7 @@ def _migration_evidence_accountable(
     if not isinstance(evidence, Mapping) or evidence.get("status") != "passed":
         return False
     count = evidence.get("count", evidence.get("migration_count"))
-    if isinstance(count, bool) or count != 1:
+    if not isinstance(count, int) or isinstance(count, bool) or count != 1:
         return False
     if evidence.get("edge_id") != contract.migration.edge_id:
         return False
@@ -1503,6 +1530,39 @@ def _migration_evidence_accountable(
             if edge_ids != [contract.migration.edge_id]:
                 return False
     return True
+
+
+def _state_loss_evidence_accountable(
+    evidence: object,
+    contract: StateEvolutionFixtureContract,
+) -> bool:
+    """Require a loss receipt bound to this recovery epoch and artifact."""
+
+    if not isinstance(evidence, Mapping):
+        return False
+    if evidence.get("status") != "passed" or evidence.get("loss_confirmed") is not True:
+        return False
+    boundary = evidence.get("boundary", evidence.get("boundary_id"))
+    if boundary != contract.recovery.boundary_id:
+        return False
+    if evidence.get("package") != contract.package:
+        return False
+    if evidence.get("state_epoch") != contract.recovery.boundary_id:
+        return False
+    if not isinstance(evidence.get("reason"), str) or not evidence["reason"].strip():
+        return False
+    provenance = evidence.get("provenance")
+    if not isinstance(provenance, Mapping) or provenance.get("status") != "passed":
+        return False
+    artifact_ref = provenance.get("artifact_ref", provenance.get("evidence_ref"))
+    digest = provenance.get("sha256")
+    return (
+        isinstance(artifact_ref, str)
+        and bool(artifact_ref.strip())
+        and isinstance(digest, str)
+        and len(digest) == 64
+        and all(character in "0123456789abcdef" for character in digest)
+    )
 
 
 def judge_state_evolution(
@@ -1588,14 +1648,7 @@ def judge_state_evolution(
                 "accountable": False,
                 "observations": observations,
             }
-        explicit_loss = isinstance(state_loss_evidence, Mapping) and (
-            state_loss_evidence.get("status") == "passed"
-            and state_loss_evidence.get("loss_confirmed") is True
-            and isinstance(state_loss_evidence.get("boundary"), str)
-            and bool(state_loss_evidence.get("boundary", "").strip())
-            and isinstance(state_loss_evidence.get("reason"), str)
-            and bool(state_loss_evidence.get("reason", "").strip())
-        )
+        explicit_loss = _state_loss_evidence_accountable(state_loss_evidence, contract)
         if explicit_loss:
             return {
                 **base,
@@ -1623,6 +1676,15 @@ def judge_state_evolution(
             "observations": observations,
         }
     if crash_detected:
+        if not _snapshot_is_coherent(observations["backup_restore"], contract):
+            return {
+                **base,
+                "conclusion": "non_accountable",
+                "classification": "inconclusive",
+                "reason": "backup_restore_observation_unclassified_during_crash",
+                "accountable": False,
+                "observations": observations,
+            }
         return {
             **base,
             "conclusion": "locally_rejected",

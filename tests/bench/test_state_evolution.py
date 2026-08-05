@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -148,7 +149,10 @@ def test_contract_schema_and_round_trip_are_strict(tmp_path: Path) -> None:
     assert len(pair_receipt.checks) >= 15
 
 
-@pytest.mark.parametrize("tamper", ["pair_id", "protocol", "source_path", "patch"])
+@pytest.mark.parametrize(
+    "tamper",
+    ["pair_id", "protocol", "source_path", "patch", "patch_semantics", "host_project"],
+)
 def test_matched_pair_rejects_tampered_auditor_claims(tmp_path: Path, tamper: str) -> None:
     pair = json.loads(_PAIR.read_text(encoding="utf-8"))
     if tamper == "pair_id":
@@ -162,10 +166,41 @@ def test_matched_pair_rejects_tampered_auditor_claims(tmp_path: Path, tamper: st
         pair["protocol"]["path"] = str(protocol)
     elif tamper == "source_path":
         pair["source_pair"]["changed"]["source_path"] = "../contract.json"
-    else:
+    elif tamper == "patch":
         patch_path = tmp_path / "tampered.patch"
         patch_path.write_text("diff --git a/a b/b\n@@ -1 +1 @@\n-old\n+new\n+extra\n", encoding="utf-8")
         pair["source_pair"]["changed"]["change_path"] = str(patch_path)
+    elif tamper == "patch_semantics":
+        patch_path = tmp_path / "wrong-guard.patch"
+        patch_path.write_text(
+            "diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/"
+            "dev/aiverify/lifecyclefixture/StateStore.java "
+            "b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/"
+            "dev/aiverify/lifecyclefixture/StateStore.java\n"
+            "--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/"
+            "dev/aiverify/lifecyclefixture/StateStore.java\n"
+            "+++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/"
+            "dev/aiverify/lifecyclefixture/StateStore.java\n"
+            "@@ -85,6 +85,6 @@ final class StateStore {\n"
+            "-        if (source.schemaVersion != LEGACY_SCHEMA) {\n"
+            "+        if (source.schemaVersion == CURRENT_SCHEMA) {\n",
+            encoding="utf-8",
+        )
+        pair["source_pair"]["changed"]["change_path"] = str(patch_path)
+        pair["source_pair"]["changed"]["change_sha256"] = hashlib.sha256(
+            patch_path.read_bytes()
+        ).hexdigest()
+    else:
+        build_recipe = json.loads(
+            (_FIXTURE / "auditor" / "build-recipe.json").read_text(encoding="utf-8")
+        )
+        build_recipe["host_project"] = "../outside"
+        recipe_path = tmp_path / "build-recipe.json"
+        recipe_path.write_text(json.dumps(build_recipe), encoding="utf-8")
+        pair["build_recipe"]["path"] = str(recipe_path)
+        pair["build_recipe"]["sha256"] = hashlib.sha256(
+            recipe_path.read_bytes()
+        ).hexdigest()
     path = tmp_path / "matched-pair.json"
     path.write_text(json.dumps(pair), encoding="utf-8")
     receipt = verify_state_evolution_matched_pair(path, repo_root=Path.cwd())
@@ -395,13 +430,33 @@ def test_oracle_fails_closed_on_missing_or_contradictory_identity_and_evidence()
         "state_loss_evidence": {
             "status": "passed",
             "loss_confirmed": True,
-            "boundary": "backup_restore",
+            "boundary": contract.recovery.boundary_id,
+            "package": contract.package,
+            "state_epoch": contract.recovery.boundary_id,
             "reason": "schema and revision fields absent after restore",
+            "provenance": {
+                "status": "passed",
+                "artifact_ref": "test://state-loss-receipt",
+                "sha256": "0" * 64,
+            },
         },
     }
     explicit_loss = judge_state_evolution(**explicit_loss_input)
     assert explicit_loss["conclusion"] == "locally_rejected"
     assert explicit_loss["classification"] == "state_loss"
+    for field, value in (
+        ("boundary", "backup_restore"),
+        ("package", "other.package"),
+        ("state_epoch", "other-epoch"),
+        ("provenance", {"status": "passed", "artifact_ref": "test://loss", "sha256": "0" * 63}),
+    ):
+        invalid_loss = dict(explicit_loss_input["state_loss_evidence"])
+        invalid_loss[field] = value
+        result = judge_state_evolution(
+            **{**missing_input, "state_loss_evidence": invalid_loss}
+        )
+        assert result["conclusion"] == "non_accountable"
+        assert result["classification"] == "inconclusive"
 
 
 def test_oracle_requires_one_bound_migration_and_event_identities() -> None:
@@ -419,6 +474,7 @@ def test_oracle_requires_one_bound_migration_and_event_identities() -> None:
     }
     for invalid in (
         None,
+        _migration_evidence(contract, count=1.0),
         _migration_evidence(contract, count=2),
         _migration_evidence(contract, edge_id="other-edge"),
         _migration_evidence(contract, applied_edge_ids=[contract.migration.edge_id, "other-edge"]),
@@ -461,6 +517,19 @@ def test_oracle_crash_requires_complete_coherent_state() -> None:
     )
     assert contradictory["conclusion"] == "non_accountable"
     assert contradictory["classification"] == "inconclusive"
+    unclassified = judge_state_evolution(
+        **{
+            **common,
+            "backup_restored_state": {
+                "sentinel": "UNEXPECTED",
+                "schema_version": "9",
+                "revision": "999",
+                "migration_status": "UNKNOWN",
+            },
+        }
+    )
+    assert unclassified["conclusion"] == "non_accountable"
+    assert unclassified["classification"] == "inconclusive"
     crash = judge_state_evolution(**common)
     assert crash["conclusion"] == "locally_rejected"
     assert crash["classification"] == "crash"
