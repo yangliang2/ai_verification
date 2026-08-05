@@ -1431,12 +1431,25 @@ def _quality_contract_from_graph(
         if contract_drift is not None
         else "contract-" + _stable_id(target.target_id, fact.fact_id)
     )
+    constraint = str(fact.value)
+    state_contract = any(
+        term in constraint.lower()
+        for term in ("state", "schema", "migration", "recovery")
+    )
     return QualityContract(
         contract_id=contract_id,
-        name="bounded response quality contract",
-        scope=fact.subject,
-        quality_property="bounded synchronous response latency",
-        constraint=str(fact.value),
+        name=(
+            "durable state continuity quality contract"
+            if state_contract
+            else "bounded response quality contract"
+        ),
+        scope="recorded state path" if state_contract else fact.subject,
+        quality_property=(
+            "durable state continuity"
+            if state_contract
+            else "bounded synchronous response latency"
+        ),
+        constraint=constraint,
         source_fact_ids=(fact.fact_id,),
         status="derived",
     )
