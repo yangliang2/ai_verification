@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "attempt_id": "c6153edd-21fc-403f-a556-a314f6926d1b",
+  "scenario": "m7-r2-synchronous-weather-project",
+  "lifecycle_state": "interrupted",
+  "started_at": "2026-08-05T15:02:53+00:00",
+  "finished_at": "2026-08-05T15:03:24+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_backend_error",
+    "message": "CodexCliError: Codex CLI failed with exit code 1: Reading additional input from stdin...\n2026-08-05T15:03:04.410744Z ERROR codex_models_manager::cache: failed to load models cache: missing field `supports_reasoning_summaries` at line 86 column 5"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-08-05T15:02:53+00:00",
+    "finished_at": "2026-08-05T15:03:24+00:00",
+    "total_seconds": 31.412,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.446
+      },
+      {
+        "phase": "m7-r2-synchronous-weather-project-segment-0",
+        "kind": "journey",
+        "status": "failed",
+        "seconds": 20.439
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "m7-r2-synchronous-weather-project-segment-0",
+      "kind": "journey",
+      "reason": "journey_backend_error",
+      "message": "CodexCliError: Codex CLI failed with exit code 1: Reading additional input from stdin...\n2026-08-05T15:03:04.410744Z ERROR codex_models_manager::cache: failed to load models cache: missing field `supports_reasoning_summaries` at line 86 column 5"
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [],
+    "checkpoints": []
+  }
+}

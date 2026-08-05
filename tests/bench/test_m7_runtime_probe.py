@@ -10,11 +10,13 @@ from aiverify.bench.m7_runtime_probe import (
     admit_runtime_probe,
     evaluate_temporal_oracle,
     load_runtime_manifest,
+    self_validate_project_schema,
     self_validate_schema,
 )
 
 _ROOT = Path(__file__).parents[2]
 _MANIFEST = _ROOT / "bench/runtime-probes/synchronous-weather/runtime-probe.json"
+_PROJECT_MANIFEST = _ROOT / "bench/runtime-probes/synchronous-weather-project/runtime-probe.json"
 
 
 def test_runtime_manifest_schema_freezes_six_lane_change_pair() -> None:
@@ -81,3 +83,39 @@ def test_runtime_manifest_rejects_tampered_lane_policy(tmp_path: Path) -> None:
 
     with pytest.raises(RuntimeProbeError, match="planned_lanes"):
         load_runtime_manifest(path)
+
+
+def test_project_runtime_manifest_freezes_no_diff_project_target() -> None:
+    self_validate_project_schema()
+    manifest = load_runtime_manifest(_PROJECT_MANIFEST)
+    target = json.loads(
+        (_ROOT / "bench/runtime-probes/synchronous-weather-project/project-target.json")
+        .read_text(encoding="utf-8")
+    )
+
+    assert manifest.probe_id == "m7-r2-synchronous-weather-project-v1"
+    assert manifest.document["target_mode"] == "project"
+    assert manifest.document["policy"]["planned_lanes"] == 6
+    assert [cell["cell_id"] for cell in manifest.cells] == [
+        "project-defect",
+        "project-control",
+    ]
+    assert "change_input" not in manifest.document["source_identity"]
+    assert not any(key in target for key in ("diff", "diff_ref", "diff_sha256", "verdict"))
+
+
+def test_project_admission_replays_campaign_without_outcome_leakage() -> None:
+    admission = admit_runtime_probe(_PROJECT_MANIFEST, repo_root=_ROOT, run_build=False)
+
+    assert admission.admitted is False
+    assert admission.formal_denominator is False
+    assert admission.reason_codes == ("build_not_run",)
+    assert len(admission.campaign_receipts) == 2
+    assert all(item["status"] == "admitted" for item in admission.campaign_receipts)
+    assert all(item["diff"] is None for item in admission.campaign_receipts)
+    assert all(item["no_outcome_labels"] is True for item in admission.campaign_receipts)
+    assert all(
+        check["status"] == "pass"
+        for check in admission.checks
+        if check["name"].startswith(("project_target_packet", "campaign:"))
+    )

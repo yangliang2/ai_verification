@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "target_mode": "project",
+  "packet": "bench/runtime-probes/synchronous-weather-project/project-target.json",
+  "packet_sha256": "53eea2957c4148cb60ab3a265bb9ededbe4c169ce39fdaa82ad705ab94aac037",
+  "forbidden_fields": [
+    "diff",
+    "diff_ref",
+    "diff_sha256",
+    "expected_behavior",
+    "expected_evidence",
+    "expected_verdict",
+    "verdict"
+  ],
+  "observed_forbidden_fields": [],
+  "campaign_checks": [
+    {
+      "cell_id": "project-defect",
+      "status": "admitted",
+      "diff": null,
+      "no_outcome_labels": true,
+      "campaign_id": "m7-r2-synchronous-weather-project-project-defect",
+      "hypothesis_id": "hypothesis-ed986304d6e7f588",
+      "attack_plan_id": "plan-7a2e4267801b2fa4",
+      "run_spec": "/Users/peter/projects/ai_verification-m7-115/bench/runtime-probes/synchronous-weather-project/run-specs/project-defect.yaml",
+      "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476"
+    },
+    {
+      "cell_id": "project-control",
+      "status": "admitted",
+      "diff": null,
+      "no_outcome_labels": true,
+      "campaign_id": "m7-r2-synchronous-weather-project-project-control",
+      "hypothesis_id": "hypothesis-ed986304d6e7f588",
+      "attack_plan_id": "plan-7a2e4267801b2fa4",
+      "run_spec": "/Users/peter/projects/ai_verification-m7-115/bench/runtime-probes/synchronous-weather-project/run-specs/project-control.yaml",
+      "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476"
+    }
+  ],
+  "result": "pass",
+  "claim_boundary": "No claim about benchmark rates, project completeness, OEM/physical devices, SystemUI, or upstream acceptance."
+}

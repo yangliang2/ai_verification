@@ -232,3 +232,13 @@ a single local temporal contract, not a runtime population or rate claim.  See
 `docs/runs/2026-08-04-issue-104-m7-qualification/README.md`,
 `docs/runs/2026-08-04-issue-112-runtime-admission/README.md`, and
 `docs/current-capability-claim-matrix.md` for the evidence and claim boundaries.
+The second bounded runtime follow-up, #115 M7-R2, now has six accountable
+Project Mode lanes on the same API-35 emulator: three delayed-dependency
+observations are locally supported and three matched controls are locally
+rejected.  Its ProjectTarget packet contains no diff; admission replays the
+campaign/hypothesis/Attack Plan/Run Spec seam and records a no-outcome-label
+leakage audit.  This remains a single local temporal contract and does not
+establish project completeness, a combined Change/Project rate, or general
+Android capability.  See
+`docs/runs/2026-08-05-issue-115-project-runtime/README.md` for the durable
+evidence.

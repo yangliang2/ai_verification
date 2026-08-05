@@ -1,0 +1,131 @@
+{
+  "scenario": "m7-r2-synchronous-weather-project",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/private/tmp/m7-r2-project-runtime-v2.JdhdFe/lanes-v2/project-defect-r3/live-validation-gate.json",
+      "failed_checks": [],
+      "app": {
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity",
+        "target_surface": {
+          "text": "Weather: fixture-data"
+        }
+      }
+    }
+  },
+  "metric_context": {
+    "seed_id": "m7-r2-synchronous-weather-project",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_detected",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "inconclusive",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-14c132b4",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Verify the synchronous weather probe screen is visible after launch.",
+      "Observe the displayed weather summary and caller latency without changing device state."
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Verify the synchronous weather probe screen is visible after launch.",
+      "Observe the displayed weather summary and caller latency without changing device state."
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "m7-r2-synchronous-weather-project-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Observed “Synchronous weather runtime probe” at resource-id temporal_title; the probe screen was visible after launch.",
+          "action": "Verify the synchronous weather probe screen is visible after launch."
+        },
+        {
+          "action_id": "action-2",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Observed “Weather: fixture-data” and “Caller latency: 250 ms”. No tap, text input, or device-state change was dispatched.",
+          "action": "Observe the displayed weather summary and caller latency without changing device state."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "system_event_evidence": [],
+  "timing": {
+    "started_at": "2026-08-05T15:08:16+00:00",
+    "finished_at": "2026-08-05T15:09:38+00:00",
+    "total_seconds": 82.25,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.361
+      },
+      {
+        "phase": "m7-r2-synchronous-weather-project-segment-0",
+        "kind": "journey",
+        "seconds": 68.039
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.828
+      }
+    ]
+  },
+  "execution_record": "/private/tmp/m7-r2-project-runtime-v2.JdhdFe/lanes-v2/project-defect-r3/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "3259cac5e7b9527bc570d850334c53e61bb19342e504698e1c6d337be22bdeb0"
+  }
+}

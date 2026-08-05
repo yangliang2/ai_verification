@@ -1,0 +1,329 @@
+diff --git a/pyproject.toml b/pyproject.toml
+index 2f46ccf..9e21e4a 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -27,6 +27,7 @@ where = ["src"]
+     "m6_case_package_schema.json",
+     "m7_qualification_schema.json",
+     "m7_runtime_probe_schema.json",
++    "m7_project_runtime_probe_schema.json",
+ ]
+ "aiverify.discovery" = ["discovery_schema.json"]
+ 
+diff --git a/src/aiverify/bench/m7_runtime_probe.py b/src/aiverify/bench/m7_runtime_probe.py
+index 634881c..e2b9c1a 100644
+--- a/src/aiverify/bench/m7_runtime_probe.py
++++ b/src/aiverify/bench/m7_runtime_probe.py
+@@ -23,13 +23,23 @@ from typing import Any
+ 
+ from jsonschema import Draft202012Validator
+ 
++from aiverify.discovery import (
++    ContextExpansionRequest,
++    ProjectTarget,
++    compile_attack_plan_to_run_spec,
++    load_context_manifest,
++    seed_project_campaign,
++)
++from aiverify.discovery.campaign import admit_campaign_plan
+ from aiverify.runner.command import (
+     CommandResult,
+     CommandRunner,
+     SubprocessCommandRunner,
+ )
++from aiverify.runner.run_spec import AssertionSpec, ScenarioSpec, load_run_spec
+ 
+ _SCHEMA_PATH = Path(__file__).with_name("m7_runtime_probe_schema.json")
++_PROJECT_SCHEMA_PATH = Path(__file__).with_name("m7_project_runtime_probe_schema.json")
+ _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+ _TEMPORAL_RESULT = re.compile(
+     r"TEMPORAL_RESULT\s+delay_ms=(?P<delay>\d+)\s+"
+@@ -97,6 +107,7 @@ class RuntimeProbeAdmission:
+     apk_snapshots: tuple[Mapping[str, Any], ...]
+     side_effects: bool
+     formal_denominator: bool
++    campaign_receipts: tuple[Mapping[str, Any], ...] = ()
+ 
+     def to_dict(self) -> dict[str, Any]:
+         return {
+@@ -110,6 +121,7 @@ class RuntimeProbeAdmission:
+             "lanes": [dict(lane) for lane in self.lanes],
+             "build_receipts": [dict(receipt) for receipt in self.build_receipts],
+             "apk_snapshots": [dict(snapshot) for snapshot in self.apk_snapshots],
++            "campaign_receipts": [dict(receipt) for receipt in self.campaign_receipts],
+             "side_effects": self.side_effects,
+             "formal_denominator": self.formal_denominator,
+             "claim_boundary": dict(self.manifest.document["claim_boundary"]),
+@@ -127,8 +139,13 @@ def load_runtime_manifest(path: str | Path) -> RuntimeProbeManifest:
+         raise RuntimeProbeError((f"manifest cannot be read: {error}",)) from error
+     if not isinstance(document, dict):
+         raise RuntimeProbeError(("manifest root must be an object",))
++    schema_path = (
++        _PROJECT_SCHEMA_PATH
++        if str(document.get("probe_id", "")).startswith("m7-r2-")
++        else _SCHEMA_PATH
++    )
+     try:
+-        schema = load_schema()
++        schema = load_schema(schema_path)
+         Draft202012Validator.check_schema(schema)
+         errors = sorted(
+             Draft202012Validator(schema).iter_errors(document),
+@@ -150,14 +167,19 @@ def load_runtime_manifest(path: str | Path) -> RuntimeProbeManifest:
+     )
+ 
+ 
+-def load_schema() -> dict[str, Any]:
+-    return json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
++def load_schema(path: str | Path | None = None) -> dict[str, Any]:
++    schema_path = Path(path) if path is not None else _SCHEMA_PATH
++    return json.loads(schema_path.read_text(encoding="utf-8"))
+ 
+ 
+ def self_validate_schema() -> None:
+     Draft202012Validator.check_schema(load_schema())
+ 
+ 
++def self_validate_project_schema() -> None:
++    Draft202012Validator.check_schema(load_schema(_PROJECT_SCHEMA_PATH))
++
++
+ def admit_runtime_probe(
+     manifest_path: str | Path,
+     *,
+@@ -182,13 +204,19 @@ def admit_runtime_probe(
+     reasons: list[str] = []
+     build_receipts: list[Mapping[str, Any]] = []
+     apk_snapshots: list[Mapping[str, Any]] = []
++    campaign_receipts: list[Mapping[str, Any]] = []
+     lanes: list[Mapping[str, Any]] = []
+ 
+     def check(name: str, passed: bool, detail: str = "") -> None:
+         checks.append({"name": name, "status": "pass" if passed else "fail", "detail": detail})
+ 
+     source = manifest.document["source_identity"]
+-    for artifact in (*source["source_files"], source["context_manifest"], source["change_input"]):
++    source_artifacts = [*source["source_files"], source["context_manifest"]]
++    if "change_input" in source:
++        source_artifacts.append(source["change_input"])
++    if "project_target" in source:
++        source_artifacts.append(source["project_target"])
++    for artifact in source_artifacts:
+         path = root / str(artifact["path"])
+         expected = str(artifact["sha256"])
+         actual = _sha256_file(path) if path.is_file() else None
+@@ -197,6 +225,15 @@ def admit_runtime_probe(
+         if not passed:
+             reasons.append("source_checksum_mismatch")
+ 
++    if manifest.document.get("target_mode", "change") == "project":
++        project_receipts, project_reasons = _check_project_campaign(
++            manifest.document,
++            repo_root=root,
++        )
++        checks.extend(project_receipts[0])
++        campaign_receipts.extend(project_receipts[1])
++        reasons.extend(project_reasons)
++
+     build = manifest.document["build"]
+     host_project = root / str(build["host_project"])
+     wrapper = host_project / str(build["gradle_wrapper"])
+@@ -357,6 +394,7 @@ def admit_runtime_probe(
+         apk_snapshots=tuple(apk_snapshots),
+         side_effects=False,
+         formal_denominator=complete,
++        campaign_receipts=tuple(campaign_receipts),
+     )
+ 
+ 
+@@ -613,30 +651,171 @@ def _manifest_errors(document: Mapping[str, Any]) -> tuple[str, ...]:
+     errors: list[str] = []
+     policy = document["policy"]
+     cells = document["cells"]
++    target_mode = str(document.get("target_mode", "change"))
++    expected_cells = (
++        ["project-defect", "project-control"]
++        if target_mode == "project"
++        else ["change-defect", "change-control"]
++    )
+     if int(policy["planned_lanes"]) != 6:
+         errors.append("policy.planned_lanes must be exactly 6")
+     if int(policy["repetitions_per_cell"]) != 3:
+         errors.append("policy.repetitions_per_cell must be exactly 3")
+-    if [str(cell["cell_id"]) for cell in cells] != ["change-defect", "change-control"]:
+-        errors.append("cells must be ordered change-defect then change-control")
++    if [str(cell["cell_id"]) for cell in cells] != expected_cells:
++        errors.append(f"cells must be ordered {' then '.join(expected_cells)}")
++    if any(str(cell["target_mode"]) != target_mode for cell in cells):
++        errors.append("every cell target_mode must match manifest target_mode")
+     if any(int(cell["repetitions"]) != 3 for cell in cells):
+         errors.append("each cell must have three repetitions")
+     if policy["max_attempts_per_lane"] != 1 or policy["no_retry_after_accountable"] is not True:
+         errors.append("runtime lanes permit one attempt and no retry after accountability")
+     if document["claim_boundary"]["local_only"] is not True:
+         errors.append("claim boundary must remain local-only")
+-    for artifact in (
+-        *document["source_identity"]["source_files"],
+-        document["source_identity"]["context_manifest"],
+-        document["source_identity"]["change_input"],
+-    ):
++    source = document["source_identity"]
++    source_artifacts = [*source["source_files"], source["context_manifest"]]
++    if "change_input" in source:
++        source_artifacts.append(source["change_input"])
++    if "project_target" in source:
++        source_artifacts.append(source["project_target"])
++    for artifact in source_artifacts:
+         if not _SHA256.fullmatch(str(artifact["sha256"])):
+             errors.append(f"invalid sha256 for {artifact['path']}")
++    if target_mode == "project":
++        if "change_input" in source:
++            errors.append("project source identity must not include change_input")
++        if "project_target" not in source:
++            errors.append("project source identity requires project_target")
++        if "campaign" not in document:
++            errors.append("project runtime probe requires campaign binding")
+     if document["oracle"]["threshold_ms"] <= 0:
+         errors.append("oracle.threshold_ms must be positive")
+     return tuple(errors)
+ 
+ 
++def _check_project_campaign(
++    document: Mapping[str, Any],
++    *,
++    repo_root: Path,
++) -> tuple[tuple[list[Mapping[str, Any]], list[Mapping[str, Any]]], list[str]]:
++    """Re-run the side-effect-free ProjectTarget campaign seam at admission."""
++
++    checks: list[Mapping[str, Any]] = []
++    receipts: list[Mapping[str, Any]] = []
++    reasons: list[str] = []
++
++    def record(name: str, passed: bool, detail: str = "") -> None:
++        checks.append({"name": name, "status": "pass" if passed else "fail", "detail": detail})
++        if not passed:
++            reasons.append(f"project_campaign:{name}")
++
++    source = document["source_identity"]
++    project_target_path = repo_root / str(source["project_target"]["path"])
++    context_path = repo_root / str(source["context_manifest"]["path"])
++    try:
++        target_document = json.loads(project_target_path.read_text(encoding="utf-8"))
++        forbidden_fields = {
++            "diff",
++            "diff_ref",
++            "diff_sha256",
++            "expected_behavior",
++            "expected_evidence",
++            "expected_verdict",
++            "verdict",
++        }
++        leaked = sorted(forbidden_fields.intersection(target_document))
++        target = ProjectTarget.from_dict(target_document)
++        context = load_context_manifest(context_path, target).graph
++        record("project_target_packet", not leaked, f"forbidden_fields={leaked}")
++    except Exception as error:  # noqa: BLE001 - admission must fail closed
++        record("project_target_packet", False, f"{type(error).__name__}: {error}")
++        return (checks, receipts), reasons
++
++    build = document["build"]
++    campaign = document["campaign"]
++    scenario_data = campaign["scenario"]
++    scenario = ScenarioSpec(
++        id=str(scenario_data["id"]),
++        user_actions=[str(item) for item in scenario_data["user_actions"]],
++        assertions=[
++            AssertionSpec(
++                resource_id=str(item["resource_id"]),
++                attr=str(item["attr"]),
++                expected=str(item["expected"]),
++            )
++            for item in scenario_data["assertions"]
++        ],
++    )
++    variants = {str(item["cell_id"]): item for item in build["variants"]}
++    run_specs = {str(item["cell_id"]): item for item in document["run_specs"]}
++    for cell in document["cells"]:
++        cell_id = str(cell["cell_id"])
++        try:
++            request = ContextExpansionRequest(
++                request_id=f"{campaign['campaign_id_prefix']}-{cell_id}-context",
++                campaign_id=f"{campaign['campaign_id_prefix']}-{cell_id}",
++                target_id=target.target_id,
++                required_predicates=tuple(campaign["required_predicates"]),
++                probe_refs=tuple(campaign["probe_refs"]),
++                budget=int(campaign["context_budget"]),
++                unresolved_questions=tuple(campaign["unresolved_questions"]),
++            )
++            package = seed_project_campaign(
++                request.campaign_id,
++                target,
++                context,
++                context_request=request,
++            )
++            admission = admit_campaign_plan(package)
++            variant = variants[cell_id]
++            compiled = compile_attack_plan_to_run_spec(
++                admission.package,
++                host_project=str(build["host_project"]),
++                apk_glob=str(build["apk_relpath"]),
++                package_name=str(variant["package"]),
++                activity=str(variant["activity"]),
++                scenario=scenario,
++            )
++            static_path = repo_root / str(run_specs[cell_id]["path"])
++            static_spec = load_run_spec(static_path)
++            no_diff = compiled.run_spec.diff is None and static_spec.diff is None
++            no_labels = (
++                compiled.run_spec.scenario.expected_behavior == ""
++                and compiled.run_spec.scenario.metric_context.seed_kind == "unspecified"
++                and static_spec.scenario.expected_behavior == ""
++                and static_spec.scenario.metric_context.seed_kind == "unspecified"
++                and static_spec.scenario.metric_context.expected_oracle_level is None
++                and static_spec.scenario.metric_context.expected_oracle_defect_class is None
++            )
++            aligned = (
++                admission.admission.admitted
++                and static_spec.package == compiled.run_spec.package
++                and static_spec.activity == compiled.run_spec.activity
++                and static_spec.scenario.id == compiled.run_spec.scenario.id
++            )
++            passed = no_diff and no_labels and aligned
++            detail = (
++                f"admitted={admission.admission.admitted} no_diff={no_diff} "
++                f"no_labels={no_labels} aligned={aligned}"
++            )
++            record(f"campaign:{cell_id}", passed, detail)
++            receipt = {
++                "cell_id": cell_id,
++                "campaign_id": request.campaign_id,
++                "target_id": target.target_id,
++                "status": "admitted" if passed else "rejected",
++                "hypothesis_id": compiled.package.campaign.hypotheses[0].hypothesis_id,
++                "attack_plan_id": compiled.plan_id,
++                "run_spec": str(static_path),
++                "run_spec_sha256": _sha256_file(static_path),
++                "diff": None,
++                "no_outcome_labels": no_labels,
++            }
++            receipts.append(receipt)
++        except Exception as error:  # noqa: BLE001 - admission must fail closed
++            record(f"campaign:{cell_id}", False, f"{type(error).__name__}: {error}")
++    return (checks, receipts), reasons
++
++
+ def _check_device(target: Mapping[str, Any], runner: CommandRunner) -> tuple[list[Mapping[str, Any]], list[str]]:
+     checks: list[Mapping[str, Any]] = []
+     reasons: list[str] = []
+diff --git a/tests/bench/test_m6_cohort.py b/tests/bench/test_m6_cohort.py
+index 7e59c60..d1b23ce 100644
+--- a/tests/bench/test_m6_cohort.py
++++ b/tests/bench/test_m6_cohort.py
+@@ -389,6 +389,7 @@ def test_build_configuration_packages_the_schema() -> None:
+         "m6_case_package_schema.json",
+         "m7_qualification_schema.json",
+         "m7_runtime_probe_schema.json",
++        "m7_project_runtime_probe_schema.json",
+     ]
+ 
+ 

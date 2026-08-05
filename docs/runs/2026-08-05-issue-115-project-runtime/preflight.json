@@ -1,0 +1,506 @@
+{
+  "schema_version": 1,
+  "probe_mode": "project",
+  "manifest": {
+    "schema_version": 1,
+    "probe_id": "m7-r2-synchronous-weather-project-v1",
+    "manifest_sha256": "9e4bd1c0f64b463e58efaa0857e783184be1d637b9f16dcf8d9d1ab982fc1294",
+    "canonical_manifest_sha256": "03cf683df820bd57b4821902d7317879e141f7437e563c5c794ba1824df332bc",
+    "admitted": true,
+    "reason_codes": [],
+    "checks": [
+      {
+        "name": "sha256:bench/discovery-fixtures/synchronous-weather/WeatherService.kt",
+        "status": "pass",
+        "detail": "expected=1f7d39c4deeb955476c93ec4045200abbaf0ed5dfe8b0b9dca2e9fd185c8f1a1 actual=1f7d39c4deeb955476c93ec4045200abbaf0ed5dfe8b0b9dca2e9fd185c8f1a1"
+      },
+      {
+        "name": "sha256:bench/discovery-fixtures/synchronous-weather/SystemUiWeatherConsumer.kt",
+        "status": "pass",
+        "detail": "expected=ebc51ee8363f2d4c23b924f0f6a6cde80459d529b726af0c413458a9cff27e91 actual=ebc51ee8363f2d4c23b924f0f6a6cde80459d529b726af0c413458a9cff27e91"
+      },
+      {
+        "name": "sha256:bench/discovery-fixtures/synchronous-weather/build-metadata.json",
+        "status": "pass",
+        "detail": "expected=b87b4f1a5b60c1a46d89becb483b66de26608c6f201f252b3117bdff1ce31395 actual=b87b4f1a5b60c1a46d89becb483b66de26608c6f201f252b3117bdff1ce31395"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/TemporalService.java",
+        "status": "pass",
+        "detail": "expected=c918c484c4f719392d514db7e41d869abefd12d4163b2a5a3e7eb9c107965e5a actual=c918c484c4f719392d514db7e41d869abefd12d4163b2a5a3e7eb9c107965e5a"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/TemporalActivity.java",
+        "status": "pass",
+        "detail": "expected=37c2657e398d77b9e79f5d890052aa20c7af60eeefbceafb0959fc2d8cd7a7f5 actual=37c2657e398d77b9e79f5d890052aa20c7af60eeefbceafb0959fc2d8cd7a7f5"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/build.gradle.kts",
+        "status": "pass",
+        "detail": "expected=2a48afe930909707190b973fb3eb068f75ac79fff11d96a8209656811ee64fa0 actual=2a48afe930909707190b973fb3eb068f75ac79fff11d96a8209656811ee64fa0"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/AndroidManifest.xml",
+        "status": "pass",
+        "detail": "expected=0025caffdc399fac6692794dca9e79e7d6886445c36023a74b1493cd9a55bfb4 actual=0025caffdc399fac6692794dca9e79e7d6886445c36023a74b1493cd9a55bfb4"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/ids.xml",
+        "status": "pass",
+        "detail": "expected=6df75560b79eecc700cd28ac93d598963f7a1b5f7a521870a710bc529dde78c8 actual=6df75560b79eecc700cd28ac93d598963f7a1b5f7a521870a710bc529dde78c8"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/strings.xml",
+        "status": "pass",
+        "detail": "expected=ef90fbd9401ee3e6b1bee43788e0e7b956824358f3fb45c5d31e12efa97fab92 actual=ef90fbd9401ee3e6b1bee43788e0e7b956824358f3fb45c5d31e12efa97fab92"
+      },
+      {
+        "name": "sha256:bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+        "status": "pass",
+        "detail": "expected=135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b actual=135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b"
+      },
+      {
+        "name": "sha256:bench/runtime-probes/synchronous-weather-project/project-target.json",
+        "status": "pass",
+        "detail": "expected=53eea2957c4148cb60ab3a265bb9ededbe4c169ce39fdaa82ad705ab94aac037 actual=53eea2957c4148cb60ab3a265bb9ededbe4c169ce39fdaa82ad705ab94aac037"
+      },
+      {
+        "name": "project_target_packet",
+        "status": "pass",
+        "detail": "forbidden_fields=[]"
+      },
+      {
+        "name": "campaign:project-defect",
+        "status": "pass",
+        "detail": "admitted=True no_diff=True no_labels=True aligned=True"
+      },
+      {
+        "name": "campaign:project-control",
+        "status": "pass",
+        "detail": "admitted=True no_diff=True no_labels=True aligned=True"
+      },
+      {
+        "name": "host_project",
+        "status": "pass",
+        "detail": "bench/fixtures/lifecycle-recovery-app"
+      },
+      {
+        "name": "android_cli",
+        "status": "pass",
+        "detail": "exit=0 1.0.15498356"
+      },
+      {
+        "name": "adb",
+        "status": "pass",
+        "detail": "exit=0 Android Debug Bridge version 1.0.41 | Version 37.0.0-14910828 | Installed as /opt/homebrew/bin/adb | Running on Darwin 25.3.0 (arm64)"
+      },
+      {
+        "name": "device_online",
+        "status": "pass",
+        "detail": "exit=0 device"
+      },
+      {
+        "name": "device_api",
+        "status": "pass",
+        "detail": "expected=35 actual=35"
+      },
+      {
+        "name": "device_model",
+        "status": "pass",
+        "detail": "expected=sdk_gphone64_arm64 actual=sdk_gphone64_arm64"
+      },
+      {
+        "name": "device_avd",
+        "status": "pass",
+        "detail": "expected=aiverify_api35 actual=aiverify_api35"
+      },
+      {
+        "name": "network_policy",
+        "status": "deferred",
+        "detail": "requires APK manifest permission proof"
+      },
+      {
+        "name": "build:project-defect",
+        "status": "pass",
+        "detail": "reused immutable admission snapshot"
+      },
+      {
+        "name": "apk_metadata:project-defect",
+        "status": "pass",
+        "detail": "package=dev.aiverify.lifecyclefixture activities=['dev.aiverify.lifecyclefixture.AccessibilityActivity', 'dev.aiverify.lifecyclefixture.CompatibilityActivity', 'dev.aiverify.lifecyclefixture.ConcurrencyActivity', 'dev.aiverify.lifecyclefixture.MainActivity', 'dev.aiverify.lifecyclefixture.PerformanceSecurityActivity', 'dev.aiverify.lifecyclefixture.SensitiveActivity', 'dev.aiverify.lifecyclefixture.TemporalActivity']"
+      },
+      {
+        "name": "network_policy:project-defect",
+        "status": "pass",
+        "detail": "permissions=['android.permission.WAKE_LOCK']"
+      },
+      {
+        "name": "run_spec:project-defect",
+        "status": "pass",
+        "detail": "expected=4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476 actual=4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476"
+      },
+      {
+        "name": "build:project-control",
+        "status": "pass",
+        "detail": "reused immutable admission snapshot"
+      },
+      {
+        "name": "apk_metadata:project-control",
+        "status": "pass",
+        "detail": "package=dev.aiverify.lifecyclefixture activities=['dev.aiverify.lifecyclefixture.AccessibilityActivity', 'dev.aiverify.lifecyclefixture.CompatibilityActivity', 'dev.aiverify.lifecyclefixture.ConcurrencyActivity', 'dev.aiverify.lifecyclefixture.MainActivity', 'dev.aiverify.lifecyclefixture.PerformanceSecurityActivity', 'dev.aiverify.lifecyclefixture.SensitiveActivity', 'dev.aiverify.lifecyclefixture.TemporalActivity']"
+      },
+      {
+        "name": "network_policy:project-control",
+        "status": "pass",
+        "detail": "permissions=['android.permission.WAKE_LOCK']"
+      },
+      {
+        "name": "run_spec:project-control",
+        "status": "pass",
+        "detail": "expected=4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476 actual=4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476"
+      }
+    ],
+    "lanes": [
+      {
+        "lane_id": "project-defect-r1",
+        "cell_id": "project-defect",
+        "repetition": 1,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather-project/run-specs/project-defect.yaml",
+        "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "b8776969282e9fea84056614222b5de1b2183bc0bbffe5ce24588406ec6134f4"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "project-defect-r2",
+        "cell_id": "project-defect",
+        "repetition": 2,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather-project/run-specs/project-defect.yaml",
+        "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "b8776969282e9fea84056614222b5de1b2183bc0bbffe5ce24588406ec6134f4"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "project-defect-r3",
+        "cell_id": "project-defect",
+        "repetition": 3,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather-project/run-specs/project-defect.yaml",
+        "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "b8776969282e9fea84056614222b5de1b2183bc0bbffe5ce24588406ec6134f4"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "project-control-r1",
+        "cell_id": "project-control",
+        "repetition": 1,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather-project/run-specs/project-control.yaml",
+        "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "3efb8acdce28829b1987dd9713a9a924c369a5ff5a03616561781fd5a0a202b0"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "project-control-r2",
+        "cell_id": "project-control",
+        "repetition": 2,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather-project/run-specs/project-control.yaml",
+        "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "3efb8acdce28829b1987dd9713a9a924c369a5ff5a03616561781fd5a0a202b0"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "project-control-r3",
+        "cell_id": "project-control",
+        "repetition": 3,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather-project/run-specs/project-control.yaml",
+        "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "3efb8acdce28829b1987dd9713a9a924c369a5ff5a03616561781fd5a0a202b0"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      }
+    ],
+    "build_receipts": [
+      {
+        "cell_id": "project-defect",
+        "command": [
+          "./gradlew",
+          "--offline",
+          "-p",
+          ".",
+          ":app:assembleDebug",
+          "-PtemporalDelayMs=250"
+        ],
+        "reused_snapshot": true,
+        "returncode": 0,
+        "seconds": 0.0,
+        "apk": "build/project-defect.apk",
+        "apk_sha256": "b8776969282e9fea84056614222b5de1b2183bc0bbffe5ce24588406ec6134f4",
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "snapshot": {
+          "cell_id": "project-defect",
+          "path": "build/project-defect.apk",
+          "sha256": "b8776969282e9fea84056614222b5de1b2183bc0bbffe5ce24588406ec6134f4"
+        }
+      },
+      {
+        "cell_id": "project-control",
+        "command": [
+          "./gradlew",
+          "--offline",
+          "-p",
+          ".",
+          ":app:assembleDebug",
+          "-PtemporalDelayMs=0"
+        ],
+        "reused_snapshot": true,
+        "returncode": 0,
+        "seconds": 0.0,
+        "apk": "build/project-control.apk",
+        "apk_sha256": "3efb8acdce28829b1987dd9713a9a924c369a5ff5a03616561781fd5a0a202b0",
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "snapshot": {
+          "cell_id": "project-control",
+          "path": "build/project-control.apk",
+          "sha256": "3efb8acdce28829b1987dd9713a9a924c369a5ff5a03616561781fd5a0a202b0"
+        }
+      }
+    ],
+    "apk_snapshots": [
+      {
+        "cell_id": "project-defect",
+        "path": "build/project-defect.apk",
+        "sha256": "b8776969282e9fea84056614222b5de1b2183bc0bbffe5ce24588406ec6134f4"
+      },
+      {
+        "cell_id": "project-control",
+        "path": "build/project-control.apk",
+        "sha256": "3efb8acdce28829b1987dd9713a9a924c369a5ff5a03616561781fd5a0a202b0"
+      }
+    ],
+    "campaign_receipts": [
+      {
+        "cell_id": "project-defect",
+        "campaign_id": "m7-r2-synchronous-weather-project-project-defect",
+        "target_id": "m7-r2-synchronous-weather-project",
+        "status": "admitted",
+        "hypothesis_id": "hypothesis-ed986304d6e7f588",
+        "attack_plan_id": "plan-7a2e4267801b2fa4",
+        "run_spec": "bench/runtime-probes/synchronous-weather-project/run-specs/project-defect.yaml",
+        "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+        "diff": null,
+        "no_outcome_labels": true
+      },
+      {
+        "cell_id": "project-control",
+        "campaign_id": "m7-r2-synchronous-weather-project-project-control",
+        "target_id": "m7-r2-synchronous-weather-project",
+        "status": "admitted",
+        "hypothesis_id": "hypothesis-ed986304d6e7f588",
+        "attack_plan_id": "plan-7a2e4267801b2fa4",
+        "run_spec": "bench/runtime-probes/synchronous-weather-project/run-specs/project-control.yaml",
+        "run_spec_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+        "diff": null,
+        "no_outcome_labels": true
+      }
+    ],
+    "side_effects": false,
+    "formal_denominator": true,
+    "claim_boundary": {
+      "local_only": true,
+      "runtime_scope": "One complete ProjectTarget packet bound to the synchronous weather adapter, one API-35 emulator profile, and one bounded synchronous weather call.",
+      "exclusions": [
+        "ANR rate",
+        "false-positive rate",
+        "OEM/SystemUI coverage",
+        "physical-device coverage",
+        "general project completeness",
+        "combined Change/Project denominator"
+      ]
+    }
+  },
+  "formal_population": {
+    "planned_lanes": 6,
+    "observed_lanes": 6,
+    "accountable_lanes": 6,
+    "retries": 0,
+    "project_defect_supported": 3,
+    "project_control_rejected": 3
+  },
+  "lanes": [
+    {
+      "lane_id": "project-control-r1",
+      "cell_id": "project-control",
+      "repetition": 1,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "conclusion": "locally_rejected",
+      "delay_ms": 0,
+      "latency_ms": 0,
+      "caller_thread": "main",
+      "execution_record": "lanes-v2/project-control-r1/execution-record.json",
+      "execution_provenance": "lanes-v2/project-control-r1/execution-provenance.json",
+      "verdict": "lanes-v2/project-control-r1/verdict.json",
+      "oracle": "lanes-v2/project-control-r1/oracle.json",
+      "checksums": "lanes-v2/project-control-r1/checksums.sha256"
+    },
+    {
+      "lane_id": "project-control-r2",
+      "cell_id": "project-control",
+      "repetition": 2,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "conclusion": "locally_rejected",
+      "delay_ms": 0,
+      "latency_ms": 0,
+      "caller_thread": "main",
+      "execution_record": "lanes-v2/project-control-r2/execution-record.json",
+      "execution_provenance": "lanes-v2/project-control-r2/execution-provenance.json",
+      "verdict": "lanes-v2/project-control-r2/verdict.json",
+      "oracle": "lanes-v2/project-control-r2/oracle.json",
+      "checksums": "lanes-v2/project-control-r2/checksums.sha256"
+    },
+    {
+      "lane_id": "project-control-r3",
+      "cell_id": "project-control",
+      "repetition": 3,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "conclusion": "locally_rejected",
+      "delay_ms": 0,
+      "latency_ms": 0,
+      "caller_thread": "main",
+      "execution_record": "lanes-v2/project-control-r3/execution-record.json",
+      "execution_provenance": "lanes-v2/project-control-r3/execution-provenance.json",
+      "verdict": "lanes-v2/project-control-r3/verdict.json",
+      "oracle": "lanes-v2/project-control-r3/oracle.json",
+      "checksums": "lanes-v2/project-control-r3/checksums.sha256"
+    },
+    {
+      "lane_id": "project-defect-r1",
+      "cell_id": "project-defect",
+      "repetition": 1,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "conclusion": "locally_supported",
+      "delay_ms": 250,
+      "latency_ms": 255,
+      "caller_thread": "main",
+      "execution_record": "lanes-v2/project-defect-r1/execution-record.json",
+      "execution_provenance": "lanes-v2/project-defect-r1/execution-provenance.json",
+      "verdict": "lanes-v2/project-defect-r1/verdict.json",
+      "oracle": "lanes-v2/project-defect-r1/oracle.json",
+      "checksums": "lanes-v2/project-defect-r1/checksums.sha256"
+    },
+    {
+      "lane_id": "project-defect-r2",
+      "cell_id": "project-defect",
+      "repetition": 2,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "conclusion": "locally_supported",
+      "delay_ms": 250,
+      "latency_ms": 250,
+      "caller_thread": "main",
+      "execution_record": "lanes-v2/project-defect-r2/execution-record.json",
+      "execution_provenance": "lanes-v2/project-defect-r2/execution-provenance.json",
+      "verdict": "lanes-v2/project-defect-r2/verdict.json",
+      "oracle": "lanes-v2/project-defect-r2/oracle.json",
+      "checksums": "lanes-v2/project-defect-r2/checksums.sha256"
+    },
+    {
+      "lane_id": "project-defect-r3",
+      "cell_id": "project-defect",
+      "repetition": 3,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "conclusion": "locally_supported",
+      "delay_ms": 250,
+      "latency_ms": 250,
+      "caller_thread": "main",
+      "execution_record": "lanes-v2/project-defect-r3/execution-record.json",
+      "execution_provenance": "lanes-v2/project-defect-r3/execution-provenance.json",
+      "verdict": "lanes-v2/project-defect-r3/verdict.json",
+      "oracle": "lanes-v2/project-defect-r3/oracle.json",
+      "checksums": "lanes-v2/project-defect-r3/checksums.sha256"
+    }
+  ],
+  "excluded_attempts": [
+    {
+      "lane_id": "project-defect-r1",
+      "status": "excluded",
+      "formal_denominator": false,
+      "attempts": 1,
+      "lifecycle_state": "interrupted",
+      "reason": "journey_backend_error",
+      "message": "CodexCliError: Codex CLI failed with exit code 1: Reading additional input from stdin...\n2026-08-05T15:03:04.410744Z ERROR codex_models_manager::cache: failed to load models cache: missing field `supports_reasoning_summaries` at line 86 column 5",
+      "evidence": "lanes-v1/project-defect-r1/execution-record.json"
+    },
+    {
+      "lane_id": "project-defect-r2",
+      "status": "excluded",
+      "formal_denominator": false,
+      "attempts": 1,
+      "lifecycle_state": "interrupted",
+      "reason": "journey_backend_error",
+      "message": "CodexCliError: Codex CLI failed with exit code 1: Reading additional input from stdin...",
+      "evidence": "lanes-v1/project-defect-r2/execution-record.json"
+    },
+    {
+      "lane_id": "project-defect-r3",
+      "status": "excluded",
+      "formal_denominator": false,
+      "attempts": 1,
+      "lifecycle_state": "in_progress",
+      "reason": null,
+      "message": null,
+      "evidence": "lanes-v1/project-defect-r3/execution-record.json"
+    }
+  ],
+  "external_capture_root": "/private/tmp/m7-r2-project-runtime-v2.JdhdFe",
+  "durable_copy": "lanes-v2",
+  "known_gaps": [
+    "lanes-v1 is retained as non-accountable fail-closed evidence after the gpt-5 alias/backend cache error; it is outside the formal denominator.",
+    "The runtime result is local to the frozen ProjectTarget packet, fixture adapter, API-35 emulator, and temporal oracle."
+  ]
+}
