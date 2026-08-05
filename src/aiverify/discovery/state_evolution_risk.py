@@ -436,7 +436,9 @@ def _validate_state_values(
     quality_value = selected["quality_contract"].value
     if not isinstance(storage_value, str) or not storage_value.strip():
         reasons.append("state storage fact is malformed")
-    if not isinstance(recovery_value, list) or not recovery_value:
+    if not isinstance(recovery_value, list) or not recovery_value or any(
+        not isinstance(event, str) or not event.strip() for event in recovery_value
+    ):
         reasons.append("recovery boundary fact is malformed")
     if not isinstance(quality_value, str) or not quality_value.strip():
         reasons.append("quality contract fact is malformed")
@@ -464,6 +466,19 @@ def _validate_state_values(
     )
     if any(field not in migration_value for field in migration_fields):
         reasons.append("schema migration fact is missing transition fields")
+        return
+    numeric_values = (
+        writer_value["schema_version"],
+        writer_value["revision"],
+        reader_value["schema_version"],
+        reader_value["revision"],
+        migration_value["from"],
+        migration_value["to"],
+        migration_value["from_revision"],
+        migration_value["to_revision"],
+    )
+    if any(not isinstance(value, int) or isinstance(value, bool) for value in numeric_values):
+        reasons.append("state transition facts contain non-integer schema or revision")
         return
     if writer_value["schema_version"] != schema_value:
         reasons.append("state schema facts mismatch at legacy writer")
