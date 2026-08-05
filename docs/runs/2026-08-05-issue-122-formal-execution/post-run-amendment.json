@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "purpose": "supplemental reconciliation after common preflight failure diagnosis",
+  "formal_summary_ref": "formal-summary.json",
+  "formal_summary_sha256": "d3da4a413e677ba47957704d08fe2a82cc95af8ddcb550dcb6f66ca5735be686",
+  "adjudication_ref": "independent-adjudication.json",
+  "adjudication_sha256": "b617aa00bb230708f677df971d98c91f91f958480d97a021c9e43b0b01b554ad",
+  "inventory_ref": "attempt-inventory.jsonl",
+  "inventory_sha256": "2399c9a09d8dfd47763965dea37e4893b4016737165f318bc64bdd4c0290433f",
+  "diagnosis_ref": "post-run-diagnosis.json",
+  "diagnosis_sha256": "361f1064c28768c961fe1555d64122da6776b7e01016b5181baa865ef9aa291d",
+  "lane_accounting": {
+    "lane_count": 12,
+    "attempts_per_lane": 1,
+    "accountable": 0,
+    "non_accountable": 12,
+    "replacement_or_retry": 0,
+    "install_or_launch_reached": false
+  },
+  "corrective_action": {
+    "commit": "22af9b2",
+    "description": "explicitly permits a frozen fixture host_project below the captured git repository while retaining repository and APK identity binding",
+    "tests": "tests/runner/test_execution_identity.py and full pytest suite passed",
+    "contract_or_manifest_changed": false
+  },
+  "qualification_claim": "inconclusive; no local supported/rejected runtime claim",
+  "claim_boundary": "The 12 terminal preflight failures are preserved as the formal result; corrected runner capability is verified for future admitted runs but is not substituted into this frozen one-attempt denominator."
+}

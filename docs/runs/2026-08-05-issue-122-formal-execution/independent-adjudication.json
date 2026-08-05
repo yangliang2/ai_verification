@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "auditor": "m8-state-evolution-independent-adjudicator-v1",
+  "mapping": {
+    "control": "base",
+    "fault": "changed"
+  },
+  "checks": [
+    {
+      "name": "ordered_population",
+      "status": "pass",
+      "detail": "12/12 lanes"
+    },
+    {
+      "name": "one_attempt_each",
+      "status": "pass",
+      "detail": "attempt=1 for every lane"
+    },
+    {
+      "name": "no_duplicate_lane",
+      "status": "pass",
+      "detail": "append-only inventory has one terminal row per lane"
+    },
+    {
+      "name": "mapping_release",
+      "status": "pass",
+      "detail": "matched-pair mapping identity"
+    },
+    {
+      "name": "cell:change-defect",
+      "status": "fail",
+      "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+    },
+    {
+      "name": "cell:change-control",
+      "status": "fail",
+      "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+    },
+    {
+      "name": "cell:project-defect",
+      "status": "fail",
+      "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+    },
+    {
+      "name": "cell:project-control",
+      "status": "fail",
+      "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+    },
+    {
+      "name": "mode:change",
+      "status": "fail",
+      "detail": "both frozen change cells reconcile"
+    },
+    {
+      "name": "mode:project",
+      "status": "fail",
+      "detail": "both frozen project cells reconcile"
+    }
+  ],
+  "lanes_reconciled": 12,
+  "cells": {
+    "change-defect": {
+      "target_mode": "change",
+      "variant": "defect",
+      "variant_source": "changed",
+      "lanes": [
+        "lane-01",
+        "lane-02",
+        "lane-03"
+      ],
+      "accountable": 0,
+      "oracle_conclusions": [
+        "non_accountable",
+        "non_accountable",
+        "non_accountable"
+      ],
+      "oracle_classifications": [
+        "inconclusive",
+        "inconclusive",
+        "inconclusive"
+      ],
+      "expected_protocol_conclusion": "locally_rejected",
+      "cell_pass": false
+    },
+    "change-control": {
+      "target_mode": "change",
+      "variant": "control",
+      "variant_source": "base",
+      "lanes": [
+        "lane-04",
+        "lane-05",
+        "lane-06"
+      ],
+      "accountable": 0,
+      "oracle_conclusions": [
+        "non_accountable",
+        "non_accountable",
+        "non_accountable"
+      ],
+      "oracle_classifications": [
+        "inconclusive",
+        "inconclusive",
+        "inconclusive"
+      ],
+      "expected_protocol_conclusion": "locally_supported",
+      "cell_pass": false
+    },
+    "project-defect": {
+      "target_mode": "project",
+      "variant": "defect",
+      "variant_source": "changed",
+      "lanes": [
+        "lane-07",
+        "lane-08",
+        "lane-09"
+      ],
+      "accountable": 0,
+      "oracle_conclusions": [
+        "non_accountable",
+        "non_accountable",
+        "non_accountable"
+      ],
+      "oracle_classifications": [
+        "inconclusive",
+        "inconclusive",
+        "inconclusive"
+      ],
+      "expected_protocol_conclusion": "locally_rejected",
+      "cell_pass": false
+    },
+    "project-control": {
+      "target_mode": "project",
+      "variant": "control",
+      "variant_source": "base",
+      "lanes": [
+        "lane-10",
+        "lane-11",
+        "lane-12"
+      ],
+      "accountable": 0,
+      "oracle_conclusions": [
+        "non_accountable",
+        "non_accountable",
+        "non_accountable"
+      ],
+      "oracle_classifications": [
+        "inconclusive",
+        "inconclusive",
+        "inconclusive"
+      ],
+      "expected_protocol_conclusion": "locally_supported",
+      "cell_pass": false
+    }
+  },
+  "modes": {
+    "change": {
+      "cells": [
+        "change-defect",
+        "change-control"
+      ],
+      "locally_supported": false,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only"
+    },
+    "project": {
+      "cells": [
+        "project-defect",
+        "project-control"
+      ],
+      "locally_supported": false,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only"
+    }
+  },
+  "qualification_conclusion": "inconclusive",
+  "claim_boundary": {
+    "local_only": true,
+    "scope": "local fixture, recorded recovery epoch, and bound execution identity only",
+    "no_combined_mode_rate": true,
+    "exclusions": [
+      "combined Change/Project denominator",
+      "benchmark-wide detection or false-positive rate",
+      "whole-project persistence coverage",
+      "OEM/physical-device/production claims",
+      "upstream acceptance"
+    ]
+  }
+}

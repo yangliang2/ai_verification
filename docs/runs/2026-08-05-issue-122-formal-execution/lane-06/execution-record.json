@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "attempt_id": "abbdc6fe-d9ec-46da-bffa-a79e4ff5fbbd",
+  "scenario": "m8-state-evolution-lane-06",
+  "lifecycle_state": "failed",
+  "started_at": "2026-08-05T18:35:13+00:00",
+  "finished_at": "2026-08-05T18:35:13+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "execution_identity_error",
+    "message": "ExecutionIdentityError: runner workdir contradicts Run Spec host_project"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-08-05T18:35:13+00:00",
+    "finished_at": "2026-08-05T18:35:13+00:00",
+    "total_seconds": 0.001,
+    "phases": [
+      {
+        "phase": "execution-identity-capture",
+        "kind": "identity",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "execution-identity-capture",
+      "kind": "identity",
+      "reason": "execution_identity_error",
+      "message": "ExecutionIdentityError: runner workdir contradicts Run Spec host_project"
+    }
+  ],
+  "evidence_refs": {
+    "verdict": "verdict.json"
+  }
+}

@@ -1,0 +1,1030 @@
+{
+  "schema_version": 1,
+  "qualification_id": "m8-state-evolution-qualification-v1",
+  "manifest_sha256": "95bc0af23a22ee93ba1f8011c6b05734e61dc5d2b9fdb9e044f55714700b361a",
+  "canonical_manifest_sha256": "0828ade17f8841b7bc2c4abbbddd127a75d622cccb345d71379ca4df09163f46",
+  "exact_merged_121": "f1027c15e9a6def81f5a1cc7bdf80b2a870ec07b",
+  "source_head": "7da121f9b96374f014e51cade7e4fc10971871d3",
+  "origin_main_at_start": "f1027c15e9a6def81f5a1cc7bdf80b2a870ec07b",
+  "formal_execution_started": true,
+  "device": "emulator-5554",
+  "lane_count": 12,
+  "attempts": 1,
+  "results": [
+    {
+      "lane_id": "lane-01",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.07,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "defect",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.44,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect.apk",
+        "apk_sha256": "32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe",
+        "apk_bytes": 930611,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/.m8-run-spec-lane-01.json",
+      "spec_sha256": "5706c1c8fd70a93810c4e90ae313054bcb1f2f9e931ddf8665ab9802e7d41efb",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-02",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.04,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "defect",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.44,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect.apk",
+        "apk_sha256": "32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe",
+        "apk_bytes": 930611,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/.m8-run-spec-lane-02.json",
+      "spec_sha256": "cb0b83340ea8fe3d6d6b7b39e148483f1fee34c45912872a5e3fda8c3a7105f2",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-03",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.03,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "defect",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.44,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect.apk",
+        "apk_sha256": "32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe",
+        "apk_bytes": 930611,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/.m8-run-spec-lane-03.json",
+      "spec_sha256": "68bc21e85393998518435b6552b467a45002aad178059ea8d7720bc68dfcc209",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-04",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.028,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "control",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.727,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control.apk",
+        "apk_sha256": "ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e",
+        "apk_bytes": 930614,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/.m8-run-spec-lane-04.json",
+      "spec_sha256": "74ebd8e785bf64a12fc0ebfa94402509f0f1f654a7dae2b9845319ab08e63dc0",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-05",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.031,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "control",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.727,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control.apk",
+        "apk_sha256": "ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e",
+        "apk_bytes": 930614,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/.m8-run-spec-lane-05.json",
+      "spec_sha256": "27e3d6824fac8cc5e337de9eb261c58a4e7559b930387bd41c25ba46edd3fe1c",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-06",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.024,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "control",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.727,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control.apk",
+        "apk_sha256": "ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e",
+        "apk_bytes": 930614,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/.m8-run-spec-lane-06.json",
+      "spec_sha256": "fbc7f1e0e253635309c4836f24d86709b528560a30dc028f7c5d4681b5cc3992",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-07",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.03,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "defect",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.44,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect.apk",
+        "apk_sha256": "32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe",
+        "apk_bytes": 930611,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/.m8-run-spec-lane-07.json",
+      "spec_sha256": "1372f01f0075b5376a3da696d3deb1f926e13956712664fe2c3d38b6f774d83f",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-08",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.027,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "defect",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.44,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect.apk",
+        "apk_sha256": "32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe",
+        "apk_bytes": 930611,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/.m8-run-spec-lane-08.json",
+      "spec_sha256": "44fa72112335c09c35533ec7b7ce083a1417e4c7cfbcf9f57fbb078d3f5d9fca",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-09",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.022,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "defect",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.44,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect.apk",
+        "apk_sha256": "32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe",
+        "apk_bytes": 930611,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/.m8-run-spec-lane-09.json",
+      "spec_sha256": "a567b3a62681f2b93086cf1686fcb25a54deb65c070793ec41f12a1dc4e0a62d",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-10",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.023,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "control",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.727,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control.apk",
+        "apk_sha256": "ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e",
+        "apk_bytes": 930614,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/.m8-run-spec-lane-10.json",
+      "spec_sha256": "252a828e9a4c0c4fa97234d405e7e2b07b65ca77b023931bb96570db1b83334b",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-11",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.033,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "control",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.727,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control.apk",
+        "apk_sha256": "ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e",
+        "apk_bytes": 930614,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/.m8-run-spec-lane-11.json",
+      "spec_sha256": "9b89cc857d0be93b7bc5c475ede569bf68e7118afc0e847a8d6d0cbdc9601089",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    },
+    {
+      "lane_id": "lane-12",
+      "attempt": 1,
+      "accountable": false,
+      "outcome": "non_accountable",
+      "oracle_conclusion": "non_accountable",
+      "oracle_classification": "inconclusive",
+      "oracle_reason": "state_observation_missing_or_invalid",
+      "reduction": "residual_risk",
+      "reduction_ref": "reduction.json",
+      "execution_record": "execution-record.json",
+      "state_observations": "state-observations.json",
+      "identity": null,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "status": "non_accountable",
+      "setup": {
+        "command": [
+          "adb",
+          "-s",
+          "emulator-5554",
+          "shell",
+          "pm",
+          "clear",
+          "dev.aiverify.lifecyclefixture"
+        ],
+        "cwd": null,
+        "returncode": 0,
+        "seconds": 0.025,
+        "stdout": "Success\n",
+        "stderr": ""
+      },
+      "build": {
+        "variant": "control",
+        "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+        "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/bench/fixtures/lifecycle-recovery-app",
+        "command": [
+          "./gradlew",
+          "--offline",
+          ":app:assembleDebug"
+        ],
+        "seconds": 2.727,
+        "returncode": 0,
+        "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control.apk",
+        "apk_sha256": "ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e",
+        "apk_bytes": 930614,
+        "metadata": {
+          "passed": true,
+          "package": "dev.aiverify.lifecyclefixture",
+          "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+          "returncode": 0,
+          "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+        },
+        "network_policy": {
+          "passed": true,
+          "permissions": [
+            "android.permission.WAKE_LOCK"
+          ],
+          "returncode": 0,
+          "detail": ""
+        },
+        "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control-gradle.log"
+      },
+      "spec": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/.m8-run-spec-lane-12.json",
+      "spec_sha256": "b23fd7aacd289987f0be59fbb596245798314d8a4112e1f3a2c936eecc89d53c",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+      "verdict": "verdict.json",
+      "checksums": "checksums.sha256"
+    }
+  ],
+  "adjudication": {
+    "schema_version": 1,
+    "auditor": "m8-state-evolution-independent-adjudicator-v1",
+    "mapping": {
+      "control": "base",
+      "fault": "changed"
+    },
+    "checks": [
+      {
+        "name": "ordered_population",
+        "status": "pass",
+        "detail": "12/12 lanes"
+      },
+      {
+        "name": "one_attempt_each",
+        "status": "pass",
+        "detail": "attempt=1 for every lane"
+      },
+      {
+        "name": "no_duplicate_lane",
+        "status": "pass",
+        "detail": "append-only inventory has one terminal row per lane"
+      },
+      {
+        "name": "mapping_release",
+        "status": "pass",
+        "detail": "matched-pair mapping identity"
+      },
+      {
+        "name": "cell:change-defect",
+        "status": "fail",
+        "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+      },
+      {
+        "name": "cell:change-control",
+        "status": "fail",
+        "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+      },
+      {
+        "name": "cell:project-defect",
+        "status": "fail",
+        "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+      },
+      {
+        "name": "cell:project-control",
+        "status": "fail",
+        "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+      },
+      {
+        "name": "mode:change",
+        "status": "fail",
+        "detail": "both frozen change cells reconcile"
+      },
+      {
+        "name": "mode:project",
+        "status": "fail",
+        "detail": "both frozen project cells reconcile"
+      }
+    ],
+    "lanes_reconciled": 12,
+    "cells": {
+      "change-defect": {
+        "target_mode": "change",
+        "variant": "defect",
+        "variant_source": "changed",
+        "lanes": [
+          "lane-01",
+          "lane-02",
+          "lane-03"
+        ],
+        "accountable": 0,
+        "oracle_conclusions": [
+          "non_accountable",
+          "non_accountable",
+          "non_accountable"
+        ],
+        "oracle_classifications": [
+          "inconclusive",
+          "inconclusive",
+          "inconclusive"
+        ],
+        "expected_protocol_conclusion": "locally_rejected",
+        "cell_pass": false
+      },
+      "change-control": {
+        "target_mode": "change",
+        "variant": "control",
+        "variant_source": "base",
+        "lanes": [
+          "lane-04",
+          "lane-05",
+          "lane-06"
+        ],
+        "accountable": 0,
+        "oracle_conclusions": [
+          "non_accountable",
+          "non_accountable",
+          "non_accountable"
+        ],
+        "oracle_classifications": [
+          "inconclusive",
+          "inconclusive",
+          "inconclusive"
+        ],
+        "expected_protocol_conclusion": "locally_supported",
+        "cell_pass": false
+      },
+      "project-defect": {
+        "target_mode": "project",
+        "variant": "defect",
+        "variant_source": "changed",
+        "lanes": [
+          "lane-07",
+          "lane-08",
+          "lane-09"
+        ],
+        "accountable": 0,
+        "oracle_conclusions": [
+          "non_accountable",
+          "non_accountable",
+          "non_accountable"
+        ],
+        "oracle_classifications": [
+          "inconclusive",
+          "inconclusive",
+          "inconclusive"
+        ],
+        "expected_protocol_conclusion": "locally_rejected",
+        "cell_pass": false
+      },
+      "project-control": {
+        "target_mode": "project",
+        "variant": "control",
+        "variant_source": "base",
+        "lanes": [
+          "lane-10",
+          "lane-11",
+          "lane-12"
+        ],
+        "accountable": 0,
+        "oracle_conclusions": [
+          "non_accountable",
+          "non_accountable",
+          "non_accountable"
+        ],
+        "oracle_classifications": [
+          "inconclusive",
+          "inconclusive",
+          "inconclusive"
+        ],
+        "expected_protocol_conclusion": "locally_supported",
+        "cell_pass": false
+      }
+    },
+    "modes": {
+      "change": {
+        "cells": [
+          "change-defect",
+          "change-control"
+        ],
+        "locally_supported": false,
+        "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only"
+      },
+      "project": {
+        "cells": [
+          "project-defect",
+          "project-control"
+        ],
+        "locally_supported": false,
+        "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only"
+      }
+    },
+    "qualification_conclusion": "inconclusive",
+    "claim_boundary": {
+      "local_only": true,
+      "scope": "local fixture, recorded recovery epoch, and bound execution identity only",
+      "no_combined_mode_rate": true,
+      "exclusions": [
+        "combined Change/Project denominator",
+        "benchmark-wide detection or false-positive rate",
+        "whole-project persistence coverage",
+        "OEM/physical-device/production claims",
+        "upstream acceptance"
+      ]
+    }
+  },
+  "claim_boundary": {
+    "local_only": true,
+    "scope": "frozen state-evolution fixture, one local recovery contract, and discovery/admission seam; formal runtime is a separate #122 result",
+    "exclusions": [
+      "combined Change/Project denominator",
+      "benchmark-wide detection or false-positive rate",
+      "whole-project persistence coverage",
+      "OEM/physical-device/production claims",
+      "upstream acceptance"
+    ]
+  },
+  "workspace_root": "/Users/peter/projects/ai_verification-m8-122-workspaces",
+  "finished_at": "2026-08-05T18:35:13+00:00"
+}

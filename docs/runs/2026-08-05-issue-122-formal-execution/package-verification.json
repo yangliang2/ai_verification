@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "command": "uv build --out-dir docs/runs/2026-08-05-issue-122-formal-execution/package",
+  "wheel": {
+    "path": "package/aiverify-0.1.0-py3-none-any.whl",
+    "bytes": 300563,
+    "sha256": "d655ca03fd08c1977504530264a6f7dd9cd147cb7edf97d5a040794a32424a37"
+  },
+  "sdist": {
+    "path": "package/aiverify-0.1.0.tar.gz",
+    "bytes": 269385,
+    "sha256": "f22bbd25587242e7825e3fd91ebbf8ecad75080e51bbab5562cf573f6af094e2"
+  },
+  "import_check": {
+    "command": "uv run --isolated --with package/aiverify-0.1.0-py3-none-any.whl python -c 'import aiverify, aiverify.bench.m8_formal, aiverify.runner.execution_identity'",
+    "status": "passed"
+  },
+  "claim_boundary": "package/import verification only; no runtime qualification conclusion"
+}
