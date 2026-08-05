@@ -30,7 +30,8 @@
     "events": ["rotate", "process_death", "backup_restore"],
     "timeout_seconds": 30,
     "reversible": true,
-    "local_only": true
+    "local_only": true,
+    "transport": "com.android.localtransport/.LocalTransport"
   },
   "quality_contract": {
     "contract_id": "durable-state-continuity-v1",

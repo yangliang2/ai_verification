@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -15,6 +16,8 @@ from aiverify.bench.state_evolution import (
     load_state_evolution_contract,
     self_validate_state_evolution_schema,
     validate_state_evolution_context,
+    verify_change_target_diff,
+    verify_state_evolution_matched_pair,
     verify_state_evolution_provenance,
 )
 from aiverify.discovery import ChangeTarget, ProjectTarget
@@ -23,6 +26,8 @@ _FIXTURE = Path("bench/discovery-fixtures/state-evolution")
 _CONTRACT = _FIXTURE / "contract.json"
 _CONTEXT = _FIXTURE / "context-manifest.json"
 _ADAPTER = Path("bench/capability-slices/state-evolution/adapter.json")
+_PAIR = _FIXTURE / "auditor" / "matched-pair.json"
+_DIFF = Path("bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch")
 
 
 def _project_target() -> ProjectTarget:
@@ -30,7 +35,7 @@ def _project_target() -> ProjectTarget:
         target_id="project-state-evolution-001",
         source_origin="fixture://state-evolution",
         source_commit="state-evolution-v1",
-        worktree=str(_FIXTURE),
+        worktree=str(Path.cwd()),
         scope=("state-evolution",),
         discovery_budget=8,
     )
@@ -41,9 +46,9 @@ def _change_target() -> ChangeTarget:
         target_id="change-state-evolution-001",
         source_origin="fixture://state-evolution",
         source_commit="state-evolution-v1",
-        worktree=str(_FIXTURE),
-        diff_ref="matched-state-change.patch",
-        diff_sha256="a" * 64,
+        worktree=str(Path.cwd()),
+        diff_ref=str(_DIFF),
+        diff_sha256="7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42",
     )
 
 
@@ -68,6 +73,7 @@ def _process_event(*, before: list[str] | None = None, after: list[str] | None =
 def _backup_event(**overrides: object) -> dict:
     evidence: dict[str, object] = {
         "transport": "com.android.localtransport/.LocalTransport",
+        "package": "dev.aiverify.lifecyclefixture",
         "previous_transport": "com.google.android.gms/.backup.BackupTransportService",
         "backup_was_enabled": False,
         "backup_status": "success",
@@ -114,6 +120,9 @@ def test_contract_schema_and_round_trip_are_strict() -> None:
     receipt = verify_state_evolution_provenance(_CONTRACT)
     assert receipt.valid is True
     assert len(receipt.checks) == 5
+    pair_receipt = verify_state_evolution_matched_pair(_PAIR, repo_root=Path.cwd())
+    assert pair_receipt.valid is True, pair_receipt.to_dict()
+    assert len(pair_receipt.checks) == 9
 
 
 def test_context_uses_same_graph_for_change_and_no_diff_project_targets() -> None:
@@ -129,6 +138,18 @@ def test_context_uses_same_graph_for_change_and_no_diff_project_targets() -> Non
     assert path.node_ids[-1] == "durable-state-contract"
     assert "edge-runtime-identity" in path.unresolved_edge_ids
     assert validate_state_evolution_context(project)
+    assert verify_change_target_diff(change.target, repo_root=Path.cwd()).valid is True
+    bad_change = ChangeTarget(
+        target_id=change.target.target_id,
+        source_origin=change.target.source_origin,
+        source_commit=change.target.source_commit,
+        worktree=change.target.worktree,
+        diff_ref=change.target.diff_ref,
+        diff_sha256="0" * 64,
+    )
+    assert verify_change_target_diff(bad_change, repo_root=Path.cwd()).valid is False
+    with pytest.raises(StateEvolutionContractError, match="ChangeTarget diff provenance"):
+        load_state_evolution_context(_CONTEXT, bad_change, contract_path=_CONTRACT)
 
 
 def test_context_marks_contradictory_required_fact_without_inventing_observation(tmp_path: Path) -> None:
@@ -141,6 +162,21 @@ def test_context_marks_contradictory_required_fact_without_inventing_observation
     context = load_state_evolution_context(path, _project_target(), contract_path=_CONTRACT)
     assert context.derivation_ready is False
     assert any("fact-schema-migration is contradictory" in item for item in context.unresolved)
+
+
+def test_context_fails_closed_when_bound_source_bytes_drift(tmp_path: Path) -> None:
+    copied = tmp_path / "state-evolution"
+    shutil.copytree(_FIXTURE, copied)
+    source = copied / "LegacyStateWriter.kt"
+    source.write_text(source.read_text(encoding="utf-8") + "\n// drift\n", encoding="utf-8")
+    receipt = verify_state_evolution_provenance(copied / "contract.json")
+    assert receipt.valid is False
+    with pytest.raises(StateEvolutionContractError, match="fixture contract provenance"):
+        load_state_evolution_context(
+            copied / "context-manifest.json",
+            _project_target(),
+            contract_path=copied / "contract.json",
+        )
 
 
 def test_adapter_is_bounded_and_has_no_variant_or_verdict_leakage() -> None:
@@ -165,6 +201,25 @@ def test_adapter_is_bounded_and_has_no_variant_or_verdict_leakage() -> None:
         }
     )
     assert all(item.passed for item in checks)
+
+    imported = adapter.import_old_state(adapter.create_old_state().to_dict())
+    assert imported == contract.old_state
+    replay = adapter.replay()
+    assert replay.terminal is True
+    assert replay.seed == contract.old_state
+    assert [item.phase_id for item in replay.phases] == [step["step_id"] for step in plan]
+    assert replay.to_dict()["local_only"] is True
+
+    seen: list[str] = []
+
+    def record_phase(step, payload):
+        seen.append(step.step_id)
+        assert payload
+        return {"status": "recorded", "evidence_ref": f"test://{step.step_id}"}
+
+    injected = adapter.replay(phase_runner=record_phase)
+    assert seen == [step["step_id"] for step in plan]
+    assert all(item.status == "recorded" for item in injected.phases)
 
     adapter_document = json.loads(_ADAPTER.read_text(encoding="utf-8"))
     assert adapter_document["safety"] == {
@@ -242,6 +297,44 @@ def test_oracle_fails_closed_on_missing_or_contradictory_identity_and_evidence()
     malformed_input = {**common, "execution_identity": _identity(), "backup_restored_state": "not-json"}
     malformed = judge_state_evolution(**malformed_input)
     assert malformed["reason"] == "state_observation_missing_or_invalid"
+
+    wrong_identity = judge_state_evolution(
+        **common,
+        execution_identity={**_identity(), "activity": "dev.other.Activity"},
+    )
+    assert wrong_identity["conclusion"] == "non_accountable"
+    assert wrong_identity["reason"] == "execution_identity_missing_or_contradictory"
+
+    wrong_transport_input = {
+        **common,
+        "execution_identity": _identity(),
+        "backup_event": _backup_event(transport="com.example.Untrusted/.Transport"),
+    }
+    wrong_transport = judge_state_evolution(**wrong_transport_input)
+    assert wrong_transport["conclusion"] == "non_accountable"
+    assert wrong_transport["reason"] == "backup_restore_evidence_missing_or_failed"
+
+    missing_input = {
+        **common,
+        "execution_identity": _identity(),
+        "backup_restored_state": {"sentinel": "AIVERIFY-ISSUE-71-SENTINEL"},
+    }
+    missing_state = judge_state_evolution(**missing_input)
+    assert missing_state["conclusion"] == "non_accountable"
+    assert missing_state["classification"] == "inconclusive"
+
+    explicit_loss_input = {
+        **missing_input,
+        "state_loss_evidence": {
+            "status": "passed",
+            "loss_confirmed": True,
+            "boundary": "backup_restore",
+            "reason": "schema and revision fields absent after restore",
+        },
+    }
+    explicit_loss = judge_state_evolution(**explicit_loss_input)
+    assert explicit_loss["conclusion"] == "locally_rejected"
+    assert explicit_loss["classification"] == "state_loss"
 
 
 def test_contract_rejects_invalid_migration_edge() -> None:

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "protocol_id": "state-evolution-main-activity-protocol-v1",
+  "package": "dev.aiverify.lifecyclefixture",
+  "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+  "entry_resource": "create_fixture",
+  "state_resources": [
+    "fixture_sentinel",
+    "fixture_schema_version",
+    "fixture_revision",
+    "fixture_migration_status"
+  ],
+  "events": ["rotate", "process_death", "backup_restore"],
+  "transport_scope": "local-only"
+}

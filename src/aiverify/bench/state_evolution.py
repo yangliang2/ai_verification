@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -73,6 +73,12 @@ def _tuple_text(value: object, field: str, *, non_empty: bool = False) -> tuple[
     if len(set(value)) != len(value):
         raise StateEvolutionContractError(f"{field} must not contain duplicates")
     return value
+
+
+def _canonical_digest(value: object) -> str:
+    return hashlib.sha256(
+        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
 
 
 def _reject_unknown(data: Mapping[str, Any], allowed: set[str], label: str) -> None:
@@ -216,6 +222,7 @@ class RecoveryBoundary:
     timeout_seconds: int = 30
     reversible: bool = True
     local_only: bool = True
+    transport: str = "com.android.localtransport/.LocalTransport"
 
     def __post_init__(self) -> None:
         _text(self.boundary_id, "recovery boundary_id")
@@ -223,6 +230,7 @@ class RecoveryBoundary:
         _positive_int(self.timeout_seconds, "recovery timeout_seconds")
         if not isinstance(self.reversible, bool) or not isinstance(self.local_only, bool):
             raise StateEvolutionContractError("recovery reversible/local_only must be boolean")
+        _text(self.transport, "recovery transport")
         if self.events != ("rotate", "process_death", "backup_restore"):
             raise StateEvolutionContractError(
                 "recovery events must be rotate, process_death, backup_restore in order"
@@ -239,6 +247,7 @@ class RecoveryBoundary:
             "timeout_seconds": self.timeout_seconds,
             "reversible": self.reversible,
             "local_only": self.local_only,
+            "transport": self.transport,
         }
 
     @classmethod
@@ -247,7 +256,7 @@ class RecoveryBoundary:
             raise StateEvolutionContractError("recovery must be an object")
         _reject_unknown(
             data,
-            {"boundary_id", "events", "timeout_seconds", "reversible", "local_only"},
+            {"boundary_id", "events", "timeout_seconds", "reversible", "local_only", "transport"},
             "recovery",
         )
         try:
@@ -260,6 +269,7 @@ class RecoveryBoundary:
                 timeout_seconds=data.get("timeout_seconds", 30),
                 reversible=data.get("reversible", True),
                 local_only=data.get("local_only", True),
+                transport=data.get("transport", cls.transport),
             )
         except KeyError as error:
             raise StateEvolutionContractError(
@@ -516,7 +526,7 @@ def verify_state_evolution_provenance(
     contract = load_state_evolution_contract(source)
     checks: list[Mapping[str, Any]] = []
     for provenance in contract.provenance:
-        path = root / provenance.ref
+        path = _bound_source_path(root, provenance.ref)
         actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
         passed = actual == provenance.source_sha256
         checks.append(
@@ -528,6 +538,171 @@ def verify_state_evolution_provenance(
                 "status": "pass" if passed else "fail",
             }
         )
+    return ProvenanceVerification(contract_path=str(source), checks=tuple(checks))
+
+
+def _bound_source_path(root: Path, reference: str) -> Path:
+    """Resolve a provenance reference without allowing it to escape its root."""
+
+    candidate = (root / reference).resolve()
+    try:
+        candidate.relative_to(root.resolve())
+    except ValueError as error:
+        raise StateEvolutionContractError(
+            f"provenance reference escapes source root: {reference}"
+        ) from error
+    return candidate
+
+
+def verify_state_context_provenance(
+    context_path: str | Path,
+    graph: QualityContextGraph,
+    *,
+    base_dir: str | Path,
+) -> ProvenanceVerification:
+    """Verify known ContextFact provenance before the graph is trusted."""
+
+    source = Path(context_path).resolve()
+    root = Path(base_dir).resolve()
+    checks: list[Mapping[str, Any]] = []
+    for fact in graph.facts:
+        if fact.status == "unknown":
+            continue
+        for provenance in fact.provenance:
+            path = _bound_source_path(root, provenance.ref)
+            actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+            passed = provenance.source_sha256 is not None and actual == provenance.source_sha256
+            checks.append(
+                {
+                    "fact_id": fact.fact_id,
+                    "ref": provenance.ref,
+                    "path": str(path),
+                    "expected_sha256": provenance.source_sha256,
+                    "actual_sha256": actual,
+                    "status": "pass" if passed else "fail",
+                }
+            )
+    return ProvenanceVerification(contract_path=str(source), checks=tuple(checks))
+
+
+def verify_change_target_diff(
+    target: ChangeTarget,
+    *,
+    repo_root: str | Path,
+) -> ProvenanceVerification:
+    """Bind a ChangeTarget diff to bytes before state context is trusted."""
+
+    root = Path(repo_root).resolve()
+    checks: list[Mapping[str, Any]] = []
+    if not isinstance(target, ChangeTarget):
+        return ProvenanceVerification(
+            contract_path=str(root),
+            checks=({"target_id": getattr(target, "target_id", ""), "status": "fail", "detail": "state change validation requires ChangeTarget"},),
+        )
+    try:
+        path = _bound_source_path(root, target.diff_ref)
+        actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+        passed = actual == target.diff_sha256
+        checks.append(
+            {
+                "target_id": target.target_id,
+                "diff_ref": target.diff_ref,
+                "path": str(path),
+                "expected_sha256": target.diff_sha256,
+                "actual_sha256": actual,
+                "status": "pass" if passed else "fail",
+            }
+        )
+    except StateEvolutionContractError as error:
+        checks.append(
+            {
+                "target_id": getattr(target, "target_id", ""),
+                "diff_ref": getattr(target, "diff_ref", ""),
+                "status": "fail",
+                "detail": str(error),
+            }
+        )
+    return ProvenanceVerification(contract_path=str(root), checks=tuple(checks))
+
+
+def verify_state_evolution_matched_pair(
+    pair_path: str | Path,
+    *,
+    repo_root: str | Path,
+) -> ProvenanceVerification:
+    """Verify auditor-only source/build identity and protocol equivalence."""
+
+    source = Path(pair_path).resolve()
+    root = Path(repo_root).resolve()
+    checks: list[Mapping[str, Any]] = []
+    try:
+        document = json.loads(source.read_text(encoding="utf-8"))
+        if not isinstance(document, Mapping):
+            raise StateEvolutionContractError("matched pair must be an object")
+        _reject_unknown(
+            document,
+            {"schema_version", "pair_id", "audit_mapping", "public_contract", "public_contract_sha256", "protocol", "build_recipe", "source_pair", "protocol_equivalence", "claim_boundary"},
+            "matched pair",
+        )
+        if document.get("schema_version") != 1:
+            raise StateEvolutionContractError("unsupported matched pair schema_version")
+        for key in ("public_contract", "protocol", "build_recipe", "source_pair", "protocol_equivalence"):
+            if key not in document:
+                raise StateEvolutionContractError(f"matched pair requires {key}")
+        def pair_source(reference: str) -> Path:
+            candidate = (source.parent / reference).resolve()
+            try:
+                candidate.relative_to(root)
+            except ValueError as error:
+                raise StateEvolutionContractError(
+                    f"matched pair reference escapes repository root: {reference}"
+                ) from error
+            return candidate
+
+        public_contract = pair_source(str(document["public_contract"]))
+        contract_hash = hashlib.sha256(public_contract.read_bytes()).hexdigest() if public_contract.is_file() else None
+        checks.append({"artifact": "public_contract", "path": str(public_contract), "expected_sha256": document.get("public_contract_sha256"), "actual_sha256": contract_hash, "status": "pass" if public_contract.is_file() and contract_hash == document.get("public_contract_sha256") else "fail"})
+        for artifact_name in ("protocol", "build_recipe"):
+            artifact = document[artifact_name]
+            if not isinstance(artifact, Mapping):
+                raise StateEvolutionContractError(f"matched pair {artifact_name} must be an object")
+            path = pair_source(str(artifact.get("path", "")))
+            actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+            passed = actual == artifact.get("sha256")
+            checks.append({"artifact": artifact_name, "path": str(path), "expected_sha256": artifact.get("sha256"), "actual_sha256": actual, "status": "pass" if passed else "fail"})
+        source_pair = document["source_pair"]
+        if not isinstance(source_pair, Mapping):
+            raise StateEvolutionContractError("matched pair source_pair must be an object")
+        for member in ("base", "changed"):
+            item = source_pair.get(member)
+            if not isinstance(item, Mapping):
+                raise StateEvolutionContractError(f"matched pair source_pair.{member} must be an object")
+            if not isinstance(item.get("variant_id"), str) or not item.get("variant_id", "").strip():
+                raise StateEvolutionContractError(f"matched pair source_pair.{member} requires variant_id")
+            source_file = pair_source(str(item.get("source_path", "")))
+            actual_source = hashlib.sha256(source_file.read_bytes()).hexdigest() if source_file.is_file() else None
+            source_ok = actual_source == item.get("source_sha256")
+            checks.append({"artifact": f"{member}.source", "path": str(source_file), "expected_sha256": item.get("source_sha256"), "actual_sha256": actual_source, "status": "pass" if source_ok else "fail"})
+            change_path_raw = item.get("change_path")
+            change_hash = item.get("change_sha256")
+            if change_path_raw is None:
+                change_ok = change_hash is None
+                checks.append({"artifact": f"{member}.change", "status": "pass" if change_ok else "fail"})
+            else:
+                change_file = pair_source(str(change_path_raw))
+                actual_change = hashlib.sha256(change_file.read_bytes()).hexdigest() if change_file.is_file() else None
+                change_ok = actual_change == change_hash
+                checks.append({"artifact": f"{member}.change", "path": str(change_file), "expected_sha256": change_hash, "actual_sha256": actual_change, "status": "pass" if change_ok else "fail"})
+        equivalence = document["protocol_equivalence"]
+        if not isinstance(equivalence, Mapping):
+            raise StateEvolutionContractError("matched pair protocol_equivalence must be an object")
+        equivalent = all(equivalence.get(key) is True for key in ("same_protocol_sha256", "same_package_activity", "same_resource_ids"))
+        checks.append({"artifact": "protocol_equivalence", "status": "pass" if equivalent else "fail"})
+        members = document["source_pair"]
+        distinct_ids = members["base"].get("variant_id") != members["changed"].get("variant_id")
+        checks.append({"artifact": "variant_identity", "status": "pass" if distinct_ids else "fail"})
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, StateEvolutionContractError) as error:
+        checks.append({"artifact": "matched_pair", "status": "fail", "detail": f"{type(error).__name__}: {error}"})
     return ProvenanceVerification(contract_path=str(source), checks=tuple(checks))
 
 
@@ -558,6 +733,8 @@ class StateEvolutionContext:
     collection: ContextCollectionResult
     required_fact_ids: tuple[str, ...]
     unresolved: tuple[str, ...] = ()
+    contract_provenance: ProvenanceVerification | None = None
+    context_provenance: ProvenanceVerification | None = None
 
     @property
     def graph(self) -> QualityContextGraph:
@@ -604,6 +781,10 @@ class StateEvolutionContext:
             "graph": self.graph.to_dict(),
             "required_fact_ids": list(self.required_fact_ids),
             "unresolved": list(self.unresolved),
+            "provenance": {
+                "contract": self.contract_provenance.to_dict() if self.contract_provenance else None,
+                "context": self.context_provenance.to_dict() if self.context_provenance else None,
+            },
         }
 
 
@@ -674,7 +855,42 @@ def load_state_evolution_context(
     """Load the same neutral graph for ChangeTarget and ProjectTarget."""
 
     contract = load_state_evolution_contract(contract_path)
+    contract_provenance = verify_state_evolution_provenance(contract_path)
+    if not contract_provenance.valid:
+        raise StateEvolutionContractError(
+            "fixture contract provenance is not valid: "
+            + ", ".join(
+                str(item.get("ref"))
+                for item in contract_provenance.checks
+                if item.get("status") != "pass"
+            )
+        )
     collection = load_context_manifest(context_path, target)
+    if isinstance(target, ChangeTarget):
+        change_provenance = verify_change_target_diff(target, repo_root=target.worktree)
+        if not change_provenance.valid:
+            raise StateEvolutionContractError(
+                "ChangeTarget diff provenance is not valid: "
+                + ", ".join(
+                    str(item.get("diff_ref", ""))
+                    for item in change_provenance.checks
+                    if item.get("status") != "pass"
+                )
+            )
+    context_provenance = verify_state_context_provenance(
+        context_path,
+        collection.graph,
+        base_dir=Path(contract_path).resolve().parent,
+    )
+    if not context_provenance.valid:
+        raise StateEvolutionContractError(
+            "state context provenance is not valid: "
+            + ", ".join(
+                str(item.get("ref"))
+                for item in context_provenance.checks
+                if item.get("status") != "pass"
+            )
+        )
     if collection.graph.target_id != target.target_id:
         raise StateEvolutionContractError("state context graph target does not match target")
     required, unresolved = _context_requirements(collection.graph, contract)
@@ -684,6 +900,8 @@ def load_state_evolution_context(
         collection=collection,
         required_fact_ids=required,
         unresolved=tuple(dict.fromkeys((*collection.unresolved, *unresolved))),
+        contract_provenance=contract_provenance,
+        context_provenance=context_provenance,
     )
 
 
@@ -736,6 +954,71 @@ class RuntimeEvidenceCheck:
 
 
 @dataclass(frozen=True)
+class RuntimePhaseReceipt:
+    """One deterministic adapter phase receipt, without an outcome."""
+
+    phase_id: str
+    status: str
+    input_sha256: str
+    evidence_ref: str
+    detail: str = ""
+
+    def __post_init__(self) -> None:
+        _text(self.phase_id, "phase receipt phase_id")
+        if self.status not in {"prepared", "requested", "recorded", "failed"}:
+            raise StateEvolutionContractError("invalid runtime phase receipt status")
+        _sha256(self.input_sha256, "phase receipt input_sha256")
+        _text(self.evidence_ref, "phase receipt evidence_ref")
+
+    def to_dict(self) -> dict[str, Any]:
+        result = {
+            "phase_id": self.phase_id,
+            "status": self.status,
+            "input_sha256": self.input_sha256,
+            "evidence_ref": self.evidence_ref,
+        }
+        if self.detail:
+            result["detail"] = self.detail
+        return result
+
+
+@dataclass(frozen=True)
+class StateReplayReceipt:
+    """Bounded adapter record returned before an oracle conclusion exists."""
+
+    replay_id: str
+    phases: tuple[RuntimePhaseReceipt, ...]
+    seed: StateSnapshot
+    terminal: bool
+    local_only: bool = True
+    reversible: bool = True
+
+    def __post_init__(self) -> None:
+        _text(self.replay_id, "replay_id")
+        if not isinstance(self.phases, tuple) or not self.phases:
+            raise StateEvolutionContractError("replay phases must not be empty")
+        if any(not isinstance(item, RuntimePhaseReceipt) for item in self.phases):
+            raise StateEvolutionContractError("replay phases must contain RuntimePhaseReceipt values")
+        if not isinstance(self.seed, StateSnapshot):
+            raise StateEvolutionContractError("replay seed must be StateSnapshot")
+        if not isinstance(self.terminal, bool) or not isinstance(self.local_only, bool) or not isinstance(self.reversible, bool):
+            raise StateEvolutionContractError("replay terminal/local_only/reversible must be boolean")
+        if not self.local_only or not self.reversible:
+            raise StateEvolutionContractError("replay must be local-only and reversible")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": 1,
+            "replay_id": self.replay_id,
+            "phases": [item.to_dict() for item in self.phases],
+            "seed": self.seed.to_dict(),
+            "terminal": self.terminal,
+            "local_only": self.local_only,
+            "reversible": self.reversible,
+        }
+
+
+@dataclass(frozen=True)
 class StateEvolutionRuntimeAdapter:
     """Describe and validate one deterministic local state replay boundary."""
 
@@ -756,6 +1039,60 @@ class StateEvolutionRuntimeAdapter:
             RuntimeStep("observe-restored-state", "after-recovery", "capture restored state and process/transport evidence"),
         )
 
+    def create_old_state(self) -> StateSnapshot:
+        """Create the deterministic v1 record in memory, without device I/O."""
+
+        return self.contract.old_state
+
+    def import_old_state(self, state: Mapping[str, Any] | None = None) -> StateSnapshot:
+        """Validate/import an old record supplied by an injectable runner."""
+
+        if state is None:
+            return self.create_old_state()
+        imported = StateSnapshot.from_dict(state, label="imported old state")
+        if imported != self.contract.old_state:
+            raise StateEvolutionContractError("imported old state does not match fixture contract")
+        return imported
+
+    def replay(
+        self,
+        *,
+        phase_runner: Callable[[RuntimeStep, Mapping[str, Any]], Mapping[str, Any]] | None = None,
+    ) -> StateReplayReceipt:
+        """Record a bounded replay; only an injected runner may touch a device.
+
+        With no runner this method is a deterministic preparation receipt. An
+        injected runner receives each phase and may return its own evidence;
+        the adapter never interprets that evidence as a verdict.
+        """
+
+        phases: list[RuntimePhaseReceipt] = []
+        for step in self.steps:
+            if step.step_id in {"seed-old-state", "observe-old-state"}:
+                payload: Mapping[str, Any] = {"state": self.create_old_state().to_dict()}
+            else:
+                payload = {"event": step.event, "boundary": step.boundary}
+            digest = _canonical_digest(payload)
+            if phase_runner is None:
+                status = "prepared" if step.step_id.startswith(("seed", "observe")) else "requested"
+                evidence_ref = f"adapter://state-evolution/{step.step_id}"
+                detail = "no external runner injected"
+            else:
+                result = phase_runner(step, payload)
+                if not isinstance(result, Mapping):
+                    raise StateEvolutionContractError("phase runner must return an evidence mapping")
+                status_value = result.get("status", "recorded")
+                status = status_value if status_value in {"recorded", "failed"} else "recorded"
+                evidence_ref = str(result.get("evidence_ref", f"injected://{step.step_id}"))
+                detail = str(result.get("detail", ""))
+            phases.append(RuntimePhaseReceipt(step.step_id, status, digest, evidence_ref, detail))
+        return StateReplayReceipt(
+            replay_id="state-replay-" + _canonical_digest([item.to_dict() for item in phases])[:16],
+            phases=tuple(phases),
+            seed=self.create_old_state(),
+            terminal=True,
+        )
+
     def plan(self) -> tuple[dict[str, Any], ...]:
         """Return side-effect-free adapter phases with no expected conclusion."""
 
@@ -769,16 +1106,17 @@ class StateEvolutionRuntimeAdapter:
         checks: list[RuntimeEvidenceCheck] = []
         checks.append(RuntimeEvidenceCheck("terminal", evidence.get("terminal") is True, "terminal evidence is required"))
         process = evidence.get("process_event")
-        process_ok = _process_event_accountable(process)
+        process_ok = _process_event_accountable(process, self.contract.package)
         checks.append(RuntimeEvidenceCheck("process-identity", process_ok, "process before/after identity must change"))
         restore = evidence.get("backup_event")
-        restore_ok = _backup_event_accountable(restore)
+        restore_ok = _backup_event_accountable(
+            restore,
+            self.contract.package,
+            self.contract.recovery.transport,
+        )
         checks.append(RuntimeEvidenceCheck("restore-transport", restore_ok, "backup/restore and cleanup receipts are required"))
         identity = evidence.get("execution_identity")
-        identity_ok = isinstance(identity, Mapping) and all(
-            isinstance(identity.get(key), str) and bool(identity.get(key, "").strip())
-            for key in ("package", "activity", "state_epoch")
-        )
+        identity_ok = _execution_identity_matches(self.contract, identity)
         checks.append(RuntimeEvidenceCheck("execution-identity", identity_ok, "package/activity/state_epoch identity is required"))
         return tuple(checks)
 
@@ -789,7 +1127,18 @@ def _pid_set(value: object) -> set[str]:
     return set(value)
 
 
-def _process_event_accountable(event: object) -> bool:
+def _execution_identity_matches(
+    contract: StateEvolutionFixtureContract,
+    identity: object,
+) -> bool:
+    return isinstance(identity, Mapping) and (
+        identity.get("package") == contract.package
+        and identity.get("activity") == contract.activity
+        and identity.get("state_epoch") == contract.recovery.boundary_id
+    )
+
+
+def _process_event_accountable(event: object, package: str) -> bool:
     if not isinstance(event, Mapping) or event.get("status") != "passed":
         return False
     evidence = event.get("evidence")
@@ -807,10 +1156,12 @@ def _process_event_accountable(event: object) -> bool:
             ("relaunch_status", "success"),
             ("target_resumed_after_relaunch", True),
         )
-    ) and all(bool(evidence.get(key)) for key in ("background_resumed_package", "foreground_resumed_package"))
+    ) and evidence.get("foreground_resumed_package") == package and bool(
+        evidence.get("background_resumed_package")
+    )
 
 
-def _backup_event_accountable(event: object) -> bool:
+def _backup_event_accountable(event: object, package: str, transport: str) -> bool:
     if not isinstance(event, Mapping) or event.get("status") != "passed":
         return False
     evidence = event.get("evidence")
@@ -830,6 +1181,8 @@ def _backup_event_accountable(event: object) -> bool:
         and evidence.get("cleanup_status") == "success"
         and evidence.get("cleanup_transport") == previous_transport
         and evidence.get("cleanup_backup_enabled") is backup_enabled
+        and evidence.get("package") == package
+        and evidence.get("transport") == transport
     )
 
 
@@ -892,6 +1245,7 @@ def judge_state_evolution(
     process_event: Mapping[str, Any],
     backup_event: Mapping[str, Any],
     execution_identity: Mapping[str, Any] | None,
+    state_loss_evidence: Mapping[str, Any] | None = None,
     crash_detected: bool = False,
 ) -> dict[str, Any]:
     """Classify one accountable local state replay, failing closed on gaps."""
@@ -919,12 +1273,13 @@ def judge_state_evolution(
             "evidence_error": f"{type(error).__name__}: {error}",
         }
 
-    identity_ok = isinstance(execution_identity, Mapping) and all(
-        isinstance(execution_identity.get(key), str) and bool(execution_identity.get(key, "").strip())
-        for key in ("package", "activity", "state_epoch")
+    identity_ok = _execution_identity_matches(contract, execution_identity)
+    process_ok = _process_event_accountable(process_event, contract.package)
+    backup_ok = _backup_event_accountable(
+        backup_event,
+        contract.package,
+        contract.recovery.transport,
     )
-    process_ok = _process_event_accountable(process_event)
-    backup_ok = _backup_event_accountable(backup_event)
     events_ok = identity_ok and process_ok and backup_ok
     old_exact = all(_snapshot_matches(observations[name], contract.old_state) for name in ("initial", "rotation", "process_death"))
     missing = any(value is None for observation in observations.values() for value in observation.values())
@@ -952,12 +1307,29 @@ def judge_state_evolution(
             "observations": observations,
         }
     if missing:
+        explicit_loss = isinstance(state_loss_evidence, Mapping) and (
+            state_loss_evidence.get("status") == "passed"
+            and state_loss_evidence.get("loss_confirmed") is True
+            and isinstance(state_loss_evidence.get("boundary"), str)
+            and bool(state_loss_evidence.get("boundary", "").strip())
+            and isinstance(state_loss_evidence.get("reason"), str)
+            and bool(state_loss_evidence.get("reason", "").strip())
+        )
+        if explicit_loss:
+            return {
+                **base,
+                "conclusion": "locally_rejected",
+                "classification": "state_loss",
+                "reason": "required_state_missing_with_explicit_loss_evidence",
+                "accountable": True,
+                "observations": observations,
+            }
         return {
             **base,
-            "conclusion": "locally_rejected",
-            "classification": "state_loss",
-            "reason": "required_state_missing",
-            "accountable": True,
+            "conclusion": "non_accountable",
+            "classification": "inconclusive",
+            "reason": "required_state_observation_missing_without_explicit_loss_evidence",
+            "accountable": False,
             "observations": observations,
         }
     if not old_exact:
@@ -1006,6 +1378,7 @@ __all__ = [
     "ProvenanceVerification",
     "RecoveryBoundary",
     "RuntimeEvidenceCheck",
+    "RuntimePhaseReceipt",
     "RuntimeStep",
     "StateEvolutionContext",
     "StateEvolutionContract",
@@ -1013,6 +1386,7 @@ __all__ = [
     "StateEvolutionFixtureContract",
     "StateEvolutionRuntimeAdapter",
     "StateInvariant",
+    "StateReplayReceipt",
     "StateResourceIds",
     "StateSnapshot",
     "judge_state_evolution",
@@ -1021,5 +1395,8 @@ __all__ = [
     "load_state_evolution_schema",
     "self_validate_state_evolution_schema",
     "validate_state_evolution_context",
+    "verify_change_target_diff",
+    "verify_state_context_provenance",
+    "verify_state_evolution_matched_pair",
     "verify_state_evolution_provenance",
 ]

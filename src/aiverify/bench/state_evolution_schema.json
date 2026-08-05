@@ -60,7 +60,7 @@
     "recovery": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["boundary_id", "events", "timeout_seconds", "reversible", "local_only"],
+      "required": ["boundary_id", "events", "timeout_seconds", "reversible", "local_only", "transport"],
       "properties": {
         "boundary_id": {"type": "string", "minLength": 1},
         "events": {
@@ -69,7 +69,8 @@
         },
         "timeout_seconds": {"type": "integer", "minimum": 1},
         "reversible": {"const": true},
-        "local_only": {"const": true}
+        "local_only": {"const": true},
+        "transport": {"type": "string", "minLength": 1}
       }
     },
     "qualityContract": {

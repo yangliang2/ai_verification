@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "recipe_id": "state-evolution-pair-build-v1",
+  "host_project": "bench/fixtures/lifecycle-recovery-app",
+  "gradle_wrapper": "./gradlew",
+  "gradle_tasks": [":app:assembleDebug"],
+  "apk_relative_path": "app/build/outputs/apk/debug/app-debug.apk",
+  "package": "dev.aiverify.lifecyclefixture",
+  "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+  "protocol": "../protocol.json",
+  "source": "../../../fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java"
+}
