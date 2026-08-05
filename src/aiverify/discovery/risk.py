@@ -790,10 +790,10 @@ def _validate_strategy_result(
     operator: AttackOperator,
 ) -> tuple[str, ...]:
     reasons: list[str] = []
-    if result.prior.prior_id != prior.prior_id:
-        reasons.append("strategy result prior does not match selected prior")
-    if result.operator.operator_id != operator.operator_id:
-        reasons.append("strategy result operator does not match selected operator")
+    if result.prior != prior:
+        reasons.append("strategy result prior does not match selected prior contract")
+    if result.operator != operator:
+        reasons.append("strategy result operator does not match selected operator contract")
     if result.rejection_reasons:
         if any(
             value is not None

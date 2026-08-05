@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -390,6 +391,65 @@ def test_explicit_non_temporal_strategy_seeds_both_modes_and_resumes() -> None:
     validate_contract(strategy.to_dict(), "risk_derivation_strategy")
 
 
+def test_strategy_result_must_match_full_prior_and_operator_contracts() -> None:
+    prior = RiskPrior(
+        prior_id="prior-contract-match",
+        name="test family",
+        description="selected contract",
+        signals=("signal",),
+        operator_ids=("operator-contract-match",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-contract-match",
+        name="test operator",
+        description="selected contract",
+        action="observe",
+        safety_boundary="local",
+    )
+    wrong_prior = replace(prior, description="same id but different contract")
+    wrong_operator = replace(operator, action="different action")
+
+    def derive_wrong_contract(
+        target,
+        graph,
+        *,
+        mode,
+        behavior_delta=None,
+        contract_drift=None,
+    ):
+        result = derive_synchronous_risk(
+            target,
+            graph,
+            mode=mode,
+            behavior_delta=behavior_delta,
+            contract_drift=contract_drift,
+            prior=prior,
+            operator=operator,
+        )
+        return replace(result, prior=wrong_prior, operator=wrong_operator)
+
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-contract-match-v1",
+        version="test-1",
+        compatible_prior_ids=(prior.prior_id,),
+        compatible_operator_ids=(operator.operator_id,),
+        deriver=derive_wrong_contract,
+    )
+    target = _project_target()
+    result = derive_with_strategy(
+        strategy,
+        target,
+        _graph(target),
+        mode="project",
+        prior=prior,
+        operator=operator,
+    )
+    assert result.accepted is False
+    assert "prior contract" in " ".join(result.rejection_reasons)
+    assert "operator contract" in " ".join(result.rejection_reasons)
+
+
 def test_strategy_selection_rejects_unsupported_prior_before_campaign() -> None:
     strategy = make_risk_derivation_strategy(
         strategy_id="strategy-only-v1",
@@ -449,6 +509,50 @@ def test_non_temporal_prior_requires_explicit_strategy() -> None:
             _graph(target),
             prior=prior,
             operator=operator,
+        )
+
+
+def test_strategy_aliases_reject_distinct_deriver_callables() -> None:
+    prior = RiskPrior(
+        prior_id="prior-alias",
+        name="alias",
+        description="alias",
+        signals=("signal",),
+        operator_ids=("operator-alias",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-alias",
+        name="alias",
+        description="alias",
+        action="observe",
+        safety_boundary="local",
+    )
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-alias-v1",
+        version="test-1",
+        compatible_prior_ids=(prior.prior_id,),
+        compatible_operator_ids=(operator.operator_id,),
+        deriver=lambda *args, **kwargs: None,
+    )
+    conflicting = make_risk_derivation_strategy(
+        strategy_id=strategy.strategy_id,
+        version=strategy.version,
+        compatible_prior_ids=strategy.compatible_prior_ids,
+        compatible_operator_ids=strategy.compatible_operator_ids,
+        target_modes=strategy.target_modes,
+        deriver=lambda *args, **kwargs: None,
+    )
+    target = _project_target()
+    with pytest.raises(DiscoveryContractError, match="strategy and derivation_strategy disagree"):
+        seed_project_campaign(
+            "campaign-alias-conflict",
+            target,
+            _graph(target),
+            prior=prior,
+            operator=operator,
+            strategy=strategy,
+            derivation_strategy=conflicting,
         )
 
 

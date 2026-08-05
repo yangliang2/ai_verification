@@ -1241,7 +1241,11 @@ def resume_campaign(
     downstream operation.
     """
 
-    if strategy is not None and derivation_strategy is not None and strategy != derivation_strategy:
+    if (
+        strategy is not None
+        and derivation_strategy is not None
+        and not _same_strategy(strategy, derivation_strategy)
+    ):
         raise DiscoveryContractError("strategy and derivation_strategy disagree")
     selected = strategy or derivation_strategy
     package = DiscoveryCampaignPackage.from_dict(document)
@@ -1304,7 +1308,11 @@ def _seed_campaign(
             raise DiscoveryContractError("rejected context expansion cannot seed a campaign")
         if context_result.graph != graph:
             raise DiscoveryContractError("context result graph does not match campaign graph")
-    if strategy is not None and derivation_strategy is not None and strategy != derivation_strategy:
+    if (
+        strategy is not None
+        and derivation_strategy is not None
+        and not _same_strategy(strategy, derivation_strategy)
+    ):
         raise DiscoveryContractError("strategy and derivation_strategy disagree")
     selected_strategy = strategy or derivation_strategy
     if selected_strategy is None:
@@ -1441,6 +1449,27 @@ def _validate_target_graph(target: DiscoveryTarget, graph: QualityContextGraph) 
         raise DiscoveryContractError("campaign graph must be a QualityContextGraph")
     if graph.target_id != target.target_id:
         raise DiscoveryContractError("campaign graph target does not match target")
+
+
+def _same_strategy(
+    left: RiskDerivationStrategy,
+    right: RiskDerivationStrategy,
+) -> bool:
+    """Compare strategy aliases, including executable callable identity."""
+
+    if not isinstance(left, RiskDerivationStrategy) or not isinstance(
+        right, RiskDerivationStrategy
+    ):
+        return False
+    return (
+        left.strategy_id == right.strategy_id
+        and left.version == right.version
+        and left.compatible_prior_ids == right.compatible_prior_ids
+        and left.compatible_operator_ids == right.compatible_operator_ids
+        and left.target_modes == right.target_modes
+        and left.schema_version == right.schema_version
+        and left.deriver is right.deriver
+    )
 
 
 def _single_hypothesis(campaign: DiscoveryCampaign) -> RiskHypothesis:

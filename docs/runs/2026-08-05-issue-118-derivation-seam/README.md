@@ -15,7 +15,7 @@ or external project.
 
 ```text
 /usr/bin/time -p uv run --with pytest --with jsonschema --with pyyaml pytest tests/discovery -q
-42 passed; real 2.87s, user 0.57s, sys 0.16s
+44 passed; real 1.03s, user 0.57s, sys 0.03s
 ```
 
 The discovery test suite passed, including deterministic custom-strategy
@@ -24,12 +24,12 @@ ledger tamper checks, and the existing temporal derivation tests.
 
 ```text
 /usr/bin/time -p uv run --with pytest --with jsonschema --with pyyaml pytest -o addopts='' -ra -q
-772 passed in 22.18s; real 22.75s, user 18.00s, sys 3.89s
+774 passed in 23.20s; real 23.74s, user 19.00s, sys 4.21s
 
 /usr/bin/time -p uv build
 Successfully built dist/aiverify-0.1.0.tar.gz
 Successfully built dist/aiverify-0.1.0-py3-none-any.whl
-real 0.73s, user 0.51s, sys 0.20s
+real 0.80s, user 0.56s, sys 0.21s
 ```
 
 Tool versions: `uv 0.11.7`, CPython `3.11.15`, pytest `9.1.1`, jsonschema
@@ -47,8 +47,8 @@ implementation artifacts. Package artifacts produced by the build were:
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `dist/aiverify-0.1.0.tar.gz` | `594371db7d839cf1fcae948735e7245e097d27f393604c4daca382b6307b3d7a` |
-| `dist/aiverify-0.1.0-py3-none-any.whl` | `e4d91fe7d7444eb122150139b8e27524f453c2bcccb370ba00f37b6092c16de2` |
+| `dist/aiverify-0.1.0.tar.gz` | `17ba214474aa51cfd1b3e1d83117feebadf37fc671d93c386319751ec4e274a9` |
+| `dist/aiverify-0.1.0-py3-none-any.whl` | `52b7e71a4624e3900850e05a9e6b8c889f470a57acda6560373c8e6efe5be335` |
 
 The `dist/` directory is a local build output and is not claimed as a
 committed evidence artifact; the checksums above identify exactly what the
