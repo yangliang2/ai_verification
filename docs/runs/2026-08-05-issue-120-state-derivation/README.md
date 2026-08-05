@@ -3,7 +3,7 @@
 Date: 2026-08-05<br>
 Baseline: `origin/main` at `8b80e6e07a51d72783cac410e813b3b144d1e4f1`<br>
 Working branch: `m8-120-state-derivation`<br>
-Implementation revision: recorded after the evidence commit is created
+Implementation revision: `eabfcb7` (evidence and implementation commit)
 
 ## Scope and result
 
