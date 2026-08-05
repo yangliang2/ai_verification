@@ -1,6 +1,6 @@
 # AI Verification 当前能力与声明矩阵
 
-更新时间：2026-08-04
+更新时间：2026-08-05
 
 本矩阵是当前里程碑声明的入口。它把“仓库中存在实现”与“已有可审计证据
 支持某个声明”分开，并使用以下状态：
@@ -79,6 +79,7 @@ experiment 在 hypothesis、fixture、expected evidence、oracle 或 claim bound
 |---|---|---|
 | M7 project/change risk-discovery qualification | 有界证据支持（discovery/admission/evidence seam） | [#104 run](runs/2026-08-04-issue-104-m7-qualification/README.md)：冻结 4-cell/12-lane；12/12 accountable、0 retries、12/12 admitted attacks、12/12 independent adjudication；contradictory preflight 在 formal denominator 外 fail-closed | 仅 local fixture 与离线 seam；不声明 benchmark-wide rate、项目完整覆盖或 upstream acceptance |
 | M7-R1 synchronous-critical-path runtime probe | 有界证据支持（单一 API-35 emulator、Change Mode） | [#112 run](runs/2026-08-04-issue-112-runtime-admission/README.md)：defect/control 各 3 次，6/6 accountable、0 retries；defect 3/3 `locally_supported`（250 ms main-thread delay），control 3/3 `locally_rejected`；APK、ExecutionRecord、effective identity、截图/layout/logcat 与 oracle 均 checksum-bound | 仅该 fixture、TemporalActivity、API-35 AVD 与 200 ms temporal contract；不声明 ANR rate、OEM/SystemUI、physical fleet、Project Mode 或通用 Android 能力 |
+| M7-R2 synchronous-critical-path runtime probe | 有界证据支持（单一 API-35 emulator、Project Mode） | [#115 run](runs/2026-08-05-issue-115-project-runtime/README.md)：ProjectTarget 无 diff；defect/control 各 3 次，6/6 accountable、0 retries；defect 3/3 `locally_supported`（250 ms main-thread delay），control 3/3 `locally_rejected`；campaign admission、leakage audit、APK、ExecutionRecord、effective identity、截图/layout/logcat 与 oracle 均 checksum-bound | 仅该 ProjectTarget packet、fixture adapter、API-35 AVD 与 200 ms temporal contract；不声明项目完整性、ANR rate、OEM/SystemUI、physical fleet、Change/Project 合并率或通用 Android 能力 |
 | benchmark-wide detection/false-positive rate | 当前不声明 | 合格且足够规模的独立 ground-truth population 与预注册统计契约 |
 | physical/OEM/device-fleet 与 ColorOS | 当前不声明 | 独立的设备/host admission、身份、矩阵与 durable evidence |
 | fully unattended Journey reliability | 当前不声明 | 无 agent-in-the-loop 的版本化执行人口和 accountability 测量 |
@@ -95,8 +96,9 @@ packet 的 variant、expected evidence、verdict 和 outcome 均保持盲化；P
 contradictory context 在正式 invocation 前被排除且不进入 denominator。
 
 这个结果先支持 `proceed_to_bounded_runtime_probe`；随后 [#112](https://github.com/yangliang2/ai_verification/issues/112)
-完成了一个独立冻结的 Change Mode runtime slice。两者都只支持 local-only 的
-有界事实，不提供缺陷检测率、误报率、项目完整性或 upstream acceptance 声明。
+完成了独立冻结的 Change Mode runtime slice，[#115](https://github.com/yangliang2/ai_verification/issues/115)
+完成了无 diff 的 Project Mode runtime slice。三者都只支持 local-only 的有界
+事实，不提供缺陷检测率、误报率、项目完整性或 upstream acceptance 声明。
 
 ## 当前下一步
 
@@ -107,7 +109,7 @@ M7 parent [#98](https://github.com/yangliang2/ai_verification/issues/98) 验证
 `#99 → (#101 与 #102) → #103 → #104`
 
 #100 定义了 Discovery Campaign 与 Run Spec 的边界；#101/#102 并行完成，#103
-负责编排，#104 完成 offline qualification，#112 完成第一个 bounded Change Mode
-runtime probe。下一步应在不扩大声明边界的前提下规划 Project Mode runtime 或第二个
+负责编排，#104 完成 offline qualification，#112/#115 分别完成 Change Mode 与
+Project Mode 的 bounded runtime probe。下一步应在不扩大声明边界的前提下规划第二个
 独立风险族；M7 继续保持 local-only claim boundary，不把任何 finding 写成 upstream
 acceptance 或 benchmark-wide rate。

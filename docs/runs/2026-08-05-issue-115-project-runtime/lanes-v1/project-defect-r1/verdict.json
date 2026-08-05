@@ -1,0 +1,96 @@
+{
+  "scenario": "m7-r2-synchronous-weather-project",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_backend_error",
+    "message": "CodexCliError: Codex CLI failed with exit code 1: Reading additional input from stdin...\n2026-08-05T15:03:04.410744Z ERROR codex_models_manager::cache: failed to load models cache: missing field `supports_reasoning_summaries` at line 86 column 5"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/private/tmp/m7-r2-project-runtime.4SkZLu/lanes-v1/project-defect-r1/live-validation-gate.json",
+      "failed_checks": [],
+      "app": {
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity",
+        "target_surface": {
+          "text": "Weather: fixture-data"
+        }
+      }
+    }
+  },
+  "metric_context": {
+    "seed_id": "m7-r2-synchronous-weather-project",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "journey_results": [],
+    "checkpoints": [],
+    "backend_errors": [
+      {
+        "result": null,
+        "events": "/private/tmp/m7-r2-project-runtime.4SkZLu/lanes-v1/project-defect-r1/artifacts/m7-r2-synchronous-weather-project-segment-0/codex-events.jsonl",
+        "command": [
+          "codex",
+          "exec",
+          "--json",
+          "--output-schema",
+          "/Users/peter/projects/ai_verification-m7-115/src/aiverify/runner/journey_result_schema.json",
+          "--output-last-message",
+          "/private/tmp/m7-r2-project-runtime.4SkZLu/lanes-v1/project-defect-r1/artifacts/m7-r2-synchronous-weather-project-segment-0/codex-journey-result.json",
+          "--skip-git-repo-check",
+          "--cd",
+          "/Users/peter/projects/ai_verification-m7-115",
+          "--dangerously-bypass-approvals-and-sandbox",
+          "--model",
+          "gpt-5",
+          "You are a Verification Agent Backend driving a real Android emulator (serial: emulator-5554).\n\nTOOLS (run as shell commands):\n- `android layout --device=emulator-5554 --pretty` prints the current UI as a JSON list.\n  Each element may have \"resource-id\", \"text\", \"content-desc\", and \"center\"\n  (a string like \"[540,2232]\" giving the tap x,y).\n- `adb -s emulator-5554 shell input tap X Y` taps a coordinate.\n- `adb -s emulator-5554 shell input text \"STR\"` types into the focused field.\n\nHOW TO ACT: For each <action> in the journey below, run `android layout` to get a\nfresh tree, find the named element (usually by its resource-id) to read its \"center\",\nthen tap/type as the action says. Re-read the layout between actions. If the app is on\nan onboarding screen (no bottom nav yet), advance it by tapping the element with\ncontent-desc \"Forward\" or text \"Skip\" until the main feed appears.\n\nCONSTRAINTS: Only use android/adb shell commands against emulator-5554. Do NOT edit files,\ninstall anything, or rotate/toggle the device — the harness injects system events itself.\nNavigate ONLY by tapping/typing on visible UI elements (`input tap` / `input text`).\nDo NOT use `am start`, `am broadcast`, `monkey`, or any intent-based shortcut to reach\na screen — the app under test may not support that intent and could crash, which would\ncontaminate the crash oracle. If a screen seems unreachable, keep tapping through the\nUI; report FAILED for the action rather than falling back to intents.\n\nACTION RESULT CONTRACT: Each <action> has a stable id; copy its stable id into action_id\nand keep one result per requested action in the same order. PASSED means the requested\nUI interaction was dispatched and any required precondition was observed. A crash, ANR,\nor incorrect UI after that dispatch is product evidence for the harness oracles, not a\nreason to mark the driver action FAILED. Use FAILED only when the requested interaction\ncould not be dispatched; use SKIPPED only when a prior failure prevented the attempt.\nRecord the exact commands and observed product behavior in the comment.\nDo not infer dispatch from apparent UI side effects and do not claim a command that was\nnot run.\n\nFINAL OUTPUT: a JSON object matching the provided schema — a \"journey\" name and a\n\"results\" array with one entry per <action> (\"action_id\", \"status\"\nPASSED/FAILED/SKIPPED, the \"commands\" you ran, and a short \"comment\").\n\n--- JOURNEY SEGMENT TO EXECUTE ---\n<journey name=\"m7-r2-synchronous-weather-project-segment-0\">\n  <description>Execute this segment exactly as written.</description>\n  <actions>\n    <action id=\"action-1\">Verify the synchronous weather probe screen is visible after launch.</action>\n    <action id=\"action-2\">Observe the displayed weather summary and caller latency without changing device state.</action>\n  </actions>\n</journey>\n"
+        ]
+      }
+    ],
+    "system_events": []
+  },
+  "journey_results": [],
+  "checkpoints": [],
+  "injected_events": [],
+  "system_event_evidence": [],
+  "timing": {
+    "started_at": "2026-08-05T15:02:53+00:00",
+    "finished_at": "2026-08-05T15:03:24+00:00",
+    "total_seconds": 31.412,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.446
+      },
+      {
+        "phase": "m7-r2-synchronous-weather-project-segment-0",
+        "kind": "journey",
+        "status": "failed",
+        "seconds": 20.439
+      }
+    ]
+  },
+  "execution_record": "/private/tmp/m7-r2-project-runtime.4SkZLu/lanes-v1/project-defect-r1/execution-record.json"
+}

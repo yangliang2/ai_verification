@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "attempt_id": "f01188e3-534a-41ec-8920-cc2b5bfa05cd",
+  "scenario": "m7-r2-synchronous-weather-project",
+  "captured_at": "2026-08-05T15:10:56+00:00",
+  "run_spec": {
+    "invocation_path": "/Users/peter/projects/ai_verification-m7-115/bench/runtime-probes/synchronous-weather-project/run-specs/project-control.yaml",
+    "consumed_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+    "snapshot_path": "identity/run-spec.yaml",
+    "snapshot_sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476",
+    "scenario": "m7-r2-synchronous-weather-project",
+    "host_project": "/Users/peter/projects/ai_verification-m7-115",
+    "apk_glob": "bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+    "package": "dev.aiverify.lifecyclefixture",
+    "activity": "dev.aiverify.lifecyclefixture.TemporalActivity",
+    "identity_sha256": "8a98d0389333512a63a368ad06f3f11358e7c4497346a941e46f3623a8a8017b"
+  },
+  "host": {
+    "repository_root": "/Users/peter/projects/ai_verification-m7-115",
+    "origin": "https://github.com/yangliang2/ai_verification.git",
+    "commit": "59ea1955f23f6972c369046ad9b06672eb309723",
+    "worktree": {
+      "clean": false,
+      "status": " M pyproject.toml\n M src/aiverify/bench/m7_runtime_probe.py\n M tests/bench/test_m6_cohort.py\n?? bench/runtime-probes/synchronous-weather-project/project-target.json\n?? bench/runtime-probes/synchronous-weather-project/run-specs/project-control.yaml\n?? bench/runtime-probes/synchronous-weather-project/run-specs/project-defect.yaml\n?? bench/runtime-probes/synchronous-weather-project/runtime-probe.json\n?? bench/runtime-probes/synchronous-weather-project/spec.md\n?? src/aiverify/bench/m7_project_runtime_probe_schema.json\n",
+      "status_sha256": "e9022054df035ac2c29d0453c159a70c8253f2dcb9e8d864c6e7fcfb2744a664",
+      "untracked_files": [
+        {
+          "path": "bench/runtime-probes/synchronous-weather-project/project-target.json",
+          "sha256": "53eea2957c4148cb60ab3a265bb9ededbe4c169ce39fdaa82ad705ab94aac037"
+        },
+        {
+          "path": "bench/runtime-probes/synchronous-weather-project/run-specs/project-control.yaml",
+          "sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476"
+        },
+        {
+          "path": "bench/runtime-probes/synchronous-weather-project/run-specs/project-defect.yaml",
+          "sha256": "4b0ba307644eb6ba4611272bac0cc35459bfd973b598baa4d61c913887878476"
+        },
+        {
+          "path": "bench/runtime-probes/synchronous-weather-project/runtime-probe.json",
+          "sha256": "9e4bd1c0f64b463e58efaa0857e783184be1d637b9f16dcf8d9d1ab982fc1294"
+        },
+        {
+          "path": "bench/runtime-probes/synchronous-weather-project/spec.md",
+          "sha256": "b0a7ac1f66e50fd625b456adeff399817aeebf2708ed5a48027a2ead0b3f864d"
+        },
+        {
+          "path": "src/aiverify/bench/m7_project_runtime_probe_schema.json",
+          "sha256": "f3913d8abe555201b1bcd19b6a5b775619a174fff4dda905a52138820ceb3c66"
+        }
+      ],
+      "patch_path": "identity/host.patch",
+      "patch_sha256": "cfce6e186186e46441f7726791d8e31b23b065febd1dbd7a083337542256176d"
+    },
+    "identity_sha256": "0144893f6cf7f09b77c6894b4a0deb9d6e77f8b70fce941c65f415f313ae7496"
+  },
+  "apk": {
+    "artifacts": [
+      {
+        "path": "/Users/peter/projects/ai_verification-m7-115/bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+        "bytes": 937172,
+        "sha256": "3efb8acdce28829b1987dd9713a9a924c369a5ff5a03616561781fd5a0a202b0"
+      }
+    ],
+    "identity_sha256": "ea8a45703b743985edf3ef05a35e56e015faeecd9f147746684e85ebb83fd2d0"
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "api_level": "35",
+    "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "profile": {
+      "kind": "emulator",
+      "name": "aiverify_api35",
+      "model": "sdk_gphone64_arm64",
+      "device": "emu64a"
+    },
+    "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+  },
+  "tools": {
+    "android_cli": {
+      "requested": "android",
+      "resolved_path": "/Users/peter/.local/bin/android",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "version": "1.0.15498356",
+      "identity_sha256": "234115eb377fbc59cb1c243bd769f30ef049f64186491c700e78be4301d450e8"
+    },
+    "adb": {
+      "requested": "adb",
+      "resolved_path": "/opt/homebrew/Caskroom/android-platform-tools/37.0.0/platform-tools/adb",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+      "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)",
+      "identity_sha256": "38a82d1bcccaed89f0701833718dcde923cfde9a6080b8c42a1b5a5b6d341987"
+    },
+    "codex_cli": {
+      "requested": "codex",
+      "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+      "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+      "version": "codex-cli 0.144.6",
+      "identity_sha256": "8f26cbfe1000bcab862ab5b0c2d031763463c84daecccc82ed204e108cb40079"
+    },
+    "git": {
+      "requested": "git",
+      "resolved_path": "/usr/bin/git",
+      "sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb",
+      "version": "git version 2.50.1 (Apple Git-155)",
+      "identity_sha256": "fddd0e696681e24d624b01cfe9665a4a0d2ba4cb9f91e09874320cc632784f9c"
+    },
+    "python": {
+      "requested": "/Users/peter/.cache/uv/builds-v0/.tmpf8kUEx/bin/python",
+      "resolved_path": "/Users/peter/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11",
+      "sha256": "4c78423e7d5986362ac04df40edb18cdd1174f9818d653402e3abbd2a5bbf793",
+      "version": "3.11.15",
+      "identity_sha256": "cb72f338d8b1e092da4006e7ec2f4e20820219290fd20fa34c57ea86e601c54a"
+    }
+  },
+  "deployment": {
+    "target": {
+      "device": "emulator-5554",
+      "package": "dev.aiverify.lifecyclefixture",
+      "component": "dev.aiverify.lifecyclefixture/dev.aiverify.lifecyclefixture.TemporalActivity"
+    },
+    "process": {
+      "args": [
+        "android",
+        "run",
+        "--device=emulator-5554",
+        "--apks=/Users/peter/projects/ai_verification-m7-115/bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+        "--activity=dev.aiverify.lifecyclefixture.TemporalActivity",
+        "--type=ACTIVITY"
+      ],
+      "returncode": 0,
+      "stdout": "App loaded: dev.aiverify.lifecyclefixture\nDebuggable: true\nSelected component: dev.aiverify.lifecyclefixture.TemporalActivity\nInstalling APKs: /Users/peter/projects/ai_verification-m7-115/bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk\nInstallation completed successfully\nExecuting: Launching Activity for dev.aiverify.lifecyclefixture\nActivation completed successfully\n",
+      "stderr": "",
+      "identity_sha256": "5859053c999ffded5de4f1880ead7cb6c2ecbe86cc0841ece4f43d9b89f427bb"
+    },
+    "installed_artifacts": [
+      {
+        "path": "/data/app/~~iLiy0BGkUa7CqD8hB9u_1w==/dev.aiverify.lifecyclefixture-41-NT279VrUhG_1IR6gAdw==/base.apk",
+        "sha256": "3efb8acdce28829b1987dd9713a9a924c369a5ff5a03616561781fd5a0a202b0"
+      }
+    ],
+    "resolved_component": "dev.aiverify.lifecyclefixture/.TemporalActivity",
+    "device": {
+      "serial": "emulator-5554",
+      "api_level": "35",
+      "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+      "profile": {
+        "kind": "emulator",
+        "name": "aiverify_api35",
+        "model": "sdk_gphone64_arm64",
+        "device": "emu64a"
+      },
+      "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+    },
+    "tools": {
+      "android_cli_sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "adb_sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+    },
+    "identity_sha256": "94f5dcff6ed3aa64d9addcdcd5cfcff3629742219004257b244744426c8c853e"
+  },
+  "roles": {
+    "journey_driver": {
+      "status": "invoked",
+      "requested_model": "gpt-5.6-sol",
+      "invocations": [
+        {
+          "path": "artifacts/m7-r2-synchronous-weather-project-segment-0/codex-invocation-identity.json",
+          "sha256": "c2aea9571dee894a59a9c65139ed552f1f09a33c0eca7dfff3a2579976a31ebc"
+        }
+      ],
+      "invocation_ledger": []
+    },
+    "l3_semantic_judge": {
+      "status": "not_applicable",
+      "reason": "scenario_has_no_l3_spec",
+      "requested_model": null,
+      "invocations": [],
+      "invocation_ledger": []
+    }
+  }
+}

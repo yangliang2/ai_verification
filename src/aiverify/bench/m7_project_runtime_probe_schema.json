@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "M7-R2 bounded Project Mode synchronous-critical-path runtime probe",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "probe_id", "status", "frozen_at", "target_mode",
+    "source_identity", "campaign", "build", "tool_policy", "target",
+    "run_specs", "policy", "oracle", "evidence", "adjudication",
+    "claim_boundary", "cells"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "probe_id": {"type": "string", "pattern": "^m7-r2-[a-z0-9][a-z0-9-]*-v[1-9][0-9]*$"},
+    "status": {"const": "frozen"},
+    "frozen_at": {"type": "string", "format": "date-time"},
+    "target_mode": {"const": "project"},
+    "source_identity": {"$ref": "#/$defs/sourceIdentity"},
+    "campaign": {"$ref": "#/$defs/campaign"},
+    "build": {"$ref": "#/$defs/build"},
+    "tool_policy": {"$ref": "#/$defs/toolPolicy"},
+    "target": {"$ref": "#/$defs/target"},
+    "run_specs": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {"$ref": "#/$defs/runSpec"}
+    },
+    "policy": {"$ref": "#/$defs/policy"},
+    "oracle": {"$ref": "#/$defs/oracle"},
+    "evidence": {"$ref": "#/$defs/evidence"},
+    "adjudication": {"$ref": "#/$defs/adjudication"},
+    "claim_boundary": {"$ref": "#/$defs/claimBoundary"},
+    "cells": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {"$ref": "#/$defs/cell"}
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "sourceIdentity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["fixture_id", "source_origin", "source_commit", "worktree", "source_files", "context_manifest", "project_target"],
+      "properties": {
+        "fixture_id": {"type": "string", "minLength": 1},
+        "source_origin": {"type": "string", "minLength": 1},
+        "source_commit": {"type": "string", "minLength": 1},
+        "worktree": {"type": "string", "minLength": 1},
+        "source_files": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/artifact"}},
+        "context_manifest": {"$ref": "#/$defs/artifact"},
+        "project_target": {"$ref": "#/$defs/artifact"}
+      }
+    },
+    "campaign": {
+      "type": "object", "additionalProperties": false,
+      "required": ["campaign_id_prefix", "context_budget", "required_predicates", "probe_refs", "unresolved_questions", "scenario"],
+      "properties": {
+        "campaign_id_prefix": {"type": "string", "minLength": 1},
+        "context_budget": {"type": "integer", "minimum": 1},
+        "required_predicates": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "probe_refs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "unresolved_questions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "scenario": {"$ref": "#/$defs/scenario"}
+      }
+    },
+    "scenario": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "user_actions", "assertions"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "user_actions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "assertions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/assertion"}}
+      }
+    },
+    "assertion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["resource_id", "attr", "expected"],
+      "properties": {
+        "resource_id": {"type": "string", "minLength": 1},
+        "attr": {"type": "string", "minLength": 1},
+        "expected": {"type": "string", "minLength": 1}
+      }
+    },
+    "buildVariant": {
+      "type": "object", "additionalProperties": false,
+      "required": ["cell_id", "gradle_properties", "package", "activity"],
+      "properties": {
+        "cell_id": {"enum": ["project-defect", "project-control"]},
+        "gradle_properties": {"type": "object", "additionalProperties": {"type": "string"}},
+        "package": {"type": "string", "minLength": 1},
+        "activity": {"type": "string", "minLength": 1}
+      }
+    },
+    "build": {
+      "type": "object", "additionalProperties": false,
+      "required": ["host_project", "gradle_wrapper", "base_args", "timeout_seconds", "apk_relpath", "variants"],
+      "properties": {
+        "host_project": {"type": "string", "minLength": 1},
+        "gradle_wrapper": {"type": "string", "minLength": 1},
+        "base_args": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "timeout_seconds": {"type": "integer", "minimum": 1},
+        "apk_relpath": {"type": "string", "minLength": 1},
+        "variants": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/buildVariant"}}
+      }
+    },
+    "tool": {
+      "type": "object", "additionalProperties": false,
+      "required": ["binary", "minimum_version"],
+      "properties": {"binary": {"type": "string", "minLength": 1}, "minimum_version": {"type": "string", "minLength": 1}}
+    },
+    "toolPolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["android_cli", "adb"],
+      "properties": {"android_cli": {"$ref": "#/$defs/tool"}, "adb": {"$ref": "#/$defs/tool"}}
+    },
+    "target": {
+      "type": "object", "additionalProperties": false,
+      "required": ["serial", "avd", "api_level", "model", "locale", "orientation", "network_policy", "adb_binary"],
+      "properties": {
+        "serial": {"type": "string", "minLength": 1},
+        "avd": {"type": "string", "minLength": 1},
+        "api_level": {"type": "integer", "minimum": 21},
+        "model": {"type": "string", "minLength": 1},
+        "locale": {"type": "string", "minLength": 1},
+        "orientation": {"enum": ["portrait", "landscape"]},
+        "network_policy": {"const": "disabled"},
+        "adb_binary": {"type": "string", "minLength": 1}
+      }
+    },
+    "runSpec": {
+      "type": "object", "additionalProperties": false,
+      "required": ["cell_id", "path", "sha256"],
+      "properties": {
+        "cell_id": {"enum": ["project-defect", "project-control"]},
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["planned_lanes", "repetitions_per_cell", "max_attempts_per_lane", "no_retry_after_accountable", "abort_boundary"],
+      "properties": {
+        "planned_lanes": {"const": 6},
+        "repetitions_per_cell": {"const": 3},
+        "max_attempts_per_lane": {"const": 1},
+        "no_retry_after_accountable": {"const": true},
+        "abort_boundary": {"type": "string", "minLength": 1}
+      }
+    },
+    "oracle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "threshold_ms", "log_tag", "event", "allowed_conclusions"],
+      "properties": {
+        "id": {"const": "m7-r1-temporal-main-thread-v1"},
+        "threshold_ms": {"type": "integer", "minimum": 1},
+        "log_tag": {"const": "TemporalProbe"},
+        "event": {"const": "TEMPORAL_RESULT"},
+        "allowed_conclusions": {"const": ["locally_supported", "locally_rejected", "inconclusive"]}
+      }
+    },
+    "evidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["root", "required_artifacts", "checksums_required"],
+      "properties": {
+        "root": {"type": "string", "minLength": 1},
+        "required_artifacts": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "checksums_required": {"const": true}
+      }
+    },
+    "adjudication": {
+      "type": "object", "additionalProperties": false,
+      "required": ["independent", "auditor_id", "checks"],
+      "properties": {
+        "independent": {"const": true},
+        "auditor_id": {"const": "m7-r2-project-independent-adjudicator-v1"},
+        "checks": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "claimBoundary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["local_only", "runtime_scope", "exclusions"],
+      "properties": {
+        "local_only": {"const": true},
+        "runtime_scope": {"type": "string", "minLength": 1},
+        "exclusions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "cell": {
+      "type": "object", "additionalProperties": false,
+      "required": ["cell_id", "target_mode", "variant", "repetitions"],
+      "properties": {
+        "cell_id": {"enum": ["project-defect", "project-control"]},
+        "target_mode": {"const": "project"},
+        "variant": {"enum": ["defect", "control"]},
+        "repetitions": {"const": 3}
+      }
+    }
+  }
+}

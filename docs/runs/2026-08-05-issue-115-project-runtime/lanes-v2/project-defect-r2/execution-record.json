@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "attempt_id": "46d5e1a7-4f76-470a-87c0-f91335517b46",
+  "scenario": "m7-r2-synchronous-weather-project",
+  "lifecycle_state": "completed",
+  "started_at": "2026-08-05T15:07:09+00:00",
+  "finished_at": "2026-08-05T15:08:15+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-08-05T15:07:09+00:00",
+    "finished_at": "2026-08-05T15:08:15+00:00",
+    "total_seconds": 66.276,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.381
+      },
+      {
+        "phase": "m7-r2-synchronous-weather-project-segment-0",
+        "kind": "journey",
+        "seconds": 51.991
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.842
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/m7-r2-synchronous-weather-project-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "d5072114c5133366bdae592d21fce587130dc6bf83033a0af3ff3ef27376529a"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "journey": "m7-r2-synchronous-weather-project-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Observed the visible title “Synchronous weather runtime probe” (resource-id: temporal_title).",
+      "action": "Verify the synchronous weather probe screen is visible after launch."
+    },
+    {
+      "action_id": "action-2",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Observed “Weather: fixture-data” and “Caller latency: 0 ms”. No device-state-changing interaction was dispatched.",
+      "action": "Observe the displayed weather summary and caller latency without changing device state."
+    }
+  ]
+}

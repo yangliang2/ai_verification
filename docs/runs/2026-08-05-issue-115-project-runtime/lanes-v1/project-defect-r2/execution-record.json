@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "attempt_id": "722a8ffd-1347-482e-8fb3-f992b8242153",
+  "scenario": "m7-r2-synchronous-weather-project",
+  "lifecycle_state": "interrupted",
+  "started_at": "2026-08-05T15:03:25+00:00",
+  "finished_at": "2026-08-05T15:03:55+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_backend_error",
+    "message": "CodexCliError: Codex CLI failed with exit code 1: Reading additional input from stdin..."
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-08-05T15:03:25+00:00",
+    "finished_at": "2026-08-05T15:03:55+00:00",
+    "total_seconds": 30.078,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.385
+      },
+      {
+        "phase": "m7-r2-synchronous-weather-project-segment-0",
+        "kind": "journey",
+        "status": "failed",
+        "seconds": 19.25
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "m7-r2-synchronous-weather-project-segment-0",
+      "kind": "journey",
+      "reason": "journey_backend_error",
+      "message": "CodexCliError: Codex CLI failed with exit code 1: Reading additional input from stdin..."
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [],
+    "checkpoints": []
+  }
+}
