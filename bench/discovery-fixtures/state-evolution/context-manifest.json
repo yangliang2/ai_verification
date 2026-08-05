@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "graph_id": "state-evolution-context-v1",
+  "facts": [
+    {
+      "fact_id": "fact-legacy-writer",
+      "subject": "LegacyStateWriter.write",
+      "predicate": "writes_legacy_state",
+      "value": {"schema_version": 1, "revision": 41, "record": "sentinel + migration_status"},
+      "source_kind": "declared",
+      "provenance": [{"ref": "LegacyStateWriter.kt", "source_sha256": "8eaee7ffee4646a0309532c131866103c4536e48d9f11ea4619eeaaa654afb79", "locator": "class LegacyStateWriter"}],
+      "source_version": "state-evolution-v1",
+      "confidence": 1.0,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-durable-storage",
+      "subject": "lifecycle_fixture",
+      "predicate": "stores_durable_state",
+      "value": "SharedPreferences:lifecycle_fixture",
+      "source_kind": "declared",
+      "provenance": [{"ref": "build-metadata.json", "source_sha256": "841305ac86cfc29a4ec3626ccf7aa67bc99adcc869b2b75d28029cd8ae4c6258", "locator": "storage"}],
+      "source_version": "state-evolution-v1",
+      "confidence": 1.0,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-schema-v1",
+      "subject": "lifecycle_fixture",
+      "predicate": "schema_version",
+      "value": 1,
+      "source_kind": "declared",
+      "provenance": [{"ref": "LegacyStateWriter.kt", "source_sha256": "8eaee7ffee4646a0309532c131866103c4536e48d9f11ea4619eeaaa654afb79", "locator": "LegacyState"}],
+      "source_version": "state-evolution-v1",
+      "confidence": 1.0,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-schema-migration",
+      "subject": "StateStoreV2.migrate",
+      "predicate": "migrates_to_schema",
+      "value": {"from": 1, "to": 2, "from_revision": 41, "to_revision": 42, "exactly_once": true},
+      "source_kind": "derived",
+      "provenance": [{"ref": "StateStoreV2.kt", "source_sha256": "5712e7b8043893498e0acc554a6b32b7b5b41f2bf80f8831384352b2e696fe85", "locator": "fun migrate"}],
+      "source_version": "state-evolution-v1",
+      "confidence": 0.99,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-current-reader",
+      "subject": "StateStoreV2.read",
+      "predicate": "reads_current_state",
+      "value": {"schema_version": 2, "revision": 42},
+      "source_kind": "declared",
+      "provenance": [{"ref": "StateStoreV2.kt", "source_sha256": "5712e7b8043893498e0acc554a6b32b7b5b41f2bf80f8831384352b2e696fe85", "locator": "class StateStoreV2"}],
+      "source_version": "state-evolution-v1",
+      "confidence": 1.0,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-recovery-boundary",
+      "subject": "MainActivity",
+      "predicate": "crosses_recovery_boundary",
+      "value": ["rotate", "process_death", "backup_restore"],
+      "source_kind": "declared",
+      "provenance": [{"ref": "RecoveryBoundary.kt", "source_sha256": "d8b6010b17c5b552714c3296d1cde98cc268544f8c2b5743f267aa0382a3c21a", "locator": "interface RecoveryBoundary"}],
+      "source_version": "state-evolution-v1",
+      "confidence": 0.95,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-quality-contract",
+      "subject": "lifecycle_fixture",
+      "predicate": "quality_contract",
+      "value": "durable state preserves sentinel and applies one v1-to-v2 migration across recovery",
+      "source_kind": "declared",
+      "provenance": [{"ref": "spec.md", "source_sha256": "d22a1b624c937ed2e2ed3acf87214bb3ac28ebb05c454acd0a1410d74b15fe21", "locator": "durable state continuity"}],
+      "source_version": "state-evolution-v1",
+      "confidence": 0.95,
+      "status": "known"
+    },
+    {
+      "fact_id": "fact-runtime-identity",
+      "subject": "MainActivity",
+      "predicate": "runtime_identity",
+      "value": null,
+      "source_kind": "unknown",
+      "provenance": [],
+      "source_version": "state-evolution-v1",
+      "confidence": 0.0,
+      "status": "unknown",
+      "rationale": "Runtime process, APK, and transport identity are captured only during an admitted local run."
+    }
+  ],
+  "nodes": [
+    {"node_id": "legacy-writer", "kind": "component", "label": "LegacyStateWriter", "source_fact_ids": ["fact-legacy-writer"]},
+    {"node_id": "durable-storage", "kind": "resource", "label": "SharedPreferences:lifecycle_fixture", "source_fact_ids": ["fact-durable-storage"]},
+    {"node_id": "schema-v1", "kind": "resource", "label": "schema v1 / revision 41", "source_fact_ids": ["fact-schema-v1"]},
+    {"node_id": "migration-edge", "kind": "operation", "label": "StateStoreV2.migrate v1→v2", "source_fact_ids": ["fact-schema-migration"]},
+    {"node_id": "current-reader", "kind": "operation", "label": "StateStoreV2.read schema v2", "source_fact_ids": ["fact-current-reader"]},
+    {"node_id": "recovery-boundary", "kind": "operation", "label": "bounded local recovery epoch", "source_fact_ids": ["fact-recovery-boundary"]},
+    {"node_id": "durable-state-contract", "kind": "quality_contract", "label": "durable state continuity", "source_fact_ids": ["fact-quality-contract"]},
+    {"node_id": "runtime-identity-unknown", "kind": "process", "label": "runtime identity (unknown before execution)", "source_fact_ids": ["fact-runtime-identity"], "status": "unknown"}
+  ],
+  "edges": [
+    {"edge_id": "edge-writer-storage", "from_node_id": "legacy-writer", "to_node_id": "durable-storage", "kind": "provides", "semantics": "synchronous", "source_fact_ids": ["fact-legacy-writer", "fact-durable-storage"]},
+    {"edge_id": "edge-storage-v1", "from_node_id": "durable-storage", "to_node_id": "schema-v1", "kind": "depends_on", "semantics": "synchronous", "source_fact_ids": ["fact-schema-v1"]},
+    {"edge_id": "edge-v1-migration", "from_node_id": "schema-v1", "to_node_id": "migration-edge", "kind": "depends_on", "semantics": "synchronous", "source_fact_ids": ["fact-schema-migration"]},
+    {"edge_id": "edge-migration-reader", "from_node_id": "migration-edge", "to_node_id": "current-reader", "kind": "provides", "semantics": "synchronous", "source_fact_ids": ["fact-current-reader", "fact-schema-migration"]},
+    {"edge_id": "edge-reader-recovery", "from_node_id": "current-reader", "to_node_id": "recovery-boundary", "kind": "critical_path", "semantics": "synchronous", "source_fact_ids": ["fact-recovery-boundary"]},
+    {"edge_id": "edge-recovery-contract", "from_node_id": "recovery-boundary", "to_node_id": "durable-state-contract", "kind": "constrained_by", "semantics": "synchronous", "source_fact_ids": ["fact-quality-contract"]},
+    {"edge_id": "edge-runtime-identity", "from_node_id": "recovery-boundary", "to_node_id": "runtime-identity-unknown", "kind": "runs_in", "semantics": "unknown", "source_fact_ids": ["fact-runtime-identity"], "status": "unknown"}
+  ],
+  "unresolved": ["Runtime process, APK, and transport identity are not observable in the static context snapshot."],
+  "suggested_probes": ["Capture terminal process, APK, and transport identity before reducing a runtime observation."]
+}

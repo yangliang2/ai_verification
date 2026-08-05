@@ -17,7 +17,6 @@ from aiverify.bench.m6_cohort import (
     self_validate_schema,
 )
 
-
 _REPOSITORY_URL = "https://github.com/example/android-app"
 _FROZEN_AT = "2026-08-02T20:00:00Z"
 
@@ -390,6 +389,7 @@ def test_build_configuration_packages_the_schema() -> None:
         "m7_qualification_schema.json",
         "m7_runtime_probe_schema.json",
         "m7_project_runtime_probe_schema.json",
+        "state_evolution_schema.json",
     ]
 
 

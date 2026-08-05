@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "adapter_id": "state-evolution-lifecycle-runtime-v1",
+  "fixture_contract": "../../discovery-fixtures/state-evolution/contract.json",
+  "host_project": "../../fixtures/lifecycle-recovery-app",
+  "package": "dev.aiverify.lifecyclefixture",
+  "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+  "old_state_resource": "create_fixture",
+  "state_resources": {
+    "sentinel": "fixture_sentinel",
+    "schema_version": "fixture_schema_version",
+    "revision": "fixture_revision",
+    "migration_status": "fixture_migration_status"
+  },
+  "system_events": [
+    {"event": "rotate", "boundary": "recovery", "timeout_seconds": 30},
+    {"event": "process_death", "boundary": "recovery", "timeout_seconds": 30},
+    {"event": "backup_restore", "boundary": "recovery", "timeout_seconds": 30}
+  ],
+  "safety": {
+    "local_only": true,
+    "reversible": true,
+    "one_attempt": true,
+    "retry_after_accountability": false
+  },
+  "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only"
+}

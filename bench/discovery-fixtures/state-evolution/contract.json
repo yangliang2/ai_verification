@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "contract_id": "state-evolution-local-continuity-v1",
+  "fixture_pair_id": "lifecycle-recovery-state-pair-v1",
+  "package": "dev.aiverify.lifecyclefixture",
+  "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+  "old_state": {
+    "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+    "schema_version": 1,
+    "revision": 41,
+    "migration_status": "PENDING_V1_TO_V2"
+  },
+  "current_state": {
+    "sentinel": "AIVERIFY-ISSUE-71-SENTINEL",
+    "schema_version": 2,
+    "revision": 42,
+    "migration_status": "MIGRATED_V1_TO_V2"
+  },
+  "migration": {
+    "edge_id": "migration-v1-to-v2-once",
+    "from_schema": 1,
+    "to_schema": 2,
+    "from_revision": 41,
+    "to_revision": 42,
+    "operation": "read legacy record, preserve sentinel, commit current record once",
+    "exactly_once": true
+  },
+  "recovery": {
+    "boundary_id": "local-recovery-epoch-v1",
+    "events": ["rotate", "process_death", "backup_restore"],
+    "timeout_seconds": 30,
+    "reversible": true,
+    "local_only": true
+  },
+  "quality_contract": {
+    "contract_id": "durable-state-continuity-v1",
+    "property": "durable state continuity",
+    "constraint": "the old sentinel survives the bounded recovery epoch and one migration reaches schema 2 / revision 42",
+    "source_fact_ids": ["fact-quality-contract"]
+  },
+  "resources": {
+    "sentinel": "fixture_sentinel",
+    "schema_version": "fixture_schema_version",
+    "revision": "fixture_revision",
+    "migration_status": "fixture_migration_status"
+  },
+  "provenance": [
+    {"ref": "LegacyStateWriter.kt", "source_sha256": "8eaee7ffee4646a0309532c131866103c4536e48d9f11ea4619eeaaa654afb79", "locator": "LegacyStateWriter"},
+    {"ref": "StateStoreV2.kt", "source_sha256": "5712e7b8043893498e0acc554a6b32b7b5b41f2bf80f8831384352b2e696fe85", "locator": "StateStoreV2"},
+    {"ref": "RecoveryBoundary.kt", "source_sha256": "d8b6010b17c5b552714c3296d1cde98cc268544f8c2b5743f267aa0382a3c21a", "locator": "RecoveryBoundary"},
+    {"ref": "build-metadata.json", "source_sha256": "841305ac86cfc29a4ec3626ccf7aa67bc99adcc869b2b75d28029cd8ae4c6258", "locator": "package/activity/storage"},
+    {"ref": "spec.md", "source_sha256": "d22a1b624c937ed2e2ed3acf87214bb3ac28ebb05c454acd0a1410d74b15fe21", "locator": "durable state continuity"}
+  ]
+}
