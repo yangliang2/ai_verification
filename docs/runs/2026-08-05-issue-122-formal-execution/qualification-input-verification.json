@@ -1,0 +1,137 @@
+{
+  "contract_provenance": {
+    "schema_version": 1,
+    "contract_path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/contract.json",
+    "checks": [
+      {
+        "ref": "LegacyStateWriter.kt",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/LegacyStateWriter.kt",
+        "expected_sha256": "8eaee7ffee4646a0309532c131866103c4536e48d9f11ea4619eeaaa654afb79",
+        "actual_sha256": "8eaee7ffee4646a0309532c131866103c4536e48d9f11ea4619eeaaa654afb79",
+        "status": "pass"
+      },
+      {
+        "ref": "StateStoreV2.kt",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/StateStoreV2.kt",
+        "expected_sha256": "5712e7b8043893498e0acc554a6b32b7b5b41f2bf80f8831384352b2e696fe85",
+        "actual_sha256": "5712e7b8043893498e0acc554a6b32b7b5b41f2bf80f8831384352b2e696fe85",
+        "status": "pass"
+      },
+      {
+        "ref": "RecoveryBoundary.kt",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/RecoveryBoundary.kt",
+        "expected_sha256": "d8b6010b17c5b552714c3296d1cde98cc268544f8c2b5743f267aa0382a3c21a",
+        "actual_sha256": "d8b6010b17c5b552714c3296d1cde98cc268544f8c2b5743f267aa0382a3c21a",
+        "status": "pass"
+      },
+      {
+        "ref": "build-metadata.json",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/build-metadata.json",
+        "expected_sha256": "841305ac86cfc29a4ec3626ccf7aa67bc99adcc869b2b75d28029cd8ae4c6258",
+        "actual_sha256": "841305ac86cfc29a4ec3626ccf7aa67bc99adcc869b2b75d28029cd8ae4c6258",
+        "status": "pass"
+      },
+      {
+        "ref": "spec.md",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/spec.md",
+        "expected_sha256": "d22a1b624c937ed2e2ed3acf87214bb3ac28ebb05c454acd0a1410d74b15fe21",
+        "actual_sha256": "d22a1b624c937ed2e2ed3acf87214bb3ac28ebb05c454acd0a1410d74b15fe21",
+        "status": "pass"
+      }
+    ],
+    "valid": true
+  },
+  "matched_pair": {
+    "schema_version": 1,
+    "contract_path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/auditor/matched-pair.json",
+    "checks": [
+      {
+        "artifact": "public_contract",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/contract.json",
+        "expected_sha256": "c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2",
+        "actual_sha256": "c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2",
+        "status": "pass"
+      },
+      {
+        "artifact": "pair_id_contract",
+        "expected": "lifecycle-recovery-state-pair-v1",
+        "actual": "lifecycle-recovery-state-pair-v1",
+        "status": "pass"
+      },
+      {
+        "artifact": "protocol",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/protocol.json",
+        "expected_sha256": "4aaba044d909aff658523993e2b6b353df0468527c4e87f8ee03a963ffca6426",
+        "actual_sha256": "4aaba044d909aff658523993e2b6b353df0468527c4e87f8ee03a963ffca6426",
+        "status": "pass"
+      },
+      {
+        "artifact": "protocol_contract_identity",
+        "status": "pass",
+        "detail": "package/activity/events/resources/transport match public contract"
+      },
+      {
+        "artifact": "base.source",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java",
+        "expected_sha256": "864d32a1c0387dc039a73a54e0f2a016c4177c2e481578f783bad8fb281d3fe2",
+        "actual_sha256": "864d32a1c0387dc039a73a54e0f2a016c4177c2e481578f783bad8fb281d3fe2",
+        "status": "pass"
+      },
+      {
+        "artifact": "base.change",
+        "status": "pass"
+      },
+      {
+        "artifact": "changed.source",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java",
+        "expected_sha256": "864d32a1c0387dc039a73a54e0f2a016c4177c2e481578f783bad8fb281d3fe2",
+        "actual_sha256": "864d32a1c0387dc039a73a54e0f2a016c4177c2e481578f783bad8fb281d3fe2",
+        "status": "pass"
+      },
+      {
+        "artifact": "changed.change",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch",
+        "expected_sha256": "7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42",
+        "actual_sha256": "7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42",
+        "status": "pass"
+      },
+      {
+        "artifact": "changed.change_semantics",
+        "status": "pass",
+        "detail": "one file, one hunk, one migration-guard replacement, and matching source headers"
+      },
+      {
+        "artifact": "source_equivalence",
+        "status": "pass",
+        "detail": "base and changed share the same source path and bytes before patching"
+      },
+      {
+        "artifact": "variant_identity",
+        "status": "pass"
+      },
+      {
+        "artifact": "protocol_equivalence",
+        "status": "pass"
+      },
+      {
+        "artifact": "audit_mapping",
+        "status": "pass"
+      },
+      {
+        "artifact": "build_recipe",
+        "path": "/Users/peter/projects/ai_verification-m8-122/bench/discovery-fixtures/state-evolution/auditor/build-recipe.json",
+        "expected_sha256": "085e8df678f789b7ff22f8e742af96f46353f378ff1cad77c534df1d0b463649",
+        "actual_sha256": "085e8df678f789b7ff22f8e742af96f46353f378ff1cad77c534df1d0b463649",
+        "status": "pass"
+      },
+      {
+        "artifact": "build_recipe_identity",
+        "status": "pass",
+        "detail": "recipe binds public package/activity, protocol, source, wrapper, task, and APK"
+      }
+    ],
+    "valid": true
+  },
+  "manifest_sha256": "95bc0af23a22ee93ba1f8011c6b05734e61dc5d2b9fdb9e044f55714700b361a",
+  "canonical_manifest_sha256": "0828ade17f8841b7bc2c4abbbddd127a75d622cccb345d71379ca4df09163f46"
+}

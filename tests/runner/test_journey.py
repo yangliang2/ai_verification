@@ -41,11 +41,32 @@ def test_scenario_to_segments_rejects_out_of_range_event() -> None:
     scenario = ScenarioSpec(
         id="bad",
         user_actions=["one"],
-        system_events=[SystemEventSpec(step_index=1, event="rotate")],
+        system_events=[SystemEventSpec(step_index=2, event="rotate")],
     )
 
     with pytest.raises(ValueError, match="exceeds"):
         scenario_to_segments(scenario)
+
+
+def test_scenario_to_segments_allows_trailing_system_event() -> None:
+    scenario = ScenarioSpec(
+        id="trailing",
+        user_actions=["one", "two"],
+        system_events=[
+            SystemEventSpec(step_index=0, event="rotate"),
+            SystemEventSpec(step_index=1, event="process_death"),
+            SystemEventSpec(step_index=2, event="backup_restore"),
+        ],
+    )
+
+    segments = scenario_to_segments(scenario)
+
+    assert [segment.actions for segment in segments] == [["one"], ["two"], []]
+    assert [segment.system_event_after.event for segment in segments] == [
+        "rotate",
+        "process_death",
+        "backup_restore",
+    ]
 
 
 def test_segment_to_journey_xml_escapes_actions() -> None:

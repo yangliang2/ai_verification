@@ -1,0 +1,65 @@
+{
+  "attempt": {
+    "schema_version": 1,
+    "evidence_id": "evidence-lane-10",
+    "target_id": "m8-state-evolution-project-target-10",
+    "hypothesis_id": "hypothesis-state-evolution-560b755354d97887",
+    "attempt_ref": "lane-10-attempt-01",
+    "execution_record_ref": "execution-record.json",
+    "outcome": "non_accountable",
+    "evidence_refs": [],
+    "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only",
+    "rationale": "state_observation_missing_or_invalid",
+    "accountable": false
+  },
+  "finding": null,
+  "residual_risk": {
+    "schema_version": 1,
+    "risk_id": "risk-8955ebd241f2ffc7",
+    "target_id": "m8-state-evolution-project-target-10",
+    "hypothesis_id": "hypothesis-state-evolution-560b755354d97887",
+    "reason": "state_observation_missing_or_invalid",
+    "evidence_gap": "The attempt was not accountable; execution evidence cannot support a Finding.",
+    "scope": "local fixture, recorded recovery epoch, and bound execution identity only",
+    "basis_refs": [
+      "execution-record.json"
+    ],
+    "status": "open",
+    "next_probe": "repeat only after a fresh accountable ExecutionRecord is established"
+  },
+  "risk_map": {
+    "schema_version": 1,
+    "map_id": "risk-map-7d286a8ed66dc943",
+    "target_id": "m8-state-evolution-project-target-10",
+    "findings": [],
+    "residual_risks": [
+      {
+        "schema_version": 1,
+        "risk_id": "risk-8955ebd241f2ffc7",
+        "target_id": "m8-state-evolution-project-target-10",
+        "hypothesis_id": "hypothesis-state-evolution-560b755354d97887",
+        "reason": "state_observation_missing_or_invalid",
+        "evidence_gap": "The attempt was not accountable; execution evidence cannot support a Finding.",
+        "scope": "local fixture, recorded recovery epoch, and bound execution identity only",
+        "basis_refs": [
+          "execution-record.json"
+        ],
+        "status": "open",
+        "next_probe": "repeat only after a fresh accountable ExecutionRecord is established"
+      }
+    ],
+    "explored_fact_ids": [
+      "fact-legacy-writer",
+      "fact-durable-storage",
+      "fact-schema-v1",
+      "fact-schema-migration",
+      "fact-current-reader",
+      "fact-recovery-boundary",
+      "fact-quality-contract"
+    ],
+    "coverage_frontier": [
+      "unresolved discovery context"
+    ]
+  },
+  "campaign_status": "non-accountable"
+}

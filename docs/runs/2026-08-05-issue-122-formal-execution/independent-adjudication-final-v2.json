@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "auditor": "m8-state-evolution-independent-adjudicator-v1",
+  "mapping": {
+    "control": "base",
+    "fault": "changed"
+  },
+  "checks": [
+    {
+      "name": "ordered_population",
+      "status": "pass",
+      "detail": "12/12 lanes"
+    },
+    {
+      "name": "one_attempt_each",
+      "status": "pass",
+      "detail": "attempt=1 for every lane"
+    },
+    {
+      "name": "no_duplicate_lane",
+      "status": "pass",
+      "detail": "append-only inventory has one terminal row per lane"
+    },
+    {
+      "name": "mapping_release",
+      "status": "pass",
+      "detail": "matched-pair mapping identity"
+    },
+    {
+      "name": "attribution",
+      "status": "pass",
+      "detail": "manifest target/hypothesis and matched variant attribution agree"
+    },
+    {
+      "name": "leakage",
+      "status": "pass",
+      "detail": "preflight leakage audit passed for every packet"
+    },
+    {
+      "name": "preflight_admission",
+      "status": "pass",
+      "detail": "admission, contradiction, and side-effect-free preflight checks passed"
+    },
+    {
+      "name": "hypothesis_plan_freeze",
+      "status": "pass",
+      "detail": "all admitted packets bind frozen hypotheses and admitted plans"
+    },
+    {
+      "name": "claim_boundary",
+      "status": "pass",
+      "detail": "every lane is bounded to the local fixture and execution identity"
+    },
+    {
+      "name": "identity",
+      "status": "pass",
+      "detail": "accountable lanes require verified Effective Execution Identity; excluded lanes remain unverified"
+    },
+    {
+      "name": "oracle",
+      "status": "pass",
+      "detail": "every lane has a terminal oracle classification and reason"
+    },
+    {
+      "name": "reduction",
+      "status": "pass",
+      "detail": "every lane has a terminal Finding/Residual Risk reduction reference"
+    },
+    {
+      "name": "admission_binding",
+      "status": "pass",
+      "detail": "admitted package digests match the preflight handoff"
+    },
+    {
+      "name": "mapping_release_artifact",
+      "status": "pass",
+      "detail": "mapping release artifact binds post-admission withholding"
+    },
+    {
+      "name": "artifact_reconciliation",
+      "status": "fail",
+      "detail": "lane-01: migration status contradicts observed state evidence; lane-02: migration status contradicts observed state evidence; lane-03: migration status contradicts observed state evidence; lane-04: migration status contradicts observed state evidence; lane-05: migration status contradicts observed state evidence; lane-06: migration status contradicts observed state evidence; lane-07: migration status contradicts observed state evidence; lane-08: migration status contradicts observed state evidence; lane-09: migration status contradicts observed state evidence; lane-10: migration status contradicts observed state evidence; lane-11: migration status contradicts observed state evidence; lane-12: migration status contradicts observed state evidence"
+    },
+    {
+      "name": "cell:change-defect",
+      "status": "fail",
+      "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+    },
+    {
+      "name": "cell:change-control",
+      "status": "fail",
+      "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+    },
+    {
+      "name": "cell:project-defect",
+      "status": "fail",
+      "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+    },
+    {
+      "name": "cell:project-control",
+      "status": "fail",
+      "detail": "accountable=0/3 conclusions=['non_accountable', 'non_accountable', 'non_accountable']"
+    },
+    {
+      "name": "mode:change",
+      "status": "fail",
+      "detail": "separate change denominator: 0/6 accountable"
+    },
+    {
+      "name": "mode:project",
+      "status": "fail",
+      "detail": "separate project denominator: 0/6 accountable"
+    }
+  ],
+  "lanes_reconciled": 12,
+  "cells": {
+    "change-defect": {
+      "target_mode": "change",
+      "variant": "defect",
+      "variant_source": "changed",
+      "lanes": [
+        "lane-01",
+        "lane-02",
+        "lane-03"
+      ],
+      "accountable": 0,
+      "oracle_conclusions": [
+        "non_accountable",
+        "non_accountable",
+        "non_accountable"
+      ],
+      "oracle_classifications": [
+        "inconclusive",
+        "inconclusive",
+        "inconclusive"
+      ],
+      "expected_protocol_conclusion": "locally_rejected",
+      "cell_pass": false
+    },
+    "change-control": {
+      "target_mode": "change",
+      "variant": "control",
+      "variant_source": "base",
+      "lanes": [
+        "lane-04",
+        "lane-05",
+        "lane-06"
+      ],
+      "accountable": 0,
+      "oracle_conclusions": [
+        "non_accountable",
+        "non_accountable",
+        "non_accountable"
+      ],
+      "oracle_classifications": [
+        "inconclusive",
+        "inconclusive",
+        "inconclusive"
+      ],
+      "expected_protocol_conclusion": "locally_supported",
+      "cell_pass": false
+    },
+    "project-defect": {
+      "target_mode": "project",
+      "variant": "defect",
+      "variant_source": "changed",
+      "lanes": [
+        "lane-07",
+        "lane-08",
+        "lane-09"
+      ],
+      "accountable": 0,
+      "oracle_conclusions": [
+        "non_accountable",
+        "non_accountable",
+        "non_accountable"
+      ],
+      "oracle_classifications": [
+        "inconclusive",
+        "inconclusive",
+        "inconclusive"
+      ],
+      "expected_protocol_conclusion": "locally_rejected",
+      "cell_pass": false
+    },
+    "project-control": {
+      "target_mode": "project",
+      "variant": "control",
+      "variant_source": "base",
+      "lanes": [
+        "lane-10",
+        "lane-11",
+        "lane-12"
+      ],
+      "accountable": 0,
+      "oracle_conclusions": [
+        "non_accountable",
+        "non_accountable",
+        "non_accountable"
+      ],
+      "oracle_classifications": [
+        "inconclusive",
+        "inconclusive",
+        "inconclusive"
+      ],
+      "expected_protocol_conclusion": "locally_supported",
+      "cell_pass": false
+    }
+  },
+  "modes": {
+    "change": {
+      "cells": [
+        "change-defect",
+        "change-control"
+      ],
+      "denominator": 6,
+      "accountable": 0,
+      "excluded": 6,
+      "locally_supported": false,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only"
+    },
+    "project": {
+      "cells": [
+        "project-defect",
+        "project-control"
+      ],
+      "denominator": 6,
+      "accountable": 0,
+      "excluded": 6,
+      "locally_supported": false,
+      "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only"
+    }
+  },
+  "qualification_conclusion": "inconclusive",
+  "claim_boundary": {
+    "local_only": true,
+    "scope": "local fixture, recorded recovery epoch, and bound execution identity only",
+    "no_combined_mode_rate": true,
+    "exclusions": [
+      "combined Change/Project denominator",
+      "benchmark-wide detection or false-positive rate",
+      "whole-project persistence coverage",
+      "OEM/physical-device/production claims",
+      "upstream acceptance"
+    ]
+  }
+}

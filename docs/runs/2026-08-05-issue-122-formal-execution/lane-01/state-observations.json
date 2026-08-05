@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "state_epoch": "local-recovery-epoch-v1",
+  "resources": {
+    "sentinel": "fixture_sentinel",
+    "schema_version": "fixture_schema_version",
+    "revision": "fixture_revision",
+    "migration_status": "fixture_migration_status"
+  },
+  "observations": {
+    "initial": {
+      "path": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/lane-01/artifacts/after-segment-0/layout.json",
+      "present": false
+    },
+    "rotation": {
+      "path": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/lane-01/artifacts/after-event-0/layout.json",
+      "present": false
+    },
+    "process_death": {
+      "path": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/lane-01/artifacts/after-event-1/layout.json",
+      "present": false
+    },
+    "backup_restore": {
+      "path": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/lane-01/artifacts/after-event-2/layout.json",
+      "present": false
+    }
+  },
+  "missing": [
+    "initial",
+    "rotation",
+    "process_death",
+    "backup_restore"
+  ],
+  "claim_boundary": "local fixture, recorded recovery epoch, and bound execution identity only"
+}

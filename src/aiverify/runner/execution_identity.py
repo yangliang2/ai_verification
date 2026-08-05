@@ -43,6 +43,7 @@ class ExecutionIdentityCollector:
         adb_bin: str = "adb",
         codex_bin: str = "codex",
         git_bin: str = "git",
+        allow_host_project_subdir: bool = False,
     ) -> None:
         self.run_dir = Path(run_dir).resolve()
         self.artifact_dir = Path(artifact_dir).resolve()
@@ -58,6 +59,7 @@ class ExecutionIdentityCollector:
         self.adb_bin = adb_bin
         self.codex_bin = codex_bin
         self.git_bin = git_bin
+        self.allow_host_project_subdir = allow_host_project_subdir
         self.identity_dir = self.run_dir / "identity"
         self.provenance_path = self.run_dir / "execution-provenance.json"
         self._static: dict | None = None
@@ -94,6 +96,8 @@ class ExecutionIdentityCollector:
             "package": self.spec.package,
             "activity": self.spec.activity,
         }
+        if self.allow_host_project_subdir:
+            run_spec["host_project_within_repository"] = True
         if self.spec.host_locator is not None:
             locator = self.spec.host_locator
             run_spec["host_locator"] = {
@@ -374,7 +378,14 @@ class ExecutionIdentityCollector:
         if _sha256_bytes(source_bytes) != self.spec.source_sha256:
             raise ExecutionIdentityError("Run Spec drifted after it was consumed")
         if self.spec.host_project.resolve() != self.workdir:
-            raise ExecutionIdentityError("runner workdir contradicts Run Spec host_project")
+            if not self.allow_host_project_subdir:
+                raise ExecutionIdentityError("runner workdir contradicts Run Spec host_project")
+            try:
+                self.spec.host_project.resolve().relative_to(self.workdir)
+            except ValueError as error:
+                raise ExecutionIdentityError(
+                    "Run Spec host_project is outside the captured repository"
+                ) from error
         return source_bytes
 
     def _host_identity(self) -> dict:
@@ -630,8 +641,17 @@ def verify_execution_provenance(
         payload.get("run_spec"), scenario=scenario, evidence_root=evidence_root
     )
     _validate_host_identity(payload.get("host"), evidence_root=evidence_root)
-    if payload["host"]["repository_root"] != payload["run_spec"]["host_project"]:
-        raise ExecutionIdentityError("host root contradicts the consumed Run Spec")
+    host_root = Path(payload["host"]["repository_root"]).resolve()
+    host_project = Path(payload["run_spec"]["host_project"]).resolve()
+    if host_root != host_project:
+        if payload["run_spec"].get("host_project_within_repository") is not True:
+            raise ExecutionIdentityError("host root contradicts the consumed Run Spec")
+        try:
+            host_project.relative_to(host_root)
+        except ValueError as error:
+            raise ExecutionIdentityError(
+                "Run Spec host_project is outside the captured host repository"
+            ) from error
     locator = payload["run_spec"].get("host_locator")
     if locator is not None and (
         payload["host"]["origin"] != locator["expected_origin"]

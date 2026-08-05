@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-05",
+  "source_revision_under_test": "7da121f",
+  "post_run_hardening_commits": ["22af9b2", "20382e7", "d517b79"],
+  "targeted_tests": {
+    "command": "/usr/bin/time -p uv run pytest -q tests/bench/test_m8_formal.py tests/runner/test_cli.py tests/runner/test_execution_identity.py tests/runner/test_journey.py tests/runner/test_system_events.py",
+    "status": "passed",
+    "tests": 141,
+    "wall_seconds": 0.80
+  },
+  "full_tests": {
+    "collection_command": "uv run pytest --collect-only -o addopts='' -q",
+    "collection_status": "passed",
+    "collected": 821,
+    "command": "/usr/bin/time -p uv run pytest -q",
+    "status": "passed",
+    "wall_seconds": 27.63
+  },
+  "regeneration_admission": {
+    "command": "/usr/bin/time -p uv run python docs/runs/2026-08-05-issue-122-formal-execution/admission_check.py --manifest bench/m8/m8-state-evolution-qualification-v1.json --repo-root /Users/peter/projects/ai_verification-m8-122",
+    "status": "passed",
+    "checks": 37,
+    "lanes": 12,
+    "manifest_sha256": "95bc0af23a22ee93ba1f8011c6b05734e61dc5d2b9fdb9e044f55714700b361a",
+    "wall_seconds": 0.35,
+    "side_effects": "none"
+  },
+  "post_run_audit": {
+    "command": "uv run python docs/runs/2026-08-05-issue-122-formal-execution/audit_reconciliation.py --artifact-root docs/runs/2026-08-05-issue-122-formal-execution --manifest bench/m8/m8-state-evolution-qualification-v1.json --preflight docs/runs/2026-08-05-issue-122-formal-execution/preflight.json --inventory docs/runs/2026-08-05-issue-122-formal-execution/attempt-inventory.jsonl --contract bench/discovery-fixtures/state-evolution/contract.json --output docs/runs/2026-08-05-issue-122-formal-execution/independent-adjudication-final-v2.json",
+    "status": "completed",
+    "artifact": "independent-adjudication-final-v2.json",
+    "checks": 21,
+    "ordered_lanes": 12,
+    "attempts_per_lane": 1,
+    "accountable": 0,
+    "artifact_reconciliation": "fail-closed: original static migration receipts contradict observed missing state evidence",
+    "qualification_conclusion": "inconclusive"
+  },
+  "build": {
+    "command": "(cd /Users/peter/projects/ai_verification-m8-122-workspaces/control/bench/fixtures/lifecycle-recovery-app && /usr/bin/time -p ./gradlew --offline :app:assembleDebug); (cd /Users/peter/projects/ai_verification-m8-122-workspaces/defect/bench/fixtures/lifecycle-recovery-app && /usr/bin/time -p ./gradlew --offline :app:assembleDebug)",
+    "control": {"status": "passed", "wall_seconds": 0.34, "apk_bytes": 930614, "apk_sha256": "ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e"},
+    "defect": {"status": "passed", "wall_seconds": 0.31, "apk_bytes": 930611, "apk_sha256": "32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe"},
+    "metadata_and_network_policy": "both passed; no INTERNET permission"
+  },
+  "package": {
+    "build_command": "pkg_tmp=$(mktemp -d /tmp/m8-122-package-final5.XXXXXX); /usr/bin/time -p uv build --out-dir $pkg_tmp",
+    "status": "passed",
+    "wall_seconds": 2.68,
+    "wheel": {"path": "package/aiverify-0.1.0-py3-none-any.whl", "bytes": 306240, "sha256": "ca8a17ecc69894473e60184563e87425cfdc62e8377e3291219a510cf6508802"},
+    "sdist": {"path": "package/aiverify-0.1.0.tar.gz", "bytes": 275026, "sha256": "edf72e25c43afb08f4ff3bb6111cb03d11de98a704bb389ad5e529f9a8c8db57"},
+    "import_command": "uv run --isolated --with docs/runs/2026-08-05-issue-122-formal-execution/package/aiverify-0.1.0-py3-none-any.whl python -c 'import aiverify, aiverify.bench.m8_formal, aiverify.runner.execution_identity; print(aiverify.__file__)'",
+    "import_status": "passed"
+  },
+  "checksum_checks": {
+    "per_lane_command": "for file in docs/runs/2026-08-05-issue-122-formal-execution/lane-*/checksums.sha256; do (cd \"$(dirname \"$file\")\" && sha256sum -c checksums.sha256); done",
+    "per_lane_status": "passed",
+    "per_lane_ledgers": 12,
+    "root_command": "(cd docs/runs/2026-08-05-issue-122-formal-execution && sha256sum -c checksums.sha256)",
+    "root_pre_amendment_status": "passed; final ledger is regenerated after all evidence files are added"
+  },
+  "device_and_tools": {
+    "device": "emulator-5554 / sdk_gphone64_arm64 / API 35",
+    "android_cli": "1.0.15498356",
+    "adb": "1.0.41 / platform 37.0.0-14910828",
+    "codex_cli": "0.144.6 (not invoked in frozen lanes after identity failure)",
+    "transport": "com.android.localtransport/.LocalTransport"
+  },
+  "manual_steps": "No production data or upstream state; one pm clear per frozen lane in the original run; no retry, replacement, or network-policy change.",
+  "known_gaps": [
+    "Frozen lanes stopped at execution-identity-capture; no install, launch, Journey, system event, screenshot/layout/logcat, or runtime state evidence.",
+    "Original lane migration receipts are preserved but fail the post-run observed-state audit; no runtime qualification claim is made.",
+    "The corrected runner requires a newly frozen cohort for a future runtime qualification."
+  ],
+  "claim_boundary": "local fixture, exact frozen admission, terminal accounting facts, and no Android-general or M7-combined claim"
+}

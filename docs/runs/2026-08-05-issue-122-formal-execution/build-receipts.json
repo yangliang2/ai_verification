@@ -1,0 +1,69 @@
+{
+  "source_head": "7da121f9b96374f014e51cade7e4fc10971871d3",
+  "workspace_root": "/Users/peter/projects/ai_verification-m8-122-workspaces",
+  "variants": {
+    "control": {
+      "variant": "control",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/control",
+      "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/control/bench/fixtures/lifecycle-recovery-app",
+      "command": [
+        "./gradlew",
+        "--offline",
+        ":app:assembleDebug"
+      ],
+      "seconds": 2.727,
+      "returncode": 0,
+      "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control.apk",
+      "apk_sha256": "ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e",
+      "apk_bytes": 930614,
+      "metadata": {
+        "passed": true,
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "returncode": 0,
+        "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+      },
+      "network_policy": {
+        "passed": true,
+        "permissions": [
+          "android.permission.WAKE_LOCK"
+        ],
+        "returncode": 0,
+        "detail": ""
+      },
+      "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/control-gradle.log"
+    },
+    "defect": {
+      "variant": "defect",
+      "worktree": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect",
+      "project": "/Users/peter/projects/ai_verification-m8-122-workspaces/defect/bench/fixtures/lifecycle-recovery-app",
+      "command": [
+        "./gradlew",
+        "--offline",
+        ":app:assembleDebug"
+      ],
+      "seconds": 2.44,
+      "returncode": 0,
+      "apk": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect.apk",
+      "apk_sha256": "32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe",
+      "apk_bytes": 930611,
+      "metadata": {
+        "passed": true,
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "returncode": 0,
+        "detail": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"2\"\n    android:versionName=\"2.0\"\n    android:compileSdkVersion=\"36\"\n    android:compileSdkVersionCodename=\"16\"\n    package=\"dev.aiverify.lifecyclefixture\"\n    platformBuildVersionCode=\"36\"\n    platformBuildVersionName=\"16\">\n\n    <uses-sdk\n        android:minSdkVersion=\"23\"\n        android:targetSdkVersion=\"35\" />\n\n    <uses-permission\n        android:name=\"android.permission.WAKE_LOCK\" />\n\n    <application\n        android:theme=\"@ref/0x7f060000\"\n        android:label=\"@ref/0x7f050000\"\n        android:icon=\"@ref/0x7f040000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:extractNativeLibs=\"false\"\n        android:fullBackupContent=\"@ref/0x7f070000\"\n        android:roundIcon=\"@ref/0x7f040001\"\n        android:dataExtractionRules=\"@ref/0x7f070001\">\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.MainActivity\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.CompatibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.AccessibilityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.PerformanceSecurityActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.SensitiveActivity\"\n            android:exported=\"false\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.PendingIntentReceiver\"\n            android:exported=\"false\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"dev.aiverify.lifecyclefixture.TemporalActivity\"\n            android:exported=\"true\" />\n\n        <receiver\n            android:name=\"dev.aiverify.lifecyclefixture.ConcurrencyControlReceiver\"\n            android:exported=\"true\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"dev.aiverify.lifecyclefixture.CONCURRENCY_CONTROL\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>\n"
+      },
+      "network_policy": {
+        "passed": true,
+        "permissions": [
+          "android.permission.WAKE_LOCK"
+        ],
+        "returncode": 0,
+        "detail": ""
+      },
+      "log": "/Users/peter/projects/ai_verification-m8-122/docs/runs/2026-08-05-issue-122-formal-execution/build/defect-gradle.log"
+    }
+  },
+  "mapping_sha256": "7f8717629739acf0a6762af9bbed55f676ccaa5f2cb868257a83522cdecfa626"
+}

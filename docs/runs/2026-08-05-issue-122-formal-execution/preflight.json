@@ -1,0 +1,1119 @@
+{
+  "schema_version": 1,
+  "qualification_id": "m8-state-evolution-qualification-v1",
+  "manifest_sha256": "95bc0af23a22ee93ba1f8011c6b05734e61dc5d2b9fdb9e044f55714700b361a",
+  "canonical_manifest_sha256": "0828ade17f8841b7bc2c4abbbddd127a75d622cccb345d71379ca4df09163f46",
+  "admitted": true,
+  "side_effects": false,
+  "formal_execution_started": false,
+  "checks": [
+    {
+      "name": "source_identity",
+      "status": "pass",
+      "detail": "frozen source commit exists, is an ancestor of HEAD, and binds the declared worktree"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/LegacyStateWriter.kt",
+      "status": "pass",
+      "detail": "expected=8eaee7ffee4646a0309532c131866103c4536e48d9f11ea4619eeaaa654afb79 actual=8eaee7ffee4646a0309532c131866103c4536e48d9f11ea4619eeaaa654afb79"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/StateStoreV2.kt",
+      "status": "pass",
+      "detail": "expected=5712e7b8043893498e0acc554a6b32b7b5b41f2bf80f8831384352b2e696fe85 actual=5712e7b8043893498e0acc554a6b32b7b5b41f2bf80f8831384352b2e696fe85"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/RecoveryBoundary.kt",
+      "status": "pass",
+      "detail": "expected=d8b6010b17c5b552714c3296d1cde98cc268544f8c2b5743f267aa0382a3c21a actual=d8b6010b17c5b552714c3296d1cde98cc268544f8c2b5743f267aa0382a3c21a"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/README.md",
+      "status": "pass",
+      "detail": "expected=268216e3637195c61be8dc97f7078535859835c330b477d4037873756ccdae27 actual=268216e3637195c61be8dc97f7078535859835c330b477d4037873756ccdae27"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/build-metadata.json",
+      "status": "pass",
+      "detail": "expected=841305ac86cfc29a4ec3626ccf7aa67bc99adcc869b2b75d28029cd8ae4c6258 actual=841305ac86cfc29a4ec3626ccf7aa67bc99adcc869b2b75d28029cd8ae4c6258"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/context-manifest.json",
+      "status": "pass",
+      "detail": "expected=367b5b2710dab2ba08cc8cf263445c33a69b198ea46e9e87dc8e55f9f4e0c11c actual=367b5b2710dab2ba08cc8cf263445c33a69b198ea46e9e87dc8e55f9f4e0c11c"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/contract.json",
+      "status": "pass",
+      "detail": "expected=c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2 actual=c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/protocol.json",
+      "status": "pass",
+      "detail": "expected=4aaba044d909aff658523993e2b6b353df0468527c4e87f8ee03a963ffca6426 actual=4aaba044d909aff658523993e2b6b353df0468527c4e87f8ee03a963ffca6426"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/spec.md",
+      "status": "pass",
+      "detail": "expected=d22a1b624c937ed2e2ed3acf87214bb3ac28ebb05c454acd0a1410d74b15fe21 actual=d22a1b624c937ed2e2ed3acf87214bb3ac28ebb05c454acd0a1410d74b15fe21"
+    },
+    {
+      "name": "sha256:bench/discovery-fixtures/state-evolution/auditor/build-recipe.json",
+      "status": "pass",
+      "detail": "expected=085e8df678f789b7ff22f8e742af96f46353f378ff1cad77c534df1d0b463649 actual=085e8df678f789b7ff22f8e742af96f46353f378ff1cad77c534df1d0b463649"
+    },
+    {
+      "name": "sha256:bench/capability-slices/state-evolution/adapter.json",
+      "status": "pass",
+      "detail": "expected=97ebb4155eb0f91e2bc6e55ce609f992eef013d5bf47de9a047341dc9982ee50 actual=97ebb4155eb0f91e2bc6e55ce609f992eef013d5bf47de9a047341dc9982ee50"
+    },
+    {
+      "name": "sha256:bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch",
+      "status": "pass",
+      "detail": "expected=7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42 actual=7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42"
+    },
+    {
+      "name": "change_target_diff_provenance",
+      "status": "pass",
+      "detail": "ChangeTarget diff is bound to the frozen patch"
+    },
+    {
+      "name": "fixture_contract",
+      "status": "pass",
+      "detail": "state-evolution-local-continuity-v1"
+    },
+    {
+      "name": "fixture_contract_identity",
+      "status": "pass",
+      "detail": "contract id"
+    },
+    {
+      "name": "fixture_pair_identity",
+      "status": "pass",
+      "detail": "matched-pair identity is bound to the public contract"
+    },
+    {
+      "name": "protocol_identity",
+      "status": "pass",
+      "detail": "protocol package/activity/events"
+    },
+    {
+      "name": "build_recipe_identity",
+      "status": "pass",
+      "detail": "build recipe/package/activity"
+    },
+    {
+      "name": "build_metadata_identity",
+      "status": "pass",
+      "detail": "build metadata package/activity"
+    },
+    {
+      "name": "auditor_mapping_checksum",
+      "status": "pass",
+      "detail": "mapping bytes are bound but not interpreted"
+    },
+    {
+      "name": "lane:lane-01:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-02:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-03:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-04:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-05:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-06:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-07:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-08:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-09:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-10:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-11:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "lane:lane-12:admitted",
+      "status": "pass",
+      "detail": "plan-admitted and Run Spec compiled"
+    },
+    {
+      "name": "leakage_audit",
+      "status": "pass",
+      "detail": "12/12 packets pass"
+    },
+    {
+      "name": "ordered_population",
+      "status": "pass",
+      "detail": "lane order remains manifest order"
+    },
+    {
+      "name": "attempt_evidence_reduction",
+      "status": "pass",
+      "detail": "accountable terminal evidence creates Finding; non-accountable evidence creates Residual Risk"
+    },
+    {
+      "name": "contradiction_preflight",
+      "status": "pass",
+      "detail": "10/10 fail-closed checks"
+    }
+  ],
+  "lanes": [
+    {
+      "lane_id": "lane-01",
+      "packet_id": "packet-lane-01",
+      "target_mode": "change",
+      "target_id": "m8-state-evolution-change-target-01",
+      "campaign_id": "campaign-lane-01",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-49f42b3964a55222",
+      "failure_chain_id": "chain-state-evolution-619ec8bd4dc33fef",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-025bc2c0516d22d8",
+      "experiment_ref": "experiment-e5d09b48efc8bee2",
+      "input_digest": "a866c1727aff1288ddaa22bfc53855cdce2748df04413bead9c5982f24147f80",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": true,
+      "contract_drift_bound": true,
+      "project_diff_absent": false,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "diff": "bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch",
+        "scenario": {
+          "id": "m8-state-evolution-lane-01",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "461ebfe3bd9755fdfd4a885c91a45002fca78af73f3c4235b22b25e33b4c7147",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-02",
+      "packet_id": "packet-lane-02",
+      "target_mode": "change",
+      "target_id": "m8-state-evolution-change-target-02",
+      "campaign_id": "campaign-lane-02",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-1198a4783ca9b121",
+      "failure_chain_id": "chain-state-evolution-340701338ce67de1",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-605998569a805f1f",
+      "experiment_ref": "experiment-4144cc584638315b",
+      "input_digest": "92b3a06d1d2fd08aa231a47eae4440b12979675be0571f1d452b7dcfc88827b6",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": true,
+      "contract_drift_bound": true,
+      "project_diff_absent": false,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "diff": "bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch",
+        "scenario": {
+          "id": "m8-state-evolution-lane-02",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "b4deb8e9a3fc97d38ecd70263cb9bd0193a0e0ed7f6f6590bbd528c6406e6449",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-03",
+      "packet_id": "packet-lane-03",
+      "target_mode": "change",
+      "target_id": "m8-state-evolution-change-target-03",
+      "campaign_id": "campaign-lane-03",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-b10f36acf67d4ba7",
+      "failure_chain_id": "chain-state-evolution-356afd1c04f0792a",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-a4ca6d1a895cb661",
+      "experiment_ref": "experiment-915220a099def8c7",
+      "input_digest": "bc626edf06e311fad51562d771fb029afd71403922643b0dd642be1c745c2285",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": true,
+      "contract_drift_bound": true,
+      "project_diff_absent": false,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "diff": "bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch",
+        "scenario": {
+          "id": "m8-state-evolution-lane-03",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "b0ea1da1cb086688caca459a19d8f13f119046d014faf02aff26948ca49cd1aa",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-04",
+      "packet_id": "packet-lane-04",
+      "target_mode": "change",
+      "target_id": "m8-state-evolution-change-target-04",
+      "campaign_id": "campaign-lane-04",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-557e4403c8b89284",
+      "failure_chain_id": "chain-state-evolution-2f4cba5cbc042bda",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-f1ac8f624bfa3fa0",
+      "experiment_ref": "experiment-8b5035480ee02df0",
+      "input_digest": "dd0e971f32c874396283814036f3a7aece547345d48d6388036dc9ee65953ca0",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": true,
+      "contract_drift_bound": true,
+      "project_diff_absent": false,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "diff": "bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch",
+        "scenario": {
+          "id": "m8-state-evolution-lane-04",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "d2f19826411ec6be29408708737d6f42fdc4a2a9ac27148c165912ddb08d9c34",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-05",
+      "packet_id": "packet-lane-05",
+      "target_mode": "change",
+      "target_id": "m8-state-evolution-change-target-05",
+      "campaign_id": "campaign-lane-05",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-8ff845ab17c5fb18",
+      "failure_chain_id": "chain-state-evolution-7094198119cffc04",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-af31704f7f53bbef",
+      "experiment_ref": "experiment-c83ab017eb50234b",
+      "input_digest": "acea0a61093fbd4b316f09291e6088fed43a97bf2f6fc73184a3a416f0c824b0",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": true,
+      "contract_drift_bound": true,
+      "project_diff_absent": false,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "diff": "bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch",
+        "scenario": {
+          "id": "m8-state-evolution-lane-05",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "8deed2e639531aea809726d69024338880ee8d0f4f8b3c0ab8c12d890a0d1474",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-06",
+      "packet_id": "packet-lane-06",
+      "target_mode": "change",
+      "target_id": "m8-state-evolution-change-target-06",
+      "campaign_id": "campaign-lane-06",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-deb5fab4cc04d49b",
+      "failure_chain_id": "chain-state-evolution-64053f7a33e79293",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-5aeccb9684faa8e7",
+      "experiment_ref": "experiment-8e054d0cf67f1d7a",
+      "input_digest": "9161cb45adfeb790d8c18dd3eb9a4758f9150a70e0fd2fcb9edb605f56f3f87a",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": true,
+      "contract_drift_bound": true,
+      "project_diff_absent": false,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "diff": "bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch",
+        "scenario": {
+          "id": "m8-state-evolution-lane-06",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "9e76d124bff587ab1ca080b7737d9d5e3567e126fc85f7cb513082757a7a50f9",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-07",
+      "packet_id": "packet-lane-07",
+      "target_mode": "project",
+      "target_id": "m8-state-evolution-project-target-07",
+      "campaign_id": "campaign-lane-07",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-f737eadfa9f49a7e",
+      "failure_chain_id": "chain-state-evolution-f209637015023496",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-14efdd4509f6c9bb",
+      "experiment_ref": "experiment-506c9139d559eaa2",
+      "input_digest": "519d8fd10837376ba85aac5f50d8633f55042e78ee8b76b202ef0b1cc59c7c30",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": false,
+      "contract_drift_bound": false,
+      "project_diff_absent": true,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "scenario": {
+          "id": "m8-state-evolution-lane-07",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "950f4fc6afce01ec69ce340bf3e64fff10dbd6bf328910f9cd6ffb84e5a8ad94",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-08",
+      "packet_id": "packet-lane-08",
+      "target_mode": "project",
+      "target_id": "m8-state-evolution-project-target-08",
+      "campaign_id": "campaign-lane-08",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-d7ed7b2062d31d43",
+      "failure_chain_id": "chain-state-evolution-1187eb900a0b614f",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-9aa53405bae2b2bf",
+      "experiment_ref": "experiment-157bf3f21f04d879",
+      "input_digest": "7fa3408da3cba15325f0f7d35c08da721e26d360f223cd829b1e5ca21331827b",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": false,
+      "contract_drift_bound": false,
+      "project_diff_absent": true,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "scenario": {
+          "id": "m8-state-evolution-lane-08",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "6361220a684d5e504e1633053472620ca5b6a9031940fb27729e856255e2bf08",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-09",
+      "packet_id": "packet-lane-09",
+      "target_mode": "project",
+      "target_id": "m8-state-evolution-project-target-09",
+      "campaign_id": "campaign-lane-09",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-9c86767209b27587",
+      "failure_chain_id": "chain-state-evolution-0cd6c6da503c15b8",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-12788e08e85dee1e",
+      "experiment_ref": "experiment-c447aaf8d64eee4f",
+      "input_digest": "00ecf64443ddffb945d584b614ae81537bf2db87f125951837eaf42e4aa43415",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": false,
+      "contract_drift_bound": false,
+      "project_diff_absent": true,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "scenario": {
+          "id": "m8-state-evolution-lane-09",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "421712109bbf75a8b68a32147953c3974e8d82fcb01f13a745985f46214165ee",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-10",
+      "packet_id": "packet-lane-10",
+      "target_mode": "project",
+      "target_id": "m8-state-evolution-project-target-10",
+      "campaign_id": "campaign-lane-10",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-560b755354d97887",
+      "failure_chain_id": "chain-state-evolution-3fe06136c3c841ea",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-9df9fe49ad700c1d",
+      "experiment_ref": "experiment-fc6cfa6474997f3f",
+      "input_digest": "a78a55d189f0dd318d7c14efe4f1a53d9d4287231fcf1b7ab5c3fde3c21a9ed9",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": false,
+      "contract_drift_bound": false,
+      "project_diff_absent": true,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "scenario": {
+          "id": "m8-state-evolution-lane-10",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "fcfaf740757511efb80930618655df640a2c05a635aca672105ae7e3baac3f7d",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-11",
+      "packet_id": "packet-lane-11",
+      "target_mode": "project",
+      "target_id": "m8-state-evolution-project-target-11",
+      "campaign_id": "campaign-lane-11",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-e74b84d709f87005",
+      "failure_chain_id": "chain-state-evolution-993a0319ad4cf599",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-6985168c041858c3",
+      "experiment_ref": "experiment-1f662e981804556d",
+      "input_digest": "ea609a4d985f2a5b60446f2dcdfda4ead5bef7a14ad16c6f2d252a1e17f45f68",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": false,
+      "contract_drift_bound": false,
+      "project_diff_absent": true,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "scenario": {
+          "id": "m8-state-evolution-lane-11",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "4c000def381458d07d9def40f8299b6a3caba1c1733b23834fe4b51e9793b48a",
+      "formal_execution_started": false
+    },
+    {
+      "lane_id": "lane-12",
+      "packet_id": "packet-lane-12",
+      "target_mode": "project",
+      "target_id": "m8-state-evolution-project-target-12",
+      "campaign_id": "campaign-lane-12",
+      "context_status": "partial",
+      "hypothesis_status": "frozen",
+      "hypothesis_id": "hypothesis-state-evolution-2505445a9b10eeef",
+      "failure_chain_id": "chain-state-evolution-25e67fa25fe9720c",
+      "plan_status": "admitted",
+      "plan_id": "plan-state-evolution-71cfdc866aaf5aa7",
+      "experiment_ref": "experiment-60ee71ae361b7e22",
+      "input_digest": "94192737e4f562d7d19441ec3d6ad3e69b7ef5834af3ed5b8f8656571dd862b6",
+      "campaign_status_after_compile": "executing",
+      "behavior_delta_bound": false,
+      "contract_drift_bound": false,
+      "project_diff_absent": true,
+      "run_spec": {
+        "host_project": "bench/fixtures/lifecycle-recovery-app",
+        "apk_glob": "app/build/outputs/**/*.apk",
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "scenario": {
+          "id": "m8-state-evolution-lane-12",
+          "user_actions": [
+            "Launch the bounded state fixture and observe the recorded state boundary.",
+            "Record state identity, migration, and recovery observations without classification."
+          ],
+          "system_events": [
+            {
+              "step_index": 0,
+              "event": "rotate",
+              "args": {}
+            },
+            {
+              "step_index": 1,
+              "event": "process_death",
+              "args": {}
+            },
+            {
+              "step_index": 2,
+              "event": "backup_restore",
+              "args": {}
+            }
+          ],
+          "assertions": [],
+          "l2_boundary_index": 2,
+          "metric_context": {
+            "seed_kind": "unspecified",
+            "taxonomy_category": null,
+            "taxonomy_pattern_id": null
+          },
+          "l3_spec": ""
+        }
+      },
+      "package_sha256": "4c6057ecc965645273c7b3824ff37a8e0d9ee4c9f17bd38072b6bccf1b61c751",
+      "formal_execution_started": false
+    }
+  ],
+  "leakage_audit": {
+    "status": "pass",
+    "packet_count": 12,
+    "checks": [
+      {
+        "packet_id": "packet-lane-01",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-02",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-03",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-04",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-05",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-06",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-07",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-08",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-09",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-10",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-11",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      },
+      {
+        "packet_id": "packet-lane-12",
+        "status": "pass",
+        "forbidden_terms": [],
+        "variant_withheld": true,
+        "expected_evidence_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "verdict_withheld": true
+      }
+    ],
+    "pre_execution_artifacts": [
+      "context",
+      "selection_ledger",
+      "hypothesis",
+      "failure_chain",
+      "attack_plan",
+      "run_spec"
+    ],
+    "mapping_released": false
+  },
+  "contradiction_audit": {
+    "status": "pass",
+    "total": 10,
+    "passed": 10,
+    "checks": [
+      {
+        "name": "source_identity",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "M8 qualification is invalid:\n- source_commit must remain 1dd4b080f61437d8019958ea01954deb025f36c7"
+      },
+      {
+        "name": "target_context_identity",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "context expansion request campaign mismatch"
+      },
+      {
+        "name": "prior_operator_identity",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "campaign risk derivation rejected: strategy does not support attack operator: wrong-operator; attack operator is not compatible with selected risk prior"
+      },
+      {
+        "name": "run_spec_identity",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "Run Spec compilation requires plan-admitted campaign"
+      },
+      {
+        "name": "fixture_state_input",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "migration must be one incremental schema upgrade"
+      },
+      {
+        "name": "retry_policy",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: policy permits exactly one attempt per lane"
+      },
+      {
+        "name": "evidence_policy",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: evidence policy requires checksums"
+      },
+      {
+        "name": "adjudication_policy",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: adjudication must remain independent"
+      },
+      {
+        "name": "claim_boundary",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: claim boundary must remain local-only"
+      },
+      {
+        "name": "change_target_profile",
+        "status": "pass",
+        "side_effects": false,
+        "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: ChangeTarget profile must require behavior_delta"
+      }
+    ],
+    "side_effects": false,
+    "formal_denominator": false,
+    "route": "exclude_before_formal_invocation"
+  },
+  "claim_boundary": {
+    "local_only": true,
+    "scope": "frozen state-evolution fixture, one local recovery contract, and discovery/admission seam; formal runtime is a separate #122 result",
+    "exclusions": [
+      "combined Change/Project denominator",
+      "benchmark-wide detection or false-positive rate",
+      "whole-project persistence coverage",
+      "OEM/physical-device/production claims",
+      "upstream acceptance"
+    ]
+  },
+  "source_head": "7da121f9b96374f014e51cade7e4fc10971871d3",
+  "origin_main": "f1027c15e9a6def81f5a1cc7bdf80b2a870ec07b",
+  "exact_merged_121": "f1027c15e9a6def81f5a1cc7bdf80b2a870ec07b"
+}

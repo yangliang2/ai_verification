@@ -409,6 +409,7 @@ class DeviceSystemEventInjector:
                     "backup_restore completed without cleanup evidence"
                 )
             return {
+                "package": self.package,
                 "transport": transport,
                 "previous_transport": previous_transport,
                 "backup_was_enabled": backup_was_enabled,
