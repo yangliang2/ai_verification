@@ -47,12 +47,12 @@ uv run --with pytest --with jsonschema --with pyyaml pytest -o addopts='' -q tes
 → 99 passed in 4.74s
 
 uv run --with pytest --with jsonschema --with pyyaml pytest -o addopts='' -ra -q
-→ 791 passed in 23.02s
+→ 791 passed in 23.00s
 
 /usr/bin/time -p uv build
 → Successfully built dist/aiverify-0.1.0.tar.gz
 → Successfully built dist/aiverify-0.1.0-py3-none-any.whl
-→ real 3.88s, user 0.59s, sys 0.23s
+→ real 0.82s, user 0.55s, sys 0.21s
 
 uv run --with jsonschema --with pyyaml python - <<'PY'
 from pathlib import Path
@@ -95,8 +95,8 @@ Toolchain for these runs: `uv 0.11.7`, `Python 3.11.15`, `pytest 9.1.1`,
 `ruff 0.16.1`, `jsonschema 4.26.0`, and `PyYAML 6.0.3`.
 
 Build artifact inventory: the durable run record stores
-`artifacts/aiverify-0.1.0-py3-none-any.whl` (267,328 bytes, SHA-256
-`64fca15db06732ad9e8c2d6e82e8a424ded62d24faa639702866990959359e1c`). The
+`artifacts/aiverify-0.1.0-py3-none-any.whl` (269,155 bytes, SHA-256
+`6069a31a5e9cd0cc9020d5ab5ef02d4823e09abc78b85d7641841a34bfd394be`). The
 wheel contains `aiverify/bench/state_evolution.py` and
 `aiverify/bench/state_evolution_schema.json`; the source distribution was
 validated at build time but is not retained in the run record.
@@ -134,7 +134,7 @@ The run record itself is checksum-bound by `checksums.sha256` (README and
 wheel artifacts, both verified `OK`).
 
 ```text
-d36b1a850dec157a75fc263928b18def6b6cd5fe69910f8490156e7cee6bc97c  src/aiverify/bench/state_evolution.py
+2256c9b6b060f537b5199def7e16c5c63a01d6715511c21d03966f5747851ca9  src/aiverify/bench/state_evolution.py
 47812952d96b5914cfaf705186a861e850620f1914b84a3ec58b66e330ceaebe  src/aiverify/bench/state_evolution_schema.json
 c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2  bench/discovery-fixtures/state-evolution/contract.json
 367b5b2710dab2ba08cc8cf263445c33a69b198ea46e9e87dc8e55f9f4e0c11c  bench/discovery-fixtures/state-evolution/context-manifest.json
@@ -143,5 +143,5 @@ c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2  bench/discover
 7f8717629739acf0a6762af9bbed55f676ccaa5f2cb868257a83522cdecfa626  bench/discovery-fixtures/state-evolution/auditor/matched-pair.json
 97ebb4155eb0f91e2bc6e55ce609f992eef013d5bf47de9a047341dc9982ee50  bench/capability-slices/state-evolution/adapter.json
 c509bce238f7868d93b2c1703144e12bd8cc9db8c140e88db04ed5f06b9db779  tests/bench/test_state_evolution.py
-c82ae2feb5ccec6e80059ce9bdd30c8346202bac8968f5c749f1e127500c3fe2  docs/runs/2026-08-05-issue-119-state-fixture/artifacts/aiverify-0.1.0-py3-none-any.whl
+6069a31a5e9cd0cc9020d5ab5ef02d4823e09abc78b85d7641841a34bfd394be  docs/runs/2026-08-05-issue-119-state-fixture/artifacts/aiverify-0.1.0-py3-none-any.whl
 ```

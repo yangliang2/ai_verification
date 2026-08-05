@@ -697,7 +697,7 @@ def verify_state_evolution_matched_pair(
         checks.append(check)
         return actual
 
-    def single_localized_patch(path: Path) -> tuple[bool, str]:
+    def single_localized_patch(path: Path, expected_source: Path) -> tuple[bool, str]:
         try:
             lines = path.read_text(encoding="utf-8").splitlines()
         except (OSError, UnicodeDecodeError) as error:
@@ -710,16 +710,29 @@ def verify_state_evolution_matched_pair(
         removals = [
             line for line in lines if line.startswith("-") and not line.startswith("---")
         ]
+        old_headers = [line for line in lines if line.startswith("--- ")]
+        new_headers = [line for line in lines if line.startswith("+++ ")]
+        expected_header = expected_source.relative_to(root).as_posix()
+        header_paths = [
+            line[4:].split("\t", 1)[0].removeprefix("a/")
+            for line in old_headers
+        ] + [
+            line[4:].split("\t", 1)[0].removeprefix("b/")
+            for line in new_headers
+        ]
         localized = (
             len(diff_headers) == 1
             and len(hunks) == 1
             and len(additions) == 1
             and len(removals) == 1
+            and bool(old_headers)
+            and bool(new_headers)
+            and header_paths == [expected_header, expected_header]
         )
         return localized, (
-            "one file, one hunk, and one replacement line"
+            "one file, one hunk, one replacement line, and matching source headers"
             if localized
-            else "patch must contain exactly one file, one hunk, and one replacement line"
+            else "patch must contain one localized hunk replacing one line in the source file"
         )
 
     try:
@@ -840,7 +853,7 @@ def verify_state_evolution_matched_pair(
                 change_file = pair_source(str(change_path_raw))
                 change_paths[member] = change_file
                 check_digest(f"{member}.change", change_file, change_hash)
-                localized, detail = single_localized_patch(change_file)
+                localized, detail = single_localized_patch(change_file, source_paths[member])
                 checks.append(
                     {
                         "artifact": f"{member}.change_semantics",
