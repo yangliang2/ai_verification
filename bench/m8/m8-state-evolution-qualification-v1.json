@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "qualification_id": "m8-state-evolution-qualification-v1",
+  "status": "frozen",
+  "frozen_at": "2026-08-05T17:41:00Z",
+  "maintainer_approval": {
+    "issue_url": "https://github.com/yangliang2/ai_verification/issues/121",
+    "comment_url": "https://github.com/yangliang2/ai_verification/issues/121#issuecomment-5193898277",
+    "approved_by": "maintainer",
+    "approved_at": "2026-08-05T17:40:00Z"
+  },
+  "source_identity": {
+    "fixture_id": "lifecycle-recovery-state-pair-v1",
+    "source_origin": "fixture://state-evolution",
+    "source_commit": "1dd4b080f61437d8019958ea01954deb025f36c7",
+    "worktree": ".",
+    "artifacts": [
+      {"path": "bench/discovery-fixtures/state-evolution/LegacyStateWriter.kt", "sha256": "8eaee7ffee4646a0309532c131866103c4536e48d9f11ea4619eeaaa654afb79"},
+      {"path": "bench/discovery-fixtures/state-evolution/StateStoreV2.kt", "sha256": "5712e7b8043893498e0acc554a6b32b7b5b41f2bf80f8831384352b2e696fe85"},
+      {"path": "bench/discovery-fixtures/state-evolution/RecoveryBoundary.kt", "sha256": "d8b6010b17c5b552714c3296d1cde98cc268544f8c2b5743f267aa0382a3c21a"},
+      {"path": "bench/discovery-fixtures/state-evolution/README.md", "sha256": "268216e3637195c61be8dc97f7078535859835c330b477d4037873756ccdae27"},
+      {"path": "bench/discovery-fixtures/state-evolution/build-metadata.json", "sha256": "841305ac86cfc29a4ec3626ccf7aa67bc99adcc869b2b75d28029cd8ae4c6258"},
+      {"path": "bench/discovery-fixtures/state-evolution/context-manifest.json", "sha256": "367b5b2710dab2ba08cc8cf263445c33a69b198ea46e9e87dc8e55f9f4e0c11c"},
+      {"path": "bench/discovery-fixtures/state-evolution/contract.json", "sha256": "c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2"},
+      {"path": "bench/discovery-fixtures/state-evolution/protocol.json", "sha256": "4aaba044d909aff658523993e2b6b353df0468527c4e87f8ee03a963ffca6426"},
+      {"path": "bench/discovery-fixtures/state-evolution/spec.md", "sha256": "d22a1b624c937ed2e2ed3acf87214bb3ac28ebb05c454acd0a1410d74b15fe21"},
+      {"path": "bench/discovery-fixtures/state-evolution/auditor/build-recipe.json", "sha256": "085e8df678f789b7ff22f8e742af96f46353f378ff1cad77c534df1d0b463649"},
+      {"path": "bench/capability-slices/state-evolution/adapter.json", "sha256": "97ebb4155eb0f91e2bc6e55ce609f992eef013d5bf47de9a047341dc9982ee50"},
+      {"path": "bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch", "sha256": "7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42"}
+    ],
+    "context": {"path": "bench/discovery-fixtures/state-evolution/context-manifest.json", "sha256": "367b5b2710dab2ba08cc8cf263445c33a69b198ea46e9e87dc8e55f9f4e0c11c"},
+    "change_input": {"path": "bench/capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch", "sha256": "7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42"}
+  },
+  "fixture": {
+    "pair_id": "lifecycle-recovery-state-pair-v1",
+    "contract_id": "state-evolution-local-continuity-v1",
+    "contract": {"path": "bench/discovery-fixtures/state-evolution/contract.json", "sha256": "c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2"},
+    "context": {"path": "bench/discovery-fixtures/state-evolution/context-manifest.json", "sha256": "367b5b2710dab2ba08cc8cf263445c33a69b198ea46e9e87dc8e55f9f4e0c11c"},
+    "protocol": {"path": "bench/discovery-fixtures/state-evolution/protocol.json", "sha256": "4aaba044d909aff658523993e2b6b353df0468527c4e87f8ee03a963ffca6426"},
+    "build_recipe": {"path": "bench/discovery-fixtures/state-evolution/auditor/build-recipe.json", "sha256": "085e8df678f789b7ff22f8e742af96f46353f378ff1cad77c534df1d0b463649"}
+  },
+  "environment": {
+    "runner": "local-python",
+    "network": "disabled",
+    "android_execution": false,
+    "device": "none"
+  },
+  "target_profiles": {
+    "change": {
+      "kind": "ChangeTarget",
+      "scope": ["state-evolution", "lifecycle-recovery"],
+      "requires_diff": true,
+      "requires_behavior_delta": true,
+      "requires_contract_drift": true
+    },
+    "project": {
+      "kind": "ProjectTarget",
+      "scope": ["state-evolution", "lifecycle-recovery"],
+      "requires_diff": false,
+      "requires_behavior_delta": false,
+      "requires_contract_drift": false
+    }
+  },
+  "build": {
+    "host_project": "bench/fixtures/lifecycle-recovery-app",
+    "gradle_wrapper": "./gradlew",
+    "gradle_tasks": [":app:assembleDebug"],
+    "apk_relative_path": "app/build/outputs/apk/debug/app-debug.apk",
+    "package": "dev.aiverify.lifecyclefixture",
+    "activity": "dev.aiverify.lifecyclefixture.MainActivity"
+  },
+  "tool_policy": {
+    "android_cli": {"binary": "android", "policy": "read-only admission probe; version recorded at formal execution"},
+    "adb": {"binary": "adb", "policy": "local fixture/device only; no network-policy changes"},
+    "gradle": {"binary": "./gradlew", "policy": "offline fixture build only"}
+  },
+  "model_policy": {
+    "backend": "codex-cli",
+    "requested_model": "codex-default",
+    "effective_model_record": "record-at-execution"
+  },
+  "policy": {
+    "planned_lanes": 12,
+    "repetitions_per_cell": 3,
+    "discovery_budget": 8,
+    "context_expansion_budget": 1,
+    "max_attempts_per_lane": 1,
+    "retry": {
+      "max_attempts_per_lane": 1,
+      "no_retry_after_accountable": true,
+      "replacement_allowed": false
+    },
+    "blinding": {
+      "withhold_variant": true,
+      "withhold_expected_evidence": true,
+      "withhold_expected_oracle": true,
+      "withhold_verdict": true,
+      "network_disabled": true
+    },
+    "abort_boundary": "Abort before build/install/launch on any source, target, context, prior/operator, hypothesis, plan, fixture, state, Run Spec, package/activity, evidence, adjudication, or claim contradiction; never retry or replace an accountable lane."
+  },
+  "cells": [
+    {"cell_id": "change-defect", "target_mode": "change", "variant": "defect", "repetitions": 3},
+    {"cell_id": "change-control", "target_mode": "change", "variant": "control", "repetitions": 3},
+    {"cell_id": "project-defect", "target_mode": "project", "variant": "defect", "repetitions": 3},
+    {"cell_id": "project-control", "target_mode": "project", "variant": "control", "repetitions": 3}
+  ],
+  "lanes": [
+    {"lane_id": "lane-01", "cell_id": "change-defect", "target_mode": "change", "repetition": 1, "packet_id": "packet-lane-01", "target_id": "m8-state-evolution-change-target-01", "campaign_id": "campaign-lane-01", "scenario_id": "m8-state-evolution-lane-01", "hypothesis_id": "hypothesis-state-evolution-49f42b3964a55222", "failure_chain_id": "chain-state-evolution-619ec8bd4dc33fef", "plan_id": "plan-state-evolution-025bc2c0516d22d8", "experiment_ref": "experiment-e5d09b48efc8bee2"},
+    {"lane_id": "lane-02", "cell_id": "change-defect", "target_mode": "change", "repetition": 2, "packet_id": "packet-lane-02", "target_id": "m8-state-evolution-change-target-02", "campaign_id": "campaign-lane-02", "scenario_id": "m8-state-evolution-lane-02", "hypothesis_id": "hypothesis-state-evolution-1198a4783ca9b121", "failure_chain_id": "chain-state-evolution-340701338ce67de1", "plan_id": "plan-state-evolution-605998569a805f1f", "experiment_ref": "experiment-4144cc584638315b"},
+    {"lane_id": "lane-03", "cell_id": "change-defect", "target_mode": "change", "repetition": 3, "packet_id": "packet-lane-03", "target_id": "m8-state-evolution-change-target-03", "campaign_id": "campaign-lane-03", "scenario_id": "m8-state-evolution-lane-03", "hypothesis_id": "hypothesis-state-evolution-b10f36acf67d4ba7", "failure_chain_id": "chain-state-evolution-356afd1c04f0792a", "plan_id": "plan-state-evolution-a4ca6d1a895cb661", "experiment_ref": "experiment-915220a099def8c7"},
+    {"lane_id": "lane-04", "cell_id": "change-control", "target_mode": "change", "repetition": 1, "packet_id": "packet-lane-04", "target_id": "m8-state-evolution-change-target-04", "campaign_id": "campaign-lane-04", "scenario_id": "m8-state-evolution-lane-04", "hypothesis_id": "hypothesis-state-evolution-557e4403c8b89284", "failure_chain_id": "chain-state-evolution-2f4cba5cbc042bda", "plan_id": "plan-state-evolution-f1ac8f624bfa3fa0", "experiment_ref": "experiment-8b5035480ee02df0"},
+    {"lane_id": "lane-05", "cell_id": "change-control", "target_mode": "change", "repetition": 2, "packet_id": "packet-lane-05", "target_id": "m8-state-evolution-change-target-05", "campaign_id": "campaign-lane-05", "scenario_id": "m8-state-evolution-lane-05", "hypothesis_id": "hypothesis-state-evolution-8ff845ab17c5fb18", "failure_chain_id": "chain-state-evolution-7094198119cffc04", "plan_id": "plan-state-evolution-af31704f7f53bbef", "experiment_ref": "experiment-c83ab017eb50234b"},
+    {"lane_id": "lane-06", "cell_id": "change-control", "target_mode": "change", "repetition": 3, "packet_id": "packet-lane-06", "target_id": "m8-state-evolution-change-target-06", "campaign_id": "campaign-lane-06", "scenario_id": "m8-state-evolution-lane-06", "hypothesis_id": "hypothesis-state-evolution-deb5fab4cc04d49b", "failure_chain_id": "chain-state-evolution-64053f7a33e79293", "plan_id": "plan-state-evolution-5aeccb9684faa8e7", "experiment_ref": "experiment-8e054d0cf67f1d7a"},
+    {"lane_id": "lane-07", "cell_id": "project-defect", "target_mode": "project", "repetition": 1, "packet_id": "packet-lane-07", "target_id": "m8-state-evolution-project-target-07", "campaign_id": "campaign-lane-07", "scenario_id": "m8-state-evolution-lane-07", "hypothesis_id": "hypothesis-state-evolution-f737eadfa9f49a7e", "failure_chain_id": "chain-state-evolution-f209637015023496", "plan_id": "plan-state-evolution-14efdd4509f6c9bb", "experiment_ref": "experiment-506c9139d559eaa2"},
+    {"lane_id": "lane-08", "cell_id": "project-defect", "target_mode": "project", "repetition": 2, "packet_id": "packet-lane-08", "target_id": "m8-state-evolution-project-target-08", "campaign_id": "campaign-lane-08", "scenario_id": "m8-state-evolution-lane-08", "hypothesis_id": "hypothesis-state-evolution-d7ed7b2062d31d43", "failure_chain_id": "chain-state-evolution-1187eb900a0b614f", "plan_id": "plan-state-evolution-9aa53405bae2b2bf", "experiment_ref": "experiment-157bf3f21f04d879"},
+    {"lane_id": "lane-09", "cell_id": "project-defect", "target_mode": "project", "repetition": 3, "packet_id": "packet-lane-09", "target_id": "m8-state-evolution-project-target-09", "campaign_id": "campaign-lane-09", "scenario_id": "m8-state-evolution-lane-09", "hypothesis_id": "hypothesis-state-evolution-9c86767209b27587", "failure_chain_id": "chain-state-evolution-0cd6c6da503c15b8", "plan_id": "plan-state-evolution-12788e08e85dee1e", "experiment_ref": "experiment-c447aaf8d64eee4f"},
+    {"lane_id": "lane-10", "cell_id": "project-control", "target_mode": "project", "repetition": 1, "packet_id": "packet-lane-10", "target_id": "m8-state-evolution-project-target-10", "campaign_id": "campaign-lane-10", "scenario_id": "m8-state-evolution-lane-10", "hypothesis_id": "hypothesis-state-evolution-560b755354d97887", "failure_chain_id": "chain-state-evolution-3fe06136c3c841ea", "plan_id": "plan-state-evolution-9df9fe49ad700c1d", "experiment_ref": "experiment-fc6cfa6474997f3f"},
+    {"lane_id": "lane-11", "cell_id": "project-control", "target_mode": "project", "repetition": 2, "packet_id": "packet-lane-11", "target_id": "m8-state-evolution-project-target-11", "campaign_id": "campaign-lane-11", "scenario_id": "m8-state-evolution-lane-11", "hypothesis_id": "hypothesis-state-evolution-e74b84d709f87005", "failure_chain_id": "chain-state-evolution-993a0319ad4cf599", "plan_id": "plan-state-evolution-6985168c041858c3", "experiment_ref": "experiment-1f662e981804556d"},
+    {"lane_id": "lane-12", "cell_id": "project-control", "target_mode": "project", "repetition": 3, "packet_id": "packet-lane-12", "target_id": "m8-state-evolution-project-target-12", "campaign_id": "campaign-lane-12", "scenario_id": "m8-state-evolution-lane-12", "hypothesis_id": "hypothesis-state-evolution-2505445a9b10eeef", "failure_chain_id": "chain-state-evolution-25e67fa25fe9720c", "plan_id": "plan-state-evolution-71cfdc866aaf5aa7", "experiment_ref": "experiment-60ee71ae361b7e22"}
+  ],
+  "oracle": {
+    "id": "m8-state-evolution-v1",
+    "contract_ref": {"path": "bench/discovery-fixtures/state-evolution/contract.json", "sha256": "c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2"},
+    "input_fields": ["terminal_execution_record", "effective_execution_identity", "state_observations", "migration_evidence", "recovery_evidence"],
+    "allowed_conclusions": ["locally_supported", "locally_rejected", "inconclusive"],
+    "no_variant_input": true
+  },
+  "evidence": {
+    "root": "docs/runs/2026-08-05-issue-121-qualification-freeze",
+    "required_artifacts": ["execution-record.json", "execution-provenance.json", "effective-execution-identity.json", "state-observations.json", "oracle.json", "verdict.json", "checksums.sha256"],
+    "checksums_required": true,
+    "reduction_rules": {
+      "accountable_terminal": "Finding",
+      "non_accountable_terminal": "Residual Risk",
+      "retry_after_accountability": false
+    }
+  },
+  "adjudication": {
+    "independent": true,
+    "auditor_id": "m8-state-evolution-independent-adjudicator-v1",
+    "checks": ["target_mode_identity", "hidden_mapping_release", "hypothesis_plan_freeze", "leakage_boundary", "attempt_accounting", "state_oracle", "finding_residual_risk", "claim_boundary"]
+  },
+  "claim_boundary": {
+    "local_only": true,
+    "scope": "frozen state-evolution fixture, one local recovery contract, and discovery/admission seam; formal runtime is a separate #122 result",
+    "exclusions": ["combined Change/Project denominator", "benchmark-wide detection or false-positive rate", "whole-project persistence coverage", "OEM/physical-device/production claims", "upstream acceptance"]
+  },
+  "auditor_mapping": {
+    "artifact": {"path": "bench/discovery-fixtures/state-evolution/auditor/matched-pair.json", "sha256": "7f8717629739acf0a6762af9bbed55f676ccaa5f2cb868257a83522cdecfa626"},
+    "release_after": "hypothesis_freeze_and_plan_admission"
+  },
+  "contradictory_preflight": {
+    "id": "m8-qualification-contradictions-v1",
+    "formal_denominator": false,
+    "side_effects": false,
+    "route": "exclude_before_formal_invocation"
+  }
+}

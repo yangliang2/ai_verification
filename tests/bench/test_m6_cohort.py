@@ -389,6 +389,7 @@ def test_build_configuration_packages_the_schema() -> None:
         "m7_qualification_schema.json",
         "m7_runtime_probe_schema.json",
         "m7_project_runtime_probe_schema.json",
+        "m8_qualification_schema.json",
         "state_evolution_schema.json",
     ]
 

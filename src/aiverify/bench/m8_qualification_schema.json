@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "M8 state-evolution qualification manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "qualification_id", "status", "frozen_at",
+    "maintainer_approval", "source_identity", "fixture", "environment",
+    "target_profiles", "build", "tool_policy", "model_policy", "policy",
+    "cells", "lanes", "oracle", "evidence", "adjudication",
+    "claim_boundary", "auditor_mapping", "contradictory_preflight"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "qualification_id": {"const": "m8-state-evolution-qualification-v1"},
+    "status": {"const": "frozen"},
+    "frozen_at": {"type": "string", "format": "date-time"},
+    "maintainer_approval": {"$ref": "#/$defs/approval"},
+    "source_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixture_id", "source_origin", "source_commit", "worktree", "artifacts", "change_input", "context"],
+      "properties": {
+        "fixture_id": {"type": "string", "minLength": 1},
+        "source_origin": {"type": "string", "minLength": 1},
+        "source_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "worktree": {"type": "string", "minLength": 1},
+        "artifacts": {"type": "array", "minItems": 8, "items": {"$ref": "#/$defs/artifact"}},
+        "change_input": {"$ref": "#/$defs/artifact"},
+        "context": {"$ref": "#/$defs/artifact"}
+      }
+    },
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pair_id", "contract_id", "contract", "context", "protocol", "build_recipe"],
+      "properties": {
+        "pair_id": {"type": "string", "minLength": 1},
+        "contract_id": {"type": "string", "minLength": 1},
+        "contract": {"$ref": "#/$defs/artifact"},
+        "context": {"$ref": "#/$defs/artifact"},
+        "protocol": {"$ref": "#/$defs/artifact"},
+        "build_recipe": {"$ref": "#/$defs/artifact"}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runner", "network", "android_execution", "device"],
+      "properties": {
+        "runner": {"const": "local-python"},
+        "network": {"const": "disabled"},
+        "android_execution": {"const": false},
+        "device": {"const": "none"}
+      }
+    },
+    "target_profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["change", "project"],
+      "properties": {
+        "change": {"$ref": "#/$defs/target_profile"},
+        "project": {"$ref": "#/$defs/target_profile"}
+      }
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host_project", "gradle_wrapper", "gradle_tasks", "apk_relative_path", "package", "activity"],
+      "properties": {
+        "host_project": {"type": "string", "minLength": 1},
+        "gradle_wrapper": {"type": "string", "minLength": 1},
+        "gradle_tasks": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "apk_relative_path": {"type": "string", "minLength": 1},
+        "package": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.]+$"},
+        "activity": {"type": "string", "minLength": 1}
+      }
+    },
+    "tool_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["android_cli", "adb", "gradle"],
+      "properties": {
+        "android_cli": {"$ref": "#/$defs/tool"},
+        "adb": {"$ref": "#/$defs/tool"},
+        "gradle": {"$ref": "#/$defs/tool"}
+      }
+    },
+    "model_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backend", "requested_model", "effective_model_record"],
+      "properties": {
+        "backend": {"const": "codex-cli"},
+        "requested_model": {"type": "string", "minLength": 1},
+        "effective_model_record": {"const": "record-at-execution"}
+      }
+    },
+    "policy": {"$ref": "#/$defs/policy"},
+    "cells": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"$ref": "#/$defs/cell"}},
+    "lanes": {"type": "array", "minItems": 12, "maxItems": 12, "items": {"$ref": "#/$defs/lane"}},
+    "oracle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "contract_ref", "input_fields", "allowed_conclusions", "no_variant_input"],
+      "properties": {
+        "id": {"const": "m8-state-evolution-v1"},
+        "contract_ref": {"$ref": "#/$defs/artifact"},
+        "input_fields": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "allowed_conclusions": {"const": ["locally_supported", "locally_rejected", "inconclusive"]},
+        "no_variant_input": {"const": true}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "required_artifacts", "checksums_required", "reduction_rules"],
+      "properties": {
+        "root": {"type": "string", "minLength": 1},
+        "required_artifacts": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "checksums_required": {"const": true},
+        "reduction_rules": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["accountable_terminal", "non_accountable_terminal", "retry_after_accountability"],
+          "properties": {
+            "accountable_terminal": {"const": "Finding"},
+            "non_accountable_terminal": {"const": "Residual Risk"},
+            "retry_after_accountability": {"const": false}
+          }
+        }
+      }
+    },
+    "adjudication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["independent", "auditor_id", "checks"],
+      "properties": {
+        "independent": {"const": true},
+        "auditor_id": {"const": "m8-state-evolution-independent-adjudicator-v1"},
+        "checks": {"type": "array", "minItems": 7, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "claim_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["local_only", "scope", "exclusions"],
+      "properties": {
+        "local_only": {"const": true},
+        "scope": {"type": "string", "minLength": 1},
+        "exclusions": {"type": "array", "minItems": 2, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "auditor_mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact", "release_after"],
+      "properties": {
+        "artifact": {"$ref": "#/$defs/artifact"},
+        "release_after": {"const": "hypothesis_freeze_and_plan_admission"}
+      }
+    },
+    "contradictory_preflight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "formal_denominator", "side_effects", "route"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "formal_denominator": {"const": false},
+        "side_effects": {"const": false},
+        "route": {"const": "exclude_before_formal_invocation"}
+      }
+    }
+  },
+  "$defs": {
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issue_url", "comment_url", "approved_by", "approved_at"],
+      "properties": {
+        "issue_url": {"type": "string", "format": "uri"},
+        "comment_url": {"type": "string", "format": "uri"},
+        "approved_by": {"type": "string", "minLength": 1},
+        "approved_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "target_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "scope", "requires_diff", "requires_behavior_delta", "requires_contract_drift"],
+      "properties": {
+        "kind": {"enum": ["ChangeTarget", "ProjectTarget"]},
+        "scope": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "requires_diff": {"type": "boolean"},
+        "requires_behavior_delta": {"type": "boolean"},
+        "requires_contract_drift": {"type": "boolean"}
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binary", "policy"],
+      "properties": {
+        "binary": {"type": "string", "minLength": 1},
+        "policy": {"type": "string", "minLength": 1}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["planned_lanes", "repetitions_per_cell", "discovery_budget", "context_expansion_budget", "max_attempts_per_lane", "retry", "blinding", "abort_boundary"],
+      "properties": {
+        "planned_lanes": {"const": 12},
+        "repetitions_per_cell": {"const": 3},
+        "discovery_budget": {"const": 8},
+        "context_expansion_budget": {"const": 1},
+        "max_attempts_per_lane": {"const": 1},
+        "retry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_attempts_per_lane", "no_retry_after_accountable", "replacement_allowed"],
+          "properties": {
+            "max_attempts_per_lane": {"const": 1},
+            "no_retry_after_accountable": {"const": true},
+            "replacement_allowed": {"const": false}
+          }
+        },
+        "blinding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["withhold_variant", "withhold_expected_evidence", "withhold_expected_oracle", "withhold_verdict", "network_disabled"],
+          "properties": {
+            "withhold_variant": {"const": true},
+            "withhold_expected_evidence": {"const": true},
+            "withhold_expected_oracle": {"const": true},
+            "withhold_verdict": {"const": true},
+            "network_disabled": {"const": true}
+          }
+        },
+        "abort_boundary": {"type": "string", "minLength": 1}
+      }
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cell_id", "target_mode", "variant", "repetitions"],
+      "properties": {
+        "cell_id": {"enum": ["change-defect", "change-control", "project-defect", "project-control"]},
+        "target_mode": {"enum": ["change", "project"]},
+        "variant": {"enum": ["defect", "control"]},
+        "repetitions": {"const": 3}
+      }
+    },
+    "lane": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lane_id", "cell_id", "target_mode", "repetition", "packet_id", "target_id", "campaign_id", "scenario_id", "hypothesis_id", "failure_chain_id", "plan_id", "experiment_ref"],
+      "properties": {
+        "lane_id": {"type": "string", "pattern": "^lane-[0-9]{2}$"},
+        "cell_id": {"enum": ["change-defect", "change-control", "project-defect", "project-control"]},
+        "target_mode": {"enum": ["change", "project"]},
+        "repetition": {"type": "integer", "minimum": 1, "maximum": 3},
+        "packet_id": {"type": "string", "pattern": "^packet-lane-[0-9]{2}$"},
+        "target_id": {"type": "string", "pattern": "^m8-state-evolution-(change|project)-target-[0-9]{2}$"},
+        "campaign_id": {"type": "string", "pattern": "^campaign-lane-[0-9]{2}$"},
+        "scenario_id": {"type": "string", "pattern": "^m8-state-evolution-lane-[0-9]{2}$"},
+        "hypothesis_id": {"type": "string", "pattern": "^hypothesis-state-evolution-[0-9a-f]{16}$"},
+        "failure_chain_id": {"type": "string", "pattern": "^chain-state-evolution-[0-9a-f]{16}$"},
+        "plan_id": {"type": "string", "pattern": "^plan-state-evolution-[0-9a-f]{16}$"},
+        "experiment_ref": {"type": "string", "pattern": "^experiment-[0-9a-f]{16}$"}
+      }
+    }
+  }
+}

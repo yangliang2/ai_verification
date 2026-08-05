@@ -1192,6 +1192,10 @@ def reduce_attempt_evidence(
 ) -> tuple[DiscoveryCampaignPackage, EvidenceReduction]:
     """Append one accountable or non-accountable attempt to the risk map."""
 
+    if package.campaign.status == "concluded":
+        raise DiscoveryContractError(
+            "campaign is concluded; accountable evidence cannot be retried"
+        )
     if evidence.target_id != package.campaign.target.target_id:
         raise DiscoveryContractError("attempt evidence target does not match campaign")
     if any(item.evidence_id == evidence.evidence_id for item in package.attempts):
