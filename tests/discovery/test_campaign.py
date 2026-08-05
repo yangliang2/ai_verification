@@ -12,6 +12,7 @@ from aiverify.discovery import (
     DiscoveryContractError,
     HypothesisSelectionLedger,
     ProjectTarget,
+    AttackOperator,
     BehaviorDelta,
     ContractDrift,
     admit_campaign_plan,
@@ -22,6 +23,9 @@ from aiverify.discovery import (
     load_context_manifest,
     reduce_attempt_evidence,
     resume_campaign,
+    derive_synchronous_risk,
+    make_risk_derivation_strategy,
+    RiskPrior,
     seed_change_campaign,
     seed_project_campaign,
     validate_contract,
@@ -311,3 +315,91 @@ def test_freeze_from_context_ready_and_resume_is_deterministic() -> None:
     tampered["selection_ledger"]["head_digest"] = "f" * 64
     with pytest.raises(DiscoveryContractError, match="head_digest"):
         resume_campaign(tampered)
+
+
+def test_explicit_non_temporal_strategy_seeds_both_modes_and_resumes() -> None:
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-test-family-v1",
+        version="test-1",
+        compatible_prior_ids=("prior-test-family-v1",),
+        compatible_operator_ids=("operator-test-replay",),
+        deriver=derive_synchronous_risk,
+    )
+    prior = RiskPrior(
+        prior_id="prior-test-family-v1",
+        name="test family",
+        description="A deterministic test family.",
+        signals=("test-signal",),
+        operator_ids=("operator-test-replay",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-test-replay",
+        name="test operator",
+        description="A bounded test operator.",
+        action="observe a local fixture",
+        safety_boundary="local fixture only",
+    )
+    project_target = _project_target()
+    project = seed_project_campaign(
+        "campaign-test-family-project",
+        project_target,
+        _graph(project_target),
+        prior=prior,
+        operator=operator,
+        strategy=strategy,
+    )
+    change_target = _change_target()
+    delta, drift = _change_inputs(change_target)
+    change = seed_change_campaign(
+        "campaign-test-family-change",
+        change_target,
+        _graph(change_target),
+        behavior_delta=delta,
+        contract_drift=drift,
+        prior=prior,
+        operator=operator,
+        derivation_strategy=strategy,
+    )
+
+    for package in (project, change):
+        assert package.campaign.derivation_strategy_id == strategy.strategy_id
+        assert package.campaign.derivation_strategy_version == strategy.version
+        assert package.selection_ledger.entries[0].prior_id == prior.prior_id
+        assert resume_campaign(package.to_dict(), strategy=strategy) == package
+    validate_contract(strategy.to_dict(), "risk_derivation_strategy")
+
+
+def test_strategy_selection_rejects_unsupported_prior_before_campaign() -> None:
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-only-v1",
+        version="test-1",
+        compatible_prior_ids=("prior-supported",),
+        compatible_operator_ids=("operator-supported",),
+        deriver=derive_synchronous_risk,
+    )
+    prior = RiskPrior(
+        prior_id="prior-unsupported",
+        name="unsupported",
+        description="unsupported",
+        signals=("signal",),
+        operator_ids=("operator-supported",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-supported",
+        name="supported",
+        description="supported",
+        action="observe",
+        safety_boundary="local",
+    )
+    target = _project_target()
+    with pytest.raises(DiscoveryContractError, match="risk prior"):
+        seed_project_campaign(
+            "campaign-unsupported-prior",
+            target,
+            _graph(target),
+            prior=prior,
+            operator=operator,
+            strategy=strategy,
+        )

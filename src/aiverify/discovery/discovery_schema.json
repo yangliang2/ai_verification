@@ -250,6 +250,26 @@
         "version": {"type": "string", "minLength": 1}
       }
     },
+    "riskDerivationStrategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "strategy_id", "version", "compatible_prior_ids",
+        "compatible_operator_ids", "target_modes"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "strategy_id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "compatible_prior_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "compatible_operator_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "target_modes": {
+          "$ref": "#/$defs/textArray",
+          "items": {"enum": ["change", "project"]},
+          "minItems": 1
+        }
+      }
+    },
     "attackOperator": {
       "type": "object",
       "additionalProperties": false,
@@ -407,6 +427,8 @@
         "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
         "residual_risks": {"type": "array", "items": {"$ref": "#/$defs/residualRisk"}},
         "project_risk_map": {"$ref": "#/$defs/projectRiskMap"},
+        "derivation_strategy_id": {"type": "string", "minLength": 1},
+        "derivation_strategy_version": {"type": "string", "minLength": 1},
         "status": {
           "enum": [
             "created", "draft", "context-ready", "hypothesis-frozen", "plan-admitted",
@@ -467,6 +489,7 @@
         "hypothesis_id": {"type": "string", "minLength": 1},
         "decision": {"enum": ["considered", "selected", "deferred", "rejected"]},
         "priority_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "prior_id": {"type": "string", "minLength": 1},
         "rationale": {"type": "string", "minLength": 1},
         "previous_digest": {"$ref": "#/$defs/sha256"},
         "entry_digest": {"$ref": "#/$defs/sha256"}

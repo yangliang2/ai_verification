@@ -34,6 +34,14 @@ It also preserves the M6 accountability seam: a suspicion can be recorded and
 ranked without being counted as a Finding, while a concrete experiment still
 enters the existing Run Spec and ExecutionRecord path.
 
+The campaign's derivation boundary is strategy-selected and versioned. A
+strategy declares the compatible Risk Prior and Attack Operator identities and
+target modes, then receives only the target, immutable Quality Context Graph,
+and mode-specific Change inputs. Selection and result identity are checked
+before a campaign can reach Attack Plan admission. The M7 temporal strategy
+remains the compatibility default; future families must opt in explicitly and
+cannot replace or reinterpret an earlier family.
+
 ## Rejected alternatives
 
 - **Expand Run Spec into a scanner:** conflates search and execution, makes
