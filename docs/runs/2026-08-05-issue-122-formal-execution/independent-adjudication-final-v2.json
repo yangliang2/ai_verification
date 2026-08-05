@@ -37,9 +37,44 @@
       "detail": "preflight leakage audit passed for every packet"
     },
     {
+      "name": "preflight_admission",
+      "status": "pass",
+      "detail": "admission, contradiction, and side-effect-free preflight checks passed"
+    },
+    {
+      "name": "hypothesis_plan_freeze",
+      "status": "pass",
+      "detail": "all admitted packets bind frozen hypotheses and admitted plans"
+    },
+    {
       "name": "claim_boundary",
       "status": "pass",
       "detail": "every lane is bounded to the local fixture and execution identity"
+    },
+    {
+      "name": "identity",
+      "status": "pass",
+      "detail": "accountable lanes require verified Effective Execution Identity; excluded lanes remain unverified"
+    },
+    {
+      "name": "oracle",
+      "status": "pass",
+      "detail": "every lane has a terminal oracle classification and reason"
+    },
+    {
+      "name": "reduction",
+      "status": "pass",
+      "detail": "every lane has a terminal Finding/Residual Risk reduction reference"
+    },
+    {
+      "name": "admission_binding",
+      "status": "pass",
+      "detail": "admitted package digests match the preflight handoff"
+    },
+    {
+      "name": "mapping_release_artifact",
+      "status": "pass",
+      "detail": "mapping release artifact binds post-admission withholding"
     },
     {
       "name": "artifact_reconciliation",

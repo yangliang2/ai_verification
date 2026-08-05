@@ -1086,6 +1086,10 @@ def _audit_reconciliation(
     check("mapping_release", mapping == {"control": "base", "fault": "changed"}, "matched-pair mapping identity")
 
     expected_by_lane = {str(lane["lane_id"]): lane for lane in manifest.lanes}
+    preflight_lanes = {
+        str(item.get("lane_id")): item
+        for item in (preflight.get("lanes", []) if isinstance(preflight, Mapping) else [])
+    }
     attribution_ok = True
     attribution_detail: list[str] = []
     for result in results:
@@ -1111,6 +1115,12 @@ def _audit_reconciliation(
         if result.get("hypothesis_id") not in {None, lane.get("hypothesis_id")}:
             attribution_ok = False
             attribution_detail.append(f"{lane_id}: hypothesis")
+        if result.get("cell_id") not in {None, lane.get("cell_id")}:
+            attribution_ok = False
+            attribution_detail.append(f"{lane_id}: cell")
+        if result.get("target_mode") not in {None, lane.get("target_mode")}:
+            attribution_ok = False
+            attribution_detail.append(f"{lane_id}: mode")
     check(
         "attribution",
         attribution_ok,
@@ -1123,21 +1133,100 @@ def _audit_reconciliation(
         isinstance(leakage, Mapping)
         and leakage.get("status") == "pass"
         and leakage.get("packet_count") == len(expected_lanes)
-        and all(item.get("status") == "pass" for item in leakage.get("checks", []))
+        and isinstance(leakage.get("checks"), list)
+        and len(leakage["checks"]) == len(expected_lanes)
+        and {item.get("packet_id") for item in leakage["checks"]}
+        == {item.get("packet_id") for item in preflight_lanes.values()}
+        and all(item.get("status") == "pass" for item in leakage["checks"])
     )
     check("leakage", leakage_ok, "preflight leakage audit passed for every packet")
+    preflight_ok = (
+        isinstance(preflight, Mapping)
+        and preflight.get("admitted") is True
+        and preflight.get("formal_execution_started") is False
+        and preflight.get("side_effects") is False
+        and isinstance(preflight.get("checks"), list)
+        and bool(preflight["checks"])
+        and all(item.get("status") == "pass" for item in preflight["checks"])
+        and isinstance(preflight.get("contradiction_audit"), Mapping)
+        and preflight["contradiction_audit"].get("status") == "pass"
+    )
+    check("preflight_admission", preflight_ok, "admission, contradiction, and side-effect-free preflight checks passed")
+    freeze_ok = (
+        len(preflight_lanes) == len(expected_lanes)
+        and all(
+            isinstance(item.get("lane_id"), str)
+            and item.get("lane_id") in expected_by_lane
+            and item.get("hypothesis_status") == "frozen"
+            and item.get("plan_status") == "admitted"
+            and isinstance(item.get("packet_id"), str)
+            and isinstance(item.get("hypothesis_id"), str)
+            and isinstance(item.get("plan_id"), str)
+            and item.get("target_mode") == expected_by_lane[item["lane_id"]]["target_mode"]
+            and item.get("target_id") == expected_by_lane[item["lane_id"]]["target_id"]
+            for item in preflight_lanes.values()
+        )
+    )
+    check("hypothesis_plan_freeze", freeze_ok, "all admitted packets bind frozen hypotheses and admitted plans")
     claim_ok = all(
         result.get("claim_boundary") == CLAIM_BOUNDARY for result in results
     )
     check("claim_boundary", claim_ok, "every lane is bounded to the local fixture and execution identity")
+    identity_ok = all(
+        (not result.get("accountable") and (result.get("identity") is None or result.get("identity_verified") is True))
+        or (result.get("accountable") and result.get("identity_verified") is True)
+        for result in results
+    )
+    check(
+        "identity",
+        identity_ok,
+        "accountable lanes require verified Effective Execution Identity; excluded lanes remain unverified",
+    )
+    oracle_ok = all(
+        isinstance(result.get("oracle_conclusion"), str)
+        and isinstance(result.get("oracle_classification"), str)
+        and isinstance(result.get("oracle_reason"), str)
+        for result in results
+    )
+    check("oracle", oracle_ok, "every lane has a terminal oracle classification and reason")
+    reduction_ok = all(
+        isinstance(result.get("reduction_ref"), str)
+        and result.get("reduction") in {"finding", "residual_risk"}
+        for result in results
+    )
+    check("reduction", reduction_ok, "every lane has a terminal Finding/Residual Risk reduction reference")
+
+    admission_binding_ok = False
+    mapping_artifact_ok = False
+    if artifact_root is not None:
+        try:
+            bindings = _load_json(artifact_root / "admitted-package-bindings.json")
+            admission_binding_ok = (
+                bindings.get("mapping_released") is False
+                and len(bindings.get("lanes", [])) == len(expected_lanes)
+                and [item.get("lane_id") for item in bindings["lanes"]] == expected_lanes
+                and [item.get("package_sha256") for item in bindings["lanes"]]
+                == [preflight_lanes[lane_id].get("package_sha256") for lane_id in expected_lanes]
+            )
+            released = _load_json(artifact_root / "auditor-mapping-release.json")
+            mapping_artifact_ok = (
+                released.get("mapping") == dict(mapping)
+                and released.get("all_lanes_admitted") is True
+                and released.get("verifier_prompt_exposure") is False
+                and released.get("release_after")
+                == manifest.document["auditor_mapping"]["release_after"]
+                and released.get("mapping_sha256")
+                == manifest.document["auditor_mapping"]["artifact"]["sha256"]
+            )
+        except (OSError, TypeError, ValueError, KeyError):
+            admission_binding_ok = False
+            mapping_artifact_ok = False
+    check("admission_binding", admission_binding_ok, "admitted package digests match the preflight handoff")
+    check("mapping_release_artifact", mapping_artifact_ok, "mapping release artifact binds post-admission withholding")
 
     artifact_ok = artifact_root is not None
     artifact_details: list[str] = []
     if artifact_root is not None:
-        preflight_lanes = {
-            str(item.get("lane_id")): item
-            for item in (preflight.get("lanes", []) if isinstance(preflight, Mapping) else [])
-        }
         for lane in manifest.lanes:
             lane_id = str(lane["lane_id"])
             result = by_lane.get(lane_id)

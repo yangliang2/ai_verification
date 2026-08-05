@@ -2,12 +2,12 @@
   "schema_version": 1,
   "recorded_at": "2026-08-05",
   "source_revision_under_test": "7da121f",
-  "post_run_hardening_commits": ["22af9b2"],
+  "post_run_hardening_commits": ["22af9b2", "20382e7", "pending final audit-hardening commit"],
   "targeted_tests": {
     "command": "/usr/bin/time -p uv run pytest -q tests/bench/test_m8_formal.py tests/runner/test_cli.py tests/runner/test_execution_identity.py tests/runner/test_journey.py tests/runner/test_system_events.py",
     "status": "passed",
     "tests": 141,
-    "wall_seconds": 0.75
+    "wall_seconds": 0.80
   },
   "full_tests": {
     "collection_command": "uv run pytest --collect-only -o addopts='' -q",
@@ -15,7 +15,7 @@
     "collected": 821,
     "command": "/usr/bin/time -p uv run pytest -q",
     "status": "passed",
-    "wall_seconds": 55.98
+    "wall_seconds": 27.63
   },
   "regeneration_admission": {
     "command": "/usr/bin/time -p uv run python docs/runs/2026-08-05-issue-122-formal-execution/admission_check.py --manifest bench/m8/m8-state-evolution-qualification-v1.json --repo-root /Users/peter/projects/ai_verification-m8-122",
@@ -23,14 +23,14 @@
     "checks": 37,
     "lanes": 12,
     "manifest_sha256": "95bc0af23a22ee93ba1f8011c6b05734e61dc5d2b9fdb9e044f55714700b361a",
-    "wall_seconds": 0.30,
+    "wall_seconds": 0.35,
     "side_effects": "none"
   },
   "post_run_audit": {
     "command": "uv run python docs/runs/2026-08-05-issue-122-formal-execution/audit_reconciliation.py --artifact-root docs/runs/2026-08-05-issue-122-formal-execution --manifest bench/m8/m8-state-evolution-qualification-v1.json --preflight docs/runs/2026-08-05-issue-122-formal-execution/preflight.json --inventory docs/runs/2026-08-05-issue-122-formal-execution/attempt-inventory.jsonl --contract bench/discovery-fixtures/state-evolution/contract.json --output docs/runs/2026-08-05-issue-122-formal-execution/independent-adjudication-final-v2.json",
     "status": "completed",
     "artifact": "independent-adjudication-final-v2.json",
-    "checks": 14,
+    "checks": 21,
     "ordered_lanes": 12,
     "attempts_per_lane": 1,
     "accountable": 0,
@@ -44,11 +44,11 @@
     "metadata_and_network_policy": "both passed; no INTERNET permission"
   },
   "package": {
-    "build_command": "pkg_tmp=$(mktemp -d /tmp/m8-122-package-final2.XXXXXX); /usr/bin/time -p uv build --out-dir $pkg_tmp",
+    "build_command": "pkg_tmp=$(mktemp -d /tmp/m8-122-package-final5.XXXXXX); /usr/bin/time -p uv build --out-dir $pkg_tmp",
     "status": "passed",
-    "wall_seconds": 2.73,
-    "wheel": {"path": "package/aiverify-0.1.0-py3-none-any.whl", "bytes": 305412, "sha256": "2db23a1f4a03d30137f9b203a880aa5b7e83eb1bd66e70755ac670305c48703d"},
-    "sdist": {"path": "package/aiverify-0.1.0.tar.gz", "bytes": 274183, "sha256": "84c92beb7f47e77ab6757ae58ba724494280ceefd97f737056fb532685a73d18"},
+    "wall_seconds": 2.68,
+    "wheel": {"path": "package/aiverify-0.1.0-py3-none-any.whl", "bytes": 306240, "sha256": "ca8a17ecc69894473e60184563e87425cfdc62e8377e3291219a510cf6508802"},
+    "sdist": {"path": "package/aiverify-0.1.0.tar.gz", "bytes": 275026, "sha256": "edf72e25c43afb08f4ff3bb6111cb03d11de98a704bb389ad5e529f9a8c8db57"},
     "import_command": "uv run --isolated --with docs/runs/2026-08-05-issue-122-formal-execution/package/aiverify-0.1.0-py3-none-any.whl python -c 'import aiverify, aiverify.bench.m8_formal, aiverify.runner.execution_identity; print(aiverify.__file__)'",
     "import_status": "passed"
   },

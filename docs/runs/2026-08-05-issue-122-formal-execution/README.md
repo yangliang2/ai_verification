@@ -29,8 +29,7 @@ run.
 - `adb version`: `1.0.41`, platform `37.0.0-14910828`.
 - `codex --version`: `codex-cli 0.144.6` (not invoked in a formal lane because identity failed first).
 - `./gradlew --offline :app:assembleDebug` in each detached variant: control 2.727 s, defect 2.440 s; both APK metadata and no-INTERNET permission checks passed.
-- `uv run pytest -q`: 821 tests collected and passed; final wall time 55.98 s
-  (the environment had a slower second half than the earlier 28.32 s run).
+- `uv run pytest -q`: 821 tests collected and passed; final wall time 27.63 s.
 - `uv build --out-dir package`: source distribution and wheel built successfully.
 - Isolated wheel import check: `aiverify`, `aiverify.bench.m8_formal`, and `aiverify.runner.execution_identity` imported successfully.
 
@@ -64,8 +63,8 @@ run.
 
 Important package checksums:
 
-- wheel: `2db23a1f4a03d30137f9b203a880aa5b7e83eb1bd66e70755ac670305c48703d` (305412 bytes)
-- sdist: `84c92beb7f47e77ab6757ae58ba724494280ceefd97f737056fb532685a73d18` (274183 bytes)
+- wheel: `ca8a17ecc69894473e60184563e87425cfdc62e8377e3291219a510cf6508802` (306240 bytes)
+- sdist: `edf72e25c43afb08f4ff3bb6111cb03d11de98a704bb389ad5e529f9a8c8db57` (275026 bytes)
 - control APK: `ca39fbdd5c964c842d0d75dbd9aef8cae30d13f30529908c5e9b07e30c087a7e` (930614 bytes)
 - defect APK: `32e5d93a413f93368e897e5c2fde0949063f5a6b5ec8330d95caea0e6c2a1afe` (930611 bytes)
 
