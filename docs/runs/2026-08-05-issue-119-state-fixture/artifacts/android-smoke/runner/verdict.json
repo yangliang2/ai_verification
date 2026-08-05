@@ -1,0 +1,259 @@
+{
+  "scenario": "lifecycle-recovery-matched-journey",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "execution_identity_error",
+    "message": "ExecutionIdentityError: host identity drifted during execution"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/live-validation-gate.json",
+      "failed_checks": [],
+      "app": {
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+        "target_surface": {
+          "resource_id": "create_fixture"
+        }
+      }
+    }
+  },
+  "metric_context": {
+    "seed_id": "lifecycle-recovery-matched-journey",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "live_validation_gate": "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/live-validation-gate.json",
+    "journey_results": [
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/lifecycle-recovery-matched-journey-segment-0/codex-journey-result.normalized.json",
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/lifecycle-recovery-matched-journey-segment-1/codex-journey-result.normalized.json",
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/lifecycle-recovery-matched-journey-segment-2/codex-journey-result.normalized.json",
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/lifecycle-recovery-matched-journey-segment-3/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/after-segment-0",
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/after-event-0",
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/after-segment-1",
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/after-event-1",
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/after-segment-2",
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/after-event-2",
+      "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/after-segment-3"
+    ],
+    "system_events": [
+      "system-event-0/event.json",
+      "system-event-1/event.json",
+      "system-event-2/event.json"
+    ]
+  },
+  "journey_results": [
+    {
+      "journey": "lifecycle-recovery-matched-journey-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 203",
+            "android layout --device=emulator-5554 --pretty",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Found create_fixture at [540,203] and dispatched the tap. After a transient failed UI dump, the retry showed sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2. Did not relaunch or navigate away.",
+          "action": "The fixture app is already open. Tap the CREATE VERSION 1 FIXTURE button (resource-id create_fixture). Confirm the four displayed fields are exactly: sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2. Do not relaunch or navigate away.\n"
+        }
+      ]
+    },
+    {
+      "journey": "lifecycle-recovery-matched-journey-segment-1",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "The already-open fixture app was inspected without relaunching or tapping CREATE. The four version 1 values remained visible: sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 1, revision 41, and migration status PENDING_V1_TO_V2.",
+          "action": "After the runner-controlled rotation, inspect the already-open fixture app without relaunching it. Confirm the same four version 1 values remain visible. Do not tap CREATE VERSION 1 FIXTURE again.\n"
+        }
+      ]
+    },
+    {
+      "journey": "lifecycle-recovery-matched-journey-segment-2",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Restored fixture app was visible after relaunch. Confirmed four values remain visible: Sentinel=AIVERIFY-ISSUE-71-SENTINEL, Schema version=1, Revision=41, Migration status=PENDING_V1_TO_V2. CREATE DETERMINISTIC V1 FIXTURE was not tapped.",
+          "action": "After the runner-controlled background process death and relaunch, inspect the restored fixture app. Confirm the same four version 1 values remain visible. Do not tap CREATE VERSION 1 FIXTURE again.\n"
+        }
+      ]
+    },
+    {
+      "journey": "lifecycle-recovery-matched-journey-segment-3",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Restored fixture screen was visible; no onboarding appeared. Confirmed sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 2, revision 42, and migration status MIGRATED_V1_TO_V2. Fixture was not modified.",
+          "action": "After the runner-controlled backup, app-data clear, restore, and relaunch, inspect the restored fixture app. Confirm sentinel AIVERIFY-ISSUE-71-SENTINEL, schema version 2, revision 42, and migration status MIGRATED_V1_TO_V2 are visible. Do not modify the fixture.\n"
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0",
+    "after-segment-1",
+    "after-event-1",
+    "after-segment-2",
+    "after-event-2",
+    "after-segment-3"
+  ],
+  "injected_events": [
+    {
+      "event": "rotate",
+      "args": {
+        "rotation": "1"
+      }
+    },
+    {
+      "event": "process_death",
+      "args": {
+        "background_wait": "2",
+        "kill_wait": "2",
+        "restore_wait": "3"
+      }
+    },
+    {
+      "event": "backup_restore",
+      "args": {
+        "transport": "com.android.localtransport/.LocalTransport",
+        "restore_wait": "3"
+      }
+    }
+  ],
+  "timing": {
+    "started_at": "2026-08-05T16:45:28+00:00",
+    "finished_at": "2026-08-05T16:49:19+00:00",
+    "total_seconds": 231.123,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.659
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-0",
+        "kind": "journey",
+        "seconds": 55.831
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.87
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "rotate",
+        "seconds": 0.101
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 3.009
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-1",
+        "kind": "journey",
+        "seconds": 46.057
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 3.007
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "process_death",
+        "seconds": 7.169
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 2.951
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-2",
+        "kind": "journey",
+        "seconds": 39.873
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 2.829
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "backup_restore",
+        "seconds": 14.882
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 2.924
+      },
+      {
+        "phase": "lifecycle-recovery-matched-journey-segment-3",
+        "kind": "journey",
+        "seconds": 34.717
+      },
+      {
+        "phase": "after-segment-3",
+        "kind": "checkpoint",
+        "seconds": 3.232
+      },
+      {
+        "phase": "execution-identity-finalize",
+        "kind": "identity",
+        "status": "failed",
+        "seconds": 0.189
+      }
+    ]
+  },
+  "execution_record": "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner/execution-record.json",
+  "system_event_evidence": [
+    "system-event-0/event.json",
+    "system-event-1/event.json",
+    "system-event-2/event.json"
+  ]
+}

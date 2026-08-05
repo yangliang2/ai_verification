@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "pair_id": "lifecycle-recovery-state-pair-v1",
+  "audit_mapping": {"control": "base", "fault": "changed"},
+  "public_contract": "../contract.json",
+  "public_contract_sha256": "c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2",
+  "protocol": {
+    "path": "../protocol.json",
+    "sha256": "4aaba044d909aff658523993e2b6b353df0468527c4e87f8ee03a963ffca6426"
+  },
+  "build_recipe": {
+    "path": "build-recipe.json",
+    "sha256": "085e8df678f789b7ff22f8e742af96f46353f378ff1cad77c534df1d0b463649"
+  },
+  "source_pair": {
+    "base": {
+      "variant_id": "state-member-a",
+      "source_path": "../../../fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java",
+      "source_sha256": "864d32a1c0387dc039a73a54e0f2a016c4177c2e481578f783bad8fb281d3fe2",
+      "change_path": null,
+      "change_sha256": null
+    },
+    "changed": {
+      "variant_id": "state-member-b",
+      "source_path": "../../../fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/StateStore.java",
+      "source_sha256": "864d32a1c0387dc039a73a54e0f2a016c4177c2e481578f783bad8fb281d3fe2",
+      "change_path": "../../../capability-slices/lifecycle-recovery/patches/stale-migration-guard.patch",
+      "change_sha256": "7109a3a3e7d1e0416ffe4c0a06de10982c8fdc99f1cfc888c266acc328674a42"
+    }
+  },
+  "protocol_equivalence": {
+    "same_protocol_sha256": true,
+    "same_package_activity": true,
+    "same_resource_ids": true
+  },
+  "claim_boundary": "auditor-only matched source/build identity; no runtime conclusion"
+}

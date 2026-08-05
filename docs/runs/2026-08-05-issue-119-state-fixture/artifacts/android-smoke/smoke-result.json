@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "completed_non_accountable",
+  "device": "emulator-5554",
+  "api_level": 35,
+  "package": "dev.aiverify.lifecyclefixture",
+  "activity": "dev.aiverify.lifecyclefixture.MainActivity",
+  "apk": "bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+  "apk_sha256": "07d72302bc192172dfc72eb8c18746aefe2aafdae6e6068b3ee8d3aeec21d94f",
+  "runner": "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner",
+  "binding": "RuntimeStep event names correspond to the public SystemEventSpec sequence; this smoke invoked the existing lifecycle runner directly and did not claim a new adapter converter",
+  "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.runner bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml --device emulator-5554 --artifact-dir <durable-run>/runner",
+  "duration_seconds": 231.123,
+  "checkpoints": {
+    "after-segment-0": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-segment-0"},
+    "after-event-0": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-event-0"},
+    "after-segment-1": {"state": "sentinel=UNINITIALIZED,schema=0,revision=0,migration=NOT_CREATED", "evidence": "runner/after-segment-1"},
+    "after-event-1": {"state": "sentinel=UNINITIALIZED,schema=0,revision=0,migration=NOT_CREATED", "evidence": "runner/after-event-1"},
+    "after-segment-2": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-segment-2"},
+    "after-event-2": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=2,revision=42,migration=MIGRATED_V1_TO_V2", "evidence": "runner/after-event-2"},
+    "after-segment-3": {"state": "resource IDs absent from captured layout", "evidence": "runner/after-segment-3"}
+  },
+  "events": [
+    {"event": "rotate", "status": "passed", "evidence": "runner/system-event-0/event.json"},
+    {"event": "process_death", "status": "passed", "evidence": "runner/system-event-1/event.json"},
+    {"event": "backup_restore", "status": "passed", "evidence": "runner/system-event-2/event.json"}
+  ],
+  "execution": {
+    "status": "non_accountable",
+    "reason": "execution_identity_error",
+    "detail": "The public runner captured all events, but raw checkpoints include an uninitialized state after process-death and later v1 reappearance, plus host identity drift during finalization; the evidence is contradictory/non-accountable and no continuity, Finding, or qualification is claimed."
+  },
+  "claim_boundary": "local API-35 emulator smoke only; no M8 qualification, rate, OEM, production, or 12-lane claim",
+  "cleanup": "runner system-event-2 cleanup restored the prior backup transport and disabled state; fixture process was stopped and app data was cleared after capture"
+}
