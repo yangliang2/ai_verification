@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "device": "emulator-5554",
+  "failed_checks": [],
+  "checks": [
+    {
+      "name": "adb-device-present",
+      "args": [
+        "adb",
+        "devices",
+        "-l"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "List of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:3\n\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 45,
+      "error": null
+    },
+    {
+      "name": "boot-completed",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "1\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 45,
+      "error": null
+    },
+    {
+      "name": "boot-animation-stopped",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "init.svc.bootanim"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "stopped\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 45,
+      "error": null
+    },
+    {
+      "name": "android-layout-json",
+      "args": [
+        "android",
+        "layout",
+        "--pretty",
+        "--device",
+        "emulator-5554"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "[\n  {\n    \"text\": \"Synchronous weather runtime probe\",\n    \"center\": \"[540,101]\",\n    \"resource-id\": \"temporal_title\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Weather: fixture-data\",\n    \"center\": \"[540,171]\",\n    \"resource-id\": \"temporal_status\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Caller latency: 0 ms\",\n    \"center\": \"[540,231]\",\n    \"resource-id\": \"temporal_latency\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"REFRESH WEATHER\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,323]\",\n    \"resource-id\": \"temporal_refresh\",\n    \"key\": 3506402\n  }\n]\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 45,
+      "error": null
+    },
+    {
+      "name": "uiautomator-dump",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/window_dump.xml"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "UI hierchary dumped to: /sdcard/window_dump.xml\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 45,
+      "error": null
+    },
+    {
+      "name": "app-launch",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "am",
+        "start",
+        "-W",
+        "-a",
+        "android.intent.action.MAIN",
+        "-c",
+        "android.intent.category.LAUNCHER",
+        "-n",
+        "dev.aiverify.lifecyclefixture/dev.aiverify.lifecyclefixture.TemporalActivity"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] cmp=dev.aiverify.lifecyclefixture/.TemporalActivity }\nWarning: Activity not started, intent has been delivered to currently running top-most instance.\nStatus: ok\nLaunchState: UNKNOWN (0)\nActivity: dev.aiverify.lifecyclefixture/.TemporalActivity\nTotalTime: 0\nWaitTime: 2\nComplete\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 45,
+      "error": null
+    },
+    {
+      "name": "app-foreground-package",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "dumpsys",
+        "window"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "\nWINDOW MANAGER LAST ANR (dumpsys window lastanr)\n  <no ANR has occurred since boot>\n\nWINDOW MANAGER POLICY STATE (dumpsys window policy)\n    mSafeMode=false mSystemReady=true mSystemBooted=true\n    mCameraLensCoverState=CAMERA_LENS_COVER_ABSENT\n    mWakeGestureEnabledSetting=true\n    mUiMode=UI_MODE_TYPE_NORMALmEnableCarDockHomeCapture=false\n    mLidKeyboardAccessibility=0 mLidNavigationAccessibility=0 getLidBehavior=LID_BEHAVIOR_NONE\n    mLongPressOnBackBehavior=LONG_PRESS_BACK_NOTHING\n    mLongPressOnHomeBehavior=LONG_PRESS_HOME_NOTHING\n    mDoubleTapOnHomeBehavior=DOUBLE_TAP_HOME_NOTHING\n    mShortPressOnPowerBehavior=SHORT_PRESS_POWER_GO_TO_SLEEP\n    mLongPressOnPowerBehavior=LONG_PRESS_POWER_ASSISTANT\n    mSettingsKeyBehavior=SETTINGS_KEY_BEHAVIOR_SETTINGS_ACTIVITY\n    mLongPressOnPowerAssistantTimeoutMs=500\n    mVeryLongPressOnPowerBehavior=VERY_LONG_PRESS_POWER_NOTHING\n    mDoublePressOnPowerBehavior=MULTI_PRESS_POWER_NOTHING\n    mTriplePressOnPowerBehavior=MULTI_PRESS_POWER_NOTHING\n    mSupportShortPressPowerWhenDefaultDisplayOn=false\n    mPowerVolUpBehavior=POWER_VOLUME_UP_BEHAVIOR_GLOBAL_ACTIONS\n    mShortPressOnSleepBehavior=SHORT_PRESS_SLEEP_GO_TO_SLEEP\n    mShortPressOnWindowBehavior=SHORT_PRESS_WINDOW_PICTURE_IN_PICTURE\n    mShortPressOnStemPrimaryBehavior=SHORT_PRESS_PRIMARY_NOTHING\n    mDoublePressOnStemPrimaryBehavior=DOUBLE_PRESS_PRIMARY_NOTHING\n    mTriplePressOnStemPrimaryBehavior=TRIPLE_PRESS_PRIMARY_NOTHING\n    mLongPressOnStemPrimaryBehavior=LONG_PRESS_PRIMARY_NOTHING\n    mAllowStartActivityForLongPressOnPowerDuringSetup=false\n    mHasSoftInput=true\n    mDismissImeOnBackKeyPressed=false mIncallPowerBehavior=sleep\n    mIncallBackBehavior=<nothing> mEndcallBehavior=sleep\n    mDisplayHomeButtonHandlers=\n      mDisplayId = -1, mHomePressed = false\n    mKeyguardOccluded=false mKeyguardOccludedChanged=false mPendingKeyguardOccluded=false\n    mAllowLockscreenWhenOnDisplays=false mLockScreenTimeout=2147483647 mLockScreenTimerActive=false\n    mKidsModeEnabled=false\nmHapticTextHandleEnabled=false\n    mKeyMapping.size=0\n    KeyCombination rules:\n      KEYCODE_VOLUME_DOWN + KEYCODE_POWER\n      KEYCODE_VOLUME_DOWN + KEYCODE_VOLUME_UP\n      KEYCODE_VOLUME_UP + KEYCODE_POWER\n    SingleKey rules:\n      KeyCode=KEYCODE_POWER, LongPress=true, VeryLongPress=false, MaxMultiPressCount=1\n    Deferred key action executor:\n      empty\n    WakeGestureListener\n      mTriggerRequested=false\n      mSensor=null\n    KeyguardServiceDelegate\n      showing=false\n      inputRestricted=false\n      occluded=false\n      secure=false\n      dreaming=false\n      systemIsReady=true\n      deviceHasKeyguard=true\n      enabled=true\n      offReason=0\n      currentUser=-10000\n      bootCompleted=true\n      screenState=SCREEN_STATE_ON\n      interactiveState=INTERACTIVE_STATE_AWAKE\n      KeyguardStateMonitor\n        mIsShowing=false\n        mSimSecure=false\n        mInputRestricted=false\n        mTrusted=false\n        mCurrentUserId=0\n    Looper state:\n      Looper (android.ui, tid 22) {1ff20e5}\n        (Total messages: 0, polling=true, quitting=false)\n\nWINDOW MANAGER ANIMATOR STATE (dumpsys window animator)\n    Display{#0 state=ON size=1080x2400 ROTATION_0}:\n      Window #0: WindowStateAnimator{8f249b1 com.android.systemui.wallpapers.ImageWallpaper}\n      Window #1: WindowStateAnimator{fbc75c1 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}\n      Window #2: WindowStateAnimator{edbcc8b dev.aiverify.lifecyclefixture/dev.aiverify.lifecyclefixture.TemporalActivity}\n      Window #3: WindowStateAnimator{3dd3e04 InputMethod}\n      Window #4: WindowStateAnimator{930cfed ShellDropTarget}\n      Window #5: WindowStateAnimator{770ee22 StatusBar}\n      Window #6: WindowStateAnimator{3eff0b3 NotificationShade}\n      Window #7: WindowStateAnimator{5f23670 Taskbar}\n      Window #8: WindowStateAnimator{f577de9 EdgeBackGestureHandler0}\n      Window #9: WindowStateAnimator{bd3ca6e ScreenDecorOverlay}\n      Window #10:",
+      "stderr_snippet": "",
+      "stdout_truncated": true,
+      "stderr_truncated": false,
+      "timeout_seconds": 45,
+      "error": null
+    },
+    {
+      "name": "app-target-surface",
+      "args": [
+        "android",
+        "layout",
+        "--pretty",
+        "--device",
+        "emulator-5554"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "[\n  {\n    \"text\": \"Synchronous weather runtime probe\",\n    \"center\": \"[540,101]\",\n    \"resource-id\": \"temporal_title\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Weather: fixture-data\",\n    \"center\": \"[540,171]\",\n    \"resource-id\": \"temporal_status\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Caller latency: 0 ms\",\n    \"center\": \"[540,231]\",\n    \"resource-id\": \"temporal_latency\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"REFRESH WEATHER\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,323]\",\n    \"resource-id\": \"temporal_refresh\",\n    \"key\": 3506402\n  }\n]\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 45,
+      "error": null
+    }
+  ],
+  "app": {
+    "package": "dev.aiverify.lifecyclefixture",
+    "activity": "dev.aiverify.lifecyclefixture.TemporalActivity",
+    "target_surface": {
+      "text": "Weather: fixture-data"
+    }
+  }
+}

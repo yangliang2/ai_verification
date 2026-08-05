@@ -1,0 +1,15 @@
+{
+  "oracle": "m7-r1-temporal-main-thread-v1",
+  "conclusion": "locally_rejected",
+  "observation": {
+    "events": 1,
+    "delay_ms": 0,
+    "latency_ms": 0,
+    "caller_thread": "main",
+    "summary": "fixture-data",
+    "threshold_ms": 200
+  },
+  "rationale": "The matched observation stayed within the preregistered temporal budget.",
+  "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+  "claim_boundary": "local fixture and bounded runtime observation only"
+}

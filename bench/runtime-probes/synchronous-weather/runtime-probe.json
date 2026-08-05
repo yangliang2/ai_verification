@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "probe_id": "m7-r1-synchronous-weather-v1",
+  "status": "frozen",
+  "frozen_at": "2026-08-04T21:00:00Z",
+  "source_identity": {
+    "fixture_id": "synchronous-weather-v1",
+    "source_origin": "https://github.com/yangliang2/ai_verification",
+    "source_commit": "m7-r1-adapter-v1",
+    "worktree": "bench/discovery-fixtures/synchronous-weather",
+    "source_files": [
+      {"path": "bench/discovery-fixtures/synchronous-weather/WeatherService.kt", "sha256": "1f7d39c4deeb955476c93ec4045200abbaf0ed5dfe8b0b9dca2e9fd185c8f1a1"},
+      {"path": "bench/discovery-fixtures/synchronous-weather/SystemUiWeatherConsumer.kt", "sha256": "ebc51ee8363f2d4c23b924f0f6a6cde80459d529b726af0c413458a9cff27e91"},
+      {"path": "bench/discovery-fixtures/synchronous-weather/build-metadata.json", "sha256": "b87b4f1a5b60c1a46d89becb483b66de26608c6f201f252b3117bdff1ce31395"},
+      {"path": "bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/TemporalService.java", "sha256": "c918c484c4f719392d514db7e41d869abefd12d4163b2a5a3e7eb9c107965e5a"},
+      {"path": "bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/TemporalActivity.java", "sha256": "37c2657e398d77b9e79f5d890052aa20c7af60eeefbceafb0959fc2d8cd7a7f5"},
+      {"path": "bench/fixtures/lifecycle-recovery-app/app/build.gradle.kts", "sha256": "2a48afe930909707190b973fb3eb068f75ac79fff11d96a8209656811ee64fa0"},
+      {"path": "bench/fixtures/lifecycle-recovery-app/app/src/main/AndroidManifest.xml", "sha256": "0025caffdc399fac6692794dca9e79e7d6886445c36023a74b1493cd9a55bfb4"},
+      {"path": "bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/ids.xml", "sha256": "6df75560b79eecc700cd28ac93d598963f7a1b5f7a521870a710bc529dde78c8"},
+      {"path": "bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/strings.xml", "sha256": "ef90fbd9401ee3e6b1bee43788e0e7b956824358f3fb45c5d31e12efa97fab92"}
+    ],
+    "context_manifest": {"path": "bench/discovery-fixtures/synchronous-weather/context-manifest.json", "sha256": "135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b"},
+    "change_input": {"path": "bench/m7/inputs/weather-delay.diff", "sha256": "4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66"}
+  },
+  "build": {
+    "host_project": "bench/fixtures/lifecycle-recovery-app",
+    "gradle_wrapper": "./gradlew",
+    "base_args": ["--offline", "-p", ".", ":app:assembleDebug"],
+    "timeout_seconds": 300,
+    "apk_relpath": "app/build/outputs/apk/debug/app-debug.apk",
+    "variants": [
+      {"cell_id": "change-defect", "gradle_properties": {"temporalDelayMs": "250"}, "package": "dev.aiverify.lifecyclefixture", "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"},
+      {"cell_id": "change-control", "gradle_properties": {"temporalDelayMs": "0"}, "package": "dev.aiverify.lifecyclefixture", "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"}
+    ]
+  },
+  "tool_policy": {
+    "android_cli": {"binary": "android", "minimum_version": "1.0.15498356"},
+    "adb": {"binary": "adb", "minimum_version": "1.0.41"}
+  },
+  "target": {
+    "serial": "emulator-5554",
+    "avd": "aiverify_api35",
+    "api_level": 35,
+    "model": "sdk_gphone64_arm64",
+    "locale": "zh-Hans-CN",
+    "orientation": "portrait",
+    "network_policy": "disabled",
+    "adb_binary": "adb"
+  },
+  "run_specs": [
+    {"cell_id": "change-defect", "path": "bench/runtime-probes/synchronous-weather/run-specs/defect.yaml", "sha256": "7ca3736f4adaab730f4b1199754fe262c2fff0bf39befe6e6f0511aa16cb6fe7"},
+    {"cell_id": "change-control", "path": "bench/runtime-probes/synchronous-weather/run-specs/control.yaml", "sha256": "e0c85965fc9022c45266632da3e982b34776f2ef8d263fc530a314ecb92b4003"}
+  ],
+  "policy": {
+    "planned_lanes": 6,
+    "repetitions_per_cell": 3,
+    "max_attempts_per_lane": 1,
+    "no_retry_after_accountable": true,
+    "abort_boundary": "Abort the lane before install/launch on any identity, target, build, package, or evidence contradiction; never retry an accountable lane."
+  },
+  "oracle": {
+    "id": "m7-r1-temporal-main-thread-v1",
+    "threshold_ms": 200,
+    "log_tag": "TemporalProbe",
+    "event": "TEMPORAL_RESULT",
+    "allowed_conclusions": ["locally_supported", "locally_rejected", "inconclusive"]
+  },
+  "evidence": {
+    "root": "docs/runs/2026-08-04-issue-112-runtime-admission",
+    "required_artifacts": [
+      "preflight.json", "execution-record.json", "execution-provenance.json",
+      "verdict.json", "oracle.json", "checkpoints/*/screen.png",
+      "checkpoints/*/layout.json", "checkpoints/*/logcat.txt", "checksums.sha256"
+    ],
+    "checksums_required": true
+  },
+  "adjudication": {
+    "independent": true,
+    "auditor_id": "m7-r1-independent-adjudicator-v1",
+    "checks": ["source_identity", "build_identity", "device_identity", "temporal_observation", "claim_boundary"]
+  },
+  "claim_boundary": {
+    "local_only": true,
+    "runtime_scope": "One buildable fixture, one API-35 emulator profile, and one bounded synchronous weather call.",
+    "exclusions": ["ANR rate", "false-positive rate", "OEM/SystemUI coverage", "physical-device coverage", "project-mode denominator"]
+  },
+  "cells": [
+    {"cell_id": "change-defect", "target_mode": "change", "variant": "defect", "repetitions": 3},
+    {"cell_id": "change-control", "target_mode": "change", "variant": "control", "repetitions": 3}
+  ]
+}

@@ -1,0 +1,200 @@
+[
+  {
+    "lane_id": "change-defect-r1",
+    "cell_id": "change-defect",
+    "repetition": 1,
+    "status": "completed",
+    "formal_denominator": true,
+    "attempts": 1,
+    "oracle": {
+      "oracle": "m7-r1-temporal-main-thread-v1",
+      "conclusion": "locally_supported",
+      "observation": {
+        "events": 1,
+        "delay_ms": 250,
+        "latency_ms": 253,
+        "caller_thread": "main",
+        "summary": "fixture-data",
+        "threshold_ms": 200
+      },
+      "rationale": "The delayed dependency produced a bounded but over-budget main-thread call.",
+      "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+      "claim_boundary": "local fixture and bounded runtime observation only"
+    },
+    "execution_record": "lanes-v3/change-defect-r1/execution-record.json",
+    "execution_identity": "lanes-v3/change-defect-r1/execution-provenance.json",
+    "verdict": "lanes-v3/change-defect-r1/verdict.json",
+    "checksums": "lanes-v3/change-defect-r1/checksums.sha256",
+    "runner_execution": {
+      "status": "completed",
+      "accounting_eligible": true,
+      "reason": null,
+      "message": null
+    }
+  },
+  {
+    "lane_id": "change-defect-r2",
+    "cell_id": "change-defect",
+    "repetition": 2,
+    "status": "completed",
+    "formal_denominator": true,
+    "attempts": 1,
+    "oracle": {
+      "oracle": "m7-r1-temporal-main-thread-v1",
+      "conclusion": "locally_supported",
+      "observation": {
+        "events": 1,
+        "delay_ms": 250,
+        "latency_ms": 251,
+        "caller_thread": "main",
+        "summary": "fixture-data",
+        "threshold_ms": 200
+      },
+      "rationale": "The delayed dependency produced a bounded but over-budget main-thread call.",
+      "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+      "claim_boundary": "local fixture and bounded runtime observation only"
+    },
+    "execution_record": "lanes-v3/change-defect-r2/execution-record.json",
+    "execution_identity": "lanes-v3/change-defect-r2/execution-provenance.json",
+    "verdict": "lanes-v3/change-defect-r2/verdict.json",
+    "checksums": "lanes-v3/change-defect-r2/checksums.sha256",
+    "runner_execution": {
+      "status": "completed",
+      "accounting_eligible": true,
+      "reason": null,
+      "message": null
+    }
+  },
+  {
+    "lane_id": "change-defect-r3",
+    "cell_id": "change-defect",
+    "repetition": 3,
+    "status": "completed",
+    "formal_denominator": true,
+    "attempts": 1,
+    "oracle": {
+      "oracle": "m7-r1-temporal-main-thread-v1",
+      "conclusion": "locally_supported",
+      "observation": {
+        "events": 1,
+        "delay_ms": 250,
+        "latency_ms": 251,
+        "caller_thread": "main",
+        "summary": "fixture-data",
+        "threshold_ms": 200
+      },
+      "rationale": "The delayed dependency produced a bounded but over-budget main-thread call.",
+      "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+      "claim_boundary": "local fixture and bounded runtime observation only"
+    },
+    "execution_record": "lanes-v3/change-defect-r3/execution-record.json",
+    "execution_identity": "lanes-v3/change-defect-r3/execution-provenance.json",
+    "verdict": "lanes-v3/change-defect-r3/verdict.json",
+    "checksums": "lanes-v3/change-defect-r3/checksums.sha256",
+    "runner_execution": {
+      "status": "completed",
+      "accounting_eligible": true,
+      "reason": null,
+      "message": null
+    }
+  },
+  {
+    "lane_id": "change-control-r1",
+    "cell_id": "change-control",
+    "repetition": 1,
+    "status": "completed",
+    "formal_denominator": true,
+    "attempts": 1,
+    "oracle": {
+      "oracle": "m7-r1-temporal-main-thread-v1",
+      "conclusion": "locally_rejected",
+      "observation": {
+        "events": 1,
+        "delay_ms": 0,
+        "latency_ms": 0,
+        "caller_thread": "main",
+        "summary": "fixture-data",
+        "threshold_ms": 200
+      },
+      "rationale": "The matched observation stayed within the preregistered temporal budget.",
+      "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+      "claim_boundary": "local fixture and bounded runtime observation only"
+    },
+    "execution_record": "lanes-v3/change-control-r1/execution-record.json",
+    "execution_identity": "lanes-v3/change-control-r1/execution-provenance.json",
+    "verdict": "lanes-v3/change-control-r1/verdict.json",
+    "checksums": "lanes-v3/change-control-r1/checksums.sha256",
+    "runner_execution": {
+      "status": "completed",
+      "accounting_eligible": true,
+      "reason": null,
+      "message": null
+    }
+  },
+  {
+    "lane_id": "change-control-r2",
+    "cell_id": "change-control",
+    "repetition": 2,
+    "status": "completed",
+    "formal_denominator": true,
+    "attempts": 1,
+    "oracle": {
+      "oracle": "m7-r1-temporal-main-thread-v1",
+      "conclusion": "locally_rejected",
+      "observation": {
+        "events": 1,
+        "delay_ms": 0,
+        "latency_ms": 0,
+        "caller_thread": "main",
+        "summary": "fixture-data",
+        "threshold_ms": 200
+      },
+      "rationale": "The matched observation stayed within the preregistered temporal budget.",
+      "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+      "claim_boundary": "local fixture and bounded runtime observation only"
+    },
+    "execution_record": "lanes-v3/change-control-r2/execution-record.json",
+    "execution_identity": "lanes-v3/change-control-r2/execution-provenance.json",
+    "verdict": "lanes-v3/change-control-r2/verdict.json",
+    "checksums": "lanes-v3/change-control-r2/checksums.sha256",
+    "runner_execution": {
+      "status": "completed",
+      "accounting_eligible": true,
+      "reason": null,
+      "message": null
+    }
+  },
+  {
+    "lane_id": "change-control-r3",
+    "cell_id": "change-control",
+    "repetition": 3,
+    "status": "completed",
+    "formal_denominator": true,
+    "attempts": 1,
+    "oracle": {
+      "oracle": "m7-r1-temporal-main-thread-v1",
+      "conclusion": "locally_rejected",
+      "observation": {
+        "events": 1,
+        "delay_ms": 0,
+        "latency_ms": 0,
+        "caller_thread": "main",
+        "summary": "fixture-data",
+        "threshold_ms": 200
+      },
+      "rationale": "The matched observation stayed within the preregistered temporal budget.",
+      "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+      "claim_boundary": "local fixture and bounded runtime observation only"
+    },
+    "execution_record": "lanes-v3/change-control-r3/execution-record.json",
+    "execution_identity": "lanes-v3/change-control-r3/execution-provenance.json",
+    "verdict": "lanes-v3/change-control-r3/verdict.json",
+    "checksums": "lanes-v3/change-control-r3/checksums.sha256",
+    "runner_execution": {
+      "status": "completed",
+      "accounting_eligible": true,
+      "reason": null,
+      "message": null
+    }
+  }
+]

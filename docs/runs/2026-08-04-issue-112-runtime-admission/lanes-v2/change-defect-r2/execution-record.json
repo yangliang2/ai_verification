@@ -1,0 +1,47 @@
+{
+  "schema_version": 2,
+  "attempt_id": "74f95b04-b332-42f9-939c-1d32f8e7be5e",
+  "scenario": "m7-r1-synchronous-weather-change-defect",
+  "lifecycle_state": "failed",
+  "started_at": "2026-08-05T00:51:26+00:00",
+  "finished_at": "2026-08-05T00:51:36+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "execution_identity_error",
+    "message": "ExecutionIdentityError: host identity drifted during execution"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-08-05T00:51:26+00:00",
+    "finished_at": "2026-08-05T00:51:36+00:00",
+    "total_seconds": 10.233,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.413
+      },
+      {
+        "phase": "deployment-identity",
+        "kind": "identity",
+        "status": "failed",
+        "seconds": 1.206
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "deployment-identity",
+      "kind": "identity",
+      "reason": "execution_identity_error",
+      "message": "ExecutionIdentityError: host identity drifted during execution"
+    }
+  ],
+  "evidence_refs": {
+    "verdict": "verdict.json",
+    "live_validation_gate": "live-validation-gate.json"
+  }
+}

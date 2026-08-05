@@ -1,0 +1,68 @@
+{
+  "scenario": "m7-r1-synchronous-weather-change-defect",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "live_validation_preflight_failed",
+    "message": "live-validation preflight failed: app-launch, app-target-surface"
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "failed",
+      "artifact": "/Users/peter/projects/ai_verification-m7-112/docs/runs/2026-08-04-issue-112-runtime-admission/lanes/change-defect-r3/live-validation-gate.json",
+      "failed_checks": [
+        "app-launch",
+        "app-target-surface"
+      ],
+      "app": {
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity",
+        "target_surface": {
+          "text": "Weather: fixture-data"
+        }
+      }
+    }
+  },
+  "metric_context": {
+    "seed_id": "m7-r1-synchronous-weather-change-defect",
+    "seed_kind": "injected_defect",
+    "seed_outcome": "not_accountable",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": "L1",
+    "expected_oracle_defect_class": "performance_regression",
+    "oracle_outcomes": {
+      "L1": "not_run",
+      "L2": "not_run",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": null,
+  "l2": null,
+  "l3": null,
+  "diagnostic_artifacts": {
+    "live_validation_gate": "/Users/peter/projects/ai_verification-m7-112/docs/runs/2026-08-04-issue-112-runtime-admission/lanes/change-defect-r3/live-validation-gate.json"
+  },
+  "journey_results": [],
+  "checkpoints": [],
+  "injected_events": [],
+  "timing": {
+    "started_at": "2026-08-05T00:49:46+00:00",
+    "finished_at": "2026-08-05T00:49:55+00:00",
+    "total_seconds": 8.946,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.386
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verification-m7-112/docs/runs/2026-08-04-issue-112-runtime-admission/lanes/change-defect-r3/execution-record.json"
+}

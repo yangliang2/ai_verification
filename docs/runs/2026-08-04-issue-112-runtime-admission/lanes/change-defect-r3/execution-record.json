@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "attempt_id": "ae152627-3b5b-43e3-91e6-f063dd65fd8c",
+  "scenario": "m7-r1-synchronous-weather-change-defect",
+  "lifecycle_state": "preflight_rejected",
+  "started_at": "2026-08-05T00:49:46+00:00",
+  "finished_at": "2026-08-05T00:49:55+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "live_validation_preflight_failed",
+    "message": "live-validation preflight failed: app-launch, app-target-surface"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-08-05T00:49:46+00:00",
+    "finished_at": "2026-08-05T00:49:55+00:00",
+    "total_seconds": 8.946,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.386
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "live-validation-preflight",
+      "kind": "preflight",
+      "reason": "live_validation_preflight_failed",
+      "message": "live-validation preflight failed: app-launch, app-target-surface"
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json"
+  }
+}
