@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "issue": 112,
+  "source_commit": "13f9b3031a9a948a48e493470c8f1fcf1a6f0977",
+  "status": "rejected_before_formal_invocation",
+  "admitted": false,
+  "formal_denominator": false,
+  "side_effects": false,
+  "reason_codes": [
+    "runtime_probe_fixture_not_android_buildable",
+    "target_fixture_has_no_gradle_project",
+    "target_fixture_has_no_android_manifest"
+  ],
+  "android_cli": {
+    "version": "1.0.15498356",
+    "sdk": "/opt/homebrew/share/android-commandlinetools",
+    "avds": [
+      "aiverify_issue70_api35",
+      "aiverify_api35",
+      "aiverify_tablet_api35"
+    ]
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "state": "device",
+    "product": "sdk_gphone64_arm64",
+    "model": "sdk_gphone64_arm64",
+    "device": "emu64a"
+  },
+  "buildable_reference_fixture": {
+    "path": "bench/fixtures/lifecycle-recovery-app",
+    "gradle_command": "./bench/fixtures/lifecycle-recovery-app/gradlew --offline -p bench/fixtures/lifecycle-recovery-app :app:assembleDebug",
+    "result": "BUILD SUCCESSFUL",
+    "duration_seconds": 2,
+    "apk": "bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
+    "apk_sha256": "80588d561622dba6c586d4ff033697a95f211065d361a30afeb3b727bde8bc9c"
+  },
+  "target_fixture": {
+    "path": "bench/discovery-fixtures/synchronous-weather",
+    "files": [
+      "README.md",
+      "SystemUiWeatherConsumer.kt",
+      "WeatherService.kt",
+      "build-metadata.json",
+      "context-manifest.json"
+    ],
+    "android_manifest": false,
+    "gradle_project": false
+  },
+  "claim_boundary": "environment admission only; no Android runtime, defect detection, rate, or project completeness claim"
+}
