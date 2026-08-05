@@ -107,7 +107,7 @@ def _state(contract, *, current: bool) -> dict[str, str]:
     }
 
 
-def test_contract_schema_and_round_trip_are_strict() -> None:
+def test_contract_schema_and_round_trip_are_strict(tmp_path: Path) -> None:
     self_validate_state_evolution_schema()
     contract = load_state_evolution_contract(_CONTRACT)
     assert contract.to_dict() == json.loads(_CONTRACT.read_text(encoding="utf-8"))
@@ -116,6 +116,13 @@ def test_contract_schema_and_round_trip_are_strict() -> None:
     tampered["variant"] = "defect"
     with pytest.raises(StateEvolutionContractError, match="unknown fixture contract field"):
         type(contract).from_dict(tampered)
+
+    malformed = contract.to_dict()
+    del malformed["migration"]
+    malformed_path = tmp_path / "malformed.json"
+    malformed_path.write_text(json.dumps(malformed), encoding="utf-8")
+    with pytest.raises(StateEvolutionContractError, match="schema validation"):
+        load_state_evolution_contract(malformed_path)
 
     receipt = verify_state_evolution_provenance(_CONTRACT)
     assert receipt.valid is True

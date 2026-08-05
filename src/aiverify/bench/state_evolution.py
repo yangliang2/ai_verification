@@ -506,6 +506,16 @@ def load_state_evolution_contract(path: str | Path) -> StateEvolutionFixtureCont
         data = json.loads(source.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         raise StateEvolutionContractError(f"fixture contract cannot be read: {error}") from error
+    schema = load_state_evolution_schema()
+    schema_errors = sorted(
+        Draft202012Validator(schema).iter_errors(data),
+        key=lambda error: (tuple(str(item) for item in error.absolute_path), error.message),
+    )
+    if schema_errors:
+        raise StateEvolutionContractError(
+            "fixture contract schema validation failed: "
+            + "; ".join(error.message for error in schema_errors)
+        )
     return StateEvolutionFixtureContract.from_dict(data)
 
 
