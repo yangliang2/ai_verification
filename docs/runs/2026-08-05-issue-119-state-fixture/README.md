@@ -3,8 +3,9 @@
 This run record covers the bounded implementation delivered for issue #119.
 It establishes a neutral, provenance-bound state-evolution contract and
 discovery graph, an injectable local recovery adapter, and a fail-closed state
-oracle. The adapter's event seam is bound to the existing
-`SystemEventSpec`/`DeviceSystemEventInjector` path for the local smoke below.
+oracle. The local smoke below exercises the same checked-in fixture and event
+sequence through the existing public lifecycle runner; the adapter remains an
+injectable seam rather than claiming a new runner converter.
 It does not select a Risk Prior, compile a Campaign, or execute formal M8
 lanes; those boundaries belong to #118, #120, #121, and #122.
 
@@ -87,10 +88,10 @@ PY
 ### Local Android smoke (non-qualification)
 
 The checked-in lifecycle fixture was built and exercised once on the controlled
-`emulator-5554` (API 35). The adapter event binding drove rotation, a real
-background process death/relaunch, and local-transport backup/clear/restore;
-all three system-event receipts passed and the checkpoints showed v1 before
-restore and v2/42 after restore. The public runner nevertheless finalized as
+`emulator-5554` (API 35). The existing public lifecycle runner drove rotation,
+a real background process death/relaunch, and local-transport backup/clear/
+restore; all three system-event receipts passed and the checkpoints showed v1
+before restore and v2/42 after restore. The public runner nevertheless finalized as
 `non_accountable` (`execution_identity_error` / host identity drift), so this
 run is retained as an adverse/inconclusive adapter smoke and creates no Finding
 or qualification claim.

@@ -8,7 +8,7 @@
   "apk": "bench/fixtures/lifecycle-recovery-app/app/build/outputs/apk/debug/app-debug.apk",
   "apk_sha256": "07d72302bc192172dfc72eb8c18746aefe2aafdae6e6068b3ee8d3aeec21d94f",
   "runner": "docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/runner",
-  "binding": "StateEvolutionRuntimeAdapter phase event -> SystemEventSpec -> DeviceSystemEventInjector.inject -> DeviceController",
+  "binding": "RuntimeStep event names correspond to the public SystemEventSpec sequence; this smoke invoked the existing lifecycle runner directly and did not claim a new adapter converter",
   "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.runner bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml --device emulator-5554 --artifact-dir <durable-run>/runner",
   "duration_seconds": 231.123,
   "checkpoints": {
