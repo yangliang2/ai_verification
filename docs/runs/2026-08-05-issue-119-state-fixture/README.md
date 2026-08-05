@@ -31,23 +31,26 @@ formal M8 lanes; those boundaries belong to #118, #120, #121, and #122.
 ## Verification
 
 Commands were run from the clean worktree `/Users/peter/projects/ai_verification-m8-119`
-on branch `m8-119-state-fixture`, based on `origin/main` commit `ddea496`:
+on branch `m8-119-state-fixture`, rebased onto `origin/main` commit
+`fc0b0cdc199f9fa51ae4a3db73d4566f3e3d5587`:
 
 ```text
 uv run --with ruff ruff check src/aiverify/bench/state_evolution.py tests/bench/test_state_evolution.py tests/bench/test_m6_cohort.py
 → All checks passed!
 
 uv run --with pytest --with jsonschema --with pyyaml pytest -o addopts='' -q tests/bench/test_state_evolution.py
-→ 9 passed in 0.10s
+→ 9 passed in 0.18s
 
 uv run --with pytest --with jsonschema --with pyyaml pytest -o addopts='' -q tests/discovery tests/bench/test_lifecycle_recovery.py tests/bench/test_m7_runtime_probe.py tests/bench/test_m6_cohort.py
-→ 76 passed in 4.35s
+→ 82 passed in 4.73s
 
 uv run --with pytest --with jsonschema --with pyyaml pytest -o addopts='' -ra -q
-→ 777 passed (duration recorded by the final full-suite run below)
+→ 783 passed in 23.01s
 
-uv build
+/usr/bin/time -p uv build
+→ Successfully built dist/aiverify-0.1.0.tar.gz
 → Successfully built dist/aiverify-0.1.0-py3-none-any.whl
+→ real 0.83s, user 0.56s, sys 0.22s
 
 uv run --with jsonschema --with pyyaml python - <<'PY'
 from pathlib import Path
@@ -71,6 +74,16 @@ PY
 No emulator, APK install, backup/restore, process-death, network, or external
 project state was touched in this issue. Those side effects require the later
 admission and formal execution contracts.
+
+Toolchain for these runs: `uv 0.11.7`, `Python 3.11.15`, `pytest 9.1.1`,
+`ruff 0.16.1`, `jsonschema 4.26.0`, and `PyYAML 6.0.3`.
+
+Build artifact inventory: the durable run record stores
+`artifacts/aiverify-0.1.0-py3-none-any.whl` (267,328 bytes, SHA-256
+`64fca15db06732ad9e8c2d6e82e8a424ded62d24faa639702866990959359e1c`). The
+wheel contains `aiverify/bench/state_evolution.py` and
+`aiverify/bench/state_evolution_schema.json`; the source distribution was
+validated at build time but is not retained in the run record.
 
 The durable checksum is generated and verified from the repository root:
 
@@ -99,18 +112,18 @@ identity, backup transport, and cleanup transport must match the contract.
 
 ## Artifact checksums
 
-The run record itself is checksum-bound by `checksums.sha256` (one README
-artifact, verified `OK`).
+The run record itself is checksum-bound by `checksums.sha256` (README and
+wheel artifacts, both verified `OK`).
 
 ```text
-7267d01ec88d431078f442c0c2b09dcc6f24e8800bf8147967cdc005044eb32e  src/aiverify/bench/state_evolution.py
+0cd13f3b488fe5ab27d5579598f912484fd0dbc94016d979cc8a87d8df9d6d1b  src/aiverify/bench/state_evolution.py
 910af073e8f6f4ffc6c671678c39e7ce0bd885ae7634c3a23ef965379ea18213  src/aiverify/bench/state_evolution_schema.json
 c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2  bench/discovery-fixtures/state-evolution/contract.json
 367b5b2710dab2ba08cc8cf263445c33a69b198ea46e9e87dc8e55f9f4e0c11c  bench/discovery-fixtures/state-evolution/context-manifest.json
 4aaba044d909aff658523993e2b6b353df0468527c4e87f8ee03a963ffca6426  bench/discovery-fixtures/state-evolution/protocol.json
 085e8df678f789b7ff22f8e742af96f46353f378ff1cad77c534df1d0b463649  bench/discovery-fixtures/state-evolution/auditor/build-recipe.json
-341497ecd02506ab1149d7f76ed02779c4464d70a154964d31861040ce87df71  bench/discovery-fixtures/state-evolution/auditor/matched-pair.json
+7f8717629739acf0a6762af9bbed55f676ccaa5f2cb868257a83522cdecfa626  bench/discovery-fixtures/state-evolution/auditor/matched-pair.json
 97ebb4155eb0f91e2bc6e55ce609f992eef013d5bf47de9a047341dc9982ee50  bench/capability-slices/state-evolution/adapter.json
-6aaca93294c00ec978034a976238ee69a59aa156964736c70cb5c3bfa0e6b9ea  tests/bench/test_state_evolution.py
-277d70736222283fb3a309c82de5146ed6311bad6c61d4e558107d05c3b59c38  docs/runs/2026-08-05-issue-119-state-fixture/artifacts/aiverify-0.1.0-py3-none-any.whl
+23b492d783626aa6a951fbc783dffe9ebbde12845a62daf44d6519c281fa2838  tests/bench/test_state_evolution.py
+64fca15db06732ad9e8c2d6e82e8a424ded62d24faa639702866990959359e1c  docs/runs/2026-08-05-issue-119-state-fixture/artifacts/aiverify-0.1.0-py3-none-any.whl
 ```
