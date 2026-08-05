@@ -506,6 +506,50 @@ def _audit_lane_artifacts(
         if record_accountable != bool(result.get("accountable")):
             return False, "ExecutionRecord accounting contradicts inventory"
         oracle = _load_json(lane_dir / "oracle.json")
+        if contract is not None:
+            state_payload = _load_json(lane_dir / "state-observations.json")
+            raw_observations = state_payload.get("observations", {})
+
+            def observed(name: str) -> Any:
+                entry = raw_observations.get(name)
+                return entry.get("layout") if isinstance(entry, Mapping) and entry.get("present") is True else None
+
+            process_path = _event_path(lane_dir / "artifacts", 1)
+            backup_path = _event_path(lane_dir / "artifacts", 2)
+            process_event = (
+                _load_json(process_path)
+                if process_path.is_file()
+                else {"event": "process_death", "status": "missing"}
+            )
+            backup_event = (
+                _load_json(backup_path)
+                if backup_path.is_file()
+                else {"event": "backup_restore", "status": "missing"}
+            )
+            effective_identity = (
+                _load_json(lane_dir / "effective-execution-identity.json")
+                if result.get("accountable") and (lane_dir / "effective-execution-identity.json").is_file()
+                else None
+            )
+            process_outcome = record.get("process_outcome")
+            recomputed_oracle = judge_state_evolution(
+                contract=contract,
+                initial_state=observed("initial"),
+                rotated_state=observed("rotation"),
+                process_restored_state=observed("process_death"),
+                backup_restored_state=observed("backup_restore"),
+                process_event=process_event,
+                backup_event=backup_event,
+                execution_identity=effective_identity,
+                migration_evidence=_load_json(lane_dir / "migration-evidence.json"),
+                crash_detected=(
+                    isinstance(process_outcome, Mapping)
+                    and process_outcome.get("exit_code") not in (0, None)
+                ),
+            )
+            for key in ("conclusion", "classification", "reason", "accountable"):
+                if recomputed_oracle.get(key) != oracle.get(key):
+                    return False, f"oracle {key} contradicts recomputed state oracle"
         if oracle.get("conclusion") != result.get("oracle_conclusion"):
             return False, "oracle conclusion contradicts inventory"
         if bool(oracle.get("accountable")) != bool(result.get("accountable")):
@@ -516,6 +560,23 @@ def _audit_lane_artifacts(
         attempt = reduction.get("attempt")
         if not isinstance(attempt, Mapping):
             return False, "reduction has no attempt receipt"
+        try:
+            attempt_evidence = AttemptEvidence.from_dict(attempt)
+        except Exception as error:  # noqa: BLE001 - independent audit fails closed
+            return False, f"invalid reduction attempt evidence: {type(error).__name__}: {error}"
+        if attempt_evidence.accountable != bool(result.get("accountable")):
+            return False, "reduction accountability contradicts inventory"
+        expected_outcome = (
+            "supported" if result.get("oracle_conclusion") == "locally_supported"
+            else "rejected" if result.get("oracle_conclusion") == "locally_rejected"
+            else "non_accountable"
+        )
+        if attempt_evidence.outcome != expected_outcome:
+            return False, "reduction outcome contradicts oracle"
+        has_finding = reduction.get("finding") is not None
+        has_residual = reduction.get("residual_risk") is not None
+        if attempt_evidence.accountable != has_finding or (not attempt_evidence.accountable) != has_residual:
+            return False, "reduction Finding/Residual Risk shape contradicts accountability"
         migration = _load_json(lane_dir / "migration-evidence.json")
         if contract is not None:
             expected_migration = _migration_receipt(

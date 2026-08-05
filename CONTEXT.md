@@ -263,7 +263,7 @@ runner required that path to equal the git repository root. No APK install,
 launch, agent invocation, or state event was reached, so M8 makes no runtime
 supported/rejected claim. The immutable run record is committed at
 `docs/runs/2026-08-05-issue-122-formal-execution/`; the runner seam fix is
-`22af9b2`, verified by the full 820-test suite, but the frozen one-attempt
+`22af9b2`, verified by the full 821-test suite, but the frozen one-attempt
 population was not retried or replaced. The post-run audit also rejects the
 original static migration receipts because they are not supported by observed
 state bytes. A future qualification needs a newly frozen cohort/contract; this
