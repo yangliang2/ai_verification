@@ -481,6 +481,7 @@ def test_inject_backup_restore_records_transport_restore_and_process_evidence() 
     )
 
     assert evidence == {
+        "package": "org.example",
         "transport": local,
         "previous_transport": cloud,
         "backup_was_enabled": False,

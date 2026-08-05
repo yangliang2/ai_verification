@@ -108,7 +108,9 @@ def scenario_to_segments(scenario: ScenarioSpec) -> list[JourneySegment]:
     """Split scenario actions into segments around system event boundaries.
 
     MVP semantics: step_index N means inject the event after executing
-    user_actions[N]. Events with step_index beyond the last action are rejected.
+    user_actions[N]. A trailing event at ``step_index == len(user_actions)``
+    is allowed so protocols can finish with a system boundary after the final
+    user action; events beyond that boundary are rejected.
     """
     actions = scenario.user_actions
     if not actions:
@@ -116,7 +118,7 @@ def scenario_to_segments(scenario: ScenarioSpec) -> list[JourneySegment]:
 
     events = sorted(scenario.system_events, key=lambda e: e.step_index)
     for event in events:
-        if event.step_index >= len(actions):
+        if event.step_index > len(actions):
             raise ValueError(
                 f"system event step_index {event.step_index} exceeds user_actions length {len(actions)}"
             )
@@ -124,7 +126,7 @@ def scenario_to_segments(scenario: ScenarioSpec) -> list[JourneySegment]:
     segments: list[JourneySegment] = []
     start = 0
     for idx, event in enumerate(events):
-        end = event.step_index + 1
+        end = min(event.step_index + 1, len(actions))
         segment_actions = actions[start:end]
         segments.append(
             JourneySegment(

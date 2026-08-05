@@ -973,6 +973,7 @@ def _write_non_accountable_verdict(
 def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         launch: bool = True, model: str | None = None,
         l3_model: str | None = None,
+        instruction_prefix: str | None = None,
         preflight_command_runner: CommandRunner | None = None,
         run_spec_path: Path | None = None,
         identity_command_runner: CommandRunner | None = None,
@@ -1129,7 +1130,11 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             artifact_dir=artifact_dir,
             output_schema=_DEFAULT_SCHEMA_PATH,
             device=device,
-            instruction_prefix=build_instruction_prefix(device),
+            instruction_prefix=(
+                build_instruction_prefix(device)
+                if instruction_prefix is None
+                else instruction_prefix
+            ),
             model=model,
         )
     except JourneyExecutionInterrupted as error:
