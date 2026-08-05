@@ -11,14 +11,13 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field as dataclass_field, replace
 from pathlib import Path
 from typing import Any, Mapping
 
 from aiverify.discovery.contracts import (
     AdmissionResult,
     AttackOperator,
-    AttackPlan,
     ContractDrift,
     DiscoveryCampaign,
     Finding,
@@ -39,9 +38,11 @@ from aiverify.discovery.models import (
 from aiverify.discovery.risk import (
     BehaviorDelta,
     RiskPriority,
-    derive_synchronous_risk,
+    RiskDerivationStrategy,
+    derive_with_strategy,
     make_latency_operator,
     make_temporal_prior,
+    make_temporal_strategy,
 )
 from aiverify.runner.run_spec import (
     LiveValidationSpec,
@@ -285,6 +286,7 @@ class HypothesisSelectionEntry:
     rationale: str
     previous_digest: str
     entry_digest: str
+    prior_id: str | None = None
     schema_version: int = 1
 
     def __post_init__(self) -> None:
@@ -296,6 +298,8 @@ class HypothesisSelectionEntry:
             "entry_digest",
         ):
             _required_text(getattr(self, field), field)
+        if self.prior_id is not None:
+            _required_text(self.prior_id, "prior_id")
         if (
             not isinstance(self.sequence, int)
             or isinstance(self.sequence, bool)
@@ -319,6 +323,7 @@ class HypothesisSelectionEntry:
             self.priority_score,
             self.rationale,
             self.previous_digest,
+            self.prior_id,
         )
         if self.entry_digest != expected:
             raise DiscoveryContractError("selection entry digest does not match content")
@@ -335,6 +340,7 @@ class HypothesisSelectionEntry:
         priority_score: float,
         rationale: str,
         previous_digest: str,
+        prior_id: str | None = None,
     ) -> "HypothesisSelectionEntry":
         digest = _selection_digest(
             sequence,
@@ -343,6 +349,7 @@ class HypothesisSelectionEntry:
             priority_score,
             rationale,
             previous_digest,
+            prior_id,
         )
         return cls(
             entry_id="selection-" + digest[:16],
@@ -353,10 +360,11 @@ class HypothesisSelectionEntry:
             rationale=rationale,
             previous_digest=previous_digest,
             entry_digest=digest,
+            prior_id=prior_id,
         )
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result = {
             "schema_version": self.schema_version,
             "entry_id": self.entry_id,
             "sequence": self.sequence,
@@ -367,6 +375,9 @@ class HypothesisSelectionEntry:
             "previous_digest": self.previous_digest,
             "entry_digest": self.entry_digest,
         }
+        if self.prior_id is not None:
+            result["prior_id"] = self.prior_id
+        return result
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "HypothesisSelectionEntry":
@@ -382,6 +393,7 @@ class HypothesisSelectionEntry:
             "rationale",
             "previous_digest",
             "entry_digest",
+            "prior_id",
         }
         unknown = sorted(set(data) - allowed)
         if unknown:
@@ -398,6 +410,7 @@ class HypothesisSelectionEntry:
                 rationale=data["rationale"],
                 previous_digest=data["previous_digest"],
                 entry_digest=data["entry_digest"],
+                prior_id=data.get("prior_id"),
                 schema_version=data.get("schema_version", 1),
             )
         except KeyError as error:
@@ -438,6 +451,7 @@ class HypothesisSelectionLedger:
         decision: str,
         priority_score: float,
         rationale: str,
+        prior_id: str | None = None,
     ) -> "HypothesisSelectionLedger":
         entry = HypothesisSelectionEntry.create(
             sequence=len(self.entries) + 1,
@@ -446,6 +460,7 @@ class HypothesisSelectionLedger:
             priority_score=priority_score,
             rationale=rationale,
             previous_digest=self.head_digest,
+            prior_id=prior_id,
         )
         return HypothesisSelectionLedger(
             entries=(*self.entries, entry),
@@ -740,7 +755,7 @@ class DiscoveryCampaignPackage:
     """Serializable campaign envelope used for deterministic resume."""
 
     campaign: DiscoveryCampaign
-    selection_ledger: HypothesisSelectionLedger = field(
+    selection_ledger: HypothesisSelectionLedger = dataclass_field(
         default_factory=HypothesisSelectionLedger
     )
     context_request: ContextExpansionRequest | None = None
@@ -946,6 +961,8 @@ def seed_change_campaign(
     context_result: ContextExpansionResult | None = None,
     prior: RiskPrior | None = None,
     operator: AttackOperator | None = None,
+    strategy: RiskDerivationStrategy | None = None,
+    derivation_strategy: RiskDerivationStrategy | None = None,
 ) -> DiscoveryCampaignPackage:
     """Seed ChangeTarget through the shared derivation and campaign seam."""
 
@@ -960,6 +977,8 @@ def seed_change_campaign(
         context_result=context_result,
         prior=prior,
         operator=operator,
+        strategy=strategy,
+        derivation_strategy=derivation_strategy,
     )
 
 
@@ -972,6 +991,8 @@ def seed_project_campaign(
     context_result: ContextExpansionResult | None = None,
     prior: RiskPrior | None = None,
     operator: AttackOperator | None = None,
+    strategy: RiskDerivationStrategy | None = None,
+    derivation_strategy: RiskDerivationStrategy | None = None,
 ) -> DiscoveryCampaignPackage:
     """Seed ProjectTarget from critical context without inventing a diff."""
 
@@ -984,6 +1005,8 @@ def seed_project_campaign(
         context_result=context_result,
         prior=prior,
         operator=operator,
+        strategy=strategy,
+        derivation_strategy=derivation_strategy,
     )
 
 
@@ -1004,6 +1027,10 @@ def freeze_campaign_hypothesis(
     *,
     behavior_delta: BehaviorDelta | None = None,
     contract_drift: ContractDrift | None = None,
+    strategy: RiskDerivationStrategy | None = None,
+    derivation_strategy: RiskDerivationStrategy | None = None,
+    prior: RiskPrior | None = None,
+    operator: AttackOperator | None = None,
 ) -> DiscoveryCampaignPackage:
     """Derive a frozen hypothesis from a context-ready campaign snapshot."""
 
@@ -1023,6 +1050,10 @@ def freeze_campaign_hypothesis(
             contract_drift=contract_drift,
             context_request=package.context_request,
             context_result=package.context_result,
+            prior=prior,
+            operator=operator,
+            strategy=strategy,
+            derivation_strategy=derivation_strategy,
         )
     if behavior_delta is not None or contract_drift is not None:
         raise DiscoveryContractError("ProjectTarget freeze does not consume a diff")
@@ -1032,6 +1063,10 @@ def freeze_campaign_hypothesis(
         package.campaign.context_graph,
         context_request=package.context_request,
         context_result=package.context_result,
+        prior=prior,
+        operator=operator,
+        strategy=strategy,
+        derivation_strategy=derivation_strategy,
     )
 
 
@@ -1192,10 +1227,35 @@ def reduce_evidence(
     return reduce_attempt_evidence(*args, **kwargs)
 
 
-def resume_campaign(document: Mapping[str, Any]) -> DiscoveryCampaignPackage:
-    """Reload a campaign package and re-check all hash chains/contracts."""
+def resume_campaign(
+    document: Mapping[str, Any],
+    *,
+    strategy: RiskDerivationStrategy | None = None,
+    derivation_strategy: RiskDerivationStrategy | None = None,
+) -> DiscoveryCampaignPackage:
+    """Reload a campaign package without silently changing its strategy.
 
-    return DiscoveryCampaignPackage.from_dict(document)
+    A serialized package keeps strategy identity/version in the campaign.  A
+    caller may provide the executable strategy again when it intends to
+    continue a custom lifecycle; mismatched identity is rejected before any
+    downstream operation.
+    """
+
+    if (
+        strategy is not None
+        and derivation_strategy is not None
+        and not _same_strategy(strategy, derivation_strategy)
+    ):
+        raise DiscoveryContractError("strategy and derivation_strategy disagree")
+    selected = strategy or derivation_strategy
+    package = DiscoveryCampaignPackage.from_dict(document)
+    campaign = package.campaign
+    if selected is not None:
+        if campaign.derivation_strategy_id != selected.strategy_id:
+            raise DiscoveryContractError("resume strategy does not match campaign strategy")
+        if campaign.derivation_strategy_version != selected.version:
+            raise DiscoveryContractError("resume strategy version does not match campaign")
+    return package
 
 
 def empty_risk_map(
@@ -1227,6 +1287,8 @@ def _seed_campaign(
     context_result: ContextExpansionResult | None = None,
     prior: RiskPrior | None = None,
     operator: AttackOperator | None = None,
+    strategy: RiskDerivationStrategy | None = None,
+    derivation_strategy: RiskDerivationStrategy | None = None,
 ) -> DiscoveryCampaignPackage:
     _validate_target_graph(target, graph)
     if context_request is not None:
@@ -1246,14 +1308,46 @@ def _seed_campaign(
             raise DiscoveryContractError("rejected context expansion cannot seed a campaign")
         if context_result.graph != graph:
             raise DiscoveryContractError("context result graph does not match campaign graph")
-    derivation = derive_synchronous_risk(
+    if (
+        strategy is not None
+        and derivation_strategy is not None
+        and not _same_strategy(strategy, derivation_strategy)
+    ):
+        raise DiscoveryContractError("strategy and derivation_strategy disagree")
+    selected_strategy = strategy or derivation_strategy
+    if selected_strategy is None:
+        selected_prior = prior or make_temporal_prior(
+            operator.operator_id if operator is not None else "operator-bounded-latency"
+        )
+        selected_operator = operator or make_latency_operator(selected_prior.operator_ids[0])
+        canonical_prior = make_temporal_prior()
+        if (
+            selected_prior.prior_id != canonical_prior.prior_id
+            or selected_operator.operator_id != "operator-bounded-latency"
+        ):
+            raise DiscoveryContractError(
+                "non-temporal prior or operator requires an explicit derivation strategy"
+            )
+        selected_strategy = make_temporal_strategy(
+            prior=selected_prior,
+            operator=selected_operator,
+        )
+    else:
+        if prior is None or operator is None:
+            raise DiscoveryContractError(
+                "custom risk derivation strategy requires explicit prior and operator"
+            )
+        selected_prior = prior
+        selected_operator = operator
+    derivation = derive_with_strategy(
+        selected_strategy,
         target,
         graph,
         mode=mode,
         behavior_delta=behavior_delta,
         contract_drift=contract_drift,
-        prior=prior,
-        operator=operator,
+        prior=selected_prior,
+        operator=selected_operator,
     )
     if not derivation.accepted:
         raise DiscoveryContractError(
@@ -1277,15 +1371,19 @@ def _seed_campaign(
         attack_plans=(derivation.attack_plan,),
         project_risk_map=empty_risk_map(target.target_id),
         status="hypothesis-frozen",
+        derivation_strategy_id=selected_strategy.strategy_id,
+        derivation_strategy_version=selected_strategy.version,
     )
     ledger = HypothesisSelectionLedger().append(
         hypothesis_id=derivation.hypothesis.hypothesis_id,
         decision="selected",
         priority_score=derivation.priority.score,
         rationale=(
-            "The bounded temporal prior selected the first provenance-bound "
-            "synchronous critical path."
+            f"Selected prior {derivation.prior.prior_id} using strategy "
+            f"{selected_strategy.strategy_id}@{selected_strategy.version}; "
+            "the first provenance-bound candidate was ordered for probing."
         ),
+        prior_id=derivation.prior.prior_id,
     )
     if context_result is None:
         unresolved = tuple(
@@ -1351,6 +1449,27 @@ def _validate_target_graph(target: DiscoveryTarget, graph: QualityContextGraph) 
         raise DiscoveryContractError("campaign graph must be a QualityContextGraph")
     if graph.target_id != target.target_id:
         raise DiscoveryContractError("campaign graph target does not match target")
+
+
+def _same_strategy(
+    left: RiskDerivationStrategy,
+    right: RiskDerivationStrategy,
+) -> bool:
+    """Compare strategy aliases, including executable callable identity."""
+
+    if not isinstance(left, RiskDerivationStrategy) or not isinstance(
+        right, RiskDerivationStrategy
+    ):
+        return False
+    return (
+        left.strategy_id == right.strategy_id
+        and left.version == right.version
+        and left.compatible_prior_ids == right.compatible_prior_ids
+        and left.compatible_operator_ids == right.compatible_operator_ids
+        and left.target_modes == right.target_modes
+        and left.schema_version == right.schema_version
+        and left.deriver is right.deriver
+    )
 
 
 def _single_hypothesis(campaign: DiscoveryCampaign) -> RiskHypothesis:
@@ -1513,17 +1632,19 @@ def _selection_digest(
     priority_score: float,
     rationale: str,
     previous_digest: str,
+    prior_id: str | None = None,
 ) -> str:
-    return _digest(
-        {
-            "sequence": sequence,
-            "hypothesis_id": hypothesis_id,
-            "decision": decision,
-            "priority_score": priority_score,
-            "rationale": rationale,
-            "previous_digest": previous_digest,
-        }
-    )
+    value = {
+        "sequence": sequence,
+        "hypothesis_id": hypothesis_id,
+        "decision": decision,
+        "priority_score": priority_score,
+        "rationale": rationale,
+        "previous_digest": previous_digest,
+    }
+    if prior_id is not None:
+        value["prior_id"] = prior_id
+    return _digest(value)
 
 
 def _is_digest(value: object) -> bool:

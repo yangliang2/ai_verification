@@ -889,6 +889,8 @@ class DiscoveryCampaign:
     residual_risks: tuple[ResidualRisk, ...] = ()
     project_risk_map: ProjectRiskMap | None = None
     status: str = "draft"
+    derivation_strategy_id: str | None = None
+    derivation_strategy_version: str | None = None
     schema_version: int = 1
 
     def __post_init__(self) -> None:
@@ -985,6 +987,16 @@ class DiscoveryCampaign:
         _text_tuple(self.experiment_refs, "experiment_refs")
         if self.status not in _CAMPAIGN_STATUSES:
             raise DiscoveryContractError("invalid discovery campaign status")
+        if (self.derivation_strategy_id is None) != (
+            self.derivation_strategy_version is None
+        ):
+            raise DiscoveryContractError(
+                "derivation strategy identity requires id and version together"
+            )
+        for field_name in ("derivation_strategy_id", "derivation_strategy_version"):
+            value = getattr(self, field_name)
+            if value is not None:
+                _required_text(value, field_name)
         _version(self.schema_version, "discovery campaign")
 
     def to_dict(self) -> dict[str, Any]:
@@ -1005,6 +1017,9 @@ class DiscoveryCampaign:
             "residual_risks": [item.to_dict() for item in self.residual_risks],
             "status": self.status,
         }
+        if self.derivation_strategy_id is not None:
+            result["derivation_strategy_id"] = self.derivation_strategy_id
+            result["derivation_strategy_version"] = self.derivation_strategy_version
         if self.project_risk_map is not None:
             result["project_risk_map"] = self.project_risk_map.to_dict()
         return result
@@ -1032,6 +1047,8 @@ class DiscoveryCampaign:
                 "residual_risks",
                 "project_risk_map",
                 "status",
+                "derivation_strategy_id",
+                "derivation_strategy_version",
             },
         )
         return cls(
@@ -1058,6 +1075,8 @@ class DiscoveryCampaign:
                 else None
             ),
             status=data.get("status", "draft"),
+            derivation_strategy_id=data.get("derivation_strategy_id"),
+            derivation_strategy_version=data.get("derivation_strategy_version"),
             schema_version=data.get("schema_version", 1),
         )
 

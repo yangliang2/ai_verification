@@ -121,6 +121,11 @@ cannot become a Finding by itself.
 A versioned, named family of signals that makes a risk direction worth probing;
 it is a search prior, not a conclusion.
 
+**Risk Derivation Strategy**:
+A versioned, explicitly selected, side-effect-free adapter that binds compatible
+Risk Prior and Attack Operator identities to target modes and returns a complete
+Risk Derivation Result or explicit rejection reasons.
+
 **Risk Priority**:
 Transparent impact, propagation reach, context sensitivity, uncertainty,
 evidence-gap, and estimated probe-cost factors used only to order hypotheses.

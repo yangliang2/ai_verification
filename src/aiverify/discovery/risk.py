@@ -7,8 +7,8 @@ attack plan, but it never emits a Finding or treats its priority score as truth.
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
-from typing import Any, Mapping
+from dataclasses import dataclass, field as dataclass_field
+from typing import Any, Callable, Mapping
 
 from aiverify.discovery.contracts import (
     AttackOperator,
@@ -260,7 +260,13 @@ class RiskDerivationResult:
 
     @property
     def accepted(self) -> bool:
-        return self.hypothesis is not None and not self.rejection_reasons
+        return (
+            self.hypothesis is not None
+            and self.failure_chain is not None
+            and self.priority is not None
+            and self.attack_plan is not None
+            and not self.rejection_reasons
+        )
 
     def __post_init__(self) -> None:
         if not isinstance(self.rejection_reasons, tuple) or any(
@@ -268,11 +274,155 @@ class RiskDerivationResult:
             for reason in self.rejection_reasons
         ):
             raise DiscoveryContractError("rejection_reasons must contain strings")
+        if not isinstance(self.prior, RiskPrior):
+            raise DiscoveryContractError("derivation prior must be a RiskPrior")
+        if not isinstance(self.operator, AttackOperator):
+            raise DiscoveryContractError("derivation operator must be an AttackOperator")
+        for field_name, value, expected_type in (
+            ("hypothesis", self.hypothesis, RiskHypothesis),
+            ("failure_chain", self.failure_chain, FailureChain),
+            ("priority", self.priority, RiskPriority),
+            ("attack_plan", self.attack_plan, AttackPlan),
+        ):
+            if value is not None and not isinstance(value, expected_type):
+                raise DiscoveryContractError(f"derivation {field_name} has an invalid type")
         if self.accepted and any(
             value is None
-            for value in (self.failure_chain, self.priority, self.attack_plan)
+            for value in (self.hypothesis, self.failure_chain, self.priority, self.attack_plan)
         ):
             raise DiscoveryContractError("accepted derivation requires complete outputs")
+        if self.rejection_reasons and any(
+            value is not None
+            for value in (self.hypothesis, self.failure_chain, self.priority, self.attack_plan)
+        ):
+            raise DiscoveryContractError(
+                "rejected derivation cannot contain partial accepted outputs"
+            )
+
+
+RiskDerivationFn = Callable[..., RiskDerivationResult]
+
+
+@dataclass(frozen=True)
+class RiskDerivationStrategy:
+    """A versioned, side-effect-free strategy used at the campaign seam.
+
+    Strategies are deliberately value objects around a pure callable.  The
+    callable receives only the target, immutable graph, target mode, and
+    mode-specific Change inputs; prior/operator identity is bound and checked
+    by the seam. It must return a complete
+    :class:`RiskDerivationResult` or a result with explicit rejection reasons.
+    ``compatible_*`` fields are checked before invocation, so a strategy can
+    never silently consume a different prior, operator, or target mode.
+    """
+
+    strategy_id: str
+    version: str
+    compatible_prior_ids: tuple[str, ...]
+    compatible_operator_ids: tuple[str, ...]
+    target_modes: tuple[str, ...]
+    deriver: RiskDerivationFn = dataclass_field(repr=False, compare=False)
+    schema_version: int = 1
+
+    def __post_init__(self) -> None:
+        for field_name in ("strategy_id", "version"):
+            value = getattr(self, field_name)
+            if not isinstance(value, str) or not value.strip():
+                raise DiscoveryContractError(f"{field_name} must be a non-empty string")
+        for field_name, values in (
+            ("compatible_prior_ids", self.compatible_prior_ids),
+            ("compatible_operator_ids", self.compatible_operator_ids),
+            ("target_modes", self.target_modes),
+        ):
+            if not isinstance(values, tuple) or not values:
+                raise DiscoveryContractError(f"{field_name} must be a non-empty tuple")
+            if any(not isinstance(value, str) or not value.strip() for value in values):
+                raise DiscoveryContractError(f"{field_name} must contain non-empty strings")
+            if len(set(values)) != len(values):
+                raise DiscoveryContractError(f"{field_name} must contain unique values")
+        if any(mode not in {"change", "project"} for mode in self.target_modes):
+            raise DiscoveryContractError("strategy target_modes must be change or project")
+        if not callable(self.deriver):
+            raise DiscoveryContractError("strategy deriver must be callable")
+        if self.schema_version != 1:
+            raise DiscoveryContractError("unsupported risk derivation strategy schema_version")
+
+    # Short aliases keep the contract ergonomic for callers that describe the
+    # compatibility lists as ``prior_ids``/``operator_ids``.
+    @property
+    def prior_ids(self) -> tuple[str, ...]:
+        return self.compatible_prior_ids
+
+    @property
+    def operator_ids(self) -> tuple[str, ...]:
+        return self.compatible_operator_ids
+
+    @property
+    def derive_fn(self) -> RiskDerivationFn:
+        return self.deriver
+
+    def derive(
+        self,
+        target: DiscoveryTarget,
+        graph: QualityContextGraph,
+        *,
+        mode: str,
+        behavior_delta: BehaviorDelta | None = None,
+        contract_drift: ContractDrift | None = None,
+    ) -> RiskDerivationResult:
+        """Invoke the strategy with the explicit, side-effect-free inputs."""
+
+        return self.deriver(
+            target,
+            graph,
+            mode=mode,
+            behavior_delta=behavior_delta,
+            contract_drift=contract_drift,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize identity and compatibility, never executable code."""
+
+        return {
+            "schema_version": self.schema_version,
+            "strategy_id": self.strategy_id,
+            "version": self.version,
+            "compatible_prior_ids": list(self.compatible_prior_ids),
+            "compatible_operator_ids": list(self.compatible_operator_ids),
+            "target_modes": list(self.target_modes),
+        }
+
+
+# The descriptive alias makes it clear that the value object is the contract,
+# while preserving one canonical implementation name for callers.
+RiskDerivationStrategyContract = RiskDerivationStrategy
+
+
+def make_risk_derivation_strategy(
+    *,
+    strategy_id: str,
+    version: str,
+    compatible_prior_ids: tuple[str, ...] | list[str],
+    compatible_operator_ids: tuple[str, ...] | list[str],
+    target_modes: tuple[str, ...] | list[str] = ("change", "project"),
+    deriver: RiskDerivationFn,
+) -> RiskDerivationStrategy:
+    """Build a strategy contract for a deterministic custom deriver.
+
+    ``deriver`` must accept ``target``, ``graph``, ``mode``, and optional
+    ``behavior_delta``/``contract_drift`` keyword arguments.  It must bind any
+    selected prior/operator itself (usually in a closure) and return a
+    ``RiskDerivationResult`` carrying those same identities.
+    """
+
+    return RiskDerivationStrategy(
+        strategy_id=strategy_id,
+        version=version,
+        compatible_prior_ids=tuple(compatible_prior_ids),
+        compatible_operator_ids=tuple(compatible_operator_ids),
+        target_modes=tuple(target_modes),
+        deriver=deriver,
+    )
 
 
 def make_temporal_prior(operator_id: str = "operator-bounded-latency") -> RiskPrior:
@@ -299,6 +449,46 @@ def make_latency_operator(operator_id: str = "operator-bounded-latency") -> Atta
         ),
         action="perturb dependency latency or availability within an abort budget",
         safety_boundary="local target only; abort before unbounded wait or external side effect",
+    )
+
+
+def make_temporal_strategy(
+    *,
+    prior: RiskPrior | None = None,
+    operator: AttackOperator | None = None,
+) -> RiskDerivationStrategy:
+    """Return the built-in M7 strategy without changing its derivation path."""
+
+    selected_prior = prior or make_temporal_prior(
+        operator.operator_id if operator is not None else "operator-bounded-latency"
+    )
+    selected_operator = operator or make_latency_operator(selected_prior.operator_ids[0])
+
+    def derive_temporal(
+        target: DiscoveryTarget,
+        graph: QualityContextGraph,
+        *,
+        mode: str,
+        behavior_delta: BehaviorDelta | None = None,
+        contract_drift: ContractDrift | None = None,
+    ) -> RiskDerivationResult:
+        return derive_synchronous_risk(
+            target,
+            graph,
+            mode=mode,
+            behavior_delta=behavior_delta,
+            contract_drift=contract_drift,
+            prior=selected_prior,
+            operator=selected_operator,
+        )
+
+    return RiskDerivationStrategy(
+        strategy_id="strategy-synchronous-critical-path-v1",
+        version="m7.1",
+        compatible_prior_ids=(selected_prior.prior_id,),
+        compatible_operator_ids=(selected_operator.operator_id,),
+        target_modes=("change", "project"),
+        deriver=derive_temporal,
     )
 
 
@@ -489,6 +679,150 @@ def derive_synchronous_risk(
     )
 
 
+def derive_with_strategy(
+    strategy: RiskDerivationStrategy,
+    target: DiscoveryTarget,
+    graph: QualityContextGraph,
+    *,
+    mode: str,
+    behavior_delta: BehaviorDelta | None = None,
+    contract_drift: ContractDrift | None = None,
+    prior: RiskPrior,
+    operator: AttackOperator,
+) -> RiskDerivationResult:
+    """Run one explicitly selected strategy through the fail-closed seam.
+
+    This is intentionally a pure adapter: invalid selection and invalid
+    strategy output become a deterministic rejected result before callers can
+    construct a campaign, compile a Run Spec, build, or touch a device.
+    """
+
+    if not isinstance(strategy, RiskDerivationStrategy):
+        raise DiscoveryContractError("risk derivation strategy contract is invalid")
+    if not isinstance(target, (ChangeTarget, ProjectTarget)):
+        raise DiscoveryContractError("strategy target must be ChangeTarget or ProjectTarget")
+    if not isinstance(graph, QualityContextGraph):
+        raise DiscoveryContractError("strategy graph must be a QualityContextGraph")
+    if not isinstance(prior, RiskPrior):
+        raise DiscoveryContractError("strategy prior must be a RiskPrior")
+    if not isinstance(operator, AttackOperator):
+        raise DiscoveryContractError("strategy operator must be an AttackOperator")
+
+    reasons: list[str] = []
+    if mode not in strategy.target_modes:
+        reasons.append(f"strategy does not support target mode: {mode}")
+    if prior.prior_id not in strategy.compatible_prior_ids:
+        reasons.append(f"strategy does not support risk prior: {prior.prior_id}")
+    if operator.operator_id not in strategy.compatible_operator_ids:
+        reasons.append(f"strategy does not support attack operator: {operator.operator_id}")
+    if operator.operator_id not in prior.operator_ids:
+        reasons.append("attack operator is not compatible with selected risk prior")
+    if graph.target_id != target.target_id:
+        reasons.append("graph target does not match discovery target")
+    if mode == "change" and not isinstance(target, ChangeTarget):
+        reasons.append("change mode requires ChangeTarget")
+    if mode == "project" and not isinstance(target, ProjectTarget):
+        reasons.append("project mode requires ProjectTarget")
+    if mode == "project" and behavior_delta is not None:
+        reasons.append("project mode must not require a behavior delta")
+    if mode == "project" and contract_drift is not None:
+        reasons.append("project mode must not require contract drift")
+    if mode == "change" and behavior_delta is None:
+        reasons.append("change mode requires BehaviorDelta")
+    if mode == "change" and contract_drift is None:
+        reasons.append("change mode requires separate ContractDrift")
+    if mode == "change" and behavior_delta is not None:
+        if behavior_delta.target_id != target.target_id:
+            reasons.append("behavior delta target does not match discovery target")
+        if behavior_delta.status in {"unknown", "contradictory"}:
+            reasons.append("behavior delta is unresolved")
+        if not _facts_are_known(graph, behavior_delta.source_fact_ids):
+            reasons.append("behavior delta references unknown or contradictory facts")
+    if mode == "change" and contract_drift is not None:
+        if contract_drift.status in {"unknown", "contradictory"}:
+            reasons.append("contract drift is unresolved")
+        if not _facts_are_known(graph, contract_drift.source_fact_ids):
+            reasons.append("contract drift references unknown or contradictory facts")
+    if reasons:
+        return _rejected(prior, operator, *dict.fromkeys(reasons))
+
+    try:
+        result = strategy.derive(
+            target,
+            graph,
+            mode=mode,
+            behavior_delta=behavior_delta,
+            contract_drift=contract_drift,
+        )
+    except Exception as error:  # strategy code must never bypass admission
+        return _rejected(
+            prior,
+            operator,
+            f"risk derivation strategy {strategy.strategy_id} failed closed: "
+            f"{type(error).__name__}",
+        )
+    if not isinstance(result, RiskDerivationResult):
+        return _rejected(prior, operator, "risk derivation strategy returned an invalid result")
+
+    output_reasons = _validate_strategy_result(result, target, prior, operator)
+    if output_reasons:
+        return _rejected(prior, operator, *output_reasons)
+    if not result.accepted and not result.rejection_reasons:
+        return _rejected(prior, operator, "strategy returned incomplete output without rejection")
+    return result
+
+
+def derive_risk(
+    strategy: RiskDerivationStrategy,
+    target: DiscoveryTarget,
+    graph: QualityContextGraph,
+    **kwargs: Any,
+) -> RiskDerivationResult:
+    """Descriptive alias for :func:`derive_with_strategy`."""
+
+    return derive_with_strategy(strategy, target, graph, **kwargs)
+
+
+def _validate_strategy_result(
+    result: RiskDerivationResult,
+    target: DiscoveryTarget,
+    prior: RiskPrior,
+    operator: AttackOperator,
+) -> tuple[str, ...]:
+    reasons: list[str] = []
+    if result.prior != prior:
+        reasons.append("strategy result prior does not match selected prior contract")
+    if result.operator != operator:
+        reasons.append("strategy result operator does not match selected operator contract")
+    if result.rejection_reasons:
+        if any(
+            value is not None
+            for value in (result.hypothesis, result.failure_chain, result.priority, result.attack_plan)
+        ):
+            reasons.append("rejected strategy result contains partial output")
+        return tuple(dict.fromkeys(reasons))
+    hypothesis = result.hypothesis
+    chain = result.failure_chain
+    priority = result.priority
+    plan = result.attack_plan
+    if not result.accepted or hypothesis is None or chain is None or priority is None or plan is None:
+        reasons.append("strategy returned incomplete output without rejection")
+        return tuple(dict.fromkeys(reasons))
+    if hypothesis.target_id != target.target_id or plan.target_id != target.target_id:
+        reasons.append("strategy result target does not match discovery target")
+    if hypothesis.prior_id != prior.prior_id:
+        reasons.append("strategy hypothesis prior does not match selected prior")
+    if hypothesis.failure_chain_id != chain.chain_id:
+        reasons.append("strategy hypothesis failure chain does not match result")
+    if hypothesis.priority_id != priority.priority_id:
+        reasons.append("strategy hypothesis priority does not match result")
+    if plan.hypothesis_id != hypothesis.hypothesis_id:
+        reasons.append("strategy attack plan hypothesis does not match result")
+    if plan.operator_id != operator.operator_id:
+        reasons.append("strategy attack plan operator does not match selected operator")
+    return tuple(dict.fromkeys(reasons))
+
+
 def derive_risk_hypothesis(*args: Any, **kwargs: Any) -> RiskDerivationResult:
     """Descriptive alias for the bounded derivation entry point."""
 
@@ -496,8 +830,10 @@ def derive_risk_hypothesis(*args: Any, **kwargs: Any) -> RiskDerivationResult:
 
 
 def _rejected(
-    prior: RiskPrior, operator: AttackOperator, reason: str
+    prior: RiskPrior, operator: AttackOperator, *reasons: str
 ) -> RiskDerivationResult:
+    if not reasons:
+        raise DiscoveryContractError("rejected derivation requires an explicit reason")
     return RiskDerivationResult(
         prior=prior,
         operator=operator,
@@ -505,7 +841,7 @@ def _rejected(
         failure_chain=None,
         priority=None,
         attack_plan=None,
-        rejection_reasons=(reason,),
+        rejection_reasons=tuple(dict.fromkeys(reasons)),
     )
 
 

@@ -24,6 +24,7 @@ _CONTRACT_DEFINITIONS = {
     "behavior_delta": "behaviorDelta",
     "risk_priority": "riskPriority",
     "risk_prior": "riskPrior",
+    "risk_derivation_strategy": "riskDerivationStrategy",
     "attack_operator": "attackOperator",
     "failure_chain": "failureChain",
     "risk_hypothesis": "riskHypothesis",

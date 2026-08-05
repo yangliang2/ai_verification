@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,7 @@ from aiverify.discovery import (
     DiscoveryContractError,
     HypothesisSelectionLedger,
     ProjectTarget,
+    AttackOperator,
     BehaviorDelta,
     ContractDrift,
     admit_campaign_plan,
@@ -22,6 +24,10 @@ from aiverify.discovery import (
     load_context_manifest,
     reduce_attempt_evidence,
     resume_campaign,
+    derive_synchronous_risk,
+    derive_with_strategy,
+    make_risk_derivation_strategy,
+    RiskPrior,
     seed_change_campaign,
     seed_project_campaign,
     validate_contract,
@@ -311,3 +317,291 @@ def test_freeze_from_context_ready_and_resume_is_deterministic() -> None:
     tampered["selection_ledger"]["head_digest"] = "f" * 64
     with pytest.raises(DiscoveryContractError, match="head_digest"):
         resume_campaign(tampered)
+
+
+def test_explicit_non_temporal_strategy_seeds_both_modes_and_resumes() -> None:
+    prior = RiskPrior(
+        prior_id="prior-test-family-v1",
+        name="test family",
+        description="A deterministic test family.",
+        signals=("test-signal",),
+        operator_ids=("operator-test-replay",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-test-replay",
+        name="test operator",
+        description="A bounded test operator.",
+        action="observe a local fixture",
+        safety_boundary="local fixture only",
+    )
+
+    def derive_test_family(
+        target,
+        graph,
+        *,
+        mode,
+        behavior_delta=None,
+        contract_drift=None,
+    ):
+        return derive_synchronous_risk(
+            target,
+            graph,
+            mode=mode,
+            behavior_delta=behavior_delta,
+            contract_drift=contract_drift,
+            prior=prior,
+            operator=operator,
+        )
+
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-test-family-v1",
+        version="test-1",
+        compatible_prior_ids=("prior-test-family-v1",),
+        compatible_operator_ids=("operator-test-replay",),
+        deriver=derive_test_family,
+    )
+    project_target = _project_target()
+    project = seed_project_campaign(
+        "campaign-test-family-project",
+        project_target,
+        _graph(project_target),
+        prior=prior,
+        operator=operator,
+        strategy=strategy,
+    )
+    change_target = _change_target()
+    delta, drift = _change_inputs(change_target)
+    change = seed_change_campaign(
+        "campaign-test-family-change",
+        change_target,
+        _graph(change_target),
+        behavior_delta=delta,
+        contract_drift=drift,
+        prior=prior,
+        operator=operator,
+        derivation_strategy=strategy,
+    )
+
+    for package in (project, change):
+        assert package.campaign.derivation_strategy_id == strategy.strategy_id
+        assert package.campaign.derivation_strategy_version == strategy.version
+        assert package.selection_ledger.entries[0].prior_id == prior.prior_id
+        assert resume_campaign(package.to_dict(), strategy=strategy) == package
+    validate_contract(strategy.to_dict(), "risk_derivation_strategy")
+
+
+def test_strategy_result_must_match_full_prior_and_operator_contracts() -> None:
+    prior = RiskPrior(
+        prior_id="prior-contract-match",
+        name="test family",
+        description="selected contract",
+        signals=("signal",),
+        operator_ids=("operator-contract-match",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-contract-match",
+        name="test operator",
+        description="selected contract",
+        action="observe",
+        safety_boundary="local",
+    )
+    wrong_prior = replace(prior, description="same id but different contract")
+    wrong_operator = replace(operator, action="different action")
+
+    def derive_wrong_contract(
+        target,
+        graph,
+        *,
+        mode,
+        behavior_delta=None,
+        contract_drift=None,
+    ):
+        result = derive_synchronous_risk(
+            target,
+            graph,
+            mode=mode,
+            behavior_delta=behavior_delta,
+            contract_drift=contract_drift,
+            prior=prior,
+            operator=operator,
+        )
+        return replace(result, prior=wrong_prior, operator=wrong_operator)
+
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-contract-match-v1",
+        version="test-1",
+        compatible_prior_ids=(prior.prior_id,),
+        compatible_operator_ids=(operator.operator_id,),
+        deriver=derive_wrong_contract,
+    )
+    target = _project_target()
+    result = derive_with_strategy(
+        strategy,
+        target,
+        _graph(target),
+        mode="project",
+        prior=prior,
+        operator=operator,
+    )
+    assert result.accepted is False
+    assert "prior contract" in " ".join(result.rejection_reasons)
+    assert "operator contract" in " ".join(result.rejection_reasons)
+
+
+def test_strategy_selection_rejects_unsupported_prior_before_campaign() -> None:
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-only-v1",
+        version="test-1",
+        compatible_prior_ids=("prior-supported",),
+        compatible_operator_ids=("operator-supported",),
+        deriver=lambda *args, **kwargs: None,
+    )
+    prior = RiskPrior(
+        prior_id="prior-unsupported",
+        name="unsupported",
+        description="unsupported",
+        signals=("signal",),
+        operator_ids=("operator-supported",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-supported",
+        name="supported",
+        description="supported",
+        action="observe",
+        safety_boundary="local",
+    )
+    target = _project_target()
+    with pytest.raises(DiscoveryContractError, match="risk prior"):
+        seed_project_campaign(
+            "campaign-unsupported-prior",
+            target,
+            _graph(target),
+            prior=prior,
+            operator=operator,
+            strategy=strategy,
+        )
+
+
+def test_non_temporal_prior_requires_explicit_strategy() -> None:
+    prior = RiskPrior(
+        prior_id="prior-non-temporal",
+        name="non-temporal",
+        description="non-temporal",
+        signals=("signal",),
+        operator_ids=("operator-non-temporal",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-non-temporal",
+        name="non-temporal",
+        description="non-temporal",
+        action="observe",
+        safety_boundary="local",
+    )
+    target = _project_target()
+    with pytest.raises(DiscoveryContractError, match="explicit derivation strategy"):
+        seed_project_campaign(
+            "campaign-implicit-non-temporal",
+            target,
+            _graph(target),
+            prior=prior,
+            operator=operator,
+        )
+
+
+def test_strategy_aliases_reject_distinct_deriver_callables() -> None:
+    prior = RiskPrior(
+        prior_id="prior-alias",
+        name="alias",
+        description="alias",
+        signals=("signal",),
+        operator_ids=("operator-alias",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-alias",
+        name="alias",
+        description="alias",
+        action="observe",
+        safety_boundary="local",
+    )
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-alias-v1",
+        version="test-1",
+        compatible_prior_ids=(prior.prior_id,),
+        compatible_operator_ids=(operator.operator_id,),
+        deriver=lambda *args, **kwargs: None,
+    )
+    conflicting = make_risk_derivation_strategy(
+        strategy_id=strategy.strategy_id,
+        version=strategy.version,
+        compatible_prior_ids=strategy.compatible_prior_ids,
+        compatible_operator_ids=strategy.compatible_operator_ids,
+        target_modes=strategy.target_modes,
+        deriver=lambda *args, **kwargs: None,
+    )
+    target = _project_target()
+    with pytest.raises(DiscoveryContractError, match="strategy and derivation_strategy disagree"):
+        seed_project_campaign(
+            "campaign-alias-conflict",
+            target,
+            _graph(target),
+            prior=prior,
+            operator=operator,
+            strategy=strategy,
+            derivation_strategy=conflicting,
+        )
+
+
+def test_strategy_seam_rejects_contradictory_change_inputs_before_deriver() -> None:
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-contradiction-v1",
+        version="test-1",
+        compatible_prior_ids=("prior-contradiction",),
+        compatible_operator_ids=("operator-contradiction",),
+        deriver=lambda *args, **kwargs: None,
+    )
+    prior = RiskPrior(
+        prior_id="prior-contradiction",
+        name="test family",
+        description="test family",
+        signals=("signal",),
+        operator_ids=("operator-contradiction",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-contradiction",
+        name="test operator",
+        description="test operator",
+        action="observe",
+        safety_boundary="local",
+    )
+    target = _change_target()
+    delta, drift = _change_inputs(target)
+    contradictory = BehaviorDelta(
+        delta_id=delta.delta_id,
+        target_id=delta.target_id,
+        subject=delta.subject,
+        before=delta.before,
+        after=delta.after,
+        source_fact_ids=delta.source_fact_ids,
+        confidence=delta.confidence,
+        status="contradictory",
+        contract_drift_id=delta.contract_drift_id,
+        rationale="The change signal has contradictory provenance.",
+    )
+    result = derive_with_strategy(
+        strategy,
+        target,
+        _graph(target),
+        mode="change",
+        behavior_delta=contradictory,
+        contract_drift=drift,
+        prior=prior,
+        operator=operator,
+    )
+    assert result.accepted is False
+    assert any("unresolved" in reason for reason in result.rejection_reasons)
