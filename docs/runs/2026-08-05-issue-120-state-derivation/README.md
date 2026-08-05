@@ -3,7 +3,7 @@
 Date: 2026-08-05<br>
 Baseline: `origin/main` at `8b80e6e07a51d72783cac410e813b3b144d1e4f1`<br>
 Working branch: `m8-120-state-derivation`<br>
-Implementation revision: `c9a1e6a` (implementation plus hardening; evidence artifacts rebuilt)
+Implementation revision: `db535e6` (implementation plus hardening; evidence artifacts rebuilt)
 
 ## Scope and result
 
@@ -37,16 +37,16 @@ Commands were run from the clean worktree
 
 | Check | Exact command | Result |
 | --- | --- | --- |
-| Targeted | `/usr/bin/time -p uv run --with pytest pytest tests/discovery/test_state_evolution_risk.py -q` | 10 passed; real 0.87 s |
-| Scoped | `uv run --with pytest pytest tests/discovery tests/bench/test_state_evolution.py tests/bench/test_lifecycle_recovery.py tests/bench/test_m7_runtime_probe.py tests/bench/test_m6_cohort.py -rA` | 111 passed in 5.03 s |
-| Full suite | `/usr/bin/time -p uv run --with pytest pytest -rA` | 803 passed in 24.61 s; wall real 24.98 s |
+| Targeted | `/usr/bin/time -p uv run --with pytest pytest tests/discovery/test_state_evolution_risk.py -q` | 10 passed; real 1.45 s |
+| Scoped | `uv run --with pytest pytest tests/discovery tests/bench/test_state_evolution.py tests/bench/test_lifecycle_recovery.py tests/bench/test_m7_runtime_probe.py tests/bench/test_m6_cohort.py -rA` | 111 passed in 4.71 s |
+| Full suite | `/usr/bin/time -p uv run --with pytest pytest -rA` | 803 passed in 22.65 s; real 25.53 s (user 18.49 s, sys 3.70 s) |
 | Lint (changed surface) | `uv run --with ruff ruff check src/aiverify/discovery/state_evolution_risk.py src/aiverify/discovery/__init__.py tests/discovery/test_state_evolution_risk.py` | All checks passed |
 | Bytecode | `/usr/bin/time -p uv run python -m compileall -q src tests` | Exit 0; real 0.04 s |
-| Contract/schema/replay seam | `/usr/bin/time -p uv run python docs/runs/2026-08-05-issue-120-state-derivation/artifacts/contract_seam_check.py` | `schema_valid=true`, project/change accepted, deterministic IDs, `finding_count=0`, `leakage_checks=4`; real 0.34 s |
-| Package | `/usr/bin/time -p uv build --out-dir /tmp/aiverify-m8-120-dist.cJ9vIc` | Source and wheel built successfully; real 0.96 s |
+| Contract/schema/replay seam | `/usr/bin/time -p uv run python docs/runs/2026-08-05-issue-120-state-derivation/artifacts/contract_seam_check.py` | `schema_valid=true`, project/change accepted, deterministic IDs, `finding_count=0`, `leakage_checks=4`; real 0.35 s |
+| Package | `/usr/bin/time -p uv build --out-dir /tmp/aiverify-m8-120-dist.TekLaT` | Source and wheel built successfully; real 0.79 s |
 
-The package identity was `aiverify` version `0.1.0`. The wheel is 275,937
-bytes and the source archive is 247,159 bytes. Durable artifacts and SHA-256
+The package identity was `aiverify` version `0.1.0`. The wheel is 275,939
+bytes and the source archive is 247,160 bytes. Durable artifacts and SHA-256
 digests are in [`artifacts/checksums.sha256`](artifacts/checksums.sha256).
 
 ## Artifact inventory
