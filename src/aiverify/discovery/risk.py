@@ -308,7 +308,9 @@ class RiskDerivationStrategy:
     """A versioned, side-effect-free strategy used at the campaign seam.
 
     Strategies are deliberately value objects around a pure callable.  The
-    callable receives only discovery contracts and must return a complete
+    callable receives only the target, immutable graph, target mode, and
+    mode-specific Change inputs; prior/operator identity is bound and checked
+    by the seam. It must return a complete
     :class:`RiskDerivationResult` or a result with explicit rejection reasons.
     ``compatible_*`` fields are checked before invocation, so a strategy can
     never silently consume a different prior, operator, or target mode.
@@ -367,8 +369,6 @@ class RiskDerivationStrategy:
         mode: str,
         behavior_delta: BehaviorDelta | None = None,
         contract_drift: ContractDrift | None = None,
-        prior: RiskPrior,
-        operator: AttackOperator,
     ) -> RiskDerivationResult:
         """Invoke the strategy with the explicit, side-effect-free inputs."""
 
@@ -378,8 +378,6 @@ class RiskDerivationStrategy:
             mode=mode,
             behavior_delta=behavior_delta,
             contract_drift=contract_drift,
-            prior=prior,
-            operator=operator,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -409,7 +407,13 @@ def make_risk_derivation_strategy(
     target_modes: tuple[str, ...] | list[str] = ("change", "project"),
     deriver: RiskDerivationFn,
 ) -> RiskDerivationStrategy:
-    """Build a strategy contract for a deterministic custom deriver."""
+    """Build a strategy contract for a deterministic custom deriver.
+
+    ``deriver`` must accept ``target``, ``graph``, ``mode``, and optional
+    ``behavior_delta``/``contract_drift`` keyword arguments.  It must bind any
+    selected prior/operator itself (usually in a closure) and return a
+    ``RiskDerivationResult`` carrying those same identities.
+    """
 
     return RiskDerivationStrategy(
         strategy_id=strategy_id,
@@ -459,13 +463,32 @@ def make_temporal_strategy(
         operator.operator_id if operator is not None else "operator-bounded-latency"
     )
     selected_operator = operator or make_latency_operator(selected_prior.operator_ids[0])
+
+    def derive_temporal(
+        target: DiscoveryTarget,
+        graph: QualityContextGraph,
+        *,
+        mode: str,
+        behavior_delta: BehaviorDelta | None = None,
+        contract_drift: ContractDrift | None = None,
+    ) -> RiskDerivationResult:
+        return derive_synchronous_risk(
+            target,
+            graph,
+            mode=mode,
+            behavior_delta=behavior_delta,
+            contract_drift=contract_drift,
+            prior=selected_prior,
+            operator=selected_operator,
+        )
+
     return RiskDerivationStrategy(
         strategy_id="strategy-synchronous-critical-path-v1",
         version="m7.1",
         compatible_prior_ids=(selected_prior.prior_id,),
         compatible_operator_ids=(selected_operator.operator_id,),
         target_modes=("change", "project"),
-        deriver=derive_synchronous_risk,
+        deriver=derive_temporal,
     )
 
 
@@ -702,10 +725,24 @@ def derive_with_strategy(
         reasons.append("project mode requires ProjectTarget")
     if mode == "project" and behavior_delta is not None:
         reasons.append("project mode must not require a behavior delta")
+    if mode == "project" and contract_drift is not None:
+        reasons.append("project mode must not require contract drift")
     if mode == "change" and behavior_delta is None:
         reasons.append("change mode requires BehaviorDelta")
     if mode == "change" and contract_drift is None:
         reasons.append("change mode requires separate ContractDrift")
+    if mode == "change" and behavior_delta is not None:
+        if behavior_delta.target_id != target.target_id:
+            reasons.append("behavior delta target does not match discovery target")
+        if behavior_delta.status in {"unknown", "contradictory"}:
+            reasons.append("behavior delta is unresolved")
+        if not _facts_are_known(graph, behavior_delta.source_fact_ids):
+            reasons.append("behavior delta references unknown or contradictory facts")
+    if mode == "change" and contract_drift is not None:
+        if contract_drift.status in {"unknown", "contradictory"}:
+            reasons.append("contract drift is unresolved")
+        if not _facts_are_known(graph, contract_drift.source_fact_ids):
+            reasons.append("contract drift references unknown or contradictory facts")
     if reasons:
         return _rejected(prior, operator, *dict.fromkeys(reasons))
 
@@ -716,8 +753,6 @@ def derive_with_strategy(
             mode=mode,
             behavior_delta=behavior_delta,
             contract_drift=contract_drift,
-            prior=prior,
-            operator=operator,
         )
     except Exception as error:  # strategy code must never bypass admission
         return _rejected(

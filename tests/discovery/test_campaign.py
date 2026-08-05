@@ -24,6 +24,7 @@ from aiverify.discovery import (
     reduce_attempt_evidence,
     resume_campaign,
     derive_synchronous_risk,
+    derive_with_strategy,
     make_risk_derivation_strategy,
     RiskPrior,
     seed_change_campaign,
@@ -318,13 +319,6 @@ def test_freeze_from_context_ready_and_resume_is_deterministic() -> None:
 
 
 def test_explicit_non_temporal_strategy_seeds_both_modes_and_resumes() -> None:
-    strategy = make_risk_derivation_strategy(
-        strategy_id="strategy-test-family-v1",
-        version="test-1",
-        compatible_prior_ids=("prior-test-family-v1",),
-        compatible_operator_ids=("operator-test-replay",),
-        deriver=derive_synchronous_risk,
-    )
     prior = RiskPrior(
         prior_id="prior-test-family-v1",
         name="test family",
@@ -339,6 +333,32 @@ def test_explicit_non_temporal_strategy_seeds_both_modes_and_resumes() -> None:
         description="A bounded test operator.",
         action="observe a local fixture",
         safety_boundary="local fixture only",
+    )
+
+    def derive_test_family(
+        target,
+        graph,
+        *,
+        mode,
+        behavior_delta=None,
+        contract_drift=None,
+    ):
+        return derive_synchronous_risk(
+            target,
+            graph,
+            mode=mode,
+            behavior_delta=behavior_delta,
+            contract_drift=contract_drift,
+            prior=prior,
+            operator=operator,
+        )
+
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-test-family-v1",
+        version="test-1",
+        compatible_prior_ids=("prior-test-family-v1",),
+        compatible_operator_ids=("operator-test-replay",),
+        deriver=derive_test_family,
     )
     project_target = _project_target()
     project = seed_project_campaign(
@@ -376,7 +396,7 @@ def test_strategy_selection_rejects_unsupported_prior_before_campaign() -> None:
         version="test-1",
         compatible_prior_ids=("prior-supported",),
         compatible_operator_ids=("operator-supported",),
-        deriver=derive_synchronous_risk,
+        deriver=lambda *args, **kwargs: None,
     )
     prior = RiskPrior(
         prior_id="prior-unsupported",
@@ -403,3 +423,81 @@ def test_strategy_selection_rejects_unsupported_prior_before_campaign() -> None:
             operator=operator,
             strategy=strategy,
         )
+
+
+def test_non_temporal_prior_requires_explicit_strategy() -> None:
+    prior = RiskPrior(
+        prior_id="prior-non-temporal",
+        name="non-temporal",
+        description="non-temporal",
+        signals=("signal",),
+        operator_ids=("operator-non-temporal",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-non-temporal",
+        name="non-temporal",
+        description="non-temporal",
+        action="observe",
+        safety_boundary="local",
+    )
+    target = _project_target()
+    with pytest.raises(DiscoveryContractError, match="explicit derivation strategy"):
+        seed_project_campaign(
+            "campaign-implicit-non-temporal",
+            target,
+            _graph(target),
+            prior=prior,
+            operator=operator,
+        )
+
+
+def test_strategy_seam_rejects_contradictory_change_inputs_before_deriver() -> None:
+    strategy = make_risk_derivation_strategy(
+        strategy_id="strategy-contradiction-v1",
+        version="test-1",
+        compatible_prior_ids=("prior-contradiction",),
+        compatible_operator_ids=("operator-contradiction",),
+        deriver=lambda *args, **kwargs: None,
+    )
+    prior = RiskPrior(
+        prior_id="prior-contradiction",
+        name="test family",
+        description="test family",
+        signals=("signal",),
+        operator_ids=("operator-contradiction",),
+        version="test-1",
+    )
+    operator = AttackOperator(
+        operator_id="operator-contradiction",
+        name="test operator",
+        description="test operator",
+        action="observe",
+        safety_boundary="local",
+    )
+    target = _change_target()
+    delta, drift = _change_inputs(target)
+    contradictory = BehaviorDelta(
+        delta_id=delta.delta_id,
+        target_id=delta.target_id,
+        subject=delta.subject,
+        before=delta.before,
+        after=delta.after,
+        source_fact_ids=delta.source_fact_ids,
+        confidence=delta.confidence,
+        status="contradictory",
+        contract_drift_id=delta.contract_drift_id,
+        rationale="The change signal has contradictory provenance.",
+    )
+    result = derive_with_strategy(
+        strategy,
+        target,
+        _graph(target),
+        mode="change",
+        behavior_delta=contradictory,
+        contract_drift=drift,
+        prior=prior,
+        operator=operator,
+    )
+    assert result.accepted is False
+    assert any("unresolved" in reason for reason in result.rejection_reasons)

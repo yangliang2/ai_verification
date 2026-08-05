@@ -1312,6 +1312,14 @@ def _seed_campaign(
             operator.operator_id if operator is not None else "operator-bounded-latency"
         )
         selected_operator = operator or make_latency_operator(selected_prior.operator_ids[0])
+        canonical_prior = make_temporal_prior()
+        if (
+            selected_prior.prior_id != canonical_prior.prior_id
+            or selected_operator.operator_id != "operator-bounded-latency"
+        ):
+            raise DiscoveryContractError(
+                "non-temporal prior or operator requires an explicit derivation strategy"
+            )
         selected_strategy = make_temporal_strategy(
             prior=selected_prior,
             operator=selected_operator,
