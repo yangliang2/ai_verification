@@ -1,0 +1,131 @@
+{
+  "scenario": "m7-r1-synchronous-weather-change-control",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/private/tmp/m7-r1-lanes-v3/change-control-r3/live-validation-gate.json",
+      "failed_checks": [],
+      "app": {
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity",
+        "target_surface": {
+          "text": "Weather: fixture-data"
+        }
+      }
+    }
+  },
+  "metric_context": {
+    "seed_id": "m7-r1-synchronous-weather-change-control",
+    "seed_kind": "baseline_control",
+    "seed_outcome": "passed_control",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": "L1",
+    "expected_oracle_defect_class": "performance_regression",
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "inconclusive",
+      "L3": "not_run"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-b52642cd",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Verify the synchronous weather probe screen is visible after launch.",
+      "Observe the displayed weather summary and caller latency without changing device state."
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-na",
+    "level": "L2",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Verify the synchronous weather probe screen is visible after launch.",
+      "Observe the displayed weather summary and caller latency without changing device state."
+    ],
+    "evidence": [
+      {
+        "type": "state_diff",
+        "ref": "no boundary system event",
+        "note": "scenario has no system event; L2 state assertion not applicable"
+      }
+    ],
+    "confidence": 0.0
+  },
+  "l3": null,
+  "journey_results": [
+    {
+      "journey": "m7-r1-synchronous-weather-change-control-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Visible screen confirmed: \"Synchronous weather runtime probe\" (resource-id temporal_title).",
+          "action": "Verify the synchronous weather probe screen is visible after launch."
+        },
+        {
+          "action_id": "action-2",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Observed Weather: fixture-data (temporal_status) and Caller latency: 0 ms (temporal_latency); no device state changed.",
+          "action": "Observe the displayed weather summary and caller latency without changing device state."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0"
+  ],
+  "injected_events": [],
+  "system_event_evidence": [],
+  "timing": {
+    "started_at": "2026-08-05T00:57:57+00:00",
+    "finished_at": "2026-08-05T00:59:15+00:00",
+    "total_seconds": 78.3,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 8.47
+      },
+      {
+        "phase": "m7-r1-synchronous-weather-change-control-segment-0",
+        "kind": "journey",
+        "seconds": 63.865
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.877
+      }
+    ]
+  },
+  "execution_record": "/private/tmp/m7-r1-lanes-v3/change-control-r3/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "b8224aeff20255f46403191dbba2415cee6fb86208ce4362454c92d9ad45ad07"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "journey": "m7-r1-synchronous-weather-change-defect-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Fresh layout showed the synchronous weather probe screen: temporal_title text \"Synchronous weather runtime probe\".",
+      "action": "Verify the synchronous weather probe screen is visible after launch."
+    },
+    {
+      "action_id": "action-2",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Observed temporal_status \"Weather: fixture-data\" and temporal_latency \"Caller latency: 251 ms\"; no device state was changed.",
+      "action": "Observe the displayed weather summary and caller latency without changing device state."
+    }
+  ]
+}

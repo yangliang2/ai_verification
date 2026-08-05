@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "issue": 112,
+  "probe_id": "m7-r1-synchronous-weather-v1",
+  "source_commit": "0da6d57a5245e9f916d9508d779d5f8a01ff140b",
+  "recorded_at": "2026-08-05T00:55:00Z",
+  "evidence_root": "docs/runs/2026-08-04-issue-112-runtime-admission",
+  "admission": {
+    "schema_version": 1,
+    "probe_id": "m7-r1-synchronous-weather-v1",
+    "manifest_sha256": "3e5971ecd25f292e37b937153afe7e2203c83ada36ec8d8393dd63aebff09d20",
+    "canonical_manifest_sha256": "922af4ba5f826b5303566c886a68f88c5a0639f22694fe2c3af36e77384addb7",
+    "admitted": true,
+    "reason_codes": [],
+    "checks": [
+      {
+        "name": "sha256:bench/discovery-fixtures/synchronous-weather/WeatherService.kt",
+        "status": "pass",
+        "detail": "expected=1f7d39c4deeb955476c93ec4045200abbaf0ed5dfe8b0b9dca2e9fd185c8f1a1 actual=1f7d39c4deeb955476c93ec4045200abbaf0ed5dfe8b0b9dca2e9fd185c8f1a1"
+      },
+      {
+        "name": "sha256:bench/discovery-fixtures/synchronous-weather/SystemUiWeatherConsumer.kt",
+        "status": "pass",
+        "detail": "expected=ebc51ee8363f2d4c23b924f0f6a6cde80459d529b726af0c413458a9cff27e91 actual=ebc51ee8363f2d4c23b924f0f6a6cde80459d529b726af0c413458a9cff27e91"
+      },
+      {
+        "name": "sha256:bench/discovery-fixtures/synchronous-weather/build-metadata.json",
+        "status": "pass",
+        "detail": "expected=b87b4f1a5b60c1a46d89becb483b66de26608c6f201f252b3117bdff1ce31395 actual=b87b4f1a5b60c1a46d89becb483b66de26608c6f201f252b3117bdff1ce31395"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/TemporalService.java",
+        "status": "pass",
+        "detail": "expected=c918c484c4f719392d514db7e41d869abefd12d4163b2a5a3e7eb9c107965e5a actual=c918c484c4f719392d514db7e41d869abefd12d4163b2a5a3e7eb9c107965e5a"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/TemporalActivity.java",
+        "status": "pass",
+        "detail": "expected=37c2657e398d77b9e79f5d890052aa20c7af60eeefbceafb0959fc2d8cd7a7f5 actual=37c2657e398d77b9e79f5d890052aa20c7af60eeefbceafb0959fc2d8cd7a7f5"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/build.gradle.kts",
+        "status": "pass",
+        "detail": "expected=2a48afe930909707190b973fb3eb068f75ac79fff11d96a8209656811ee64fa0 actual=2a48afe930909707190b973fb3eb068f75ac79fff11d96a8209656811ee64fa0"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/AndroidManifest.xml",
+        "status": "pass",
+        "detail": "expected=0025caffdc399fac6692794dca9e79e7d6886445c36023a74b1493cd9a55bfb4 actual=0025caffdc399fac6692794dca9e79e7d6886445c36023a74b1493cd9a55bfb4"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/ids.xml",
+        "status": "pass",
+        "detail": "expected=6df75560b79eecc700cd28ac93d598963f7a1b5f7a521870a710bc529dde78c8 actual=6df75560b79eecc700cd28ac93d598963f7a1b5f7a521870a710bc529dde78c8"
+      },
+      {
+        "name": "sha256:bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/strings.xml",
+        "status": "pass",
+        "detail": "expected=ef90fbd9401ee3e6b1bee43788e0e7b956824358f3fb45c5d31e12efa97fab92 actual=ef90fbd9401ee3e6b1bee43788e0e7b956824358f3fb45c5d31e12efa97fab92"
+      },
+      {
+        "name": "sha256:bench/discovery-fixtures/synchronous-weather/context-manifest.json",
+        "status": "pass",
+        "detail": "expected=135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b actual=135ba563187993afb40eb9afdf3e202f53ee59d495d7d24f23d50daa40d36c4b"
+      },
+      {
+        "name": "sha256:bench/m7/inputs/weather-delay.diff",
+        "status": "pass",
+        "detail": "expected=4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66 actual=4add1297e6cca055caeecdc2a37319e1553d7a090aa84cb15ce91fe073ff2e66"
+      },
+      {
+        "name": "host_project",
+        "status": "pass",
+        "detail": "/Users/peter/projects/ai_verification-m7-112/bench/fixtures/lifecycle-recovery-app"
+      },
+      {
+        "name": "android_cli",
+        "status": "pass",
+        "detail": "exit=0 1.0.15498356"
+      },
+      {
+        "name": "adb",
+        "status": "pass",
+        "detail": "exit=0 Android Debug Bridge version 1.0.41 | Version 37.0.0-14910828 | Installed as /opt/homebrew/bin/adb | Running on Darwin 25.3.0 (arm64)"
+      },
+      {
+        "name": "device_online",
+        "status": "pass",
+        "detail": "exit=0 device"
+      },
+      {
+        "name": "device_api",
+        "status": "pass",
+        "detail": "expected=35 actual=35"
+      },
+      {
+        "name": "device_model",
+        "status": "pass",
+        "detail": "expected=sdk_gphone64_arm64 actual=sdk_gphone64_arm64"
+      },
+      {
+        "name": "device_avd",
+        "status": "pass",
+        "detail": "expected=aiverify_api35 actual=aiverify_api35"
+      },
+      {
+        "name": "network_policy",
+        "status": "deferred",
+        "detail": "requires APK manifest permission proof"
+      },
+      {
+        "name": "build:change-defect",
+        "status": "pass",
+        "detail": "reused immutable admission snapshot"
+      },
+      {
+        "name": "apk_metadata:change-defect",
+        "status": "pass",
+        "detail": "package=dev.aiverify.lifecyclefixture activities=['dev.aiverify.lifecyclefixture.AccessibilityActivity', 'dev.aiverify.lifecyclefixture.CompatibilityActivity', 'dev.aiverify.lifecyclefixture.ConcurrencyActivity', 'dev.aiverify.lifecyclefixture.MainActivity', 'dev.aiverify.lifecyclefixture.PerformanceSecurityActivity', 'dev.aiverify.lifecyclefixture.SensitiveActivity', 'dev.aiverify.lifecyclefixture.TemporalActivity']"
+      },
+      {
+        "name": "network_policy:change-defect",
+        "status": "pass",
+        "detail": "permissions=['android.permission.WAKE_LOCK']"
+      },
+      {
+        "name": "run_spec:change-defect",
+        "status": "pass",
+        "detail": "expected=7ca3736f4adaab730f4b1199754fe262c2fff0bf39befe6e6f0511aa16cb6fe7 actual=7ca3736f4adaab730f4b1199754fe262c2fff0bf39befe6e6f0511aa16cb6fe7"
+      },
+      {
+        "name": "build:change-control",
+        "status": "pass",
+        "detail": "reused immutable admission snapshot"
+      },
+      {
+        "name": "apk_metadata:change-control",
+        "status": "pass",
+        "detail": "package=dev.aiverify.lifecyclefixture activities=['dev.aiverify.lifecyclefixture.AccessibilityActivity', 'dev.aiverify.lifecyclefixture.CompatibilityActivity', 'dev.aiverify.lifecyclefixture.ConcurrencyActivity', 'dev.aiverify.lifecyclefixture.MainActivity', 'dev.aiverify.lifecyclefixture.PerformanceSecurityActivity', 'dev.aiverify.lifecyclefixture.SensitiveActivity', 'dev.aiverify.lifecyclefixture.TemporalActivity']"
+      },
+      {
+        "name": "network_policy:change-control",
+        "status": "pass",
+        "detail": "permissions=['android.permission.WAKE_LOCK']"
+      },
+      {
+        "name": "run_spec:change-control",
+        "status": "pass",
+        "detail": "expected=e0c85965fc9022c45266632da3e982b34776f2ef8d263fc530a314ecb92b4003 actual=e0c85965fc9022c45266632da3e982b34776f2ef8d263fc530a314ecb92b4003"
+      }
+    ],
+    "lanes": [
+      {
+        "lane_id": "change-defect-r1",
+        "cell_id": "change-defect",
+        "repetition": 1,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather/run-specs/defect.yaml",
+        "run_spec_sha256": "7ca3736f4adaab730f4b1199754fe262c2fff0bf39befe6e6f0511aa16cb6fe7",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "edb5ef838baaf81379b3a0b9c4e2f99441a6342c7a80dd9831092ab7f801c0fb"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "change-defect-r2",
+        "cell_id": "change-defect",
+        "repetition": 2,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather/run-specs/defect.yaml",
+        "run_spec_sha256": "7ca3736f4adaab730f4b1199754fe262c2fff0bf39befe6e6f0511aa16cb6fe7",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "edb5ef838baaf81379b3a0b9c4e2f99441a6342c7a80dd9831092ab7f801c0fb"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "change-defect-r3",
+        "cell_id": "change-defect",
+        "repetition": 3,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather/run-specs/defect.yaml",
+        "run_spec_sha256": "7ca3736f4adaab730f4b1199754fe262c2fff0bf39befe6e6f0511aa16cb6fe7",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "edb5ef838baaf81379b3a0b9c4e2f99441a6342c7a80dd9831092ab7f801c0fb"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "change-control-r1",
+        "cell_id": "change-control",
+        "repetition": 1,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather/run-specs/control.yaml",
+        "run_spec_sha256": "e0c85965fc9022c45266632da3e982b34776f2ef8d263fc530a314ecb92b4003",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "efed5750572e7c81a74664458bbd903bd4a2a3e2cd1ef49c18ccab835964763d"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "change-control-r2",
+        "cell_id": "change-control",
+        "repetition": 2,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather/run-specs/control.yaml",
+        "run_spec_sha256": "e0c85965fc9022c45266632da3e982b34776f2ef8d263fc530a314ecb92b4003",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "efed5750572e7c81a74664458bbd903bd4a2a3e2cd1ef49c18ccab835964763d"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      },
+      {
+        "lane_id": "change-control-r3",
+        "cell_id": "change-control",
+        "repetition": 3,
+        "attempts": 1,
+        "retry_after_accountable": false,
+        "run_spec": "bench/runtime-probes/synchronous-weather/run-specs/control.yaml",
+        "run_spec_sha256": "e0c85965fc9022c45266632da3e982b34776f2ef8d263fc530a314ecb92b4003",
+        "apk": {
+          "path": "app/build/outputs/apk/debug/app-debug.apk",
+          "sha256": "efed5750572e7c81a74664458bbd903bd4a2a3e2cd1ef49c18ccab835964763d"
+        },
+        "package": "dev.aiverify.lifecyclefixture",
+        "activity": "dev.aiverify.lifecyclefixture.TemporalActivity"
+      }
+    ],
+    "build_receipts": [
+      {
+        "cell_id": "change-defect",
+        "command": [
+          "./gradlew",
+          "--offline",
+          "-p",
+          ".",
+          ":app:assembleDebug",
+          "-PtemporalDelayMs=250"
+        ],
+        "reused_snapshot": true,
+        "returncode": 0,
+        "seconds": 0.0,
+        "apk": "build/change-defect.apk",
+        "apk_sha256": "edb5ef838baaf81379b3a0b9c4e2f99441a6342c7a80dd9831092ab7f801c0fb",
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "snapshot": {
+          "cell_id": "change-defect",
+          "path": "build/change-defect.apk",
+          "sha256": "edb5ef838baaf81379b3a0b9c4e2f99441a6342c7a80dd9831092ab7f801c0fb"
+        }
+      },
+      {
+        "cell_id": "change-control",
+        "command": [
+          "./gradlew",
+          "--offline",
+          "-p",
+          ".",
+          ":app:assembleDebug",
+          "-PtemporalDelayMs=0"
+        ],
+        "reused_snapshot": true,
+        "returncode": 0,
+        "seconds": 0.0,
+        "apk": "build/change-control.apk",
+        "apk_sha256": "efed5750572e7c81a74664458bbd903bd4a2a3e2cd1ef49c18ccab835964763d",
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "snapshot": {
+          "cell_id": "change-control",
+          "path": "build/change-control.apk",
+          "sha256": "efed5750572e7c81a74664458bbd903bd4a2a3e2cd1ef49c18ccab835964763d"
+        }
+      }
+    ],
+    "apk_snapshots": [
+      {
+        "cell_id": "change-defect",
+        "path": "build/change-defect.apk",
+        "sha256": "edb5ef838baaf81379b3a0b9c4e2f99441a6342c7a80dd9831092ab7f801c0fb"
+      },
+      {
+        "cell_id": "change-control",
+        "path": "build/change-control.apk",
+        "sha256": "efed5750572e7c81a74664458bbd903bd4a2a3e2cd1ef49c18ccab835964763d"
+      }
+    ],
+    "side_effects": false,
+    "formal_denominator": true,
+    "claim_boundary": {
+      "local_only": true,
+      "runtime_scope": "One buildable fixture, one API-35 emulator profile, and one bounded synchronous weather call.",
+      "exclusions": [
+        "ANR rate",
+        "false-positive rate",
+        "OEM/SystemUI coverage",
+        "physical-device coverage",
+        "project-mode denominator"
+      ]
+    }
+  },
+  "formal_population": {
+    "planned_lanes": 6,
+    "observed_lanes": 6,
+    "accountable_lanes": 6,
+    "retry_count": 0,
+    "defect_supported": 3,
+    "control_rejected": 3
+  },
+  "lanes": [
+    {
+      "lane_id": "change-defect-r1",
+      "cell_id": "change-defect",
+      "repetition": 1,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "oracle": {
+        "oracle": "m7-r1-temporal-main-thread-v1",
+        "conclusion": "locally_supported",
+        "observation": {
+          "events": 1,
+          "delay_ms": 250,
+          "latency_ms": 253,
+          "caller_thread": "main",
+          "summary": "fixture-data",
+          "threshold_ms": 200
+        },
+        "rationale": "The delayed dependency produced a bounded but over-budget main-thread call.",
+        "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+        "claim_boundary": "local fixture and bounded runtime observation only"
+      },
+      "execution_record": "lanes-v3/change-defect-r1/execution-record.json",
+      "execution_identity": "lanes-v3/change-defect-r1/execution-provenance.json",
+      "verdict": "lanes-v3/change-defect-r1/verdict.json",
+      "checksums": "lanes-v3/change-defect-r1/checksums.sha256",
+      "runner_execution": {
+        "status": "completed",
+        "accounting_eligible": true,
+        "reason": null,
+        "message": null
+      }
+    },
+    {
+      "lane_id": "change-defect-r2",
+      "cell_id": "change-defect",
+      "repetition": 2,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "oracle": {
+        "oracle": "m7-r1-temporal-main-thread-v1",
+        "conclusion": "locally_supported",
+        "observation": {
+          "events": 1,
+          "delay_ms": 250,
+          "latency_ms": 251,
+          "caller_thread": "main",
+          "summary": "fixture-data",
+          "threshold_ms": 200
+        },
+        "rationale": "The delayed dependency produced a bounded but over-budget main-thread call.",
+        "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+        "claim_boundary": "local fixture and bounded runtime observation only"
+      },
+      "execution_record": "lanes-v3/change-defect-r2/execution-record.json",
+      "execution_identity": "lanes-v3/change-defect-r2/execution-provenance.json",
+      "verdict": "lanes-v3/change-defect-r2/verdict.json",
+      "checksums": "lanes-v3/change-defect-r2/checksums.sha256",
+      "runner_execution": {
+        "status": "completed",
+        "accounting_eligible": true,
+        "reason": null,
+        "message": null
+      }
+    },
+    {
+      "lane_id": "change-defect-r3",
+      "cell_id": "change-defect",
+      "repetition": 3,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "oracle": {
+        "oracle": "m7-r1-temporal-main-thread-v1",
+        "conclusion": "locally_supported",
+        "observation": {
+          "events": 1,
+          "delay_ms": 250,
+          "latency_ms": 251,
+          "caller_thread": "main",
+          "summary": "fixture-data",
+          "threshold_ms": 200
+        },
+        "rationale": "The delayed dependency produced a bounded but over-budget main-thread call.",
+        "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+        "claim_boundary": "local fixture and bounded runtime observation only"
+      },
+      "execution_record": "lanes-v3/change-defect-r3/execution-record.json",
+      "execution_identity": "lanes-v3/change-defect-r3/execution-provenance.json",
+      "verdict": "lanes-v3/change-defect-r3/verdict.json",
+      "checksums": "lanes-v3/change-defect-r3/checksums.sha256",
+      "runner_execution": {
+        "status": "completed",
+        "accounting_eligible": true,
+        "reason": null,
+        "message": null
+      }
+    },
+    {
+      "lane_id": "change-control-r1",
+      "cell_id": "change-control",
+      "repetition": 1,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "oracle": {
+        "oracle": "m7-r1-temporal-main-thread-v1",
+        "conclusion": "locally_rejected",
+        "observation": {
+          "events": 1,
+          "delay_ms": 0,
+          "latency_ms": 0,
+          "caller_thread": "main",
+          "summary": "fixture-data",
+          "threshold_ms": 200
+        },
+        "rationale": "The matched observation stayed within the preregistered temporal budget.",
+        "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+        "claim_boundary": "local fixture and bounded runtime observation only"
+      },
+      "execution_record": "lanes-v3/change-control-r1/execution-record.json",
+      "execution_identity": "lanes-v3/change-control-r1/execution-provenance.json",
+      "verdict": "lanes-v3/change-control-r1/verdict.json",
+      "checksums": "lanes-v3/change-control-r1/checksums.sha256",
+      "runner_execution": {
+        "status": "completed",
+        "accounting_eligible": true,
+        "reason": null,
+        "message": null
+      }
+    },
+    {
+      "lane_id": "change-control-r2",
+      "cell_id": "change-control",
+      "repetition": 2,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "oracle": {
+        "oracle": "m7-r1-temporal-main-thread-v1",
+        "conclusion": "locally_rejected",
+        "observation": {
+          "events": 1,
+          "delay_ms": 0,
+          "latency_ms": 0,
+          "caller_thread": "main",
+          "summary": "fixture-data",
+          "threshold_ms": 200
+        },
+        "rationale": "The matched observation stayed within the preregistered temporal budget.",
+        "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+        "claim_boundary": "local fixture and bounded runtime observation only"
+      },
+      "execution_record": "lanes-v3/change-control-r2/execution-record.json",
+      "execution_identity": "lanes-v3/change-control-r2/execution-provenance.json",
+      "verdict": "lanes-v3/change-control-r2/verdict.json",
+      "checksums": "lanes-v3/change-control-r2/checksums.sha256",
+      "runner_execution": {
+        "status": "completed",
+        "accounting_eligible": true,
+        "reason": null,
+        "message": null
+      }
+    },
+    {
+      "lane_id": "change-control-r3",
+      "cell_id": "change-control",
+      "repetition": 3,
+      "status": "completed",
+      "formal_denominator": true,
+      "attempts": 1,
+      "oracle": {
+        "oracle": "m7-r1-temporal-main-thread-v1",
+        "conclusion": "locally_rejected",
+        "observation": {
+          "events": 1,
+          "delay_ms": 0,
+          "latency_ms": 0,
+          "caller_thread": "main",
+          "summary": "fixture-data",
+          "threshold_ms": 200
+        },
+        "rationale": "The matched observation stayed within the preregistered temporal budget.",
+        "evidence_ref": "logcat:TemporalProbe/TEMPORAL_RESULT",
+        "claim_boundary": "local fixture and bounded runtime observation only"
+      },
+      "execution_record": "lanes-v3/change-control-r3/execution-record.json",
+      "execution_identity": "lanes-v3/change-control-r3/execution-provenance.json",
+      "verdict": "lanes-v3/change-control-r3/verdict.json",
+      "checksums": "lanes-v3/change-control-r3/checksums.sha256",
+      "runner_execution": {
+        "status": "completed",
+        "accounting_eligible": true,
+        "reason": null,
+        "message": null
+      }
+    }
+  ],
+  "tools": {
+    "android_cli": "1.0.15498356",
+    "adb": "Android Debug Bridge version 1.0.41 / Version 37.0.0-14910828",
+    "codex_cli": "codex-cli 0.144.6",
+    "python": "3.11.15 (uv)",
+    "device": {
+      "serial": "emulator-5554",
+      "avd": "aiverify_api35",
+      "api_level": 35,
+      "model": "sdk_gphone64_arm64",
+      "locale": "zh-Hans-CN",
+      "orientation": "portrait"
+    }
+  },
+  "claim_boundary": {
+    "local_only": true,
+    "runtime_scope": "One buildable fixture, one API-35 emulator profile, and one bounded synchronous weather call.",
+    "exclusions": [
+      "ANR rate",
+      "false-positive rate",
+      "OEM/SystemUI coverage",
+      "physical-device coverage",
+      "project-mode denominator"
+    ]
+  },
+  "known_gaps": [
+    "APK zip/signing metadata was not assumed reproducible across fresh Gradle invocations; immutable admission snapshots were reused for all three repetitions in each cell.",
+    "The runner requires an installed app for its live-validation gate, so admission deployment is recorded before the authoritative identity-bound deployment.",
+    "No ANR rate, false-positive rate, OEM/SystemUI, physical-device, or project-mode claim is made.",
+    "Runner-owned identity artifacts were captured under /private/tmp/m7-r1-lanes-v3 to keep new evidence outside the worktree; the byte-for-byte copies under lanes-v3 are the durable repository record."
+  ]
+}

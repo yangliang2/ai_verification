@@ -388,6 +388,7 @@ def test_build_configuration_packages_the_schema() -> None:
         "m6_cohort_schema.json",
         "m6_case_package_schema.json",
         "m7_qualification_schema.json",
+        "m7_runtime_probe_schema.json",
     ]
 
 

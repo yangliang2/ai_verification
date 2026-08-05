@@ -189,6 +189,14 @@ The checksum-bound JSON contract that freezes M7 cells, repetitions, retry and
 blinding policy, contradiction exclusion, and claim boundary before formal
 lanes begin.
 
+**Bounded Runtime Probe**:
+An independently admitted Android execution slice that binds a frozen source/change
+pair to a buildable adapter, APK/package/activity identity, target profile, Run
+Specs, terminal ExecutionRecord, effective execution identity, evidence, and a
+local oracle.  It may support only the recorded fixture/device/contract; it does
+not imply ANR rates, OEM coverage, Project Mode coverage, or general Android
+capability.
+
 ## Current Milestone Boundary
 
 As of 2026-08-04, the repository has bounded evidence for the public verification
@@ -217,5 +225,10 @@ independent adjudication agreements. The contradictory P-03-class preflight was
 rejected before the formal denominator with no side effects. The result supports
 only a bounded next route to a separately admitted runtime probe; it is not an
 Android execution, benchmark-rate, completeness, or upstream-acceptance claim.
-See `docs/runs/2026-08-04-issue-104-m7-qualification/README.md` and
+The first bounded runtime follow-up, #112 M7-R1, now has six accountable Change
+Mode lanes on one API-35 emulator: three delayed-dependency observations are
+locally supported and three matched controls are locally rejected.  This remains
+a single local temporal contract, not a runtime population or rate claim.  See
+`docs/runs/2026-08-04-issue-104-m7-qualification/README.md`,
+`docs/runs/2026-08-04-issue-112-runtime-admission/README.md`, and
 `docs/current-capability-claim-matrix.md` for the evidence and claim boundaries.

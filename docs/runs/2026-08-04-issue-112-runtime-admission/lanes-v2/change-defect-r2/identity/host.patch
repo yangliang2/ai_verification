@@ -1,0 +1,67 @@
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/build.gradle.kts b/bench/fixtures/lifecycle-recovery-app/app/build.gradle.kts
+index 2fe16f9..3263c5a 100644
+--- a/bench/fixtures/lifecycle-recovery-app/app/build.gradle.kts
++++ b/bench/fixtures/lifecycle-recovery-app/app/build.gradle.kts
+@@ -12,6 +12,15 @@ android {
+         targetSdk = 35
+         versionCode = 2
+         versionName = "2.0"
++
++        // M7-R1 binds the frozen WeatherService delay input to a build-time
++        // resource.  The matched control uses zero; the defect build passes
++        // -PtemporalDelayMs=250.  The Android adapter remains identical.
++        val temporalDelayMs = project.providers.gradleProperty("temporalDelayMs").orElse("0").get()
++        require(temporalDelayMs.toIntOrNull()?.let { it >= 0 } == true) {
++            "temporalDelayMs must be a non-negative integer"
++        }
++        resValue("integer", "temporal_delay_ms", temporalDelayMs)
+     }
+ 
+     compileOptions {
+@@ -21,5 +30,6 @@ android {
+ 
+     buildFeatures {
+         buildConfig = false
++        resValues = true
+     }
+ }
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/AndroidManifest.xml b/bench/fixtures/lifecycle-recovery-app/app/src/main/AndroidManifest.xml
+index 340a840..1a11b22 100644
+--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/AndroidManifest.xml
++++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/AndroidManifest.xml
+@@ -38,6 +38,9 @@
+         <activity
+             android:name=".ConcurrencyActivity"
+             android:exported="true" />
++        <activity
++            android:name=".TemporalActivity"
++            android:exported="true" />
+         <receiver
+             android:name=".ConcurrencyControlReceiver"
+             android:exported="true">
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/ids.xml b/bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/ids.xml
+index dff4e15..5f8923d 100644
+--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/ids.xml
++++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/ids.xml
+@@ -18,6 +18,10 @@
+     <item name="accessibility_back" type="id" />
+     <item name="security_status" type="id" />
+     <item name="concurrency_status" type="id" />
++    <item name="temporal_title" type="id" />
++    <item name="temporal_status" type="id" />
++    <item name="temporal_latency" type="id" />
++    <item name="temporal_refresh" type="id" />
+     <item name="create_fixture" type="id" />
+     <item name="fixture_sentinel" type="id" />
+     <item name="fixture_schema_version" type="id" />
+diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/strings.xml b/bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/strings.xml
+index 9f5baec..ffebe67 100644
+--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/strings.xml
++++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/res/values/strings.xml
+@@ -6,4 +6,6 @@
+     <string name="compatibility_start">START ANCHOR</string>
+     <string name="compatibility_end">END ANCHOR</string>
+     <string name="compatibility_create_state">Create compatibility sentinel</string>
++    <string name="temporal_title">Synchronous weather runtime probe</string>
++    <string name="temporal_refresh">Refresh weather</string>
+ </resources>
