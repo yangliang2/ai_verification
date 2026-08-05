@@ -165,7 +165,7 @@ def test_strategy_seam_and_campaign_preserve_state_evolution_identity() -> None:
     assert package.campaign.risk_priors == (prior,)
     assert package.campaign.attack_operators == (operator,)
     assert package.campaign.quality_contracts[0].quality_property == (
-        "durable state continuity"
+        result.hypothesis.quality_property
     )
     assert package.campaign.quality_contracts[0].scope == "recorded state path"
     assert package.campaign.findings == ()

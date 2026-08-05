@@ -1357,7 +1357,12 @@ def _seed_campaign(
     assert derivation.failure_chain is not None
     assert derivation.priority is not None
     assert derivation.attack_plan is not None
-    quality_contract = _quality_contract_from_graph(target, graph, contract_drift)
+    quality_contract = _quality_contract_from_graph(
+        target,
+        graph,
+        contract_drift,
+        quality_property=derivation.hypothesis.quality_property,
+    )
     campaign = DiscoveryCampaign(
         campaign_id=campaign_id,
         target=target,
@@ -1417,6 +1422,8 @@ def _quality_contract_from_graph(
     target: DiscoveryTarget,
     graph: QualityContextGraph,
     contract_drift: ContractDrift | None,
+    *,
+    quality_property: str | None = None,
 ) -> QualityContract:
     facts = [
         fact
@@ -1432,10 +1439,8 @@ def _quality_contract_from_graph(
         else "contract-" + _stable_id(target.target_id, fact.fact_id)
     )
     constraint = str(fact.value)
-    state_contract = any(
-        term in constraint.lower()
-        for term in ("state", "schema", "migration", "recovery")
-    )
+    selected_property = quality_property or "bounded synchronous response latency"
+    state_contract = selected_property.startswith("durable state continuity")
     return QualityContract(
         contract_id=contract_id,
         name=(
@@ -1444,11 +1449,7 @@ def _quality_contract_from_graph(
             else "bounded response quality contract"
         ),
         scope="recorded state path" if state_contract else fact.subject,
-        quality_property=(
-            "durable state continuity"
-            if state_contract
-            else "bounded synchronous response latency"
-        ),
+        quality_property=selected_property,
         constraint=constraint,
         source_fact_ids=(fact.fact_id,),
         status="derived",
