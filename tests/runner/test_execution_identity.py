@@ -486,3 +486,40 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
             scenario="identity-smoke",
             base_dir=run_dir,
         )
+
+
+def test_run_spec_fixture_subdirectory_requires_explicit_identity_opt_in(tmp_path: Path) -> None:
+    root = tmp_path / "repository"
+    fixture = root / "bench" / "fixture"
+    fixture.mkdir(parents=True)
+    run_spec_path = root / "run-spec.yaml"
+    run_spec_path.write_text(
+        "host_project: bench/fixture\n"
+        "apk_glob: app/build/outputs/**/*.apk\n"
+        "package: org.example.app\n"
+        "activity: org.example.MainActivity\n"
+        "scenario:\n"
+        "  id: subdir\n"
+        "  user_actions: []\n",
+        encoding="utf-8",
+    )
+    spec = load_run_spec(run_spec_path)
+    common = {
+        "run_dir": tmp_path / "run",
+        "artifact_dir": tmp_path / "run" / "artifacts",
+        "attempt_id": "attempt-subdir",
+        "spec": spec,
+        "run_spec_path": run_spec_path,
+        "workdir": root,
+        "device": "emulator-5554",
+        "requested_driver_model": None,
+        "requested_l3_model": None,
+    }
+
+    with pytest.raises(ExecutionIdentityError, match="workdir contradicts"):
+        ExecutionIdentityCollector(**common)._run_spec_bytes()
+
+    assert ExecutionIdentityCollector(
+        **common,
+        allow_host_project_subdir=True,
+    )._run_spec_bytes()

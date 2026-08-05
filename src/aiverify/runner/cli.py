@@ -977,7 +977,8 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         preflight_command_runner: CommandRunner | None = None,
         run_spec_path: Path | None = None,
         identity_command_runner: CommandRunner | None = None,
-        identity_collector: ExecutionIdentityCollector | None = None) -> dict:
+        identity_collector: ExecutionIdentityCollector | None = None,
+        allow_host_project_subdir: bool = False) -> dict:
     artifact_dir = Path(artifact_dir).resolve()
     workdir = Path(workdir).resolve()
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -1007,6 +1008,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             command_runner=identity_command_runner,
             android_bin=spec.live_validation.android_bin,
             adb_bin=spec.live_validation.adb_bin,
+            allow_host_project_subdir=allow_host_project_subdir,
         )
     try:
         identity_collector.capture_static()

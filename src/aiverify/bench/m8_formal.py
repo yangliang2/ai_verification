@@ -523,6 +523,7 @@ def _run_lane(
             model=None,
             instruction_prefix=_neutral_instruction_prefix(device),
             run_spec_path=spec_path,
+            allow_host_project_subdir=True,
         )
         _write_json(lane_dir / "runner-return.json", verdict)
         record_path = lane_dir / "execution-record.json"

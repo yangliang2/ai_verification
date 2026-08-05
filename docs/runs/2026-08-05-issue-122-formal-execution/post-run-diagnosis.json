@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "confirmed_inconclusive",
+  "lane_count": 12,
+  "common_terminal_reason": "execution_identity_error",
+  "common_message": "runner workdir contradicts Run Spec host_project",
+  "phase": "execution-identity-capture",
+  "device_side_effects": {
+    "pm_clear": "completed once per lane",
+    "apk_install": "not reached",
+    "app_launch": "not reached",
+    "codex_invocation": "not reached",
+    "system_events": "not reached"
+  },
+  "root_cause": "The frozen #121 Run Spec binds host_project to the fixture subdirectory, while the pre-fix runner required host_project to equal the git repository root used for workdir and host identity.",
+  "fix_commit": "pending in #122 follow-up commit",
+  "frozen_contract_changed": false,
+  "retry_or_replacement": false,
+  "claim_boundary": "All twelve lanes are terminal non-accountable observations; no runtime qualification conclusion is claimed."
+}
