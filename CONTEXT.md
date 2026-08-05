@@ -190,9 +190,9 @@ qualifies the discovery/admission/evidence seam, not Android execution or a
 detection rate.
 
 **Qualification Manifest**:
-The checksum-bound JSON contract that freezes M7 cells, repetitions, retry and
-blinding policy, contradiction exclusion, and claim boundary before formal
-lanes begin.
+The checksum-bound JSON contract that freezes a qualification's cells,
+repetitions, retry and blinding policy, contradiction exclusion, and claim
+boundary before formal lanes begin. #121 is the M8 state-evolution instance.
 
 **Bounded Runtime Probe**:
 An independently admitted Android execution slice that binds a frozen source/change
@@ -201,6 +201,12 @@ Specs, terminal ExecutionRecord, effective execution identity, evidence, and a
 local oracle.  It may support only the recorded fixture/device/contract; it does
 not imply ANR rates, OEM coverage, Project Mode coverage, or general Android
 capability.
+
+**Blinded M8 Qualification**:
+A frozen state-evolution qualification that consumes the exact merged #121
+manifest, runs ordered Change/Project defect/control cells once, and keeps the
+state oracle, AttemptEvidence reduction, and independent adjudication separate.
+A non-accountable or inconclusive lane is terminal evidence, not a retry.
 
 ## Current Milestone Boundary
 
@@ -221,7 +227,8 @@ These results do not establish general Android coverage, a benchmark-wide
 detection or false-positive rate, physical/OEM/ColorOS coverage, fully unattended
 Journey reliability, visual-only multimodal reliability, or upstream acceptance.
 
-The current milestone is M7 white-box adversarial quality-risk discovery. Parent
+The current milestone is M7 white-box adversarial quality-risk discovery, with
+the M8 state-evolution runtime follow-up recorded below. Parent
 #98 coordinated #99 source-of-truth reconciliation, #100's Discovery Campaign
 contracts, the #101/#102 discovery slices, #103 orchestration, and #104 blinded
 qualification. The #104 local qualification completed 12/12 accountable lanes
@@ -247,3 +254,15 @@ establish project completeness, a combined Change/Project rate, or general
 Android capability.  See
 `docs/runs/2026-08-05-issue-115-project-runtime/README.md` for the durable
 evidence.
+
+M8-5 (#122) consumed the exact merged #121 qualification manifest and admitted
+all 12 frozen lanes in order. Each lane received exactly one terminal attempt;
+all 12 were non-accountable during execution-identity capture because the
+frozen Run Spec bound `host_project` to the fixture subdirectory while the
+runner required that path to equal the git repository root. No APK install,
+launch, agent invocation, or state event was reached, so M8 makes no runtime
+supported/rejected claim. The immutable run record is committed at
+`docs/runs/2026-08-05-issue-122-formal-execution/`; the runner seam fix is
+`22af9b2`, verified by the full 820-test suite, but the frozen one-attempt
+population was not retried or replaced. A future qualification needs a newly
+frozen cohort/contract; this result is not combined with M7.
