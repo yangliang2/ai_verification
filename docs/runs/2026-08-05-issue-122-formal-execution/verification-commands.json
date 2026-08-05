@@ -44,11 +44,11 @@
     "metadata_and_network_policy": "both passed; no INTERNET permission"
   },
   "package": {
-    "build_command": "pkg_tmp=$(mktemp -d /tmp/m8-122-package-final.XXXXXX); /usr/bin/time -p uv build --out-dir $pkg_tmp",
+    "build_command": "pkg_tmp=$(mktemp -d /tmp/m8-122-package-final2.XXXXXX); /usr/bin/time -p uv build --out-dir $pkg_tmp",
     "status": "passed",
-    "wall_seconds": 0.81,
-    "wheel": {"path": "package/aiverify-0.1.0-py3-none-any.whl", "bytes": 304943, "sha256": "d908096b6f10cd9110fbfbdc049036773644ed367773e47c355cc853fb184fac"},
-    "sdist": {"path": "package/aiverify-0.1.0.tar.gz", "bytes": 273753, "sha256": "00ae5f930e85250df81e921c5a7564d70535378a5d2cf1e89e37afa25c201412"},
+    "wall_seconds": 2.73,
+    "wheel": {"path": "package/aiverify-0.1.0-py3-none-any.whl", "bytes": 305412, "sha256": "2db23a1f4a03d30137f9b203a880aa5b7e83eb1bd66e70755ac670305c48703d"},
+    "sdist": {"path": "package/aiverify-0.1.0.tar.gz", "bytes": 274183, "sha256": "84c92beb7f47e77ab6757ae58ba724494280ceefd97f737056fb532685a73d18"},
     "import_command": "uv run --isolated --with docs/runs/2026-08-05-issue-122-formal-execution/package/aiverify-0.1.0-py3-none-any.whl python -c 'import aiverify, aiverify.bench.m8_formal, aiverify.runner.execution_identity; print(aiverify.__file__)'",
     "import_status": "passed"
   },
