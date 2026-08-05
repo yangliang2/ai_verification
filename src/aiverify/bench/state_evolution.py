@@ -1081,6 +1081,7 @@ def load_state_evolution_context(
     target: DiscoveryTarget,
     *,
     contract_path: str | Path,
+    repo_root: str | Path | None = None,
 ) -> StateEvolutionContext:
     """Load the same neutral graph for ChangeTarget and ProjectTarget."""
 
@@ -1097,7 +1098,10 @@ def load_state_evolution_context(
         )
     collection = load_context_manifest(context_path, target)
     if isinstance(target, ChangeTarget):
-        change_provenance = verify_change_target_diff(target, repo_root=target.worktree)
+        change_provenance = verify_change_target_diff(
+            target,
+            repo_root=repo_root if repo_root is not None else target.worktree,
+        )
         if not change_provenance.valid:
             raise StateEvolutionContractError(
                 "ChangeTarget diff provenance is not valid: "

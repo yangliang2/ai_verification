@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "name": "source_identity",
+      "reason": "M8 qualification is invalid:\n- source_commit must remain 1dd4b080f61437d8019958ea01954deb025f36c7",
+      "side_effects": false,
+      "status": "pass"
+    },
+    {
+      "name": "target_context_identity",
+      "reason": "context expansion request campaign mismatch",
+      "side_effects": false,
+      "status": "pass"
+    },
+    {
+      "name": "prior_operator_identity",
+      "reason": "campaign risk derivation rejected: strategy does not support attack operator: wrong-operator; attack operator is not compatible with selected risk prior",
+      "side_effects": false,
+      "status": "pass"
+    },
+    {
+      "name": "run_spec_identity",
+      "reason": "Run Spec compilation requires plan-admitted campaign",
+      "side_effects": false,
+      "status": "pass"
+    },
+    {
+      "name": "fixture_state_input",
+      "reason": "migration must be one incremental schema upgrade",
+      "side_effects": false,
+      "status": "pass"
+    },
+    {
+      "name": "retry_policy",
+      "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: policy permits exactly one attempt per lane",
+      "side_effects": false,
+      "status": "pass"
+    },
+    {
+      "name": "evidence_policy",
+      "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: evidence policy requires checksums",
+      "side_effects": false,
+      "status": "pass"
+    },
+    {
+      "name": "adjudication_policy",
+      "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: adjudication must remain independent",
+      "side_effects": false,
+      "status": "pass"
+    },
+    {
+      "name": "claim_boundary",
+      "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: claim boundary must remain local-only",
+      "side_effects": false,
+      "status": "pass"
+    },
+    {
+      "name": "change_target_profile",
+      "reason": "M8 qualification is invalid:\n- mutation rejected before formal side effects: ChangeTarget profile must require behavior_delta",
+      "side_effects": false,
+      "status": "pass"
+    }
+  ],
+  "formal_denominator": false,
+  "passed": 10,
+  "route": "exclude_before_formal_invocation",
+  "side_effects": false,
+  "status": "pass",
+  "total": 10
+}
