@@ -166,8 +166,16 @@ class MigrationEdge:
         _text(self.operation, "migration operation")
         if not isinstance(self.exactly_once, bool):
             raise StateEvolutionContractError("migration exactly_once must be boolean")
-        if self.from_schema == self.to_schema:
-            raise StateEvolutionContractError("migration must cross a schema boundary")
+        if not self.exactly_once:
+            raise StateEvolutionContractError("migration must be exactly once")
+        if self.to_schema != self.from_schema + 1:
+            raise StateEvolutionContractError(
+                "migration must be one incremental schema upgrade"
+            )
+        if self.to_revision <= self.from_revision:
+            raise StateEvolutionContractError(
+                "migration revision must increase monotonically"
+            )
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -498,6 +506,17 @@ class ProvenanceVerification:
         }
 
 
+def _file_sha256(path: Path) -> tuple[str | None, str | None]:
+    """Return a file digest without turning an unreadable source into trust."""
+
+    try:
+        if not path.is_file():
+            return None, None
+        return hashlib.sha256(path.read_bytes()).hexdigest(), None
+    except OSError as error:
+        return None, f"{type(error).__name__}: {error}"
+
+
 def load_state_evolution_contract(path: str | Path) -> StateEvolutionFixtureContract:
     """Read one strict, neutral fixture contract from JSON."""
 
@@ -537,17 +556,18 @@ def verify_state_evolution_provenance(
     checks: list[Mapping[str, Any]] = []
     for provenance in contract.provenance:
         path = _bound_source_path(root, provenance.ref)
-        actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+        actual, read_error = _file_sha256(path)
         passed = actual == provenance.source_sha256
-        checks.append(
-            {
-                "ref": provenance.ref,
-                "path": str(path),
-                "expected_sha256": provenance.source_sha256,
-                "actual_sha256": actual,
-                "status": "pass" if passed else "fail",
-            }
-        )
+        check = {
+            "ref": provenance.ref,
+            "path": str(path),
+            "expected_sha256": provenance.source_sha256,
+            "actual_sha256": actual,
+            "status": "pass" if passed else "fail",
+        }
+        if read_error:
+            check["error"] = read_error
+        checks.append(check)
     return ProvenanceVerification(contract_path=str(source), checks=tuple(checks))
 
 
@@ -580,18 +600,19 @@ def verify_state_context_provenance(
             continue
         for provenance in fact.provenance:
             path = _bound_source_path(root, provenance.ref)
-            actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+            actual, read_error = _file_sha256(path)
             passed = provenance.source_sha256 is not None and actual == provenance.source_sha256
-            checks.append(
-                {
-                    "fact_id": fact.fact_id,
-                    "ref": provenance.ref,
-                    "path": str(path),
-                    "expected_sha256": provenance.source_sha256,
-                    "actual_sha256": actual,
-                    "status": "pass" if passed else "fail",
-                }
-            )
+            check = {
+                "fact_id": fact.fact_id,
+                "ref": provenance.ref,
+                "path": str(path),
+                "expected_sha256": provenance.source_sha256,
+                "actual_sha256": actual,
+                "status": "pass" if passed else "fail",
+            }
+            if read_error:
+                check["error"] = read_error
+            checks.append(check)
     return ProvenanceVerification(contract_path=str(source), checks=tuple(checks))
 
 
@@ -611,19 +632,20 @@ def verify_change_target_diff(
         )
     try:
         path = _bound_source_path(root, target.diff_ref)
-        actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+        actual, read_error = _file_sha256(path)
         passed = actual == target.diff_sha256
-        checks.append(
-            {
-                "target_id": target.target_id,
-                "diff_ref": target.diff_ref,
-                "path": str(path),
-                "expected_sha256": target.diff_sha256,
-                "actual_sha256": actual,
-                "status": "pass" if passed else "fail",
-            }
-        )
-    except StateEvolutionContractError as error:
+        check = {
+            "target_id": target.target_id,
+            "diff_ref": target.diff_ref,
+            "path": str(path),
+            "expected_sha256": target.diff_sha256,
+            "actual_sha256": actual,
+            "status": "pass" if passed else "fail",
+        }
+        if read_error:
+            check["error"] = read_error
+        checks.append(check)
+    except (OSError, StateEvolutionContractError) as error:
         checks.append(
             {
                 "target_id": getattr(target, "target_id", ""),
@@ -640,79 +662,256 @@ def verify_state_evolution_matched_pair(
     *,
     repo_root: str | Path,
 ) -> ProvenanceVerification:
-    """Verify auditor-only source/build identity and protocol equivalence."""
+    """Verify auditor-only source/build identity and protocol equivalence.
+
+    The pair file is not trusted merely because it declares equivalence.  The
+    public contract, protocol fields, source bytes, one localized patch hunk,
+    and deterministic build recipe are all independently checked here.
+    """
 
     source = Path(pair_path).resolve()
     root = Path(repo_root).resolve()
     checks: list[Mapping[str, Any]] = []
+
+    def pair_source(reference: str) -> Path:
+        candidate = (source.parent / reference).resolve()
+        try:
+            candidate.relative_to(root)
+        except ValueError as error:
+            raise StateEvolutionContractError(
+                f"matched pair reference escapes repository root: {reference}"
+            ) from error
+        return candidate
+
+    def check_digest(artifact: str, path: Path, expected: object) -> str | None:
+        actual, read_error = _file_sha256(path)
+        check: dict[str, Any] = {
+            "artifact": artifact,
+            "path": str(path),
+            "expected_sha256": expected,
+            "actual_sha256": actual,
+            "status": "pass" if actual == expected else "fail",
+        }
+        if read_error:
+            check["error"] = read_error
+        checks.append(check)
+        return actual
+
+    def single_localized_patch(path: Path) -> tuple[bool, str]:
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError) as error:
+            return False, f"patch cannot be read: {error}"
+        diff_headers = [line for line in lines if line.startswith("diff --git ")]
+        hunks = [line for line in lines if line.startswith("@@")]
+        additions = [
+            line for line in lines if line.startswith("+") and not line.startswith("+++")
+        ]
+        removals = [
+            line for line in lines if line.startswith("-") and not line.startswith("---")
+        ]
+        localized = (
+            len(diff_headers) == 1
+            and len(hunks) == 1
+            and len(additions) == 1
+            and len(removals) == 1
+        )
+        return localized, (
+            "one file, one hunk, and one replacement line"
+            if localized
+            else "patch must contain exactly one file, one hunk, and one replacement line"
+        )
+
     try:
         document = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(document, Mapping):
             raise StateEvolutionContractError("matched pair must be an object")
         _reject_unknown(
             document,
-            {"schema_version", "pair_id", "audit_mapping", "public_contract", "public_contract_sha256", "protocol", "build_recipe", "source_pair", "protocol_equivalence", "claim_boundary"},
+            {
+                "schema_version",
+                "pair_id",
+                "audit_mapping",
+                "public_contract",
+                "public_contract_sha256",
+                "protocol",
+                "build_recipe",
+                "source_pair",
+                "protocol_equivalence",
+                "claim_boundary",
+            },
             "matched pair",
         )
         if document.get("schema_version") != 1:
             raise StateEvolutionContractError("unsupported matched pair schema_version")
-        for key in ("public_contract", "protocol", "build_recipe", "source_pair", "protocol_equivalence"):
+        for key in (
+            "pair_id",
+            "public_contract",
+            "protocol",
+            "build_recipe",
+            "source_pair",
+            "protocol_equivalence",
+        ):
             if key not in document:
                 raise StateEvolutionContractError(f"matched pair requires {key}")
-        def pair_source(reference: str) -> Path:
-            candidate = (source.parent / reference).resolve()
-            try:
-                candidate.relative_to(root)
-            except ValueError as error:
-                raise StateEvolutionContractError(
-                    f"matched pair reference escapes repository root: {reference}"
-                ) from error
-            return candidate
 
         public_contract = pair_source(str(document["public_contract"]))
-        contract_hash = hashlib.sha256(public_contract.read_bytes()).hexdigest() if public_contract.is_file() else None
-        checks.append({"artifact": "public_contract", "path": str(public_contract), "expected_sha256": document.get("public_contract_sha256"), "actual_sha256": contract_hash, "status": "pass" if public_contract.is_file() and contract_hash == document.get("public_contract_sha256") else "fail"})
-        for artifact_name in ("protocol", "build_recipe"):
-            artifact = document[artifact_name]
-            if not isinstance(artifact, Mapping):
-                raise StateEvolutionContractError(f"matched pair {artifact_name} must be an object")
-            path = pair_source(str(artifact.get("path", "")))
-            actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
-            passed = actual == artifact.get("sha256")
-            checks.append({"artifact": artifact_name, "path": str(path), "expected_sha256": artifact.get("sha256"), "actual_sha256": actual, "status": "pass" if passed else "fail"})
+        check_digest("public_contract", public_contract, document.get("public_contract_sha256"))
+        contract = load_state_evolution_contract(public_contract)
+        checks.append(
+            {
+                "artifact": "pair_id_contract",
+                "expected": contract.fixture_pair_id,
+                "actual": document.get("pair_id"),
+                "status": "pass" if document.get("pair_id") == contract.fixture_pair_id else "fail",
+            }
+        )
+
+        protocol_artifact = document["protocol"]
+        build_artifact = document["build_recipe"]
+        if not isinstance(protocol_artifact, Mapping) or not isinstance(build_artifact, Mapping):
+            raise StateEvolutionContractError("matched pair protocol/build_recipe must be objects")
+        protocol_path = pair_source(str(protocol_artifact.get("path", "")))
+        protocol_hash = check_digest(
+            "protocol", protocol_path, protocol_artifact.get("sha256")
+        )
+        protocol_data = json.loads(protocol_path.read_text(encoding="utf-8"))
+        if not isinstance(protocol_data, Mapping):
+            raise StateEvolutionContractError("protocol must be an object")
+        protocol_expected = {
+            "package": contract.package,
+            "activity": contract.activity,
+            "events": list(contract.recovery.events),
+            "state_resources": [
+                contract.resources.sentinel,
+                contract.resources.schema_version,
+                contract.resources.revision,
+                contract.resources.migration_status,
+            ],
+            "transport_scope": "local-only",
+        }
+        protocol_identity_ok = all(
+            protocol_data.get(field) == expected
+            for field, expected in protocol_expected.items()
+        )
+        checks.append(
+            {
+                "artifact": "protocol_contract_identity",
+                "status": "pass" if protocol_identity_ok else "fail",
+                "detail": "package/activity/events/resources/transport match public contract",
+            }
+        )
+
         source_pair = document["source_pair"]
         if not isinstance(source_pair, Mapping):
             raise StateEvolutionContractError("matched pair source_pair must be an object")
+        members: dict[str, Mapping[str, Any]] = {}
+        source_paths: dict[str, Path] = {}
+        source_hashes: dict[str, str | None] = {}
+        change_paths: dict[str, Path | None] = {}
         for member in ("base", "changed"):
             item = source_pair.get(member)
             if not isinstance(item, Mapping):
-                raise StateEvolutionContractError(f"matched pair source_pair.{member} must be an object")
+                raise StateEvolutionContractError(
+                    f"matched pair source_pair.{member} must be an object"
+                )
+            members[member] = item
             if not isinstance(item.get("variant_id"), str) or not item.get("variant_id", "").strip():
-                raise StateEvolutionContractError(f"matched pair source_pair.{member} requires variant_id")
+                raise StateEvolutionContractError(
+                    f"matched pair source_pair.{member} requires variant_id"
+                )
             source_file = pair_source(str(item.get("source_path", "")))
-            actual_source = hashlib.sha256(source_file.read_bytes()).hexdigest() if source_file.is_file() else None
-            source_ok = actual_source == item.get("source_sha256")
-            checks.append({"artifact": f"{member}.source", "path": str(source_file), "expected_sha256": item.get("source_sha256"), "actual_sha256": actual_source, "status": "pass" if source_ok else "fail"})
+            source_paths[member] = source_file
+            source_hashes[member] = check_digest(
+                f"{member}.source", source_file, item.get("source_sha256")
+            )
             change_path_raw = item.get("change_path")
             change_hash = item.get("change_sha256")
             if change_path_raw is None:
+                change_paths[member] = None
                 change_ok = change_hash is None
-                checks.append({"artifact": f"{member}.change", "status": "pass" if change_ok else "fail"})
+                checks.append(
+                    {
+                        "artifact": f"{member}.change",
+                        "status": "pass" if change_ok else "fail",
+                    }
+                )
             else:
                 change_file = pair_source(str(change_path_raw))
-                actual_change = hashlib.sha256(change_file.read_bytes()).hexdigest() if change_file.is_file() else None
-                change_ok = actual_change == change_hash
-                checks.append({"artifact": f"{member}.change", "path": str(change_file), "expected_sha256": change_hash, "actual_sha256": actual_change, "status": "pass" if change_ok else "fail"})
+                change_paths[member] = change_file
+                check_digest(f"{member}.change", change_file, change_hash)
+                localized, detail = single_localized_patch(change_file)
+                checks.append(
+                    {
+                        "artifact": f"{member}.change_semantics",
+                        "status": "pass" if localized else "fail",
+                        "detail": detail,
+                    }
+                )
+
+        same_source = (
+            source_paths["base"] == source_paths["changed"]
+            and source_hashes["base"] == source_hashes["changed"]
+            and source_hashes["base"] == members["base"].get("source_sha256")
+            and source_hashes["changed"] == members["changed"].get("source_sha256")
+        )
+        checks.append(
+            {
+                "artifact": "source_equivalence",
+                "status": "pass" if same_source else "fail",
+                "detail": "base and changed share the same source path and bytes before patching",
+            }
+        )
+        distinct_ids = members["base"].get("variant_id") != members["changed"].get("variant_id")
+        checks.append({"artifact": "variant_identity", "status": "pass" if distinct_ids else "fail"})
+
         equivalence = document["protocol_equivalence"]
         if not isinstance(equivalence, Mapping):
             raise StateEvolutionContractError("matched pair protocol_equivalence must be an object")
-        equivalent = all(equivalence.get(key) is True for key in ("same_protocol_sha256", "same_package_activity", "same_resource_ids"))
+        equivalent = protocol_hash == protocol_artifact.get("sha256") and protocol_identity_ok and all(
+            equivalence.get(key) is True
+            for key in ("same_protocol_sha256", "same_package_activity", "same_resource_ids")
+        )
         checks.append({"artifact": "protocol_equivalence", "status": "pass" if equivalent else "fail"})
-        members = document["source_pair"]
-        distinct_ids = members["base"].get("variant_id") != members["changed"].get("variant_id")
-        checks.append({"artifact": "variant_identity", "status": "pass" if distinct_ids else "fail"})
+
+        audit_mapping_ok = document.get("audit_mapping") == {"control": "base", "fault": "changed"}
+        checks.append({"artifact": "audit_mapping", "status": "pass" if audit_mapping_ok else "fail"})
+
+        build_recipe_path = pair_source(str(build_artifact.get("path", "")))
+        check_digest("build_recipe", build_recipe_path, build_artifact.get("sha256"))
+        build_recipe = json.loads(build_recipe_path.read_text(encoding="utf-8"))
+        if not isinstance(build_recipe, Mapping):
+            raise StateEvolutionContractError("build recipe must be an object")
+        host_project_ref = str(build_recipe.get("host_project", ""))
+        host_project = (root / host_project_ref).resolve()
+        recipe_protocol = pair_source(str(build_recipe.get("protocol", "")))
+        recipe_source = pair_source(str(build_recipe.get("source", "")))
+        gradle_tasks = build_recipe.get("gradle_tasks")
+        recipe_identity_ok = (
+            build_recipe.get("package") == contract.package
+            and build_recipe.get("activity") == contract.activity
+            and recipe_protocol == protocol_path
+            and recipe_source == source_paths["base"] == source_paths["changed"]
+            and host_project.is_dir()
+            and (host_project / str(build_recipe.get("gradle_wrapper", ""))).is_file()
+            and gradle_tasks == [":app:assembleDebug"]
+            and build_recipe.get("apk_relative_path") == "app/build/outputs/apk/debug/app-debug.apk"
+        )
+        checks.append(
+            {
+                "artifact": "build_recipe_identity",
+                "status": "pass" if recipe_identity_ok else "fail",
+                "detail": "recipe binds public package/activity, protocol, source, wrapper, task, and APK",
+            }
+        )
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, StateEvolutionContractError) as error:
-        checks.append({"artifact": "matched_pair", "status": "fail", "detail": f"{type(error).__name__}: {error}"})
+        checks.append(
+            {
+                "artifact": "matched_pair",
+                "status": "fail",
+                "detail": f"{type(error).__name__}: {error}",
+            }
+        )
     return ProvenanceVerification(contract_path=str(source), checks=tuple(checks))
 
 
@@ -1091,8 +1290,12 @@ class StateEvolutionRuntimeAdapter:
                 result = phase_runner(step, payload)
                 if not isinstance(result, Mapping):
                     raise StateEvolutionContractError("phase runner must return an evidence mapping")
-                status_value = result.get("status", "recorded")
-                status = status_value if status_value in {"recorded", "failed"} else "recorded"
+                status_value = result.get("status")
+                if status_value not in {"recorded", "failed"}:
+                    raise StateEvolutionContractError(
+                        "phase runner status must be recorded or failed"
+                    )
+                status = status_value
                 evidence_ref = str(result.get("evidence_ref", f"injected://{step.step_id}"))
                 detail = str(result.get("detail", ""))
             phases.append(RuntimePhaseReceipt(step.step_id, status, digest, evidence_ref, detail))
@@ -1128,6 +1331,11 @@ class StateEvolutionRuntimeAdapter:
         identity = evidence.get("execution_identity")
         identity_ok = _execution_identity_matches(self.contract, identity)
         checks.append(RuntimeEvidenceCheck("execution-identity", identity_ok, "package/activity/state_epoch identity is required"))
+        migration_ok = _migration_evidence_accountable(
+            evidence.get("migration_evidence"),
+            self.contract,
+        )
+        checks.append(RuntimeEvidenceCheck("migration-evidence", migration_ok, "one contract-bound migration receipt is required"))
         return tuple(checks)
 
 
@@ -1149,7 +1357,11 @@ def _execution_identity_matches(
 
 
 def _process_event_accountable(event: object, package: str) -> bool:
-    if not isinstance(event, Mapping) or event.get("status") != "passed":
+    if (
+        not isinstance(event, Mapping)
+        or event.get("event") != "process_death"
+        or event.get("status") != "passed"
+    ):
         return False
     evidence = event.get("evidence")
     if not isinstance(evidence, Mapping):
@@ -1172,7 +1384,11 @@ def _process_event_accountable(event: object, package: str) -> bool:
 
 
 def _backup_event_accountable(event: object, package: str, transport: str) -> bool:
-    if not isinstance(event, Mapping) or event.get("status") != "passed":
+    if (
+        not isinstance(event, Mapping)
+        or event.get("event") != "backup_restore"
+        or event.get("status") != "passed"
+    ):
         return False
     evidence = event.get("evidence")
     if not isinstance(evidence, Mapping):
@@ -1245,6 +1461,37 @@ def _snapshot_matches(observation: Mapping[str, str | None], expected: StateSnap
     }
 
 
+def _migration_evidence_accountable(
+    evidence: object,
+    contract: StateEvolutionFixtureContract,
+) -> bool:
+    """Require one explicit, contract-bound migration receipt."""
+
+    if not isinstance(evidence, Mapping) or evidence.get("status") != "passed":
+        return False
+    count = evidence.get("count", evidence.get("migration_count"))
+    if isinstance(count, bool) or count != 1:
+        return False
+    if evidence.get("edge_id") != contract.migration.edge_id:
+        return False
+    if evidence.get("from_schema") != contract.migration.from_schema:
+        return False
+    if evidence.get("to_schema") != contract.migration.to_schema:
+        return False
+    if evidence.get("from_revision") != contract.migration.from_revision:
+        return False
+    if evidence.get("to_revision") != contract.migration.to_revision:
+        return False
+    if evidence.get("exactly_once") is not True:
+        return False
+    for edge_key in ("applied_edge_ids", "edge_ids"):
+        if edge_key in evidence:
+            edge_ids = evidence[edge_key]
+            if edge_ids != [contract.migration.edge_id]:
+                return False
+    return True
+
+
 def judge_state_evolution(
     *,
     contract: StateEvolutionFixtureContract,
@@ -1255,6 +1502,7 @@ def judge_state_evolution(
     process_event: Mapping[str, Any],
     backup_event: Mapping[str, Any],
     execution_identity: Mapping[str, Any] | None,
+    migration_evidence: Mapping[str, Any] | None = None,
     state_loss_evidence: Mapping[str, Any] | None = None,
     crash_detected: bool = False,
 ) -> dict[str, Any]:
@@ -1290,6 +1538,7 @@ def judge_state_evolution(
         contract.package,
         contract.recovery.transport,
     )
+    migration_ok = _migration_evidence_accountable(migration_evidence, contract)
     events_ok = identity_ok and process_ok and backup_ok
     old_exact = all(_snapshot_matches(observations[name], contract.old_state) for name in ("initial", "rotation", "process_death"))
     missing = any(value is None for observation in observations.values() for value in observation.values())
@@ -1307,16 +1556,25 @@ def judge_state_evolution(
             "accountable": False,
             "observations": observations,
         }
-    if crash_detected:
+    if not migration_ok:
         return {
             **base,
-            "conclusion": "locally_rejected",
-            "classification": "crash",
-            "reason": "crash_detected_during_recovery_epoch",
-            "accountable": True,
+            "conclusion": "non_accountable",
+            "classification": "inconclusive",
+            "reason": "migration_evidence_missing_or_contradictory",
+            "accountable": False,
             "observations": observations,
         }
     if missing:
+        if crash_detected:
+            return {
+                **base,
+                "conclusion": "non_accountable",
+                "classification": "inconclusive",
+                "reason": "required_state_observation_missing_during_crash",
+                "accountable": False,
+                "observations": observations,
+            }
         explicit_loss = isinstance(state_loss_evidence, Mapping) and (
             state_loss_evidence.get("status") == "passed"
             and state_loss_evidence.get("loss_confirmed") is True
@@ -1349,6 +1607,15 @@ def judge_state_evolution(
             "classification": "inconclusive",
             "reason": "old_state_seed_or_recovery_observation_is_contradictory",
             "accountable": False,
+            "observations": observations,
+        }
+    if crash_detected:
+        return {
+            **base,
+            "conclusion": "locally_rejected",
+            "classification": "crash",
+            "reason": "crash_detected_during_recovery_epoch",
+            "accountable": True,
             "observations": observations,
         }
     restored = observations["backup_restore"]

@@ -11,3 +11,9 @@ The matched source pair is the checked-in lifecycle-recovery app and a
 localized source change. The auditor-only mapping and checksum-bound build
 recipe live under `bench/discovery-fixtures/state-evolution/auditor/`; the
 public adapter does not expose which source member is selected for an attempt.
+
+The Python adapter is deliberately side-effect-free: it creates the old state
+in memory and records an injectable phase seam, but performs no device I/O,
+APK install, process kill, backup, restore, or verdict reduction. The later
+admission/execution issues (#121/#122) own that controlled runner and its
+frozen evidence contract.

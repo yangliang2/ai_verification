@@ -54,7 +54,7 @@
         "from_revision": {"type": "integer", "minimum": 0},
         "to_revision": {"type": "integer", "minimum": 0},
         "operation": {"type": "string", "minLength": 1},
-        "exactly_once": {"type": "boolean"}
+        "exactly_once": {"const": true}
       }
     },
     "recovery": {

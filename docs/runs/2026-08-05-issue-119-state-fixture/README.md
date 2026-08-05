@@ -10,7 +10,7 @@ formal M8 lanes; those boundaries belong to #118, #120, #121, and #122.
 
 - `src/aiverify/bench/state_evolution.py` contains the strict contract models,
   target-bound context loader, checksum verification, runtime phases/evidence
-  checks, and state outcome oracle.
+  checks, exactly-once migration receipt gate, and state outcome oracle.
 - `src/aiverify/bench/state_evolution_schema.json` is the checked-in strict
   Draft 2020-12 contract schema and is included in the wheel package data.
 - `bench/discovery-fixtures/state-evolution/` contains the writer/storage/
@@ -21,12 +21,14 @@ formal M8 lanes; those boundaries belong to #118, #120, #121, and #122.
   activity, resource IDs, bounded event names, and local reversible safety
   policy without a variant, Journey, expected outcome, or verdict.
 - `bench/discovery-fixtures/state-evolution/auditor/` records the matched
-  source/build members, deterministic recipe, byte-equivalent protocol hash,
-  variant identities, and ChangeTarget diff hash for audit admission only.
+  source/build members, deterministic recipe, independently checked protocol
+  identity, variant identities, and a one-hunk localized ChangeTarget diff for
+  audit admission only.
 - `tests/bench/test_state_evolution.py` covers both target modes, schema and
   provenance round trips, known/unknown/contradictory context, adapter leakage
-  checks, correct/stale/reset classifications, crash/evidence failures, and
-  migration-boundary validation.
+  checks, correct/stale/reset classifications, crash/evidence failures,
+  migration/event identity validation, tamper rejection, and migration-boundary
+  validation.
 
 ## Verification
 
@@ -39,25 +41,25 @@ uv run --with ruff ruff check src/aiverify/bench/state_evolution.py tests/bench/
 → All checks passed!
 
 uv run --with pytest --with jsonschema --with pyyaml pytest -o addopts='' -q tests/bench/test_state_evolution.py
-→ 9 passed in 0.18s
+→ 17 passed in 0.21s
 
 uv run --with pytest --with jsonschema --with pyyaml pytest -o addopts='' -q tests/discovery tests/bench/test_lifecycle_recovery.py tests/bench/test_m7_runtime_probe.py tests/bench/test_m6_cohort.py
-→ 82 passed in 4.73s
+→ 99 passed in 4.74s
 
 uv run --with pytest --with jsonschema --with pyyaml pytest -o addopts='' -ra -q
-→ 783 passed in 23.01s
+→ 791 passed in 23.02s
 
 /usr/bin/time -p uv build
 → Successfully built dist/aiverify-0.1.0.tar.gz
 → Successfully built dist/aiverify-0.1.0-py3-none-any.whl
-→ real 0.83s, user 0.56s, sys 0.22s
+→ real 3.88s, user 0.59s, sys 0.23s
 
 uv run --with jsonschema --with pyyaml python - <<'PY'
 from pathlib import Path
 from jsonschema import Draft202012Validator
 from aiverify.bench.state_evolution import (
     load_state_evolution_contract, load_state_evolution_schema,
-    verify_state_evolution_provenance,
+    verify_state_evolution_matched_pair, verify_state_evolution_provenance,
 )
 root = Path("bench/discovery-fixtures/state-evolution")
 schema = load_state_evolution_schema()
@@ -65,15 +67,29 @@ Draft202012Validator.check_schema(schema)
 contract = load_state_evolution_contract(root / "contract.json")
 assert not list(Draft202012Validator(schema).iter_errors(contract.to_dict()))
 receipt = verify_state_evolution_provenance(root / "contract.json")
+matched = verify_state_evolution_matched_pair(
+    root / "auditor/matched-pair.json", repo_root=Path(".")
+)
 assert receipt.valid
-print(f"schema_valid=True provenance_valid=True checks={len(receipt.checks)}")
+assert matched.valid
+print(
+    f"schema_valid=True contract_valid=True provenance_valid=True "
+    f"provenance_checks={len(receipt.checks)} matched_pair_valid=True "
+    f"matched_pair_checks={len(matched.checks)}"
+)
 PY
-→ schema_valid=True provenance_valid=True checks=5
+→ schema_valid=True contract_valid=True provenance_valid=True provenance_checks=5 matched_pair_valid=True matched_pair_checks=15
 ```
 
 No emulator, APK install, backup/restore, process-death, network, or external
 project state was touched in this issue. Those side effects require the later
 admission and formal execution contracts.
+
+The adapter performs no device I/O: its runner is an injectable preparation
+seam for the later #121 admission and #122 execution contracts. Accountable
+state classification additionally requires an explicit contract-bound
+migration receipt (`count=1`, matching edge/schema/revision, `exactly_once=true`)
+and explicit `process_death`/`backup_restore` event identities.
 
 Toolchain for these runs: `uv 0.11.7`, `Python 3.11.15`, `pytest 9.1.1`,
 `ruff 0.16.1`, `jsonschema 4.26.0`, and `PyYAML 6.0.3`.
@@ -107,8 +123,10 @@ qualification remain for the dependent M8 issues.
 
 The oracle treats a missing/partial state observation as inconclusive unless a
 separate complete loss receipt explicitly confirms the loss boundary; it does
-not infer state loss from absent fields alone. Package/activity, epoch, process
-identity, backup transport, and cleanup transport must match the contract.
+not infer state loss from absent fields alone. A crash flag cannot override
+missing or contradictory state. Package/activity, epoch, process identity,
+backup transport, cleanup transport, and migration edge/count must match the
+contract.
 
 ## Artifact checksums
 
@@ -116,14 +134,14 @@ The run record itself is checksum-bound by `checksums.sha256` (README and
 wheel artifacts, both verified `OK`).
 
 ```text
-0cd13f3b488fe5ab27d5579598f912484fd0dbc94016d979cc8a87d8df9d6d1b  src/aiverify/bench/state_evolution.py
-910af073e8f6f4ffc6c671678c39e7ce0bd885ae7634c3a23ef965379ea18213  src/aiverify/bench/state_evolution_schema.json
+d36b1a850dec157a75fc263928b18def6b6cd5fe69910f8490156e7cee6bc97c  src/aiverify/bench/state_evolution.py
+47812952d96b5914cfaf705186a861e850620f1914b84a3ec58b66e330ceaebe  src/aiverify/bench/state_evolution_schema.json
 c49608614543e2c7136a7a5254e114c333a0971d7aedb51d68537add2589b7e2  bench/discovery-fixtures/state-evolution/contract.json
 367b5b2710dab2ba08cc8cf263445c33a69b198ea46e9e87dc8e55f9f4e0c11c  bench/discovery-fixtures/state-evolution/context-manifest.json
 4aaba044d909aff658523993e2b6b353df0468527c4e87f8ee03a963ffca6426  bench/discovery-fixtures/state-evolution/protocol.json
 085e8df678f789b7ff22f8e742af96f46353f378ff1cad77c534df1d0b463649  bench/discovery-fixtures/state-evolution/auditor/build-recipe.json
 7f8717629739acf0a6762af9bbed55f676ccaa5f2cb868257a83522cdecfa626  bench/discovery-fixtures/state-evolution/auditor/matched-pair.json
 97ebb4155eb0f91e2bc6e55ce609f992eef013d5bf47de9a047341dc9982ee50  bench/capability-slices/state-evolution/adapter.json
-23b492d783626aa6a951fbc783dffe9ebbde12845a62daf44d6519c281fa2838  tests/bench/test_state_evolution.py
-64fca15db06732ad9e8c2d6e82e8a424ded62d24faa639702866990959359e1c  docs/runs/2026-08-05-issue-119-state-fixture/artifacts/aiverify-0.1.0-py3-none-any.whl
+c509bce238f7868d93b2c1703144e12bd8cc9db8c140e88db04ed5f06b9db779  tests/bench/test_state_evolution.py
+c82ae2feb5ccec6e80059ce9bdd30c8346202bac8968f5c749f1e127500c3fe2  docs/runs/2026-08-05-issue-119-state-fixture/artifacts/aiverify-0.1.0-py3-none-any.whl
 ```

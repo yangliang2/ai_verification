@@ -54,6 +54,7 @@ def _change_target() -> ChangeTarget:
 
 def _process_event(*, before: list[str] | None = None, after: list[str] | None = None) -> dict:
     return {
+        "event": "process_death",
         "status": "passed",
         "evidence": {
             "before_pids": before or ["101"],
@@ -86,7 +87,7 @@ def _backup_event(**overrides: object) -> dict:
         "cleanup_backup_enabled": False,
     }
     evidence.update(overrides)
-    return {"status": "passed", "evidence": evidence}
+    return {"event": "backup_restore", "status": "passed", "evidence": evidence}
 
 
 def _identity() -> dict[str, str]:
@@ -105,6 +106,21 @@ def _state(contract, *, current: bool) -> dict[str, str]:
         "revision": str(snapshot.revision),
         "migration_status": snapshot.migration_status,
     }
+
+
+def _migration_evidence(contract, **overrides: object) -> dict[str, object]:
+    evidence: dict[str, object] = {
+        "status": "passed",
+        "edge_id": contract.migration.edge_id,
+        "count": 1,
+        "from_schema": contract.migration.from_schema,
+        "to_schema": contract.migration.to_schema,
+        "from_revision": contract.migration.from_revision,
+        "to_revision": contract.migration.to_revision,
+        "exactly_once": True,
+    }
+    evidence.update(overrides)
+    return evidence
 
 
 def test_contract_schema_and_round_trip_are_strict(tmp_path: Path) -> None:
@@ -129,7 +145,31 @@ def test_contract_schema_and_round_trip_are_strict(tmp_path: Path) -> None:
     assert len(receipt.checks) == 5
     pair_receipt = verify_state_evolution_matched_pair(_PAIR, repo_root=Path.cwd())
     assert pair_receipt.valid is True, pair_receipt.to_dict()
-    assert len(pair_receipt.checks) == 9
+    assert len(pair_receipt.checks) >= 15
+
+
+@pytest.mark.parametrize("tamper", ["pair_id", "protocol", "source_path", "patch"])
+def test_matched_pair_rejects_tampered_auditor_claims(tmp_path: Path, tamper: str) -> None:
+    pair = json.loads(_PAIR.read_text(encoding="utf-8"))
+    if tamper == "pair_id":
+        pair["pair_id"] = "wrong-pair"
+    elif tamper == "protocol":
+        protocol = tmp_path / "protocol.json"
+        protocol_data = json.loads((_FIXTURE / "protocol.json").read_text(encoding="utf-8"))
+        protocol_data["package"] = "wrong.package"
+        protocol.write_text(json.dumps(protocol_data), encoding="utf-8")
+        pair["protocol"]["sha256"] = "0" * 64
+        pair["protocol"]["path"] = str(protocol)
+    elif tamper == "source_path":
+        pair["source_pair"]["changed"]["source_path"] = "../contract.json"
+    else:
+        patch_path = tmp_path / "tampered.patch"
+        patch_path.write_text("diff --git a/a b/b\n@@ -1 +1 @@\n-old\n+new\n+extra\n", encoding="utf-8")
+        pair["source_pair"]["changed"]["change_path"] = str(patch_path)
+    path = tmp_path / "matched-pair.json"
+    path.write_text(json.dumps(pair), encoding="utf-8")
+    receipt = verify_state_evolution_matched_pair(path, repo_root=Path.cwd())
+    assert receipt.valid is False, receipt.to_dict()
 
 
 def test_context_uses_same_graph_for_change_and_no_diff_project_targets() -> None:
@@ -186,6 +226,22 @@ def test_context_fails_closed_when_bound_source_bytes_drift(tmp_path: Path) -> N
         )
 
 
+def test_provenance_read_error_is_a_failed_receipt(monkeypatch: pytest.MonkeyPatch) -> None:
+    original = Path.read_bytes
+
+    def unreadable(path: Path) -> bytes:
+        if path.name == "LegacyStateWriter.kt":
+            raise OSError("permission denied")
+        return original(path)
+
+    monkeypatch.setattr(Path, "read_bytes", unreadable)
+    receipt = verify_state_evolution_provenance(_CONTRACT)
+    assert receipt.valid is False
+    failed = next(item for item in receipt.checks if item["ref"] == "LegacyStateWriter.kt")
+    assert failed["status"] == "fail"
+    assert "permission denied" in failed["error"]
+
+
 def test_adapter_is_bounded_and_has_no_variant_or_verdict_leakage() -> None:
     contract = load_state_evolution_contract(_CONTRACT)
     adapter = StateEvolutionRuntimeAdapter(contract)
@@ -205,6 +261,7 @@ def test_adapter_is_bounded_and_has_no_variant_or_verdict_leakage() -> None:
             "process_event": _process_event(),
             "backup_event": _backup_event(),
             "execution_identity": _identity(),
+            "migration_evidence": _migration_evidence(contract),
         }
     )
     assert all(item.passed for item in checks)
@@ -251,6 +308,7 @@ def test_oracle_supports_correct_restoration_without_variant_input() -> None:
         process_event=_process_event(),
         backup_event=_backup_event(),
         execution_identity=_identity(),
+        migration_evidence=_migration_evidence(contract),
     )
     assert verdict["conclusion"] == "locally_supported"
     assert verdict["classification"] == "correct_restoration"
@@ -267,6 +325,7 @@ def test_oracle_classifies_stale_state_and_silent_reset() -> None:
         "process_event": _process_event(),
         "backup_event": _backup_event(),
         "execution_identity": _identity(),
+        "migration_evidence": _migration_evidence(contract),
     }
     stale = judge_state_evolution(**common, backup_restored_state=_state(contract, current=False))
     assert stale["classification"] == "stale_state"
@@ -292,7 +351,8 @@ def test_oracle_fails_closed_on_missing_or_contradictory_identity_and_evidence()
         "backup_restored_state": _state(contract, current=True),
         "process_event": _process_event(),
         "backup_event": _backup_event(),
-    }
+        "migration_evidence": _migration_evidence(contract),
+        }
     missing_identity = judge_state_evolution(**common, execution_identity=None)
     assert missing_identity["conclusion"] == "non_accountable"
     assert missing_identity["classification"] == "inconclusive"
@@ -344,8 +404,81 @@ def test_oracle_fails_closed_on_missing_or_contradictory_identity_and_evidence()
     assert explicit_loss["classification"] == "state_loss"
 
 
+def test_oracle_requires_one_bound_migration_and_event_identities() -> None:
+    contract = load_state_evolution_contract(_CONTRACT)
+    common = {
+        "contract": contract,
+        "initial_state": _state(contract, current=False),
+        "rotated_state": _state(contract, current=False),
+        "process_restored_state": _state(contract, current=False),
+        "backup_restored_state": _state(contract, current=True),
+        "process_event": _process_event(),
+        "backup_event": _backup_event(),
+        "execution_identity": _identity(),
+        "migration_evidence": _migration_evidence(contract),
+    }
+    for invalid in (
+        None,
+        _migration_evidence(contract, count=2),
+        _migration_evidence(contract, edge_id="other-edge"),
+        _migration_evidence(contract, applied_edge_ids=[contract.migration.edge_id, "other-edge"]),
+    ):
+        result = judge_state_evolution(**{**common, "migration_evidence": invalid})
+        assert result["conclusion"] == "non_accountable"
+        assert result["reason"] == "migration_evidence_missing_or_contradictory"
+
+    wrong_process_event = judge_state_evolution(
+        **{**common, "process_event": {**_process_event(), "event": "backup_restore"}}
+    )
+    assert wrong_process_event["reason"] == "process_identity_missing_or_unchanged"
+    wrong_backup_event = judge_state_evolution(
+        **{**common, "backup_event": {**_backup_event(), "event": "process_death"}}
+    )
+    assert wrong_backup_event["reason"] == "backup_restore_evidence_missing_or_failed"
+
+
+def test_oracle_crash_requires_complete_coherent_state() -> None:
+    contract = load_state_evolution_contract(_CONTRACT)
+    common = {
+        "contract": contract,
+        "initial_state": _state(contract, current=False),
+        "rotated_state": _state(contract, current=False),
+        "process_restored_state": _state(contract, current=False),
+        "backup_restored_state": _state(contract, current=True),
+        "process_event": _process_event(),
+        "backup_event": _backup_event(),
+        "execution_identity": _identity(),
+        "migration_evidence": _migration_evidence(contract),
+        "crash_detected": True,
+    }
+    missing = judge_state_evolution(
+        **{**common, "backup_restored_state": {"sentinel": contract.current_state.sentinel}}
+    )
+    assert missing["conclusion"] == "non_accountable"
+    assert missing["classification"] == "inconclusive"
+    contradictory = judge_state_evolution(
+        **{**common, "process_restored_state": _state(contract, current=True)}
+    )
+    assert contradictory["conclusion"] == "non_accountable"
+    assert contradictory["classification"] == "inconclusive"
+    crash = judge_state_evolution(**common)
+    assert crash["conclusion"] == "locally_rejected"
+    assert crash["classification"] == "crash"
+
+
+def test_replay_rejects_invalid_injected_status() -> None:
+    contract = load_state_evolution_contract(_CONTRACT)
+    adapter = StateEvolutionRuntimeAdapter(contract)
+
+    def invalid_status(step, payload):
+        return {"status": "maybe", "evidence_ref": f"test://{step.step_id}"}
+
+    with pytest.raises(StateEvolutionContractError, match="status must be recorded or failed"):
+        adapter.replay(phase_runner=invalid_status)
+
+
 def test_contract_rejects_invalid_migration_edge() -> None:
-    with pytest.raises(StateEvolutionContractError, match="cross a schema boundary"):
+    with pytest.raises(StateEvolutionContractError, match="incremental schema upgrade"):
         MigrationEdge(
             edge_id="bad",
             from_schema=1,
@@ -353,6 +486,34 @@ def test_contract_rejects_invalid_migration_edge() -> None:
             from_revision=1,
             to_revision=1,
             operation="noop",
+        )
+    with pytest.raises(StateEvolutionContractError, match="exactly once"):
+        MigrationEdge(
+            edge_id="not-once",
+            from_schema=1,
+            to_schema=2,
+            from_revision=1,
+            to_revision=2,
+            operation="double",
+            exactly_once=False,
+        )
+    with pytest.raises(StateEvolutionContractError, match="incremental schema upgrade"):
+        MigrationEdge(
+            edge_id="downgrade",
+            from_schema=2,
+            to_schema=1,
+            from_revision=2,
+            to_revision=3,
+            operation="downgrade",
+        )
+    with pytest.raises(StateEvolutionContractError, match="monotonically"):
+        MigrationEdge(
+            edge_id="same-revision",
+            from_schema=1,
+            to_schema=2,
+            from_revision=2,
+            to_revision=2,
+            operation="non-incremental",
         )
     with pytest.raises(StateEvolutionContractError, match="events must be"):
         RecoveryBoundary(boundary_id="bad", events=("process_death",))
