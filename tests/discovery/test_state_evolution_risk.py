@@ -240,6 +240,26 @@ def test_mismatched_transition_and_disconnected_path_fail_closed() -> None:
     assert mismatch.accepted is False
     assert any("mismatch" in reason for reason in mismatch.rejection_reasons)
 
+    downgrade_value = dict(migration.value)
+    downgrade_value.update({"from": 2, "to": 1, "from_revision": 42, "to_revision": 41})
+    downgrade_migration = replace(migration, value=downgrade_value)
+    downgrade_graph = QualityContextGraph(
+        graph_id=loaded.graph_id,
+        target_id=loaded.target_id,
+        facts=tuple(
+            downgrade_migration
+            if fact.fact_id == downgrade_migration.fact_id
+            else fact
+            for fact in loaded.facts
+        ),
+        nodes=loaded.nodes,
+        edges=loaded.edges,
+    )
+    downgrade = derive_state_evolution_risk(target, downgrade_graph, mode="project")
+    assert downgrade.accepted is False
+    assert any("incremental schema upgrade" in reason for reason in downgrade.rejection_reasons)
+    assert any("monotonically" in reason for reason in downgrade.rejection_reasons)
+
     disconnected_edges = tuple(
         replace(edge, semantics="unknown")
         if edge.edge_id == "edge-migration-reader"

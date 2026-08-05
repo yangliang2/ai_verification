@@ -490,6 +490,10 @@ def _validate_state_values(
         reasons.append("state migration target schema mismatch with reader")
     if migration_value["to_revision"] != reader_value["revision"]:
         reasons.append("state migration target revision mismatch with reader")
+    if migration_value["to"] != migration_value["from"] + 1:
+        reasons.append("state migration must be one incremental schema upgrade")
+    if migration_value["to_revision"] <= migration_value["from_revision"]:
+        reasons.append("state migration revisions must increase monotonically")
     if migration_value["exactly_once"] is not True:
         reasons.append("state migration must be exactly once")
 
