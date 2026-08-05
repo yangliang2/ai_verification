@@ -14,8 +14,11 @@
   "checkpoints": {
     "after-segment-0": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-segment-0"},
     "after-event-0": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-event-0"},
-    "after-event-1": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-event-1"},
-    "after-event-2": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=2,revision=42,migration=MIGRATED_V1_TO_V2", "evidence": "runner/after-event-2"}
+    "after-segment-1": {"state": "sentinel=UNINITIALIZED,schema=0,revision=0,migration=NOT_CREATED", "evidence": "runner/after-segment-1"},
+    "after-event-1": {"state": "sentinel=UNINITIALIZED,schema=0,revision=0,migration=NOT_CREATED", "evidence": "runner/after-event-1"},
+    "after-segment-2": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=1,revision=41,migration=PENDING_V1_TO_V2", "evidence": "runner/after-segment-2"},
+    "after-event-2": {"state": "sentinel=AIVERIFY-ISSUE-71-SENTINEL,schema=2,revision=42,migration=MIGRATED_V1_TO_V2", "evidence": "runner/after-event-2"},
+    "after-segment-3": {"state": "resource IDs absent from captured layout", "evidence": "runner/after-segment-3"}
   },
   "events": [
     {"event": "rotate", "status": "passed", "evidence": "runner/system-event-0/event.json"},
@@ -25,7 +28,7 @@
   "execution": {
     "status": "non_accountable",
     "reason": "execution_identity_error",
-    "detail": "The public runner completed the local lifecycle and captured all checkpoints/events, but host identity drifted during finalization; no qualification or Finding is claimed."
+    "detail": "The public runner captured all events, but raw checkpoints include an uninitialized state after process-death and later v1 reappearance, plus host identity drift during finalization; the evidence is contradictory/non-accountable and no continuity, Finding, or qualification is claimed."
   },
   "claim_boundary": "local API-35 emulator smoke only; no M8 qualification, rate, OEM, production, or 12-lane claim",
   "cleanup": "runner system-event-2 cleanup restored the prior backup transport and disabled state; fixture process was stopped and app data was cleared after capture"

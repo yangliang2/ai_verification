@@ -83,6 +83,9 @@ print(
 PY
 → schema_valid=True contract_valid=True provenance_valid=True provenance_checks=5 matched_pair_valid=True matched_pair_checks=15
 → real 0.13s, user 0.09s, sys 0.01s
+
+git diff origin/main...HEAD --check -- ':!docs/runs/2026-08-05-issue-119-state-fixture/artifacts/android-smoke/**'
+→ passed (raw Android evidence whitespace is intentionally preserved)
 ```
 
 ### Local Android smoke (non-qualification)
@@ -90,22 +93,24 @@ PY
 The checked-in lifecycle fixture was built and exercised once on the controlled
 `emulator-5554` (API 35). The existing public lifecycle runner drove rotation,
 a real background process death/relaunch, and local-transport backup/clear/
-restore; all three system-event receipts passed and the checkpoints showed v1
-before restore and v2/42 after restore. The public runner nevertheless finalized as
-`non_accountable` (`execution_identity_error` / host identity drift), so this
-run is retained as an adverse/inconclusive adapter smoke and creates no Finding
-or qualification claim.
+restore; all three system-event receipts and cleanup passed. The raw checkpoint
+record is contradictory: v1 is visible initially and after rotation, the
+post-rotation/process-death captures show `UNINITIALIZED/schema=0`, v1
+reappears at the next capture, and backup/restore ends at v2/revision 42. The
+runner also finalized as `non_accountable` (`execution_identity_error` / host
+identity drift). This is retained as adverse/inconclusive evidence; it makes no
+continuity, Finding, or qualification claim.
 
 ```text
 bench/fixtures/lifecycle-recovery-app/gradlew -p bench/fixtures/lifecycle-recovery-app :app:assembleDebug --no-daemon
 → BUILD SUCCESSFUL; real 2.33s; APK SHA-256 07d72302bc192172dfc72eb8c18746aefe2aafdae6e6068b3ee8d3aeec21d94f
 
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.runner bench/capability-slices/lifecycle-recovery/run-specs/baseline.yaml --device emulator-5554 --artifact-dir /tmp/aiverify-m8-119-baseline.7m9MEg/artifacts
-→ 231.123s; rotate/process_death/backup_restore receipts passed; terminal execution non_accountable (execution_identity_error)
+→ 231.123s; rotate/process_death/backup_restore receipts passed; raw checkpoint contradiction retained; terminal execution non_accountable (execution_identity_error)
 ```
 
 The durable inventory is under
-`artifacts/android-smoke/runner/` (four state checkpoints, three system-event
+`artifacts/android-smoke/runner/` (seven state checkpoints, three system-event
 receipts, screenshots/layouts/logcats, journey receipts, live-validation gate,
 execution record, and verdict) plus `smoke-result.json`. Cleanup restored the
 previous backup transport/enablement and cleared the fixture data. No
@@ -161,6 +166,10 @@ The run record itself is checksum-bound by `checksums.sha256`; it covers every
 durable file under this run directory except the checksum file itself. The
 README and committed wheel are included anchors, and the complete artifact
 inventory is machine-verifiable from the checksum list.
+
+The authored source/docs diff check passes with the raw Android evidence
+directory excluded; logcat/build captures retain their original trailing
+whitespace as raw evidence and are covered by the checksum list.
 
 ```text
 7cfeb257d0e887429fad4c664f304ecbb8d97e903246f078a7848774823f463c  src/aiverify/bench/state_evolution.py
