@@ -73,7 +73,7 @@ uv build --out-dir docs/runs/2026-08-05-issue-129-source-of-truth/artifacts
 git diff --check
 → exit 0.
 
-(cd docs/runs/2026-08-05-issue-129-source-of-truth && sha256sum -c checksums.sha256)
+(cd docs/runs/2026-08-05-issue-129-source-of-truth && shasum -a 256 -c checksums.sha256)
 → 10/10 entries OK; exit 0.
 ```
 
