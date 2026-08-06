@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "issue": 136,
+  "status": "candidate_only_human_approval_pending",
+  "formal_holdout_executed": false,
+  "clear_mapping_present": false,
+  "side_effects": {
+    "external": false,
+    "device": false,
+    "install": false,
+    "launch": false,
+    "agent": false,
+    "runtime": false
+  },
+  "qualification_code": {
+    "repository": "yangliang2/ai_verification",
+    "origin": "https://github.com/yangliang2/ai_verification.git",
+    "merged_commit": "d3e03dc036a1fb8d0f7f314e7999b58294399242"
+  },
+  "candidate_target": {
+    "candidate_id": "architecture-samples-ee66e152",
+    "origin": "https://github.com/android/architecture-samples.git",
+    "source_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "source_tree": "19455e693ec8c96c37a56aec55059a220826c5a3",
+    "source_index_sha256": "66fa95486f2c63e84dbb1ba1dd77a43ad34cdd6ecbd8c659e496e9a204e38585",
+    "local_checkout": "/private/tmp/m9-136-candidate-architecture-samples",
+    "human_unfamiliarity_approval": "pending",
+    "application_id": "com.example.android.architecture.blueprints.main",
+    "namespace": "com.example.android.architecture.blueprints.todoapp",
+    "launcher_activity": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "apk_relpath": "app/build/outputs/apk/debug/app-debug.apk",
+    "apk_sha256": "d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66",
+    "min_sdk": 21,
+    "target_sdk": 35,
+    "build": {
+      "command": "./gradlew --no-daemon --no-configuration-cache --max-workers=1 :app:assembleDebug",
+      "status": "passed",
+      "gradle_reported_duration": "2m 52s",
+      "actionable_tasks": 43,
+      "log_sha256": "5002a66b9fd8cafa67316daf7740b5523f0347a2c1761e9f27db8d4232fae9fd"
+    }
+  },
+  "cohort": {
+    "required_lane_count": 6,
+    "required_defect_lanes": 3,
+    "required_control_lanes": 3,
+    "opaque_lane_ids": [
+      "m9-lane-01",
+      "m9-lane-02",
+      "m9-lane-03",
+      "m9-lane-04",
+      "m9-lane-05",
+      "m9-lane-06"
+    ],
+    "proposed_order": [
+      "m9-lane-01",
+      "m9-lane-02",
+      "m9-lane-03",
+      "m9-lane-04",
+      "m9-lane-05",
+      "m9-lane-06"
+    ],
+    "lane_roles": null,
+    "matched_defect_control_pair": null,
+    "mapping_commitment": null,
+    "human_approval": "required"
+  },
+  "contradiction_packet": {
+    "packet_id": "m9-136-incomplete-context-v1",
+    "missing_fields": ["target_source_identity", "context_graph", "operator_registry"],
+    "expected_admission": "rejected",
+    "formal_denominator": false,
+    "rejection_boundary": "before build, device, agent, oracle, or runtime side effect"
+  },
+  "pending_freeze_fields": [
+    "human-approved target snapshot and matched defect/control pair",
+    "three defect and three control lane assignment",
+    "approved lane order",
+    "hidden mapping commitment and post-gate release procedure",
+    "context acquisition inputs and top-three portfolio budget",
+    "operator registry and attack-plan admission policy",
+    "six exact serialized RunSpec and runner-policy pairs",
+    "oracle, evidence, exploration stop, and independent review contracts",
+    "one-attempt/zero-retry/zero-replacement and abort policy",
+    "local-only claim boundary"
+  ]
+}

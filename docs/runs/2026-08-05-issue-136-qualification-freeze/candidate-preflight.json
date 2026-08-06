@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "status": "candidate_preflight_only",
+  "formal_holdout_executed": false,
+  "formal_denominator": false,
+  "candidate": "architecture-samples-ee66e152",
+  "source": {
+    "origin": "https://github.com/android/architecture-samples.git",
+    "commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "tree": "19455e693ec8c96c37a56aec55059a220826c5a3",
+    "index_sha256": "66fa95486f2c63e84dbb1ba1dd77a43ad34cdd6ecbd8c659e496e9a204e38585",
+    "checkout": "/private/tmp/m9-136-candidate-architecture-samples"
+  },
+  "implementation_commit": "d3e03dc036a1fb8d0f7f314e7999b58294399242",
+  "commands": [
+    {
+      "command": "git ls-remote https://github.com/android/architecture-samples.git HEAD",
+      "result": "pass",
+      "important_output": "ee66e1526b84c026615df032c705842b7d2a521f"
+    },
+    {
+      "command": "./gradlew --no-daemon --no-configuration-cache --max-workers=1 :app:assembleDebug",
+      "result": "pass",
+      "important_output": "BUILD SUCCESSFUL in 2m 52s; 43 actionable tasks"
+    },
+    {
+      "command": "./gradlew --offline --no-daemon --no-configuration-cache --max-workers=1 :app:assembleDebug",
+      "result": "failed_closed",
+      "important_output": "BUILD FAILED in 4s; local cache missing candidate dependencies",
+      "scope": "environment diagnostic only"
+    },
+    {
+      "command": "apkanalyzer manifest application-id app/build/outputs/apk/debug/app-debug.apk",
+      "result": "pass",
+      "important_output": "com.example.android.architecture.blueprints.main"
+    },
+    {
+      "command": "apkanalyzer manifest min-sdk app/build/outputs/apk/debug/app-debug.apk",
+      "result": "pass",
+      "important_output": "21"
+    },
+    {
+      "command": "apkanalyzer manifest target-sdk app/build/outputs/apk/debug/app-debug.apk",
+      "result": "pass",
+      "important_output": "35"
+    }
+  ],
+  "identities": {
+    "java": "openjdk 17.0.19",
+    "gradle": "8.11.1",
+    "android_cli": "1.0.15498356",
+    "adb": "1.0.41 / 37.0.0-14910828",
+    "backend": "not invoked",
+    "requested_model": "not applicable; no agent invocation",
+    "effective_model": "not applicable; no agent invocation",
+    "device": "not accessed"
+  },
+  "artifacts": {
+    "apk": {
+      "path": "/private/tmp/m9-136-candidate-architecture-samples/app/build/outputs/apk/debug/app-debug.apk",
+      "sha256": "d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66",
+      "bytes": 24681606
+    },
+    "successful_build_log": {
+      "path": "/private/tmp/m9-136-candidate-architecture-samples/preflight/assembleDebug-retry-2.log",
+      "sha256": "5002a66b9fd8cafa67316daf7740b5523f0347a2c1761e9f27db8d4232fae9fd"
+    },
+    "interrupted_build_log": {
+      "path": "/private/tmp/m9-136-candidate-architecture-samples/preflight/assembleDebug.log",
+      "sha256": "cf4e1c95749c93c057e824ada9e52003810edd6cf21f219b2e7be6d2ae4d7946"
+    },
+    "offline_diagnostic_log": {
+      "path": "/private/tmp/m9-136-candidate-architecture-samples/preflight-offline/assembleDebug-offline.log",
+      "sha256": "388011d4dfbb1d32cd45cef9e040f813f9342265373c03be55ef1db87d39f482"
+    }
+  },
+  "side_effects": {
+    "source_mutation": false,
+    "production": false,
+    "upstream": false,
+    "device": false,
+    "install": false,
+    "launch": false,
+    "network_policy_change": false,
+    "agent": false,
+    "runtime": false
+  },
+  "known_gaps": [
+    "human target and unfamiliarity approval pending",
+    "matched defect/control pair pending",
+    "hidden mapping commitment not created",
+    "no RunSpec or production-seam admission receipt",
+    "no formal lane or contradiction packet execution"
+  ]
+}
