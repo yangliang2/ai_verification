@@ -137,6 +137,17 @@
         }
       ]
     },
+    "contextAcquisitionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "target", "requested_evidence", "suggestions"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "target": {"$ref": "#/$defs/projectTarget"},
+        "requested_evidence": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "suggestions": {"$ref": "#/$defs/textArray"}
+      }
+    },
     "contextAcquisitionAdapter": {
       "type": "object",
       "additionalProperties": false,

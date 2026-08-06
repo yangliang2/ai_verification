@@ -258,6 +258,54 @@ class AdapterReceipt:
 
 
 @dataclass(frozen=True)
+class ContextAcquisitionRequest:
+    """Serializable bounded request supplied to Context Acquisition."""
+
+    target: ProjectTarget
+    requested_evidence: tuple[str, ...] = _DEFAULT_EVIDENCE
+    suggestions: tuple[str, ...] = ()
+    schema_version: int = 1
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.target, ProjectTarget):
+            raise DiscoveryContractError("acquisition request target must be a ProjectTarget")
+        _requested_tuple(self.requested_evidence)
+        _text_tuple(self.suggestions, "request suggestions")
+        if self.schema_version != 1:
+            raise DiscoveryContractError("unsupported context acquisition request schema_version")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "target": self.target.to_dict(),
+            "requested_evidence": list(self.requested_evidence),
+            "suggestions": list(self.suggestions),
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "ContextAcquisitionRequest":
+        if not isinstance(data, Mapping):
+            raise DiscoveryContractError("context acquisition request must be an object")
+        _reject_unknown(data, {"schema_version", "target", "requested_evidence", "suggestions"})
+        try:
+            raw_evidence = data.get("requested_evidence", list(_DEFAULT_EVIDENCE))
+            raw_suggestions = data.get("suggestions", [])
+            if not isinstance(raw_evidence, list) or not isinstance(raw_suggestions, list):
+                raise DiscoveryContractError("request evidence and suggestions must be arrays")
+            target = target_from_dict(data["target"])
+            if not isinstance(target, ProjectTarget):
+                raise DiscoveryContractError("acquisition request target must be a project target")
+            return cls(
+                schema_version=data.get("schema_version", 1),
+                target=target,
+                requested_evidence=tuple(raw_evidence),
+                suggestions=tuple(raw_suggestions),
+            )
+        except KeyError as error:
+            raise DiscoveryContractError(f"acquisition request requires {error.args[0]}") from error
+
+
+@dataclass(frozen=True)
 class ContextAcquisitionReceipt:
     """Immutable identity, scope, budget, and coverage receipt."""
 
@@ -1151,6 +1199,19 @@ def acquire_project_context(
             )
         )
 
+    # Re-check the immutable source identity after all reads.  If another
+    # process changes the checkout during acquisition, fail closed instead of
+    # returning a graph assembled from more than one source snapshot.
+    final_root, final_commit, final_tree_sha256 = _verify_project_identity(target)
+    if (
+        final_root != root
+        or final_commit != source_commit
+        or final_tree_sha256 != source_tree_sha256
+    ):
+        raise DiscoveryContractError(
+            "project source changed during context acquisition; refusing a mixed snapshot"
+        )
+
     # A lifecycle adapter is intentionally separate in the receipt even though
     # both slices use the deterministic source-symbol parser.  This preserves
     # the three-prior coverage boundary without pretending to have a complete
@@ -1206,13 +1267,23 @@ def acquire_project_context(
 
 
 def acquire_context(
-    target: ProjectTarget,
+    target: ProjectTarget | ContextAcquisitionRequest,
     *,
     requested_evidence: Sequence[str] | None = None,
     suggestions: Sequence[str] = (),
 ) -> ContextAcquisitionResult:
     """Public short alias for :func:`acquire_project_context`."""
 
+    if isinstance(target, ContextAcquisitionRequest):
+        if requested_evidence is not None or suggestions:
+            raise DiscoveryContractError(
+                "request arguments cannot be overridden at acquisition time"
+            )
+        return acquire_project_context(
+            target.target,
+            requested_evidence=target.requested_evidence,
+            suggestions=target.suggestions,
+        )
     return acquire_project_context(
         target,
         requested_evidence=requested_evidence,
@@ -1222,6 +1293,7 @@ def acquire_context(
 
 __all__ = [
     "AdapterReceipt",
+    "ContextAcquisitionRequest",
     "ContextAcquisitionReceipt",
     "ContextAcquisitionResult",
     "acquire_context",

@@ -19,6 +19,7 @@ _CONTRACT_DEFINITIONS = {
     "project_target": "projectTarget",
     "context_fact": "contextFact",
     "context_graph": "contextGraph",
+    "context_acquisition_request": "contextAcquisitionRequest",
     "context_acquisition_adapter": "contextAcquisitionAdapter",
     "context_acquisition_receipt": "contextAcquisitionReceipt",
     "context_acquisition_result": "contextAcquisitionResult",

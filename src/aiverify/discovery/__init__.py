@@ -34,6 +34,7 @@ from aiverify.discovery.context import (
 )
 from aiverify.discovery.acquisition import (
     AdapterReceipt,
+    ContextAcquisitionRequest,
     ContextAcquisitionReceipt,
     ContextAcquisitionResult,
     acquire_context,
@@ -116,6 +117,7 @@ __all__ = [
     "ChangeTarget",
     "CompiledExperiment",
     "ContextCollectionResult",
+    "ContextAcquisitionRequest",
     "ContextAcquisitionReceipt",
     "ContextAcquisitionResult",
     "ContextEdge",

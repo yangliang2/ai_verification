@@ -7,10 +7,12 @@ from pathlib import Path
 import pytest
 
 from aiverify.discovery import (
+    ContextAcquisitionRequest,
     ContextAcquisitionResult,
     DiscoveryContractError,
     ProjectTarget,
     acquire_project_context,
+    acquire_context,
     validate_contract,
 )
 
@@ -124,6 +126,22 @@ def test_acquisition_builds_graph_from_raw_source_without_context_manifest(tmp_p
     validate_contract(first.graph.to_dict(), "context_graph")
     validate_contract(first.to_dict(), "context_acquisition_result")
     assert ContextAcquisitionResult.from_dict(first.to_dict()) == first
+
+
+def test_request_contract_round_trips_and_drives_alias(tmp_path: Path) -> None:
+    target = _held_out_project(tmp_path)
+    request = ContextAcquisitionRequest(
+        target=target,
+        requested_evidence=("manifest", "build"),
+        suggestions=("inspect the source boundary",),
+    )
+
+    restored = ContextAcquisitionRequest.from_dict(request.to_dict())
+    result = acquire_context(restored)
+
+    assert restored == request
+    assert [adapter.adapter_id for adapter in result.receipt.adapters] == ["manifest", "build"]
+    validate_contract(request.to_dict(), "context_acquisition_request")
 
 
 def test_raw_fixture_does_not_carry_outcome_oracle_or_hidden_mapping(tmp_path: Path) -> None:
