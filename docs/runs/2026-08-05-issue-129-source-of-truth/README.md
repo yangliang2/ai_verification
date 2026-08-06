@@ -4,9 +4,11 @@ Issue: [#129](https://github.com/yangliang2/ai_verification/issues/129)<br>
 Base: `origin/main` / `957f108d88afd74a8787b42be568ab558c5fb9b1`<br>
 Branch: `m9-129-source-of-truth`
 
-The final evidence commit is the branch tip containing this record; its exact
-SHA is reported by `git rev-parse HEAD` in the completion handoff because a
-commit cannot contain its own hash. Work was confined to
+The evidence record content is committed at
+`6f7aae381cb006b50a168bb6278dc56719ceed8f`; later review-only corrections may
+advance the branch tip. The final merged PR commit is recorded in the GitHub
+completion comment because a commit cannot contain the SHA of a commit that
+contains the record itself. Work was confined to
 `/Users/peter/projects/ai_verification-m9-129`; the original
 `issue-73-accessibility-slice` worktree was not accessed or modified.
 

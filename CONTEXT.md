@@ -334,12 +334,13 @@ Three Risk Priors compete under one bounded Hypothesis Portfolio policy:
 2. state-evolution compatibility drift;
 3. lifetime/ownership drift.
 
-The formal population is six frozen lanes: `project-defect × 3` and
-`project-control × 3`; their exact order is frozen by the human-approved #136
-qualification contract. One incomplete or contradictory context packet is a
-denominator-external contradiction packet and must be rejected before build,
-device, agent, or runtime side effects. Every formal lane has one attempt, zero
-retry, and zero replacement. Hidden mapping is released only after Context
+The formal population is six planned lanes: `project-defect × 3` and
+`project-control × 3`; their exact order will be frozen only after human
+approval at the #136 qualification gate. No M9 lane order is frozen yet. One
+incomplete or contradictory context packet is a denominator-external
+contradiction packet and must be rejected before build, device, agent, or
+runtime side effects. Every formal lane has one attempt, zero retry, and zero
+replacement. Hidden mapping is released only after Context
 Acquisition, portfolio freeze, Attack Plan admission, and leakage audit.
 
 Falsification Review is a clean-context, separately identified challenge of each
