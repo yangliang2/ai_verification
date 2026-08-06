@@ -414,6 +414,158 @@
         "unknowns": {"$ref": "#/$defs/textArray"}
       }
     },
+    "hypothesisGeneratorIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "role", "backend", "requested_model", "effective_model",
+        "invocation_id", "identity_sha256"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "role": {"type": "string", "minLength": 1},
+        "backend": {"type": "string", "minLength": 1},
+        "requested_model": {"type": "string", "minLength": 1},
+        "effective_model": {"type": "string", "minLength": 1},
+        "invocation_id": {"type": "string", "minLength": 1},
+        "identity_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "hypothesisGenerationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "request_id", "target", "graph", "approved_priors", "budget"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "request_id": {"type": "string", "minLength": 1},
+        "target": {"$ref": "#/$defs/projectTarget"},
+        "graph": {"$ref": "#/$defs/contextGraph"},
+        "approved_priors": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"$ref": "#/$defs/riskPrior"}
+        },
+        "budget": {"type": "integer", "minimum": 1}
+      }
+    },
+    "hypothesisCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "candidate_id", "prior_id", "operator_id", "hypothesis",
+        "failure_chain", "uncertainty"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "candidate_id": {"type": "string", "minLength": 1},
+        "prior_id": {"type": "string", "minLength": 1},
+        "operator_id": {"type": "string", "minLength": 1},
+        "hypothesis": {"$ref": "#/$defs/riskHypothesis"},
+        "failure_chain": {"$ref": "#/$defs/failureChain"},
+        "uncertainty": {"$ref": "#/$defs/textArray", "minItems": 1}
+      }
+    },
+    "candidateRejection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "candidate_id", "raw_sha256", "reasons"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "candidate_id": {"type": "string", "minLength": 1},
+        "raw_sha256": {"$ref": "#/$defs/sha256"},
+        "reasons": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "prior_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "hypothesisGenerationResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "request_id", "target_id", "graph_sha256", "generator_identity",
+        "authoritative_output_sha256", "candidates", "rejected_candidates", "status"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "request_id": {"type": "string", "minLength": 1},
+        "target_id": {"type": "string", "minLength": 1},
+        "graph_sha256": {"$ref": "#/$defs/sha256"},
+        "generator_identity": {"$ref": "#/$defs/hypothesisGeneratorIdentity"},
+        "authoritative_output_sha256": {"$ref": "#/$defs/sha256"},
+        "candidates": {"type": "array", "items": {"$ref": "#/$defs/hypothesisCandidate"}},
+        "rejected_candidates": {"type": "array", "items": {"$ref": "#/$defs/candidateRejection"}},
+        "status": {"enum": ["complete", "partial", "rejected"]}
+      }
+    },
+    "hypothesisPortfolioItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "candidate_id", "prior_id", "operator_id", "hypothesis",
+        "failure_chain", "priority"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "candidate_id": {"type": "string", "minLength": 1},
+        "prior_id": {"type": "string", "minLength": 1},
+        "operator_id": {"type": "string", "minLength": 1},
+        "hypothesis": {"$ref": "#/$defs/riskHypothesis"},
+        "failure_chain": {"$ref": "#/$defs/failureChain"},
+        "priority": {"$ref": "#/$defs/riskPriority"}
+      }
+    },
+    "hypothesisPortfolio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "portfolio_id", "request_id", "target_id", "source_origin",
+        "source_commit", "source_tree_sha256", "graph_sha256", "generator_identity",
+        "authoritative_output_sha256", "approved_prior_ids", "candidates", "selected",
+        "rejected_candidates", "selection_ledger", "budget", "budget_consumed",
+        "remaining_budget", "remaining_prior_ids", "remaining_fact_ids", "coverage_frontier",
+        "status"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "portfolio_id": {"type": "string", "minLength": 1},
+        "request_id": {"type": "string", "minLength": 1},
+        "target_id": {"type": "string", "minLength": 1},
+        "source_origin": {"type": "string", "minLength": 1},
+        "source_commit": {"type": "string", "minLength": 1},
+        "source_tree_sha256": {"$ref": "#/$defs/sha256"},
+        "graph_sha256": {"$ref": "#/$defs/sha256"},
+        "generator_identity": {"$ref": "#/$defs/hypothesisGeneratorIdentity"},
+        "authoritative_output_sha256": {"$ref": "#/$defs/sha256"},
+        "approved_prior_ids": {"$ref": "#/$defs/textArray", "minItems": 3, "maxItems": 3},
+        "candidates": {"type": "array", "items": {"$ref": "#/$defs/hypothesisCandidate"}},
+        "selected": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {"$ref": "#/$defs/hypothesisPortfolioItem"}
+        },
+        "rejected_candidates": {"type": "array", "items": {"$ref": "#/$defs/candidateRejection"}},
+        "selection_ledger": {"$ref": "#/$defs/hypothesisSelectionLedger"},
+        "budget": {"type": "integer", "minimum": 1},
+        "budget_consumed": {"type": "integer", "minimum": 0},
+        "remaining_budget": {"type": "integer", "minimum": 0},
+        "remaining_prior_ids": {"$ref": "#/$defs/textArray"},
+        "remaining_fact_ids": {"$ref": "#/$defs/textArray"},
+        "coverage_frontier": {"$ref": "#/$defs/textArray"},
+        "status": {"enum": ["frozen", "rejected"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "frozen"}}},
+          "then": {"properties": {"selected": {"minItems": 1}}}
+        },
+        {
+          "if": {"properties": {"status": {"const": "rejected"}}},
+          "then": {"properties": {"selected": {"maxItems": 0}}}
+        }
+      ]
+    },
     "attackPlan": {
       "type": "object",
       "additionalProperties": false,
