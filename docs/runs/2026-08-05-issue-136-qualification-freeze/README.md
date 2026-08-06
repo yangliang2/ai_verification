@@ -80,6 +80,10 @@ Commands ran from the dedicated clean worktree
 ```text
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m py_compile \
   src/aiverify/bench/m9_qualification.py \
+  src/aiverify/runner/admission.py \
+  src/aiverify/runner/cli.py \
+  tests/bench/test_m9_qualification.py \
+  tests/runner/test_admission.py \
   docs/runs/2026-08-05-issue-136-qualification-freeze/generate_evidence.py
 → exit 0.
 
@@ -87,7 +91,7 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -
   tests/bench/test_m9_qualification.py tests/runner/test_admission.py
 → 12 passed, 0 failed; real 1.17s, user 0.57s, sys 0.50s.
 
-PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -q
+PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -q -rA
 → 870 passed, 0 failed; real 33.06s, user 23.65s, sys 5.79s.
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python \
@@ -104,8 +108,10 @@ uv build --quiet --out-dir \
 → all committed inventory entries passed.
 
 git diff --check -- src/aiverify/bench/m9_qualification.py \
-  src/aiverify/runner/admission.py tests/bench/test_m9_qualification.py \
-  docs/runs/2026-08-05-issue-136-qualification-freeze/generate_evidence.py
+  src/aiverify/runner/admission.py src/aiverify/runner/cli.py \
+  tests/bench/test_m9_qualification.py tests/runner/test_admission.py \
+  docs/runs/2026-08-05-issue-136-qualification-freeze/generate_evidence.py \
+  docs/runs/2026-08-05-issue-136-qualification-freeze/README.md
 → exit 0.
 ```
 
