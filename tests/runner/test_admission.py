@@ -178,7 +178,10 @@ def test_formal_receipt_rejects_option_and_source_drift_before_external_calls(
         adb_bin=options.adb_bin,
         codex_bin=options.codex_bin,
     )
-    with pytest.raises(ProductionSeamAdmissionError, match="runner-option drift"):
+    with pytest.raises(
+        ProductionSeamAdmissionError,
+        match="formal runner options differ|runner-option drift",
+    ):
         verify_admitted_receipt(
             admitted,
             spec,
@@ -223,7 +226,10 @@ def test_formal_runner_checks_receipt_before_establishing_execution_record(
         pytest.fail("formal ExecutionRecord was established before admission verification")
 
     monkeypatch.setattr(cli.ExecutionRecordStore, "establish", fail_if_established)
-    with pytest.raises(ProductionSeamAdmissionError, match="runner-option drift"):
+    with pytest.raises(
+        ProductionSeamAdmissionError,
+        match="formal runner options differ|runner-option drift",
+    ):
         cli.run(
             spec,
             device=options.device,

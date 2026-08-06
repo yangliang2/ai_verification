@@ -1000,6 +1000,21 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             raise ProductionSeamAdmissionError(
                 "formal runner requires a production-seam admission receipt and policy"
             )
+        actual_options = PlannedRunnerOptions(
+            device=device,
+            workdir=workdir,
+            artifact_dir=artifact_dir,
+            launch=launch,
+            requested_driver_model=model,
+            requested_l3_model=l3_model,
+            android_bin=spec.live_validation.android_bin,
+            adb_bin=spec.live_validation.adb_bin,
+            allow_host_project_subdir=allow_host_project_subdir,
+        )
+        if actual_options.as_dict() != admission_options.as_dict():
+            raise ProductionSeamAdmissionError(
+                "formal runner options differ from admitted policy"
+            )
         verify_admitted_receipt(
             admission_receipt,
             spec,
