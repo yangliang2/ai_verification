@@ -93,6 +93,15 @@ A discovery target seeded by a complete source project, immutable source
 provenance, scope, and a bounded discovery budget. It is valid without a diff.
 _Avoid_: Diff with an omitted patch, unbounded repository scan
 
+**Context Acquisition**:
+The bounded discovery activity that obtains repository, build, manifest, call-site,
+state, version, and execution-boundary evidence from a ChangeTarget or
+ProjectTarget, then records it as provenance-bound Context Facts and a Quality
+Context Graph. It preserves `known`, `unknown`, `contradictory`, and `stale`
+states; absent evidence is never promoted to an observation. It is a discovery
+phase, not a Finding, Run Spec, or execution scanner.
+_Avoid_: Context manifest, prompt context, automatic truth extraction
+
 **Quality Context Graph**:
 An immutable, versioned snapshot of provenance-bound Context Facts used to reason
 about callers, dependencies, quality properties, and execution boundaries.
@@ -141,6 +150,14 @@ assumptions, trigger/context, failure mechanism, consequence, rationale,
 required evidence, confidence, supporting facts, and lifecycle status.
 _Avoid_: Finding, verdict, unsupported suspicion
 
+**Hypothesis Portfolio**:
+The frozen, ordered set of Risk Hypotheses considered under one exploration
+budget. Each candidate is marked selected, rejected, or deferred with its
+rationale, priority factors, supporting facts, Failure Chain, and evidence
+requirements. Only a selected hypothesis may proceed to Attack Plan admission;
+the portfolio is not a verdict, Finding, or benchmark denominator.
+_Avoid_: Candidate list, benchmark cohort, verdict ranking
+
 **Failure Chain**:
 An ordered causal path from trigger through mechanism to consequence, with any
 supporting Context Fact references.
@@ -181,6 +198,24 @@ Finding.
 The current explored frontier for a target: Findings, Residual Risk, explored
 context facts, and the remaining coverage frontier.
 
+**Exploration Stop Rule**:
+The explicit rule that decides whether a Discovery Campaign continues or
+terminates from its remaining budget, admissible attack feasibility, unresolved
+evidence gaps, and explored/unexplored coverage frontier. It records the stop
+reason; exhaustion or non-admissibility preserves Residual Risk or the unexplored
+frontier rather than implying support.
+_Avoid_: Fixed candidate count, timeout, pass threshold
+
+**Falsification Review**:
+A separately identified, post-Finding challenge that uses clean context and a
+separate invocation identity to try to disprove a proposed Finding or expose
+insufficient evidence. It cannot mutate original evidence or oracle rules and
+must not call the production adjudication/oracle implementation path. A review
+records `survived`, `challenged`, or `inconclusive` evidence and discloses any
+same-family limitation; it is not a second verdict or a general provider-
+independence claim.
+_Avoid_: Retry, replacement run, hidden-mapping release, independent truth
+
 **Blinded M7 Qualification**:
 A frozen, local-only four-cell qualification (change/project × defect/control)
 with three repetitions per cell. Verifier-facing packets omit the hidden
@@ -210,7 +245,7 @@ A non-accountable or inconclusive lane is terminal evidence, not a retry.
 
 ## Current Milestone Boundary
 
-As of 2026-08-04, the repository has bounded evidence for the public verification
+As of 2026-08-05, the repository has bounded evidence for the public verification
 chain, fail-closed ExecutionRecord and Effective Execution Identity contracts, the
 fresh #80 30-lane attempt-complete M3.1 gate, the M4 prospective pilot, M5
 capability slices G-01 through G-08, and the completed M6 aggregate through PR #97.
@@ -227,11 +262,11 @@ These results do not establish general Android coverage, a benchmark-wide
 detection or false-positive rate, physical/OEM/ColorOS coverage, fully unattended
 Journey reliability, visual-only multimodal reliability, or upstream acceptance.
 
-The current milestone is M7 white-box adversarial quality-risk discovery, with
-the M8 state-evolution runtime follow-up recorded below. Parent
-#98 coordinated #99 source-of-truth reconciliation, #100's Discovery Campaign
-contracts, the #101/#102 discovery slices, #103 orchestration, and #104 blinded
-qualification. The #104 local qualification completed 12/12 accountable lanes
+The completed M7 boundary was white-box adversarial quality-risk discovery, with
+the M8 state-evolution runtime follow-up recorded below. Parent #98 coordinated
+#99 source-of-truth reconciliation, #100's Discovery Campaign contracts, the
+#101/#102 discovery slices, #103 orchestration, and #104 blinded qualification.
+The #104 local qualification completed 12/12 accountable lanes
 across the four frozen cells, 0 retries, 12/12 admitted attacks, and 12/12
 independent adjudication agreements. The contradictory P-03-class preflight was
 rejected before the formal denominator with no side effects. The result supports
@@ -268,3 +303,60 @@ population was not retried or replaced. The post-run audit also rejects the
 original static migration receipts because they are not supported by observed
 state bytes. A future qualification needs a newly frozen cohort/contract; this
 result is not combined with M7.
+
+The M8 parent #117 and children #118–#122 are closed through merged PRs #123–#127;
+PR #127 is the immutable source-of-truth merge at `957f108`. The final M8 result is
+therefore `0/12 accountable`, with separate change/project denominators of `0/6`
+each and a qualification conclusion of `inconclusive`. It is valid failure
+evidence about admission/accountability, not a state-evolution runtime result.
+The runner compatibility repair `22af9b2` does not authorize a rerun, replacement,
+fixture edit, oracle change, or reinterpretation of that frozen population.
+
+## M9 source-of-truth boundary
+
+M9 parent #128 is the approved, planned unseen-project adversarial discovery slice;
+it is not yet a measured qualification. Its chain is
+`ProjectTarget → Context Acquisition → Hypothesis Portfolio → Attack Plan`
+`→ production-seam admission → accountable runtime execution → Falsification Review`
+`→ Project Risk Map`. The four M9 terms above are domain contracts; later issues
+may implement them but must not treat this source-of-truth issue as evidence of
+implementation or holdout execution.
+
+Formal M9 qualification is **ProjectTarget-only**: the Verification Agent receives
+only complete source provenance, scope, and a bounded budget, with no diff,
+hand-authored Context Graph, Risk Hypothesis, Attack Plan, Scenario, Journey,
+expected evidence, or verdict. `ChangeTarget` is **regression-only** coverage for
+the source/admission contracts and is not a formal M9 denominator.
+
+Three Risk Priors compete under one bounded Hypothesis Portfolio policy:
+
+1. synchronous critical-path temporal propagation;
+2. state-evolution compatibility drift;
+3. lifetime/ownership drift.
+
+The formal population is six frozen lanes: `project-defect × 3` and
+`project-control × 3`; their exact order is frozen by the human-approved #136
+qualification contract. One incomplete or contradictory context packet is a
+denominator-external contradiction packet and must be rejected before build,
+device, agent, or runtime side effects. Every formal lane has one attempt, zero
+retry, and zero replacement. Hidden mapping is released only after Context
+Acquisition, portfolio freeze, Attack Plan admission, and leakage audit.
+
+Falsification Review is a clean-context, separately identified challenge of each
+proposed Finding. Same-provider review is permitted only with its same-family
+limitation disclosed and without the production adjudication/oracle path; it does
+not support a general cognitive-independence claim.
+
+All M9 conclusions remain local-only to the exact source, build, target, device,
+operator, backend/model identity, oracle, review, and committed evidence. M9 does
+not claim benchmark rates, project completeness, general Android, physical/OEM/
+ColorOS coverage, production behavior, upstream acceptance, or a rerun of M8.
+
+## ADR assessment
+
+#129 reviewed ADR-0001, ADR-0002, and ADR-0003. No new ADR is required for this
+source-of-truth change: it defines approved domain vocabulary and records a bounded
+qualification boundary, but makes no new hard-to-reverse architecture, provider,
+data-ownership, or production-operation choice. The same-family Falsification
+Review limitation is a disclosed, revisable M9 qualification contract and must be
+reassessed if a later implementation turns it into an irreversible system policy.

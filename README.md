@@ -21,7 +21,7 @@ Run Spec
 
 ## 当前状态
 
-截至 2026-08-04：
+截至 2026-08-05：
 
 - #58 已由 fresh #80 M3.1 population 的有效证据收口。#80 在冻结的五 seed、
   30 lane 人口上得到 30/30 first-attempt 和 eventual accountability、
@@ -40,9 +40,52 @@ Run Spec
   fixture/oracle 内部矛盾保持 `inconclusive`。这不是 M7 scale pass；唯一前进路线是
   `remediate_fixture_execution_oracle_adjudication_gaps`，只适用于未来 admission，
   不改写、不重跑冻结的 P-03。
-- M7 已进入 [parent #98](https://github.com/yangliang2/ai_verification/issues/98)：
-  #99 收口 M6 source of truth，#100 已建立 Discovery Campaign 与风险契约；后续
-  工作必须继承上述 forward-only、fail-closed admission boundary。
+- M7 parent [#98](https://github.com/yangliang2/ai_verification/issues/98) 已完成
+  bounded discovery/admission/runtime slices；#104、#112、#115 的结果都只支持各自
+  local fixture、source、device、oracle 和 evidence boundary。
+- M8 parent [#117](https://github.com/yangliang2/ai_verification/issues/117) 与
+  children #118–#122 已关闭，PR #123–#127 已合入；最终 [PR #127 merge
+  `957f108`](https://github.com/yangliang2/ai_verification/commit/957f108d88afd74a8787b42be568ab558c5fb9b1)
+  记录了 exact #121 manifest 的正式结果：12/12 lanes 一次性终止于
+  `execution-identity-capture`，0/12 accountable，qualification
+  `inconclusive`。这不是 runtime PASS/FAIL 结果，且不可重跑、替换或重写。
+- M9 parent [#128](https://github.com/yangliang2/ai_verification/issues/128) 是计划中的
+  unseen-project adversarial discovery slice；#129 正在先收口 source of truth。
+  M9 尚未进入正式 holdout，后续实现必须继承 ProjectTarget-only、ChangeTarget
+  regression-only、三 priors、六 formal lanes、contradiction packet 和 local-only
+  claim boundary。
+
+## M8 结果与 M9 边界
+
+M8 的 durable evidence 见
+[`docs/runs/2026-08-05-issue-122-formal-execution/README.md`](docs/runs/2026-08-05-issue-122-formal-execution/README.md)。冻结的 #121 manifest
+被完整消费：change/project 各 6 条 lane，全部只有一个 terminal attempt；每条 lane
+在 execution-identity capture 阶段因 fixture `host_project` 与 runner root policy
+不兼容而 `non-accountable`。没有 APK install、launch、agent invocation、Journey、
+system event 或 observed state evidence，因此真实 aggregate 是 `0/12 accountable`
+与 `inconclusive`。修复提交 `22af9b2` 只说明后续 admission 可修正该 seam，不得用于
+重跑这套冻结人口；原始 static migration receipts 也不转化为 Finding。
+
+M9 的正式链为：
+
+```text
+ProjectTarget
+→ Context Acquisition
+→ Hypothesis Portfolio
+→ Attack Plan
+→ production-seam admission
+→ accountable runtime execution
+→ Falsification Review
+→ Project Risk Map
+```
+
+正式模式只接收无 diff 的完整 `ProjectTarget`、immutable source provenance、scope
+和 bounded budget；`ChangeTarget` 只做 regression coverage。三项竞争的 Risk Priors
+是 synchronous critical-path temporal propagation、state-evolution compatibility
+drift、lifetime/ownership drift。正式 cohort 是 `project-defect × 3` 与
+`project-control × 3` 的六 lane；一个 incomplete/contradictory context packet
+先 fail closed、留在 denominator 外。M9 未形成任何 benchmark-rate、project-
+completeness、Android/OEM/ColorOS、production 或 upstream claim。
 
 ## 当前可支持的有界结论
 
@@ -163,12 +206,13 @@ worktree、APK、installed binary、device、tool 与 agent role identity。缺�
 - Agent 与 Issue 规范：[`AGENTS.md`](AGENTS.md)
 - Android CLI-first ADR：[`docs/adr/0001-android-cli-first-execution-base.md`](docs/adr/0001-android-cli-first-execution-base.md)
 - Codex CLI backend ADR：[`docs/adr/0002-codex-cli-as-verification-agent-backend.md`](docs/adr/0002-codex-cli-as-verification-agent-backend.md)
+- Discovery Campaign boundary ADR：[`docs/adr/0003-discovery-campaign-above-run-spec.md`](docs/adr/0003-discovery-campaign-above-run-spec.md)
 - M5 gap register：[`docs/research/2026-07-19-verification-gap-register.md`](docs/research/2026-07-19-verification-gap-register.md)
 
 历史初版计划保留为背景资料，但已经被当前 PRD、ADR、run record 和 GitHub
 issue 状态 supersede；不要按旧 AC1-AC10 判断当前能力。
 
-## M6 资格化收口与 M7 入口
+## 历史 M6 资格化收口与 M7 入口
 
 M6 的已完成依赖顺序为：
 
@@ -186,7 +230,7 @@ admission、exclusion/replacement、repetition、retry、identity、blinding 与
 rules 仍是历史测量合同。M6 的 historical/prospective 两个 track 永远分开记账，
 P-03 的矛盾只进入未来 admission 规则。
 
-M7 的下一步依赖为：
+M7 的历史依赖为：
 
 ```text
 #99 ────────────────────────────────┐
@@ -194,6 +238,31 @@ M7 的下一步依赖为：
 #100 → (#101 || #102) → #103 ───────┘
 ```
 
-M7 先做 project/change discovery 与风险契约，再生成可执行的 Run Spec；没有新的
-明确授权，不进行任何 upstream comment、task claim、外部仓库写入或超出本地声明边界
-的 scale claim。
+M7 已按上述依赖完成；没有新的明确授权，不进行任何 upstream comment、task claim、
+外部仓库写入或超出本地声明边界的 scale claim。
+
+## M9 source-of-truth contract
+
+M9 的四个 canonical domain terms 是 `Context Acquisition`、`Hypothesis Portfolio`、
+`Exploration Stop Rule` 和 `Falsification Review`，定义与既有 `Context Fact`、
+`Quality Context Graph`、`Risk Hypothesis`、`Attack Plan`、`Finding`、`Residual Risk`
+和 `Project Risk Map` 的关系见 [`CONTEXT.md`](CONTEXT.md)。这些是当前批准的 domain
+contracts，不表示后续代码或正式 holdout 已存在。
+
+M9 只对 ProjectTarget 进行 formal qualification；ChangeTarget 仅用于 regression
+coverage。三 priors 必须在一个 Hypothesis Portfolio 中竞争：synchronous critical-
+path temporal propagation、state-evolution compatibility drift、以及
+lifetime/ownership drift。冻结 population 为六条 `project-defect × 3`、
+`project-control × 3` formal lanes，加一个 pre-side-effect rejected、denominator-
+external contradiction packet。每条 lane one attempt、zero retry、zero replacement；
+Falsification Review 使用 clean context 与 separate invocation identity，并公开
+same-family limitation。
+
+M8 的 `0/12 accountable`、`inconclusive` 结果是不可变 evidence；不得以
+`22af9b2` 或任何后续代码重跑/替换/改写。所有 M9 结论只能是 exact source/build/
+device/operator/backend-model/oracle/review/evidence 范围内的 local-only claim。
+
+本 issue 复核了 ADR-0001、0002、0003。#129 只补齐 domain vocabulary 与 bounded
+qualification boundary，没有新增 hard-to-reverse architecture、provider、data
+ownership 或 production-operation decision，因此当前不新增 ADR；若后续实现把
+same-family review limitation 变成不可逆系统政策，必须重新评估 ADR 门槛。

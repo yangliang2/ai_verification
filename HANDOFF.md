@@ -1,12 +1,12 @@
 # HANDOFF
 
-更新时间：2026-08-04
+更新时间：2026-08-05
 
-项目已完成 M6 blinded AI-change verification qualification，当前转向 M7
-white-box adversarial quality-risk discovery。接手者应先读
+项目已完成 M8 state-evolution qualification 的失败收口，当前准备进入 M9
+unseen-project adversarial discovery。接手者应先读
 [`docs/current-capability-claim-matrix.md`](docs/current-capability-claim-matrix.md)，
-再读 M6 aggregate 与 M7 parent/child issue，不要从旧 issue 编号或聊天记录推断当前
-声明。
+再读 M8 formal run 与 M9 parent/child issue，不要从旧 issue 编号或聊天记录推断当前
+声明。M8 的 `0/12 accountable`、`inconclusive` 结论是不可变的本地事实。
 
 ## 当前 tracker 状态
 
@@ -35,7 +35,8 @@ white-box adversarial quality-risk discovery。接手者应先读
   `remediate_fixture_execution_oracle_adjudication_gaps`。它只约束未来 admission，
   不替换、修复或重跑冻结的 P-03。
 
-- M7 parent 是 #98。当前依赖：
+- M7 parent 是 #98；其 discovery/admission/runtime slices 已完成，下面的依赖是
+  历史执行顺序，不是当前待办：
 
 ```text
 #99 ────────────────────────────────┐
@@ -48,6 +49,64 @@ white-box adversarial quality-risk discovery。接手者应先读
   Hypothesis、Attack Plan、Finding、Residual Risk 及 fail-closed admission 契约。
 - #101/#102 可在 #100 后并行；#103 依赖两者；#104 依赖 #99 与 #103，冻结 4 cells ×
   3 repetitions = 12 lanes 的 blinded dual-entry qualification。
+
+- M8 parent [#117](https://github.com/yangliang2/ai_verification/issues/117) 与 children
+  #118–#122 已关闭，PR #123–#127 已合入。最终 [PR #127
+  `957f108`](https://github.com/yangliang2/ai_verification/commit/957f108d88afd74a8787b42be568ab558c5fb9b1)
+  消费 exact #121 manifest，12/12 lanes 均在 execution-identity capture 阶段成为
+  `non-accountable`，因此 aggregate 为 `0/12 accountable`、`inconclusive`。
+- M9 parent [#128](https://github.com/yangliang2/ai_verification/issues/128) 已批准为
+  bounded unseen-project adversarial discovery slice。#129 是 source-of-truth 起点；
+  后续正式 holdout 尚未开始。
+
+## M8 immutable result
+
+Durable evidence 是
+[`docs/runs/2026-08-05-issue-122-formal-execution/README.md`](docs/runs/2026-08-05-issue-122-formal-execution/README.md)。#122 在 exact #121
+manifest 上按既定顺序完成 12 条 lane，每条只有一次 terminal attempt；共同原因是
+冻结 Run Spec 的 fixture `host_project` 子目录与 runner 要求的 repository-root
+identity 不兼容。没有 APK install、launch、agent invocation、Journey、system event
+或 observed state evidence；change/project 分母分别为 0/6 accountable。修复提交
+`22af9b2` 未用于重跑或替换，原 static migration receipts 也不构成 Finding。
+
+这组 M8 结果不可重跑、不可改写、不可替换、不可与 M7 合并。任何未来 state-evolution
+qualification 都必须新建并冻结 cohort/contract；M8 不进入 M9 denominator。
+
+## M9 source-of-truth contract
+
+正式 M9 只接收无 diff 的完整 `ProjectTarget`、immutable source provenance、scope 和
+bounded budget。`ChangeTarget` 只做 regression coverage。批准的 discovery chain 是：
+
+```text
+ProjectTarget
+→ Context Acquisition
+→ Hypothesis Portfolio
+→ Attack Plan
+→ production-seam admission
+→ accountable runtime execution
+→ Falsification Review
+→ Project Risk Map
+```
+
+三 priors 必须在一个 bounded Hypothesis Portfolio 中竞争：synchronous critical-path
+temporal propagation、state-evolution compatibility drift、lifetime/ownership drift。
+正式 cohort 是 `project-defect × 3` 与 `project-control × 3` 六条 lane；另有一个
+incomplete/contradictory context packet，必须在任何 build/device/agent/runtime side
+effect 前拒绝并留在 denominator 外。每条 lane one attempt、zero retry、zero replacement。
+Hidden mapping 只能在 Context Acquisition、portfolio freeze、Attack Plan admission 和
+leakage audit 后释放。
+
+Falsification Review 必须使用 clean context、separate invocation identity，并绕开
+production adjudication/oracle implementation path；same-provider operation 可用，但
+same-family limitation 必须明示。所有结果都只支持 exact source/build/device/operator/
+backend-model/oracle/review/evidence 范围内的 local-only claim。
+
+## ADR assessment
+
+#129 已复核 ADR-0001、0002、0003。当前只新增 domain vocabulary、source-of-truth 和
+bounded qualification boundary，没有新增 hard-to-reverse architecture、provider、data
+ownership 或 production-operation choice，因此不新增 ADR。若后续实现把 same-family
+review limitation 变成不可逆系统政策，应重新评估 ADR 门槛。
 
 ## 当前证据基线
 
@@ -190,14 +249,18 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
 
 ## 接手时的正确下一步
 
-1. 确认 #99 source-of-truth PR 已合入且 #82/#84 已关闭；不得改写 M6 aggregate 或
-   重跑 P-03。
-2. 在 #100 契约之上推进 #101 provenance-bound Quality Context Graph 与 #102
-   synchronous-critical-path Risk Hypothesis/Attack Plan；两者可并行。
-3. #101/#102 完成后推进 #103 ChangeTarget/ProjectTarget Discovery Campaign
-   orchestration。
-4. #99 与 #103 完成后，按 #104 的 4 cells × 3 repetitions、blinding、admission、
-   evidence 与 adjudication 规则开展 formal qualification。
+1. 保持 M8 #117–#122 的 `0/12 accountable`、`inconclusive` 证据不可变；不得重跑、
+   替换、改写或与 M9 合并。
+2. 完成 M9 #129 的 source-of-truth 文档合并后，按
+   `#129 → (#130 || #131) → #132 → (#133 || #135) → #134 → #136 → #137` 推进。
+3. #130/#131/#133/#135 的实现只能使用 bounded fake-backend、fixture 和 non-holdout
+   live receipt；不得启动正式 M9 holdout。
+4. #136 是唯一人工冻结门：人工批准 exact ProjectTarget、3+3 cohort、lane order、
+   hidden-mapping commitment/release、oracle/evidence/review、retry/abort 和
+   local-only claim 后，才允许冻结并合入 qualification contract。
+5. #137 只能消费 exact merged #136 commit，按冻结顺序执行六条 lane 与 contradiction
+   packet，并按实际结果收口；不得通过 retry、replacement、fixture/model/oracle 改动
+   追求 PASS。
 
 任何文档或报告都必须同时说明支持结论和非声明范围。若实现、run record 与
 tracker 冲突，以 committed raw evidence 为准，先修 source-of-truth，再继续下游
