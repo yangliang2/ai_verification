@@ -1,0 +1,47 @@
+{
+  "accountable_count": 0,
+  "aggregate_result": "Not Supported",
+  "claim_boundary": "local-only exact source, package, emulator, execution identity, and six-lane evidence boundary",
+  "common_terminal_failure": {
+    "codex_invocation_count": 0,
+    "command": "adb -s emulator-5554 shell pm clear com.example.android.architecture.blueprints.main",
+    "effective_driver_model": null,
+    "effective_l3_model": null,
+    "exception_type": "M9FormalExecutionError",
+    "install_launch_agent_runtime_reached": false,
+    "lanes": 6,
+    "message": "package clear failed for lane: Failed",
+    "returncode": 1,
+    "stage": "package-clear",
+    "stderr": "",
+    "stdout": "Failed"
+  },
+  "contradiction_packet": {
+    "formal_denominator": false,
+    "rejected_before_build_device_agent_runtime": true,
+    "status": "pass"
+  },
+  "formal_command": "uv run --extra dev python -m aiverify.bench.m9_formal --artifact-root docs/runs/2026-08-06-issue-137-formal-execution --control-project /private/tmp/m9-136-candidate-a-control --defect-project /private/tmp/m9-136-option-a --fixture-root /private/tmp/m9-137-formal-fixtures-final",
+  "formal_execution_duration_seconds": 1.825,
+  "known_gap": "The consumed frozen population has no install, launch, agent, screenshot, layout, logcat, or runtime oracle evidence because all six lanes terminated at the pre-runtime package-clear setup step. The result is terminal non-accountable evidence, not a runtime supported or rejected claim.",
+  "lane_count": 6,
+  "neutral_gates": {
+    "attack_plan_admitted": true,
+    "clear_mapping_persisted_in_verifier_inputs": false,
+    "context_acquisition_status": "partial",
+    "context_fact_count": 64,
+    "hypothesis_portfolio_selected": 3,
+    "leakage_audit": "pass",
+    "mapping_release_after_gates": true
+  },
+  "remediation": {
+    "applies_to": "future executions only",
+    "change": "Treat Android pm clear's exact uninstalled-package response (Failed with empty stderr) as an already-clean first-lane state.",
+    "code_path": "src/aiverify/bench/m9_formal.py::_clear_package",
+    "frozen_population_replacement": false,
+    "frozen_population_rerun": false
+  },
+  "replacement_count": 0,
+  "retry_count": 0,
+  "schema_version": 1
+}

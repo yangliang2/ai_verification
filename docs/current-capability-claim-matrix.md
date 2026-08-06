@@ -40,6 +40,7 @@ Agent 的结论为 `locally_supported`。
 | M4 prospective pilot | 2 个有界支持 + 1 个 non_accountable | T426553、T426989 `locally_supported`；T409797 `non_accountable`；T337177 excluded | 三个 admitted case 的原始本地结论与操作事实 | detection/false-positive rate、Goldset、upstream acceptance、原 entry gate 顺序合规 |
 | M6 blinded AI-change qualification | aggregate integrity PASS；M7 scale gate 未通过 | 6 个 frozen packages、36/36 lanes accountable、0 retries、6/6 adjudication agreement；historical 18 lanes 保持独立；prospective P-01/P-02 `locally_supported`，P-03 `inconclusive` | 六个 package、各自 track denominator、P-03 contradiction 与单一路线的本地事实 | M7 scale pass、benchmark-wide detection/false-positive rate、P-03 修复或重跑、upstream acceptance |
 | M8 state-evolution formal qualification | 有界失败证据；`inconclusive` | exact #121 manifest 进入 #122；12/12 ordered terminal attempts、0/12 accountable、change/project 分母 0/6 各自成立；共同原因是 execution-identity capture 的 fixture `host_project` 与 runner root policy mismatch | 冻结人口的 admission/accountability 失败事实与不可重跑边界 | state-evolution runtime detection、migration correctness、M7 合并、Android/OEM/production 或 benchmark-wide claim |
+| M9 unseen-project adversarial discovery | 有界失败证据；`Not Supported`；不形成 runtime claim | exact #136 merge 进入 #137；contradiction packet pre-side-effect rejected；Context Acquisition partial (64 facts)；top-3 portfolio、Attack Plan、leakage audit passed；6/6 ordered terminal lanes，0/6 accountable，0/3 defect support，0/3 control rejection，6/6 independent reviews，0 retries/replacements；共同原因是 fresh emulator 上 package-clear 在 install 前返回 `Failed` | 冻结 M9 population 的 gate、admission、accountability、non-accountable lane 和 independent-review facts | M9 runtime detection/rejection、project completeness、benchmark rate、Android/OEM/ColorOS、production/upstream acceptance |
 
 M4 的实现和 aggregate 已提交，但执行时间早于后来有效的 #80 gate。#59 以
 retrospective pilot 加明确 chronology exception 关闭；该历史事实不能被后来的
@@ -95,14 +96,14 @@ population；未来若重新度量必须新建并冻结 cohort/contract。
 | M7-R1 synchronous-critical-path runtime probe | 有界证据支持（单一 API-35 emulator、Change Mode） | [#112 run](runs/2026-08-04-issue-112-runtime-admission/README.md)：defect/control 各 3 次，6/6 accountable、0 retries；defect 3/3 `locally_supported`（250 ms main-thread delay），control 3/3 `locally_rejected`；APK、ExecutionRecord、effective identity、截图/layout/logcat 与 oracle 均 checksum-bound | 仅该 fixture、TemporalActivity、API-35 AVD 与 200 ms temporal contract；不声明 ANR rate、OEM/SystemUI、physical fleet、Project Mode 或通用 Android 能力 |
 | M7-R2 synchronous-critical-path runtime probe | 有界证据支持（单一 API-35 emulator、Project Mode） | [#115 run](runs/2026-08-05-issue-115-project-runtime/README.md)：ProjectTarget 无 diff；defect/control 各 3 次，6/6 accountable、0 retries；defect 3/3 `locally_supported`（250 ms main-thread delay），control 3/3 `locally_rejected`；campaign admission、leakage audit、APK、ExecutionRecord、effective identity、截图/layout/logcat 与 oracle 均 checksum-bound | 仅该 ProjectTarget packet、fixture adapter、API-35 AVD 与 200 ms temporal contract；不声明项目完整性、ANR rate、OEM/SystemUI、physical fleet、Change/Project 合并率或通用 Android 能力 |
 | M8 state-evolution formal qualification | 有界失败证据；不形成 runtime claim | [#122 run](runs/2026-08-05-issue-122-formal-execution/README.md)：exact #121 manifest/admission、12/12 ordered terminal attempts、0 retries/replacements；共同原因是 runner 在 execution-identity capture 阶段拒绝 fixture 子目录 `host_project`，因此 0/12 install/launch/agent/state evidence；修复见 `22af9b2`，821 tests 全通过；post-run audit 对未观测 migration receipt fail-closed | 不声明 state-evolution detection、Change/Project qualification、migration correctness、Android/OEM/production 或 benchmark-wide rate；冻结一尝试人口不重跑，未来需新 cohort/contract |
-| M9 unseen-project adversarial discovery | 尚未度量（planned；#129 仅完成 source-of-truth） | [parent #128](https://github.com/yangliang2/ai_verification/issues/128) 批准 ProjectTarget-only chain：Context Acquisition、Hypothesis Portfolio、Attack Plan、production-seam admission、runtime、Falsification Review、Project Risk Map；正式 holdout 尚未冻结或执行 | 只计划三 priors：synchronous critical-path temporal propagation、state-evolution compatibility drift、lifetime/ownership drift；ChangeTarget 仅 regression coverage | 当前不支持实现能力、六 lane qualification、project completeness、benchmark rate、Android/OEM/ColorOS、production 或 upstream acceptance |
+| M9 unseen-project adversarial discovery | 有界失败证据；`Not Supported`；不形成 runtime claim | [#137 run](runs/2026-08-06-issue-137-formal-execution/README.md)：exact #136 contract；contradiction packet 在副作用前 reject；Context Acquisition partial (64 facts)；top-3/Attack Plan/leakage gates pass；6/6 ordered terminal lanes，0/6 accountable，0/3 defect support，0/3 control rejection，6/6 independent reviews，0 retries/replacements；fresh emulator package-clear setup failure，未到 install/launch/agent/runtime | 仅声明冻结 population 的 gate、admission、terminal non-accountable evidence 与独立 review；不将 `Not Supported` 解释为应用 runtime verdict | 不声明 M9 runtime detection/rejection、project completeness、benchmark rate、Android/OEM/ColorOS、production 或 upstream acceptance；未来重测需新 cohort/contract |
 | benchmark-wide detection/false-positive rate | 当前不声明 | 合格且足够规模的独立 ground-truth population 与预注册统计契约 |
 | physical/OEM/device-fleet 与 ColorOS | 当前不声明 | 独立的设备/host admission、身份、矩阵与 durable evidence |
 | fully unattended Journey reliability | 当前不声明 | 无 agent-in-the-loop 的版本化执行人口和 accountability 测量 |
 | visual-only/general multimodal L3 | 当前不声明 | 视觉 ground truth、repeatability、false-positive controls 与独立审计 |
 | upstream acceptance | 当前不声明 | 本仓库本地结论不等于 maintainer review 或 merge |
 
-## M7/M8 qualification boundary and M9 next route
+## M7/M8 qualification boundary and M9 result
 
 M7 #104 的冻结离线 qualification 已完成。它证明 change 与 complete-project
 两种入口都能经过 Context Expansion、Risk Hypothesis freeze、Attack Plan
@@ -122,23 +123,26 @@ M9 的 formal scope 是 `ProjectTarget` only：Verification Agent 只接收完�
 provenance、scope 和 bounded budget，不接收 diff、手写 Context Graph、Risk Hypothesis、
 Attack Plan、Scenario、Journey、expected evidence 或 verdict。`ChangeTarget` 只做
 regression coverage。三 priors 在一个 Hypothesis Portfolio 中竞争；formal cohort 是
-`project-defect × 3` 与 `project-control × 3` 六条 lane；一个 incomplete/contradictory
+`project-defect × 3` 与 `project-control × 3` 六条 lane，按
+`m9-lane-01`–`m9-lane-06` 顺序执行；一个 incomplete/contradictory
 context packet 在任何 build/device/agent/runtime side effect 前 fail closed，留在
 denominator 外。每条 lane one attempt、zero retry、zero replacement；Falsification
 Review 必须使用 clean context、separate invocation identity，并披露 same-family
 limitation。所有 M9 结果都只能是 exact local evidence 范围内的 local-only claim。
 
-## 当前下一步
+#137 的真实 aggregate 是 `Not Supported`，原因是六条 lane 在 fresh emulator
+package-clear setup 阶段 non-accountable；没有安装、启动、agent、L1/L2/L3 或
+runtime oracle evidence。这个结果保持 one-attempt/zero-retry/zero-replacement
+边界；未来-only 的 package-clear 幂等修复不回填或重写该 population。
+
+## M9 收口记录
 
 M9 parent [#128](https://github.com/yangliang2/ai_verification/issues/128) 的实现顺序为：
 
 `#129 → (#130 || #131) → #132 → (#133 || #135) → #134 → #136 → #137`
 
-#136 是唯一人工冻结门；在人工批准 exact ProjectTarget、3+3 cohort、lane order、
-hidden-mapping commitment/release、oracle/evidence/review、retry/abort 和 local-only
-claim 前，不得启动正式 holdout。#137 必须消费 exact merged #136 commit，按冻结顺序
-拒绝 contradiction packet、完成 Context Acquisition、三-prior Hypothesis Portfolio、
-Attack Plan admission、六条 lane 与 Falsification Review，并诚实收口 adverse、
-challenged、inconclusive、rejected 或 non-accountable 结果。不得重跑或改写 M8，也不
-得把任何 M9 结果扩展成 benchmark-wide rate、completeness、OEM/ColorOS、production
-或 upstream claim。
+#136 是唯一人工冻结门，现已获得批准并由 #137 消费。#137 已按冻结顺序拒绝
+contradiction packet、完成 Context Acquisition、三-prior Hypothesis Portfolio、
+Attack Plan admission、六条 lane 与 Falsification Review，并诚实收口
+non-accountable 结果。不得重跑或改写 M8，也不得把 M9 结果扩展成 benchmark-wide
+rate、completeness、OEM/ColorOS、production 或 upstream claim。

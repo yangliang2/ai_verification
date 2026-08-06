@@ -1,0 +1,2831 @@
+{
+  "duration_seconds": 0.126,
+  "mapping_released": false,
+  "portfolio": {
+    "approved_prior_ids": [
+      "prior-synchronous-critical-path-v1",
+      "prior-state-evolution-compatibility-v1",
+      "prior-lifetime-ownership-drift-v1"
+    ],
+    "authoritative_output_sha256": "9fed9e61c2ab34b233cc6244ca6ce16ad644ad9f542e16b23fbb4dff7b2e51a9",
+    "budget": 8,
+    "budget_consumed": 3,
+    "candidates": [
+      {
+        "candidate_id": "candidate-m9-portfolio-1",
+        "failure_chain": {
+          "causal_roles": [
+            "local_behavior",
+            "dependency_propagation",
+            "system_impact"
+          ],
+          "chain_id": "chain-m9-portfolio-1",
+          "consequence": "synchronous task-state continuity across a bounded call boundary",
+          "fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "schema_version": 1,
+          "steps": [
+            "the source boundary is entered",
+            "the bounded operation crosses the recorded boundary",
+            "the quality property is exposed: synchronous task-state continuity across a bounded call boundary"
+          ]
+        },
+        "hypothesis": {
+          "assumptions": [
+            "the recorded source boundary remains the active local path",
+            "the bounded observation stays within the declared safety boundary"
+          ],
+          "confidence": 0.6,
+          "consequence": "synchronous task-state continuity across a bounded call boundary",
+          "failure_chain_id": "chain-m9-portfolio-1",
+          "hypothesis_id": "hypothesis-m9-portfolio-1",
+          "mechanism": "the synchronous critical-path temporal propagation path carries state across the recorded boundary",
+          "prior_id": "prior-synchronous-critical-path-v1",
+          "quality_property": "synchronous task-state continuity across a bounded call boundary",
+          "rationale": "Three provenance-bound source facts connect the recorded boundary to this quality property; execution evidence is still absent.",
+          "required_evidence": [
+            "source boundary identity",
+            "bounded state observation",
+            "terminal execution evidence"
+          ],
+          "schema_version": 1,
+          "status": "draft",
+          "supporting_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "target_id": "architecture-samples-ee66e152",
+          "trigger": "the recorded function_signature at app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh is exercised",
+          "unknowns": [
+            "runtime boundary evidence remains unresolved"
+          ]
+        },
+        "operator_id": "operator-bounded-latency",
+        "prior_id": "prior-synchronous-critical-path-v1",
+        "schema_version": 1,
+        "uncertainty": [
+          "runtime boundary evidence remains unresolved"
+        ]
+      },
+      {
+        "candidate_id": "candidate-m9-portfolio-2",
+        "failure_chain": {
+          "causal_roles": [
+            "local_behavior",
+            "dependency_propagation",
+            "system_impact"
+          ],
+          "chain_id": "chain-m9-portfolio-2",
+          "consequence": "durable task-state continuity across a bounded recovery boundary",
+          "fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "schema_version": 1,
+          "steps": [
+            "the source boundary is entered",
+            "the bounded operation crosses the recorded boundary",
+            "the quality property is exposed: durable task-state continuity across a bounded recovery boundary"
+          ]
+        },
+        "hypothesis": {
+          "assumptions": [
+            "the recorded source boundary remains the active local path",
+            "the bounded observation stays within the declared safety boundary"
+          ],
+          "confidence": 0.6,
+          "consequence": "durable task-state continuity across a bounded recovery boundary",
+          "failure_chain_id": "chain-m9-portfolio-2",
+          "hypothesis_id": "hypothesis-m9-portfolio-2",
+          "mechanism": "the historical-state compatibility across recovery path carries state across the recorded boundary",
+          "prior_id": "prior-state-evolution-compatibility-v1",
+          "quality_property": "durable task-state continuity across a bounded recovery boundary",
+          "rationale": "Three provenance-bound source facts connect the recorded boundary to this quality property; execution evidence is still absent.",
+          "required_evidence": [
+            "source boundary identity",
+            "bounded state observation",
+            "terminal execution evidence"
+          ],
+          "schema_version": 1,
+          "status": "draft",
+          "supporting_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "target_id": "architecture-samples-ee66e152",
+          "trigger": "the recorded function_signature at app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh is exercised",
+          "unknowns": [
+            "runtime boundary evidence remains unresolved"
+          ]
+        },
+        "operator_id": "operator-bounded-historical-state-replay",
+        "prior_id": "prior-state-evolution-compatibility-v1",
+        "schema_version": 1,
+        "uncertainty": [
+          "runtime boundary evidence remains unresolved"
+        ]
+      },
+      {
+        "candidate_id": "candidate-m9-portfolio-3",
+        "failure_chain": {
+          "causal_roles": [
+            "local_behavior",
+            "dependency_propagation",
+            "system_impact"
+          ],
+          "chain_id": "chain-m9-portfolio-3",
+          "consequence": "lifecycle ownership continuity for a task resource",
+          "fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "schema_version": 1,
+          "steps": [
+            "the source boundary is entered",
+            "the bounded operation crosses the recorded boundary",
+            "the quality property is exposed: lifecycle ownership continuity for a task resource"
+          ]
+        },
+        "hypothesis": {
+          "assumptions": [
+            "the recorded source boundary remains the active local path",
+            "the bounded observation stays within the declared safety boundary"
+          ],
+          "confidence": 0.6,
+          "consequence": "lifecycle ownership continuity for a task resource",
+          "failure_chain_id": "chain-m9-portfolio-3",
+          "hypothesis_id": "hypothesis-m9-portfolio-3",
+          "mechanism": "the lifecycle and resource ownership drift path carries state across the recorded boundary",
+          "prior_id": "prior-lifetime-ownership-drift-v1",
+          "quality_property": "lifecycle ownership continuity for a task resource",
+          "rationale": "Three provenance-bound source facts connect the recorded boundary to this quality property; execution evidence is still absent.",
+          "required_evidence": [
+            "source boundary identity",
+            "bounded state observation",
+            "terminal execution evidence"
+          ],
+          "schema_version": 1,
+          "status": "draft",
+          "supporting_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "target_id": "architecture-samples-ee66e152",
+          "trigger": "the recorded function_signature at app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh is exercised",
+          "unknowns": [
+            "runtime boundary evidence remains unresolved"
+          ]
+        },
+        "operator_id": "operator-bounded-lifecycle-ownership-drift",
+        "prior_id": "prior-lifetime-ownership-drift-v1",
+        "schema_version": 1,
+        "uncertainty": [
+          "runtime boundary evidence remains unresolved"
+        ]
+      }
+    ],
+    "coverage_frontier": [
+      "fact:fact-0461d6ea838978bbdfee",
+      "fact:fact-0bf43f614204f834efcc",
+      "fact:fact-0e4b468ae1ffed63d175",
+      "fact:fact-14fcd76d007e39d52532",
+      "fact:fact-16789ae8c112654debd4",
+      "fact:fact-1ceff7ba8d60d69d9cfd",
+      "fact:fact-1d55646cd6fc92322bdd",
+      "fact:fact-1fac2ed0ec2b5043d113",
+      "fact:fact-27948fe76b5773c9e7b6",
+      "fact:fact-31aaffede7c276a179d2",
+      "fact:fact-35658adc1d6c2ac5f325",
+      "fact:fact-35e255a6cba0b7e89c37",
+      "fact:fact-43e83436039c9e5bfe15",
+      "fact:fact-45b5a3286d83ee0f4ffb",
+      "fact:fact-4646a9060caaf6f80f39",
+      "fact:fact-50968cc524685af9a02c",
+      "fact:fact-536bbc08502f8ce63565",
+      "fact:fact-53e91f8a4c7be820ac71",
+      "fact:fact-543714545ea942fca917",
+      "fact:fact-593735763154c7b20a66",
+      "fact:fact-5b8acd90e7939c026965",
+      "fact:fact-689cbfb8268dbac7811d",
+      "fact:fact-69511497082b2b27cef2",
+      "fact:fact-6ab34bada979eab2063d",
+      "fact:fact-7082ab7542741f89cf54",
+      "fact:fact-887ab89bffa39ed98179",
+      "fact:fact-8ffd1b6f5b799d80e38e",
+      "fact:fact-90992140cf405ae90fe8",
+      "fact:fact-91b13e63e20e0a747b8f",
+      "fact:fact-96277ee0013f0406d9e2",
+      "fact:fact-97c7f27487658a69a14d",
+      "fact:fact-9c5b3cdf92293fc0cee7",
+      "fact:fact-9d306e7d7ca1a3f50fdb",
+      "fact:fact-9ddcdf077d8f77438400",
+      "fact:fact-9f30bfb1e879c8e03aa6",
+      "fact:fact-9f738270183fcad8eabb",
+      "fact:fact-9fe0d2630365ffa40ffb",
+      "fact:fact-a5a89149ab602d68005c",
+      "fact:fact-a76e8034d288be776c78",
+      "fact:fact-a7990e95053130094f32",
+      "fact:fact-ade273f54b94cfa6f57f",
+      "fact:fact-aefe127a47b0c9f8b3ee",
+      "fact:fact-b3f96dd1c0f1591a9a27",
+      "fact:fact-ba8370bcfeaf4c03c490",
+      "fact:fact-bb52c08224b813c28112",
+      "fact:fact-be4a7babfced6c2f688c",
+      "fact:fact-c6369a1d86523782c38a",
+      "fact:fact-ce8871ff3636fea96acf",
+      "fact:fact-d5572817c0244aa7c866",
+      "fact:fact-d59c360ef027f0df65f9",
+      "fact:fact-d5b01b48f648ac6e5b18",
+      "fact:fact-d8015b8d6fc2862b5a19",
+      "fact:fact-dd5475f4798c027c9ab1",
+      "fact:fact-e3c4f7705caf0cf52926",
+      "fact:fact-ee4667c1e803ba8beeaf",
+      "fact:fact-f0668b3d9ed6b26aeb3d",
+      "fact:fact-f77aec1d77837305e3db",
+      "fact:fact-f8b0e96b858bfa5c68f4",
+      "fact:fact-f90983f8ae67494603cf",
+      "fact:fact-fa20407e27585695ff08",
+      "fact:fact-fa385fd15b54559d4c3c"
+    ],
+    "generator_identity": {
+      "backend": "local_deterministic_context_planner",
+      "effective_model": "bounded-m9-generator-v1",
+      "identity_sha256": "dfc343a53163ea434da3cf15a4650f4ec82f8305272ea735d1fd1f2d8efbbf7e",
+      "invocation_id": "m9-137-hypothesis-generator-01",
+      "requested_model": "bounded-m9-generator-v1",
+      "role": "verification-agent-hypothesis-generator-v1",
+      "schema_version": 1
+    },
+    "graph_sha256": "0c6002e96bc2e0695aa8e14af7ddfff9fa97f41d215f995aa5f888c93d856fd3",
+    "portfolio_id": "portfolio-b8aabfea8da52a64",
+    "rejected_candidates": [],
+    "remaining_budget": 5,
+    "remaining_fact_ids": [
+      "fact-0461d6ea838978bbdfee",
+      "fact-0bf43f614204f834efcc",
+      "fact-0e4b468ae1ffed63d175",
+      "fact-14fcd76d007e39d52532",
+      "fact-16789ae8c112654debd4",
+      "fact-1ceff7ba8d60d69d9cfd",
+      "fact-1d55646cd6fc92322bdd",
+      "fact-1fac2ed0ec2b5043d113",
+      "fact-27948fe76b5773c9e7b6",
+      "fact-31aaffede7c276a179d2",
+      "fact-35658adc1d6c2ac5f325",
+      "fact-35e255a6cba0b7e89c37",
+      "fact-43e83436039c9e5bfe15",
+      "fact-45b5a3286d83ee0f4ffb",
+      "fact-4646a9060caaf6f80f39",
+      "fact-50968cc524685af9a02c",
+      "fact-536bbc08502f8ce63565",
+      "fact-53e91f8a4c7be820ac71",
+      "fact-543714545ea942fca917",
+      "fact-593735763154c7b20a66",
+      "fact-5b8acd90e7939c026965",
+      "fact-689cbfb8268dbac7811d",
+      "fact-69511497082b2b27cef2",
+      "fact-6ab34bada979eab2063d",
+      "fact-7082ab7542741f89cf54",
+      "fact-887ab89bffa39ed98179",
+      "fact-8ffd1b6f5b799d80e38e",
+      "fact-90992140cf405ae90fe8",
+      "fact-91b13e63e20e0a747b8f",
+      "fact-96277ee0013f0406d9e2",
+      "fact-97c7f27487658a69a14d",
+      "fact-9c5b3cdf92293fc0cee7",
+      "fact-9d306e7d7ca1a3f50fdb",
+      "fact-9ddcdf077d8f77438400",
+      "fact-9f30bfb1e879c8e03aa6",
+      "fact-9f738270183fcad8eabb",
+      "fact-9fe0d2630365ffa40ffb",
+      "fact-a5a89149ab602d68005c",
+      "fact-a76e8034d288be776c78",
+      "fact-a7990e95053130094f32",
+      "fact-ade273f54b94cfa6f57f",
+      "fact-aefe127a47b0c9f8b3ee",
+      "fact-b3f96dd1c0f1591a9a27",
+      "fact-ba8370bcfeaf4c03c490",
+      "fact-bb52c08224b813c28112",
+      "fact-be4a7babfced6c2f688c",
+      "fact-c6369a1d86523782c38a",
+      "fact-ce8871ff3636fea96acf",
+      "fact-d5572817c0244aa7c866",
+      "fact-d59c360ef027f0df65f9",
+      "fact-d5b01b48f648ac6e5b18",
+      "fact-d8015b8d6fc2862b5a19",
+      "fact-dd5475f4798c027c9ab1",
+      "fact-e3c4f7705caf0cf52926",
+      "fact-ee4667c1e803ba8beeaf",
+      "fact-f0668b3d9ed6b26aeb3d",
+      "fact-f77aec1d77837305e3db",
+      "fact-f8b0e96b858bfa5c68f4",
+      "fact-f90983f8ae67494603cf",
+      "fact-fa20407e27585695ff08",
+      "fact-fa385fd15b54559d4c3c"
+    ],
+    "remaining_prior_ids": [],
+    "request_id": "m9-137-hypothesis-generation-01",
+    "schema_version": 1,
+    "selected": [
+      {
+        "candidate_id": "candidate-m9-portfolio-3",
+        "failure_chain": {
+          "causal_roles": [
+            "local_behavior",
+            "dependency_propagation",
+            "system_impact"
+          ],
+          "chain_id": "chain-m9-portfolio-3",
+          "consequence": "lifecycle ownership continuity for a task resource",
+          "fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "schema_version": 1,
+          "steps": [
+            "the source boundary is entered",
+            "the bounded operation crosses the recorded boundary",
+            "the quality property is exposed: lifecycle ownership continuity for a task resource"
+          ]
+        },
+        "hypothesis": {
+          "assumptions": [
+            "the recorded source boundary remains the active local path",
+            "the bounded observation stays within the declared safety boundary"
+          ],
+          "confidence": 0.6,
+          "consequence": "lifecycle ownership continuity for a task resource",
+          "failure_chain_id": "chain-m9-portfolio-3",
+          "hypothesis_id": "hypothesis-m9-portfolio-3",
+          "mechanism": "the lifecycle and resource ownership drift path carries state across the recorded boundary",
+          "prior_id": "prior-lifetime-ownership-drift-v1",
+          "priority_id": "priority-portfolio-candidate-m9-portfolio-3",
+          "quality_property": "lifecycle ownership continuity for a task resource",
+          "rationale": "Three provenance-bound source facts connect the recorded boundary to this quality property; execution evidence is still absent.",
+          "required_evidence": [
+            "source boundary identity",
+            "bounded state observation",
+            "terminal execution evidence"
+          ],
+          "schema_version": 1,
+          "status": "frozen",
+          "supporting_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "target_id": "architecture-samples-ee66e152",
+          "trigger": "the recorded function_signature at app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh is exercised",
+          "unknowns": [
+            "runtime boundary evidence remains unresolved"
+          ]
+        },
+        "operator_id": "operator-bounded-lifecycle-ownership-drift",
+        "prior_id": "prior-lifetime-ownership-drift-v1",
+        "priority": {
+          "context_sensitivity": 1.0,
+          "estimated_probe_cost": 0.6,
+          "evidence_gap": 0.0,
+          "impact": 0.6,
+          "priority_id": "priority-portfolio-candidate-m9-portfolio-3",
+          "propagation_reach": 0.5,
+          "rationale": "Deterministic post-capture factors: impact=0.600000; propagation_reach=0.500000; context_sensitivity=1.000000; uncertainty=0.666667; evidence_gap=0.000000; estimated_probe_cost=0.600000. The score is an ordering aid, not a probability or verdict.",
+          "schema_version": 1,
+          "score": 0.6,
+          "uncertainty": 0.6666666666666666
+        },
+        "schema_version": 1
+      },
+      {
+        "candidate_id": "candidate-m9-portfolio-2",
+        "failure_chain": {
+          "causal_roles": [
+            "local_behavior",
+            "dependency_propagation",
+            "system_impact"
+          ],
+          "chain_id": "chain-m9-portfolio-2",
+          "consequence": "durable task-state continuity across a bounded recovery boundary",
+          "fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "schema_version": 1,
+          "steps": [
+            "the source boundary is entered",
+            "the bounded operation crosses the recorded boundary",
+            "the quality property is exposed: durable task-state continuity across a bounded recovery boundary"
+          ]
+        },
+        "hypothesis": {
+          "assumptions": [
+            "the recorded source boundary remains the active local path",
+            "the bounded observation stays within the declared safety boundary"
+          ],
+          "confidence": 0.6,
+          "consequence": "durable task-state continuity across a bounded recovery boundary",
+          "failure_chain_id": "chain-m9-portfolio-2",
+          "hypothesis_id": "hypothesis-m9-portfolio-2",
+          "mechanism": "the historical-state compatibility across recovery path carries state across the recorded boundary",
+          "prior_id": "prior-state-evolution-compatibility-v1",
+          "priority_id": "priority-portfolio-candidate-m9-portfolio-2",
+          "quality_property": "durable task-state continuity across a bounded recovery boundary",
+          "rationale": "Three provenance-bound source facts connect the recorded boundary to this quality property; execution evidence is still absent.",
+          "required_evidence": [
+            "source boundary identity",
+            "bounded state observation",
+            "terminal execution evidence"
+          ],
+          "schema_version": 1,
+          "status": "frozen",
+          "supporting_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "target_id": "architecture-samples-ee66e152",
+          "trigger": "the recorded function_signature at app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh is exercised",
+          "unknowns": [
+            "runtime boundary evidence remains unresolved"
+          ]
+        },
+        "operator_id": "operator-bounded-historical-state-replay",
+        "prior_id": "prior-state-evolution-compatibility-v1",
+        "priority": {
+          "context_sensitivity": 1.0,
+          "estimated_probe_cost": 0.6,
+          "evidence_gap": 0.0,
+          "impact": 0.6,
+          "priority_id": "priority-portfolio-candidate-m9-portfolio-2",
+          "propagation_reach": 0.5,
+          "rationale": "Deterministic post-capture factors: impact=0.600000; propagation_reach=0.500000; context_sensitivity=1.000000; uncertainty=0.666667; evidence_gap=0.000000; estimated_probe_cost=0.600000. The score is an ordering aid, not a probability or verdict.",
+          "schema_version": 1,
+          "score": 0.6,
+          "uncertainty": 0.6666666666666666
+        },
+        "schema_version": 1
+      },
+      {
+        "candidate_id": "candidate-m9-portfolio-1",
+        "failure_chain": {
+          "causal_roles": [
+            "local_behavior",
+            "dependency_propagation",
+            "system_impact"
+          ],
+          "chain_id": "chain-m9-portfolio-1",
+          "consequence": "synchronous task-state continuity across a bounded call boundary",
+          "fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "schema_version": 1,
+          "steps": [
+            "the source boundary is entered",
+            "the bounded operation crosses the recorded boundary",
+            "the quality property is exposed: synchronous task-state continuity across a bounded call boundary"
+          ]
+        },
+        "hypothesis": {
+          "assumptions": [
+            "the recorded source boundary remains the active local path",
+            "the bounded observation stays within the declared safety boundary"
+          ],
+          "confidence": 0.6,
+          "consequence": "synchronous task-state continuity across a bounded call boundary",
+          "failure_chain_id": "chain-m9-portfolio-1",
+          "hypothesis_id": "hypothesis-m9-portfolio-1",
+          "mechanism": "the synchronous critical-path temporal propagation path carries state across the recorded boundary",
+          "prior_id": "prior-synchronous-critical-path-v1",
+          "priority_id": "priority-portfolio-candidate-m9-portfolio-1",
+          "quality_property": "synchronous task-state continuity across a bounded call boundary",
+          "rationale": "Three provenance-bound source facts connect the recorded boundary to this quality property; execution evidence is still absent.",
+          "required_evidence": [
+            "source boundary identity",
+            "bounded state observation",
+            "terminal execution evidence"
+          ],
+          "schema_version": 1,
+          "status": "frozen",
+          "supporting_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "target_id": "architecture-samples-ee66e152",
+          "trigger": "the recorded function_signature at app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh is exercised",
+          "unknowns": [
+            "runtime boundary evidence remains unresolved"
+          ]
+        },
+        "operator_id": "operator-bounded-latency",
+        "prior_id": "prior-synchronous-critical-path-v1",
+        "priority": {
+          "context_sensitivity": 1.0,
+          "estimated_probe_cost": 0.6,
+          "evidence_gap": 0.0,
+          "impact": 0.6,
+          "priority_id": "priority-portfolio-candidate-m9-portfolio-1",
+          "propagation_reach": 0.5,
+          "rationale": "Deterministic post-capture factors: impact=0.600000; propagation_reach=0.500000; context_sensitivity=1.000000; uncertainty=0.666667; evidence_gap=0.000000; estimated_probe_cost=0.600000. The score is an ordering aid, not a probability or verdict.",
+          "schema_version": 1,
+          "score": 0.6,
+          "uncertainty": 0.6666666666666666
+        },
+        "schema_version": 1
+      }
+    ],
+    "selection_ledger": {
+      "entries": [
+        {
+          "decision": "selected",
+          "entry_digest": "ca05d6111f977332495fbdd6614b37d01f8bd780800125f8380e042080e7df7d",
+          "entry_id": "selection-ca05d6111f977332",
+          "hypothesis_id": "candidate-m9-portfolio-1",
+          "previous_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "prior_id": "prior-synchronous-critical-path-v1",
+          "priority_score": 0.6,
+          "rationale": "Selected after deterministic priority ordering for prior prior-synchronous-critical-path-v1; score is an ordering aid only.",
+          "schema_version": 1,
+          "sequence": 1
+        },
+        {
+          "decision": "selected",
+          "entry_digest": "caf327f9537d107558a15143aeb822b130ffeb700fc5fed3d1be70605bcc274b",
+          "entry_id": "selection-caf327f9537d1075",
+          "hypothesis_id": "candidate-m9-portfolio-2",
+          "previous_digest": "ca05d6111f977332495fbdd6614b37d01f8bd780800125f8380e042080e7df7d",
+          "prior_id": "prior-state-evolution-compatibility-v1",
+          "priority_score": 0.6,
+          "rationale": "Selected after deterministic priority ordering for prior prior-state-evolution-compatibility-v1; score is an ordering aid only.",
+          "schema_version": 1,
+          "sequence": 2
+        },
+        {
+          "decision": "selected",
+          "entry_digest": "5817a896b1bfdb4647d9f95b74dd160a9f3f1cc1edfeb25266ff8adc6711c3a9",
+          "entry_id": "selection-5817a896b1bfdb46",
+          "hypothesis_id": "candidate-m9-portfolio-3",
+          "previous_digest": "caf327f9537d107558a15143aeb822b130ffeb700fc5fed3d1be70605bcc274b",
+          "prior_id": "prior-lifetime-ownership-drift-v1",
+          "priority_score": 0.6,
+          "rationale": "Selected after deterministic priority ordering for prior prior-lifetime-ownership-drift-v1; score is an ordering aid only.",
+          "schema_version": 1,
+          "sequence": 3
+        }
+      ],
+      "head_digest": "5817a896b1bfdb4647d9f95b74dd160a9f3f1cc1edfeb25266ff8adc6711c3a9",
+      "schema_version": 1
+    },
+    "source_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "source_origin": "https://github.com/android/architecture-samples.git",
+    "source_tree_sha256": "c186d702bc55dbc5ac28ca44437401ecb8eed6cbf49f6e913020c887f651b941",
+    "status": "frozen",
+    "target_id": "architecture-samples-ee66e152"
+  },
+  "request": {
+    "approved_priors": [
+      {
+        "description": "Prioritize bounded latency, blocking, retry, I/O, lock, wait, or availability changes that cross a synchronous critical path.",
+        "name": "synchronous critical-path temporal propagation",
+        "operator_ids": [
+          "operator-bounded-latency"
+        ],
+        "prior_id": "prior-synchronous-critical-path-v1",
+        "schema_version": 1,
+        "signals": [
+          "delay",
+          "latency",
+          "blocking",
+          "retry",
+          "io",
+          "lock",
+          "wait",
+          "availability"
+        ],
+        "version": "m7.1"
+      },
+      {
+        "description": "Prioritize provenance-bound writer, durable-storage, schema-transition, reader, and recovery paths where historical state must remain compatible with a known quality contract.",
+        "name": "historical-state compatibility across recovery",
+        "operator_ids": [
+          "operator-bounded-historical-state-replay"
+        ],
+        "prior_id": "prior-state-evolution-compatibility-v1",
+        "schema_version": 1,
+        "signals": [
+          "historical_state",
+          "durable_state",
+          "schema_transition",
+          "migration",
+          "recovery_epoch",
+          "restore",
+          "process_death",
+          "state_continuity"
+        ],
+        "version": "m8.1"
+      },
+      {
+        "description": "Prioritize lifecycle-bound coroutine, task, cancellation, close, and resource ownership paths whose lifetime may drift from the recorded quality contract.",
+        "name": "lifecycle and resource ownership drift",
+        "operator_ids": [
+          "operator-bounded-lifecycle-ownership-drift"
+        ],
+        "prior_id": "prior-lifetime-ownership-drift-v1",
+        "schema_version": 1,
+        "signals": [
+          "lifecycle",
+          "ownership",
+          "coroutine",
+          "task",
+          "cancellation",
+          "resource",
+          "dispose",
+          "close",
+          "scope"
+        ],
+        "version": "m9.1"
+      }
+    ],
+    "budget": 8,
+    "graph": {
+      "edges": [
+        {
+          "edge_id": "edge-d3b4671aa0e30b054cac",
+          "from_node_id": "operation-0d2b4dc519ffd54d",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-ade273f54b94cfa6f57f"
+          ],
+          "status": "known",
+          "to_node_id": "api-cc07f35fcbc8186a"
+        },
+        {
+          "edge_id": "edge-6409f3b9753f02b57ec6",
+          "from_node_id": "operation-0e33beaa49ccdcc9",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-91b13e63e20e0a747b8f"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-0d91206eb657733b"
+        },
+        {
+          "edge_id": "edge-95bcf56f1b34a9bd256b",
+          "from_node_id": "operation-0e33beaa49ccdcc9",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-0bf43f614204f834efcc"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-bc8c158248eb0843"
+        },
+        {
+          "edge_id": "edge-af3beb279c3c554a03ce",
+          "from_node_id": "operation-0e33beaa49ccdcc9",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-543714545ea942fca917"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-d4619c22a0b93761"
+        },
+        {
+          "edge_id": "edge-f54b33bd95667b8984fe",
+          "from_node_id": "operation-24a08bfac3634788",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-536bbc08502f8ce63565"
+          ],
+          "status": "known",
+          "to_node_id": "api-c90fafc612076017"
+        },
+        {
+          "edge_id": "edge-3958038fe337033e2407",
+          "from_node_id": "operation-30d5de8abf551d08",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-7082ab7542741f89cf54"
+          ],
+          "status": "known",
+          "to_node_id": "api-cc07f35fcbc8186a"
+        },
+        {
+          "edge_id": "edge-9b8c8a08f42d5f0c0191",
+          "from_node_id": "operation-38e3d68b909488ef",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-d8015b8d6fc2862b5a19"
+          ],
+          "status": "known",
+          "to_node_id": "api-60a8e6260bdea01b"
+        },
+        {
+          "edge_id": "edge-80d146c065e7c8bb2c4d",
+          "from_node_id": "operation-42e521adc4161ac8",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "status": "known",
+          "to_node_id": "api-d4619c22a0b93761"
+        },
+        {
+          "edge_id": "edge-97bda4319f4d75894682",
+          "from_node_id": "operation-79749ddc965900c9",
+          "kind": "depends_on",
+          "semantics": "asynchronous",
+          "source_fact_ids": [
+            "fact-45b5a3286d83ee0f4ffb"
+          ],
+          "status": "known",
+          "to_node_id": "resource-6876c629dddce1b5"
+        },
+        {
+          "edge_id": "edge-4c82441868bd00133501",
+          "from_node_id": "operation-79749ddc965900c9",
+          "kind": "depends_on",
+          "semantics": "asynchronous",
+          "source_fact_ids": [
+            "fact-f90983f8ae67494603cf"
+          ],
+          "status": "known",
+          "to_node_id": "resource-6876c629dddce1b5"
+        },
+        {
+          "edge_id": "edge-4f108f04468c73d825dd",
+          "from_node_id": "operation-7bd82a97491930c4",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-9f30bfb1e879c8e03aa6"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-23e1bb4aaf098f32"
+        },
+        {
+          "edge_id": "edge-756722c1d14121666bb1",
+          "from_node_id": "operation-7bd82a97491930c4",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-1ceff7ba8d60d69d9cfd"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-60a8e6260bdea01b"
+        },
+        {
+          "edge_id": "edge-6460971e05a3c4249cf4",
+          "from_node_id": "operation-7bd82a97491930c4",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-f77aec1d77837305e3db"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-91279d409a1c08f1"
+        },
+        {
+          "edge_id": "edge-6e2b901d1ead695f6468",
+          "from_node_id": "operation-a15402545325df66",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-96277ee0013f0406d9e2"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-502d8d950bb661cd"
+        },
+        {
+          "edge_id": "edge-91571a89bed60d8c7540",
+          "from_node_id": "operation-a15402545325df66",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-16789ae8c112654debd4"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-8449da12f1e21a9b"
+        },
+        {
+          "edge_id": "edge-3a31716ce1432fdb0244",
+          "from_node_id": "operation-b395d8a26dbd7235",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-69511497082b2b27cef2"
+          ],
+          "status": "known",
+          "to_node_id": "api-502d8d950bb661cd"
+        },
+        {
+          "edge_id": "edge-124a0e1a03f9780ef00c",
+          "from_node_id": "operation-c9896c9a4474047f",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-27948fe76b5773c9e7b6"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-d16b255a211a2b99"
+        },
+        {
+          "edge_id": "edge-0d67c2c5462a7de956a9",
+          "from_node_id": "operation-c9896c9a4474047f",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-0461d6ea838978bbdfee"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-de82263a23c3745c"
+        },
+        {
+          "edge_id": "edge-9bd95dc71dda442f89c7",
+          "from_node_id": "operation-cc1571d5831bffd0",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-b3f96dd1c0f1591a9a27"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-2aad3e945c126ffc"
+        },
+        {
+          "edge_id": "edge-859f20583d94b8f527a1",
+          "from_node_id": "operation-cc1571d5831bffd0",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-a5a89149ab602d68005c"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-7a66fce2942c7c7a"
+        },
+        {
+          "edge_id": "edge-123e18c18460b01691d5",
+          "from_node_id": "operation-cc1571d5831bffd0",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-9c5b3cdf92293fc0cee7"
+          ],
+          "status": "contradictory",
+          "to_node_id": "api-7f874ddd97b405e3"
+        },
+        {
+          "edge_id": "edge-a8c5d8ae2bd25debe7ef",
+          "from_node_id": "operation-d262e07f364cbabb",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-593735763154c7b20a66"
+          ],
+          "status": "known",
+          "to_node_id": "api-9ee60054827b018c"
+        },
+        {
+          "edge_id": "edge-5d8b4dfe738677814ac4",
+          "from_node_id": "operation-f8bc0b5410387d46",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-f8b0e96b858bfa5c68f4"
+          ],
+          "status": "known",
+          "to_node_id": "api-413166f82afdf7b6"
+        },
+        {
+          "edge_id": "edge-b545e7c9a508a94d2c22",
+          "from_node_id": "operation-fc69fea3559c35db",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-f0668b3d9ed6b26aeb3d"
+          ],
+          "status": "known",
+          "to_node_id": "api-b9a31b20bd02ae2d"
+        },
+        {
+          "edge_id": "edge-e30b8081fdf54549869c",
+          "from_node_id": "operation-fd4cb7f7406c6327",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-a76e8034d288be776c78"
+          ],
+          "status": "known",
+          "to_node_id": "api-8d1363f21f5debe3"
+        }
+      ],
+      "facts": [
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-0461d6ea838978bbdfee",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:87",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTasksStream",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.observeAll"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-0bf43f614204f834efcc",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:178",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:saveTasksToNetwork",
+          "value": {
+            "asynchronous": false,
+            "callee": "localTasks.toNetwork"
+          }
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-0e4b468ae1ffed63d175",
+          "predicate": "build_version",
+          "provenance": [
+            {
+              "locator": "line:33",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "contradictory",
+          "subject": "app/build.gradle.kts",
+          "value": {
+            "field": "versionCode",
+            "value": "1"
+          }
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-11fe26de46ee501ef60a",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:157",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh",
+          "value": "refresh"
+        },
+        {
+          "confidence": 0.0,
+          "fact_id": "fact-14fcd76d007e39d52532",
+          "predicate": "persistence_restore_fallback",
+          "provenance": [],
+          "rationale": "No deterministic source evidence for restore_fallback persistence behavior was found in scope.",
+          "source_kind": "unknown",
+          "source_version": "ee66e1526b84c026615df032c705842b7d2a521f",
+          "status": "unknown",
+          "subject": "project",
+          "value": null
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-159e53d9b7fbe270a469",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:67",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:updateTask",
+          "value": "updateTask"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-16789ae8c112654debd4",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:55",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:createTask",
+          "value": {
+            "asynchronous": false,
+            "callee": "UUID.randomUUID"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-1b9ed1ede43dae6985c6",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:82",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:withContext",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.getAll"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-1ceff7ba8d60d69d9cfd",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:160",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.deleteAll"
+          }
+        },
+        {
+          "confidence": 0.0,
+          "fact_id": "fact-1d55646cd6fc92322bdd",
+          "predicate": "persistence_migration",
+          "provenance": [],
+          "rationale": "No deterministic source evidence for migration persistence behavior was found in scope.",
+          "source_kind": "unknown",
+          "source_version": "ee66e1526b84c026615df032c705842b7d2a521f",
+          "status": "unknown",
+          "subject": "project",
+          "value": null
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-1fac2ed0ec2b5043d113",
+          "predicate": "build_system",
+          "provenance": [
+            {
+              "locator": "line:1",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "known",
+          "subject": "app/build.gradle.kts",
+          "value": "gradle"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-27948fe76b5773c9e7b6",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:89",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTasksStream",
+          "value": {
+            "asynchronous": false,
+            "callee": "tasks.toExternal"
+          }
+        },
+        {
+          "confidence": 0.0,
+          "fact_id": "fact-31aaffede7c276a179d2",
+          "predicate": "persistence_writer",
+          "provenance": [],
+          "rationale": "No deterministic source evidence for writer persistence behavior was found in scope.",
+          "source_kind": "unknown",
+          "source_version": "ee66e1526b84c026615df032c705842b7d2a521f",
+          "status": "unknown",
+          "subject": "project",
+          "value": null
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-35658adc1d6c2ac5f325",
+          "predicate": "build_version",
+          "provenance": [
+            {
+              "locator": "line:4",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "contradictory",
+          "subject": "app/build.gradle.kts",
+          "value": {
+            "field": "Version",
+            "value": "2.0"
+          }
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-35e255a6cba0b7e89c37",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:169",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:or",
+          "value": "or"
+        },
+        {
+          "confidence": 0.0,
+          "fact_id": "fact-43e83436039c9e5bfe15",
+          "predicate": "persistence_reader",
+          "provenance": [],
+          "rationale": "No deterministic source evidence for reader persistence behavior was found in scope.",
+          "source_kind": "unknown",
+          "source_version": "ee66e1526b84c026615df032c705842b7d2a521f",
+          "status": "unknown",
+          "subject": "project",
+          "value": null
+        },
+        {
+          "confidence": 0.94,
+          "fact_id": "fact-45b5a3286d83ee0f4ffb",
+          "predicate": "ownership_boundary",
+          "provenance": [
+            {
+              "locator": "line:48",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:top-level",
+          "value": "CoroutineScope"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-4646a9060caaf6f80f39",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:81",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:withContext",
+          "value": "withContext"
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-50968cc524685af9a02c",
+          "predicate": "build_version",
+          "provenance": [
+            {
+              "locator": "line:4",
+              "ref": "settings.gradle.kts",
+              "source_sha256": "5ee0bb4b4067a4deb055a6de629e6cfc78ca94329b72fbf17fae55aeb1f0a36f"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "5ee0bb4b4067a4deb055a6de629e6cfc78ca94329b72fbf17fae55aeb1f0a36f",
+          "status": "known",
+          "subject": "settings.gradle.kts",
+          "value": {
+            "field": "Version",
+            "value": "2.0"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-536bbc08502f8ce63565",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:112",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTask",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.getById"
+          }
+        },
+        {
+          "confidence": 0.85,
+          "fact_id": "fact-53e91f8a4c7be820ac71",
+          "predicate": "quality_contract_signal",
+          "provenance": [
+            {
+              "locator": "line:144",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "known",
+          "subject": "app/build.gradle.kts:144",
+          "value": "implementation(libs.androidx.lifecycle.viewModelCompose)"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-543714545ea942fca917",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:176",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:saveTasksToNetwork",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.getAll"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-593735763154c7b20a66",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:25",
+              "ref": "settings.gradle.kts",
+              "source_sha256": "5ee0bb4b4067a4deb055a6de629e6cfc78ca94329b72fbf17fae55aeb1f0a36f"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "5ee0bb4b4067a4deb055a6de629e6cfc78ca94329b72fbf17fae55aeb1f0a36f",
+          "status": "known",
+          "subject": "settings.gradle.kts:top-level",
+          "value": {
+            "asynchronous": false,
+            "callee": "repositoriesMode.set"
+          }
+        },
+        {
+          "confidence": 0.85,
+          "fact_id": "fact-5b8acd90e7939c026965",
+          "predicate": "quality_contract_signal",
+          "provenance": [
+            {
+              "locator": "line:123",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "known",
+          "subject": "app/build.gradle.kts:123",
+          "value": "implementation(libs.androidx.lifecycle.runtimeCompose)"
+        },
+        {
+          "confidence": 0.85,
+          "fact_id": "fact-689cbfb8268dbac7811d",
+          "predicate": "quality_contract_signal",
+          "provenance": [
+            {
+              "locator": "line:143",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "known",
+          "subject": "app/build.gradle.kts:143",
+          "value": "implementation(libs.androidx.lifecycle.runtimeCompose)"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-69511497082b2b27cef2",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:73",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:Exception",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.upsert"
+          }
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-6ab34bada979eab2063d",
+          "predicate": "component_exported",
+          "provenance": [
+            {
+              "locator": "line:26",
+              "ref": "app/src/main/AndroidManifest.xml",
+              "source_sha256": "4b2019952d84c7af0e7dc390d9cf34fe0e82f6477966abfc49457f6fb36a2205"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "4b2019952d84c7af0e7dc390d9cf34fe0e82f6477966abfc49457f6fb36a2205",
+          "status": "known",
+          "subject": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+          "value": true
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-7082ab7542741f89cf54",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:116",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:completeTask",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.updateCompleted"
+          }
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-887ab89bffa39ed98179",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:51",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:createTask",
+          "value": "createTask"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-8ffd1b6f5b799d80e38e",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:147",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:function",
+          "value": "function"
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-90992140cf405ae90fe8",
+          "predicate": "build_version",
+          "provenance": [
+            {
+              "locator": "line:34",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "contradictory",
+          "subject": "app/build.gradle.kts",
+          "value": {
+            "field": "versionName",
+            "value": "1.0"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-91b13e63e20e0a747b8f",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:180",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:saveTasksToNetwork",
+          "value": {
+            "asynchronous": false,
+            "callee": "networkDataSource.saveTasks"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-96277ee0013f0406d9e2",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:62",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:createTask",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.upsert"
+          }
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-97c7f27487658a69a14d",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:98",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTaskStream",
+          "value": "getTaskStream"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-9c5b3cdf92293fc0cee7",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:32",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "contradictory",
+          "subject": "app/build.gradle.kts:top-level",
+          "value": {
+            "asynchronous": false,
+            "callee": "targetSdk.get"
+          }
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-9d306e7d7ca1a3f50fdb",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:77",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTasks",
+          "value": "getTasks"
+        },
+        {
+          "confidence": 0.0,
+          "fact_id": "fact-9ddcdf077d8f77438400",
+          "predicate": "persistence_version",
+          "provenance": [],
+          "rationale": "No deterministic source evidence for version persistence behavior was found in scope.",
+          "source_kind": "unknown",
+          "source_version": "ee66e1526b84c026615df032c705842b7d2a521f",
+          "status": "unknown",
+          "subject": "project",
+          "value": null
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-9f30bfb1e879c8e03aa6",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:159",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh",
+          "value": {
+            "asynchronous": false,
+            "callee": "networkDataSource.loadTasks"
+          }
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-9f738270183fcad8eabb",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:71",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:Exception",
+          "value": "Exception"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-9fe0d2630365ffa40ffb",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:120",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:activateTask",
+          "value": "activateTask"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-a5a89149ab602d68005c",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:27",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "contradictory",
+          "subject": "app/build.gradle.kts:top-level",
+          "value": {
+            "asynchronous": false,
+            "callee": "compileSdk.get"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-a76e8034d288be776c78",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:136",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:deleteTask",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.deleteById"
+          }
+        },
+        {
+          "confidence": 0.98,
+          "fact_id": "fact-a7990e95053130094f32",
+          "predicate": "symbol_kind",
+          "provenance": [
+            {
+              "locator": "line:44",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "DefaultTaskRepository",
+          "value": "class"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-ade273f54b94cfa6f57f",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:121",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:activateTask",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.updateCompleted"
+          }
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-aefe127a47b0c9f8b3ee",
+          "predicate": "application_id",
+          "provenance": [
+            {
+              "locator": "line:30",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "known",
+          "subject": "project",
+          "value": "com.example.android.architecture.blueprints.main"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-b3f96dd1c0f1591a9a27",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:31",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "contradictory",
+          "subject": "app/build.gradle.kts:top-level",
+          "value": {
+            "asynchronous": false,
+            "callee": "minSdk.get"
+          }
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-ba8370bcfeaf4c03c490",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:108",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTask",
+          "value": "getTask"
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-bb52c08224b813c28112",
+          "predicate": "application_class",
+          "provenance": [
+            {
+              "locator": "line:19",
+              "ref": "app/src/main/AndroidManifest.xml",
+              "source_sha256": "4b2019952d84c7af0e7dc390d9cf34fe0e82f6477966abfc49457f6fb36a2205"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "4b2019952d84c7af0e7dc390d9cf34fe0e82f6477966abfc49457f6fb36a2205",
+          "status": "known",
+          "subject": "application",
+          "value": ".TodoApplication"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-be4a7babfced6c2f688c",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:173",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:saveTasksToNetwork",
+          "value": "saveTasksToNetwork"
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-c6369a1d86523782c38a",
+          "predicate": "component_kind",
+          "provenance": [
+            {
+              "locator": "line:26",
+              "ref": "app/src/main/AndroidManifest.xml",
+              "source_sha256": "4b2019952d84c7af0e7dc390d9cf34fe0e82f6477966abfc49457f6fb36a2205"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "4b2019952d84c7af0e7dc390d9cf34fe0e82f6477966abfc49457f6fb36a2205",
+          "status": "known",
+          "subject": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+          "value": "activity"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-ce8871ff3636fea96acf",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:94",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refreshTask",
+          "value": "refreshTask"
+        },
+        {
+          "confidence": 0.85,
+          "fact_id": "fact-d5572817c0244aa7c866",
+          "predicate": "quality_contract_signal",
+          "provenance": [
+            {
+              "locator": "line:124",
+              "ref": "app/build.gradle.kts",
+              "source_sha256": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "f97c61d9f8ebc48c4a4ce6327d974c61a6338a2e8481ce43a68901f9d2d23e70",
+          "status": "known",
+          "subject": "app/build.gradle.kts:124",
+          "value": "implementation(libs.androidx.lifecycle.viewModelCompose)"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-d59c360ef027f0df65f9",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:86",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTasksStream",
+          "value": "getTasksStream"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-d5b01b48f648ac6e5b18",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:141",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:from",
+          "value": "from"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-d8015b8d6fc2862b5a19",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:131",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:deleteAllTasks",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.deleteAll"
+          }
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-dd5475f4798c027c9ab1",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:135",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:deleteTask",
+          "value": "deleteTask"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-e3c4f7705caf0cf52926",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:125",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:clearCompletedTasks",
+          "value": "clearCompletedTasks"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-ee4667c1e803ba8beeaf",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:130",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:deleteAllTasks",
+          "value": "deleteAllTasks"
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-f0668b3d9ed6b26aeb3d",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:126",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:clearCompletedTasks",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.deleteCompleted"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-f77aec1d77837305e3db",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:161",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "contradictory",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.upsertAll"
+          }
+        },
+        {
+          "confidence": 0.9,
+          "fact_id": "fact-f8b0e96b858bfa5c68f4",
+          "predicate": "call_site",
+          "provenance": [
+            {
+              "locator": "line:99",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTaskStream",
+          "value": {
+            "asynchronous": false,
+            "callee": "localDataSource.observeById"
+          }
+        },
+        {
+          "confidence": 0.94,
+          "fact_id": "fact-f90983f8ae67494603cf",
+          "predicate": "ownership_boundary",
+          "provenance": [
+            {
+              "locator": "line:24",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:top-level",
+          "value": "CoroutineScope"
+        },
+        {
+          "confidence": 0.96,
+          "fact_id": "fact-fa20407e27585695ff08",
+          "predicate": "function_signature",
+          "provenance": [
+            {
+              "locator": "line:115",
+              "ref": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+              "source_sha256": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc"
+            }
+          ],
+          "source_kind": "derived",
+          "source_version": "8e03787673ec5f060f0071a43712e7b3156a9e6b16ac954840f8c05807fa8fbc",
+          "status": "known",
+          "subject": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:completeTask",
+          "value": "completeTask"
+        },
+        {
+          "confidence": 1.0,
+          "fact_id": "fact-fa385fd15b54559d4c3c",
+          "predicate": "build_system",
+          "provenance": [
+            {
+              "locator": "line:1",
+              "ref": "settings.gradle.kts",
+              "source_sha256": "5ee0bb4b4067a4deb055a6de629e6cfc78ca94329b72fbf17fae55aeb1f0a36f"
+            }
+          ],
+          "source_kind": "declared",
+          "source_version": "5ee0bb4b4067a4deb055a6de629e6cfc78ca94329b72fbf17fae55aeb1f0a36f",
+          "status": "known",
+          "subject": "settings.gradle.kts",
+          "value": "gradle"
+        }
+      ],
+      "graph_id": "architecture-samples-ee66e152-context-c186d702bc55",
+      "nodes": [
+        {
+          "kind": "api",
+          "label": "UUID.randomUUID",
+          "node_id": "api-8449da12f1e21a9b",
+          "source_fact_ids": [
+            "fact-16789ae8c112654debd4"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "compileSdk.get",
+          "node_id": "api-7a66fce2942c7c7a",
+          "source_fact_ids": [
+            "fact-a5a89149ab602d68005c"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.deleteAll",
+          "node_id": "api-60a8e6260bdea01b",
+          "source_fact_ids": [
+            "fact-1ceff7ba8d60d69d9cfd",
+            "fact-d8015b8d6fc2862b5a19"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.deleteById",
+          "node_id": "api-8d1363f21f5debe3",
+          "source_fact_ids": [
+            "fact-a76e8034d288be776c78"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.deleteCompleted",
+          "node_id": "api-b9a31b20bd02ae2d",
+          "source_fact_ids": [
+            "fact-f0668b3d9ed6b26aeb3d"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.getAll",
+          "node_id": "api-d4619c22a0b93761",
+          "source_fact_ids": [
+            "fact-1b9ed1ede43dae6985c6",
+            "fact-543714545ea942fca917"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.getById",
+          "node_id": "api-c90fafc612076017",
+          "source_fact_ids": [
+            "fact-536bbc08502f8ce63565"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.observeAll",
+          "node_id": "api-de82263a23c3745c",
+          "source_fact_ids": [
+            "fact-0461d6ea838978bbdfee"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.observeById",
+          "node_id": "api-413166f82afdf7b6",
+          "source_fact_ids": [
+            "fact-f8b0e96b858bfa5c68f4"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.updateCompleted",
+          "node_id": "api-cc07f35fcbc8186a",
+          "source_fact_ids": [
+            "fact-7082ab7542741f89cf54",
+            "fact-ade273f54b94cfa6f57f"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.upsert",
+          "node_id": "api-502d8d950bb661cd",
+          "source_fact_ids": [
+            "fact-69511497082b2b27cef2",
+            "fact-96277ee0013f0406d9e2"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "localDataSource.upsertAll",
+          "node_id": "api-91279d409a1c08f1",
+          "source_fact_ids": [
+            "fact-f77aec1d77837305e3db"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "localTasks.toNetwork",
+          "node_id": "api-bc8c158248eb0843",
+          "source_fact_ids": [
+            "fact-0bf43f614204f834efcc"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "minSdk.get",
+          "node_id": "api-2aad3e945c126ffc",
+          "source_fact_ids": [
+            "fact-b3f96dd1c0f1591a9a27"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "networkDataSource.loadTasks",
+          "node_id": "api-23e1bb4aaf098f32",
+          "source_fact_ids": [
+            "fact-9f30bfb1e879c8e03aa6"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "networkDataSource.saveTasks",
+          "node_id": "api-0d91206eb657733b",
+          "source_fact_ids": [
+            "fact-91b13e63e20e0a747b8f"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "repositoriesMode.set",
+          "node_id": "api-9ee60054827b018c",
+          "source_fact_ids": [
+            "fact-593735763154c7b20a66"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "api",
+          "label": "targetSdk.get",
+          "node_id": "api-7f874ddd97b405e3",
+          "source_fact_ids": [
+            "fact-9c5b3cdf92293fc0cee7"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "api",
+          "label": "tasks.toExternal",
+          "node_id": "api-d16b255a211a2b99",
+          "source_fact_ids": [
+            "fact-27948fe76b5773c9e7b6"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "component",
+          "label": ".TodoApplication",
+          "node_id": "component-7fc194900886404a",
+          "source_fact_ids": [
+            "fact-bb52c08224b813c28112"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "component",
+          "label": "DefaultTaskRepository",
+          "node_id": "component-45d1e8535dbfea02",
+          "source_fact_ids": [
+            "fact-a7990e95053130094f32"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "component",
+          "label": "com.example.android.architecture.blueprints.main",
+          "node_id": "component-792192e1eef142b0",
+          "source_fact_ids": [
+            "fact-aefe127a47b0c9f8b3ee"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "component",
+          "label": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+          "node_id": "component-9db6e8d89b4a700a",
+          "source_fact_ids": [
+            "fact-6ab34bada979eab2063d",
+            "fact-c6369a1d86523782c38a"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/build.gradle.kts:top-level",
+          "node_id": "operation-cc1571d5831bffd0",
+          "source_fact_ids": [
+            "fact-9c5b3cdf92293fc0cee7",
+            "fact-a5a89149ab602d68005c",
+            "fact-b3f96dd1c0f1591a9a27"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:Exception",
+          "node_id": "operation-b395d8a26dbd7235",
+          "source_fact_ids": [
+            "fact-69511497082b2b27cef2",
+            "fact-9f738270183fcad8eabb"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:activateTask",
+          "node_id": "operation-0d2b4dc519ffd54d",
+          "source_fact_ids": [
+            "fact-9fe0d2630365ffa40ffb",
+            "fact-ade273f54b94cfa6f57f"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:clearCompletedTasks",
+          "node_id": "operation-fc69fea3559c35db",
+          "source_fact_ids": [
+            "fact-e3c4f7705caf0cf52926",
+            "fact-f0668b3d9ed6b26aeb3d"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:completeTask",
+          "node_id": "operation-30d5de8abf551d08",
+          "source_fact_ids": [
+            "fact-7082ab7542741f89cf54",
+            "fact-fa20407e27585695ff08"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:createTask",
+          "node_id": "operation-a15402545325df66",
+          "source_fact_ids": [
+            "fact-16789ae8c112654debd4",
+            "fact-887ab89bffa39ed98179",
+            "fact-96277ee0013f0406d9e2"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:deleteAllTasks",
+          "node_id": "operation-38e3d68b909488ef",
+          "source_fact_ids": [
+            "fact-d8015b8d6fc2862b5a19",
+            "fact-ee4667c1e803ba8beeaf"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:deleteTask",
+          "node_id": "operation-fd4cb7f7406c6327",
+          "source_fact_ids": [
+            "fact-a76e8034d288be776c78",
+            "fact-dd5475f4798c027c9ab1"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:from",
+          "node_id": "operation-739ce80133c9b65d",
+          "source_fact_ids": [
+            "fact-d5b01b48f648ac6e5b18"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:function",
+          "node_id": "operation-254b5605cf23d082",
+          "source_fact_ids": [
+            "fact-8ffd1b6f5b799d80e38e"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTask",
+          "node_id": "operation-24a08bfac3634788",
+          "source_fact_ids": [
+            "fact-536bbc08502f8ce63565",
+            "fact-ba8370bcfeaf4c03c490"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTaskStream",
+          "node_id": "operation-f8bc0b5410387d46",
+          "source_fact_ids": [
+            "fact-97c7f27487658a69a14d",
+            "fact-f8b0e96b858bfa5c68f4"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTasks",
+          "node_id": "operation-01a486c511ca66b6",
+          "source_fact_ids": [
+            "fact-9d306e7d7ca1a3f50fdb"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:getTasksStream",
+          "node_id": "operation-c9896c9a4474047f",
+          "source_fact_ids": [
+            "fact-0461d6ea838978bbdfee",
+            "fact-27948fe76b5773c9e7b6",
+            "fact-d59c360ef027f0df65f9"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:or",
+          "node_id": "operation-362b4c3249ea2baa",
+          "source_fact_ids": [
+            "fact-35e255a6cba0b7e89c37"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh",
+          "node_id": "operation-7bd82a97491930c4",
+          "source_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-1ceff7ba8d60d69d9cfd",
+            "fact-9f30bfb1e879c8e03aa6",
+            "fact-f77aec1d77837305e3db"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refreshTask",
+          "node_id": "operation-8faadbf0990b2835",
+          "source_fact_ids": [
+            "fact-ce8871ff3636fea96acf"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:saveTasksToNetwork",
+          "node_id": "operation-0e33beaa49ccdcc9",
+          "source_fact_ids": [
+            "fact-0bf43f614204f834efcc",
+            "fact-543714545ea942fca917",
+            "fact-91b13e63e20e0a747b8f",
+            "fact-be4a7babfced6c2f688c"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:top-level",
+          "node_id": "operation-79749ddc965900c9",
+          "source_fact_ids": [
+            "fact-45b5a3286d83ee0f4ffb",
+            "fact-f90983f8ae67494603cf"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:updateTask",
+          "node_id": "operation-58aa504f2c86a69c",
+          "source_fact_ids": [
+            "fact-159e53d9b7fbe270a469"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:withContext",
+          "node_id": "operation-42e521adc4161ac8",
+          "source_fact_ids": [
+            "fact-1b9ed1ede43dae6985c6",
+            "fact-4646a9060caaf6f80f39"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "operation",
+          "label": "settings.gradle.kts:top-level",
+          "node_id": "operation-d262e07f364cbabb",
+          "source_fact_ids": [
+            "fact-593735763154c7b20a66"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "quality_contract",
+          "label": "build:gradle",
+          "node_id": "quality_contract-d5ec388114709550",
+          "source_fact_ids": [
+            "fact-1fac2ed0ec2b5043d113",
+            "fact-fa385fd15b54559d4c3c"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "quality_contract",
+          "label": "quality:app/build.gradle.kts:123",
+          "node_id": "quality_contract-692ed41ade60431f",
+          "source_fact_ids": [
+            "fact-5b8acd90e7939c026965"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "quality_contract",
+          "label": "quality:app/build.gradle.kts:124",
+          "node_id": "quality_contract-0a06effe9ed6f937",
+          "source_fact_ids": [
+            "fact-d5572817c0244aa7c866"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "quality_contract",
+          "label": "quality:app/build.gradle.kts:143",
+          "node_id": "quality_contract-c13ec2dc487074bd",
+          "source_fact_ids": [
+            "fact-689cbfb8268dbac7811d"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "quality_contract",
+          "label": "quality:app/build.gradle.kts:144",
+          "node_id": "quality_contract-0dd2ca50f4bc5747",
+          "source_fact_ids": [
+            "fact-53e91f8a4c7be820ac71"
+          ],
+          "status": "known"
+        },
+        {
+          "kind": "quality_contract",
+          "label": "version:Version",
+          "node_id": "quality_contract-e8a883614b35a10b",
+          "source_fact_ids": [
+            "fact-35658adc1d6c2ac5f325",
+            "fact-50968cc524685af9a02c"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "quality_contract",
+          "label": "version:versionCode",
+          "node_id": "quality_contract-606492e7e2fb1551",
+          "source_fact_ids": [
+            "fact-0e4b468ae1ffed63d175"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "quality_contract",
+          "label": "version:versionName",
+          "node_id": "quality_contract-2d1ffd69e364a474",
+          "source_fact_ids": [
+            "fact-90992140cf405ae90fe8"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "kind": "resource",
+          "label": "CoroutineScope",
+          "node_id": "resource-6876c629dddce1b5",
+          "source_fact_ids": [
+            "fact-45b5a3286d83ee0f4ffb",
+            "fact-f90983f8ae67494603cf"
+          ],
+          "status": "known"
+        }
+      ],
+      "schema_version": 1,
+      "source_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+      "source_origin": "https://github.com/android/architecture-samples.git",
+      "source_tree_sha256": "c186d702bc55dbc5ac28ca44437401ecb8eed6cbf49f6e913020c887f651b941",
+      "target_id": "architecture-samples-ee66e152"
+    },
+    "request_id": "m9-137-hypothesis-generation-01",
+    "schema_version": 1,
+    "target": {
+      "discovery_budget": 8,
+      "kind": "project",
+      "schema_version": 1,
+      "scope": [
+        "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+        "app/src/main/AndroidManifest.xml",
+        "app/build.gradle.kts",
+        "settings.gradle.kts"
+      ],
+      "source_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+      "source_origin": "https://github.com/android/architecture-samples.git",
+      "target_id": "architecture-samples-ee66e152",
+      "worktree": "/private/tmp/m9-137-context-project"
+    }
+  },
+  "response": {
+    "authoritative_output_sha256": "9fed9e61c2ab34b233cc6244ca6ce16ad644ad9f542e16b23fbb4dff7b2e51a9",
+    "candidates": [
+      {
+        "candidate_id": "candidate-m9-portfolio-1",
+        "failure_chain": {
+          "causal_roles": [
+            "local_behavior",
+            "dependency_propagation",
+            "system_impact"
+          ],
+          "chain_id": "chain-m9-portfolio-1",
+          "consequence": "synchronous task-state continuity across a bounded call boundary",
+          "fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "schema_version": 1,
+          "steps": [
+            "the source boundary is entered",
+            "the bounded operation crosses the recorded boundary",
+            "the quality property is exposed: synchronous task-state continuity across a bounded call boundary"
+          ]
+        },
+        "hypothesis": {
+          "assumptions": [
+            "the recorded source boundary remains the active local path",
+            "the bounded observation stays within the declared safety boundary"
+          ],
+          "confidence": 0.6,
+          "consequence": "synchronous task-state continuity across a bounded call boundary",
+          "failure_chain_id": "chain-m9-portfolio-1",
+          "hypothesis_id": "hypothesis-m9-portfolio-1",
+          "mechanism": "the synchronous critical-path temporal propagation path carries state across the recorded boundary",
+          "prior_id": "prior-synchronous-critical-path-v1",
+          "quality_property": "synchronous task-state continuity across a bounded call boundary",
+          "rationale": "Three provenance-bound source facts connect the recorded boundary to this quality property; execution evidence is still absent.",
+          "required_evidence": [
+            "source boundary identity",
+            "bounded state observation",
+            "terminal execution evidence"
+          ],
+          "schema_version": 1,
+          "status": "draft",
+          "supporting_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "target_id": "architecture-samples-ee66e152",
+          "trigger": "the recorded function_signature at app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh is exercised",
+          "unknowns": [
+            "runtime boundary evidence remains unresolved"
+          ]
+        },
+        "operator_id": "operator-bounded-latency",
+        "prior_id": "prior-synchronous-critical-path-v1",
+        "schema_version": 1,
+        "uncertainty": [
+          "runtime boundary evidence remains unresolved"
+        ]
+      },
+      {
+        "candidate_id": "candidate-m9-portfolio-2",
+        "failure_chain": {
+          "causal_roles": [
+            "local_behavior",
+            "dependency_propagation",
+            "system_impact"
+          ],
+          "chain_id": "chain-m9-portfolio-2",
+          "consequence": "durable task-state continuity across a bounded recovery boundary",
+          "fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "schema_version": 1,
+          "steps": [
+            "the source boundary is entered",
+            "the bounded operation crosses the recorded boundary",
+            "the quality property is exposed: durable task-state continuity across a bounded recovery boundary"
+          ]
+        },
+        "hypothesis": {
+          "assumptions": [
+            "the recorded source boundary remains the active local path",
+            "the bounded observation stays within the declared safety boundary"
+          ],
+          "confidence": 0.6,
+          "consequence": "durable task-state continuity across a bounded recovery boundary",
+          "failure_chain_id": "chain-m9-portfolio-2",
+          "hypothesis_id": "hypothesis-m9-portfolio-2",
+          "mechanism": "the historical-state compatibility across recovery path carries state across the recorded boundary",
+          "prior_id": "prior-state-evolution-compatibility-v1",
+          "quality_property": "durable task-state continuity across a bounded recovery boundary",
+          "rationale": "Three provenance-bound source facts connect the recorded boundary to this quality property; execution evidence is still absent.",
+          "required_evidence": [
+            "source boundary identity",
+            "bounded state observation",
+            "terminal execution evidence"
+          ],
+          "schema_version": 1,
+          "status": "draft",
+          "supporting_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "target_id": "architecture-samples-ee66e152",
+          "trigger": "the recorded function_signature at app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh is exercised",
+          "unknowns": [
+            "runtime boundary evidence remains unresolved"
+          ]
+        },
+        "operator_id": "operator-bounded-historical-state-replay",
+        "prior_id": "prior-state-evolution-compatibility-v1",
+        "schema_version": 1,
+        "uncertainty": [
+          "runtime boundary evidence remains unresolved"
+        ]
+      },
+      {
+        "candidate_id": "candidate-m9-portfolio-3",
+        "failure_chain": {
+          "causal_roles": [
+            "local_behavior",
+            "dependency_propagation",
+            "system_impact"
+          ],
+          "chain_id": "chain-m9-portfolio-3",
+          "consequence": "lifecycle ownership continuity for a task resource",
+          "fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "schema_version": 1,
+          "steps": [
+            "the source boundary is entered",
+            "the bounded operation crosses the recorded boundary",
+            "the quality property is exposed: lifecycle ownership continuity for a task resource"
+          ]
+        },
+        "hypothesis": {
+          "assumptions": [
+            "the recorded source boundary remains the active local path",
+            "the bounded observation stays within the declared safety boundary"
+          ],
+          "confidence": 0.6,
+          "consequence": "lifecycle ownership continuity for a task resource",
+          "failure_chain_id": "chain-m9-portfolio-3",
+          "hypothesis_id": "hypothesis-m9-portfolio-3",
+          "mechanism": "the lifecycle and resource ownership drift path carries state across the recorded boundary",
+          "prior_id": "prior-lifetime-ownership-drift-v1",
+          "quality_property": "lifecycle ownership continuity for a task resource",
+          "rationale": "Three provenance-bound source facts connect the recorded boundary to this quality property; execution evidence is still absent.",
+          "required_evidence": [
+            "source boundary identity",
+            "bounded state observation",
+            "terminal execution evidence"
+          ],
+          "schema_version": 1,
+          "status": "draft",
+          "supporting_fact_ids": [
+            "fact-11fe26de46ee501ef60a",
+            "fact-159e53d9b7fbe270a469",
+            "fact-1b9ed1ede43dae6985c6"
+          ],
+          "target_id": "architecture-samples-ee66e152",
+          "trigger": "the recorded function_signature at app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt:refresh is exercised",
+          "unknowns": [
+            "runtime boundary evidence remains unresolved"
+          ]
+        },
+        "operator_id": "operator-bounded-lifecycle-ownership-drift",
+        "prior_id": "prior-lifetime-ownership-drift-v1",
+        "schema_version": 1,
+        "uncertainty": [
+          "runtime boundary evidence remains unresolved"
+        ]
+      }
+    ],
+    "generator_identity": {
+      "backend": "local_deterministic_context_planner",
+      "effective_model": "bounded-m9-generator-v1",
+      "identity_sha256": "dfc343a53163ea434da3cf15a4650f4ec82f8305272ea735d1fd1f2d8efbbf7e",
+      "invocation_id": "m9-137-hypothesis-generator-01",
+      "requested_model": "bounded-m9-generator-v1",
+      "role": "verification-agent-hypothesis-generator-v1",
+      "schema_version": 1
+    },
+    "graph_sha256": "0c6002e96bc2e0695aa8e14af7ddfff9fa97f41d215f995aa5f888c93d856fd3",
+    "rejected_candidates": [],
+    "request_id": "m9-137-hypothesis-generation-01",
+    "schema_version": 1,
+    "status": "complete",
+    "target_id": "architecture-samples-ee66e152"
+  },
+  "schema_version": 1,
+  "side_effects": false
+}

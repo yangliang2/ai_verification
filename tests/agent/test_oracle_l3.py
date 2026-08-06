@@ -127,6 +127,17 @@ def test_l3_retry_on_first_invalid():
     validate_verdict(verdict)
 
 
+def test_l3_formal_one_attempt_does_not_retry_invalid_output():
+    """The M9 formal lane policy treats malformed output as terminal."""
+    provider = MockProvider([_INVALID_VERDICT_JSON, _valid_verdict_json("fail")])
+    oracle = L3Oracle(provider)
+
+    with pytest.raises(VerdictValidationError):
+        oracle.judge(_TRACE, _SPEC, retry_invalid=False)
+
+    assert len(provider.calls) == 1
+
+
 def test_l3_raises_after_double_failure():
     """两次均返回不合法 JSON → 抛出 VerdictValidationError。"""
     provider = MockProvider([_INVALID_VERDICT_JSON, _INVALID_VERDICT_JSON])

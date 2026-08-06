@@ -1,0 +1,158 @@
+{
+  "clean_context_sha256": "e9979d4d8111c7794a19b4720c26c0c45efad1f6813b0bd4cb0961a180f5a4f6",
+  "production_oracle_path_used": false,
+  "reconciliation": {
+    "aggregate_supported": false,
+    "blocking_reasons": [
+      "falsification review blocks aggregate support"
+    ],
+    "finding": {
+      "claim_boundary": "local-only exact source, package, emulator, execution identity, and six-lane evidence boundary",
+      "conclusion": "inconclusive",
+      "evidence_refs": [
+        "raw/absence.json"
+      ],
+      "finding_id": "finding-m9-lane-06",
+      "hypothesis_id": "hypothesis-m9-portfolio-3",
+      "impact": "lifecycle ownership continuity for a task resource",
+      "rationale": "The candidate conclusion is derived from the terminal runner record and bound raw evidence; it is not inferred from source role.",
+      "schema_version": 1,
+      "target_id": "architecture-samples-ee66e152"
+    },
+    "raw_evidence_refs": [
+      {
+        "immutable": true,
+        "kind": "raw-evidence",
+        "ref": "raw/absence.json",
+        "schema_version": 1,
+        "sha256": "842ab21c62d43e7255ffa15c68e2ab5263fc731ada851d01205783441eec66a5"
+      }
+    ],
+    "review_id": "review-m9-137-review-context-m9-lane-06",
+    "review_outcome": "survived",
+    "schema_version": 1
+  },
+  "result": {
+    "authoritative_output_sha256": "c515e80560610a367696d09f79aceda5eb24c2ac6f60b75754112a590cd62819",
+    "context_id": "m9-137-review-context-m9-lane-06",
+    "rejection_reasons": [],
+    "review": {
+      "candidate_finding": {
+        "claim_boundary": "local-only exact source, package, emulator, execution identity, and six-lane evidence boundary",
+        "conclusion": "inconclusive",
+        "evidence_refs": [
+          "raw/absence.json"
+        ],
+        "finding_id": "finding-m9-lane-06",
+        "hypothesis_id": "hypothesis-m9-portfolio-3",
+        "impact": "lifecycle ownership continuity for a task resource",
+        "rationale": "The candidate conclusion is derived from the terminal runner record and bound raw evidence; it is not inferred from source role.",
+        "schema_version": 1,
+        "target_id": "architecture-samples-ee66e152"
+      },
+      "context_id": "m9-137-review-context-m9-lane-06",
+      "context_sha256": "e9979d4d8111c7794a19b4720c26c0c45efad1f6813b0bd4cb0961a180f5a4f6",
+      "dimensions": [
+        {
+          "analysis": "The dimension was assessed against immutable references only.",
+          "dimension": "alternative_explanations",
+          "evidence_refs": [
+            "raw/absence.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The dimension was assessed against immutable references only.",
+          "dimension": "assumption_violations",
+          "evidence_refs": [
+            "raw/absence.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The dimension was assessed against immutable references only.",
+          "dimension": "evidence_integrity",
+          "evidence_refs": [
+            "raw/absence.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The dimension was assessed against immutable references only.",
+          "dimension": "causal_attribution",
+          "evidence_refs": [
+            "raw/absence.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The dimension was assessed against immutable references only.",
+          "dimension": "control_comparison",
+          "evidence_refs": [
+            "raw/absence.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The dimension was assessed against immutable references only.",
+          "dimension": "claim_boundary",
+          "evidence_refs": [
+            "raw/absence.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        }
+      ],
+      "outcome": "survived",
+      "raw_evidence_refs": [
+        {
+          "immutable": true,
+          "kind": "raw-evidence",
+          "ref": "raw/absence.json",
+          "schema_version": 1,
+          "sha256": "842ab21c62d43e7255ffa15c68e2ab5263fc731ada851d01205783441eec66a5"
+        }
+      ],
+      "reasons": [],
+      "review_id": "review-m9-137-review-context-m9-lane-06",
+      "reviewer_identity": {
+        "backend": "local_independent_falsification_reviewer",
+        "effective_model": "deterministic-review-v1",
+        "identity_sha256": "168497f2f76b33b59f8a10689dbefa1d43403d868f98de6611ba700926e061a6",
+        "invocation_id": "m9-137-independent-review-m9-lane-06-01",
+        "provider_family": "local-rule-review",
+        "requested_model": "deterministic-review-v1",
+        "role": "verification-agent-falsification-reviewer-v1",
+        "same_family_limitation": "independent implementation and provider family; no production adjudication path",
+        "schema_version": 1
+      },
+      "schema_version": 1,
+      "target_id": "architecture-samples-ee66e152"
+    },
+    "reviewer_identity": {
+      "backend": "local_independent_falsification_reviewer",
+      "effective_model": "deterministic-review-v1",
+      "identity_sha256": "168497f2f76b33b59f8a10689dbefa1d43403d868f98de6611ba700926e061a6",
+      "invocation_id": "m9-137-independent-review-m9-lane-06-01",
+      "provider_family": "local-rule-review",
+      "requested_model": "deterministic-review-v1",
+      "role": "verification-agent-falsification-reviewer-v1",
+      "same_family_limitation": "independent implementation and provider family; no production adjudication path",
+      "schema_version": 1
+    },
+    "schema_version": 1,
+    "status": "complete"
+  },
+  "schema_version": 1
+}

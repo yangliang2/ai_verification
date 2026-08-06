@@ -1,0 +1,25 @@
+{
+  "claim_boundary": "local-only exact source, package, emulator, execution identity, and six-lane evidence boundary",
+  "clear_mapping_assignments_persisted": false,
+  "formal_population_rerun": false,
+  "mapping_file_read_or_released_again": false,
+  "outcome_changed": false,
+  "performed_after_formal_execution": true,
+  "preserved": [
+    "lane order",
+    "terminal ExecutionRecord and accountability status",
+    "aggregate defect/control reconciliation counts",
+    "zero retry and zero replacement accounting",
+    "all raw/evidence/review checksums"
+  ],
+  "reason": "Keep auditor role assignments out of committed verifier-facing lane evidence.",
+  "removed_fields": [
+    "formal-artifacts/m9-lane-*/fixture-preparation.json:role",
+    "formal-artifacts/m9-lane-*/lane-result.json:role",
+    "formal-execution-summary.json:rows[*].role",
+    "formal-execution-summary.json:reconciliation.lanes[*].role",
+    "final-reconciliation.json:lanes[*].role"
+  ],
+  "schema_version": 1,
+  "status": "completed"
+}

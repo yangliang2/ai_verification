@@ -314,13 +314,13 @@ fixture edit, oracle change, or reinterpretation of that frozen population.
 
 ## M9 source-of-truth boundary
 
-M9 parent #128 is the approved, planned unseen-project adversarial discovery slice;
-it is not yet a measured qualification. Its chain is
+M9 parent #128 is the approved unseen-project adversarial discovery slice. Its
+chain is
 `ProjectTarget → Context Acquisition → Hypothesis Portfolio → Attack Plan`
 `→ production-seam admission → accountable runtime execution → Falsification Review`
-`→ Project Risk Map`. The four M9 terms above are domain contracts; later issues
-may implement them but must not treat this source-of-truth issue as evidence of
-implementation or holdout execution.
+`→ Project Risk Map`. The four M9 terms above are domain contracts; #137
+consumed the frozen chain once and recorded the result below without converting
+non-accountable setup evidence into a runtime claim.
 
 Formal M9 qualification is **ProjectTarget-only**: the Verification Agent receives
 only complete source provenance, scope, and a bounded budget, with no diff,
@@ -334,13 +334,13 @@ Three Risk Priors compete under one bounded Hypothesis Portfolio policy:
 2. state-evolution compatibility drift;
 3. lifetime/ownership drift.
 
-The formal population is six planned lanes: `project-defect × 3` and
-`project-control × 3`; their exact order will be frozen only after human
-approval at the #136 qualification gate. No M9 lane order is frozen yet. One
-incomplete or contradictory context packet is a denominator-external
-contradiction packet and must be rejected before build, device, agent, or
-runtime side effects. Every formal lane has one attempt, zero retry, and zero
-replacement. Hidden mapping is released only after Context
+The formal population is six lanes: `project-defect × 3` and
+`project-control × 3`, consumed in the human-approved order
+`m9-lane-01` through `m9-lane-06` from the exact #136 merge. One incomplete or
+contradictory context packet is a denominator-external contradiction packet and
+must be rejected before build, device, agent, or runtime side effects. Every
+formal lane has one attempt, zero retry, and zero replacement. Hidden mapping is
+released only after Context
 Acquisition, portfolio freeze, Attack Plan admission, and leakage audit.
 
 Falsification Review is a clean-context, separately identified challenge of each
@@ -352,6 +352,21 @@ All M9 conclusions remain local-only to the exact source, build, target, device,
 operator, backend/model identity, oracle, review, and committed evidence. M9 does
 not claim benchmark rates, project completeness, general Android, physical/OEM/
 ColorOS coverage, production behavior, upstream acceptance, or a rerun of M8.
+
+## M9 #137 execution result
+
+#137 consumed exact #136 merge `7f24d3efe6f92b79de021b2641ba94e7e50ef5fd`.
+Contradiction rejection, Context Acquisition, top-three portfolio freeze,
+target-specific Attack Plan admission, and leakage audit passed in order. All
+six lanes then reached terminal `non-accountable` records at the package-clear
+setup step on a fresh API-35 emulator because the package was not installed and
+`pm clear` returned `Failed`. The aggregate is `Not Supported`, with 0/6
+accountable, 0/3 defect support, 0/3 control rejection, six complete
+independent reviews over inconclusive records, zero retries, and zero
+replacements. No install, launch, Codex invocation, screenshot, layout, logcat,
+or runtime oracle evidence exists. The immutable run record is committed at
+`docs/runs/2026-08-06-issue-137-formal-execution/`; the future-only idempotent
+package-clear repair is not authorization to rerun or replace this population.
 
 ## ADR assessment
 
