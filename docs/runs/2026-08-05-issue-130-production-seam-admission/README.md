@@ -4,6 +4,7 @@ Issue: [#130](https://github.com/yangliang2/ai_verification/issues/130)<br>
 Base: `origin/main` / `aa486e1ca32baa83c9766aa8937bf31b9c962655`<br>
 Branch: `m9-130-production-seam-admission`<br>
 Implementation commit: `0a0224999544824b5c3c5024453af5b89188f984`<br>
+Evidence content commit: `3359508c6cf45a13cb21ec049be4933c8b58cc82`<br>
 
 ## Scope and result
 
@@ -78,8 +79,8 @@ regeneration and no-external-side-effects checks recorded in validation-output.j
 ```
 
 The package build and checksum manifest are committed with this record. The
-final evidence-content commit and merged PR commit are added to this record in
-the completion handoff because a commit cannot contain its own SHA.
+merged PR commit is added to the completion handoff because a commit cannot
+contain the SHA of a commit that contains the record itself.
 
 Tool identity: system Python 3.14.4; worktree CPython 3.11.15; uv 0.11.7;
 pytest 9.1.1; pluggy 1.6.0; PyYAML 6.0.3; jsonschema 4.26.0; macOS 26.3 /
