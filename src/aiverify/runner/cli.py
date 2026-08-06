@@ -21,7 +21,7 @@ import argparse
 import json
 import sys
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -37,6 +37,14 @@ from aiverify.runner.command import CommandRunner
 from aiverify.runner.evidence import AndroidEvidenceCollector
 from aiverify.runner.execution_identity import (
     ExecutionIdentityCollector,
+)
+from aiverify.runner.admission import (
+    AdmissionResult,
+    PlannedRunnerOptions,
+    ProductionSeamAdmissionError,
+    admit_production_seam,
+    verify_admitted_receipt,
+    write_admission_receipt,
 )
 from aiverify.runner.execution_record import (
     ArtifactStorageError,
@@ -980,9 +988,39 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         run_spec_path: Path | None = None,
         identity_command_runner: CommandRunner | None = None,
         identity_collector: ExecutionIdentityCollector | None = None,
-        allow_host_project_subdir: bool = False) -> dict:
+        allow_host_project_subdir: bool = False,
+        admission_required: bool = False,
+        admission_receipt: AdmissionResult | Mapping[str, object] | None = None,
+        admission_options: PlannedRunnerOptions | None = None,
+        admission_command_runner: CommandRunner | None = None) -> dict:
     artifact_dir = Path(artifact_dir).resolve()
     workdir = Path(workdir).resolve()
+    if admission_required:
+        if admission_receipt is None or admission_options is None:
+            raise ProductionSeamAdmissionError(
+                "formal runner requires a production-seam admission receipt and policy"
+            )
+        actual_options = PlannedRunnerOptions(
+            device=device,
+            workdir=workdir,
+            artifact_dir=artifact_dir,
+            launch=launch,
+            requested_driver_model=model,
+            requested_l3_model=l3_model,
+            android_bin=spec.live_validation.android_bin,
+            adb_bin=spec.live_validation.adb_bin,
+            allow_host_project_subdir=allow_host_project_subdir,
+        )
+        if actual_options.as_dict() != admission_options.as_dict():
+            raise ProductionSeamAdmissionError(
+                "formal runner options differ from admitted policy"
+            )
+        verify_admitted_receipt(
+            admission_receipt,
+            spec,
+            admission_options,
+            command_runner=admission_command_runner,
+        )
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     run_start = time.monotonic()
     execution_record = ExecutionRecordStore.establish(
@@ -1340,6 +1378,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-launch", action="store_true", help="Do not launch the app first")
     ap.add_argument("--model", default=None, help="Override Codex model")
     ap.add_argument("--l3-model", default=None, help="Override Codex model for the L3 judge")
+    ap.add_argument(
+        "--allow-host-project-subdir",
+        action="store_true",
+        help="Admit a host-project subdirectory under the captured repository root",
+    )
     args = ap.parse_args(argv)
 
     load_kwargs = (
@@ -1349,6 +1392,36 @@ def main(argv: list[str] | None = None) -> int:
     )
     spec = load_run_spec(args.run_spec, **load_kwargs)
     workdir = args.workdir if args.workdir is not None else spec.host_project
+    admission: AdmissionResult | None = None
+    admission_options: PlannedRunnerOptions | None = None
+    admission_required = spec.source_path is not None
+    if admission_required:
+        admission_options = PlannedRunnerOptions(
+            device=args.device,
+            workdir=workdir,
+            artifact_dir=args.artifact_dir,
+            launch=not args.no_launch,
+            requested_driver_model=args.model,
+            requested_l3_model=args.l3_model,
+            android_bin=spec.live_validation.android_bin,
+            adb_bin=spec.live_validation.adb_bin,
+            allow_host_project_subdir=args.allow_host_project_subdir,
+        )
+        admission = admit_production_seam(spec, admission_options)
+        receipt_path = Path(args.artifact_dir).resolve().parent / "production-seam-admission.json"
+        try:
+            receipt_path.parent.mkdir(parents=True, exist_ok=True)
+            write_admission_receipt(admission, receipt_path)
+        except Exception as error:  # noqa: BLE001 - admission evidence is terminal
+            print(f"Production-seam admission receipt failed: {error}", file=sys.stderr)
+            return 2
+        if not admission.admitted:
+            print(
+                "production-seam admission rejected: "
+                + "; ".join(admission.reasons),
+                file=sys.stderr,
+            )
+            return 2
     try:
         verdict = run(
             spec,
@@ -1359,7 +1432,14 @@ def main(argv: list[str] | None = None) -> int:
             model=args.model,
             l3_model=args.l3_model,
             run_spec_path=Path(args.run_spec),
+            allow_host_project_subdir=args.allow_host_project_subdir,
+            admission_required=admission_required,
+            admission_receipt=admission,
+            admission_options=admission_options,
         )
+    except ProductionSeamAdmissionError as error:
+        print(f"Production-seam admission failed: {error}", file=sys.stderr)
+        return 2
     except ExecutionRecordStorageError as error:
         print(f"ExecutionRecord storage failed: {error}", file=sys.stderr)
         return 2
