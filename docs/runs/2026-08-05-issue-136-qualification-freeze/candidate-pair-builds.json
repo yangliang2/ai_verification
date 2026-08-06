@@ -89,12 +89,42 @@
     "device": "not accessed"
   },
   "human_decision": {
-    "selected_option": null,
+    "selected_option": "A",
+    "selection_status": "candidate_selected_full_freeze_pending",
     "approved_pair": null,
     "lane_assignment": null,
     "lane_order": null,
     "mapping_commitment": null,
     "approval_status": "required"
+  },
+  "selected_candidate_pair": {
+    "defect": {
+      "option_id": "A",
+      "origin": "https://github.com/android/architecture-samples.git",
+      "commit": "208575f78d59716669d0733b5ed3e08797b08787",
+      "tree": "34998af23aed59aa17eaf915d848ab1b916a63e2",
+      "worktree": "/private/tmp/m9-136-option-a",
+      "clean": true,
+      "apk_sha256": "61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac",
+      "apk_bytes": 24681461,
+      "build_log": "/private/tmp/m9-136-a-defect-commit-build.log",
+      "build_log_sha256": "e571be75b88a8e529585c74f1a6d64686e3f00ceba2dd1ab91ce258b7ee64843",
+      "gradle_duration": "8s",
+      "actionable_tasks": 43
+    },
+    "control": {
+      "origin": "https://github.com/android/architecture-samples.git",
+      "commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+      "tree": "19455e693ec8c96c37a56aec55059a220826c5a3",
+      "worktree": "/private/tmp/m9-136-candidate-a-control",
+      "clean": true,
+      "apk_sha256": "d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66",
+      "apk_bytes": 24681606,
+      "build_log": "/private/tmp/m9-136-a-control-commit-build.log",
+      "build_log_sha256": "3fb4c3d19d0f75446b6a317dde76fc6915555071654121e20dccecc140c7f874",
+      "gradle_duration": "28s",
+      "actionable_tasks": 43
+    }
   },
   "side_effects": {
     "upstream": false,

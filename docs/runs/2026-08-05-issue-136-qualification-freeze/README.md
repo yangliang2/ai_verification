@@ -22,11 +22,11 @@ decision artifacts, not frozen lane inputs.
 
 ## Human gate status
 
-No target/cohort decision has been made by the agent. The clear defect/control
-mapping is absent, no commitment has been created, and the proposed opaque
-lane order is not approved. The packet therefore does not claim that this
-public project is the final unfamiliar target or that any mutation is the
-approved defect/control pair.
+The human has selected candidate option A for further preparation. This is not
+the final freeze approval: the clear lane mapping is absent, no commitment has
+been created, and the opaque lane order and remaining freeze contract are not
+approved. The packet therefore does not claim that this public project is the
+final unfamiliar target or that any formal lane is approved.
 
 The human decision still needs to approve the exact source snapshot, matched
 defect/control pair, three defect lanes and three control lanes, lane order,
@@ -81,7 +81,8 @@ M9 result may be inferred from it.
 ## Known gaps and boundary
 
 - Human has not approved the candidate target or unfamiliarity.
-- No matched defect/control pair has been selected or materialized.
+- Candidate A has been materialized and built, but the matched pair is not
+  frozen until the remaining human contract fields are approved.
 - No clear mapping or commitment exists.
 - No candidate option has been approved; the three compiled options remain
   mutually exclusive decision material only.
