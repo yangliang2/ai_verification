@@ -56,10 +56,10 @@ uv pip install --python .venv/bin/python pytest pyyaml jsonschema
 → exit 0; installed pytest 9.1.1, PyYAML 6.0.3, jsonschema 4.26.0.
 
 /usr/bin/time -p .venv/bin/python -m pytest -q tests/runner/test_admission.py tests/runner/test_cli.py
-→ 49 passed, 0 failed; exit 0; real 1.10s, user 0.52s, sys 0.48s.
+→ 49 passed, 0 failed; exit 0; real 0.91s, user 0.44s, sys 0.39s.
 
 /usr/bin/time -p .venv/bin/python -m pytest -ra
-→ 827 passed, 0 failed in 28.45s; exit 0; real 28.54s, user 20.92s, sys 4.71s.
+→ 827 passed, 0 failed in 26.80s; exit 0; real 26.88s, user 19.74s, sys 4.13s.
 
 /usr/bin/time -p .venv/bin/python -m compileall -q src tests
 → exit 0; real 0.08s, user 0.06s, sys 0.01s.
@@ -68,7 +68,7 @@ git diff --check
 → exit 0.
 
 uv build --out-dir docs/runs/2026-08-05-issue-130-production-seam-admission/artifacts
-→ exit 0 in 3.09s; package `aiverify 0.1.0`; wheel 311872 bytes; sdist 281280 bytes.
+→ exit 0 in 0.77s; package `aiverify 0.1.0`; wheel 311926 bytes; sdist 281310 bytes.
 
 .venv/bin/python docs/runs/2026-08-05-issue-130-production-seam-admission/validate_receipt.py
 → exit 0; status=passed; required wheel/sdist entries present; deterministic receipt
@@ -101,10 +101,10 @@ validation run.
 - No APK, screenshot, layout dump, logcat, device receipt, backend transcript,
   formal RunSpec, cohort mapping, or production project artifact was generated.
 
-Package sizes and hashes: wheel 311872 bytes,
-`c0cb2734efa34f5c1c3c0fd8462efba9cd2205acde1eed6b376f9f4bf9890918`; sdist
-281280 bytes,
-`7b28e7e5d6dd15297ef59de2937f97d628401ecc21a3cd51c6081ca7202ee0d8`. All
+Package sizes and hashes: wheel 311926 bytes,
+`cf4ff22ce996c512d28f21d0c3d2e09db15149d4aa6d0d1f34bd2d35cbf3e72c`; sdist
+281310 bytes,
+`1935ba7a8804191344985f1ffbebd17a60e16ed552908b1f74783f8c2a80cce6`. All
 other artifact hashes are recorded in the committed `checksums.sha256` file.
 The validation output records the targeted contract result and deterministic
 receipt regeneration.
