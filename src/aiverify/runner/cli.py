@@ -1004,6 +1004,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             device=device,
             workdir=workdir,
             artifact_dir=artifact_dir,
+            expected_source_commit=admission_options.expected_source_commit,
             launch=launch,
             requested_driver_model=model,
             requested_l3_model=l3_model,
@@ -1379,6 +1380,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--model", default=None, help="Override Codex model")
     ap.add_argument("--l3-model", default=None, help="Override Codex model for the L3 judge")
     ap.add_argument(
+        "--expected-source-commit",
+        default=None,
+        help="Bind an opaque Run Spec source reference to the admitted Git commit",
+    )
+    ap.add_argument(
         "--allow-host-project-subdir",
         action="store_true",
         help="Admit a host-project subdirectory under the captured repository root",
@@ -1400,6 +1406,7 @@ def main(argv: list[str] | None = None) -> int:
             device=args.device,
             workdir=workdir,
             artifact_dir=args.artifact_dir,
+            expected_source_commit=args.expected_source_commit,
             launch=not args.no_launch,
             requested_driver_model=args.model,
             requested_l3_model=args.l3_model,

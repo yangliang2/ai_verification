@@ -11,6 +11,7 @@ import pytest
 from aiverify.bench.m9_qualification import (
     LANE_IDS,
     M9QualificationError,
+    SOURCE_ORIGIN,
     audit_contradiction_packet,
     audit_neutral_packets,
     load_manifest,
@@ -60,7 +61,8 @@ def test_contradiction_packet_is_excluded_before_side_effects() -> None:
             "formal_denominator": False,
             "side_effects": False,
             "rejection_boundary": "before_any_build_device_agent_or_runtime_side_effect",
-        }
+        },
+        observed_command_calls=[],
     )
     assert audit["status"] == "pass"
     assert audit["pre_side_effect_rejection"] is True
@@ -68,27 +70,52 @@ def test_contradiction_packet_is_excluded_before_side_effects() -> None:
 
 
 def test_admission_receipt_validator_requires_six_clean_receipts() -> None:
-    receipt = {
-        "status": "admitted",
-        "admitted": True,
-        "runner_policy": {
-            "options": {
-                "device": "emulator-5554",
-                "backend": "codex_cli",
-                "requested_driver_model": "codex-default",
-                "requested_l3_model": "codex-default",
-                "runner_policy_version": "m9-production-seam-v1",
-            }
-        },
-        "side_effects": {
-            "external": False,
-            "build": False,
-            "device": False,
-            "agent": False,
-        },
+    def receipt(lane_id: str, digest: str, commit: str) -> dict[str, object]:
+        return {
+            "status": "admitted",
+            "admitted": True,
+            "run_spec": {
+                "path": f"/repo/bench/m9/run-specs/{lane_id}.yaml",
+                "sha256": digest,
+                "scenario": lane_id,
+            },
+            "host": {"origin": SOURCE_ORIGIN, "commit": commit},
+            "runner_policy": {
+                "options": {
+                    "device": "emulator-5554",
+                    "backend": "codex_cli",
+                    "requested_driver_model": "codex-default",
+                    "requested_l3_model": "codex-default",
+                    "runner_policy_version": "m9-production-seam-v1",
+                    "expected_source_commit": commit,
+                }
+            },
+            "side_effects": {
+                "external": False,
+                "build": False,
+                "device": False,
+                "agent": False,
+            },
+        }
+
+    expected = {
+        lane_id: {"run_spec_sha256": f"{index:064x}", "commit": "a" * 40}
+        for index, lane_id in enumerate(LANE_IDS, start=1)
     }
-    assert validate_admission_receipts([receipt] * 6)["status"] == "pass"
-    assert validate_admission_receipts([receipt] * 5)["status"] == "fail"
+    receipts = [
+        receipt(lane_id, expected[lane_id]["run_spec_sha256"], "a" * 40)
+        for lane_id in LANE_IDS
+    ]
+    assert (
+        validate_admission_receipts(receipts, expected_run_specs=expected)["status"]
+        == "pass"
+    )
+    assert (
+        validate_admission_receipts(
+            [receipts[0]] * 6, expected_run_specs=expected
+        )["status"]
+        == "fail"
+    )
 
 
 def test_manifest_rejects_role_leakage_when_present(tmp_path: Path) -> None:
@@ -98,5 +125,5 @@ def test_manifest_rejects_role_leakage_when_present(tmp_path: Path) -> None:
     document["lanes"][0]["role"] = "defect"
     tampered = tmp_path / "tampered.json"
     tampered.write_text(json.dumps(document), encoding="utf-8")
-    with pytest.raises(M9QualificationError, match="role or variant"):
+    with pytest.raises(M9QualificationError, match="role/variant"):
         load_manifest(tampered)

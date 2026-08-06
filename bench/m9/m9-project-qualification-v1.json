@@ -60,16 +60,17 @@
       "m9-lane-06"
     ],
     "mapping_commitment": {
-      "algorithm": "sha256 of canonical auditor mapping bytes",
+      "algorithm": "sha256(canonical_json_bytes(auditor_mapping))",
       "artifact": "bench/m9/auditor/matched-pair.json",
       "clear_mapping_in_verifier_inputs": false,
+      "raw_artifact_sha256": "2004d2c343dc63f19cb143b9332d24ae1f411b8433c44300294ec6e831ff987b",
       "release_after": [
         "Context Acquisition",
         "top-3 Hypothesis Portfolio",
         "Attack Plan admission",
         "leakage audit"
       ],
-      "sha256": "2004d2c343dc63f19cb143b9332d24ae1f411b8433c44300294ec6e831ff987b",
+      "sha256": "81aa8a18a3174bae566c006bb064803d8794a4add9f345f33e39022c2bf30a62",
       "verify_before_lane_release": true
     }
   },
@@ -108,7 +109,7 @@
     "audit_path": "docs/runs/2026-08-05-issue-136-qualification-freeze/contradiction-audit.json",
     "audit_sha256": "1c218de7d328d75fa36b6bf7c695b1bec6719f88c33414cd61dfac969e9120b9",
     "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/contradiction-packet.json",
-    "sha256": "f34902d96c8bcb39c1b27b75b64a1c6cbce5413d5b7e583ce03b2ad5f4feb864"
+    "sha256": "9c0926fd63cd868b160ddb3ee9015ce2b7258bf4f2a350775c4826ca9ff3ab0e"
   },
   "evidence": {
     "append_only": true,
@@ -172,7 +173,7 @@
     {
       "admission_receipt": {
         "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-01.json",
-        "sha256": "bdfaedd1eed94b150d093dee2d9c86b9947e49a58786884027fa8d1ce4f38677"
+        "sha256": "35a44649b233f7a6c443dad13ffc80d6e0f9ce42e6887143e4e1e909e6b3c0c3"
       },
       "lane_id": "m9-lane-01",
       "one_attempt": true,
@@ -180,13 +181,14 @@
       "retry": false,
       "run_spec": {
         "path": "bench/m9/run-specs/m9-lane-01.yaml",
-        "sha256": "65d34778147fdc809edb1244e4f649d46698521c0f167dc5fc4cf39832477f19"
+        "sha256": "5e4c7891550a1a193af27761d3e9b7fff7cbfac3dce957fd43315b11c9f237f5",
+        "source_binding_ref": "d84d188634fa6d6ecb80d16519450e9aaf65d5be"
       }
     },
     {
       "admission_receipt": {
         "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-02.json",
-        "sha256": "f63d783608e76aca81cd1c19ea33a33638731e48782432f172313aa63c129bee"
+        "sha256": "f0ba23e2a02fe19d5e1d581fa9b3f727cf50bf8bb2ff24fabeee1a34faca4d89"
       },
       "lane_id": "m9-lane-02",
       "one_attempt": true,
@@ -194,13 +196,14 @@
       "retry": false,
       "run_spec": {
         "path": "bench/m9/run-specs/m9-lane-02.yaml",
-        "sha256": "780235461cae42f27d5cfb3edd91d07f62196cfed7cecdce097a0339647a2046"
+        "sha256": "c1e3ddc210d6fc42df058cae172cd41b5f2f608ea50ed23765244da485da281f",
+        "source_binding_ref": "a4ad73189d2766415ec547ba72dabee8b18a1b03"
       }
     },
     {
       "admission_receipt": {
         "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-03.json",
-        "sha256": "6077bb60e802b9d038ffed558e5400bef2ce6feef500bd21f3eb98de4b7a8a4f"
+        "sha256": "b15442b1a602b7198770cf1f2e28c446e0b328748a4ef448d610fc9a2ff0be97"
       },
       "lane_id": "m9-lane-03",
       "one_attempt": true,
@@ -208,13 +211,14 @@
       "retry": false,
       "run_spec": {
         "path": "bench/m9/run-specs/m9-lane-03.yaml",
-        "sha256": "3b993e2cede8b6cf034db08b07bdfcf13e7d03d0ce2720c46da91ea9d20850ab"
+        "sha256": "39636edd426fbf9114e6b14ce8809719de0bb21e64a96ea4cd5c5f5d2f2ddb58",
+        "source_binding_ref": "6d2ced8cd95c940c7d2db74e027762b7aa4dd4f5"
       }
     },
     {
       "admission_receipt": {
         "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-04.json",
-        "sha256": "a40398c5d8972d2d179e7a889a551707cbe795b44bdbbbaf46637a36c5eff154"
+        "sha256": "90b8a5e6d396110572ed25d7f7212a8a3a1b14e7ab83bb4a25fa794888372894"
       },
       "lane_id": "m9-lane-04",
       "one_attempt": true,
@@ -222,13 +226,14 @@
       "retry": false,
       "run_spec": {
         "path": "bench/m9/run-specs/m9-lane-04.yaml",
-        "sha256": "1b58d1046f8fe315212c16dd5ec5df25bbb8f44e2c3b0654c42d67a58dc063c7"
+        "sha256": "099cd38f94b0d7f7f3124f4970bbaece915c9c462a70d91eb271c46905a96a16",
+        "source_binding_ref": "914097bca7e9eba0cfdb35d73f82228fc4a285e2"
       }
     },
     {
       "admission_receipt": {
         "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-05.json",
-        "sha256": "2bbefb36d8dda6f3d3e9f5369da70c339761dc7bd170ad9d1f5a51366310ff35"
+        "sha256": "a6d474b0454d87ace75575ca89710e76cff65a4e1fcd11cbabfe3ae102c69a94"
       },
       "lane_id": "m9-lane-05",
       "one_attempt": true,
@@ -236,13 +241,14 @@
       "retry": false,
       "run_spec": {
         "path": "bench/m9/run-specs/m9-lane-05.yaml",
-        "sha256": "3251a2076d94ed6045ac1e88adf204d30664e8c2ddcf3da73193ee6df6661afd"
+        "sha256": "ca02888687532dc60ee0b49ea15f1c4a71387af6a925b8657b58aec87c67bff1",
+        "source_binding_ref": "376d855554af8895a13d28ebf68967343d13e340"
       }
     },
     {
       "admission_receipt": {
         "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-06.json",
-        "sha256": "e2aa1cde4d724d8832690d68ab2ea1bc9f9bac60505f98350cdd400150710119"
+        "sha256": "6a971549f30a0e6b175e957c2d399e9beb067adff01add628cce821ba7ffc203"
       },
       "lane_id": "m9-lane-06",
       "one_attempt": true,
@@ -250,7 +256,8 @@
       "retry": false,
       "run_spec": {
         "path": "bench/m9/run-specs/m9-lane-06.yaml",
-        "sha256": "3a8503781c080e3703d533947a14267a76447cb313ad0f08ca8225f0824a3fd0"
+        "sha256": "414e4731de50c578562d315e5a26d99c62743ee4d28bfa91e633d8ece2d1c2d1",
+        "source_binding_ref": "c48e89414c02b06d27977ffcfb5d1cbe87b355b3"
       }
     }
   ],
@@ -320,7 +327,7 @@
     "audit_path": "docs/runs/2026-08-05-issue-136-qualification-freeze/leakage-audit.json",
     "audit_sha256": "8185baa60bb08e95da28f34cd59eccc6a1c22e5cf29a5654c84ef52152e31a7f",
     "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/neutral-verifier-packets.json",
-    "sha256": "f51996a0b3b3ab77c27fb6cbfb3b21b7488d56430e548f3a6de09238d337ea22"
+    "sha256": "db5f2874cab8617372d53b9694fc2231d36c7506d1423e7570b5238250ace240"
   },
   "oracle": {
     "accounting_rule": "non-accountable terminal produces ResidualRisk and cannot enter Supported denominator",
@@ -346,18 +353,18 @@
   "package_build": {
     "artifacts": [
       {
-        "bytes": 374697,
+        "bytes": 375652,
         "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/artifacts/aiverify-0.1.0-py3-none-any.whl",
-        "sha256": "2600731e21e2e8eb1ebfc7250395dcad45009bc8b676eeed0af7b60f2c4ab499"
+        "sha256": "eb348907e558b351937dccb5089705bf04ea0944454d9c3ccc3e2d287032849b"
       },
       {
-        "bytes": 340093,
+        "bytes": 341172,
         "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/artifacts/aiverify-0.1.0.tar.gz",
-        "sha256": "4bfc50a0661bf55c9478a1bb7b999099335566c96dc06921531b49ed940e534a"
+        "sha256": "743367a46e8624afe8af1424e7b8dc7fb3637895ef09b787f53a1588d340b3ee"
       }
     ],
     "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/package-build.json",
-    "sha256": "21754f147104c81fe8e7266fd9a4d3f48ebc85ed714428a81d36dad0545f6fca",
+    "sha256": "714dd0ccf2d276490116e160a63d87eedd5326c66560a9947b3a634bad9fa452",
     "status": "passed"
   },
   "policy": {
@@ -414,13 +421,13 @@
       "apk_bytes": 24681606,
       "apk_sha256": "d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66",
       "build_duration": "28s",
-      "build_log": "/private/tmp/m9-136-a-control-commit-build.log",
+      "build_log": "docs/runs/2026-08-05-issue-136-qualification-freeze/build-logs/selected_control.log",
       "build_log_sha256": "3fb4c3d19d0f75446b6a317dde76fc6915555071654121e20dccecc140c7f874",
       "commit": "ee66e1526b84c026615df032c705842b7d2a521f",
       "final_rebuild": {
         "actionable_tasks": 43,
         "build_duration": "5s",
-        "log": "/private/tmp/m9-136-final-control-build.log",
+        "log": "docs/runs/2026-08-05-issue-136-qualification-freeze/build-logs/final_control.log",
         "log_sha256": "e91c59f81fbb730a1dcf71ebe16a19dcdf80bcb2c0b385b8faa76cb8e31caef6"
       },
       "tree": "19455e693ec8c96c37a56aec55059a220826c5a3"
@@ -430,13 +437,13 @@
       "apk_bytes": 24681461,
       "apk_sha256": "61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac",
       "build_duration": "8s",
-      "build_log": "/private/tmp/m9-136-a-defect-commit-build.log",
+      "build_log": "docs/runs/2026-08-05-issue-136-qualification-freeze/build-logs/selected_defect.log",
       "build_log_sha256": "e571be75b88a8e529585c74f1a6d64686e3f00ceba2dd1ab91ce258b7ee64843",
       "commit": "208575f78d59716669d0733b5ed3e08797b08787",
       "final_rebuild": {
         "actionable_tasks": 43,
         "build_duration": "5s",
-        "log": "/private/tmp/m9-136-final-defect-build.log",
+        "log": "docs/runs/2026-08-05-issue-136-qualification-freeze/build-logs/final_defect.log",
         "log_sha256": "d4ccd8ffcc473241ec63fdd7fd8e5345bc1bccd74475237b6ae8158b4ba43c49"
       },
       "mutation": "omit local upsert in DefaultTaskRepository.updateTask",
@@ -487,7 +494,7 @@
       },
       {
         "command": [
-          "/private/tmp/m9-136-option-a/gradlew",
+          "./gradlew",
           "--no-daemon",
           "--version"
         ],

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import subprocess
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -161,6 +162,30 @@ def test_corrected_host_subdirectory_policy_admits(tmp_path: Path) -> None:
     assert result.admitted is True
     assert result.receipt["host"]["host_project"] == str(host.resolve())
     assert result.receipt["host"]["host_project_within_repository"] is True
+
+
+def test_sealed_run_spec_commit_can_bind_to_policy_after_mapping_release(
+    tmp_path: Path,
+) -> None:
+    _, _, spec, options = _fixture(tmp_path)
+    assert spec.host_locator is not None
+    sealed_spec = replace(
+        spec,
+        host_locator=replace(spec.host_locator, expected_commit="b" * 40),
+    )
+    bound_options = replace(
+        options,
+        expected_source_commit=_git(options.workdir, "rev-parse", "HEAD"),
+    )
+
+    result = admit_production_seam(
+        sealed_spec, bound_options, command_runner=GitOnlyRunner()
+    )
+
+    assert result.admitted is True
+    assert result.receipt["runner_policy"]["options"]["expected_source_commit"] == (
+        bound_options.expected_source_commit
+    )
 
 
 def test_formal_receipt_rejects_option_and_source_drift_before_external_calls(

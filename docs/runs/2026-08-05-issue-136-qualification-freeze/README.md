@@ -27,10 +27,12 @@ this directory are retained as superseded pre-approval history.
   SDK 21/35.
 - Cohort: three defect lanes and three matched control lanes, opaque lane order
   `m9-lane-01` through `m9-lane-06`. The committed auditor mapping is bound by
-  SHA-256 `2004d2c343dc63f19cb143b9332d24ae1f411b8433c44300294ec6e831ff987b`
-  and is not included in verifier-facing packets. It may be released only
-  after Context Acquisition, the top-three portfolio, Attack Plan admission,
-  and the leakage audit, then must be verified before lane release.
+  SHA-256 `81aa8a18a3174bae566c006bb064803d8794a4add9f345f33e39022c2bf30a62`
+  over canonical mapping bytes (raw artifact SHA-256
+  `2004d2c343dc63f19cb143b9332d24ae1f411b8433c44300294ec6e831ff987b`). It is
+  not included in verifier-facing packets. It may be released only after
+  Context Acquisition, the top-three portfolio, Attack Plan admission, and
+  the leakage audit, then must be verified before lane release.
 - Runner: `codex_cli`, policy `m9-production-seam-v1`, device
   `emulator-5554` / AVD `aiverify_api35` / API 35, network disabled, portrait,
   requested driver and L3 model `codex-default`.
@@ -45,6 +47,10 @@ this directory are retained as superseded pre-approval history.
 - Accounting: one accountable attempt per lane, zero retry, zero replacement.
   Adverse, challenged, inconclusive, rejected, and non-accountable outcomes are
   terminal evidence.
+- Each serialized RunSpec carries only a role-neutral sealed source-binding
+  reference. Source-context inputs contain the approved baseline snapshot only;
+  role-bearing source identities remain auditor evidence and are not sent to
+  acquisition, planning, execution-agent, or Falsification Review inputs.
 
 ## Side-effect-free preflight
 
@@ -58,7 +64,10 @@ Results:
 
 - RunSpecs: 6/6 present and checksum-bound.
 - Production-seam admission: 6/6 admitted; 0 rejected.
-- Neutral leakage audit: 6/6 packets passed; mapping release remained false.
+- Pre-release neutral leakage audit: 6/6 packets passed before source-binding
+  materialization; mapping release remained false.
+- Final neutral leakage audit: 6/6 packets passed; mapping release remained
+  false.
 - Contradiction packet: rejected before any build/device/agent/runtime side
   effect; excluded from the formal denominator.
 - Formal execution: false; side effects: false.
@@ -75,26 +84,28 @@ PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m py_compi
 → exit 0.
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -q \
-  tests/bench/test_m9_qualification.py
-→ 5 passed, 0 failed; real 0.09s, user 0.07s, sys 0.01s.
+  tests/bench/test_m9_qualification.py tests/runner/test_admission.py
+→ 12 passed, 0 failed; real 1.17s, user 0.57s, sys 0.50s.
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -q
-→ 869 passed, 0 failed; real 32.52s, user 25.02s, sys 5.71s.
+→ 870 passed, 0 failed; real 33.06s, user 23.65s, sys 5.79s.
 
 PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python \
   docs/runs/2026-08-05-issue-136-qualification-freeze/generate_evidence.py
 → status=passed; 6 admissions; leakage=pass; contradiction=pass;
-  formal_execution_started=false; preflight duration about 1.62s.
+  formal_execution_started=false; preflight duration 1.57s.
 
 uv build --quiet --out-dir \
   docs/runs/2026-08-05-issue-136-qualification-freeze/artifacts
-→ package `aiverify 0.1.0`; wheel and sdist built successfully; real 3.28s.
+→ package `aiverify 0.1.0`; wheel and sdist built successfully; real 0.73s.
 
 (cd docs/runs/2026-08-05-issue-136-qualification-freeze && \
   shasum -a 256 -c checksums.sha256)
 → all committed inventory entries passed.
 
-git diff --check
+git diff --check -- src/aiverify/bench/m9_qualification.py \
+  src/aiverify/runner/admission.py tests/bench/test_m9_qualification.py \
+  docs/runs/2026-08-05-issue-136-qualification-freeze/generate_evidence.py
 → exit 0.
 ```
 
@@ -126,14 +137,19 @@ Codex CLI 0.144.6, backend `codex_cli`, requested/effective contract model
 - `admission/m9-lane-01.json` through `m9-lane-06.json`: six admitted,
   side-effect-free production-seam receipts.
 - `preflight.json`, `admission-audit.json`, `neutral-verifier-packets.json`,
-  `leakage-audit.json`, `contradiction-packet.json`, and
+  `pre-release-neutral-verifier-packets.json`, `leakage-audit.json`,
+  `pre-release-leakage-audit.json`, `contradiction-packet.json`, and
   `contradiction-audit.json`: ordered gate evidence.
 - `operator-registry.json`, `attack-plan-admission.json`, and
-  `source-context-inputs.json`: frozen discovery/planning inputs and receipts.
-- `artifacts/aiverify-0.1.0-py3-none-any.whl`: 374,697 bytes;
-  SHA-256 `2600731e21e2e8eb1ebfc7250395dcad45009bc8b676eeed0af7b60f2c4ab499`.
-- `artifacts/aiverify-0.1.0.tar.gz`: 340,093 bytes;
-  SHA-256 `4bfc50a0661bf55c9478a1bb7b999099335566c96dc06921531b49ed940e534a`.
+  `source-context-inputs.json`: frozen discovery/planning inputs and receipts;
+  source context is baseline-only and role-neutral.
+- `build-logs/*.log`: committed copies of candidate, selected-pair, final-pair,
+  and offline diagnostic build output; their SHA-256 values are in
+  `checksums.sha256`.
+- `artifacts/aiverify-0.1.0-py3-none-any.whl`: 375,652 bytes; SHA-256
+  `eb348907e558b351937dccb5089705bf04ea0944454d9c3ccc3e2d287032849b`.
+- `artifacts/aiverify-0.1.0.tar.gz`: 341,172 bytes; SHA-256
+  `743367a46e8624afe8af1424e7b8dc7fb3637895ef09b787f53a1588d340b3ee`.
 - Defect APK: 24,681,461 bytes; SHA-256
   `61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac`.
 - Control APK: 24,681,606 bytes; SHA-256
@@ -150,8 +166,9 @@ Those are #137 responsibilities.
 
 Manual/device steps in #136: none. The device profile is frozen but not accessed.
 The candidate offline Gradle diagnostic failed closed because the local cache
-lacked candidate dependencies; the online/normal host builds above passed. No
-formal lane was retried or replaced.
+lacked candidate dependencies; the online/normal host builds above passed and
+their logs are committed under `build-logs/`. No formal lane was retried or
+replaced.
 
 Known gap: the formal six-lane result is intentionally unavailable. #137 must
 consume the exact merged #136 commit, perform the ordered Context Acquisition →

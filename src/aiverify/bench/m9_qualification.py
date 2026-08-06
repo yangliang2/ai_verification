@@ -48,6 +48,14 @@ _FORBIDDEN_PACKET_TERMS = (
     "non_accountable",
     "inconclusive",
 )
+CONTRADICTION_REQUIRED_FIELDS = (
+    "target_source_identity",
+    "context_graph",
+    "operator_registry",
+)
+CONTRADICTION_REJECTION_BOUNDARY = (
+    "before_any_build_device_agent_or_runtime_side_effect"
+)
 
 
 class M9QualificationError(ValueError):
@@ -132,6 +140,15 @@ def sha256_file(path: str | Path) -> str:
     return digest.hexdigest()
 
 
+def sealed_source_binding_ref(lane_id: str) -> str:
+    """Return the role-neutral source binding embedded in an opaque Run Spec."""
+
+    if lane_id not in LANE_IDS:
+        raise ValueError(f"unknown M9 lane: {lane_id}")
+    value = f"{QUALIFICATION_ID}:{lane_id}:source-binding-v1".encode()
+    return sha256_bytes(value)[:40]
+
+
 def load_manifest(path: str | Path) -> M9QualificationManifest:
     """Load and semantically validate the frozen manifest fail-closed."""
 
@@ -182,16 +199,31 @@ def audit_neutral_packets(packets: Sequence[Mapping[str, Any]]) -> dict[str, Any
     }
 
 
-def audit_contradiction_packet(packet: Mapping[str, Any]) -> dict[str, Any]:
-    """Validate a contradiction packet before any runner side effect."""
+def audit_contradiction_packet(
+    packet: Mapping[str, Any],
+    *,
+    observed_command_calls: Sequence[Sequence[str]] | None = None,
+) -> dict[str, Any]:
+    """Reject an incomplete packet using fixed requirements and observed calls.
 
-    required = tuple(packet.get("required_fields", ()))
-    present = tuple(packet.get("present_fields", ()))
-    missing = tuple(field for field in required if field not in present)
+    The packet cannot self-attest that it is incomplete or side-effect-free:
+    required fields are defined by this contract, and the caller must provide
+    the command observation collected by the pre-side-effect gate.
+    """
+
+    present = tuple(
+        sorted(
+            key
+            for key, value in packet.items()
+            if key not in {"present_fields", "required_fields"}
+            and value not in (None, "", [], {}, ())
+        )
+    )
+    missing = tuple(field for field in CONTRADICTION_REQUIRED_FIELDS if field not in present)
     expected = packet.get("expected_admission") == "rejected"
     denominator = packet.get("formal_denominator") is False
-    no_side_effects = packet.get("side_effects") is False
-    pre_side_effect = packet.get("rejection_boundary") == "before_any_build_device_agent_or_runtime_side_effect"
+    no_side_effects = observed_command_calls is not None and not observed_command_calls
+    pre_side_effect = packet.get("rejection_boundary") == CONTRADICTION_REJECTION_BOUNDARY
     passed = bool(missing) and expected and denominator and no_side_effects and pre_side_effect
     return {
         "packet_id": packet.get("packet_id"),
@@ -199,9 +231,9 @@ def audit_contradiction_packet(packet: Mapping[str, Any]) -> dict[str, Any]:
         "missing_fields": list(missing),
         "expected_admission": packet.get("expected_admission"),
         "formal_denominator": packet.get("formal_denominator"),
-        "side_effects": packet.get("side_effects"),
+        "side_effects": False if no_side_effects else None,
         "rejection_boundary": packet.get("rejection_boundary"),
-        "command_calls": [],
+        "command_calls": [list(call) for call in observed_command_calls or ()],
         "pre_side_effect_rejection": pre_side_effect,
     }
 
@@ -210,21 +242,47 @@ def validate_admission_receipts(
     receipts: Sequence[Mapping[str, Any]],
     *,
     lane_ids: Sequence[str] = LANE_IDS,
+    expected_run_specs: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Validate six committed production-seam admission receipts."""
+    """Validate the exact, ordered population of production-seam receipts."""
 
     expected_ids = tuple(lane_ids)
     checks: list[dict[str, Any]] = []
-    for lane_id, receipt in zip(expected_ids, receipts, strict=False):
+    observed_ids: list[str | None] = []
+    seen: set[str] = set()
+    for receipt in receipts:
+        run_spec = receipt.get("run_spec")
+        lane_id = run_spec.get("scenario") if isinstance(run_spec, Mapping) else None
+        observed_ids.append(str(lane_id) if lane_id is not None else None)
+        expected = expected_run_specs.get(str(lane_id), {}) if expected_run_specs else {}
         options = (
             receipt.get("runner_policy", {}).get("options", {})
             if isinstance(receipt.get("runner_policy"), Mapping)
             else {}
         )
+        host = receipt.get("host")
+        lane_is_known = isinstance(lane_id, str) and lane_id in expected_ids
+        duplicate = isinstance(lane_id, str) and lane_id in seen
+        if isinstance(lane_id, str):
+            seen.add(lane_id)
+        expected_path = (
+            f"bench/m9/run-specs/{lane_id}.yaml"
+            if isinstance(lane_id, str)
+            else None
+        )
         effects = receipt.get("side_effects", {})
         passed = (
-            receipt.get("admitted") is True
+            lane_is_known
+            and not duplicate
+            and receipt.get("admitted") is True
             and receipt.get("status") == "admitted"
+            and isinstance(run_spec, Mapping)
+            and isinstance(run_spec.get("path"), str)
+            and run_spec["path"].endswith(expected_path or "\0")
+            and run_spec.get("sha256") == expected.get("run_spec_sha256")
+            and isinstance(host, Mapping)
+            and host.get("origin") == SOURCE_ORIGIN
+            and host.get("commit") == expected.get("commit")
             and isinstance(effects, Mapping)
             and effects.get("external") is False
             and effects.get("build") is False
@@ -235,21 +293,25 @@ def validate_admission_receipts(
             and options.get("requested_driver_model") == MODEL
             and options.get("requested_l3_model") == MODEL
             and options.get("runner_policy_version") == RUNNER_POLICY
+            and options.get("expected_source_commit") == expected.get("commit")
         )
         checks.append(
             {
-                "lane_id": lane_id,
+                "lane_id": lane_id or "unknown",
                 "status": "pass" if passed else "fail",
                 "receipt_status": receipt.get("status"),
                 "side_effects": dict(effects) if isinstance(effects, Mapping) else effects,
             }
         )
-    if len(receipts) != len(expected_ids):
+    if len(receipts) != len(expected_ids) or tuple(observed_ids) != expected_ids:
         checks.append(
             {
                 "lane_id": "population",
                 "status": "fail",
-                "reason": f"expected {len(expected_ids)} receipts, got {len(receipts)}",
+                "reason": (
+                    f"expected ordered lanes {list(expected_ids)}, "
+                    f"got {observed_ids}"
+                ),
             }
         )
     failures = [item for item in checks if item["status"] != "pass"]
@@ -321,8 +383,18 @@ def _manifest_errors(document: Mapping[str, Any]) -> tuple[str, ...]:
 
     if not isinstance(lanes, list) or tuple(item.get("lane_id") for item in lanes) != LANE_IDS:
         errors.append("lanes must contain six opaque lane IDs in approved order")
-    elif any("role" in item or "variant" in item for item in lanes):
-        errors.append("lane manifest must not expose role or variant")
+    elif any(
+        "role" in item
+        or "variant" in item
+        or item.get("one_attempt") is not True
+        or item.get("retry") is not False
+        or item.get("replacement") is not False
+        or not isinstance(item.get("run_spec"), Mapping)
+        or item.get("run_spec", {}).get("source_binding_ref")
+        != sealed_source_binding_ref(str(item.get("lane_id")))
+        for item in lanes
+    ):
+        errors.append("lane manifest must not expose role/variant and must freeze accounting")
 
     runner = document.get("runner", {})
     if not isinstance(runner, Mapping):
@@ -375,6 +447,8 @@ __all__ = [
     "ACTIVITY",
     "BACKEND",
     "BASELINE_COMMIT",
+    "CONTRADICTION_REQUIRED_FIELDS",
+    "CONTRADICTION_REJECTION_BOUNDARY",
     "DEFECT_COMMIT",
     "LANE_IDS",
     "M9QualificationError",
@@ -391,5 +465,6 @@ __all__ = [
     "load_manifest",
     "sha256_bytes",
     "sha256_file",
+    "sealed_source_binding_ref",
     "validate_admission_receipts",
 ]

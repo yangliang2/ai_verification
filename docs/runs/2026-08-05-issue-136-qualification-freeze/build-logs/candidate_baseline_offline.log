@@ -1,0 +1,57 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Calculating task graph as no cached configuration is available for tasks: :app:assembleDebug
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Configuration cache state could not be cached: field `$processorCP` of `com.google.devtools.ksp.gradle.KspSubpluginKt$createIncrementalChangesTransformer$1` bean found in field `__incrementalChangesTransformers__` of task `:app:kspDebugKotlin` of type `com.google.devtools.ksp.gradle.KspTaskJvm`: error writing value of type 'org.gradle.api.internal.provider.DefaultProvider'
+> Could not resolve all files for configuration ':app:kspDebugKotlinProcessorClasspath'.
+   > Could not resolve org.jetbrains.kotlin:kotlin-stdlib:2.0.21.
+     Required by:
+         project :app > androidx.room:room-compiler:2.6.1
+         project :app > androidx.room:room-compiler:2.6.1 > androidx.room:room-compiler-processing:2.6.1
+         project :app > androidx.room:room-compiler:2.6.1 > androidx.room:room-migration:2.6.1
+         project :app > androidx.room:room-compiler:2.6.1 > androidx.room:room-common:2.6.1 > org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22
+         project :app > androidx.room:room-compiler:2.6.1 > androidx.room:room-common:2.6.1 > org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22 > org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22
+      > No cached version of org.jetbrains.kotlin:kotlin-stdlib:2.0.21 available for offline mode.
+      > No cached version of org.jetbrains.kotlin:kotlin-stdlib:2.0.21 available for offline mode.
+   > Could not resolve com.google.dagger:dagger-compiler:2.53.1.
+     Required by:
+         project :app > com.google.dagger:hilt-android-compiler:2.53.1
+      > No cached version of com.google.dagger:dagger-compiler:2.53.1 available for offline mode.
+      > No cached version of com.google.dagger:dagger-compiler:2.53.1 available for offline mode.
+   > Could not resolve com.google.dagger:dagger-spi:2.53.1.
+     Required by:
+         project :app > com.google.dagger:hilt-android-compiler:2.53.1
+      > No cached version of com.google.dagger:dagger-spi:2.53.1 available for offline mode.
+      > No cached version of com.google.dagger:dagger-spi:2.53.1 available for offline mode.
+   > Could not resolve com.google.guava:guava:33.0.0-jre.
+     Required by:
+         project :app > com.google.dagger:hilt-android-compiler:2.53.1
+      > No cached version of com.google.guava:guava:33.0.0-jre available for offline mode.
+      > No cached version of com.google.guava:guava:33.0.0-jre available for offline mode.
+   > Could not resolve net.ltgt.gradle.incap:incap:0.2.
+     Required by:
+         project :app > com.google.dagger:hilt-android-compiler:2.53.1
+      > No cached version of net.ltgt.gradle.incap:incap:0.2 available for offline mode.
+      > No cached version of net.ltgt.gradle.incap:incap:0.2 available for offline mode.
+   > Could not resolve com.google.code.gson:gson:2.9.0.
+     Required by:
+         project :app > androidx.room:room-compiler:2.6.1 > androidx.room:room-migration:2.6.1
+      > No cached version of com.google.code.gson:gson:2.9.0 available for offline mode.
+      > No cached version of com.google.code.gson:gson:2.9.0 available for offline mode.
+> There are 10 more failures with identical causes.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 4s
+Configuration cache entry discarded due to serialization error.
+real 4.57
+user 15.78
+sys 1.32

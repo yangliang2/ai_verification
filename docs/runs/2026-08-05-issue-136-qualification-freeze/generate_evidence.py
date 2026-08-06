@@ -15,6 +15,7 @@ import json
 import os
 import platform
 import secrets
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -59,6 +60,7 @@ from aiverify.bench.m9_qualification import (  # noqa: E402
     audit_neutral_packets,
     canonical_json_bytes,
     load_manifest,
+    sealed_source_binding_ref,
     sha256_bytes,
     sha256_file,
     validate_admission_receipts,
@@ -224,12 +226,13 @@ def _write_run_specs(mapping: dict[str, Any]) -> list[dict[str, Any]]:
         role = _mapping_role(mapping, lane_id)
         project = DEFECT_PROJECT if role == "defect" else CONTROL_PROJECT
         commit = DEFECT_COMMIT if role == "defect" else BASELINE_COMMIT
+        source_binding_ref = sealed_source_binding_ref(lane_id)
         variable = f"M9_{lane_id.replace('-', '_').upper()}_PROJECT"
         document = {
             "host_project": {
                 "root": f"${{{variable}}}",
                 "origin": SOURCE_ORIGIN,
-                "commit": commit,
+                "commit": source_binding_ref,
             },
             "apk_glob": "app/build/outputs/apk/debug/app-debug.apk",
             "package": PACKAGE,
@@ -261,6 +264,7 @@ def _write_run_specs(mapping: dict[str, Any]) -> list[dict[str, Any]]:
                 "environment_variable": variable,
                 "project": str(project),
                 "commit": commit,
+                "source_binding_ref": source_binding_ref,
             }
         )
     return records
@@ -284,6 +288,7 @@ def _admit_run_specs(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
             requested_l3_model=MODEL,
             backend=BACKEND,
             runner_policy_version=RUNNER_POLICY,
+            expected_source_commit=str(record["commit"]),
         )
         admission = admit_production_seam(spec, options, command_runner=runner)
         if not admission.admitted:
@@ -384,16 +389,13 @@ def _write_contradiction_packet() -> dict[str, Any]:
     packet = {
         "schema_version": 1,
         "packet_id": "m9-136-incomplete-context-v1",
-        "required_fields": ["target_source_identity", "context_graph", "operator_registry"],
-        "present_fields": ["packet_id", "schema_version"],
         "expected_admission": "rejected",
         "formal_denominator": False,
-        "side_effects": False,
         "rejection_boundary": "before_any_build_device_agent_or_runtime_side_effect",
     }
     path = RUN_ROOT / "contradiction-packet.json"
     _write_json(path, packet)
-    audit = audit_contradiction_packet(packet)
+    audit = audit_contradiction_packet(packet, observed_command_calls=[])
     _write_json(RUN_ROOT / "contradiction-audit.json", audit)
     return {
         "path": str(path.relative_to(REPO_ROOT)),
@@ -414,7 +416,6 @@ def _write_neutral_packets(
             "schema_version": 1,
             "packet_id": f"packet-{record['lane_id']}",
             "lane_id": record["lane_id"],
-            "run_spec_sha256": record["run_spec_sha256"],
             "context_input_digest": SOURCE_INDEX_SHA256,
             "portfolio_budget": 8,
             "portfolio_registry_sha256": registry["sha256"],
@@ -423,6 +424,9 @@ def _write_neutral_packets(
         }
         for record in records
     ]
+    for packet, record in zip(packets, records, strict=True):
+        if record.get("run_spec_sha256"):
+            packet["run_spec_sha256"] = record["run_spec_sha256"]
     audit = audit_neutral_packets(packets)
     payload = {
         "schema_version": 1,
@@ -453,19 +457,54 @@ def _source_file_inventory() -> list[dict[str, Any]]:
         "settings.gradle.kts",
     )
     inventory: list[dict[str, Any]] = []
-    for project_name, project in (("defect", DEFECT_PROJECT), ("control", CONTROL_PROJECT)):
-        for relative in paths:
-            path = project / relative
-            if not path.is_file():
-                raise SystemExit(f"context input is missing: {path}")
-            inventory.append(
-                {
-                    "project": project_name,
-                    "path": relative,
-                    "sha256": sha256_file(path),
-                }
-            )
+    for relative in paths:
+        path = CONTROL_PROJECT / relative
+        if not path.is_file():
+            raise SystemExit(f"context input is missing: {path}")
+        inventory.append(
+            {
+                "scope": "project_target_snapshot",
+                "path": relative,
+                "sha256": sha256_file(path),
+            }
+        )
     return inventory
+
+
+def _materialize_durable_build_logs() -> dict[str, dict[str, str]]:
+    """Copy host-build logs into the committed run record before hashing it."""
+
+    sources = {
+        "candidate_option_a": Path("/private/tmp/m9-136-option-a-build.log"),
+        "candidate_option_b": Path("/private/tmp/m9-136-option-b-build.log"),
+        "candidate_option_c": Path("/private/tmp/m9-136-option-c-build.log"),
+        "candidate_baseline_success": Path(
+            "/private/tmp/m9-136-candidate-architecture-samples/preflight/assembleDebug-retry-2.log"
+        ),
+        "candidate_baseline_interrupted": Path(
+            "/private/tmp/m9-136-candidate-architecture-samples/preflight/assembleDebug.log"
+        ),
+        "candidate_baseline_offline": Path(
+            "/private/tmp/m9-136-candidate-architecture-samples/preflight-offline/assembleDebug-offline.log"
+        ),
+        "selected_defect": Path("/private/tmp/m9-136-a-defect-commit-build.log"),
+        "selected_control": Path("/private/tmp/m9-136-a-control-commit-build.log"),
+        "final_defect": Path("/private/tmp/m9-136-final-defect-build.log"),
+        "final_control": Path("/private/tmp/m9-136-final-control-build.log"),
+    }
+    destination_root = RUN_ROOT / "build-logs"
+    durable: dict[str, dict[str, str]] = {}
+    for label, source in sources.items():
+        if not source.is_file():
+            raise SystemExit(f"durable build-log source is missing: {source}")
+        destination = destination_root / f"{label}.log"
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, destination)
+        durable[label] = {
+            "path": str(destination.relative_to(REPO_ROOT)),
+            "sha256": sha256_file(destination),
+        }
+    return durable
 
 
 def _manifest(
@@ -479,10 +518,11 @@ def _manifest(
     project_identities: dict[str, dict[str, Any]],
     tool_identity: dict[str, Any],
     package_build: dict[str, Any],
+    build_logs: dict[str, dict[str, str]],
 ) -> dict[str, Any]:
     mapping_path = _mapping_path()
     patch_path = RUN_ROOT / "candidate-option-A.patch"
-    mapping_digest = sha256_file(mapping_path)
+    mapping_digest = sha256_bytes(canonical_json_bytes(mapping))
     patch_digest = sha256_file(patch_path)
     now = FREEZE_TIMESTAMP
     return {
@@ -523,13 +563,13 @@ def _manifest(
                 "patch_sha256": patch_digest,
                 "apk_sha256": "61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac",
                 "apk_bytes": 24681461,
-                "build_log": "/private/tmp/m9-136-a-defect-commit-build.log",
-                "build_log_sha256": "e571be75b88a8e529585c74f1a6d64686e3f00ceba2dd1ab91ce258b7ee64843",
+                "build_log": build_logs["selected_defect"]["path"],
+                "build_log_sha256": build_logs["selected_defect"]["sha256"],
                 "build_duration": "8s",
                 "actionable_tasks": 43,
                 "final_rebuild": {
-                    "log": "/private/tmp/m9-136-final-defect-build.log",
-                    "log_sha256": sha256_file(Path("/private/tmp/m9-136-final-defect-build.log")),
+                    "log": build_logs["final_defect"]["path"],
+                    "log_sha256": build_logs["final_defect"]["sha256"],
                     "build_duration": "5s",
                     "actionable_tasks": 43,
                 },
@@ -539,13 +579,13 @@ def _manifest(
                 "tree": BASELINE_TREE,
                 "apk_sha256": "d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66",
                 "apk_bytes": 24681606,
-                "build_log": "/private/tmp/m9-136-a-control-commit-build.log",
-                "build_log_sha256": "3fb4c3d19d0f75446b6a317dde76fc6915555071654121e20dccecc140c7f874",
+                "build_log": build_logs["selected_control"]["path"],
+                "build_log_sha256": build_logs["selected_control"]["sha256"],
                 "build_duration": "28s",
                 "actionable_tasks": 43,
                 "final_rebuild": {
-                    "log": "/private/tmp/m9-136-final-control-build.log",
-                    "log_sha256": sha256_file(Path("/private/tmp/m9-136-final-control-build.log")),
+                    "log": build_logs["final_control"]["path"],
+                    "log_sha256": build_logs["final_control"]["sha256"],
                     "build_duration": "5s",
                     "actionable_tasks": 43,
                 },
@@ -562,7 +602,8 @@ def _manifest(
             "mapping_commitment": {
                 "artifact": str(mapping_path.relative_to(REPO_ROOT)),
                 "sha256": mapping_digest,
-                "algorithm": "sha256 of canonical auditor mapping bytes",
+                "raw_artifact_sha256": sha256_file(mapping_path),
+                "algorithm": "sha256(canonical_json_bytes(auditor_mapping))",
                 "clear_mapping_in_verifier_inputs": False,
                 "release_after": [
                     "Context Acquisition",
@@ -587,6 +628,7 @@ def _manifest(
                 "run_spec": {
                     "path": record["path"],
                     "sha256": record["run_spec_sha256"],
+                    "source_binding_ref": record["source_binding_ref"],
                 },
                 "admission_receipt": {
                     "path": record["admission_receipt_path"],
@@ -735,11 +777,28 @@ def main() -> None:
     started = dt.datetime.now(dt.timezone.utc)
     defect_identity = _ensure_clean_project(DEFECT_PROJECT, DEFECT_COMMIT)
     control_identity = _ensure_clean_project(CONTROL_PROJECT, BASELINE_COMMIT)
-    mapping = _materialize_mapping()
-    run_records = _write_run_specs(mapping)
     registry = _write_operator_registry()
     attack_plan = _write_attack_plan_receipt(registry)
     contradiction = _write_contradiction_packet()
+    source_inputs = _source_file_inventory()
+    _write_json(RUN_ROOT / "source-context-inputs.json", {"inputs": source_inputs})
+    pre_release_neutral = _write_neutral_packets(
+        [{"lane_id": lane_id} for lane_id in LANE_IDS], registry, attack_plan
+    )
+    if pre_release_neutral["audit"]["status"] != "pass":
+        raise SystemExit(f"pre-release leakage audit failed: {pre_release_neutral}")
+    shutil.copyfile(
+        RUN_ROOT / "neutral-verifier-packets.json",
+        RUN_ROOT / "pre-release-neutral-verifier-packets.json",
+    )
+    shutil.copyfile(
+        RUN_ROOT / "leakage-audit.json",
+        RUN_ROOT / "pre-release-leakage-audit.json",
+    )
+    # The clear assignment is read only by this auditor-side materializer after
+    # the context, portfolio, plan, contradiction, and leakage gates pass.
+    mapping = _materialize_mapping()
+    run_records = _write_run_specs(mapping)
     tool_identity = {
         "python": {
             "version": platform.python_version(),
@@ -748,10 +807,7 @@ def main() -> None:
         },
         "commands": [
             _tool_output(["java", "-version"]),
-            _tool_output(
-                [str(DEFECT_PROJECT / "gradlew"), "--no-daemon", "--version"],
-                cwd=DEFECT_PROJECT,
-            ),
+            _tool_output(["./gradlew", "--no-daemon", "--version"], cwd=DEFECT_PROJECT),
             _tool_output(["android", "--version"]),
             _tool_output(["adb", "version"]),
             _tool_output(["codex", "--version"]),
@@ -764,7 +820,10 @@ def main() -> None:
     }
     _write_json(RUN_ROOT / "tool-versions.json", tool_identity)
     receipts = _admit_run_specs(run_records)
-    admission_audit = validate_admission_receipts(receipts)
+    admission_audit = validate_admission_receipts(
+        receipts,
+        expected_run_specs={record["lane_id"]: record for record in run_records},
+    )
     if admission_audit["status"] != "pass":
         raise SystemExit(f"admission audit failed: {admission_audit}")
     _write_json(RUN_ROOT / "admission-audit.json", admission_audit)
@@ -772,9 +831,8 @@ def main() -> None:
     if neutral["audit"]["status"] != "pass":
         raise SystemExit(f"leakage audit failed: {neutral}")
 
-    source_inputs = _source_file_inventory()
-    _write_json(RUN_ROOT / "source-context-inputs.json", {"inputs": source_inputs})
     package_build = _write_package_build_receipt()
+    build_logs = _materialize_durable_build_logs()
     manifest_document = _manifest(
         mapping=mapping,
         run_records=run_records,
@@ -785,6 +843,7 @@ def main() -> None:
         project_identities={"defect": defect_identity, "control": control_identity},
         tool_identity=tool_identity,
         package_build=package_build,
+        build_logs=build_logs,
     )
     manifest_path = BENCH_ROOT / "m9-project-qualification-v1.json"
     _write_json(manifest_path, manifest_document)
@@ -817,9 +876,13 @@ def main() -> None:
         ],
         "admission_audit": admission_audit,
         "leakage_audit": neutral["audit"],
+        "pre_release_leakage_audit": {
+            "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/pre-release-leakage-audit.json",
+            "sha256": sha256_file(RUN_ROOT / "pre-release-leakage-audit.json"),
+        },
         "contradiction_audit": contradiction["audit"],
         "mapping_released": False,
-        "mapping_commitment_sha256": sha256_file(_mapping_path()),
+        "mapping_commitment_sha256": sha256_bytes(canonical_json_bytes(mapping)),
         "duration_seconds": round((dt.datetime.now(dt.timezone.utc) - started).total_seconds(), 6),
         "claim_boundary": manifest_document["claim_boundary"],
     }
