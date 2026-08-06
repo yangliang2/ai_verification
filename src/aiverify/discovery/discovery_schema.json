@@ -566,6 +566,125 @@
         }
       ]
     },
+    "plannerIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "role", "backend", "requested_model", "effective_model", "invocation_id", "identity_sha256"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "role": {"type": "string", "minLength": 1},
+        "backend": {"type": "string", "minLength": 1},
+        "requested_model": {"type": "string", "minLength": 1},
+        "effective_model": {"type": "string", "minLength": 1},
+        "invocation_id": {"type": "string", "minLength": 1},
+        "identity_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "validatedEvidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "ref", "kind", "sha256"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "ref": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "planElement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "element_id", "kind", "text", "fact_ids", "operator_id", "order"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "element_id": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["trigger", "action", "user_intent", "system_event", "observation", "evidence_expectation"]},
+        "text": {"type": "string", "minLength": 1},
+        "fact_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "operator_id": {"type": ["string", "null"], "minLength": 1},
+        "order": {"type": "integer", "minimum": 0},
+        "event": {"type": "string", "minLength": 1}
+      }
+    },
+    "oracleContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "oracle_id", "input_element_ids", "machine_check", "evidence_refs"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "oracle_id": {"type": "string", "minLength": 1},
+        "input_element_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "machine_check": {"type": "string", "minLength": 1},
+        "evidence_refs": {"$ref": "#/$defs/textArray", "minItems": 1}
+      }
+    },
+    "attackPlanProposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "plan_id", "target_id", "hypothesis_id", "operator_id", "trigger", "actions", "observations", "evidence_expectations", "oracle", "fixture_refs", "abort_boundary", "safety_boundary", "claim_boundary"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "plan_id": {"type": "string", "minLength": 1},
+        "target_id": {"type": "string", "minLength": 1},
+        "hypothesis_id": {"type": "string", "minLength": 1},
+        "operator_id": {"type": "string", "minLength": 1},
+        "trigger": {"$ref": "#/$defs/planElement"},
+        "actions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/planElement"}},
+        "observations": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/planElement"}},
+        "evidence_expectations": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/planElement"}},
+        "oracle": {"$ref": "#/$defs/oracleContract"},
+        "fixture_refs": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "abort_boundary": {"type": "string", "minLength": 1},
+        "safety_boundary": {"type": "string", "minLength": 1},
+        "claim_boundary": {"type": "string", "minLength": 1}
+      }
+    },
+    "attackPlanGenerationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "request_id", "target", "graph", "hypothesis", "operator", "approved_operators", "controllability_fact_ids", "validated_evidence", "budget", "safety_boundary", "claim_boundary"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "request_id": {"type": "string", "minLength": 1},
+        "target": {"$ref": "#/$defs/projectTarget"},
+        "graph": {"$ref": "#/$defs/contextGraph"},
+        "hypothesis": {"$ref": "#/$defs/riskHypothesis"},
+        "operator": {"$ref": "#/$defs/attackOperator"},
+        "approved_operators": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/attackOperator"}},
+        "controllability_fact_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "validated_evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/validatedEvidenceRef"}},
+        "budget": {"type": "integer", "minimum": 1},
+        "safety_boundary": {"type": "string", "minLength": 1},
+        "claim_boundary": {"type": "string", "minLength": 1}
+      }
+    },
+    "attackPlanAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "status", "reasons", "proposal", "plan"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "status": {"enum": ["admitted", "rejected"]},
+        "reasons": {"$ref": "#/$defs/textArray"},
+        "proposal": {"type": ["object", "null"]},
+        "plan": {"anyOf": [{"$ref": "#/$defs/attackPlan"}, {"type": "null"}]}
+      }
+    },
+    "attackPlanGenerationResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "request_id", "target_id", "planner_identity", "authoritative_output_sha256", "admission", "status", "rejection_reasons"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "request_id": {"type": "string", "minLength": 1},
+        "target_id": {"type": "string", "minLength": 1},
+        "planner_identity": {"$ref": "#/$defs/plannerIdentity"},
+        "authoritative_output_sha256": {"$ref": "#/$defs/sha256"},
+        "admission": {"$ref": "#/$defs/attackPlanAdmission"},
+        "status": {"enum": ["admitted", "rejected"]},
+        "rejection_reasons": {"$ref": "#/$defs/textArray"}
+      }
+    },
     "attackPlan": {
       "type": "object",
       "additionalProperties": false,
