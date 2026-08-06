@@ -1,94 +1,167 @@
-# M9 #136 candidate qualification packet
+# M9 #136 — Frozen blinded ProjectTarget qualification
 
-Status: candidate preparation only. Human approval is required before any
-qualification manifest, hidden-mapping commitment, RunSpec admission receipt,
-freeze merge, device action, agent invocation, or formal lane.
+Status: frozen and ready for the exact-commit consumer #137. No formal lane,
+device action, agent invocation, or runtime holdout was executed in #136.
 
-This record is intentionally not a completed M9 qualification. It records the
-side-effect-free candidate work performed against the exact merged
-implementation commit available when this branch was created:
+The human approval is recorded at
+`https://github.com/yangliang2/ai_verification/issues/136#issuecomment-5207290095`.
+The authoritative contract is
+`bench/m9/m9-project-qualification-v1.json`; the older `candidate-*` files in
+this directory are retained as superseded pre-approval history.
 
-- implementation commit: `d3e03dc036a1fb8d0f7f314e7999b58294399242`;
-- candidate source: `https://github.com/android/architecture-samples.git`;
-- candidate source commit: `ee66e1526b84c026615df032c705842b7d2a521f`;
-- candidate source tree: `19455e693ec8c96c37a56aec55059a220826c5a3`;
-- candidate source index manifest SHA-256: `66fa95486f2c63e84dbb1ba1dd77a43ad34cdd6ecbd8c659e496e9a204e38585`;
-- local candidate checkout used for preflight: `/private/tmp/m9-136-candidate-architecture-samples`.
+## Frozen contract
 
-Three unselected pair mutations were also materialized in separate temporary
-worktrees and compiled successfully. Their exact patch, APK, and build-log
-hashes are recorded in `candidate-pair-builds.json`; these are candidate
-decision artifacts, not frozen lane inputs.
+- Implementation commit: `d3e03dc036a1fb8d0f7f314e7999b58294399242` (merged
+  #135).
+- ProjectTarget: `android/architecture-samples` at
+  `ee66e1526b84c026615df032c705842b7d2a521f`, tree
+  `19455e693ec8c96c37a56aec55059a220826c5a3`, source-index SHA-256
+  `66fa95486f2c63e84dbb1ba1dd77a43ad34cdd6ecbd8c659e496e9a204e38585`.
+- Matched pair: human-approved Option A defect commit
+  `208575f78d59716669d0733b5ed3e08797b08787` versus the unchanged baseline
+  control. The defect omits the local upsert in
+  `DefaultTaskRepository.updateTask`.
+- Application identity: package
+  `com.example.android.architecture.blueprints.main`; launcher
+  `com.example.android.architecture.blueprints.todoapp.TodoActivity`; min/target
+  SDK 21/35.
+- Cohort: three defect lanes and three matched control lanes, opaque lane order
+  `m9-lane-01` through `m9-lane-06`. The committed auditor mapping is bound by
+  SHA-256 `2004d2c343dc63f19cb143b9332d24ae1f411b8433c44300294ec6e831ff987b`
+  and is not included in verifier-facing packets. It may be released only
+  after Context Acquisition, the top-three portfolio, Attack Plan admission,
+  and the leakage audit, then must be verified before lane release.
+- Runner: `codex_cli`, policy `m9-production-seam-v1`, device
+  `emulator-5554` / AVD `aiverify_api35` / API 35, network disabled, portrait,
+  requested driver and L3 model `codex-default`.
+- Portfolio: exactly three approved M9 prior/operator/strategy definitions,
+  budget 8, maximum top-three selection.
+- Oracle: edited task title must remain visible after navigation, reopening, and
+  the admitted process boundary. The oracle consumes only terminal execution
+  and raw evidence identities; it does not receive the hidden lane role.
+- Falsification Review: six reviews, one per lane, clean context, independent
+  invocation identity, no production adjudication/oracle path, same-provider
+  limitation disclosed.
+- Accounting: one accountable attempt per lane, zero retry, zero replacement.
+  Adverse, challenged, inconclusive, rejected, and non-accountable outcomes are
+  terminal evidence.
 
-## Human gate status
+## Side-effect-free preflight
 
-The human has selected candidate option A for further preparation. This is not
-the final freeze approval: the clear lane mapping is absent, no commitment has
-been created, and the opaque lane order and remaining freeze contract are not
-approved. The packet therefore does not claim that this public project is the
-final unfamiliar target or that any formal lane is approved.
+`generate_evidence.py` created six serialized RunSpecs and admitted each exact
+RunSpec/runner pair through `admit_production_seam`. The admission command
+runner allowed only read-only `git` identity queries. The preflight rejected no
+approved lane, did not build/install/launch, and did not invoke Android CLI,
+adb, Codex, a device, an oracle, or a formal runtime.
 
-The human decision still needs to approve the exact source snapshot, matched
-defect/control pair, three defect lanes and three control lanes, lane order,
-mapping commitment/release procedure, oracle/evidence/review contracts,
-one-attempt/zero-retry/zero-replacement and abort rules, and local-only claim
-boundary.
+Results:
 
-## Candidate preflight
+- RunSpecs: 6/6 present and checksum-bound.
+- Production-seam admission: 6/6 admitted; 0 rejected.
+- Neutral leakage audit: 6/6 packets passed; mapping release remained false.
+- Contradiction packet: rejected before any build/device/agent/runtime side
+  effect; excluded from the formal denominator.
+- Formal execution: false; side effects: false.
 
-Commands and results:
+## Verification commands and results
 
-1. `git ls-remote https://github.com/android/architecture-samples.git HEAD`
-   returned `ee66e1526b84c026615df032c705842b7d2a521f`.
-2. `git clone --depth 1 --filter=blob:none --no-tags --no-checkout
-   https://github.com/android/architecture-samples.git
-   /private/tmp/m9-136-candidate-architecture-samples` completed; checkout was
-   detached at the commit above.
-3. `git rev-parse HEAD^{tree}` returned
-   `19455e693ec8c96c37a56aec55059a220826c5a3`.
-4. `./gradlew --no-daemon --no-configuration-cache --max-workers=1
-   :app:assembleDebug` completed successfully: 43 actionable tasks, Gradle
-   reported `BUILD SUCCESSFUL in 2m 52s`.
-5. `./gradlew --offline --no-daemon --no-configuration-cache
-   --max-workers=1 :app:assembleDebug` was also attempted and failed closed
-   because the local cache lacked several candidate dependencies. This does not
-   invalidate the online host build; it records the environment limitation.
-6. `apkanalyzer manifest application-id app/build/outputs/apk/debug/app-debug.apk`
-   returned `com.example.android.architecture.blueprints.main`.
-7. `apkanalyzer manifest min-sdk app/build/outputs/apk/debug/app-debug.apk`
-   returned `21`; target SDK returned `35`.
+Commands ran from the dedicated clean worktree
+`/Users/peter/projects/ai_verification-m9-136` on 2026-08-06.
 
-No `android`, `adb`, device, install, launch, runtime, Verification Agent
-Backend, oracle, or Falsification Review invocation occurred. The successful
-build is candidate-only host-side evidence.
+```text
+PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m py_compile \
+  src/aiverify/bench/m9_qualification.py \
+  docs/runs/2026-08-05-issue-136-qualification-freeze/generate_evidence.py
+→ exit 0.
 
-## Artifact inventory
+PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -q \
+  tests/bench/test_m9_qualification.py
+→ 5 passed, 0 failed; real 0.09s, user 0.07s, sys 0.01s.
 
-The candidate checkout and generated preflight artifacts remain outside the
-repository because the source is an immutable public-project candidate, not a
-committed project target. Their locations and checksums are recorded in
-`candidate-preflight.json`:
+PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python -m pytest -q
+→ 869 passed, 0 failed; real 32.52s, user 25.02s, sys 5.71s.
 
-- source commit/tree/index identity;
-- successful and failed build logs;
-- APK metadata and APK SHA-256;
-- Gradle, Java, Android CLI, and adb identities.
+PYTHONPATH=src /Users/peter/projects/ai_verfication/.venv/bin/python \
+  docs/runs/2026-08-05-issue-136-qualification-freeze/generate_evidence.py
+→ status=passed; 6 admissions; leakage=pass; contradiction=pass;
+  formal_execution_started=false; preflight duration about 1.62s.
 
-This external inventory is local-only until a human approves the exact target
-and the final freeze packet is committed and merged. No formal denominator or
-M9 result may be inferred from it.
+uv build --quiet --out-dir \
+  docs/runs/2026-08-05-issue-136-qualification-freeze/artifacts
+→ package `aiverify 0.1.0`; wheel and sdist built successfully; real 3.28s.
 
-## Known gaps and boundary
+(cd docs/runs/2026-08-05-issue-136-qualification-freeze && \
+  shasum -a 256 -c checksums.sha256)
+→ all committed inventory entries passed.
 
-- Human has not approved the candidate target or unfamiliarity.
-- Candidate A has been materialized and built, but the matched pair is not
-  frozen until the remaining human contract fields are approved.
-- No clear mapping or commitment exists.
-- No candidate option has been approved; the three compiled options remain
-  mutually exclusive decision material only.
-- No six serialized RunSpecs or runner-policy pairs exist yet.
-- No admission receipt, contradiction execution, build-on-frozen-variant,
-  device action, agent invocation, oracle, Finding, ResidualRisk, Project Risk
-  Map, or independent review exists.
-- This record makes no production, upstream, OEM/ColorOS, rate, completeness,
-  benchmark, or automated-repair claim.
+git diff --check
+→ exit 0.
+```
+
+The approved pair was rebuilt host-side without formal execution:
+
+```text
+(cd /private/tmp/m9-136-option-a && \
+  ./gradlew --no-daemon --no-configuration-cache --max-workers=1 :app:assembleDebug)
+→ BUILD SUCCESSFUL in 5s; 43 actionable tasks up-to-date; APK SHA-256
+  `61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac`.
+
+(cd /private/tmp/m9-136-candidate-a-control && \
+  ./gradlew --no-daemon --no-configuration-cache --max-workers=1 :app:assembleDebug)
+→ BUILD SUCCESSFUL in 5s; 43 actionable tasks up-to-date; APK SHA-256
+  `d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66`.
+```
+
+Tool identity: CPython 3.11.15, OpenJDK 17.0.19, Gradle wrapper 8.11.1,
+Android CLI 1.0.15498356, adb 1.0.41 / platform 37.0.0-14910828,
+Codex CLI 0.144.6, backend `codex_cli`, requested/effective contract model
+`codex-default`. The tool receipt is `tool-versions.json`.
+
+## Artifact inventory and key checksums
+
+- `bench/m9/m9-project-qualification-v1.json`: frozen manifest; final raw
+  SHA-256 is recorded in `manifest-identity.json` and `checksums.sha256`.
+- `bench/m9/run-specs/m9-lane-01.yaml` through `m9-lane-06.yaml`: six exact
+  serialized RunSpecs.
+- `admission/m9-lane-01.json` through `m9-lane-06.json`: six admitted,
+  side-effect-free production-seam receipts.
+- `preflight.json`, `admission-audit.json`, `neutral-verifier-packets.json`,
+  `leakage-audit.json`, `contradiction-packet.json`, and
+  `contradiction-audit.json`: ordered gate evidence.
+- `operator-registry.json`, `attack-plan-admission.json`, and
+  `source-context-inputs.json`: frozen discovery/planning inputs and receipts.
+- `artifacts/aiverify-0.1.0-py3-none-any.whl`: 374,697 bytes;
+  SHA-256 `2600731e21e2e8eb1ebfc7250395dcad45009bc8b676eeed0af7b60f2c4ab499`.
+- `artifacts/aiverify-0.1.0.tar.gz`: 340,093 bytes;
+  SHA-256 `4bfc50a0661bf55c9478a1bb7b999099335566c96dc06921531b49ed940e534a`.
+- Defect APK: 24,681,461 bytes; SHA-256
+  `61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac`.
+- Control APK: 24,681,606 bytes; SHA-256
+  `d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66`.
+- `checksums.sha256`: committed inventory for the run record, manifest,
+  RunSpecs, source validator, tests, and package artifacts.
+
+No screenshot, layout dump, logcat, installed APK, emulator session, manual UI
+step, Codex invocation, live provider receipt, oracle result, Finding,
+ResidualRisk, Project Risk Map, or Falsification Review result exists yet.
+Those are #137 responsibilities.
+
+## Manual steps, known gaps, and claim boundary
+
+Manual/device steps in #136: none. The device profile is frozen but not accessed.
+The candidate offline Gradle diagnostic failed closed because the local cache
+lacked candidate dependencies; the online/normal host builds above passed. No
+formal lane was retried or replaced.
+
+Known gap: the formal six-lane result is intentionally unavailable. #137 must
+consume the exact merged #136 commit, perform the ordered Context Acquisition →
+top-three Portfolio → Attack Plan admission → leakage audit → mapping release,
+then execute each lane once and independently reconcile all six reviews. Any
+non-Supported result remains valid evidence.
+
+Local-only claim boundary: this record supports only the human-approved public
+snapshot, local matched pair, frozen contracts, host build/package checksums,
+side-effect-free admissions, leakage audit, and contradiction rejection. It
+does not claim production or upstream behavior, OEM/ColorOS coverage, device
+fleet behavior, success/recall/completeness rates, benchmark-scale capability,
+M8 results, or automated repair.

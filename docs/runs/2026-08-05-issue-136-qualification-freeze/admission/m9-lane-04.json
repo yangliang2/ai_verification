@@ -1,0 +1,97 @@
+{
+  "admitted": true,
+  "artifact_namespace": {
+    "artifact_dir": "/Users/peter/projects/ai_verification-m9-136/docs/runs/2026-08-05-issue-136-qualification-freeze/formal-artifacts/m9-lane-04/artifacts",
+    "formal_outputs_absent": true,
+    "run_dir": "/Users/peter/projects/ai_verification-m9-136/docs/runs/2026-08-05-issue-136-qualification-freeze/formal-artifacts/m9-lane-04"
+  },
+  "checks": {
+    "artifact_namespace": {
+      "status": "passed"
+    },
+    "host_identity": {
+      "status": "passed"
+    },
+    "run_spec_bytes": {
+      "bytes": 739,
+      "sha256": "1b58d1046f8fe315212c16dd5ec5df25bbb8f44e2c3b0654c42d67a58dc063c7",
+      "status": "passed"
+    },
+    "runner_policy": {
+      "status": "passed"
+    },
+    "target_declaration": {
+      "status": "passed"
+    }
+  },
+  "host": {
+    "commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "host_project": "/private/tmp/m9-136-candidate-a-control",
+    "host_project_within_repository": false,
+    "origin": "https://github.com/android/architecture-samples.git",
+    "repository_root": "/private/tmp/m9-136-candidate-a-control",
+    "worktree": {
+      "clean": true,
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "reasons": [],
+  "run_spec": {
+    "path": "/Users/peter/projects/ai_verification-m9-136/bench/m9/run-specs/m9-lane-04.yaml",
+    "scenario": "m9-lane-04",
+    "serialized_bytes": 739,
+    "sha256": "1b58d1046f8fe315212c16dd5ec5df25bbb8f44e2c3b0654c42d67a58dc063c7"
+  },
+  "runner_policy": {
+    "backend": "codex_cli",
+    "options": {
+      "adb_bin": "adb",
+      "allow_host_project_subdir": false,
+      "android_bin": "android",
+      "artifact_dir": "/Users/peter/projects/ai_verification-m9-136/docs/runs/2026-08-05-issue-136-qualification-freeze/formal-artifacts/m9-lane-04/artifacts",
+      "backend": "codex_cli",
+      "codex_bin": "codex",
+      "device": "emulator-5554",
+      "launch": true,
+      "requested_driver_model": "codex-default",
+      "requested_l3_model": "codex-default",
+      "runner_policy_version": "m9-production-seam-v1",
+      "workdir": "/private/tmp/m9-136-candidate-a-control"
+    },
+    "tools": {
+      "adb": {
+        "requested": "adb",
+        "resolved_path": "/opt/homebrew/Caskroom/android-platform-tools/37.0.0/platform-tools/adb",
+        "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+      },
+      "android": {
+        "requested": "android",
+        "resolved_path": "/Users/peter/.local/bin/android",
+        "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc"
+      },
+      "codex": {
+        "requested": "codex",
+        "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+        "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff"
+      }
+    },
+    "version": "m9-production-seam-v1"
+  },
+  "schema_version": 1,
+  "side_effects": {
+    "agent": false,
+    "build": false,
+    "declaration": "read-only git and local source/metadata inspection only",
+    "device": false,
+    "external": false
+  },
+  "status": "admitted",
+  "target": {
+    "activity": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "apk_locator": {
+      "glob": "app/build/outputs/apk/debug/app-debug.apk",
+      "relative_to": "/private/tmp/m9-136-candidate-a-control"
+    },
+    "package": "com.example.android.architecture.blueprints.main"
+  }
+}

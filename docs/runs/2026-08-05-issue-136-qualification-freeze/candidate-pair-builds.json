@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
-  "status": "candidate_pair_preflight_only",
+  "status": "superseded_candidate_pair_historical_record",
+  "superseded_by": "bench/m9/m9-project-qualification-v1.json",
+  "human_approval_comment": "https://github.com/yangliang2/ai_verification/issues/136#issuecomment-5207290095",
   "formal_holdout_executed": false,
   "formal_denominator": false,
   "clear_mapping_present": false,
@@ -90,12 +92,12 @@
   },
   "human_decision": {
     "selected_option": "A",
-    "selection_status": "candidate_selected_full_freeze_pending",
-    "approved_pair": null,
-    "lane_assignment": null,
-    "lane_order": null,
-    "mapping_commitment": null,
-    "approval_status": "required"
+    "selection_status": "approved_in_final_freeze",
+    "approved_pair": "A",
+    "lane_assignment": "opaque auditor mapping in superseding manifest",
+    "lane_order": ["m9-lane-01", "m9-lane-02", "m9-lane-03", "m9-lane-04", "m9-lane-05", "m9-lane-06"],
+    "mapping_commitment": "see superseding manifest",
+    "approval_status": "approved"
   },
   "selected_candidate_pair": {
     "defect": {

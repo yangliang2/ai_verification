@@ -1,0 +1,250 @@
+{
+  "admission_audit": {
+    "checks": [
+      {
+        "lane_id": "m9-lane-01",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-02",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-03",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-04",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-05",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-06",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      }
+    ],
+    "formal_execution_started": false,
+    "receipt_count": 6,
+    "status": "pass"
+  },
+  "admitted": true,
+  "canonical_manifest_sha256": "0bd741088d17a8af286bd32132f311aa6ee33488891abcb9e3686ba75e0d8df9",
+  "checks": [
+    {
+      "comment": "https://github.com/yangliang2/ai_verification/issues/136#issuecomment-5207290095",
+      "name": "human_approval",
+      "status": "pass"
+    },
+    {
+      "commit": "d3e03dc036a1fb8d0f7f314e7999b58294399242",
+      "name": "exact_implementation_commit",
+      "status": "pass"
+    },
+    {
+      "name": "target_pair_identity",
+      "status": "pass"
+    },
+    {
+      "count": 6,
+      "name": "six_run_specs",
+      "status": "pass"
+    },
+    {
+      "name": "six_production_seam_admissions",
+      "status": "pass"
+    },
+    {
+      "name": "neutral_leakage_audit",
+      "status": "pass"
+    },
+    {
+      "name": "contradiction_pre_side_effect_rejection",
+      "status": "pass"
+    }
+  ],
+  "claim_boundary": {
+    "exclusions": [
+      "production or upstream validation",
+      "OEM/ColorOS or physical-device claims",
+      "success rate, recall, completeness, or benchmark-scale claims",
+      "M8 rerun or M8 claim rewrite",
+      "automatic repair"
+    ],
+    "local_only": true,
+    "scope": "one human-approved architecture-samples snapshot, its local A defect/control pair, one API-35 emulator profile, the frozen discovery/admission/runtime/evidence contracts, and six accountable lane records"
+  },
+  "contradiction_audit": {
+    "command_calls": [],
+    "expected_admission": "rejected",
+    "formal_denominator": false,
+    "missing_fields": [
+      "target_source_identity",
+      "context_graph",
+      "operator_registry"
+    ],
+    "packet_id": "m9-136-incomplete-context-v1",
+    "pre_side_effect_rejection": true,
+    "rejection_boundary": "before_any_build_device_agent_or_runtime_side_effect",
+    "side_effects": false,
+    "status": "pass"
+  },
+  "duration_seconds": 1.427903,
+  "formal_execution_started": false,
+  "lane_admissions": [
+    {
+      "admission_receipt_sha256": "bdfaedd1eed94b150d093dee2d9c86b9947e49a58786884027fa8d1ce4f38677",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-01",
+      "run_spec_sha256": "65d34778147fdc809edb1244e4f649d46698521c0f167dc5fc4cf39832477f19"
+    },
+    {
+      "admission_receipt_sha256": "f63d783608e76aca81cd1c19ea33a33638731e48782432f172313aa63c129bee",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-02",
+      "run_spec_sha256": "780235461cae42f27d5cfb3edd91d07f62196cfed7cecdce097a0339647a2046"
+    },
+    {
+      "admission_receipt_sha256": "6077bb60e802b9d038ffed558e5400bef2ce6feef500bd21f3eb98de4b7a8a4f",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-03",
+      "run_spec_sha256": "3b993e2cede8b6cf034db08b07bdfcf13e7d03d0ce2720c46da91ea9d20850ab"
+    },
+    {
+      "admission_receipt_sha256": "a40398c5d8972d2d179e7a889a551707cbe795b44bdbbbaf46637a36c5eff154",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-04",
+      "run_spec_sha256": "1b58d1046f8fe315212c16dd5ec5df25bbb8f44e2c3b0654c42d67a58dc063c7"
+    },
+    {
+      "admission_receipt_sha256": "2bbefb36d8dda6f3d3e9f5369da70c339761dc7bd170ad9d1f5a51366310ff35",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-05",
+      "run_spec_sha256": "3251a2076d94ed6045ac1e88adf204d30664e8c2ddcf3da73193ee6df6661afd"
+    },
+    {
+      "admission_receipt_sha256": "e2aa1cde4d724d8832690d68ab2ea1bc9f9bac60505f98350cdd400150710119",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-06",
+      "run_spec_sha256": "3a8503781c080e3703d533947a14267a76447cb313ad0f08ca8225f0824a3fd0"
+    }
+  ],
+  "leakage_audit": {
+    "checks": [
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-01",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-02",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-03",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-04",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-05",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-06",
+        "status": "pass",
+        "verdict_withheld": true
+      }
+    ],
+    "mapping_released": false,
+    "packet_count": 6,
+    "release_point": "after_context_acquisition_portfolio_attack_plan_and_leakage_audit",
+    "status": "pass"
+  },
+  "manifest_sha256": "0bd2fa9f46dd0fd8ad38762d7ad44f7a41a4c892beb7a1f64dc05613b647944f",
+  "mapping_commitment_sha256": "2004d2c343dc63f19cb143b9332d24ae1f411b8433c44300294ec6e831ff987b",
+  "mapping_released": false,
+  "qualification_id": "m9-project-qualification-v1",
+  "schema_version": 1,
+  "side_effects": false
+}
