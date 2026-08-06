@@ -4,7 +4,7 @@ Issue: [#130](https://github.com/yangliang2/ai_verification/issues/130)<br>
 Base: `origin/main` / `aa486e1ca32baa83c9766aa8937bf31b9c962655`<br>
 Branch: `m9-130-production-seam-admission`<br>
 Implementation commit: `0a0224999544824b5c3c5024453af5b89188f984`<br>
-Evidence content commit: `3359508c6cf45a13cb21ec049be4933c8b58cc82`<br>
+Evidence content commit: `a5624b8afb08a08fe1d6f0707955dc9243a74c07`<br>
 
 ## Scope and result
 
