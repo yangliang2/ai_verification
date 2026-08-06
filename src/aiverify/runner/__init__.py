@@ -1,5 +1,14 @@
 """Runner primitives for Smoke Slice and M1 verification runs."""
 
+from aiverify.runner.admission import (
+    AdmissionResult,
+    PlannedRunnerOptions,
+    ProductionSeamAdmissionError,
+    admit_production_seam,
+    establish_and_abandon_temporary_record,
+    verify_admitted_receipt,
+    write_admission_receipt,
+)
 from aiverify.runner.codex_backend import (
     CodexCliBackend,
     CodexCliError,
@@ -32,6 +41,7 @@ from aiverify.runner.system_events import (
 from aiverify.runner.verdict import judge_l2_from_android_layout
 
 __all__ = [
+    "AdmissionResult",
     "AndroidEvidenceCollector",
     "AssertionSpec",
     "CodexCliBackend",
@@ -47,6 +57,8 @@ __all__ = [
     "JourneySegment",
     "JourneySegmentFlow",
     "JourneySegmentRunner",
+    "PlannedRunnerOptions",
+    "ProductionSeamAdmissionError",
     "RunSpec",
     "RunSpecError",
     "ScenarioSpec",
@@ -55,6 +67,10 @@ __all__ = [
     "SystemEventInjectionError",
     "judge_l2_from_android_layout",
     "load_run_spec",
+    "admit_production_seam",
+    "establish_and_abandon_temporary_record",
     "scenario_to_segments",
     "segment_to_journey_xml",
+    "verify_admitted_receipt",
+    "write_admission_receipt",
 ]
