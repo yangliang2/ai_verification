@@ -6,15 +6,16 @@ Branch: `m9-131-context-acquisition`
 
 This record documents the bounded, read-only ProjectTarget Context Acquisition
 slice. The implementation is committed at
-`dd4e6cd6001a62c4dc2aab341b71c3c360d072f8` (the final evidence-pin commit is
+`47322eadde64ee5e00788a10b78364f4c398e7c1` (the final evidence-pin commit is
 recorded in the completion comment). Work was confined to
 `/Users/peter/projects/ai_verification-m9-131`; the original
 `issue-73-accessibility-slice` worktree was not modified.
 
 ## Scope and result
 
-The new public entry points are `acquire_project_context` and `acquire_context`.
-They accept only a clean, immutable `ProjectTarget`, verify origin/commit/tree
+The new public contracts and entry points are `ContextAcquisitionRequest`,
+`acquire_project_context`, and `acquire_context`. They accept only a clean,
+immutable `ProjectTarget`, verify origin/commit/tree
 identity and no diff with read-only Git commands, inspect tracked files in the
 declared scope up to the target budget, and produce a provenance-bound
 `QualityContextGraph`, `ContextAcquisitionReceipt`, and deterministic graph
@@ -46,14 +47,14 @@ uv pip install --python .venv/bin/python pytest pyyaml jsonschema
   worktree-local dependencies in the isolated .venv.
 
 .venv/bin/python -m pytest -q tests/discovery/test_acquisition.py
-→ 5 passed, 0 failed; exit 0; real 0.97s, user 0.51s, sys 0.38s.
+→ 6 passed, 0 failed; exit 0; real 1.47s, user 0.74s, sys 0.59s.
 
 .venv/bin/python -m pytest -q tests/discovery/test_contracts.py tests/discovery/test_context_graph.py
 → 24 passed, 0 failed; exit 0; real 0.33s, user 0.27s, sys 0.03s.
 
 .venv/bin/python -m pytest -ra
-→ 832 passed, 0 failed in 27.58s; exit 0; real 27.67s, user 19.82s,
-  sys 4.52s. No tests were skipped or deselected. This final run includes
+→ 833 passed, 0 failed in 27.88s; exit 0; real 27.97s, user 20.25s,
+  sys 4.84s. No tests were skipped or deselected. This final run includes
   merged #130 production-seam admission tests.
 
 .venv/bin/python -m compileall -q src tests/discovery/test_acquisition.py
@@ -76,8 +77,8 @@ python3 -m json.tool src/aiverify/discovery/discovery_schema.json >/dev/null
 
 uv build --out-dir docs/runs/2026-08-05-issue-131-context-acquisition/artifacts
 → source distribution and wheel built successfully; package `aiverify 0.1.0`;
-  final artifact sizes are 323910 bytes (wheel) and 292747 bytes (sdist);
-  SHA-256 values are listed below; real 0.92s, user 0.52s, sys 0.22s.
+  final artifact sizes are 324492 bytes (wheel) and 293730 bytes (sdist);
+  SHA-256 values are listed below; real 0.94s, user 0.56s, sys 0.22s.
 
 git diff --check
 → exit 0.
@@ -113,8 +114,8 @@ verdict.
 Final artifact checksums:
 
 ```text
-artifacts/aiverify-0.1.0-py3-none-any.whl  323910 bytes  8bf33700882dded27ad6b91b0db1d72ccff4b06167df333b532e1767933f36d6
-artifacts/aiverify-0.1.0.tar.gz             292747 bytes  b3e67631eeae8ae68a0f69a7f45a5f004c49df030e553946485b976e8ad9cef7
+artifacts/aiverify-0.1.0-py3-none-any.whl  324492 bytes  5a99391d9955a11452a99bc1888a134b210a8b30eee839e4200ad0ecfd8b3dd3
+artifacts/aiverify-0.1.0.tar.gz             293730 bytes  0f02d044079da060aeff00b4257ddbf9fa67f244208b1267d4285010c5f787f3
 ```
 
 ## Manual steps, known gaps, and claim boundary

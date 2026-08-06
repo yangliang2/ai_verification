@@ -30,6 +30,7 @@ def main() -> None:
     assert not any(term in source_text for term in forbidden)
     schema = json.loads((ROOT / "src/aiverify/discovery/discovery_schema.json").read_text(encoding="utf-8"))
     assert "contextAcquisitionResult" in schema["$defs"]
+    assert "contextAcquisitionRequest" in schema["$defs"]
     assert "contextAcquisitionReceipt" in schema["$defs"]
     assert "inferred" in schema["$defs"]["contextFact"]["properties"]["status"]["enum"]
     assert "source_tree_sha256" in schema["$defs"]["contextGraph"]["properties"]
