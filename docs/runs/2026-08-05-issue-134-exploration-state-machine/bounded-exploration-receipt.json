@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "scope": "non-holdout-local-fixture",
+  "formal_holdout": false,
+  "side_effects": {
+    "agent": false,
+    "build": false,
+    "device": false,
+    "production": false,
+    "runtime": false
+  },
+  "identity": {
+    "role": "verification-agent-hypothesis-generator-v1",
+    "backend": "fake-hypothesis-backend",
+    "requested_model": "fixture-model-v1",
+    "effective_model": "fixture-model-v1",
+    "invocation_id": "exploration-generator-1",
+    "identity_sha256": "d37b5a032551bdd90c911fe78efe5456f77f82b0f13d1545706e6c1dd85ee634",
+    "source_tree_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "fixture": {
+    "campaign_id": "campaign-exploration-fixture",
+    "target_id": "project-exploration-fixture",
+    "portfolio_id": "portfolio-a6cffded5611b99a",
+    "claim_boundary": "checked-in deterministic fixture and side-effect-free exploration state machine only"
+  },
+  "expected_state": {
+    "status": "exploring",
+    "event_count": 10,
+    "event_types": [
+      "campaign_initialized",
+      "hypothesis_decision",
+      "hypothesis_decision",
+      "hypothesis_decision",
+      "attack_decision",
+      "attack_decision",
+      "attempt_recorded",
+      "finding_recorded",
+      "attempt_recorded",
+      "residual_risk_recorded"
+    ],
+    "event_head_digest": "7e719cbf89ac552d7062a342a13b3498789ad6155606281c5fb2d7455f17e92b",
+    "attempt_count": 2,
+    "attempt_outcomes": ["supported", "non_accountable"],
+    "finding_count": 1,
+    "finding_conclusions": ["supported"],
+    "residual_risk_count": 1,
+    "residual_hypotheses": ["hypothesis-exploration-2"],
+    "falsification_review_count": 0,
+    "remaining_budget": 6,
+    "coverage_frontier": ["hypothesis:hypothesis-exploration-1"],
+    "risk_map_digest": "772e94a1ac0bdaa7d6a2ccb5d3d812d45b3f8338d16db14101c9f76d9d165068",
+    "state_digest": "dff6775e1074dda244772f772b86329486489c1ffe804300c080fd49f42959e3",
+    "evaluated_stop": "terminal_finding"
+  },
+  "artifact_inventory": {
+    "raw_event_stream": "Reconstructed and replayed from the deterministic fixture by validate_receipt.py; no device/runtime raw artifacts exist for this side-effect-free run.",
+    "formal_holdout_artifacts": [],
+    "device_artifacts": [],
+    "production_artifacts": []
+  }
+}
