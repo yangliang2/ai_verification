@@ -32,6 +32,13 @@ from aiverify.discovery.context import (
     trace_backward,
     trace_forward,
 )
+from aiverify.discovery.acquisition import (
+    AdapterReceipt,
+    ContextAcquisitionReceipt,
+    ContextAcquisitionResult,
+    acquire_context,
+    acquire_project_context,
+)
 from aiverify.discovery.contracts import (
     AdmissionResult,
     AttackOperator,
@@ -100,6 +107,7 @@ __all__ = [
     "STATE_EVOLUTION_SIGNAL_TERMS",
     "TEMPORAL_SIGNAL_TERMS",
     "AdmissionResult",
+    "AdapterReceipt",
     "AttackOperator",
     "AttackPlan",
     "AttemptEvidence",
@@ -108,6 +116,8 @@ __all__ = [
     "ChangeTarget",
     "CompiledExperiment",
     "ContextCollectionResult",
+    "ContextAcquisitionReceipt",
+    "ContextAcquisitionResult",
     "ContextEdge",
     "ContextExpansionRequest",
     "ContextExpansionResult",
@@ -141,6 +151,8 @@ __all__ = [
     "admit_experiment",
     "apply_context_expansion",
     "collect_context",
+    "acquire_context",
+    "acquire_project_context",
     "compile_attack_plan",
     "compile_attack_plan_to_run_spec",
     "create_campaign",
