@@ -32,7 +32,9 @@ def _reject_unknown(data: Mapping[str, Any], allowed: set[str]) -> None:
 
 
 _SOURCE_KINDS = frozenset({"declared", "derived", "observed", "historical", "unknown"})
-_FACT_STATUSES = frozenset({"known", "unknown", "contradictory", "stale"})
+_FACT_STATUSES = frozenset(
+    {"known", "inferred", "unknown", "contradictory", "stale"}
+)
 _NODE_KINDS = frozenset(
     {"component", "api", "operation", "thread", "process", "quality_contract", "resource"}
 )
@@ -355,10 +357,28 @@ class QualityContextGraph:
     schema_version: int = 1
     nodes: tuple[ContextNode, ...] = ()
     edges: tuple[ContextEdge, ...] = ()
+    source_origin: str | None = None
+    source_commit: str | None = None
+    source_tree_sha256: str | None = None
 
     def __post_init__(self) -> None:
         _required_text(self.graph_id, "graph_id")
         _required_text(self.target_id, "target_id")
+        source_identity = (
+            self.source_origin,
+            self.source_commit,
+            self.source_tree_sha256,
+        )
+        if any(value is not None for value in source_identity) and not all(
+            value is not None for value in source_identity
+        ):
+            raise DiscoveryContractError(
+                "context graph source identity must be complete"
+            )
+        if self.source_origin is not None:
+            _required_text(self.source_origin, "source_origin")
+            _required_text(self.source_commit, "source_commit")
+            _sha256(self.source_tree_sha256, "source_tree_sha256")
         if (
             not isinstance(self.schema_version, int)
             or isinstance(self.schema_version, bool)
@@ -409,7 +429,7 @@ class QualityContextGraph:
         raise KeyError(fact_id)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result: dict[str, Any] = {
             "schema_version": self.schema_version,
             "graph_id": self.graph_id,
             "target_id": self.target_id,
@@ -417,6 +437,15 @@ class QualityContextGraph:
             "nodes": [node.to_dict() for node in self.nodes],
             "edges": [edge.to_dict() for edge in self.edges],
         }
+        if self.source_origin is not None:
+            result.update(
+                {
+                    "source_origin": self.source_origin,
+                    "source_commit": self.source_commit,
+                    "source_tree_sha256": self.source_tree_sha256,
+                }
+            )
+        return result
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "QualityContextGraph":
@@ -424,7 +453,17 @@ class QualityContextGraph:
             raise DiscoveryContractError("context graph must be an object")
         _reject_unknown(
             data,
-            {"schema_version", "graph_id", "target_id", "facts", "nodes", "edges"},
+            {
+                "schema_version",
+                "graph_id",
+                "target_id",
+                "facts",
+                "nodes",
+                "edges",
+                "source_origin",
+                "source_commit",
+                "source_tree_sha256",
+            },
         )
         try:
             raw_facts = data["facts"]
@@ -443,6 +482,9 @@ class QualityContextGraph:
                     ContextEdge.from_dict(item)
                     for item in data.get("edges", [])
                 ),
+                source_origin=data.get("source_origin"),
+                source_commit=data.get("source_commit"),
+                source_tree_sha256=data.get("source_tree_sha256"),
             )
         except KeyError as error:
             raise DiscoveryContractError(
