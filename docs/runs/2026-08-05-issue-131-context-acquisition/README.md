@@ -6,7 +6,7 @@ Branch: `m9-131-context-acquisition`
 
 This record documents the bounded, read-only ProjectTarget Context Acquisition
 slice. The implementation is committed at
-`481d75a93d0848f03bfe0ca588d78192b088b143` (the final evidence-pin commit is
+`dd4e6cd6001a62c4dc2aab341b71c3c360d072f8` (the final evidence-pin commit is
 recorded in the completion comment). Work was confined to
 `/Users/peter/projects/ai_verification-m9-131`; the original
 `issue-73-accessibility-slice` worktree was not modified.
@@ -46,14 +46,15 @@ uv pip install --python .venv/bin/python pytest pyyaml jsonschema
   worktree-local dependencies in the isolated .venv.
 
 .venv/bin/python -m pytest -q tests/discovery/test_acquisition.py
-→ 5 passed, 0 failed; exit 0; real 0.99s, user 0.50s, sys 0.40s.
+→ 5 passed, 0 failed; exit 0; real 0.97s, user 0.51s, sys 0.38s.
 
 .venv/bin/python -m pytest -q tests/discovery/test_contracts.py tests/discovery/test_context_graph.py
-→ 24 passed, 0 failed; exit 0; real 0.89s.
+→ 24 passed, 0 failed; exit 0; real 0.33s, user 0.27s, sys 0.03s.
 
 .venv/bin/python -m pytest -ra
-→ 826 passed, 0 failed in 58.50s; exit 0; real 58.58s, user 21.18s,
-  sys 4.19s. No tests were skipped or deselected.
+→ 832 passed, 0 failed in 27.58s; exit 0; real 27.67s, user 19.82s,
+  sys 4.52s. No tests were skipped or deselected. This final run includes
+  merged #130 production-seam admission tests.
 
 .venv/bin/python -m compileall -q src tests/discovery/test_acquisition.py
 → exit 0.
@@ -75,7 +76,8 @@ python3 -m json.tool src/aiverify/discovery/discovery_schema.json >/dev/null
 
 uv build --out-dir docs/runs/2026-08-05-issue-131-context-acquisition/artifacts
 → source distribution and wheel built successfully; package `aiverify 0.1.0`;
-  final artifact sizes and SHA-256 values are listed below.
+  final artifact sizes are 323910 bytes (wheel) and 292747 bytes (sdist);
+  SHA-256 values are listed below; real 0.92s, user 0.52s, sys 0.22s.
 
 git diff --check
 → exit 0.
@@ -111,8 +113,8 @@ verdict.
 Final artifact checksums:
 
 ```text
-artifacts/aiverify-0.1.0-py3-none-any.whl  318225 bytes  5c3041900291f1899a8747f7ffefc936865f3cdd6a35e43bc59735a69d7eb286
-artifacts/aiverify-0.1.0.tar.gz             287871 bytes  e25f5d023bccd0630a17029e7c09ccceac294387fa01fdb62b2ed8e8e010a8ec
+artifacts/aiverify-0.1.0-py3-none-any.whl  323910 bytes  8bf33700882dded27ad6b91b0db1d72ccff4b06167df333b532e1767933f36d6
+artifacts/aiverify-0.1.0.tar.gz             292747 bytes  b3e67631eeae8ae68a0f69a7f45a5f004c49df030e553946485b976e8ad9cef7
 ```
 
 ## Manual steps, known gaps, and claim boundary
