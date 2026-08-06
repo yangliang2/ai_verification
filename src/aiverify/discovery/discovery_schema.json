@@ -1030,6 +1030,113 @@
         "attempts": {"type": "array", "items": {"$ref": "#/$defs/attemptEvidence"}}
       }
     },
+    "explorationEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "event_id", "sequence", "event_type", "target_id",
+        "hypothesis_id", "attempt_ref", "artifact_refs", "payload",
+        "previous_digest", "event_digest"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "event_id": {"type": "string", "minLength": 1},
+        "sequence": {"type": "integer", "minimum": 1},
+        "event_type": {
+          "enum": [
+            "campaign_initialized", "hypothesis_decision", "attack_decision",
+            "attempt_recorded", "finding_recorded", "residual_risk_recorded",
+            "falsification_review_recorded", "stop_recorded"
+          ]
+        },
+        "target_id": {"type": "string", "minLength": 1},
+        "hypothesis_id": {
+          "anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]
+        },
+        "attempt_ref": {
+          "anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]
+        },
+        "artifact_refs": {
+          "type": "array", "minItems": 1,
+          "items": {"$ref": "#/$defs/immutableArtifactRef"}
+        },
+        "payload": {"type": "object"},
+        "previous_digest": {"$ref": "#/$defs/sha256"},
+        "event_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "explorationStop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "stop_id", "reason", "rationale", "evidence_refs",
+        "artifact_refs", "decision_digest"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "stop_id": {"type": "string", "minLength": 1},
+        "reason": {
+          "enum": [
+            "budget_exhausted", "no_admissible_attack", "terminal_finding",
+            "evidence_gap", "frontier_exhausted", "policy_abort"
+          ]
+        },
+        "rationale": {"type": "string", "minLength": 1},
+        "evidence_refs": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "artifact_refs": {
+          "type": "array", "minItems": 1,
+          "items": {"$ref": "#/$defs/immutableArtifactRef"}
+        },
+        "decision_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "nextProbe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "hypothesis_id", "candidate_id", "priority_score",
+        "admissible", "reason", "attempt_count"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "hypothesis_id": {"type": "string", "minLength": 1},
+        "candidate_id": {"type": "string", "minLength": 1},
+        "priority_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "admissible": {"type": "boolean"},
+        "reason": {"type": "string", "minLength": 1},
+        "attempt_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "explorationCampaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "campaign_id", "target", "context_graph", "portfolio",
+        "events", "attempts", "findings", "residual_risks", "falsification_reviews",
+        "risk_map", "remaining_budget", "coverage_frontier", "status", "stop"
+      ],
+      "properties": {
+        "schema_version": {"const": 1},
+        "campaign_id": {"type": "string", "minLength": 1},
+        "target": {"$ref": "#/$defs/projectTarget"},
+        "context_graph": {"$ref": "#/$defs/contextGraph"},
+        "portfolio": {"$ref": "#/$defs/hypothesisPortfolio"},
+        "events": {"type": "array", "items": {"$ref": "#/$defs/explorationEvent"}},
+        "attempts": {"type": "array", "items": {"$ref": "#/$defs/attemptEvidence"}},
+        "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+        "residual_risks": {"type": "array", "items": {"$ref": "#/$defs/residualRisk"}},
+        "falsification_reviews": {
+          "type": "array", "items": {"$ref": "#/$defs/falsificationReviewResult"}
+        },
+        "risk_map": {"$ref": "#/$defs/projectRiskMap"},
+        "remaining_budget": {"type": "integer", "minimum": 0},
+        "coverage_frontier": {"$ref": "#/$defs/textArray"},
+        "status": {"enum": ["created", "exploring", "stopped"]},
+        "stop": {
+          "anyOf": [{"$ref": "#/$defs/explorationStop"}, {"type": "null"}]
+        }
+      }
+    },
     "admissionResult": {
       "type": "object",
       "additionalProperties": false,

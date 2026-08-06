@@ -66,6 +66,10 @@ _CONTRACT_DEFINITIONS = {
     "hypothesis_selection_ledger": "hypothesisSelectionLedger",
     "attempt_evidence": "attemptEvidence",
     "discovery_campaign_package": "discoveryCampaignPackage",
+    "exploration_event": "explorationEvent",
+    "exploration_stop": "explorationStop",
+    "next_probe": "nextProbe",
+    "exploration_campaign": "explorationCampaign",
     "admission_result": "admissionResult",
 }
 
