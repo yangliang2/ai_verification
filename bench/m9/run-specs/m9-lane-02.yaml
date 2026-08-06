@@ -1,0 +1,21 @@
+host_project:
+  root: ${M9_M9_LANE_02_PROJECT}
+  origin: https://github.com/android/architecture-samples.git
+  commit: a4ad73189d2766415ec547ba72dabee8b18a1b03
+apk_glob: app/build/outputs/apk/debug/app-debug.apk
+package: com.example.android.architecture.blueprints.main
+activity: com.example.android.architecture.blueprints.todoapp.TodoActivity
+scenario:
+  id: m9-lane-02
+  user_actions:
+  - Open the task list
+  - Create a task with a unique title
+  - Edit the task title
+  - Navigate away from the task detail
+  - Reopen the edited task
+  system_events:
+  - step_index: 4
+    event: process_death
+  l2_boundary_index: 0
+  l3_spec: The edited task title remains visible after navigation, reopening, and
+    the admitted process boundary.

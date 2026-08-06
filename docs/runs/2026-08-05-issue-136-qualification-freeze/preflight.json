@@ -1,0 +1,254 @@
+{
+  "admission_audit": {
+    "checks": [
+      {
+        "lane_id": "m9-lane-01",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-02",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-03",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-04",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-05",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-lane-06",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      }
+    ],
+    "formal_execution_started": false,
+    "receipt_count": 6,
+    "status": "pass"
+  },
+  "admitted": true,
+  "canonical_manifest_sha256": "123c620b45e0f35a50083d019c8f1dc3808fd3150541f3a4d5265acc0a9d83b4",
+  "checks": [
+    {
+      "comment": "https://github.com/yangliang2/ai_verification/issues/136#issuecomment-5207290095",
+      "name": "human_approval",
+      "status": "pass"
+    },
+    {
+      "commit": "d3e03dc036a1fb8d0f7f314e7999b58294399242",
+      "name": "exact_implementation_commit",
+      "status": "pass"
+    },
+    {
+      "name": "target_pair_identity",
+      "status": "pass"
+    },
+    {
+      "count": 6,
+      "name": "six_run_specs",
+      "status": "pass"
+    },
+    {
+      "name": "six_production_seam_admissions",
+      "status": "pass"
+    },
+    {
+      "name": "neutral_leakage_audit",
+      "status": "pass"
+    },
+    {
+      "name": "contradiction_pre_side_effect_rejection",
+      "status": "pass"
+    }
+  ],
+  "claim_boundary": {
+    "exclusions": [
+      "production or upstream validation",
+      "OEM/ColorOS or physical-device claims",
+      "success rate, recall, completeness, or benchmark-scale claims",
+      "M8 rerun or M8 claim rewrite",
+      "automatic repair"
+    ],
+    "local_only": true,
+    "scope": "one human-approved architecture-samples snapshot, its local A defect/control pair, one API-35 emulator profile, the frozen discovery/admission/runtime/evidence contracts, and six accountable lane records"
+  },
+  "contradiction_audit": {
+    "command_calls": [],
+    "expected_admission": "rejected",
+    "formal_denominator": false,
+    "missing_fields": [
+      "target_source_identity",
+      "context_graph",
+      "operator_registry"
+    ],
+    "packet_id": "m9-136-incomplete-context-v1",
+    "pre_side_effect_rejection": true,
+    "rejection_boundary": "before_any_build_device_agent_or_runtime_side_effect",
+    "side_effects": false,
+    "status": "pass"
+  },
+  "duration_seconds": 1.467786,
+  "formal_execution_started": false,
+  "lane_admissions": [
+    {
+      "admission_receipt_sha256": "35a44649b233f7a6c443dad13ffc80d6e0f9ce42e6887143e4e1e909e6b3c0c3",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-01",
+      "run_spec_sha256": "5e4c7891550a1a193af27761d3e9b7fff7cbfac3dce957fd43315b11c9f237f5"
+    },
+    {
+      "admission_receipt_sha256": "f0ba23e2a02fe19d5e1d581fa9b3f727cf50bf8bb2ff24fabeee1a34faca4d89",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-02",
+      "run_spec_sha256": "c1e3ddc210d6fc42df058cae172cd41b5f2f608ea50ed23765244da485da281f"
+    },
+    {
+      "admission_receipt_sha256": "b15442b1a602b7198770cf1f2e28c446e0b328748a4ef448d610fc9a2ff0be97",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-03",
+      "run_spec_sha256": "39636edd426fbf9114e6b14ce8809719de0bb21e64a96ea4cd5c5f5d2f2ddb58"
+    },
+    {
+      "admission_receipt_sha256": "90b8a5e6d396110572ed25d7f7212a8a3a1b14e7ab83bb4a25fa794888372894",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-04",
+      "run_spec_sha256": "099cd38f94b0d7f7f3124f4970bbaece915c9c462a70d91eb271c46905a96a16"
+    },
+    {
+      "admission_receipt_sha256": "a6d474b0454d87ace75575ca89710e76cff65a4e1fcd11cbabfe3ae102c69a94",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-05",
+      "run_spec_sha256": "ca02888687532dc60ee0b49ea15f1c4a71387af6a925b8657b58aec87c67bff1"
+    },
+    {
+      "admission_receipt_sha256": "6a971549f30a0e6b175e957c2d399e9beb067adff01add628cce821ba7ffc203",
+      "git_only_call_count": 4,
+      "lane_id": "m9-lane-06",
+      "run_spec_sha256": "414e4731de50c578562d315e5a26d99c62743ee4d28bfa91e633d8ece2d1c2d1"
+    }
+  ],
+  "leakage_audit": {
+    "checks": [
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-01",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-02",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-03",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-04",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-05",
+        "status": "pass",
+        "verdict_withheld": true
+      },
+      {
+        "expected_evidence_withheld": true,
+        "forbidden_terms": [],
+        "mapping_withheld": true,
+        "oracle_conclusion_withheld": true,
+        "packet_id": "packet-m9-lane-06",
+        "status": "pass",
+        "verdict_withheld": true
+      }
+    ],
+    "mapping_released": false,
+    "packet_count": 6,
+    "release_point": "after_context_acquisition_portfolio_attack_plan_and_leakage_audit",
+    "status": "pass"
+  },
+  "manifest_sha256": "dfc3e122c1b5e46788af0f898893bb8e768213fc2637b9759212e97b6cd3138d",
+  "mapping_commitment_sha256": "81aa8a18a3174bae566c006bb064803d8794a4add9f345f33e39022c2bf30a62",
+  "mapping_released": false,
+  "pre_release_leakage_audit": {
+    "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/pre-release-leakage-audit.json",
+    "sha256": "8185baa60bb08e95da28f34cd59eccc6a1c22e5cf29a5654c84ef52152e31a7f"
+  },
+  "qualification_id": "m9-project-qualification-v1",
+  "schema_version": 1,
+  "side_effects": false
+}

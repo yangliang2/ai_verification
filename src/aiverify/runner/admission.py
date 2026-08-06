@@ -45,6 +45,7 @@ class PlannedRunnerOptions:
     device: str
     workdir: Path
     artifact_dir: Path
+    expected_source_commit: str | None = None
     launch: bool = True
     requested_driver_model: str | None = None
     requested_l3_model: str | None = None
@@ -61,6 +62,7 @@ class PlannedRunnerOptions:
             "device": self.device,
             "workdir": str(Path(self.workdir).resolve()),
             "artifact_dir": str(Path(self.artifact_dir).resolve()),
+            "expected_source_commit": self.expected_source_commit,
             "launch": self.launch,
             "requested_driver_model": self.requested_driver_model,
             "requested_l3_model": self.requested_l3_model,
@@ -359,7 +361,12 @@ def _resolve_host(
         raise ProductionSeamAdmissionError("portable host origin and commit locator is required")
     if origin != locator.expected_origin:
         raise ProductionSeamAdmissionError("host origin contradicts Run Spec locator")
-    if commit != locator.expected_commit:
+    expected_commit = options.expected_source_commit or locator.expected_commit
+    if not _GIT_SHA1_RE.fullmatch(expected_commit):
+        raise ProductionSeamAdmissionError(
+            "expected source commit binding is not a Git commit"
+        )
+    if commit != expected_commit:
         raise ProductionSeamAdmissionError("host commit contradicts Run Spec locator")
     return {
         "repository_root": str(repository_root),

@@ -1,0 +1,14 @@
+diff --git a/app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt b/app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt
+index 7d61755..01cd8ac 100644
+--- a/app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt
++++ b/app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt
+@@ -157,8 +157,8 @@ class DefaultTaskRepository @Inject constructor(
+     override suspend fun refresh() {
+         withContext(dispatcher) {
+             val remoteTasks = networkDataSource.loadTasks()
+-            localDataSource.deleteAll()
+             localDataSource.upsertAll(remoteTasks.toLocal())
++            localDataSource.deleteAll()
+         }
+     }
+ 

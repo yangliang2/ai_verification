@@ -1,0 +1,22 @@
+Downloading https://services.gradle.org/distributions/gradle-8.11.1-bin.zip
+.............10%.............20%.............30%.............40%.............50%.............60%.............70%.............80%.............90%.............100%
+
+Welcome to Gradle 8.11.1!
+
+Here are the highlights of this release:
+ - Parallel load and store for Configuration Cache
+ - Java compilation errors at the end of the build output
+ - Consolidated report for warnings and deprecations
+
+For more details see https://docs.gradle.org/8.11.1/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Calculating task graph as no cached configuration is available for tasks: :app:assembleDebug
+
+> Configure project :app
+w: file:///private/tmp/m9-136-candidate-architecture-samples/app/build.gradle.kts:48:13: 'isTestCoverageEnabled: Boolean' is deprecated. Replaced with: enableUnitTestCoverage and or enableAndroidTestCoverage.
+w: file:///private/tmp/m9-136-candidate-architecture-samples/app/build.gradle.kts:95:9: 'excludes: MutableSet<String>' is deprecated. This property is deprecated. Use resources.excludes or jniLibs.excludes instead. Use jniLibs.excludes for .so file patterns, and use resources.excludes for all other file patterns.
+w: file:///private/tmp/m9-136-candidate-architecture-samples/app/build.gradle.kts:96:9: 'excludes: MutableSet<String>' is deprecated. This property is deprecated. Use resources.excludes or jniLibs.excludes instead. Use jniLibs.excludes for .so file patterns, and use resources.excludes for all other file patterns.
+w: file:///private/tmp/m9-136-candidate-architecture-samples/app/build.gradle.kts:100:9: 'kotlinOptions(KotlinJvmOptionsDeprecated /* = KotlinJvmOptions */.() -> Unit): Unit' is deprecated. Please migrate to the compilerOptions DSL. More details are here: https://kotl.in/u1r8ln
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.

@@ -1,0 +1,17 @@
+diff --git a/app/src/main/java/com/example/android/architecture/blueprints/todoapp/tasks/TasksViewModel.kt b/app/src/main/java/com/example/android/architecture/blueprints/todoapp/tasks/TasksViewModel.kt
+index f95b2d2..d2fe2e0 100644
+--- a/app/src/main/java/com/example/android/architecture/blueprints/todoapp/tasks/TasksViewModel.kt
++++ b/app/src/main/java/com/example/android/architecture/blueprints/todoapp/tasks/TasksViewModel.kt
+@@ -151,10 +151,10 @@ class TasksViewModel @Inject constructor(
+         for (task in tasks) {
+             when (filteringType) {
+                 ALL_TASKS -> tasksToShow.add(task)
+-                ACTIVE_TASKS -> if (task.isActive) {
++                ACTIVE_TASKS -> if (task.isCompleted) {
+                     tasksToShow.add(task)
+                 }
+-                COMPLETED_TASKS -> if (task.isCompleted) {
++                COMPLETED_TASKS -> if (task.isActive) {
+                     tasksToShow.add(task)
+                 }
+             }

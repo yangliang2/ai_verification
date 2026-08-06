@@ -1,0 +1,148 @@
+{
+  "definitions": [
+    {
+      "operator": {
+        "action": "perturb dependency latency or availability within an abort budget",
+        "description": "Apply a bounded delay or unavailable response at one dependency boundary and observe caller contract evidence.",
+        "name": "bounded latency or availability perturbation",
+        "operator_id": "operator-bounded-latency",
+        "safety_boundary": "local target only; abort before unbounded wait or external side effect",
+        "schema_version": 1
+      },
+      "prior": {
+        "description": "Prioritize bounded latency, blocking, retry, I/O, lock, wait, or availability changes that cross a synchronous critical path.",
+        "name": "synchronous critical-path temporal propagation",
+        "operator_ids": [
+          "operator-bounded-latency"
+        ],
+        "prior_id": "prior-synchronous-critical-path-v1",
+        "schema_version": 1,
+        "signals": [
+          "delay",
+          "latency",
+          "blocking",
+          "retry",
+          "io",
+          "lock",
+          "wait",
+          "availability"
+        ],
+        "version": "m7.1"
+      },
+      "schema_version": 1,
+      "strategy": {
+        "compatible_operator_ids": [
+          "operator-bounded-latency"
+        ],
+        "compatible_prior_ids": [
+          "prior-synchronous-critical-path-v1"
+        ],
+        "schema_version": 1,
+        "strategy_id": "strategy-synchronous-critical-path-v1",
+        "target_modes": [
+          "change",
+          "project"
+        ],
+        "version": "m7.1"
+      }
+    },
+    {
+      "operator": {
+        "action": "create or import one old state and run one bounded local upgrade/recovery epoch",
+        "description": "Create or import one historical state, then observe one bounded upgrade and recovery epoch at the recorded state boundary.",
+        "name": "bounded historical-state replay",
+        "operator_id": "operator-bounded-historical-state-replay",
+        "safety_boundary": "local target only; reversible state and one attempt; abort before an unbounded wait, unsafe state, or external side effect",
+        "schema_version": 1
+      },
+      "prior": {
+        "description": "Prioritize provenance-bound writer, durable-storage, schema-transition, reader, and recovery paths where historical state must remain compatible with a known quality contract.",
+        "name": "historical-state compatibility across recovery",
+        "operator_ids": [
+          "operator-bounded-historical-state-replay"
+        ],
+        "prior_id": "prior-state-evolution-compatibility-v1",
+        "schema_version": 1,
+        "signals": [
+          "historical_state",
+          "durable_state",
+          "schema_transition",
+          "migration",
+          "recovery_epoch",
+          "restore",
+          "process_death",
+          "state_continuity"
+        ],
+        "version": "m8.1"
+      },
+      "schema_version": 1,
+      "strategy": {
+        "compatible_operator_ids": [
+          "operator-bounded-historical-state-replay"
+        ],
+        "compatible_prior_ids": [
+          "prior-state-evolution-compatibility-v1"
+        ],
+        "schema_version": 1,
+        "strategy_id": "strategy-state-evolution-compatibility-v1",
+        "target_modes": [
+          "change",
+          "project"
+        ],
+        "version": "m8.1"
+      }
+    },
+    {
+      "operator": {
+        "action": "apply one bounded lifecycle or ownership boundary observation without an unbounded task or resource wait",
+        "description": "Observe one locally bounded cancellation, disposal, or lifecycle boundary while preserving the recorded resource owner.",
+        "name": "bounded lifecycle ownership drift",
+        "operator_id": "operator-bounded-lifecycle-ownership-drift",
+        "safety_boundary": "local target only; reversible fixture and one bounded attempt; abort before unsafe state or external side effect",
+        "schema_version": 1
+      },
+      "prior": {
+        "description": "Prioritize lifecycle-bound coroutine, task, cancellation, close, and resource ownership paths whose lifetime may drift from the recorded quality contract.",
+        "name": "lifecycle and resource ownership drift",
+        "operator_ids": [
+          "operator-bounded-lifecycle-ownership-drift"
+        ],
+        "prior_id": "prior-lifetime-ownership-drift-v1",
+        "schema_version": 1,
+        "signals": [
+          "lifecycle",
+          "ownership",
+          "coroutine",
+          "task",
+          "cancellation",
+          "resource",
+          "dispose",
+          "close",
+          "scope"
+        ],
+        "version": "m9.1"
+      },
+      "schema_version": 1,
+      "strategy": {
+        "compatible_operator_ids": [
+          "operator-bounded-lifecycle-ownership-drift"
+        ],
+        "compatible_prior_ids": [
+          "prior-lifetime-ownership-drift-v1"
+        ],
+        "schema_version": 1,
+        "strategy_id": "strategy-lifetime-ownership-drift-v1",
+        "target_modes": [
+          "change",
+          "project"
+        ],
+        "version": "m9.1"
+      }
+    }
+  ],
+  "formal_holdout_executed": false,
+  "prior_count": 3,
+  "schema_version": 1,
+  "side_effects": false,
+  "status": "frozen_registry_reference"
+}

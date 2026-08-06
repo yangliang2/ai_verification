@@ -1,0 +1,65 @@
+{
+  "backend": "codex_cli",
+  "commands": [
+    {
+      "command": [
+        "java",
+        "-version"
+      ],
+      "output": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Homebrew (build 17.0.19+0)\nOpenJDK 64-Bit Server VM Homebrew (build 17.0.19+0, mixed mode, sharing)",
+      "output_sha256": "2a35caa960bc478729f0f24c1dd9af4fd23c6351421e67b7735f30091403e781",
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "command": [
+        "./gradlew",
+        "--no-daemon",
+        "--version"
+      ],
+      "output": "------------------------------------------------------------\nGradle 8.11.1\n------------------------------------------------------------\n\nBuild time:    2024-11-20 16:56:46 UTC\nRevision:      481cb05a490e0ef9f8620f7873b83bd8a72e7c39\n\nKotlin:        2.0.20\nGroovy:        3.0.22\nAnt:           Apache Ant(TM) version 1.10.14 compiled on August 16 2023\nLauncher JVM:  17.0.19 (Homebrew 17.0.19+0)\nDaemon JVM:    /opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home (no JDK specified, using current Java home)\nOS:            Mac OS X 26.3 aarch64",
+      "output_sha256": "96f22809a701f57febeb7a056619e3416c4838d344dc0db526ed692a4cc6ae2a",
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "command": [
+        "android",
+        "--version"
+      ],
+      "output": "1.0.15498356",
+      "output_sha256": "36c367db358395653eb35e61261ca8ce8544a35bf9279f4b8b9f12b021473152",
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "command": [
+        "adb",
+        "version"
+      ],
+      "output": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)",
+      "output_sha256": "f83d9b8596167caee89e425db13353345d1a2f9b7dcb624bc5792dc11c75cb21",
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "command": [
+        "codex",
+        "--version"
+      ],
+      "output": "codex-cli 0.144.6",
+      "output_sha256": "a560ff1e62b63d4f161d1705f0b0ed337f602f084c3b45e15ef213478d24f2b3",
+      "returncode": 0,
+      "status": "passed"
+    }
+  ],
+  "device": "emulator-5554",
+  "device_accessed": false,
+  "effective_model": "codex-default",
+  "python": {
+    "implementation": "CPython",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "version": "3.11.15"
+  },
+  "requested_model": "codex-default"
+}

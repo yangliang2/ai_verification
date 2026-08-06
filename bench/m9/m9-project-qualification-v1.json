@@ -1,0 +1,547 @@
+{
+  "admission": {
+    "allowed_subprocesses": [
+      "read-only git identity commands"
+    ],
+    "forbidden_before_formal_execution": [
+      "gradle",
+      "android",
+      "adb",
+      "codex",
+      "device",
+      "install",
+      "launch",
+      "runtime"
+    ],
+    "side_effects": false,
+    "six_exact_run_specs": true,
+    "six_exact_runner_policy_pairs": true
+  },
+  "approval": {
+    "approved_at": "2026-08-06T16:20:17Z",
+    "approved_by": "yangliang2",
+    "comment_url": "https://github.com/yangliang2/ai_verification/issues/136#issuecomment-5207290095",
+    "decision": "approved exact target/pair, 3+3 cohort, lane order, mapping release, oracle/evidence/review, retry/abort, and local-only boundary",
+    "issue_url": "https://github.com/yangliang2/ai_verification/issues/136"
+  },
+  "attack_plan": {
+    "admission": {
+      "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/attack-plan-admission.json",
+      "sha256": "c0d10baf08bb8cd145f46b2cfeae6d3ac9abde2adbd46cf8d86b0934c46f93d2",
+      "source_receipt_sha256": "49377cb16b5739f7f8f0ea13f79223eb3f64c9f79e413f83f092be5ac755ca26",
+      "status": "admitted"
+    },
+    "claim_boundary": "local-only",
+    "safety_boundary": "local public-project copy, local emulator, and declared evidence roots only",
+    "target_specific_plan_generation": "#137 only after context and portfolio freeze"
+  },
+  "claim_boundary": {
+    "exclusions": [
+      "production or upstream validation",
+      "OEM/ColorOS or physical-device claims",
+      "success rate, recall, completeness, or benchmark-scale claims",
+      "M8 rerun or M8 claim rewrite",
+      "automatic repair"
+    ],
+    "local_only": true,
+    "scope": "one human-approved architecture-samples snapshot, its local A defect/control pair, one API-35 emulator profile, the frozen discovery/admission/runtime/evidence contracts, and six accountable lane records"
+  },
+  "cohort": {
+    "assignment_is_opaque": true,
+    "control_count": 3,
+    "defect_count": 3,
+    "lane_count": 6,
+    "lane_order": [
+      "m9-lane-01",
+      "m9-lane-02",
+      "m9-lane-03",
+      "m9-lane-04",
+      "m9-lane-05",
+      "m9-lane-06"
+    ],
+    "mapping_commitment": {
+      "algorithm": "sha256(canonical_json_bytes(auditor_mapping))",
+      "artifact": "bench/m9/auditor/matched-pair.json",
+      "clear_mapping_in_verifier_inputs": false,
+      "raw_artifact_sha256": "2004d2c343dc63f19cb143b9332d24ae1f411b8433c44300294ec6e831ff987b",
+      "release_after": [
+        "Context Acquisition",
+        "top-3 Hypothesis Portfolio",
+        "Attack Plan admission",
+        "leakage audit"
+      ],
+      "sha256": "81aa8a18a3174bae566c006bb064803d8794a4add9f345f33e39022c2bf30a62",
+      "verify_before_lane_release": true
+    }
+  },
+  "context_acquisition": {
+    "discovery_budget": 8,
+    "input_inventory": "source-context-inputs.json",
+    "no_build_device_agent_runtime_side_effect": true,
+    "order": [
+      "repository",
+      "build",
+      "manifest",
+      "call_site",
+      "state",
+      "version",
+      "execution_boundary"
+    ],
+    "source_index_sha256": "66fa95486f2c63e84dbb1ba1dd77a43ad34cdd6ecbd8c659e496e9a204e38585",
+    "unknown_and_contradictory_are_first_class": true
+  },
+  "contradiction_packet": {
+    "audit": {
+      "command_calls": [],
+      "expected_admission": "rejected",
+      "formal_denominator": false,
+      "missing_fields": [
+        "target_source_identity",
+        "context_graph",
+        "operator_registry"
+      ],
+      "packet_id": "m9-136-incomplete-context-v1",
+      "pre_side_effect_rejection": true,
+      "rejection_boundary": "before_any_build_device_agent_or_runtime_side_effect",
+      "side_effects": false,
+      "status": "pass"
+    },
+    "audit_path": "docs/runs/2026-08-05-issue-136-qualification-freeze/contradiction-audit.json",
+    "audit_sha256": "1c218de7d328d75fa36b6bf7c695b1bec6719f88c33414cd61dfac969e9120b9",
+    "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/contradiction-packet.json",
+    "sha256": "9c0926fd63cd868b160ddb3ee9015ce2b7258bf4f2a350775c4826ca9ff3ab0e"
+  },
+  "evidence": {
+    "append_only": true,
+    "checksums_required": true,
+    "manual_steps": "recorded per lane if an operator action is required; no manual substitution for an accountable attempt",
+    "required_artifacts": [
+      "execution-record.json",
+      "effective-execution-identity.json",
+      "raw/screenshots/*.png",
+      "raw/layout/*.json",
+      "raw/logcat/*.txt",
+      "finding.json",
+      "residual-risk.json",
+      "project-risk-map.json",
+      "falsification-review.json",
+      "checksums.sha256"
+    ],
+    "root": "docs/runs/2026-08-05-issue-136-qualification-freeze/formal-artifacts/<lane-id>/"
+  },
+  "exploration_stop_rule": {
+    "id": "m9-exploration-stop-v1",
+    "no_retry_or_replacement": true,
+    "stop_when": [
+      "the admitted top-three portfolio has been exhausted or the bounded discovery budget is zero",
+      "no additional admissible plan remains within the frozen safety boundary",
+      "all required evidence for the selected probe is terminally reconciled"
+    ],
+    "unresolved_risk": "preserve as ResidualRisk and coverage frontier; never infer support"
+  },
+  "falsification_review": {
+    "allowed_outcomes": [
+      "survived",
+      "challenged",
+      "inconclusive"
+    ],
+    "clean_context": true,
+    "finding_not_rewritten": true,
+    "independent_invocation_identity": true,
+    "no_production_oracle_path": true,
+    "one_per_lane": true,
+    "required_reviews": 6,
+    "same_provider_family_limitation_disclosed": true
+  },
+  "formal_denominator": false,
+  "formal_holdout_executed": false,
+  "frozen_at": "2026-08-06T16:20:17Z",
+  "implementation": {
+    "dependency_chain": [
+      "#129",
+      "#130",
+      "#131",
+      "#132",
+      "#133",
+      "#134",
+      "#135"
+    ],
+    "merged_commit": "d3e03dc036a1fb8d0f7f314e7999b58294399242",
+    "repository": "https://github.com/yangliang2/ai_verification.git"
+  },
+  "lanes": [
+    {
+      "admission_receipt": {
+        "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-01.json",
+        "sha256": "35a44649b233f7a6c443dad13ffc80d6e0f9ce42e6887143e4e1e909e6b3c0c3"
+      },
+      "lane_id": "m9-lane-01",
+      "one_attempt": true,
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/run-specs/m9-lane-01.yaml",
+        "sha256": "5e4c7891550a1a193af27761d3e9b7fff7cbfac3dce957fd43315b11c9f237f5",
+        "source_binding_ref": "d84d188634fa6d6ecb80d16519450e9aaf65d5be"
+      }
+    },
+    {
+      "admission_receipt": {
+        "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-02.json",
+        "sha256": "f0ba23e2a02fe19d5e1d581fa9b3f727cf50bf8bb2ff24fabeee1a34faca4d89"
+      },
+      "lane_id": "m9-lane-02",
+      "one_attempt": true,
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/run-specs/m9-lane-02.yaml",
+        "sha256": "c1e3ddc210d6fc42df058cae172cd41b5f2f608ea50ed23765244da485da281f",
+        "source_binding_ref": "a4ad73189d2766415ec547ba72dabee8b18a1b03"
+      }
+    },
+    {
+      "admission_receipt": {
+        "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-03.json",
+        "sha256": "b15442b1a602b7198770cf1f2e28c446e0b328748a4ef448d610fc9a2ff0be97"
+      },
+      "lane_id": "m9-lane-03",
+      "one_attempt": true,
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/run-specs/m9-lane-03.yaml",
+        "sha256": "39636edd426fbf9114e6b14ce8809719de0bb21e64a96ea4cd5c5f5d2f2ddb58",
+        "source_binding_ref": "6d2ced8cd95c940c7d2db74e027762b7aa4dd4f5"
+      }
+    },
+    {
+      "admission_receipt": {
+        "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-04.json",
+        "sha256": "90b8a5e6d396110572ed25d7f7212a8a3a1b14e7ab83bb4a25fa794888372894"
+      },
+      "lane_id": "m9-lane-04",
+      "one_attempt": true,
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/run-specs/m9-lane-04.yaml",
+        "sha256": "099cd38f94b0d7f7f3124f4970bbaece915c9c462a70d91eb271c46905a96a16",
+        "source_binding_ref": "914097bca7e9eba0cfdb35d73f82228fc4a285e2"
+      }
+    },
+    {
+      "admission_receipt": {
+        "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-05.json",
+        "sha256": "a6d474b0454d87ace75575ca89710e76cff65a4e1fcd11cbabfe3ae102c69a94"
+      },
+      "lane_id": "m9-lane-05",
+      "one_attempt": true,
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/run-specs/m9-lane-05.yaml",
+        "sha256": "ca02888687532dc60ee0b49ea15f1c4a71387af6a925b8657b58aec87c67bff1",
+        "source_binding_ref": "376d855554af8895a13d28ebf68967343d13e340"
+      }
+    },
+    {
+      "admission_receipt": {
+        "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/admission/m9-lane-06.json",
+        "sha256": "6a971549f30a0e6b175e957c2d399e9beb067adff01add628cce821ba7ffc203"
+      },
+      "lane_id": "m9-lane-06",
+      "one_attempt": true,
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/run-specs/m9-lane-06.yaml",
+        "sha256": "414e4731de50c578562d315e5a26d99c62743ee4d28bfa91e633d8ece2d1c2d1",
+        "source_binding_ref": "c48e89414c02b06d27977ffcfb5d1cbe87b355b3"
+      }
+    }
+  ],
+  "leakage_audit": {
+    "audit": {
+      "checks": [
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-lane-01",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-lane-02",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-lane-03",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-lane-04",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-lane-05",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-lane-06",
+          "status": "pass",
+          "verdict_withheld": true
+        }
+      ],
+      "mapping_released": false,
+      "packet_count": 6,
+      "release_point": "after_context_acquisition_portfolio_attack_plan_and_leakage_audit",
+      "status": "pass"
+    },
+    "audit_path": "docs/runs/2026-08-05-issue-136-qualification-freeze/leakage-audit.json",
+    "audit_sha256": "8185baa60bb08e95da28f34cd59eccc6a1c22e5cf29a5654c84ef52152e31a7f",
+    "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/neutral-verifier-packets.json",
+    "sha256": "db5f2874cab8617372d53b9694fc2231d36c7506d1423e7570b5238250ace240"
+  },
+  "oracle": {
+    "accounting_rule": "non-accountable terminal produces ResidualRisk and cannot enter Supported denominator",
+    "allowed_conclusions": [
+      "locally_supported",
+      "locally_rejected",
+      "inconclusive"
+    ],
+    "correct_behavior_spec": "The edited task title remains visible after navigation, reopening, and the admitted process boundary.",
+    "id": "m9-task-persistence-v1",
+    "input_fields": [
+      "terminal ExecutionRecord",
+      "Effective Execution Identity",
+      "ordered raw screenshot evidence",
+      "ordered layout evidence",
+      "filtered logcat evidence",
+      "process-boundary receipt",
+      "task-title observations"
+    ],
+    "quality_property": "edited task persists across navigation, reopen, and process boundary",
+    "variant_input": false
+  },
+  "package_build": {
+    "artifacts": [
+      {
+        "bytes": 375652,
+        "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/artifacts/aiverify-0.1.0-py3-none-any.whl",
+        "sha256": "eb348907e558b351937dccb5089705bf04ea0944454d9c3ccc3e2d287032849b"
+      },
+      {
+        "bytes": 341172,
+        "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/artifacts/aiverify-0.1.0.tar.gz",
+        "sha256": "743367a46e8624afe8af1424e7b8dc7fb3637895ef09b787f53a1588d340b3ee"
+      }
+    ],
+    "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/package-build.json",
+    "sha256": "714dd0ccf2d276490116e160a63d87eedd5326c66560a9947b3a634bad9fa452",
+    "status": "passed"
+  },
+  "policy": {
+    "abort_before_side_effect_on_contradiction": true,
+    "one_attempt_per_lane": true,
+    "portfolio_budget": 8,
+    "top_three_portfolio": true,
+    "zero_replacement": true,
+    "zero_retry": true
+  },
+  "portfolio": {
+    "approved_registry": {
+      "operator_ids": [
+        "operator-bounded-latency",
+        "operator-bounded-historical-state-replay",
+        "operator-bounded-lifecycle-ownership-drift"
+      ],
+      "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/operator-registry.json",
+      "prior_count": 3,
+      "prior_ids": [
+        "prior-synchronous-critical-path-v1",
+        "prior-state-evolution-compatibility-v1",
+        "prior-lifetime-ownership-drift-v1"
+      ],
+      "sha256": "b8159090e826cf2bedbdd6561d4012b3fce6487e85f340be07118c15f801ebce"
+    },
+    "budget": 8,
+    "formal_holdout_executed": false,
+    "selected_only_after_context_acquisition": true,
+    "top_three": true
+  },
+  "qualification_id": "m9-project-qualification-v1",
+  "runner": {
+    "api_level": 35,
+    "artifact_root": "docs/runs/2026-08-05-issue-136-qualification-freeze/formal-artifacts/<lane-id>/",
+    "avd": "aiverify_api35",
+    "backend": "codex_cli",
+    "device": "emulator-5554",
+    "effective_identity": "record per formal lane; #136 has no agent invocation",
+    "network_policy": "disabled",
+    "orientation": "portrait",
+    "policy_version": "m9-production-seam-v1",
+    "requested_driver_model": "codex-default",
+    "requested_l3_model": "codex-default",
+    "tool_identity_path": "docs/runs/2026-08-05-issue-136-qualification-freeze/tool-versions.json"
+  },
+  "schema_version": 1,
+  "status": "frozen",
+  "target": {
+    "activity": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "build_command": "./gradlew --no-daemon --no-configuration-cache --max-workers=1 :app:assembleDebug",
+    "control": {
+      "actionable_tasks": 43,
+      "apk_bytes": 24681606,
+      "apk_sha256": "d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66",
+      "build_duration": "28s",
+      "build_log": "docs/runs/2026-08-05-issue-136-qualification-freeze/build-logs/selected_control.log",
+      "build_log_sha256": "3fb4c3d19d0f75446b6a317dde76fc6915555071654121e20dccecc140c7f874",
+      "commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+      "final_rebuild": {
+        "actionable_tasks": 43,
+        "build_duration": "5s",
+        "log": "docs/runs/2026-08-05-issue-136-qualification-freeze/build-logs/final_control.log",
+        "log_sha256": "e91c59f81fbb730a1dcf71ebe16a19dcdf80bcb2c0b385b8faa76cb8e31caef6"
+      },
+      "tree": "19455e693ec8c96c37a56aec55059a220826c5a3"
+    },
+    "defect": {
+      "actionable_tasks": 43,
+      "apk_bytes": 24681461,
+      "apk_sha256": "61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac",
+      "build_duration": "8s",
+      "build_log": "docs/runs/2026-08-05-issue-136-qualification-freeze/build-logs/selected_defect.log",
+      "build_log_sha256": "e571be75b88a8e529585c74f1a6d64686e3f00ceba2dd1ab91ce258b7ee64843",
+      "commit": "208575f78d59716669d0733b5ed3e08797b08787",
+      "final_rebuild": {
+        "actionable_tasks": 43,
+        "build_duration": "5s",
+        "log": "docs/runs/2026-08-05-issue-136-qualification-freeze/build-logs/final_defect.log",
+        "log_sha256": "d4ccd8ffcc473241ec63fdd7fd8e5345bc1bccd74475237b6ae8158b4ba43c49"
+      },
+      "mutation": "omit local upsert in DefaultTaskRepository.updateTask",
+      "option": "A",
+      "patch_sha256": "cc317d74012a83ab6a2e400fbc7442dfcb3bec8464fdbf68a1ba1cdc7974b277",
+      "tree": "34998af23aed59aa17eaf915d848ab1b916a63e2"
+    },
+    "min_sdk": 21,
+    "package": "com.example.android.architecture.blueprints.main",
+    "project_identities": {
+      "control": {
+        "clean": true,
+        "commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+        "origin": "https://github.com/android/architecture-samples.git",
+        "path": "/private/tmp/m9-136-candidate-a-control",
+        "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree": "19455e693ec8c96c37a56aec55059a220826c5a3"
+      },
+      "defect": {
+        "clean": true,
+        "commit": "208575f78d59716669d0733b5ed3e08797b08787",
+        "origin": "https://github.com/android/architecture-samples.git",
+        "path": "/private/tmp/m9-136-option-a",
+        "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree": "34998af23aed59aa17eaf915d848ab1b916a63e2"
+      }
+    },
+    "project_target_id": "architecture-samples-ee66e152",
+    "source_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "source_index_sha256": "66fa95486f2c63e84dbb1ba1dd77a43ad34cdd6ecbd8c659e496e9a204e38585",
+    "source_origin": "https://github.com/android/architecture-samples.git",
+    "source_tree": "19455e693ec8c96c37a56aec55059a220826c5a3",
+    "target_sdk": 35,
+    "unfamiliarity": "human_approved_unfamiliar_public_snapshot"
+  },
+  "tool_identity": {
+    "backend": "codex_cli",
+    "commands": [
+      {
+        "command": [
+          "java",
+          "-version"
+        ],
+        "output": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Homebrew (build 17.0.19+0)\nOpenJDK 64-Bit Server VM Homebrew (build 17.0.19+0, mixed mode, sharing)",
+        "output_sha256": "2a35caa960bc478729f0f24c1dd9af4fd23c6351421e67b7735f30091403e781",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--version"
+        ],
+        "output": "------------------------------------------------------------\nGradle 8.11.1\n------------------------------------------------------------\n\nBuild time:    2024-11-20 16:56:46 UTC\nRevision:      481cb05a490e0ef9f8620f7873b83bd8a72e7c39\n\nKotlin:        2.0.20\nGroovy:        3.0.22\nAnt:           Apache Ant(TM) version 1.10.14 compiled on August 16 2023\nLauncher JVM:  17.0.19 (Homebrew 17.0.19+0)\nDaemon JVM:    /opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home (no JDK specified, using current Java home)\nOS:            Mac OS X 26.3 aarch64",
+        "output_sha256": "96f22809a701f57febeb7a056619e3416c4838d344dc0db526ed692a4cc6ae2a",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "command": [
+          "android",
+          "--version"
+        ],
+        "output": "1.0.15498356",
+        "output_sha256": "36c367db358395653eb35e61261ca8ce8544a35bf9279f4b8b9f12b021473152",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "command": [
+          "adb",
+          "version"
+        ],
+        "output": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)",
+        "output_sha256": "f83d9b8596167caee89e425db13353345d1a2f9b7dcb624bc5792dc11c75cb21",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "command": [
+          "codex",
+          "--version"
+        ],
+        "output": "codex-cli 0.144.6",
+        "output_sha256": "a560ff1e62b63d4f161d1705f0b0ed337f602f084c3b45e15ef213478d24f2b3",
+        "returncode": 0,
+        "status": "passed"
+      }
+    ],
+    "device": "emulator-5554",
+    "device_accessed": false,
+    "effective_model": "codex-default",
+    "python": {
+      "implementation": "CPython",
+      "platform": "macOS-26.3-arm64-arm-64bit",
+      "version": "3.11.15"
+    },
+    "requested_model": "codex-default"
+  }
+}
