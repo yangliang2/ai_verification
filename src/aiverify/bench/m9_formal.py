@@ -805,7 +805,6 @@ def _prepare_fixture(
         {
             "schema_version": 1,
             "lane_id": lane_id,
-            "role": role,
             "worktree": str(fixture_root),
             "source_origin": SOURCE_ORIGIN,
             "source_commit": source_commit,
@@ -1416,7 +1415,6 @@ def _recover_lane_exception(
         {
             "schema_version": 1,
             "lane_id": lane_id,
-            "role": role,
             "run_spec": {"path": str(spec_path.relative_to(REPO_ROOT)), "sha256": spec_sha256},
             "source_commit": source_commit,
             "source_tree": source_tree,
@@ -1540,7 +1538,6 @@ def _execute_lane(
         {
             "schema_version": 1,
             "lane_id": lane_id,
-            "role": role,
             "run_spec": {
                 "path": str(spec_path.relative_to(REPO_ROOT)),
                 "sha256": spec.source_sha256,
@@ -1592,6 +1589,10 @@ def _reconcile(root: Path, rows: Sequence[Mapping[str, Any]], contradiction: Map
         item.get("status") == "complete" and item.get("outcome") == "survived"
         for item in reviews
     )
+    public_rows = [
+        {key: value for key, value in item.items() if key != "role"}
+        for item in ordered
+    ]
     supported = (
         len(ordered) == 6
         and sum(bool(item["accountable"]) for item in ordered) == 6
@@ -1603,7 +1604,7 @@ def _reconcile(root: Path, rows: Sequence[Mapping[str, Any]], contradiction: Map
     result = {
         "schema_version": 1,
         "lane_order": list(LANE_IDS),
-        "lanes": [dict(item) for item in ordered],
+        "lanes": public_rows,
         "counts": {
             "lane_count": len(ordered),
             "accountable": sum(bool(item["accountable"]) for item in ordered),
@@ -1737,7 +1738,10 @@ def execute_formal(
         "portfolio_sha256": metadata["portfolio_sha256"],
         "attack_plan_sha256": generation.authoritative_output_sha256,
         "leakage_audit_status": leakage["audit"]["status"],
-        "rows": rows,
+        "rows": [
+            {key: value for key, value in item.items() if key != "role"}
+            for item in rows
+        ],
         "reconciliation": reconciliation,
         "claim_boundary": CLAIM_BOUNDARY,
         "excluded": [

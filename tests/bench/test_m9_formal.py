@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from aiverify.bench import m9_formal
@@ -40,6 +41,8 @@ def test_formal_reconciliation_requires_all_six_accountable_rows(tmp_path: Path)
     }
     assert result["retry_count"] == 0
     assert result["replacement_count"] == 0
+    persisted = json.loads((tmp_path / "final-reconciliation.json").read_text(encoding="utf-8"))
+    assert all("role" not in lane for lane in persisted["lanes"])
 
     rows[4] = {**rows[4], "accountable": False}
     rejected = _reconcile(tmp_path / "rejected", rows, {"status": "pass"})

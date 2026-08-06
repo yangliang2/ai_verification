@@ -1,32 +1,32 @@
 {
-  "schema_version": 2,
   "attempt_id": "1e10befe-c5a4-4451-acd9-71f6455660ed",
-  "scenario": "m9-lane-06",
-  "lifecycle_state": "failed",
-  "started_at": "2026-08-06T17:42:41+00:00",
-  "finished_at": "2026-08-06T17:42:41+00:00",
+  "evidence_refs": {},
   "execution": {
-    "status": "non_accountable",
     "accounting_eligible": false,
+    "message": "package clear failed for lane: Failed\n",
     "reason": "formal_lane_exception",
-    "message": "package clear failed for lane: Failed\n"
+    "status": "non_accountable"
   },
+  "finished_at": "2026-08-06T17:42:41+00:00",
+  "lifecycle_state": "failed",
+  "phase_errors": [
+    {
+      "kind": "driver",
+      "message": "package clear failed for lane: Failed\n",
+      "phase": "formal-lane-driver",
+      "reason": "formal_lane_exception"
+    }
+  ],
   "process_outcome": {
     "exit_code": 2
   },
+  "scenario": "m9-lane-06",
+  "schema_version": 2,
+  "started_at": "2026-08-06T17:42:41+00:00",
   "timing": {
-    "started_at": "2026-08-06T17:42:41+00:00",
     "finished_at": "2026-08-06T17:42:41+00:00",
-    "total_seconds": 0.0,
-    "phases": []
-  },
-  "phase_errors": [
-    {
-      "phase": "formal-lane-driver",
-      "kind": "driver",
-      "reason": "formal_lane_exception",
-      "message": "package clear failed for lane: Failed\n"
-    }
-  ],
-  "evidence_refs": {}
+    "phases": [],
+    "started_at": "2026-08-06T17:42:41+00:00",
+    "total_seconds": 0.0
+  }
 }

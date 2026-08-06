@@ -32,6 +32,12 @@ terminal non-accountable record. No lane was retried or replaced.
   `mapping-release.json`; clear assignments are not persisted in verifier
   inputs or this report.
 
+The auditor used the hidden role only in memory for aggregate reconciliation.
+After execution, role fields were removed from per-lane fixture/lane-result
+receipts and root row listings before commit; the sanitization receipt is
+`blinding-sanitization.json`. This changed no lane outcome, count, checksum
+binding, or formal population state.
+
 ## Ordered gates and reconciliation
 
 The executor performed these gates in order:
@@ -113,7 +119,7 @@ Full suite:
 
 ```text
 /usr/bin/time -p uv run --extra dev pytest -q
-→ 874 passed, 0 failed; real 35.74s, user 27.58s, sys 7.69s.
+→ 874 passed, 0 failed; real 30.11s, user 23.15s, sys 5.86s.
 ```
 
 Package verification:
@@ -123,8 +129,8 @@ uv build --quiet --out-dir docs/runs/2026-08-06-issue-137-formal-execution/packa
 → package aiverify 0.1.0 built successfully.
 
 sha256sum docs/runs/2026-08-06-issue-137-formal-execution/package/aiverify-0.1.0-py3-none-any.whl docs/runs/2026-08-06-issue-137-formal-execution/package/aiverify-0.1.0.tar.gz
-→ wheel 391,999 bytes, SHA-256 `61c1899617616911a54a8d0d1bf5d48f398cde998ab2bdc99cadc1a44b1c99a7`.
-→ sdist 356,430 bytes, SHA-256 `9e90c47efbf980cdf755dc9d3ebb7e6ea156f28a610cae38307073f120e829a1`.
+→ wheel 392,057 bytes, SHA-256 `0a4646c482917d319169a18b203280a84d5a4a9709d96cf68681b9f6fb10f458`.
+→ sdist 356,502 bytes, SHA-256 `21f6cc4ddbed7d932723d2afe17b816d63daa7a69982450a03ae69f9db8c20d5`.
 ```
 
 Formal evidence checks:
@@ -163,7 +169,8 @@ Root artifacts include `contradiction-rejection.json`,
 `mapping-release.json`, `oracle-contract.json`,
 `formal-execution-summary.json`, `final-reconciliation.json`,
 `formal-execution-diagnosis.json`, `package-build.json`, `tool-versions.json`,
-and six `formal-artifacts/m9-lane-*` directories. Each lane directory includes
+`blinding-sanitization.json`, and six `formal-artifacts/m9-lane-*` directories.
+Each lane directory includes
 the admission receipt, fixture preparation and APK binding, package-clear
 receipt, ExecutionRecord, verdict, Effective Identity, raw-evidence inventory,
 Finding/ResidualRisk/Project Risk Map, attempt evidence, independent review,
