@@ -580,6 +580,34 @@
         "identity_sha256": {"$ref": "#/$defs/sha256"}
       }
     },
+    "immutableArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "ref", "kind", "sha256", "immutable"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "ref": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "immutable": {"const": true}
+      }
+    },
+    "falsificationReviewerIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "role", "backend", "requested_model", "effective_model", "invocation_id", "provider_family", "same_family_limitation", "identity_sha256"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "role": {"type": "string", "minLength": 1},
+        "backend": {"type": "string", "minLength": 1},
+        "requested_model": {"type": "string", "minLength": 1},
+        "effective_model": {"type": "string", "minLength": 1},
+        "invocation_id": {"type": "string", "minLength": 1},
+        "provider_family": {"type": "string", "minLength": 1},
+        "same_family_limitation": {"type": "string", "minLength": 1},
+        "identity_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
     "validatedEvidenceRef": {
       "type": "object",
       "additionalProperties": false,
@@ -683,6 +711,99 @@
         "admission": {"$ref": "#/$defs/attackPlanAdmission"},
         "status": {"enum": ["admitted", "rejected"]},
         "rejection_reasons": {"$ref": "#/$defs/textArray"}
+      }
+    },
+    "reviewReason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "code", "message", "evidence_refs"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "code": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1},
+        "evidence_refs": {"$ref": "#/$defs/textArray", "minItems": 1}
+      }
+    },
+    "reviewDimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "dimension", "status", "analysis", "evidence_refs", "reason_codes"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "dimension": {"enum": ["alternative_explanations", "assumption_violations", "evidence_integrity", "causal_attribution", "control_comparison", "claim_boundary"]},
+        "status": {"enum": ["supported", "challenged", "inconclusive"]},
+        "analysis": {"type": "string", "minLength": 1},
+        "evidence_refs": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "reason_codes": {"$ref": "#/$defs/textArray"}
+      }
+    },
+    "falsificationReviewContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "context_id", "target", "source_refs", "validated_fact_ids", "hypothesis", "admitted_attack_plan", "oracle_contract", "candidate_finding", "execution_record", "effective_identity", "raw_evidence", "control_evidence", "claim_boundary", "production_invocation_id", "production_provider_family"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "context_id": {"type": "string", "minLength": 1},
+        "target": {"$ref": "#/$defs/projectTarget"},
+        "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/immutableArtifactRef"}},
+        "validated_fact_ids": {"$ref": "#/$defs/textArray", "minItems": 1},
+        "hypothesis": {"$ref": "#/$defs/riskHypothesis"},
+        "admitted_attack_plan": {"$ref": "#/$defs/attackPlan"},
+        "oracle_contract": {"$ref": "#/$defs/immutableArtifactRef"},
+        "candidate_finding": {"$ref": "#/$defs/finding"},
+        "execution_record": {"$ref": "#/$defs/immutableArtifactRef"},
+        "effective_identity": {"$ref": "#/$defs/immutableArtifactRef"},
+        "raw_evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/immutableArtifactRef"}},
+        "control_evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/immutableArtifactRef"}},
+        "claim_boundary": {"type": "string", "minLength": 1},
+        "production_invocation_id": {"type": "string", "minLength": 1},
+        "production_provider_family": {"type": "string", "minLength": 1}
+      }
+    },
+    "falsificationReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "review_id", "context_id", "context_sha256", "target_id", "candidate_finding", "reviewer_identity", "dimensions", "outcome", "reasons", "raw_evidence_refs"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "review_id": {"type": "string", "minLength": 1},
+        "context_id": {"type": "string", "minLength": 1},
+        "context_sha256": {"$ref": "#/$defs/sha256"},
+        "target_id": {"type": "string", "minLength": 1},
+        "candidate_finding": {"$ref": "#/$defs/finding"},
+        "reviewer_identity": {"$ref": "#/$defs/falsificationReviewerIdentity"},
+        "dimensions": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"$ref": "#/$defs/reviewDimension"}},
+        "outcome": {"enum": ["survived", "challenged", "inconclusive"]},
+        "reasons": {"type": "array", "items": {"$ref": "#/$defs/reviewReason"}},
+        "raw_evidence_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/immutableArtifactRef"}}
+      }
+    },
+    "falsificationReviewResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "context_id", "reviewer_identity", "authoritative_output_sha256", "status", "review", "rejection_reasons"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "context_id": {"type": "string", "minLength": 1},
+        "reviewer_identity": {"$ref": "#/$defs/falsificationReviewerIdentity"},
+        "authoritative_output_sha256": {"$ref": "#/$defs/sha256"},
+        "status": {"enum": ["complete", "rejected"]},
+        "review": {"anyOf": [{"$ref": "#/$defs/falsificationReview"}, {"type": "null"}]},
+        "rejection_reasons": {"$ref": "#/$defs/textArray"}
+      }
+    },
+    "falsificationReconciliation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "finding", "review_id", "review_outcome", "aggregate_supported", "blocking_reasons", "raw_evidence_refs"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "finding": {"$ref": "#/$defs/finding"},
+        "review_id": {"type": "string", "minLength": 1},
+        "review_outcome": {"enum": ["survived", "challenged", "inconclusive"]},
+        "aggregate_supported": {"type": "boolean"},
+        "blocking_reasons": {"$ref": "#/$defs/textArray"},
+        "raw_evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/immutableArtifactRef"}}
       }
     },
     "attackPlan": {
