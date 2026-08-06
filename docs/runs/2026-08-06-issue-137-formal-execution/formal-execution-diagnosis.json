@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "formal_command": "uv run --extra dev python -m aiverify.bench.m9_formal --artifact-root docs/runs/2026-08-06-issue-137-formal-execution --control-project /private/tmp/m9-136-candidate-a-control --defect-project /private/tmp/m9-136-option-a --fixture-root /private/tmp/m9-137-formal-fixtures-final",
+  "formal_execution_duration_seconds": 1.825,
+  "aggregate_result": "Not Supported",
+  "lane_count": 6,
+  "accountable_count": 0,
+  "retry_count": 0,
+  "replacement_count": 0,
+  "contradiction_packet": {
+    "status": "pass",
+    "rejected_before_build_device_agent_runtime": true,
+    "formal_denominator": false
+  },
+  "neutral_gates": {
+    "context_acquisition_status": "partial",
+    "context_fact_count": 64,
+    "hypothesis_portfolio_selected": 3,
+    "attack_plan_admitted": true,
+    "leakage_audit": "pass",
+    "mapping_release_after_gates": true,
+    "clear_mapping_persisted_in_verifier_inputs": false
+  },
+  "common_terminal_failure": {
+    "stage": "package-clear",
+    "exception_type": "M9FormalExecutionError",
+    "message": "package clear failed for lane: Failed",
+    "command": "adb -s emulator-5554 shell pm clear com.example.android.architecture.blueprints.main",
+    "returncode": 1,
+    "stdout": "Failed",
+    "stderr": "",
+    "lanes": 6,
+    "install_launch_agent_runtime_reached": false,
+    "codex_invocation_count": 0,
+    "effective_driver_model": null,
+    "effective_l3_model": null
+  },
+  "remediation": {
+    "code_path": "src/aiverify/bench/m9_formal.py::_clear_package",
+    "change": "Treat Android pm clear's exact uninstalled-package response (Failed with empty stderr) as an already-clean first-lane state.",
+    "applies_to": "future executions only",
+    "frozen_population_rerun": false,
+    "frozen_population_replacement": false
+  },
+  "claim_boundary": "local-only exact source, package, emulator, execution identity, and six-lane evidence boundary",
+  "known_gap": "The consumed frozen population has no install, launch, agent, screenshot, layout, logcat, or runtime oracle evidence because all six lanes terminated at the pre-runtime package-clear setup step. The result is terminal non-accountable evidence, not a runtime supported or rejected claim."
+}

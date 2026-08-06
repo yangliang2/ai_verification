@@ -50,3 +50,15 @@ cannot replace or reinterpret an earlier family.
   admission checks, so unsupported inference can become an apparent verdict.
 - **Create an organization-wide knowledge graph:** exceeds M7 scope and adds
   mutable state before the first vertical discovery slice is proven.
+
+## M9 qualification evidence note
+
+The #137 formal consumer used the exact #136 qualification contract and kept
+the discovery campaign above the Run Spec boundary. Context Acquisition,
+portfolio freeze, target-specific Attack Plan admission, contradiction
+rejection, and leakage auditing completed before mapping release. The six
+ordered lanes each produced one terminal non-accountable record at package
+clear on a fresh emulator, so the aggregate is `Not Supported` and does not
+constitute a runtime behavior claim. This evidence does not alter the decision
+or authorize a rerun; a future runtime measurement requires a new frozen
+population if the contract is changed.

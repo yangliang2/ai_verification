@@ -129,7 +129,8 @@ def _build_l3_trace_summary(spec: RunSpec, flow) -> str:
 
 
 def _judge_l3(spec: RunSpec, flow, *, l1: dict, l2: dict, steps: list[str],
-              workdir: Path, artifact_dir: Path, model: str | None) -> dict | None:
+              workdir: Path, artifact_dir: Path, model: str | None,
+              retry_invalid: bool = True) -> dict | None:
     """按分层 oracle 设计门控并执行 L3：仅当 l3_spec 非空且 L1/L2 均未 fail。
 
     judge 调用失败（格式两次不合规 / codex 出错）降级为 inconclusive 而不是
@@ -152,6 +153,7 @@ def _judge_l3(spec: RunSpec, flow, *, l1: dict, l2: dict, steps: list[str],
             spec.scenario.l3_spec,
             screenshot_refs=screenshot_refs,
             trigger_steps=steps,
+            retry_invalid=retry_invalid,
         )
     except (VerdictValidationError, CodexCliProviderError, json.JSONDecodeError) as exc:
         verdict = {
@@ -992,7 +994,8 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         admission_required: bool = False,
         admission_receipt: AdmissionResult | Mapping[str, object] | None = None,
         admission_options: PlannedRunnerOptions | None = None,
-        admission_command_runner: CommandRunner | None = None) -> dict:
+        admission_command_runner: CommandRunner | None = None,
+        formal_one_attempt: bool = False) -> dict:
     artifact_dir = Path(artifact_dir).resolve()
     workdir = Path(workdir).resolve()
     if admission_required:
@@ -1162,9 +1165,17 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
                 "launch", controller.launch(spec.package, spec.activity)
             )
 
+        checkpoint_collector = (
+            AndroidEvidenceCollector(
+                layout_attempts=1,
+                layout_retry_sleep_seconds=0.0,
+            )
+            if formal_one_attempt
+            else AndroidEvidenceCollector()
+        )
         runner = JourneySegmentRunner(
             backend=CodexCliBackend(),
-            checkpoint_collector=AndroidEvidenceCollector(),
+            checkpoint_collector=checkpoint_collector,
             system_event_injector=DeviceSystemEventInjector(
                 device=controller, package=spec.package, activity=spec.activity
             ),
@@ -1250,6 +1261,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             workdir=workdir,
             artifact_dir=artifact_dir,
             model=l3_model,
+            retry_invalid=not formal_one_attempt,
         )
     except Exception as error:
         return _write_failed_run_verdict(

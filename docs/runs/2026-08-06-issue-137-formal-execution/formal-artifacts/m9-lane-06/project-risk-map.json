@@ -1,0 +1,31 @@
+{
+  "coverage_frontier": [
+    "unresolved discovery context remains outside the local claim boundary"
+  ],
+  "explored_fact_ids": [
+    "fact-11fe26de46ee501ef60a",
+    "fact-159e53d9b7fbe270a469",
+    "fact-1b9ed1ede43dae6985c6"
+  ],
+  "findings": [],
+  "map_id": "risk-map-m9-lane-06",
+  "residual_risks": [
+    {
+      "basis_refs": [
+        "raw/absence.json",
+        "execution-record.json"
+      ],
+      "evidence_gap": "A completed ExecutionRecord with accountable raw evidence is unavailable.",
+      "hypothesis_id": "hypothesis-m9-portfolio-3",
+      "next_probe": "No automatic retry or replacement; any future work requires a new approved contract.",
+      "reason": "The terminal lane was not accountable, so no Finding can support a local conclusion.",
+      "risk_id": "risk-m9-lane-06",
+      "schema_version": 1,
+      "scope": "local-only exact source, package, emulator, execution identity, and six-lane evidence boundary",
+      "status": "open",
+      "target_id": "architecture-samples-ee66e152"
+    }
+  ],
+  "schema_version": 1,
+  "target_id": "architecture-samples-ee66e152"
+}

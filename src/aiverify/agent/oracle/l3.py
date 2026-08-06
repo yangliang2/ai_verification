@@ -104,6 +104,7 @@ class L3Oracle:
         screenshot_refs: list[str] | None = None,
         *,
         trigger_steps: list[str] | None = None,
+        retry_invalid: bool = True,
     ) -> dict[str, Any]:
         """执行 L3 语义判定。
 
@@ -139,10 +140,13 @@ class L3Oracle:
         # 第一次尝试
         verdict = self._call_and_parse(prompt)
 
-        # schema 校验；失败则重试一次
+        # schema 校验；普通 runner 可重试一次。正式 M9 lane 传入
+        # retry_invalid=False，把格式错误作为本次唯一尝试的终态。
         try:
             validate_verdict(verdict)
         except VerdictValidationError:
+            if not retry_invalid:
+                raise
             # 第二次尝试（重试 prompt 保持不变，provider 可能返回不同结果）
             verdict = self._call_and_parse(prompt)
             validate_verdict(verdict)  # 二次失败直接抛出，由调用方处理
