@@ -15,6 +15,11 @@ implementation commit available when this branch was created:
 - candidate source index manifest SHA-256: `66fa95486f2c63e84dbb1ba1dd77a43ad34cdd6ecbd8c659e496e9a204e38585`;
 - local candidate checkout used for preflight: `/private/tmp/m9-136-candidate-architecture-samples`.
 
+Three unselected pair mutations were also materialized in separate temporary
+worktrees and compiled successfully. Their exact patch, APK, and build-log
+hashes are recorded in `candidate-pair-builds.json`; these are candidate
+decision artifacts, not frozen lane inputs.
+
 ## Human gate status
 
 No target/cohort decision has been made by the agent. The clear defect/control
@@ -78,10 +83,11 @@ M9 result may be inferred from it.
 - Human has not approved the candidate target or unfamiliarity.
 - No matched defect/control pair has been selected or materialized.
 - No clear mapping or commitment exists.
+- No candidate option has been approved; the three compiled options remain
+  mutually exclusive decision material only.
 - No six serialized RunSpecs or runner-policy pairs exist yet.
 - No admission receipt, contradiction execution, build-on-frozen-variant,
   device action, agent invocation, oracle, Finding, ResidualRisk, Project Risk
   Map, or independent review exists.
 - This record makes no production, upstream, OEM/ColorOS, rate, completeness,
   benchmark, or automated-repair claim.
-

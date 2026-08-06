@@ -1,0 +1,12 @@
+diff --git a/app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt b/app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt
+index 7d61755..992a4a7 100644
+--- a/app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt
++++ b/app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt
+@@ -70,7 +70,6 @@ class DefaultTaskRepository @Inject constructor(
+             description = description
+         ) ?: throw Exception("Task (id $taskId) not found")
+ 
+-        localDataSource.upsert(task.toLocal())
+         saveTasksToNetwork()
+     }
+ 
