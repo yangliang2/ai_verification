@@ -180,6 +180,39 @@ def test_identity_and_dirty_worktree_fail_before_source_acquisition(tmp_path: Pa
         acquire_project_context(target)
 
 
+def test_acquisition_contract_rejects_boolean_versions_false_no_diff_and_mixed_provenance(
+    tmp_path: Path,
+) -> None:
+    target = _held_out_project(tmp_path)
+    result = acquire_project_context(target)
+
+    with pytest.raises(DiscoveryContractError, match="schema_version"):
+        ContextAcquisitionRequest(target=target, schema_version=True)
+    with pytest.raises(DiscoveryContractError, match="schema_version"):
+        ContextAcquisitionResult(
+            target=target,
+            graph=result.graph,
+            receipt=result.receipt,
+            schema_version=True,
+        )
+    with pytest.raises(DiscoveryContractError, match="schema_version"):
+        replace(result.receipt, schema_version=True)
+    with pytest.raises(DiscoveryContractError, match="no_diff"):
+        replace(result.receipt, no_diff=False)
+
+    other_target = replace(
+        target,
+        source_origin="https://example.invalid/other-project",
+        source_commit="f" * 40,
+    )
+    with pytest.raises(DiscoveryContractError, match="does not match target"):
+        ContextAcquisitionResult(
+            target=other_target,
+            graph=result.graph,
+            receipt=result.receipt,
+        )
+
+
 def test_contradictory_and_stale_source_evidence_remains_non_known(tmp_path: Path) -> None:
     target = _held_out_project(tmp_path)
     repo = Path(target.worktree)

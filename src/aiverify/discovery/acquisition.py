@@ -99,6 +99,11 @@ def _sha256_text(value: object, field: str) -> str:
     return value
 
 
+def _schema_version(value: object, field: str) -> None:
+    if not isinstance(value, int) or isinstance(value, bool) or value != 1:
+        raise DiscoveryContractError(f"unsupported {field} schema_version")
+
+
 def _reject_unknown(data: Mapping[str, Any], allowed: set[str]) -> None:
     unknown = sorted(set(data) - allowed)
     if unknown:
@@ -269,10 +274,9 @@ class ContextAcquisitionRequest:
     def __post_init__(self) -> None:
         if not isinstance(self.target, ProjectTarget):
             raise DiscoveryContractError("acquisition request target must be a ProjectTarget")
-        _requested_tuple(self.requested_evidence)
+        object.__setattr__(self, "requested_evidence", _requested_tuple(self.requested_evidence))
         _text_tuple(self.suggestions, "request suggestions")
-        if self.schema_version != 1:
-            raise DiscoveryContractError("unsupported context acquisition request schema_version")
+        _schema_version(self.schema_version, "context acquisition request")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -353,12 +357,11 @@ class ContextAcquisitionReceipt:
         _text_tuple(self.unresolved, "receipt unresolved")
         _text_tuple(self.suggested_probes, "receipt suggested_probes")
         _text_tuple(self.coverage_frontier, "receipt coverage_frontier")
-        if not isinstance(self.no_diff, bool):
-            raise DiscoveryContractError("receipt no_diff must be boolean")
+        if self.no_diff is not True:
+            raise DiscoveryContractError("receipt no_diff must be true")
         if self.status not in _RESULT_STATUS:
             raise DiscoveryContractError("invalid context acquisition status")
-        if self.schema_version != 1:
-            raise DiscoveryContractError("unsupported context acquisition schema_version")
+        _schema_version(self.schema_version, "context acquisition receipt")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -467,6 +470,14 @@ class ContextAcquisitionResult:
             raise DiscoveryContractError("acquisition graph target does not match target")
         if self.receipt.target_id != self.target.target_id:
             raise DiscoveryContractError("acquisition receipt target does not match target")
+        if self.graph.source_origin != self.target.source_origin:
+            raise DiscoveryContractError("acquisition graph origin does not match target")
+        if self.graph.source_commit != self.target.source_commit:
+            raise DiscoveryContractError("acquisition graph commit does not match target")
+        if self.receipt.source_origin != self.target.source_origin:
+            raise DiscoveryContractError("acquisition receipt origin does not match target")
+        if self.receipt.source_commit != self.target.source_commit:
+            raise DiscoveryContractError("acquisition receipt commit does not match target")
         if self.graph.source_origin != self.receipt.source_origin:
             raise DiscoveryContractError("acquisition graph origin does not match receipt")
         if self.graph.source_commit != self.receipt.source_commit:
@@ -475,8 +486,7 @@ class ContextAcquisitionResult:
             raise DiscoveryContractError("acquisition graph tree identity does not match receipt")
         if _sha256_json(self.graph.to_dict()) != self.receipt.graph_sha256:
             raise DiscoveryContractError("acquisition graph checksum does not match receipt")
-        if self.schema_version != 1:
-            raise DiscoveryContractError("unsupported context acquisition schema_version")
+        _schema_version(self.schema_version, "context acquisition result")
 
     @property
     def unresolved(self) -> tuple[str, ...]:
