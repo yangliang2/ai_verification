@@ -373,8 +373,20 @@ Full suite:
 
 ```text
 /usr/bin/time -p uv run pytest -qq --disable-warnings
-→ 917 passed, 0 failed.
-→ real 62.65s; user 23.99s; sys 5.84s.
+→ 919 passed, 0 failed.
+→ real 32.09s; user 23.56s; sys 6.12s.
+```
+
+Post-review freshness remediation:
+
+```text
+/usr/bin/time -p uv run pytest -q -o addopts='' \
+  tests/runner/test_admission.py \
+  tests/runner/test_execution_record.py \
+  tests/runner/test_cli.py \
+  tests/bench/test_m9_recovery_canary.py
+→ 81 passed, 0 failed in 1.65s.
+→ real 1.80s; user 0.84s; sys 0.75s.
 ```
 
 Static/source checks:
@@ -421,18 +433,45 @@ specification, or package file failed the scoped check.
 Final package build:
 
 ```text
-/usr/bin/time -p uv build --out-dir /private/tmp/m9-r2-build-final.dDaVZO
+/usr/bin/time -p uv build --out-dir /private/tmp/m9-r2-build-reviewed.BAmjnD
 → aiverify 0.1.0 built successfully.
-→ real 4.80s; user 0.63s; sys 0.24s.
+→ real 3.02s; user 0.63s; sys 0.23s.
 ```
 
-The 413,463-byte wheel SHA-256 is
-`3c4f337db40bfcbcce93292c9a03f056c939dcc9671c74aaf0b0fa2b6c0110b6`;
-the 376,591-byte sdist SHA-256 is
-`231159f05406c48a0e5a3894224914e39c06e3a6448706396c917c0f12ce0e12`.
+The 413,486-byte wheel SHA-256 is
+`0b370743c996336b9a6099715c41897d660edb2cbc507cc4be0a0a1c19093965`;
+the 376,629-byte sdist SHA-256 is
+`09df7b0e912dbd28511c18d16d49299dd0848c2ecbd5118fe128e5ffb2ee52fe`.
 Both archives contain the new runner and falsification-review schema. Exact
 structured results are in [`verification.json`](verification.json) and
 [`package-build.json`](package-build.json).
+
+## Confirmation Standards and Spec reviews
+
+Two parallel review axes inspected the authored and evidence diff from fixed
+point `76fb6730f065e6e4087ae0032e3edb780104807e`.
+
+The Standards reviewer found one blocker: `runner-setup.json` was an owned,
+checksum-bound runner output but was absent from admission and
+`ExecutionRecordStore` freshness gates. A stale file could therefore survive
+until after deployment/setup side effects and be misbound as current evidence.
+Commit `96d00b85b5da869adbd431da27d1dd2b3018fea6` reserves that output in both
+gates. Regression tests prove formal admission and public execution reject it
+before preflight or device action, preserve stale bytes, and establish no
+ExecutionRecord. The reviewer rechecked the change and reported the blocker
+resolved with no remaining Standards blocker.
+
+The Spec reviewer found no substantive acceptance-criteria defect. It
+independently confirmed the expected control/defect split, 24/24 chain checks,
+2/2 accountable records, 2/2 survived reviews, 12/12 supported dimensions,
+role-blind inputs, zero retries/replacements, fresh contradiction rejection,
+immutable #136/#137, and all non-formal flags. Its focused follow-up classified
+the freshness change as monotonic fail-closed hardening: attempt 08 has zero
+diff, and no app, journey, oracle, or successful-run behavior changed. The
+remaining request was this mechanical review record and checksum reseal.
+
+The structured review record is
+[`independent-review-findings.json`](independent-review-findings.json).
 
 ## Implementation and tests
 
@@ -499,7 +538,7 @@ External artifacts:
 - `/private/tmp/m9-r2-canary-fixtures/attempt-06/`;
 - `/private/tmp/m9-r2-canary-fixtures/attempt-07/`;
 - `/private/tmp/m9-r2-canary-fixtures/attempt-08/`;
-- `/private/tmp/m9-r2-build-final.dDaVZO/`.
+- `/private/tmp/m9-r2-build-reviewed.BAmjnD/`.
 
 The first two paths are historical canary inputs or disposable detached
 worktrees, and the build directory contains reproducible package outputs.

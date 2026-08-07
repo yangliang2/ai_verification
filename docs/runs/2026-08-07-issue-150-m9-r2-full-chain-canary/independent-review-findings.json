@@ -2,8 +2,8 @@
   "schema_version": 1,
   "issue": 150,
   "fixed_point": "76fb6730f065e6e4087ae0032e3edb780104807e",
-  "reviewed_head": "0d4d0350cd9c36ff292f95c3ca57e852ca3084d1",
-  "status": "attempt_08_passed_pending_confirmation_review",
+  "reviewed_head": "96d00b85b5da869adbd431da27d1dd2b3018fea6",
+  "status": "passed",
   "standards": {
     "high": [
       {
@@ -83,5 +83,25 @@
     "replacements": 0,
     "frozen_commit": "0d4d0350cd9c36ff292f95c3ca57e852ca3084d1"
   },
-  "gate": "Full verification and root checksum sealing passed. Confirmation Standards/Spec reviews remain before PR/merge or R3."
+  "confirmation_review": {
+    "fixed_point": "76fb6730f065e6e4087ae0032e3edb780104807e",
+    "reviewed_head": "96d00b85b5da869adbd431da27d1dd2b3018fea6",
+    "standards": {
+      "initial_outcome": "challenged",
+      "blocking_findings": 1,
+      "finding": "runner-setup.json was an owned checksum-bound output but was not reserved by admission or ExecutionRecord freshness gates",
+      "resolution": "Both gates now reject a pre-existing runner-setup.json before preflight or device action, with stale-byte preservation regressions.",
+      "confirmation_outcome": "passed",
+      "remaining_blockers": 0,
+      "focused_verification": "81/81 passed in 1.65s; reviewer recheck 9/9 passed"
+    },
+    "spec": {
+      "initial_substantive_findings": 0,
+      "initial_mechanical_finding": "Record the completed confirmation reviews and reseal the run root before merge.",
+      "post_fix_outcome": "passed",
+      "remaining_blockers": 0,
+      "impact": "The freshness delta is monotonic fail-closed hardening; attempt 08 is unchanged and remains valid."
+    }
+  },
+  "gate": "complete"
 }

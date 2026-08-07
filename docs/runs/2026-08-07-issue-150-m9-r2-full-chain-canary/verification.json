@@ -5,7 +5,7 @@
   "status": "ready_for_r3",
   "fixed_point": {
     "origin_main": "76fb6730f065e6e4087ae0032e3edb780104807e",
-    "reviewed_implementation_head": "0d4d0350cd9c36ff292f95c3ca57e852ca3084d1",
+    "reviewed_implementation_head": "96d00b85b5da869adbd431da27d1dd2b3018fea6",
     "attempt_05_remediation_base": "df842db96c7114d8321266410e95c1784f43b293",
     "merge_base": "76fb6730f065e6e4087ae0032e3edb780104807e",
     "worktree": "/Users/peter/projects/ai_verification-m9-r2",
@@ -204,20 +204,31 @@
       "sys": 0.05
     }
   },
+  "review_remediation_tests": {
+    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/runner/test_admission.py tests/runner/test_execution_record.py tests/runner/test_cli.py tests/bench/test_m9_recovery_canary.py",
+    "passed": 81,
+    "failed": 0,
+    "pytest_duration_seconds": 1.65,
+    "timing_seconds": {
+      "real": 1.8,
+      "user": 0.84,
+      "sys": 0.75
+    }
+  },
   "full_tests": {
     "command": "/usr/bin/time -p uv run pytest -qq --disable-warnings",
-    "passed": 917,
+    "passed": 919,
     "failed": 0,
     "pytest_duration_seconds": null,
     "timing_seconds": {
-      "real": 62.65,
-      "user": 23.99,
-      "sys": 5.84
+      "real": 32.09,
+      "user": 23.56,
+      "sys": 6.12
     }
   },
   "static_checks": [
     {
-      "command": "uv run python -m py_compile src/aiverify/bench/m9_recovery_canary.py src/aiverify/discovery/falsification_review.py src/aiverify/providers/codex_cli.py src/aiverify/runner/admission.py src/aiverify/runner/codex_identity.py src/aiverify/runner/execution_identity.py",
+      "command": "uv run python -m py_compile src/aiverify/bench/m9_recovery_canary.py src/aiverify/discovery/falsification_review.py src/aiverify/providers/codex_cli.py src/aiverify/runner/admission.py src/aiverify/runner/codex_identity.py src/aiverify/runner/execution_identity.py src/aiverify/runner/execution_record.py",
       "status": "passed"
     },
     {
