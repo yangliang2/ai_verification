@@ -83,6 +83,11 @@ SECOND_PATCH_SHA256 = "cc317d74012a83ab6a2e400fbc7442dfcb3bec8464fdbf68a1ba1cdc7
 FIRST_APK_SHA256 = "d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66"
 SECOND_APK_SHA256 = "61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac"
 APK_RELATIVE = Path("app/build/outputs/apk/debug/app-debug.apk")
+LATIN_IME = (
+    "com.google.android.inputmethod.latin/"
+    "com.android.inputmethod.latin.LatinIME"
+)
+ENGLISH_US_INPUT_SUBTYPE = "1594443099"
 CLAIM_BOUNDARY = (
     "local API-35 execution of one historical matched pair with exact source, "
     "package, runtime, agent, oracle, and review evidence"
@@ -371,19 +376,134 @@ def _reset_package(lane_dir: Path, *, device: str) -> None:
     _write_json(lane_dir / "package-reset.json", result.to_dict())
 
 
+def _configure_device_input(lane_dir: Path, *, device: str) -> None:
+    """Freeze the emulator's hardware-text path to the enabled English US IME."""
+
+    commands = (
+        (
+            "default_input_method",
+            [
+                "adb",
+                "-s",
+                device,
+                "shell",
+                "settings",
+                "get",
+                "secure",
+                "default_input_method",
+            ],
+        ),
+        (
+            "enabled_input_methods",
+            [
+                "adb",
+                "-s",
+                device,
+                "shell",
+                "settings",
+                "get",
+                "secure",
+                "enabled_input_methods",
+            ],
+        ),
+        (
+            "selected_subtype_before",
+            [
+                "adb",
+                "-s",
+                device,
+                "shell",
+                "settings",
+                "get",
+                "secure",
+                "selected_input_method_subtype",
+            ],
+        ),
+        (
+            "select_english_us_subtype",
+            [
+                "adb",
+                "-s",
+                device,
+                "shell",
+                "settings",
+                "put",
+                "secure",
+                "selected_input_method_subtype",
+                ENGLISH_US_INPUT_SUBTYPE,
+            ],
+        ),
+        (
+            "selected_subtype_after",
+            [
+                "adb",
+                "-s",
+                device,
+                "shell",
+                "settings",
+                "get",
+                "secure",
+                "selected_input_method_subtype",
+            ],
+        ),
+    )
+    operations = []
+    for operation, args in commands:
+        result = _command(args, timeout=30)
+        operations.append({"operation": operation, **result})
+    values = {
+        item["operation"]: str(item["stdout"]).strip() for item in operations
+    }
+    status = (
+        "passed"
+        if all(item["returncode"] == 0 for item in operations)
+        and values["default_input_method"] == LATIN_IME
+        and ENGLISH_US_INPUT_SUBTYPE in values["enabled_input_methods"]
+        and values["selected_subtype_after"] == ENGLISH_US_INPUT_SUBTYPE
+        else "failed"
+    )
+    receipt = {
+        "schema_version": 1,
+        "status": status,
+        "device": device,
+        "expected_input_method": LATIN_IME,
+        "expected_subtype": {
+            "name": "English (US)",
+            "hash": ENGLISH_US_INPUT_SUBTYPE,
+        },
+        "operations": operations,
+    }
+    _write_json(lane_dir / "device-input-setup.json", receipt)
+    if status != "passed":
+        raise M9RecoveryCanaryError(
+            "device English US input subtype could not be frozen"
+        )
+
+
+def _pre_run_setup(lane_dir: Path, *, device: str) -> None:
+    _reset_package(lane_dir, device=device)
+    _configure_device_input(lane_dir, device=device)
+
+
 def _canary_instruction_prefix(device: str) -> str:
-    delete_keys = " ".join(["67"] * 80)
+    delete_keys = " ".join(["67"] * 32)
     return (
         build_instruction_prefix(device)
         + "\nCANARY BOUNDS AND TEXT-ENTRY RULES:\n"
         + "- Finish within seven minutes and at most 40 device commands. "
         + "After three unsuccessful correction cycles for one action, report "
         + "that action FAILED and return the complete five-action result.\n"
-        + "- The task tokens contain no spaces. Type them exactly as written.\n"
+        + "- The harness has frozen the enabled English (US) input subtype. "
+        + "Do not change keyboards or device language. The task tokens contain "
+        + "no spaces; type them exactly as written with `adb shell input text`.\n"
         + "- To replace an editable field, tap it, then run "
         + f"`adb -s {device} shell input keyevent KEYCODE_MOVE_END`, followed "
         + f"by `adb -s {device} shell input keyevent {delete_keys}`, then type "
         + "the replacement once and verify it with one fresh layout.\n"
+        + "- Before every tap on the Save task control, dismiss the on-screen "
+        + f"keyboard once with `adb -s {device} shell input keyevent "
+        + "KEYCODE_BACK`, take one fresh layout, locate Save task again, and "
+        + "then tap its current center.\n"
         + "- Saving, navigating, and reopening are dispatch actions. If the "
         + "product displays the old title after an edit, still tap that same "
         + "unique task and mark the dispatch PASSED; the oracle, not the "
@@ -681,7 +801,7 @@ def _execute_runtime_lane(
         admission_receipt=admission,
         admission_options=options,
         formal_one_attempt=True,
-        pre_run_setup=lambda: _reset_package(lane_dir, device=device),
+        pre_run_setup=lambda: _pre_run_setup(lane_dir, device=device),
     )
     duration = round(time.monotonic() - started, 3)
     record = load_execution_record(lane_dir / "execution-record.json")
@@ -1076,6 +1196,7 @@ def _run_review(
 def _lane_chain_checks(row: Mapping[str, Any]) -> dict[str, bool]:
     lane_dir = Path(row["lane_dir"])
     reset = _read_json(lane_dir / "package-reset.json")
+    device_input = _read_json(lane_dir / "device-input-setup.json")
     gate = _read_json(lane_dir / "live-validation-gate.json")
     provenance = _read_json(lane_dir / "execution-provenance.json")
     setup = _read_json(lane_dir / "runner-setup.json")
@@ -1091,6 +1212,12 @@ def _lane_chain_checks(row: Mapping[str, Any]) -> dict[str, bool]:
     setup_operations = setup.get("operations", [])
     return {
         "package_reset": reset.get("status") in {"already_absent", "cleared"},
+        "english_us_input_subtype": (
+            device_input.get("status") == "passed"
+            and isinstance(device_input.get("expected_subtype"), Mapping)
+            and device_input["expected_subtype"].get("hash")
+            == ENGLISH_US_INPUT_SUBTYPE
+        ),
         "android_cli_install_deploy": (
             isinstance(deployment, Mapping)
             and isinstance(deployment.get("process"), Mapping)
@@ -1229,6 +1356,33 @@ def _checksums(root: Path) -> None:
     _write_text(root / "checksums.sha256", "\n".join(entries) + "\n")
 
 
+def _finalize_failed_attempt(root: Path, error: BaseException) -> None:
+    """Seal a failed create-only attempt without converting it into a result."""
+
+    failure_path = root / "attempt-failure.json"
+    if not failure_path.exists():
+        _write_json(
+            failure_path,
+            {
+                "schema_version": 1,
+                "status": "terminal_failure",
+                "error_type": type(error).__name__,
+                "error_message": str(error),
+                "ready_for_r3": False,
+                "formal_qualification_eligible": False,
+                "formal_denominator": False,
+                "rerun_of_this_attempt_permitted": False,
+            },
+        )
+    lane_root = root / "canary-artifacts"
+    if lane_root.is_dir():
+        for lane_dir in sorted(path for path in lane_root.iterdir() if path.is_dir()):
+            if not (lane_dir / "checksums.sha256").exists():
+                _checksums(lane_dir)
+    if not (root / "checksums.sha256").exists():
+        _checksums(root)
+
+
 def execute_canary(
     *,
     artifact_root: Path = DEFAULT_ARTIFACT_ROOT,
@@ -1351,13 +1505,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--second-input", type=Path, default=DEFAULT_SECOND_INPUT)
     parser.add_argument("--device", default="emulator-5554")
     args = parser.parse_args(argv)
-    result = execute_canary(
-        artifact_root=args.artifact_root,
-        fixture_root=args.fixture_root,
-        first_input=args.first_input,
-        second_input=args.second_input,
-        device=args.device,
-    )
+    try:
+        result = execute_canary(
+            artifact_root=args.artifact_root,
+            fixture_root=args.fixture_root,
+            first_input=args.first_input,
+            second_input=args.second_input,
+            device=args.device,
+        )
+    except Exception as error:
+        root = args.artifact_root.resolve()
+        if root.is_dir():
+            _finalize_failed_attempt(root, error)
+        raise
     print(
         json.dumps(
             {

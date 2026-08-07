@@ -6,6 +6,7 @@
   "required": ["schema_version", "review_id", "outcome", "dimensions", "reasons"],
   "properties": {
     "schema_version": {
+      "type": "integer",
       "const": 1
     },
     "review_id": {
@@ -20,56 +21,9 @@
       "type": "array",
       "minItems": 6,
       "maxItems": 6,
-      "prefixItems": [
-        {
-          "$ref": "#/$defs/dimension",
-          "properties": {
-            "dimension": {
-              "const": "alternative_explanations"
-            }
-          }
-        },
-        {
-          "$ref": "#/$defs/dimension",
-          "properties": {
-            "dimension": {
-              "const": "assumption_violations"
-            }
-          }
-        },
-        {
-          "$ref": "#/$defs/dimension",
-          "properties": {
-            "dimension": {
-              "const": "evidence_integrity"
-            }
-          }
-        },
-        {
-          "$ref": "#/$defs/dimension",
-          "properties": {
-            "dimension": {
-              "const": "causal_attribution"
-            }
-          }
-        },
-        {
-          "$ref": "#/$defs/dimension",
-          "properties": {
-            "dimension": {
-              "const": "control_comparison"
-            }
-          }
-        },
-        {
-          "$ref": "#/$defs/dimension",
-          "properties": {
-            "dimension": {
-              "const": "claim_boundary"
-            }
-          }
-        }
-      ]
+      "items": {
+        "$ref": "#/$defs/dimension"
+      }
     },
     "reasons": {
       "type": "array",
@@ -79,6 +33,7 @@
         "required": ["schema_version", "code", "message", "evidence_refs"],
         "properties": {
           "schema_version": {
+            "type": "integer",
             "const": 1
           },
           "code": {
@@ -115,10 +70,19 @@
       ],
       "properties": {
         "schema_version": {
+          "type": "integer",
           "const": 1
         },
         "dimension": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "alternative_explanations",
+            "assumption_violations",
+            "evidence_integrity",
+            "causal_attribution",
+            "control_comparison",
+            "claim_boundary"
+          ]
         },
         "status": {
           "type": "string",

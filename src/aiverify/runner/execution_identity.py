@@ -512,7 +512,13 @@ class ExecutionIdentityCollector:
         result = self.runner.run(version_args, timeout_seconds=30)
         version = (result.stdout or result.stderr).strip()
         if result.returncode != 0 or not version:
-            raise ExecutionIdentityError(f"tool version is unavailable: {requested}")
+            stdout = result.stdout.strip() or "<empty>"
+            stderr = result.stderr.strip() or "<empty>"
+            raise ExecutionIdentityError(
+                f"tool version is unavailable: {requested}; "
+                f"returncode={result.returncode}; stdout={stdout!r}; "
+                f"stderr={stderr!r}"
+            )
         return {
             "requested": requested,
             "resolved_path": str(path),

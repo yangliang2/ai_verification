@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "attempt_id": "05c30b93-fa21-48a4-b01b-7cb2e36f7ca9",
+  "scenario": "m9-r2-canary-beta",
+  "lifecycle_state": "interrupted",
+  "started_at": "2026-08-07T16:14:10+00:00",
+  "finished_at": "2026-08-07T16:20:33+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "journey_action_failed",
+    "message": "Journey segment m9-r2-canary-beta-segment-0 reported non-passing action status(es): FAILED"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-08-07T16:14:10+00:00",
+    "finished_at": "2026-08-07T16:20:33+00:00",
+    "total_seconds": 382.518,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.745
+      },
+      {
+        "phase": "m9-r2-canary-beta-segment-0",
+        "kind": "journey",
+        "seconds": 372.098
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.919
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "journey",
+      "kind": "journey",
+      "reason": "journey_action_failed",
+      "message": "Journey segment m9-r2-canary-beta-segment-0 reported non-passing action status(es): FAILED"
+    }
+  ],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/m9-r2-canary-beta-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0"
+    ]
+  }
+}

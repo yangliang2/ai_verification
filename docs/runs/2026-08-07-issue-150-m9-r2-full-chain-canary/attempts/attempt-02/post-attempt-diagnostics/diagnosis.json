@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-07T16:30:10Z",
+  "scope": {
+    "after_attempt_terminal": true,
+    "denominator_member": false,
+    "oracle_input": false,
+    "formal_qualification_eligible": false,
+    "purpose": "Bounded orchestration diagnosis before a fresh create-only canary attempt"
+  },
+  "android_cli_version_probe": {
+    "command": [
+      "android",
+      "--version"
+    ],
+    "probe_count": 5,
+    "results": [
+      {
+        "probe": 1,
+        "returncode": 0,
+        "seconds": 0,
+        "output": "1.0.15498356"
+      },
+      {
+        "probe": 2,
+        "returncode": 0,
+        "seconds": 1,
+        "output": "1.0.15498356"
+      },
+      {
+        "probe": 3,
+        "returncode": 0,
+        "seconds": 0,
+        "output": "1.0.15498356"
+      },
+      {
+        "probe": 4,
+        "returncode": 0,
+        "seconds": 0,
+        "output": "1.0.15498356"
+      },
+      {
+        "probe": 5,
+        "returncode": 0,
+        "seconds": 0,
+        "output": "1.0.15498356"
+      }
+    ],
+    "finding": "The attempt-02 alpha Android version failure did not reproduce in five immediate read-only probes."
+  },
+  "input_method_diagnosis": {
+    "default_input_method": "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
+    "initial_selected_subtype": {
+      "name": "Chinese (Simplified) Pinyin",
+      "hash": "617035939"
+    },
+    "enabled_english_us_subtype": {
+      "name": "English (US)",
+      "hash": "1594443099"
+    },
+    "failed_probe": {
+      "selected_subtype_hash": "617035939",
+      "input": "r2b0",
+      "observed_layout_text": "如2不0",
+      "save_result": "Tasks cannot be empty"
+    },
+    "successful_probe": {
+      "setup_command": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "settings",
+        "put",
+        "secure",
+        "selected_input_method_subtype",
+        "1594443099"
+      ],
+      "title_input": "r2b0",
+      "description_input": "desc",
+      "keyboard_dismiss_command": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "input",
+        "keyevent",
+        "KEYCODE_BACK"
+      ],
+      "observed_title": "r2b0",
+      "observed_description": "desc",
+      "save_result": "Task added",
+      "screenshot_ref": "english-us-input-task-saved.png",
+      "screenshot_sha256": "81c428545412f651daf0ed1d171abee321a281d5f873a2067356d3fd4daba1a3"
+    },
+    "finding": "ADB text was being composed by the enabled Chinese Pinyin subtype. Selecting the already-enabled English (US) subtype and dismissing the keyboard before Save produced exact text and a persisted task."
+  },
+  "review_schema_diagnosis": {
+    "authoritative_event_ref": "../canary-artifacts/m9-r2-canary-alpha/review-invocation/falsification-review-call-1.events.jsonl",
+    "error_code": "invalid_json_schema",
+    "message": "The response schema used const without an explicit type for schema_version.",
+    "bounded_remediation": "Add explicit integer types and use one homogeneous six-item dimensions array; retain application validation for frozen order and cross-field consistency."
+  },
+  "next_attempt_constraints": [
+    "Use a new artifact root and new fixture root.",
+    "Never resume or overwrite attempt-02.",
+    "Reset package data before each lane.",
+    "Freeze and receipt English (US) input subtype 1594443099 before each lane.",
+    "Dismiss the keyboard before each Save task tap.",
+    "Keep Codex model selection at CLI default with no --model argument.",
+    "Keep formal denominator false."
+  ]
+}

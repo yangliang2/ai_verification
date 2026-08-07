@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "attempt_id": "attempt-02",
+  "status": "terminal_failure",
+  "command": [
+    "uv",
+    "run",
+    "python",
+    "-m",
+    "aiverify.bench.m9_recovery_canary",
+    "--artifact-root",
+    "docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-02",
+    "--fixture-root",
+    "/private/tmp/m9-r2-canary-fixtures/attempt-02",
+    "--first-input",
+    "/private/tmp/m9-r1-canary-recovery/control",
+    "--second-input",
+    "/private/tmp/m9-r1-canary-recovery/defect",
+    "--device",
+    "emulator-5554"
+  ],
+  "process": {
+    "exit_code": 1,
+    "real_seconds": 447.87,
+    "user_seconds": 57.25,
+    "sys_seconds": 5.76,
+    "top_level_error_type": "CodexCliProviderError",
+    "stderr_summary": "codex exec exited 1; stderr also reported a failed best-effort model-catalog refresh caused by a disconnected stream"
+  },
+  "terminal_observations": [
+    {
+      "lane_id": "m9-r2-canary-alpha",
+      "lifecycle_state": "failed",
+      "accounting_eligible": false,
+      "reason": "execution_identity_error",
+      "message": "ExecutionIdentityError: tool version is unavailable: android",
+      "started_at": "2026-08-07T16:13:39+00:00",
+      "finished_at": "2026-08-07T16:14:10+00:00",
+      "total_seconds": 30.353
+    },
+    {
+      "lane_id": "m9-r2-canary-beta",
+      "lifecycle_state": "interrupted",
+      "accounting_eligible": false,
+      "reason": "journey_action_failed",
+      "message": "Journey segment m9-r2-canary-beta-segment-0 reported non-passing action status(es): FAILED",
+      "started_at": "2026-08-07T16:14:10+00:00",
+      "finished_at": "2026-08-07T16:20:33+00:00",
+      "total_seconds": 382.518
+    },
+    {
+      "stage": "falsification_review",
+      "lane_id": "m9-r2-canary-alpha",
+      "status": "failed",
+      "reason": "invalid_json_schema",
+      "message": "Invalid schema for response_format 'codex_output_schema': in properties.schema_version, schema must have a type key",
+      "authoritative_event_ref": "canary-artifacts/m9-r2-canary-alpha/review-invocation/falsification-review-call-1.events.jsonl",
+      "authoritative_event_sha256": "b125c6c6fa32e35180c1fc268694770fdef296b0e7daf0d774a3d0e88d393d72"
+    }
+  ],
+  "review_reconciliation_completed": false,
+  "ready_for_r3": false,
+  "formal_qualification_eligible": false,
+  "formal_denominator": false,
+  "rerun_of_this_attempt_permitted": false,
+  "preservation": "This create-only attempt is terminal and must not be resumed, overwritten, retried in place, or counted as a formal lane."
+}

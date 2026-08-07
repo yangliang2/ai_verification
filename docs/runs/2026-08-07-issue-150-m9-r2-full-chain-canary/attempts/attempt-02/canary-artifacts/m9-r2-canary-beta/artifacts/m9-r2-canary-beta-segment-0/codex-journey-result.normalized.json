@@ -1,0 +1,78 @@
+{
+  "journey": "m9-r2-canary-beta-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 74 216",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 568"
+      ],
+      "comment": "The task list was already visible. Open Drawer was tapped, then the visible Task List item was tapped.",
+      "action": "Open the task list"
+    },
+    {
+      "action_id": "action-2",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 426",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input text \"R2BETA0\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 426",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_MOVE_END",
+        "adb -s emulator-5554 shell input keyevent 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67",
+        "adb -s emulator-5554 shell input text \"R2BETA0\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 969",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input text \"BETADESC\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232"
+      ],
+      "comment": "Creation interactions and Save task tap were dispatched. The product rendered the title as R2β0, then Rβ20 after one prescribed replacement cycle; the description input was dispatched exactly.",
+      "action": "Create a task titled R2BETA0 with description BETADESC"
+    },
+    {
+      "action_id": "action-3",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 426",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_MOVE_END",
+        "adb -s emulator-5554 shell input keyevent 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67",
+        "adb -s emulator-5554 shell input text \"R2BETA1\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232"
+      ],
+      "comment": "The required replacement and save interactions were dispatched. Verification showed Rβ21 rather than the requested literal; BETADESC remained visible.",
+      "action": "Edit the task title to R2BETA1"
+    },
+    {
+      "action_id": "action-4",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 74 216"
+      ],
+      "comment": "The visible Back control was tapped. The following fresh layout showed the Todo task list.",
+      "action": "Navigate back to the task list"
+    },
+    {
+      "action_id": "action-5",
+      "status": "FAILED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "android layout --device=emulator-5554 --pretty",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "All three fresh layouts showed “You have no tasks!” with no uniquely created task, so the requested task tap could not be dispatched.",
+      "action": "Reopen the same uniquely created task by tapping it, even if the displayed title is R2BETA0 rather than R2BETA1"
+    }
+  ]
+}

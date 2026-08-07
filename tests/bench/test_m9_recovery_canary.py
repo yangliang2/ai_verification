@@ -7,11 +7,14 @@ import jsonschema
 import pytest
 
 from aiverify.bench.m9_recovery_canary import (
+    ENGLISH_US_INPUT_SUBTYPE,
     REVIEW_SCHEMA,
     RUN_SPEC_ROOT,
     M9RecoveryCanaryError,
     _assert_default_receipt,
+    _configure_device_input,
     _contradiction_gate,
+    _finalize_failed_attempt,
     _oracle_conclusion,
     _reconcile_canary,
 )
@@ -46,6 +49,81 @@ def test_recovery_run_specs_use_new_neutral_lane_ids_and_default_model_policy(
 def test_falsification_review_schema_is_valid() -> None:
     schema = json.loads(REVIEW_SCHEMA.read_text(encoding="utf-8"))
     jsonschema.Draft202012Validator.check_schema(schema)
+    assert "prefixItems" not in json.dumps(schema)
+    assert all(
+        "type" in node
+        for node in (
+            schema["properties"]["schema_version"],
+            schema["properties"]["reasons"]["items"]["properties"]["schema_version"],
+            schema["$defs"]["dimension"]["properties"]["schema_version"],
+        )
+    )
+
+
+def test_device_input_setup_freezes_enabled_english_us_subtype(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    outputs = iter(
+        [
+            (
+                "com.google.android.inputmethod.latin/"
+                "com.android.inputmethod.latin.LatinIME\n"
+            ),
+            (
+                "com.google.android.inputmethod.latin/"
+                "com.android.inputmethod.latin.LatinIME;"
+                f"617035939;{ENGLISH_US_INPUT_SUBTYPE}\n"
+            ),
+            "617035939\n",
+            "",
+            f"{ENGLISH_US_INPUT_SUBTYPE}\n",
+        ]
+    )
+
+    def fake_command(args: list[str], **_: object) -> dict[str, object]:
+        return {
+            "args": args,
+            "cwd": None,
+            "returncode": 0,
+            "stdout": next(outputs),
+            "stderr": "",
+            "duration_seconds": 0.001,
+        }
+
+    monkeypatch.setattr(
+        "aiverify.bench.m9_recovery_canary._command",
+        fake_command,
+    )
+    _configure_device_input(tmp_path, device="emulator-5554")
+
+    receipt = json.loads(
+        (tmp_path / "device-input-setup.json").read_text(encoding="utf-8")
+    )
+    assert receipt["status"] == "passed"
+    assert receipt["expected_subtype"]["hash"] == ENGLISH_US_INPUT_SUBTYPE
+    assert receipt["operations"][-1]["stdout"].strip() == ENGLISH_US_INPUT_SUBTYPE
+
+
+def test_failed_attempt_is_create_only_and_checksum_sealed(tmp_path: Path) -> None:
+    (tmp_path / "partial.json").write_text("{}\n", encoding="utf-8")
+
+    _finalize_failed_attempt(tmp_path, RuntimeError("terminal canary failure"))
+
+    failure = json.loads(
+        (tmp_path / "attempt-failure.json").read_text(encoding="utf-8")
+    )
+    assert failure["status"] == "terminal_failure"
+    assert failure["ready_for_r3"] is False
+    assert failure["rerun_of_this_attempt_permitted"] is False
+    assert "attempt-failure.json" in (
+        tmp_path / "checksums.sha256"
+    ).read_text(encoding="utf-8")
+    original_failure = (tmp_path / "attempt-failure.json").read_bytes()
+    original_checksums = (tmp_path / "checksums.sha256").read_bytes()
+    _finalize_failed_attempt(tmp_path, RuntimeError("second failure"))
+    assert (tmp_path / "attempt-failure.json").read_bytes() == original_failure
+    assert (tmp_path / "checksums.sha256").read_bytes() == original_checksums
 
 
 def test_default_identity_requires_null_request_and_no_model_flag() -> None:

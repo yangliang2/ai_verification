@@ -1,0 +1,26 @@
+{
+  "assumptions": [
+    "the recorded UI actions reached the declared task-state boundary"
+  ],
+  "confidence": 0.5,
+  "consequence": "the edited task title is absent after reopening",
+  "hypothesis_id": "hypothesis-m9-r2-canary-alpha",
+  "mechanism": "repository refresh may replace the persisted local task state",
+  "quality_property": "edited task persistence across a process boundary",
+  "rationale": "The source boundary and runtime journey make task persistence falsifiable with local evidence.",
+  "required_evidence": [
+    "terminal execution record",
+    "runtime layout, screenshot, and log evidence",
+    "agent and oracle identity"
+  ],
+  "schema_version": 1,
+  "status": "frozen",
+  "supporting_fact_ids": [
+    "fact-task-repository",
+    "fact-process-boundary",
+    "fact-runtime-observation"
+  ],
+  "target_id": "target-m9-r2-canary-alpha",
+  "trigger": "create and edit one uniquely named task",
+  "unknowns": []
+}
