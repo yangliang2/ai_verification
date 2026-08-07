@@ -1058,6 +1058,40 @@ def test_public_run_rejects_reused_attempt_directory_before_preflight(tmp_path):
     assert not (run_dir / "execution-record.json").exists()
 
 
+def test_public_run_rejects_stale_runner_setup_before_preflight_or_device_action(
+    tmp_path, monkeypatch
+):
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    prior_setup = run_dir / "runner-setup.json"
+    prior_setup.write_text('{"status":"stale"}\n', encoding="utf-8")
+
+    class UnexpectedPreflightRunner(CommandRunner):
+        def run(self, *args, **kwargs):
+            raise AssertionError("preflight must not run with stale runner setup")
+
+    class UnexpectedController:
+        def __init__(self, serial):
+            raise AssertionError("device action must not run with stale runner setup")
+
+    monkeypatch.setattr(cli, "DeviceController", UnexpectedController)
+
+    with pytest.raises(
+        ExecutionRecordStorageError,
+        match="existing runner output: runner-setup.json",
+    ):
+        cli.run(
+            _spec(tmp_path, l3_spec=""),
+            device="emulator-5554",
+            artifact_dir=run_dir / "artifacts",
+            workdir=tmp_path,
+            preflight_command_runner=UnexpectedPreflightRunner(),
+        )
+
+    assert prior_setup.read_text(encoding="utf-8") == '{"status":"stale"}\n'
+    assert not (run_dir / "execution-record.json").exists()
+
+
 def test_missing_static_identity_fails_before_preflight_or_device_action(
     tmp_path, monkeypatch
 ):

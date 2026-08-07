@@ -315,6 +315,28 @@ def test_formal_runner_checks_receipt_before_establishing_execution_record(
         )
 
 
+def test_admission_rejects_preexisting_runner_setup_before_external_side_effects(
+    tmp_path: Path,
+) -> None:
+    _, _, spec, options = _fixture(tmp_path)
+    runner_setup = options.artifact_dir.parent / "runner-setup.json"
+    runner_setup.parent.mkdir(parents=True)
+    runner_setup.write_text('{"status":"stale"}\n', encoding="utf-8")
+    runner = GitOnlyRunner()
+
+    result = admit_production_seam(spec, options, command_runner=runner)
+
+    assert result.admitted is False
+    assert result.receipt["checks"]["artifact_namespace"] == {
+        "status": "failed",
+        "message": (
+            "formal attempt namespace already contains runner-setup.json"
+        ),
+    }
+    assert all(Path(call[0]).name == "git" for call in runner.calls)
+    assert runner_setup.read_text(encoding="utf-8") == '{"status":"stale"}\n'
+
+
 def test_temporary_admission_record_is_terminal_and_non_accountable(tmp_path: Path) -> None:
     _, _, spec, options = _fixture(tmp_path, host_subdir=True)
     rejected = admit_production_seam(spec, PlannedRunnerOptions(

@@ -48,6 +48,7 @@ class ExecutionRecordStore:
             run_dir / "execution-record.json",
             run_dir / "verdict.json",
             run_dir / "live-validation-gate.json",
+            run_dir / "runner-setup.json",
             owned_artifact_dir,
         ]
         existing = [candidate for candidate in owned_outputs if candidate.exists()]

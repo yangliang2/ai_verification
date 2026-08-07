@@ -464,7 +464,12 @@ def _validate_artifact_namespace(options: PlannedRunnerOptions) -> dict[str, obj
         raise ProductionSeamAdmissionError("artifact namespace must be an absolute directory")
     if artifact_dir == run_dir or run_dir == Path("/"):
         raise ProductionSeamAdmissionError("artifact namespace must have a run directory")
-    for name in ("execution-record.json", "verdict.json", "live-validation-gate.json"):
+    for name in (
+        "execution-record.json",
+        "verdict.json",
+        "live-validation-gate.json",
+        "runner-setup.json",
+    ):
         if (run_dir / name).exists():
             raise ProductionSeamAdmissionError(
                 f"formal attempt namespace already contains {name}"
