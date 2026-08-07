@@ -633,7 +633,16 @@ def _write_effective_identity(
 def _copy_raw_evidence(lane_dir: Path) -> tuple[str, ...]:
     refs: list[str] = []
     inventory = []
-    for ref in ("verdict.json", "runner-setup.json", "live-validation-gate.json"):
+    for ref in (
+        "verdict.json",
+        "runner-setup.json",
+        "live-validation-gate.json",
+        "execution-provenance.json",
+        "neutral-fixture-binding.json",
+        "device-input-setup.json",
+        "package-reset.json",
+        "production-seam-admission.json",
+    ):
         path = lane_dir / ref
         if not path.is_file():
             continue
@@ -858,18 +867,32 @@ def _copy_peer_evidence(row: Mapping[str, Any], peer: Mapping[str, Any]) -> Path
     peer_root = lane_dir / "peer"
     peer_root.mkdir(parents=True, exist_ok=False)
     copies = []
-    for name in (
+    names = [
         "verdict.json",
         "execution-record.json",
         "raw-evidence-inventory.json",
         "effective-execution-identity.json",
-    ):
+        "execution-provenance.json",
+        "finding.json",
+        "neutral-fixture-binding.json",
+        "device-input-setup.json",
+        "package-reset.json",
+        "runner-setup.json",
+        "live-validation-gate.json",
+        *peer["raw_refs"],
+    ]
+    for name in dict.fromkeys(str(item) for item in names):
         source = peer_dir / name
-        destination = peer_root / name
+        if not source.is_file():
+            raise M9RecoveryCanaryError(
+                f"peer evidence is missing from terminal lane: {name}"
+            )
+        destination = peer_root / Path(name)
+        destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
         copies.append(
             {
-                "ref": f"peer/{name}",
+                "ref": (Path("peer") / name).as_posix(),
                 "sha256": _sha256_path(destination),
                 "bytes": destination.stat().st_size,
             }
@@ -886,6 +909,43 @@ def _copy_peer_evidence(row: Mapping[str, Any], peer: Mapping[str, Any]) -> Path
         },
     )
     return path
+
+
+def _peer_control_artifacts(
+    lane_dir: Path,
+    peer_index: Path,
+) -> tuple[ImmutableArtifactRef, ...]:
+    index = _read_json(peer_index)
+    artifacts = index.get("artifacts")
+    if not isinstance(artifacts, list) or not artifacts:
+        raise M9RecoveryCanaryError("peer evidence index has no artifacts")
+    refs = [
+        ImmutableArtifactRef(
+            ref="peer-evidence-index.json",
+            kind="peer-evidence-index",
+            sha256=_sha256_path(peer_index),
+        )
+    ]
+    for item in artifacts:
+        if not isinstance(item, Mapping):
+            raise M9RecoveryCanaryError("peer evidence index contains a bad entry")
+        ref = item.get("ref")
+        expected_sha = item.get("sha256")
+        if not isinstance(ref, str) or not isinstance(expected_sha, str):
+            raise M9RecoveryCanaryError("peer evidence index entry is incomplete")
+        path = lane_dir / ref
+        if not path.is_file() or _sha256_path(path) != expected_sha:
+            raise M9RecoveryCanaryError(
+                f"peer evidence index binding failed: {ref}"
+            )
+        refs.append(
+            ImmutableArtifactRef(
+                ref=ref,
+                kind="peer-runtime-evidence",
+                sha256=expected_sha,
+            )
+        )
+    return tuple(refs)
 
 
 def _review_contract(
@@ -982,6 +1042,41 @@ def _review_contract(
         )
         for ref in row["raw_refs"]
     )
+    control_artifacts = _peer_control_artifacts(lane_dir, peer_index)
+    oracle_artifact = ImmutableArtifactRef(
+        ref="oracle-contract.json",
+        kind="oracle-contract",
+        sha256=_sha256_path(oracle_path),
+    )
+    execution_artifact = ImmutableArtifactRef(
+        ref="execution-record.json",
+        kind="execution-record",
+        sha256=_sha256_path(lane_dir / "execution-record.json"),
+    )
+    identity_artifact = ImmutableArtifactRef(
+        ref="effective-execution-identity.json",
+        kind="effective-identity",
+        sha256=_sha256_path(lane_dir / "effective-execution-identity.json"),
+    )
+    review_brief_path = lane_dir / "review-brief.json"
+    _write_json(
+        review_brief_path,
+        {
+            "schema_version": 1,
+            "context_id": f"review-context-{lane_id}",
+            "target": target.to_dict(),
+            "validated_fact_ids": list(hypothesis.supporting_fact_ids),
+            "hypothesis": hypothesis.to_dict(),
+            "admitted_attack_plan": plan.to_dict(),
+            "oracle_contract": oracle_artifact.to_dict(),
+            "candidate_finding": row["finding"].to_dict(),
+            "execution_record": execution_artifact.to_dict(),
+            "effective_identity": identity_artifact.to_dict(),
+            "raw_evidence": [item.to_dict() for item in raw_artifacts],
+            "peer_evidence": [item.to_dict() for item in control_artifacts],
+            "claim_boundary": CLAIM_BOUNDARY,
+        },
+    )
     context = FalsificationReviewContext(
         context_id=f"review-context-{lane_id}",
         target=target,
@@ -991,36 +1086,21 @@ def _review_contract(
                 kind="source",
                 sha256=_sha256_path(source_path),
             ),
+            ImmutableArtifactRef(
+                ref="review-brief.json",
+                kind="review-brief",
+                sha256=_sha256_path(review_brief_path),
+            ),
         ),
         validated_fact_ids=hypothesis.supporting_fact_ids,
         hypothesis=hypothesis,
         admitted_attack_plan=plan,
-        oracle_contract=ImmutableArtifactRef(
-            ref="oracle-contract.json",
-            kind="oracle-contract",
-            sha256=_sha256_path(oracle_path),
-        ),
+        oracle_contract=oracle_artifact,
         candidate_finding=row["finding"],
-        execution_record=ImmutableArtifactRef(
-            ref="execution-record.json",
-            kind="execution-record",
-            sha256=_sha256_path(lane_dir / "execution-record.json"),
-        ),
-        effective_identity=ImmutableArtifactRef(
-            ref="effective-execution-identity.json",
-            kind="effective-identity",
-            sha256=_sha256_path(
-                lane_dir / "effective-execution-identity.json"
-            ),
-        ),
+        execution_record=execution_artifact,
+        effective_identity=identity_artifact,
         raw_evidence=raw_artifacts,
-        control_evidence=(
-            ImmutableArtifactRef(
-                ref="peer-evidence-index.json",
-                kind="peer-evidence-index",
-                sha256=_sha256_path(peer_index),
-            ),
-        ),
+        control_evidence=control_artifacts,
         claim_boundary=CLAIM_BOUNDARY,
         production_invocation_id=str(
             row["identity"].get(
@@ -1048,16 +1128,19 @@ def _review_prompt(
         )
     ]
     return (
-        "Independently challenge the candidate Finding in "
-        "falsification-review-context.json. Work only from that context and "
+        "Independently challenge the candidate Finding in review-brief.json. "
+        "That checksum-bound brief is the only citable context-level artifact. "
+        "Do not open or cite falsification-review-context.json; it is an "
+        "internal orchestration audit file, not review evidence. Work only from "
         "the following checksum-bound files in the current directory; do not "
         "inspect parent directories or infer any source assignment:\n"
         + "\n".join(f"- {ref}" for ref in refs)
         + "\n\nAssess all six dimensions in this exact order: "
         + ", ".join(REVIEW_DIMENSIONS)
         + ". A dimension is supported only when the cited files support the "
-        "candidate Finding against that challenge. Use only the listed refs in "
-        "evidence_refs. If any dimension is challenged or inconclusive, add "
+        "candidate Finding against that challenge. Every evidence_refs value "
+        "must exactly match one bullet above; any other path rejects the whole "
+        "review. If any dimension is challenged or inconclusive, add "
         "typed reasons whose codes match its reason_codes. Return only the JSON "
         "object required by the supplied output schema."
     )

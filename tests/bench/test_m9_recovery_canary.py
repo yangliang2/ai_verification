@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import jsonschema
 import pytest
@@ -14,11 +16,16 @@ from aiverify.bench.m9_recovery_canary import (
     _assert_default_receipt,
     _configure_device_input,
     _contradiction_gate,
+    _copy_peer_evidence,
+    _copy_raw_evidence,
     _finalize_failed_attempt,
     _oracle_conclusion,
+    _peer_control_artifacts,
     _reconcile_canary,
+    _review_contract,
+    _review_prompt,
 )
-from aiverify.discovery import FalsificationReviewerIdentity
+from aiverify.discovery import Finding, FalsificationReviewerIdentity
 from aiverify.runner.run_spec import load_run_spec
 
 
@@ -124,6 +131,228 @@ def test_failed_attempt_is_create_only_and_checksum_sealed(tmp_path: Path) -> No
     _finalize_failed_attempt(tmp_path, RuntimeError("second failure"))
     assert (tmp_path / "attempt-failure.json").read_bytes() == original_failure
     assert (tmp_path / "checksums.sha256").read_bytes() == original_checksums
+
+
+def test_raw_evidence_exposes_provenance_and_fixture_binding(
+    tmp_path: Path,
+) -> None:
+    for name in (
+        "verdict.json",
+        "runner-setup.json",
+        "live-validation-gate.json",
+        "execution-provenance.json",
+        "neutral-fixture-binding.json",
+        "device-input-setup.json",
+        "package-reset.json",
+        "production-seam-admission.json",
+    ):
+        (tmp_path / name).write_text("{}\n", encoding="utf-8")
+    (tmp_path / "artifacts").mkdir()
+
+    refs = _copy_raw_evidence(tmp_path)
+
+    assert "execution-provenance.json" in refs
+    assert "neutral-fixture-binding.json" in refs
+    assert "device-input-setup.json" in refs
+    inventory = json.loads(
+        (tmp_path / "raw-evidence-inventory.json").read_text(encoding="utf-8")
+    )
+    assert {item["ref"] for item in inventory["artifacts"]} == set(refs)
+
+
+def test_peer_control_artifacts_verify_every_index_binding(
+    tmp_path: Path,
+) -> None:
+    peer_dir = tmp_path / "peer"
+    peer_dir.mkdir()
+    peer_verdict = peer_dir / "verdict.json"
+    peer_provenance = peer_dir / "execution-provenance.json"
+    peer_verdict.write_text('{"execution": "completed"}\n', encoding="utf-8")
+    peer_provenance.write_text('{"api_level": "35"}\n', encoding="utf-8")
+
+    def digest(path: Path) -> str:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    index_path = tmp_path / "peer-evidence-index.json"
+    index_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "artifacts": [
+                    {
+                        "ref": "peer/verdict.json",
+                        "sha256": digest(peer_verdict),
+                        "bytes": peer_verdict.stat().st_size,
+                    },
+                    {
+                        "ref": "peer/execution-provenance.json",
+                        "sha256": digest(peer_provenance),
+                        "bytes": peer_provenance.stat().st_size,
+                    },
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    refs = _peer_control_artifacts(tmp_path, index_path)
+
+    assert [item.ref for item in refs] == [
+        "peer-evidence-index.json",
+        "peer/verdict.json",
+        "peer/execution-provenance.json",
+    ]
+    assert all(item.immutable for item in refs)
+
+    peer_verdict.write_text('{"execution": "tampered"}\n', encoding="utf-8")
+    with pytest.raises(M9RecoveryCanaryError, match="binding failed"):
+        _peer_control_artifacts(tmp_path, index_path)
+
+
+def test_peer_evidence_copy_includes_semantic_and_raw_files(
+    tmp_path: Path,
+) -> None:
+    lane_dir = tmp_path / "lane"
+    peer_dir = tmp_path / "peer-lane"
+    lane_dir.mkdir()
+    for name in (
+        "verdict.json",
+        "execution-record.json",
+        "raw-evidence-inventory.json",
+        "effective-execution-identity.json",
+        "execution-provenance.json",
+        "finding.json",
+        "neutral-fixture-binding.json",
+        "device-input-setup.json",
+        "package-reset.json",
+        "runner-setup.json",
+        "live-validation-gate.json",
+        "raw/after-event-0/layout.json",
+    ):
+        path = peer_dir / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"{name}\n", encoding="utf-8")
+
+    index_path = _copy_peer_evidence(
+        {"lane_dir": lane_dir},
+        {
+            "lane_dir": peer_dir,
+            "lane_id": "peer-neutral",
+            "raw_refs": (
+                "verdict.json",
+                "execution-provenance.json",
+                "raw/after-event-0/layout.json",
+            ),
+        },
+    )
+
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+    refs = [item["ref"] for item in index["artifacts"]]
+    assert len(refs) == len(set(refs))
+    assert "peer/finding.json" in refs
+    assert "peer/execution-provenance.json" in refs
+    assert "peer/raw/after-event-0/layout.json" in refs
+    assert (lane_dir / "peer/raw/after-event-0/layout.json").is_file()
+
+
+def test_review_prompt_uses_citable_brief_and_exact_allowlist() -> None:
+    def ref(value: str) -> SimpleNamespace:
+        return SimpleNamespace(ref=value)
+
+    context = SimpleNamespace(
+        source_refs=(ref("source-target.json"), ref("review-brief.json")),
+        oracle_contract=ref("oracle-contract.json"),
+        execution_record=ref("execution-record.json"),
+        effective_identity=ref("effective-execution-identity.json"),
+        raw_evidence=(ref("execution-provenance.json"),),
+        control_evidence=(ref("peer/verdict.json"),),
+    )
+
+    prompt = _review_prompt(context)
+
+    assert "candidate Finding in review-brief.json" in prompt
+    assert "Do not open or cite falsification-review-context.json" in prompt
+    assert "- execution-provenance.json" in prompt
+    assert "- peer/verdict.json" in prompt
+    assert "must exactly match one bullet above" in prompt
+
+
+def test_review_contract_binds_brief_provenance_and_peer_semantics(
+    tmp_path: Path,
+) -> None:
+    lane_dir = tmp_path / "neutral-lane"
+    lane_dir.mkdir()
+    for name in (
+        "execution-provenance.json",
+        "execution-record.json",
+        "effective-execution-identity.json",
+    ):
+        (lane_dir / name).write_text("{}\n", encoding="utf-8")
+    peer_dir = lane_dir / "peer"
+    peer_dir.mkdir()
+    peer_verdict = peer_dir / "verdict.json"
+    peer_verdict.write_text('{"l3": {"outcome": "fail"}}\n', encoding="utf-8")
+
+    peer_sha = hashlib.sha256(peer_verdict.read_bytes()).hexdigest()
+    peer_index = lane_dir / "peer-evidence-index.json"
+    peer_index.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "artifacts": [
+                    {
+                        "ref": "peer/verdict.json",
+                        "sha256": peer_sha,
+                        "bytes": peer_verdict.stat().st_size,
+                    }
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    finding = Finding(
+        finding_id="finding-neutral-lane",
+        target_id="target-neutral-lane",
+        hypothesis_id="hypothesis-neutral-lane",
+        conclusion="rejected",
+        evidence_refs=("execution-provenance.json",),
+        impact="one local state path",
+        claim_boundary="one local exact-source execution",
+        rationale="terminal runtime evidence rejected the candidate risk",
+    )
+    row = {
+        "lane_id": "neutral-lane",
+        "lane_dir": lane_dir,
+        "worktree": tmp_path,
+        "source_commit": "1" * 40,
+        "finding": finding,
+        "raw_refs": ("execution-provenance.json",),
+        "identity": {"production_invocation_id": "thread:turn"},
+        "record": {"attempt_id": "attempt-neutral"},
+    }
+
+    context, _, _, _ = _review_contract(row, peer_index)
+
+    assert {item.ref for item in context.source_refs} == {
+        "source-target.json",
+        "review-brief.json",
+    }
+    assert {item.ref for item in context.raw_evidence} == {
+        "execution-provenance.json"
+    }
+    assert {item.ref for item in context.control_evidence} == {
+        "peer-evidence-index.json",
+        "peer/verdict.json",
+    }
+    brief = json.loads(
+        (lane_dir / "review-brief.json").read_text(encoding="utf-8")
+    )
+    assert brief["candidate_finding"] == finding.to_dict()
+    assert any(
+        item["ref"] == "peer/verdict.json" for item in brief["peer_evidence"]
+    )
 
 
 def test_default_identity_requires_null_request_and_no_model_flag() -> None:
