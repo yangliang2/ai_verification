@@ -1,6 +1,6 @@
 # AI Verification 当前能力与声明矩阵
 
-更新时间：2026-08-05
+更新时间：2026-08-07
 
 本矩阵是当前里程碑声明的入口。它把“仓库中存在实现”与“已有可审计证据
 支持某个声明”分开，并使用以下状态：
@@ -41,6 +41,13 @@ Agent 的结论为 `locally_supported`。
 | M6 blinded AI-change qualification | aggregate integrity PASS；M7 scale gate 未通过 | 6 个 frozen packages、36/36 lanes accountable、0 retries、6/6 adjudication agreement；historical 18 lanes 保持独立；prospective P-01/P-02 `locally_supported`，P-03 `inconclusive` | 六个 package、各自 track denominator、P-03 contradiction 与单一路线的本地事实 | M7 scale pass、benchmark-wide detection/false-positive rate、P-03 修复或重跑、upstream acceptance |
 | M8 state-evolution formal qualification | 有界失败证据；`inconclusive` | exact #121 manifest 进入 #122；12/12 ordered terminal attempts、0/12 accountable、change/project 分母 0/6 各自成立；共同原因是 execution-identity capture 的 fixture `host_project` 与 runner root policy mismatch | 冻结人口的 admission/accountability 失败事实与不可重跑边界 | state-evolution runtime detection、migration correctness、M7 合并、Android/OEM/production 或 benchmark-wide claim |
 | M9 unseen-project adversarial discovery | 有界失败证据；`Not Supported`；不形成 runtime claim | exact #136 merge 进入 #137；contradiction packet pre-side-effect rejected；Context Acquisition partial (64 facts)；top-3 portfolio、Attack Plan、leakage audit passed；6/6 ordered terminal lanes，0/6 accountable，0/3 defect support，0/3 control rejection，6/6 independent reviews，0 retries/replacements；共同原因是 fresh emulator 上 package-clear 在 install 前返回 `Failed` | 冻结 M9 population 的 gate、admission、accountability、non-accountable lane 和 independent-review facts | M9 runtime detection/rejection、project completeness、benchmark rate、Android/OEM/ColorOS、production/upstream acceptance |
+
+#148 的 forward-only recovery 不改变上表结果。
+[R1 evidence](runs/2026-08-07-issue-148-m9-r1-recovery-baseline/README.md)
+证明旧 control/defect fixture 可从 pinned source + committed patch 字节级恢复，并将
+pre-install package reset 改为先证明 package presence、再区分 already-absent、
+cleared、query contradiction 与 clear failure。恢复的旧 fixture 仅允许用于 R2
+non-holdout canary，不能进入新的 formal cohort 或支持 M9 runtime/Supported 声明。
 
 M4 的实现和 aggregate 已提交，但执行时间早于后来有效的 #80 gate。#59 以
 retrospective pilot 加明确 chronology exception 关闭；该历史事实不能被后来的
@@ -134,6 +141,13 @@ limitation。所有 M9 结果都只能是 exact local evidence 范围内的 loca
 package-clear setup 阶段 non-accountable；没有安装、启动、agent、L1/L2/L3 或
 runtime oracle evidence。这个结果保持 one-attempt/zero-retry/zero-replacement
 边界；未来-only 的 package-clear 幂等修复不回填或重写该 population。
+
+#148 是 M9-R 的 R1 forward remediation：
+[durable run](runs/2026-08-07-issue-148-m9-r1-recovery-baseline/README.md)
+记录 clean recovery worktree、失败复现、fail-closed package reset、两份
+canary-only APK 的 source/tree/patch/build/checksum，以及 889-test 回归。
+它只建立 R2 readiness；R2 仍须实际覆盖 install、launch、codex-default identity、
+agent、oracle、独立 review 与 reconciliation。
 
 ## M9 收口记录
 

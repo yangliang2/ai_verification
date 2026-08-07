@@ -88,3 +88,19 @@ def test_diagnosis_preserves_the_frozen_failed_population() -> None:
     assert live["presence_query"]["returncode"] == 1
     assert live["presence_query"]["stdout"] == ""
     assert live["presence_query"]["stderr"] == ""
+
+
+def test_run_record_checksum_inventory_is_complete_and_verifies() -> None:
+    checksum_path = RUN / "checksums.sha256"
+    entries: dict[str, str] = {}
+    for line in checksum_path.read_text(encoding="utf-8").splitlines():
+        digest, relative = line.split("  ", 1)
+        entries[relative] = digest
+
+    expected = {
+        path.name
+        for path in RUN.iterdir()
+        if path.is_file() and path.name != "checksums.sha256"
+    }
+    assert set(entries) == expected
+    assert all(_sha256(RUN / relative) == digest for relative, digest in entries.items())

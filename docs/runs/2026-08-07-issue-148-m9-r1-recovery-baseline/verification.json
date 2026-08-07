@@ -2,18 +2,18 @@
   "schema_version": 1,
   "targeted_tests": {
     "command": "uv run --extra dev pytest -q -o addopts='' tests/runner/test_package_reset.py tests/harness/test_device_controller.py tests/bench/test_m9_formal.py tests/bench/test_m9_recovery_baseline.py tests/runner/test_cli.py",
-    "passed": 111,
+    "passed": 112,
     "failed": 0,
-    "seconds": 0.17
+    "seconds": 0.24
   },
   "full_tests": {
     "command": "/usr/bin/time -p uv run --extra dev pytest -q -o addopts=''",
-    "passed": 888,
+    "passed": 889,
     "failed": 0,
-    "pytest_seconds": 37.62,
-    "real_seconds": 37.74,
-    "user_seconds": 23.18,
-    "sys_seconds": 5.33
+    "pytest_seconds": 33.38,
+    "real_seconds": 33.50,
+    "user_seconds": 25.44,
+    "sys_seconds": 6.08
   },
   "compile": {
     "command": "uv run --extra dev python -m py_compile src/aiverify/runner/package_reset.py src/aiverify/harness/device/controller.py src/aiverify/bench/m9_formal.py",
@@ -26,6 +26,27 @@
   "aiverify_package_build_ref": "package-build.json",
   "android_target_build_ref": "recovery-baseline.json",
   "live_package_reset_ref": "package-reset-live.json",
+  "environment_diagnostics_ref": "environment-diagnostics.json",
+  "dual_axis_review": {
+    "ref": "dual-axis-review.md",
+    "fixed_point": "716ce60020916127176b24c71e3829f603468a5e",
+    "standards_findings": {
+      "medium": 1,
+      "resolved_in_run_record": 1
+    },
+    "spec_findings": {
+      "high": 1,
+      "medium": 2,
+      "evidence_findings_resolved_in_run_record": 2,
+      "external_pre_r2_gate_recorded": 1
+    }
+  },
+  "checksums": {
+    "command": "(cd docs/runs/2026-08-07-issue-148-m9-r1-recovery-baseline && shasum -a 256 -c checksums.sha256)",
+    "entries": 11,
+    "passed": 11,
+    "failed": 0
+  },
   "known_warnings": [
     "Android Gradle Plugin reported that its SDK parser understands XML up to version 3 while one installed SDK XML file is version 4.",
     "The target app build emitted existing Kotlin opt-in and deprecated accompanist/ArrowBack warnings.",

@@ -1,8 +1,10 @@
 # M9-R1 recovery baseline and package-reset hardening
 
-Status: implementation and verification passed for issue #148. This is a
-recovery-readiness result only. It does not change the immutable #137
-`Not Supported` aggregate and does not execute any frozen #136/#137 lane.
+Status: implementation, verification, and dual-axis review passed their R1
+scope for issue #148. The merge/tracker completion gate remains mandatory
+before R2 begins. This is a recovery-readiness result only. It does not change
+the immutable #137 `Not Supported` aggregate and does not execute any frozen
+#136/#137 lane.
 
 ## Outcome
 
@@ -90,15 +92,15 @@ uv run --extra dev pytest -q -o addopts='' \
   tests/bench/test_m9_formal.py \
   tests/bench/test_m9_recovery_baseline.py \
   tests/runner/test_cli.py
-→ 111 passed, 0 failed in 0.17s.
+→ 112 passed, 0 failed in 0.24s.
 ```
 
 Full suite:
 
 ```text
 /usr/bin/time -p uv run --extra dev pytest -q -o addopts=''
-→ 888 passed, 0 failed in 37.62s.
-→ real 37.74s; user 23.18s; sys 5.33s.
+→ 889 passed, 0 failed in 33.38s.
+→ real 33.50s; user 25.44s; sys 6.08s.
 ```
 
 Static and package checks:
@@ -125,6 +127,20 @@ Structured results are in
 [`verification.json`](verification.json) and
 [`package-build.json`](package-build.json).
 
+## Dual-axis review
+
+Standards and Spec were reviewed concurrently in separate read-only contexts
+against fixed point
+`716ce60020916127176b24c71e3829f603468a5e`. The initial findings were
+Standards 1 Medium and Spec 1 High + 2 Medium. No package-reset behavior defect,
+ADR conflict, material code smell, or scope creep was found.
+
+The evidence findings are resolved by the diagnostic artifacts, review receipt,
+and checksum ledger in this run record. The Spec High finding is the required
+external sequencing gate: PR, merge, and the #148 completion comment must
+finish before R2 starts. Full reports and resolutions are in
+[`dual-axis-review.md`](dual-axis-review.md).
+
 ## Implementation and tests
 
 - `src/aiverify/runner/package_reset.py` implements the fail-closed semantic
@@ -140,7 +156,8 @@ Structured results are in
 - `tests/bench/test_m9_formal.py` checks success and failure receipts at the M9
   call site.
 - `tests/bench/test_m9_recovery_baseline.py` locks the canary-only boundary and
-  committed source/patch/APK identities.
+  committed source/patch/APK identities, and verifies the complete run-record
+  checksum inventory.
 
 ## Environment and artifact inventory
 
@@ -149,7 +166,10 @@ fingerprint
 `google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys`.
 Android CLI layout and direct UIAutomator dump both passed. Tool paths,
 versions, and important executable checksums are in
-[`tool-versions.json`](tool-versions.json).
+[`tool-versions.json`](tool-versions.json). Exact diagnostic commands/results
+are in [`environment-diagnostics.json`](environment-diagnostics.json), with
+the captured [Android layout](environment-layout.json) and
+[UIAutomator hierarchy](environment-window-dump.xml).
 
 Committed artifacts:
 
@@ -157,8 +177,18 @@ Committed artifacts:
 - diagnosis and current live package-reset receipt;
 - recovery recipe/source/build/APK identity receipt;
 - tool/environment identity;
+- environment diagnostics, Android layout, and UIAutomator hierarchy;
 - test/build verification and aiverify package-build receipt;
-- dual-axis review and root checksum inventory (added before merge).
+- dual-axis review;
+- 11-entry root checksum inventory.
+
+Root checksum verification:
+
+```text
+(cd docs/runs/2026-08-07-issue-148-m9-r1-recovery-baseline &&
+  shasum -a 256 -c checksums.sha256)
+→ 11/11 entries passed.
+```
 
 External artifacts:
 
