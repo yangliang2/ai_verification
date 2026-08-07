@@ -1,0 +1,27 @@
+{
+  "journey": "m9-r2-canary-beta-segment-1",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 426",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_MOVE_END",
+        "adb -s emulator-5554 shell input keyevent 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67",
+        "adb -s emulator-5554 shell input text \"r2b1\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Initially observed Edit Task with focused title r2b1 and Save task. The required keyboard-dismiss Back unexpectedly returned to Task Details showing r2b0, so the exact title r2b1 was restored through the visible Edit Task UI using the prescribed replacement sequence. After dismissing the keyboard, Save task remained visible at [975,2232] and was tapped exactly once. The fresh layout then showed the All Tasks list; the product displayed old title r2b0. The task was not reopened.",
+      "action": "Tap Save task exactly once, wait for the task list to appear, and do not reopen the task yet"
+    }
+  ]
+}

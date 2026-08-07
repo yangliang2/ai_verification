@@ -14,6 +14,7 @@ from aiverify.bench.m9_recovery_canary import (
     RUN_SPEC_ROOT,
     M9RecoveryCanaryError,
     _assert_default_receipt,
+    _canary_instruction_prefix,
     _configure_device_input,
     _contradiction_gate,
     _copy_peer_evidence,
@@ -71,9 +72,20 @@ def test_recovery_run_specs_use_new_neutral_lane_ids_and_default_model_policy(
         for spec in specs
     )
     assert all(
-        "Tap Save task exactly once" in spec.scenario.user_actions[3]
+        "keyboard already dismissed at the prior checkpoint"
+        in spec.scenario.user_actions[3]
+        and "do not press Back" in spec.scenario.user_actions[3]
         for spec in specs
     )
+
+
+def test_isolated_save_instruction_forbids_back_and_repair() -> None:
+    instruction = _canary_instruction_prefix("emulator-5554")
+
+    assert "Before every tap on the Save task control" not in instruction
+    assert "keyboard was already dismissed at the prior checkpoint" in instruction
+    assert "do not press Back, reopen the editor, or re-enter text" in instruction
+    assert "report the action FAILED without attempting repair" in instruction
 
 
 def test_falsification_review_schema_is_valid() -> None:

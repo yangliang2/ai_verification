@@ -2,7 +2,7 @@
   "schema_version": 1,
   "issue": 150,
   "stage": "M9-R2",
-  "status": "blocked_pending_attempt_07",
+  "status": "blocked_pending_attempt_08",
   "fixed_point": {
     "origin_main": "76fb6730f065e6e4087ae0032e3edb780104807e",
     "reviewed_implementation_head": "43b471e0b7d9741fabeaae842741245d4a966df2",
@@ -12,26 +12,26 @@
     "original_dirty_worktree_modified": false
   },
   "canary": {
-    "command": "/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-05 --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-05 --first-input /private/tmp/m9-r1-canary-recovery/control --second-input /private/tmp/m9-r1-canary-recovery/defect --device emulator-5554",
+    "command": "/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-07 --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-07 --first-input /private/tmp/m9-r1-canary-recovery/control --second-input /private/tmp/m9-r1-canary-recovery/defect --device emulator-5554",
     "exit_code": 2,
-    "structured_duration_seconds": 1487.582,
+    "structured_duration_seconds": 1615.359,
     "timing_seconds": {
-      "real": 1487.76,
-      "user": 125.41,
-      "sys": 19.07
+      "real": 1615.54,
+      "user": 197.04,
+      "sys": 24.66
     },
     "result": "blocked_by_canary_evidence",
     "attempt_local_result": "blocked_by_canary_evidence",
     "ready_for_r3": false,
     "accountable": 2,
     "lane_count": 2,
-    "expected_control_rejected": 1,
+    "expected_control_rejected": 0,
     "expected_defect_supported": 1,
     "attempt_local_reviews_reported_survived": 0,
     "independent_reviews_completed": 2,
     "independent_reviews_challenged": 2,
     "review_input_audits_passed": 2,
-    "review_input_files_scanned": 78,
+    "review_input_files_scanned": 150,
     "review_input_forbidden_disclosures": 0,
     "chain_checks_passed": 24,
     "chain_checks_total": 24,
@@ -43,8 +43,8 @@
     "formal_qualification_eligible": false,
     "old_136_137_population_invoked": false,
     "contradiction_rejected_before_side_effect": true,
-    "attempt_05_artifacts_modified_after_seal": false,
-    "attempt_05_reviews_rerun": false
+    "latest_attempt_artifacts_modified_after_seal": false,
+    "latest_attempt_reviews_rerun": false
   },
   "attempts": [
     {
@@ -139,28 +139,49 @@
       "control_lane_checksum_entries_passed": 9,
       "control_lane_checksum_entries_total": 9,
       "rerun_permitted": false
+    },
+    {
+      "attempt_id": "attempt-07",
+      "status": "blocked_by_canary_evidence",
+      "wall_duration_seconds": 1615.359,
+      "first_failure": "the unconditional pre-Save Back rule discarded the control edit before Save",
+      "accountable_lanes": 2,
+      "chain_checks_passed": 24,
+      "chain_checks_total": 24,
+      "expected_control_rejected": 0,
+      "expected_defect_supported": 1,
+      "reviews_completed": 2,
+      "reviews_survived": 0,
+      "files_including_ledger": 374,
+      "bytes": 71612972,
+      "checksum_entries_passed": 371,
+      "checksum_entries_total": 371,
+      "control_lane_checksum_entries_passed": 182,
+      "control_lane_checksum_entries_total": 182,
+      "defect_lane_checksum_entries_passed": 182,
+      "defect_lane_checksum_entries_total": 182
     }
   ],
   "focused_tests": {
-    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/runner/test_execution_identity.py",
-    "passed": 21,
+    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/runner/test_run_spec.py tests/runner/test_journey.py",
+    "passed": 71,
     "failed": 0,
-    "pytest_duration_seconds": 0.59,
+    "pytest_duration_seconds": 0.15,
     "timing_seconds": {
-      "real": 0.71,
-      "user": 0.38,
-      "sys": 0.25
+      "real": 0.27,
+      "user": 0.17,
+      "sys": 0.05
     }
   },
   "full_tests": {
     "command": "/usr/bin/time -p uv run pytest -qq --disable-warnings",
-    "passed": 916,
+    "passed": 917,
     "failed": 0,
     "pytest_duration_seconds": null,
     "timing_seconds": {
-      "real": 32.92,
-      "user": 23.58,
-      "sys": 5.98
+      "real": 30.74,
+      "user": 22.3,
+      "sys": 5.06
     }
   },
   "static_checks": [
@@ -193,7 +214,8 @@
     "attempt 04 reviewer inputs disclosed the historical defect source; its review and readiness result are invalid",
     "attempt 05 is authoritative non-ready evidence; its artifacts and reviews remain immutable while its remediation applies only to later fresh attempts",
     "attempt 06 failed non-accountably during transient Android CLI identity capture and remains immutable",
-    "attempt 07 remains required before R2 can claim readiness for R3",
+    "attempt 07 completed accountably but the control protocol discarded the edited value before Save and remains immutable",
+    "attempt 08 remains required before R2 can claim readiness for R3",
     "raw Android logcat evidence preserves device-emitted trailing whitespace and is excluded from the authored-source diff whitespace check",
     "external fixture worktrees and package build archives are reproducible but disposable",
     "this historical canary cannot qualify a fresh cohort or support M9 Supported"

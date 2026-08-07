@@ -6,8 +6,10 @@ the historical defect source. Attempt 05 fixed that isolation and completed
 both accountable runtime lanes, but both clean-context reviewers challenged
 the evidence contract. Its `ready_for_r3=false` result is authoritative.
 Attempt 06 then failed non-accountably during static Android CLI identity
-capture and is also sealed. A fail-closed packaging correction is committed
-before fresh attempt 07.
+capture and is also sealed. Attempt 07 completed both accountable lanes but a
+conflicting global keyboard rule discarded the control edit before Save; its
+reviewers correctly challenged both lanes. A conditional-save correction is
+committed before fresh attempt 08.
 
 The run is explicitly `non_holdout_canary=true`,
 `formal_qualification_eligible=false`, and `formal_denominator=false`. It does
@@ -101,7 +103,8 @@ from every formal denominator. No attempt was retried or replaced in place.
 | 04 | 1364.275s | runtime pass, review invalid | Two accountable runtime lanes and expected observed behavior; reviewer inputs were role-contaminated, so independent review rejects `ready_for_r3=true`. |
 | 05 | 1487.582s | blocked | Two accountable lanes and expected runtime behavior, but both clean-context reviews challenged: the role-blind derivative emitted a false APK mismatch, and the defect lane lacked a raw pre-save checkpoint. |
 | 06 | 31.10s | failure | Android CLI printed version `1.0.15498356` but did not exit within the 30-second identity bound; the lane was non-accountable. A secondary packaging path then obscured that reason by requiring absent execution provenance. |
-| 07 | pending | pending | Fresh future-only evidence-contract attempt; no prior attempt is resumed, rewritten, or re-reviewed. |
+| 07 | 1615.359s | blocked | Both lanes were accountable and all 24 chain checks passed, but the unconditional pre-Save Back rule discarded the control edit. Control and defect both appeared supported; both independent reviews challenged the protocol divergence. |
+| 08 | pending | pending | Fresh future-only conditional-save attempt; no prior attempt is resumed, rewritten, or re-reviewed. |
 
 The bounded remediations were limited to future attempts: use a clean defect
 commit with the recovered tree, bound text replacement after the first
@@ -121,6 +124,38 @@ Artifact inventories and ledgers:
 | attempt 04 | 171 | 19,173,187 | 168/168 |
 | attempt 05 | 202 | 21,350,210 | 199/199 root; 96/96 per lane |
 | attempt 06 | 15 | 17,785 | 13/13 root; 9/9 control lane |
+| attempt 07 | 374 | 71,612,972 | 371/371 root; 182/182 per lane |
+
+## Protocol-divergent full-chain execution (attempt 07)
+
+Attempt 07 completed one invocation in 1615.359 seconds (wall 1615.54s; user
+197.04s; sys 24.66s) with zero troubleshooting retries and zero replacements.
+Both lanes were accountable and passed all 12/12 required chain checks.
+
+The new raw evidence boundaries worked: before Save, alpha checkpoints showed
+`r2a1` and beta checkpoints showed `r2b1` on Edit Task, with Save untouched.
+However, the shared driver prefix still said to press Back before every Save.
+At the isolated control Save segment, Back left Edit Task, discarded `r2a1`,
+and the driver reopened the editor and saved `r2a0`. The control therefore
+failed L3 and emitted a supported finding. The defect driver also left Edit
+Task, but restored `r2b1` before Save; its post-save checkpoint correctly
+showed `r2b0`.
+
+Both clean-context reviewers challenged. Alpha used typed reasons including
+`UNSAVED_EDIT_DISCARDED_BEFORE_SAVE`,
+`SAVE_PATH_NOT_TESTED_WITH_EDITED_VALUE`, and
+`CONTROL_PROTOCOL_DIVERGENCE`. Beta independently found the paired comparison
+invalid because the control did not save its edited value.
+
+This attempt confirms the earlier isolation remediation: both reviewer
+workspaces scanned exactly 75/75 allowlisted files with zero forbidden
+disclosures, and both role-blind provenance receipts record source admission,
+clean worktree, Run-Spec binding, and source/installed APK equality as true.
+
+Future-only remediation makes keyboard dismissal conditional. An isolated
+Save action must not press Back, reopen, or re-enter text; it must observe the
+expected edited token and tap Save once, or fail without repair. See
+[`attempt-07-diagnosis.json`](attempt-07-diagnosis.json).
 
 ## Early identity failure (attempt 06)
 
@@ -273,22 +308,23 @@ the rejection receipt SHA-256 is
 
 ## Verification
 
-Focused post-attempt-06 fail-closed regression:
+Focused post-attempt-07 conditional-save regression:
 
 ```text
 /usr/bin/time -p uv run pytest -q -o addopts='' \
   tests/bench/test_m9_recovery_canary.py \
-  tests/runner/test_execution_identity.py
-→ 21 passed, 0 failed in 0.59s.
-→ real 0.71s; user 0.38s; sys 0.25s.
+  tests/runner/test_run_spec.py \
+  tests/runner/test_journey.py
+→ 71 passed, 0 failed in 0.15s.
+→ real 0.27s; user 0.17s; sys 0.05s.
 ```
 
 Full suite:
 
 ```text
 /usr/bin/time -p uv run pytest -qq --disable-warnings
-→ 916 passed, 0 failed.
-→ real 32.92s; user 23.58s; sys 5.98s.
+→ 917 passed, 0 failed.
+→ real 30.74s; user 22.30s; sys 5.06s.
 ```
 
 Static/source checks:
@@ -391,6 +427,8 @@ External artifacts:
   `/private/tmp/m9-r1-canary-recovery/defect`;
 - `/private/tmp/m9-r2-canary-fixtures/attempt-04/`;
 - `/private/tmp/m9-r2-canary-fixtures/attempt-05/`;
+- `/private/tmp/m9-r2-canary-fixtures/attempt-06/`;
+- `/private/tmp/m9-r2-canary-fixtures/attempt-07/`;
 - `/private/tmp/m9-r2-build.buror6/`.
 
 The first two paths are historical canary inputs or disposable detached
@@ -425,6 +463,8 @@ after R2 and is forbidden from R3, R4, R5, or any future formal conclusion.
   and its artifacts were not rewritten after diagnosis.
 - Attempt 06 is an authoritative non-accountable failure. It was not rerun or
   replaced; its future-only correction affects attempt 07.
+- Attempt 07 is authoritative non-ready evidence. It was not rerun, repaired,
+  or re-reviewed; its conditional-save correction affects attempt 08.
 - The external build archives and canary fixture worktrees are reproducible
   but disposable.
 - Raw Android logcat captures preserve device-emitted trailing whitespace.

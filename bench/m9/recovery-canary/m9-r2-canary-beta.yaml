@@ -13,8 +13,10 @@ scenario:
   - Open the same uniquely created task, enter Edit Task, replace the title with
     r2b1, dismiss the keyboard, verify r2b1 remains visible, and leave Edit Task
     open without tapping Save
-  - Tap Save task exactly once, wait for the task list to appear, and do not
-    reopen the task yet
+  - With Edit Task still open and the keyboard already dismissed at the prior
+    checkpoint, do not press Back, reopen the editor, or re-enter text; verify
+    r2b1 remains visible, locate Save task in a fresh layout, tap it exactly
+    once, wait for the task list, and do not reopen the task yet
   - Reopen the same uniquely created task by tapping it, even if the displayed title
     is r2b0 rather than r2b1
   system_events:

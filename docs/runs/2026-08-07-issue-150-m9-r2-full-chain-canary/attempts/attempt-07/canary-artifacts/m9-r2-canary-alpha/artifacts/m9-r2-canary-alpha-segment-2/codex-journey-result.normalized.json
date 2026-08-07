@@ -1,0 +1,16 @@
+{
+  "journey": "m9-r2-canary-alpha-segment-2",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 314 552",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Observed the unique task title r2a0 at [314,552] and dispatched the tap. The subsequent layout showed Task Details with title r2a0 and description adesc.",
+      "action": "Reopen the same uniquely created task by tapping it, even if the displayed title is r2a0 rather than r2a1"
+    }
+  ]
+}

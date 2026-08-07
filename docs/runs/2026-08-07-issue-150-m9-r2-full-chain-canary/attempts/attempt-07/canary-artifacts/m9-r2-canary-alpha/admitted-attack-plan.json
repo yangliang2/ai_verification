@@ -1,0 +1,28 @@
+{
+  "abort_boundary": "stop after the bounded terminal observation",
+  "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+  "evidence_expectations": [
+    "pre-save and post-save layout",
+    "reopened and post-process layout",
+    "screenshot",
+    "log output",
+    "terminal execution identity"
+  ],
+  "experiment_refs": [],
+  "fixture_refs": [
+    "fixture:local-api35-emulator"
+  ],
+  "hypothesis_id": "hypothesis-m9-r2-canary-alpha",
+  "observations": [
+    "observe the edited title before Save",
+    "observe the task immediately after Save",
+    "observe it again after reopening and process restoration"
+  ],
+  "operator_id": "operator-task-persistence-observation",
+  "oracle": "oracle-task-title-persistence-v1",
+  "plan_id": "plan-m9-r2-canary-alpha",
+  "schema_version": 1,
+  "status": "admitted",
+  "target_id": "target-m9-r2-canary-alpha",
+  "trigger": "enter the recorded task boundary once"
+}
