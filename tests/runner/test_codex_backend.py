@@ -157,6 +157,7 @@ def test_codex_backend_invokes_exec_and_parses_result(tmp_path: Path) -> None:
     assert result.data["journey"] == "smoke"
     assert result.events_path.read_text(encoding="utf-8").strip()
     assert result.metadata["codex_version"] == "codex-cli 0.139.0"
+    assert "--model" not in command
 
 
 def test_codex_backend_binds_requested_model_to_effective_session_model(

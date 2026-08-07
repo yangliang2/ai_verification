@@ -384,6 +384,7 @@ def test_build_configuration_packages_the_schema() -> None:
     configuration = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
 
     assert configuration["tool"]["setuptools"]["package-data"]["aiverify.bench"] == [
+        "m9_falsification_review_schema.json",
         "m6_cohort_schema.json",
         "m6_case_package_schema.json",
         "m7_qualification_schema.json",

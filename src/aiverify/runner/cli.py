@@ -390,6 +390,23 @@ def _require_runner_setup_success(operation: str, result: AdbResult) -> None:
         )
 
 
+def _runner_setup_operation(
+    *,
+    operation: str,
+    command: list[str],
+    result: AdbResult,
+) -> dict:
+    """Return the exact command/result receipt for one runner setup operation."""
+
+    return {
+        "operation": operation,
+        "command": command,
+        "returncode": result.returncode,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+    }
+
+
 def _portable_evidence_ref(path: str | Path, *, run_dir: Path) -> str:
     """Return a run-relative reference when an artifact belongs to this attempt."""
     source = Path(path)
@@ -1156,14 +1173,56 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         )
 
     setup_start = time.monotonic()
+    runner_setup_path = artifact_dir.parent / "runner-setup.json"
+    setup_operations: list[dict] = []
     try:
         controller = DeviceController(serial=device)
         # clear logcat so L1 only sees this run's events, not stale crashes from prior runs
-        _require_runner_setup_success("logcat_clear", controller.logcat_clear())
-        if launch:
-            _require_runner_setup_success(
-                "launch", controller.launch(spec.package, spec.activity)
+        logcat_result = controller.logcat_clear()
+        setup_operations.append(
+            _runner_setup_operation(
+                operation="logcat_clear",
+                command=["adb", "-s", device, "logcat", "-c"],
+                result=logcat_result,
             )
+        )
+        _require_runner_setup_success("logcat_clear", logcat_result)
+        if launch:
+            launch_result = controller.launch(spec.package, spec.activity)
+            setup_operations.append(
+                _runner_setup_operation(
+                    operation=(
+                        "explicit_launch" if spec.activity else "launcher_launch"
+                    ),
+                    command=(
+                        [
+                            "adb",
+                            "-s",
+                            device,
+                            "shell",
+                            "am",
+                            "start",
+                            "-n",
+                            f"{spec.package}/{spec.activity}",
+                        ]
+                        if spec.activity
+                        else [
+                            "adb",
+                            "-s",
+                            device,
+                            "shell",
+                            "monkey",
+                            "-p",
+                            spec.package,
+                            "-c",
+                            "android.intent.category.LAUNCHER",
+                            "1",
+                        ]
+                    ),
+                    result=launch_result,
+                )
+            )
+            _require_runner_setup_success("launch", launch_result)
 
         checkpoint_collector = (
             AndroidEvidenceCollector(
@@ -1180,7 +1239,36 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
                 device=controller, package=spec.package, activity=spec.activity
             ),
         )
+        write_json_artifact(
+            runner_setup_path,
+            {
+                "schema_version": 1,
+                "status": "passed",
+                "device": device,
+                "launch_requested": launch,
+                "operations": setup_operations,
+                "duration_seconds": round(time.monotonic() - setup_start, 3),
+            },
+        )
     except Exception as error:
+        if setup_operations and not runner_setup_path.exists():
+            try:
+                write_json_artifact(
+                    runner_setup_path,
+                    {
+                        "schema_version": 1,
+                        "status": "failed",
+                        "device": device,
+                        "launch_requested": launch,
+                        "operations": setup_operations,
+                        "duration_seconds": round(
+                            time.monotonic() - setup_start, 3
+                        ),
+                    },
+                )
+            except Exception:
+                # Preserve the original setup failure as the terminal reason.
+                pass
         return _write_failed_run_verdict(
             spec=spec,
             reason="runner_setup_error",
@@ -1333,6 +1421,9 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         },
         "execution_record": str(execution_record.path),
         "execution_provenance": execution_provenance,
+        "runner_setup": _portable_evidence_ref(
+            runner_setup_path, run_dir=artifact_dir.parent
+        ),
     }
     try:
         write_json_artifact(artifact_dir.parent / "verdict.json", verdict)
@@ -1367,6 +1458,9 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             ),
             **_flow_evidence_refs(flow, run_dir=artifact_dir.parent),
             "execution_provenance": execution_provenance,
+            "runner_setup": _portable_evidence_ref(
+                runner_setup_path, run_dir=artifact_dir.parent
+            ),
         },
     )
     return verdict

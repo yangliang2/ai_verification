@@ -128,6 +128,52 @@ def test_root_host_admits_and_receipt_regeneration_is_deterministic(tmp_path: Pa
     assert str(repository) in first.receipt_bytes.decode("utf-8")
 
 
+def test_codex_cli_default_model_selection_is_explicitly_admitted(
+    tmp_path: Path,
+) -> None:
+    _, _, spec, options = _fixture(tmp_path)
+    default_options = replace(
+        options,
+        requested_driver_model=None,
+        requested_l3_model=None,
+    )
+
+    result = admit_production_seam(
+        spec,
+        default_options,
+        command_runner=GitOnlyRunner(),
+    )
+
+    assert result.admitted is True
+    assert result.receipt["runner_policy"]["options"][
+        "requested_driver_model"
+    ] is None
+    assert result.receipt["runner_policy"]["tools"]["model_selection"] == {
+        "journey_driver": {
+            "policy": "codex_cli_default",
+            "requested_model": None,
+            "model_override_present": False,
+        },
+        "l3_semantic_judge": {
+            "policy": "codex_cli_default",
+            "requested_model": None,
+            "model_override_present": False,
+        },
+    }
+
+
+def test_empty_model_override_is_rejected(tmp_path: Path) -> None:
+    _, _, spec, options = _fixture(tmp_path)
+    result = admit_production_seam(
+        spec,
+        replace(options, requested_driver_model=""),
+        command_runner=GitOnlyRunner(),
+    )
+
+    assert result.admitted is False
+    assert "requested driver model cannot be empty" in result.reasons
+
+
 def test_historical_host_subdirectory_is_rejected_without_device_side_effects(
     tmp_path: Path,
 ) -> None:

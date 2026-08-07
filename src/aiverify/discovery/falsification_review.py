@@ -286,7 +286,7 @@ class FalsificationReviewerIdentity:
     """Separate invocation identity, with same-provider limitation disclosure."""
 
     backend: str
-    requested_model: str
+    requested_model: str | None
     effective_model: str
     invocation_id: str
     provider_family: str
@@ -298,7 +298,6 @@ class FalsificationReviewerIdentity:
     def __post_init__(self) -> None:
         for field in (
             "backend",
-            "requested_model",
             "effective_model",
             "invocation_id",
             "provider_family",
@@ -306,6 +305,8 @@ class FalsificationReviewerIdentity:
             "role",
         ):
             _required_text(getattr(self, field), field)
+        if self.requested_model is not None:
+            _required_text(self.requested_model, "requested_model")
         _version(self.schema_version, "falsification reviewer identity")
         expected = _digest(
             {
@@ -328,7 +329,7 @@ class FalsificationReviewerIdentity:
         cls,
         *,
         backend: str,
-        requested_model: str,
+        requested_model: str | None,
         effective_model: str,
         invocation_id: str,
         provider_family: str,

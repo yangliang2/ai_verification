@@ -1007,9 +1007,27 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
         "verdict": "verdict.json",
         "journey_results": [str(flow.journey_results[0].result_path)],
         "checkpoints": [str(flow.checkpoints[0].directory)],
-        "system_events": ["artifacts/system-event-0/event.json"],
-        "execution_provenance": verdict["execution_provenance"],
-    }
+            "system_events": ["artifacts/system-event-0/event.json"],
+            "execution_provenance": verdict["execution_provenance"],
+            "runner_setup": "runner-setup.json",
+        }
+    runner_setup = json.loads(
+        (artifact_dir.parent / "runner-setup.json").read_text(encoding="utf-8")
+    )
+    assert runner_setup["status"] == "passed"
+    assert runner_setup["operations"][1]["operation"] == "launcher_launch"
+    assert runner_setup["operations"][1]["command"] == [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "monkey",
+        "-p",
+        "org.wikipedia.dev",
+        "-c",
+        "android.intent.category.LAUNCHER",
+        "1",
+    ]
     assert verdict["execution_record"] == str(record_path)
     assert not list(artifact_dir.parent.glob(".execution-record.*.tmp"))
 

@@ -44,6 +44,9 @@ class CodexCliProvider(LLMProvider):
         artifact_dir: Path | None = None,
         runner: CommandRunner | None = None,
         session_root: Path | None = None,
+        role: str = "l3_semantic_judge",
+        artifact_prefix: str = "l3-judge-call",
+        output_schema: Path | None = None,
     ) -> None:
         """
         参数
@@ -61,6 +64,9 @@ class CodexCliProvider(LLMProvider):
         self.artifact_dir = artifact_dir
         self.runner = runner if runner is not None else SubprocessCommandRunner()
         self.session_root = session_root or default_codex_session_root()
+        self.role = role
+        self.artifact_prefix = artifact_prefix
+        self.output_schema = output_schema
         self._call_index = 0
         self.identity_receipts: list[Path] = []
 
@@ -71,9 +77,10 @@ class CodexCliProvider(LLMProvider):
         self._call_index += 1
         if self.artifact_dir is not None:
             self.artifact_dir.mkdir(parents=True, exist_ok=True)
-            result_path = self.artifact_dir / f"l3-judge-call-{self._call_index}.md"
-            events_path = self.artifact_dir / f"l3-judge-call-{self._call_index}.events.jsonl"
-            prompt_path = self.artifact_dir / f"l3-judge-call-{self._call_index}.prompt.md"
+            stem = f"{self.artifact_prefix}-{self._call_index}"
+            result_path = self.artifact_dir / f"{stem}.md"
+            events_path = self.artifact_dir / f"{stem}.events.jsonl"
+            prompt_path = self.artifact_dir / f"{stem}.prompt.md"
             prompt_path.write_text(full_prompt, encoding="utf-8")
         else:
             tmpdir = Path(tempfile.mkdtemp(prefix="codex-provider-"))
@@ -90,6 +97,8 @@ class CodexCliProvider(LLMProvider):
             "--sandbox",
             "read-only",
         ]
+        if self.output_schema is not None:
+            args += ["--output-schema", str(self.output_schema.resolve())]
         if self.workdir is not None:
             args += ["--cd", str(self.workdir)]
         if self.model:
@@ -99,10 +108,10 @@ class CodexCliProvider(LLMProvider):
         if self.artifact_dir is not None:
             write_json_artifact(
                 self.artifact_dir
-                / f"l3-judge-call-{self._call_index}.invocation.json",
+                / f"{stem}.invocation.json",
                 {
                     "schema_version": 1,
-                    "role": "l3_semantic_judge",
+                    "role": self.role,
                     "call_index": self._call_index,
                     "requested_model": self.model,
                     "argv_without_prompt": args[:-1],
@@ -127,11 +136,11 @@ class CodexCliProvider(LLMProvider):
         if events_path is not None:
             identity_path = (
                 self.artifact_dir
-                / f"l3-judge-call-{self._call_index}.identity.json"
+                / f"{stem}.identity.json"
             )
             try:
                 identity = capture_codex_invocation_identity(
-                    role="l3_semantic_judge",
+                    role=self.role,
                     requested_model=self.model,
                     command=args,
                     codex_bin=self.codex_bin,

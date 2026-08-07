@@ -415,8 +415,13 @@ def _validate_runner_policy(
         )
     if not options.runner_policy_version.strip():
         raise ProductionSeamAdmissionError("runner policy version is required")
-    if not options.requested_driver_model or not options.requested_driver_model.strip():
-        raise ProductionSeamAdmissionError("requested driver model is required")
+    if (
+        options.requested_driver_model is not None
+        and not options.requested_driver_model.strip()
+    ):
+        raise ProductionSeamAdmissionError(
+            "requested driver model cannot be empty"
+        )
     if options.requested_l3_model is not None and not options.requested_l3_model.strip():
         raise ProductionSeamAdmissionError("requested L3 model cannot be empty")
     resolved: dict[str, object] = {}
@@ -431,7 +436,25 @@ def _validate_runner_policy(
             "resolved_path": str(path),
             "sha256": _sha256_file(path),
         }
+    resolved["model_selection"] = {
+        "journey_driver": _model_selection(options.requested_driver_model),
+        "l3_semantic_judge": _model_selection(options.requested_l3_model),
+    }
     return resolved
+
+
+def _model_selection(requested_model: str | None) -> dict[str, object]:
+    """Describe whether Codex CLI chooses its default or receives an override."""
+
+    return {
+        "policy": (
+            "codex_cli_default"
+            if requested_model is None
+            else "explicit_model_override"
+        ),
+        "requested_model": requested_model,
+        "model_override_present": requested_model is not None,
+    }
 
 
 def _validate_artifact_namespace(options: PlannedRunnerOptions) -> dict[str, object]:

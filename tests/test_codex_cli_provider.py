@@ -192,6 +192,48 @@ def test_artifact_call_binds_requested_model_to_effective_session_model(tmp_path
     assert result.raw["identity_receipt_path"] == str(identity_path)
 
 
+def test_separate_role_uses_custom_artifact_prefix_and_output_schema(tmp_path):
+    session_root = tmp_path / "sessions"
+    runner = FakeRunner(
+        answer='{"status":"ok"}',
+        session_root=session_root,
+        thread_ids=["thread-review"],
+    )
+    codex_bin = tmp_path / "codex"
+    codex_bin.write_bytes(b"fake codex binary\n")
+    codex_bin.chmod(0o755)
+    schema = tmp_path / "review-schema.json"
+    schema.write_text('{"type":"object"}\n', encoding="utf-8")
+    artifacts = tmp_path / "review"
+    provider = CodexCliProvider(
+        codex_bin=str(codex_bin),
+        workdir=tmp_path,
+        artifact_dir=artifacts,
+        runner=runner,
+        session_root=session_root,
+        role="falsification_reviewer",
+        artifact_prefix="falsification-review-call",
+        output_schema=schema,
+    )
+
+    provider.complete("review")
+
+    identity_path = (
+        artifacts / "falsification-review-call-1.identity.json"
+    )
+    identity = json.loads(identity_path.read_text(encoding="utf-8"))
+    invocation = json.loads(
+        (
+            artifacts / "falsification-review-call-1.invocation.json"
+        ).read_text(encoding="utf-8")
+    )
+    args = runner.calls[0]["args"]
+    assert identity["role"] == "falsification_reviewer"
+    assert invocation["role"] == "falsification_reviewer"
+    assert args[args.index("--output-schema") + 1] == str(schema.resolve())
+    assert "--model" not in args
+
+
 def test_nonzero_exit_raises(tmp_path):
     runner = FakeRunner(returncode=3)
     p = CodexCliProvider(workdir=tmp_path, runner=runner)

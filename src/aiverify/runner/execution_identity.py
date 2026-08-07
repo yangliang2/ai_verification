@@ -1096,6 +1096,10 @@ def _validate_role_receipt(
             raise ExecutionIdentityError("role model override is absent from command") from error
         if command_model != requested_model:
             raise ExecutionIdentityError("role command model contradicts runner input")
+    elif "--model" in argv:
+        raise ExecutionIdentityError(
+            "role default model selection contradicts a command model override"
+        )
 
 
 def _verify_l3_ledger(

@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "M9FalsificationReviewOutput",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "review_id", "outcome", "dimensions", "reasons"],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "review_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["survived", "challenged", "inconclusive"]
+    },
+    "dimensions": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/dimension",
+          "properties": {
+            "dimension": {
+              "const": "alternative_explanations"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/dimension",
+          "properties": {
+            "dimension": {
+              "const": "assumption_violations"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/dimension",
+          "properties": {
+            "dimension": {
+              "const": "evidence_integrity"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/dimension",
+          "properties": {
+            "dimension": {
+              "const": "causal_attribution"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/dimension",
+          "properties": {
+            "dimension": {
+              "const": "control_comparison"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/dimension",
+          "properties": {
+            "dimension": {
+              "const": "claim_boundary"
+            }
+          }
+        }
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schema_version", "code", "message", "evidence_refs"],
+        "properties": {
+          "schema_version": {
+            "const": 1
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "dimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "dimension",
+        "status",
+        "analysis",
+        "evidence_refs",
+        "reason_codes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "dimension": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["supported", "challenged", "inconclusive"]
+        },
+        "analysis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
