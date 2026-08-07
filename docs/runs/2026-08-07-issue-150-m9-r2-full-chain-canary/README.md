@@ -1,15 +1,18 @@
 # M9-R2 non-holdout full-chain recovery canary
 
-Status: attempts 04 and 05 are preserved, immutable, and non-ready. Independent
-Spec review invalidated attempt 04 because reviewer-visible bytes disclosed
-the historical defect source. Attempt 05 fixed that isolation and completed
-both accountable runtime lanes, but both clean-context reviewers challenged
-the evidence contract. Its `ready_for_r3=false` result is authoritative.
-Attempt 06 then failed non-accountably during static Android CLI identity
-capture and is also sealed. Attempt 07 completed both accountable lanes but a
-conflicting global keyboard rule discarded the control edit before Save; its
-reviewers correctly challenged both lanes. A conditional-save correction is
-committed before fresh attempt 08.
+Status: R2 complete and ready for R3. Fresh create-only attempt 08 traversed
+the complete production-seam canary chain, produced two accountable lanes,
+observed the expected control/defect split, and survived both independent
+six-dimension falsification reviews. It emitted
+`canary_result=ready_for_fresh_qualification_packet` and `ready_for_r3=true`.
+
+Attempts 01-07 remain preserved and authoritative for their own outcomes.
+Independent Spec review invalidated attempt 04 because reviewer-visible bytes
+disclosed the historical defect source. Attempt 05 fixed that isolation but
+both reviewers challenged its evidence contract. Attempt 06 failed
+non-accountably during static Android CLI identity capture. Attempt 07
+completed both lanes but a conflicting keyboard rule discarded the control
+edit before Save. None was resumed, replaced, repaired, or re-reviewed.
 
 The run is explicitly `non_holdout_canary=true`,
 `formal_qualification_eligible=false`, and `formal_denominator=false`. It does
@@ -18,30 +21,35 @@ cohort, or support M9 `Supported`.
 
 ## Outcome
 
-Attempt 05 traversed the complete production-seam runtime chain on the exact
-#148 historical control/defect pair and correctly blocked progression:
+Attempt 08 traversed the complete production-seam runtime chain on the exact
+#148 historical control/defect pair and established R2 readiness:
 
 - both lanes reset the package, froze the English-US input subtype, installed
   the exact APK with Android CLI, launched the explicit activity, passed the
   live-validation gate, ran the Codex CLI Verification Agent Backend, captured
   Android layout/screenshot/logcat evidence, completed the L1/L2/L3 oracle
   path, and emitted accountable terminal `ExecutionRecord`s;
-- all 24 required chain checks passed: 12/12 for the control and 12/12 for the
-  defect;
-- the control finding was rejected and the defect finding was supported;
-- both 39-file reviewer workspaces passed the byte-level allowlist audit with
-  no historical source identity, role assignment, expected result, or #136
-  packet disclosure;
-- both separately invoked clean-context reviewers returned `challenged`, so
-  the attempt-local reconciliation reported 0/2 surviving reviews and
-  `ready_for_r3=false`;
-- the contradiction packet was rejected before any build, device, agent, or
-  runtime command, with zero side effects and no denominator membership.
+- all 24 required chain checks passed: 12/12 for control and 12/12 for defect;
+- the isolated Save action observed `r2a1` and `r2b1` before dispatch, tapped
+  Save exactly once without Back, reopen, re-entry, retry, or repair, then
+  observed retained `r2a1` for control and stale `r2b0` for defect;
+- control retained `r2a1` after Save, reopen, and a confirmed process
+  death/relaunch; its finding was rejected;
+- defect reverted to `r2b0` immediately after Save and remained `r2b0` after
+  reopen and process death/relaunch; its bounded behavioral finding was
+  supported;
+- both 75-file reviewer workspaces passed the byte-level allowlist audit with
+  zero forbidden disclosures;
+- two separately invoked clean-context reviewers completed, returned
+  `survived`, and supported all 12/12 dimensions across the pair;
+- the fresh R2 contradiction packet was rejected before any build, device,
+  agent, or runtime command, with zero side effects and no denominator
+  membership.
 
-The authoritative blocked reconciliation is
-[`attempts/attempt-05/canary-reconciliation.json`](attempts/attempt-05/canary-reconciliation.json).
+The authoritative reconciliation is
+[`attempts/attempt-08/canary-reconciliation.json`](attempts/attempt-08/canary-reconciliation.json).
 The one-invocation execution result is
-[`attempts/attempt-05/canary-execution-summary.json`](attempts/attempt-05/canary-execution-summary.json).
+[`attempts/attempt-08/canary-execution-summary.json`](attempts/attempt-08/canary-execution-summary.json).
 
 ### Attempt 05 diagnosis and bounded remediation
 
@@ -104,7 +112,7 @@ from every formal denominator. No attempt was retried or replaced in place.
 | 05 | 1487.582s | blocked | Two accountable lanes and expected runtime behavior, but both clean-context reviews challenged: the role-blind derivative emitted a false APK mismatch, and the defect lane lacked a raw pre-save checkpoint. |
 | 06 | 31.10s | failure | Android CLI printed version `1.0.15498356` but did not exit within the 30-second identity bound; the lane was non-accountable. A secondary packaging path then obscured that reason by requiring absent execution provenance. |
 | 07 | 1615.359s | blocked | Both lanes were accountable and all 24 chain checks passed, but the unconditional pre-Save Back rule discarded the control edit. Control and defect both appeared supported; both independent reviews challenged the protocol divergence. |
-| 08 | pending | pending | Fresh future-only conditional-save attempt; no prior attempt is resumed, rewritten, or re-reviewed. |
+| 08 | 1837.461s | ready for R3 | Two accountable lanes, 24/24 chain checks, expected control rejection and defect support, two survived independent reviews with 12/12 supported dimensions, zero retries/replacements. |
 
 The bounded remediations were limited to future attempts: use a clean defect
 commit with the recovered tree, bound text replacement after the first
@@ -125,6 +133,48 @@ Artifact inventories and ledgers:
 | attempt 05 | 202 | 21,350,210 | 199/199 root; 96/96 per lane |
 | attempt 06 | 15 | 17,785 | 13/13 root; 9/9 control lane |
 | attempt 07 | 374 | 71,612,972 | 371/371 root; 182/182 per lane |
+| attempt 08 | 374 | 68,245,966 | 371/371 root; 182/182 per lane |
+
+## Successful full-chain execution (attempt 08)
+
+Exact command:
+
+```text
+/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary \
+  --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-08 \
+  --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-08 \
+  --first-input /private/tmp/m9-r1-canary-recovery/control \
+  --second-input /private/tmp/m9-r1-canary-recovery/defect \
+  --device emulator-5554
+```
+
+Result:
+
+```text
+{"accountable": 2, "canary_result": "ready_for_fresh_qualification_packet", "ready_for_r3": true}
+exit 0
+real 1837.64
+user 161.52
+sys 23.73
+```
+
+The structured duration is 1837.461 seconds. The invocation recorded one
+attempt, zero troubleshooting retries, and zero replacements. Alpha completed
+in 463.715 seconds with a rejected finding; beta completed in 481.449 seconds
+with a supported finding. Both review input audits passed 75/75 files with
+zero disclosures. Both reviews were separate invocations, returned
+`outcome=survived`, and supported all six dimensions.
+
+Manual inspection confirmed alpha `r2a1` and beta `r2b1` on Edit Task before
+Save, alpha `r2a1` and beta `r2b0` on the list immediately after Save, and the
+same retained/reverted split after reopen and process death. All 12 captured
+logcats had zero fatal/ANR pattern hits; all capture commands passed.
+
+The root ledger SHA-256 is
+`3a90d8d995ed9a1cd62be39417a01e14c366a438b83be090b6c3062fa9382d92`.
+The root ledger verifies 371/371 entries, and each lane ledger verifies
+182/182. Attempt 08 is frozen in commit
+`0d4d0350cd9c36ff292f95c3ca57e852ca3084d1`.
 
 ## Protocol-divergent full-chain execution (attempt 07)
 
@@ -308,15 +358,15 @@ the rejection receipt SHA-256 is
 
 ## Verification
 
-Focused post-attempt-07 conditional-save regression:
+Focused post-attempt-08 regression:
 
 ```text
 /usr/bin/time -p uv run pytest -q -o addopts='' \
   tests/bench/test_m9_recovery_canary.py \
   tests/runner/test_run_spec.py \
   tests/runner/test_journey.py
-→ 71 passed, 0 failed in 0.15s.
-→ real 0.27s; user 0.17s; sys 0.05s.
+→ 71 passed, 0 failed in 0.14s.
+→ real 0.28s; user 0.16s; sys 0.05s.
 ```
 
 Full suite:
@@ -324,7 +374,7 @@ Full suite:
 ```text
 /usr/bin/time -p uv run pytest -qq --disable-warnings
 → 917 passed, 0 failed.
-→ real 30.74s; user 22.30s; sys 5.06s.
+→ real 62.65s; user 23.99s; sys 5.84s.
 ```
 
 Static/source checks:
@@ -343,24 +393,43 @@ git diff --check origin/main...HEAD -- bench src tests pyproject.toml
 → passed.
 ```
 
+Attempt 08 checksum verification, each from the ledger's owning directory:
+
+```text
+(cd attempts/attempt-08 &&
+  shasum -a 256 -c checksums.sha256)
+→ 371/371 passed.
+
+(cd attempts/attempt-08/canary-artifacts/m9-r2-canary-alpha &&
+  shasum -a 256 -c checksums.sha256)
+→ 182/182 passed.
+
+(cd attempts/attempt-08/canary-artifacts/m9-r2-canary-beta &&
+  shasum -a 256 -c checksums.sha256)
+→ 182/182 passed.
+
+uv run python -m aiverify.bench.run_record_checksums \
+  docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary --verify
+→ checksum inventory verified; 1346/1346 entries.
+```
+
 The full unscoped diff whitespace check reports trailing spaces emitted by
 Android in committed raw `logcat.txt` captures. Those source-faithful evidence
 bytes are checksum-bound and were not normalized. No authored source, test,
 specification, or package file failed the scoped check.
 
-Checkpoint package build (before the attempt-06 fail-closed wrapper change;
-final rebuild pending):
+Final package build:
 
 ```text
-/usr/bin/time -p uv build --out-dir /private/tmp/m9-r2-build.buror6
+/usr/bin/time -p uv build --out-dir /private/tmp/m9-r2-build-final.dDaVZO
 → aiverify 0.1.0 built successfully.
-→ real 3.07s; user 0.63s; sys 0.23s.
+→ real 4.80s; user 0.63s; sys 0.24s.
 ```
 
-The 413,139-byte wheel SHA-256 is
-`24ffdbbacbcd7691b50d9c5660fdc7053bcf5123449699bc27491360dd09767a`;
-the 376,193-byte sdist SHA-256 is
-`640dea5d9698f37f562108a0e5802b5b03eae0d3b38e5ca0701edecd529583fb`.
+The 413,463-byte wheel SHA-256 is
+`3c4f337db40bfcbcce93292c9a03f056c939dcc9671c74aaf0b0fa2b6c0110b6`;
+the 376,591-byte sdist SHA-256 is
+`231159f05406c48a0e5a3894224914e39c06e3a6448706396c917c0f12ce0e12`.
 Both archives contain the new runner and falsification-review schema. Exact
 structured results are in [`verification.json`](verification.json) and
 [`package-build.json`](package-build.json).
@@ -429,7 +498,8 @@ External artifacts:
 - `/private/tmp/m9-r2-canary-fixtures/attempt-05/`;
 - `/private/tmp/m9-r2-canary-fixtures/attempt-06/`;
 - `/private/tmp/m9-r2-canary-fixtures/attempt-07/`;
-- `/private/tmp/m9-r2-build.buror6/`.
+- `/private/tmp/m9-r2-canary-fixtures/attempt-08/`;
+- `/private/tmp/m9-r2-build-final.dDaVZO/`.
 
 The first two paths are historical canary inputs or disposable detached
 worktrees, and the build directory contains reproducible package outputs.
@@ -465,6 +535,8 @@ after R2 and is forbidden from R3, R4, R5, or any future formal conclusion.
   replaced; its future-only correction affects attempt 07.
 - Attempt 07 is authoritative non-ready evidence. It was not rerun, repaired,
   or re-reviewed; its conditional-save correction affects attempt 08.
+- Attempt 08 is authoritative ready-for-R3 canary evidence but remains
+  historical, non-holdout, non-formal, and excluded from every denominator.
 - The external build archives and canary fixture worktrees are reproducible
   but disposable.
 - Raw Android logcat captures preserve device-emitted trailing whitespace.

@@ -2,34 +2,36 @@
   "schema_version": 1,
   "issue": 150,
   "stage": "M9-R2",
-  "status": "blocked_pending_attempt_08",
+  "status": "ready_for_r3",
   "fixed_point": {
     "origin_main": "76fb6730f065e6e4087ae0032e3edb780104807e",
-    "reviewed_implementation_head": "43b471e0b7d9741fabeaae842741245d4a966df2",
+    "reviewed_implementation_head": "0d4d0350cd9c36ff292f95c3ca57e852ca3084d1",
     "attempt_05_remediation_base": "df842db96c7114d8321266410e95c1784f43b293",
     "merge_base": "76fb6730f065e6e4087ae0032e3edb780104807e",
     "worktree": "/Users/peter/projects/ai_verification-m9-r2",
     "original_dirty_worktree_modified": false
   },
   "canary": {
-    "command": "/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-07 --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-07 --first-input /private/tmp/m9-r1-canary-recovery/control --second-input /private/tmp/m9-r1-canary-recovery/defect --device emulator-5554",
-    "exit_code": 2,
-    "structured_duration_seconds": 1615.359,
+    "command": "/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-08 --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-08 --first-input /private/tmp/m9-r1-canary-recovery/control --second-input /private/tmp/m9-r1-canary-recovery/defect --device emulator-5554",
+    "exit_code": 0,
+    "structured_duration_seconds": 1837.461,
     "timing_seconds": {
-      "real": 1615.54,
-      "user": 197.04,
-      "sys": 24.66
+      "real": 1837.64,
+      "user": 161.52,
+      "sys": 23.73
     },
-    "result": "blocked_by_canary_evidence",
-    "attempt_local_result": "blocked_by_canary_evidence",
-    "ready_for_r3": false,
+    "result": "ready_for_fresh_qualification_packet",
+    "attempt_local_result": "ready_for_fresh_qualification_packet",
+    "ready_for_r3": true,
     "accountable": 2,
     "lane_count": 2,
-    "expected_control_rejected": 0,
+    "expected_control_rejected": 1,
     "expected_defect_supported": 1,
-    "attempt_local_reviews_reported_survived": 0,
+    "attempt_local_reviews_reported_survived": 2,
     "independent_reviews_completed": 2,
-    "independent_reviews_challenged": 2,
+    "independent_reviews_challenged": 0,
+    "independent_review_dimensions_supported": 12,
+    "independent_review_dimensions_total": 12,
     "review_input_audits_passed": 2,
     "review_input_files_scanned": 150,
     "review_input_forbidden_disclosures": 0,
@@ -160,16 +162,45 @@
       "control_lane_checksum_entries_total": 182,
       "defect_lane_checksum_entries_passed": 182,
       "defect_lane_checksum_entries_total": 182
+    },
+    {
+      "attempt_id": "attempt-08",
+      "status": "ready_for_fresh_qualification_packet",
+      "wall_duration_seconds": 1837.461,
+      "attempt_count_in_invocation": 1,
+      "accountable_lanes": 2,
+      "chain_checks_passed": 24,
+      "chain_checks_total": 24,
+      "expected_control_rejected": 1,
+      "expected_defect_supported": 1,
+      "reviews_completed": 2,
+      "reviews_survived": 2,
+      "review_dimensions_supported": 12,
+      "review_dimensions_total": 12,
+      "review_input_files_scanned": 150,
+      "review_input_forbidden_disclosures": 0,
+      "troubleshooting_retries": 0,
+      "replacement_count": 0,
+      "files_including_ledger": 374,
+      "bytes": 68245966,
+      "checksum_entries_passed": 371,
+      "checksum_entries_total": 371,
+      "control_lane_checksum_entries_passed": 182,
+      "control_lane_checksum_entries_total": 182,
+      "defect_lane_checksum_entries_passed": 182,
+      "defect_lane_checksum_entries_total": 182,
+      "root_ledger_sha256": "3a90d8d995ed9a1cd62be39417a01e14c366a438b83be090b6c3062fa9382d92",
+      "frozen_commit": "0d4d0350cd9c36ff292f95c3ca57e852ca3084d1"
     }
   ],
   "focused_tests": {
     "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/runner/test_run_spec.py tests/runner/test_journey.py",
     "passed": 71,
     "failed": 0,
-    "pytest_duration_seconds": 0.15,
+    "pytest_duration_seconds": 0.14,
     "timing_seconds": {
-      "real": 0.27,
-      "user": 0.17,
+      "real": 0.28,
+      "user": 0.16,
       "sys": 0.05
     }
   },
@@ -179,9 +210,9 @@
     "failed": 0,
     "pytest_duration_seconds": null,
     "timing_seconds": {
-      "real": 30.74,
-      "user": 22.3,
-      "sys": 5.06
+      "real": 62.65,
+      "user": 23.99,
+      "sys": 5.84
     }
   },
   "static_checks": [
@@ -192,13 +223,29 @@
     {
       "command": "git diff --check origin/main...HEAD -- bench src tests pyproject.toml",
       "status": "passed"
+    },
+    {
+      "command": "shasum -a 256 -c checksums.sha256 from attempt-08 root and both lane directories",
+      "status": "passed",
+      "root_entries": "371/371",
+      "control_lane_entries": "182/182",
+      "defect_lane_entries": "182/182"
+    },
+    {
+      "command": "uv run python -m aiverify.bench.run_record_checksums docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary --verify",
+      "status": "passed",
+      "entries": "1346/1346"
     }
   ],
   "manual_verification": {
     "successful_final_screenshots_and_layouts_visually_inspected": true,
+    "screenshots_inspected": 6,
     "control_state_coherent": true,
     "defect_state_loss_coherent": true,
     "successful_logcats_checked_for_fatal_or_anr": true,
+    "logcats_checked": 12,
+    "fatal_or_anr_pattern_hits": 0,
+    "capture_command_failures": 0,
     "fatal_or_anr_found": false
   },
   "tools": {
@@ -215,7 +262,7 @@
     "attempt 05 is authoritative non-ready evidence; its artifacts and reviews remain immutable while its remediation applies only to later fresh attempts",
     "attempt 06 failed non-accountably during transient Android CLI identity capture and remains immutable",
     "attempt 07 completed accountably but the control protocol discarded the edited value before Save and remains immutable",
-    "attempt 08 remains required before R2 can claim readiness for R3",
+    "attempt 08 establishes only historical non-holdout canary readiness for R3 and is excluded from every formal denominator",
     "raw Android logcat evidence preserves device-emitted trailing whitespace and is excluded from the authored-source diff whitespace check",
     "external fixture worktrees and package build archives are reproducible but disposable",
     "this historical canary cannot qualify a fresh cohort or support M9 Supported"
