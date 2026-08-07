@@ -1,0 +1,3 @@
+Return only the JSON required by the supplied schema.
+
+This is a transport-only schema smoke outside every qualification denominator. Return review_id schema-smoke, outcome survived, no reasons, and exactly six supported dimensions in this order: alternative_explanations, assumption_violations, evidence_integrity, causal_attribution, control_comparison, claim_boundary. For each dimension use analysis schema transport accepted, evidence_refs [schema-smoke], and empty reason_codes. Return only schema JSON.

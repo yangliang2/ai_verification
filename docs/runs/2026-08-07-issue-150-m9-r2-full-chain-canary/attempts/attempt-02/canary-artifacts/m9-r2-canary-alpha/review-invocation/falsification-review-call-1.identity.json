@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "role": "verification-agent-falsification-reviewer-v1",
+  "backend": "codex_cli",
+  "binary": {
+    "requested": "codex",
+    "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+    "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+    "version": "codex-cli 0.144.6"
+  },
+  "requested_model": null,
+  "effective_model": "gpt-5.6-sol",
+  "effective_model_source": {
+    "kind": "codex_session_turn_context",
+    "observation_sha256": "a4dcccf648a95b0b4bc8ca8250626d4f36ab6eff84875f6e396b6b6679eeeebd",
+    "thread_id": "019fdd06-ba12-78f0-b20b-079d0dfd597a",
+    "turn_id": "019fdd06-f395-7253-8ef7-0c99c13a9d88"
+  },
+  "source_observation": {
+    "session_meta": {
+      "id": "019fdd06-ba12-78f0-b20b-079d0dfd597a",
+      "cwd": "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-02/canary-artifacts/m9-r2-canary-alpha",
+      "cli_version": "0.144.6",
+      "source": "exec"
+    },
+    "turn_context": {
+      "turn_id": "019fdd06-f395-7253-8ef7-0c99c13a9d88",
+      "model": "gpt-5.6-sol"
+    }
+  },
+  "command": {
+    "argv_without_prompt": [
+      "codex",
+      "exec",
+      "--json",
+      "--output-last-message",
+      "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-02/canary-artifacts/m9-r2-canary-alpha/review-invocation/falsification-review-call-1.md",
+      "--skip-git-repo-check",
+      "--sandbox",
+      "read-only",
+      "--output-schema",
+      "/Users/peter/projects/ai_verification-m9-r2/src/aiverify/bench/m9_falsification_review_schema.json",
+      "--cd",
+      "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-02/canary-artifacts/m9-r2-canary-alpha"
+    ],
+    "prompt_sha256": "d03a12d708d15f762a6340e159bab7e7aa1a6d5194421a7858f79c1244a79e65"
+  }
+}

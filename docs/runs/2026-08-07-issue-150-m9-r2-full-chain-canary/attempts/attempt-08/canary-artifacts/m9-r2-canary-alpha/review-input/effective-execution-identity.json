@@ -1,0 +1,65 @@
+{
+  "backend": "codex_cli",
+  "execution_provenance": {
+    "ref": "execution-provenance.json",
+    "sha256": "3ae1faed921be4293b21316248257db3277ecb90cfa8175f2024fc57cc680e32"
+  },
+  "model_override_present": false,
+  "production_invocation_id": "019fdd9a-0079-7e92-8aaa-d572e0586e95:019fdd9a-1883-7182-8427-cbc3e02e4263",
+  "requested_model": null,
+  "roles": {
+    "journey_driver": {
+      "invocations": [
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/m9-r2-canary-alpha-segment-0/codex-invocation-identity.json",
+          "identity_sha256": "9f9d1deb66de92b6ecd252e548a92148bb17322ea2306cc28fabd5909156de24",
+          "invocation_id": "019fdd9a-0079-7e92-8aaa-d572e0586e95:019fdd9a-1883-7182-8427-cbc3e02e4263",
+          "model_override_present": false
+        },
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/m9-r2-canary-alpha-segment-1/codex-invocation-identity.json",
+          "identity_sha256": "bd413eec4df422007518a414bea46c5ad4797a613f2582f524df4e049d7aeeae",
+          "invocation_id": "019fdd9e-21c4-73f1-9255-ac3bbe818f18:019fdd9e-3a92-7732-bd83-d2c8b0cbf313",
+          "model_override_present": false
+        },
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/m9-r2-canary-alpha-segment-2/codex-invocation-identity.json",
+          "identity_sha256": "233849035ca39c1106e19f5e361ef0efbfee1fba7e4865d5f6a16e10bc2aaf35",
+          "invocation_id": "019fdd9f-35ff-77f3-99a8-6bfdddd267cc:019fdd9f-4e7e-7141-9e0d-aab680dd74f5",
+          "model_override_present": false
+        }
+      ],
+      "model_override_present": false,
+      "requested_model": null,
+      "selection_policy": "codex_cli_default",
+      "status": "invoked"
+    },
+    "l3_semantic_judge": {
+      "invocations": [
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/l3-judge/l3-judge-call-1.identity.json",
+          "identity_sha256": "ad504680f05fef3dcb015a215eb68984afc8d0fa5620d2e581724b58eb5afa99",
+          "invocation_id": "019fdda0-78fc-72b1-959e-023959256103:019fdda0-9302-7f10-9f7c-e210a289f75a",
+          "model_override_present": false
+        }
+      ],
+      "model_override_present": false,
+      "requested_model": null,
+      "selection_policy": "codex_cli_default",
+      "status": "invoked"
+    }
+  },
+  "schema_version": 1,
+  "selection_policy": "codex_cli_default",
+  "status": "complete",
+  "verdict_execution": {
+    "accounting_eligible": true,
+    "message": null,
+    "reason": null,
+    "status": "completed"
+  }
+}

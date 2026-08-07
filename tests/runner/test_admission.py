@@ -128,6 +128,52 @@ def test_root_host_admits_and_receipt_regeneration_is_deterministic(tmp_path: Pa
     assert str(repository) in first.receipt_bytes.decode("utf-8")
 
 
+def test_codex_cli_default_model_selection_is_explicitly_admitted(
+    tmp_path: Path,
+) -> None:
+    _, _, spec, options = _fixture(tmp_path)
+    default_options = replace(
+        options,
+        requested_driver_model=None,
+        requested_l3_model=None,
+    )
+
+    result = admit_production_seam(
+        spec,
+        default_options,
+        command_runner=GitOnlyRunner(),
+    )
+
+    assert result.admitted is True
+    assert result.receipt["runner_policy"]["options"][
+        "requested_driver_model"
+    ] is None
+    assert result.receipt["runner_policy"]["tools"]["model_selection"] == {
+        "journey_driver": {
+            "policy": "codex_cli_default",
+            "requested_model": None,
+            "model_override_present": False,
+        },
+        "l3_semantic_judge": {
+            "policy": "codex_cli_default",
+            "requested_model": None,
+            "model_override_present": False,
+        },
+    }
+
+
+def test_empty_model_override_is_rejected(tmp_path: Path) -> None:
+    _, _, spec, options = _fixture(tmp_path)
+    result = admit_production_seam(
+        spec,
+        replace(options, requested_driver_model=""),
+        command_runner=GitOnlyRunner(),
+    )
+
+    assert result.admitted is False
+    assert "requested driver model cannot be empty" in result.reasons
+
+
 def test_historical_host_subdirectory_is_rejected_without_device_side_effects(
     tmp_path: Path,
 ) -> None:
@@ -267,6 +313,28 @@ def test_formal_runner_checks_receipt_before_establishing_execution_record(
             admission_options=changed_options,
             admission_command_runner=runner,
         )
+
+
+def test_admission_rejects_preexisting_runner_setup_before_external_side_effects(
+    tmp_path: Path,
+) -> None:
+    _, _, spec, options = _fixture(tmp_path)
+    runner_setup = options.artifact_dir.parent / "runner-setup.json"
+    runner_setup.parent.mkdir(parents=True)
+    runner_setup.write_text('{"status":"stale"}\n', encoding="utf-8")
+    runner = GitOnlyRunner()
+
+    result = admit_production_seam(spec, options, command_runner=runner)
+
+    assert result.admitted is False
+    assert result.receipt["checks"]["artifact_namespace"] == {
+        "status": "failed",
+        "message": (
+            "formal attempt namespace already contains runner-setup.json"
+        ),
+    }
+    assert all(Path(call[0]).name == "git" for call in runner.calls)
+    assert runner_setup.read_text(encoding="utf-8") == '{"status":"stale"}\n'
 
 
 def test_temporary_admission_record_is_terminal_and_non_accountable(tmp_path: Path) -> None:

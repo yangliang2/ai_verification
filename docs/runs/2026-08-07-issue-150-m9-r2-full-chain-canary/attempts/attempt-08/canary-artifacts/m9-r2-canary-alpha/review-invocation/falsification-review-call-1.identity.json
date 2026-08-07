@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "role": "verification-agent-falsification-reviewer-v1",
+  "backend": "codex_cli",
+  "binary": {
+    "requested": "codex",
+    "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+    "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+    "version": "codex-cli 0.144.6"
+  },
+  "requested_model": null,
+  "effective_model": "gpt-5.6-sol",
+  "effective_model_source": {
+    "kind": "codex_session_turn_context",
+    "observation_sha256": "41f97a831a891d594f0f0eb5acaebf463f3a2caa23ce2026252fa210bb35b8af",
+    "thread_id": "019fdda8-505e-7343-aaf1-df3fc0b6ac2b",
+    "turn_id": "019fdda8-6881-7bf2-800c-0e6ce60042a3"
+  },
+  "source_observation": {
+    "session_meta": {
+      "id": "019fdda8-505e-7343-aaf1-df3fc0b6ac2b",
+      "cwd": "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-08/canary-artifacts/m9-r2-canary-alpha/review-input",
+      "cli_version": "0.144.6",
+      "source": "exec"
+    },
+    "turn_context": {
+      "turn_id": "019fdda8-6881-7bf2-800c-0e6ce60042a3",
+      "model": "gpt-5.6-sol"
+    }
+  },
+  "command": {
+    "argv_without_prompt": [
+      "codex",
+      "exec",
+      "--json",
+      "--output-last-message",
+      "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-08/canary-artifacts/m9-r2-canary-alpha/review-invocation/falsification-review-call-1.md",
+      "--skip-git-repo-check",
+      "--sandbox",
+      "read-only",
+      "--output-schema",
+      "/Users/peter/projects/ai_verification-m9-r2/src/aiverify/bench/m9_falsification_review_schema.json",
+      "--cd",
+      "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-08/canary-artifacts/m9-r2-canary-alpha/review-input"
+    ],
+    "prompt_sha256": "e5d4c96dc14469c51950d032fba2ef3d44ae3ce9f61aa471d1ff1c3255630703"
+  }
+}

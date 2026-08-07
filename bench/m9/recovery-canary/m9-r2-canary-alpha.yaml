@@ -1,0 +1,37 @@
+host_project:
+  root: ${M9_R2_CANARY_ALPHA_PROJECT}
+  origin: https://github.com/android/architecture-samples.git
+  commit: ee66e1526b84c026615df032c705842b7d2a521f
+apk_glob: app/build/outputs/apk/debug/app-debug.apk
+package: com.example.android.architecture.blueprints.main
+activity: com.example.android.architecture.blueprints.todoapp.TodoActivity
+scenario:
+  id: m9-r2-canary-alpha
+  user_actions:
+  - Open the task list
+  - Create a task titled r2a0 with description adesc
+  - Open the same uniquely created task, enter Edit Task, replace the title with
+    r2a1, dismiss the keyboard, verify r2a1 remains visible, and leave Edit Task
+    open without tapping Save
+  - With Edit Task still open and the keyboard already dismissed at the prior
+    checkpoint, do not press Back, reopen the editor, or re-enter text; verify
+    r2a1 remains visible, locate Save task in a fresh layout, tap it exactly
+    once, wait for the task list, and do not reopen the task yet
+  - Reopen the same uniquely created task by tapping it, even if the displayed title
+    is r2a0 rather than r2a1
+  system_events:
+  - step_index: 2
+    event: wait
+    args:
+      seconds: "1"
+      expect_resumed: target
+  - step_index: 3
+    event: wait
+    args:
+      seconds: "1"
+      expect_resumed: target
+  - step_index: 4
+    event: process_death
+  l2_boundary_index: 2
+  l3_spec: The title r2a1 remains visible after the explicit Save action,
+    reopening, and the admitted process boundary.

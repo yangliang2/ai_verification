@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "attempt_id": "6822df68-6f84-42e0-92ff-479c10894422",
+  "scenario": "m9-r2-canary-alpha",
+  "lifecycle_state": "failed",
+  "started_at": "2026-08-07T16:13:39+00:00",
+  "finished_at": "2026-08-07T16:14:10+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "execution_identity_error",
+    "message": "ExecutionIdentityError: tool version is unavailable: android"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-08-07T16:13:39+00:00",
+    "finished_at": "2026-08-07T16:14:10+00:00",
+    "total_seconds": 30.353,
+    "phases": [
+      {
+        "phase": "execution-identity-capture",
+        "kind": "identity",
+        "status": "failed",
+        "seconds": 30.261
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "execution-identity-capture",
+      "kind": "identity",
+      "reason": "execution_identity_error",
+      "message": "ExecutionIdentityError: tool version is unavailable: android"
+    }
+  ],
+  "evidence_refs": {
+    "verdict": "verdict.json"
+  }
+}

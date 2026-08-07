@@ -1,0 +1,125 @@
+{
+  "schema_version": 2,
+  "attempt_id": "f3d6eec1-1d3a-4729-8e9b-e4e1b42eae46",
+  "scenario": "m9-r2-canary-alpha",
+  "lifecycle_state": "completed",
+  "started_at": "2026-08-07T18:29:37+00:00",
+  "finished_at": "2026-08-07T18:38:29+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 1
+  },
+  "timing": {
+    "started_at": "2026-08-07T18:29:37+00:00",
+    "finished_at": "2026-08-07T18:38:29+00:00",
+    "total_seconds": 532.846,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.767
+      },
+      {
+        "phase": "m9-r2-canary-alpha-segment-0",
+        "kind": "journey",
+        "seconds": 253.043
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.891
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "wait",
+        "seconds": 1.023
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 2.894
+      },
+      {
+        "phase": "m9-r2-canary-alpha-segment-1",
+        "kind": "journey",
+        "seconds": 124.358
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 2.878
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "wait",
+        "seconds": 1.021
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 2.886
+      },
+      {
+        "phase": "m9-r2-canary-alpha-segment-2",
+        "kind": "journey",
+        "seconds": 79.295
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 2.88
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "process_death",
+        "seconds": 12.152
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 2.934
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 36.471
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/m9-r2-canary-alpha-segment-0/codex-journey-result.normalized.json",
+      "artifacts/m9-r2-canary-alpha-segment-1/codex-journey-result.normalized.json",
+      "artifacts/m9-r2-canary-alpha-segment-2/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0",
+      "artifacts/after-event-0",
+      "artifacts/after-segment-1",
+      "artifacts/after-event-1",
+      "artifacts/after-segment-2",
+      "artifacts/after-event-2"
+    ],
+    "system_events": [
+      "artifacts/system-event-0/event.json",
+      "artifacts/system-event-1/event.json",
+      "artifacts/system-event-2/event.json"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "db590545bc93f2d408d299ecb862907ca4ddfd2d6641f46e9552fb5d08273696"
+    },
+    "runner_setup": "runner-setup.json"
+  }
+}

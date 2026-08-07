@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "attempt": 1,
+  "status": "terminal_failure",
+  "ready_for_r3": false,
+  "non_holdout_canary": true,
+  "formal_qualification_eligible": false,
+  "formal_denominator": false,
+  "wall_duration_seconds": 909.89,
+  "first_observed_failure": {
+    "lane_id": "m9-r2-canary-alpha",
+    "lifecycle_state": "interrupted",
+    "execution_status": "non_accountable",
+    "reason": "journey_backend_error",
+    "process_exit_code": 2,
+    "phase": "m9-r2-canary-alpha-segment-0",
+    "phase_duration_seconds": 900.14,
+    "message": "Codex CLI exited 124 at the 900-second bounded driver timeout while repeatedly correcting Compose text entry."
+  },
+  "preserved_successful_prefix": {
+    "contradiction_rejected_before_side_effect": true,
+    "package_reset": "already_absent",
+    "live_validation": "passed",
+    "android_cli_deploy": "passed",
+    "explicit_launch": "passed",
+    "requested_model": null,
+    "model_selection_policy": "codex_cli_default",
+    "model_override_present": false,
+    "effective_driver_model": "gpt-5.6-sol",
+    "codex_cli_version": "codex-cli 0.144.6"
+  },
+  "second_observed_failure": {
+    "lane_id": "m9-r2-canary-beta",
+    "boundary": "production_seam_admission",
+    "status": "rejected",
+    "reason": "host worktree is not clean",
+    "external_side_effects": false
+  },
+  "reviews_invoked": 0,
+  "reconciliation_emitted": false,
+  "retry_count_within_attempt": 0,
+  "replacement_count": 0,
+  "bounded_remediation": [
+    "Use the existing clean historical defect commit whose tree matches the recovered staged patch instead of admitting a dirty target.",
+    "Use short no-space task tokens and a bounded, exact text-replacement command sequence.",
+    "Require the driver to reopen the same task even when the observed title contradicts the correct behavior, leaving adjudication to the oracle."
+  ],
+  "next_attempt": "attempt-02"
+}

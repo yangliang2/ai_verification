@@ -522,6 +522,8 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
     assert record["evidence_refs"]["system_events"] == [
         "artifacts/system-event-0/event.json"
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
+    assert verdict["runner_setup"] == "runner-setup.json"
     assert verdict["execution_record"] == str(
         artifact_dir.parent / "execution-record.json"
     )
@@ -821,6 +823,7 @@ def test_public_run_system_event_failure_is_canonical_and_skips_all_oracles(
             ),
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
 
 
 def test_public_run_reproduces_historical_anr_failed_status(
@@ -1007,9 +1010,27 @@ def test_public_run_establishes_one_execution_record_before_preflight_and_finali
         "verdict": "verdict.json",
         "journey_results": [str(flow.journey_results[0].result_path)],
         "checkpoints": [str(flow.checkpoints[0].directory)],
-        "system_events": ["artifacts/system-event-0/event.json"],
-        "execution_provenance": verdict["execution_provenance"],
-    }
+            "system_events": ["artifacts/system-event-0/event.json"],
+            "execution_provenance": verdict["execution_provenance"],
+            "runner_setup": "runner-setup.json",
+        }
+    runner_setup = json.loads(
+        (artifact_dir.parent / "runner-setup.json").read_text(encoding="utf-8")
+    )
+    assert runner_setup["status"] == "passed"
+    assert runner_setup["operations"][1]["operation"] == "launcher_launch"
+    assert runner_setup["operations"][1]["command"] == [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "monkey",
+        "-p",
+        "org.wikipedia.dev",
+        "-c",
+        "android.intent.category.LAUNCHER",
+        "1",
+    ]
     assert verdict["execution_record"] == str(record_path)
     assert not list(artifact_dir.parent.glob(".execution-record.*.tmp"))
 
@@ -1034,6 +1055,40 @@ def test_public_run_rejects_reused_attempt_directory_before_preflight(tmp_path):
         )
 
     assert prior_verdict.read_text(encoding="utf-8") == '{"prior": true}\n'
+    assert not (run_dir / "execution-record.json").exists()
+
+
+def test_public_run_rejects_stale_runner_setup_before_preflight_or_device_action(
+    tmp_path, monkeypatch
+):
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    prior_setup = run_dir / "runner-setup.json"
+    prior_setup.write_text('{"status":"stale"}\n', encoding="utf-8")
+
+    class UnexpectedPreflightRunner(CommandRunner):
+        def run(self, *args, **kwargs):
+            raise AssertionError("preflight must not run with stale runner setup")
+
+    class UnexpectedController:
+        def __init__(self, serial):
+            raise AssertionError("device action must not run with stale runner setup")
+
+    monkeypatch.setattr(cli, "DeviceController", UnexpectedController)
+
+    with pytest.raises(
+        ExecutionRecordStorageError,
+        match="existing runner output: runner-setup.json",
+    ):
+        cli.run(
+            _spec(tmp_path, l3_spec=""),
+            device="emulator-5554",
+            artifact_dir=run_dir / "artifacts",
+            workdir=tmp_path,
+            preflight_command_runner=UnexpectedPreflightRunner(),
+        )
+
+    assert prior_setup.read_text(encoding="utf-8") == '{"status":"stale"}\n'
     assert not (run_dir / "execution-record.json").exists()
 
 
@@ -1121,6 +1176,8 @@ def test_identity_finalization_failure_discards_oracle_accounting(
     )
     assert record["lifecycle_state"] == "failed"
     assert record["execution"]["accounting_eligible"] is False
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
+    assert verdict["runner_setup"] == "runner-setup.json"
 
 
 def test_pre_agent_identity_drift_blocks_journey_and_oracles(tmp_path, monkeypatch):
@@ -1469,9 +1526,19 @@ def test_runner_setup_failure_finalizes_record_before_journey_or_oracles(
             "message": "OSError: logcat transport closed",
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
     assert record["evidence_refs"]["live_validation_gate"] == (
         "live-validation-gate.json"
     )
+    runner_setup = json.loads(
+        (artifact_dir.parent / "runner-setup.json").read_text(encoding="utf-8")
+    )
+    assert runner_setup["status"] == "failed"
+    assert runner_setup["operations"] == []
+    assert runner_setup["error"] == {
+        "type": "OSError",
+        "message": "logcat transport closed",
+    }
 
 
 def test_runner_setup_nonzero_logcat_exit_is_non_accountable_and_blocks_journey(
@@ -1530,6 +1597,7 @@ def test_runner_setup_nonzero_logcat_exit_is_non_accountable_and_blocks_journey(
             "message": verdict["execution"]["message"],
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
 
 
 def test_runner_setup_nonzero_launch_exit_is_non_accountable_and_blocks_journey(
@@ -1585,6 +1653,7 @@ def test_runner_setup_nonzero_launch_exit_is_non_accountable_and_blocks_journey(
             "message": verdict["execution"]["message"],
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
 
 
 def test_oracle_exception_preserves_flow_evidence_but_skips_oracle_accounting(
@@ -1638,6 +1707,8 @@ def test_oracle_exception_preserves_flow_evidence_but_skips_oracle_accounting(
     assert record["evidence_refs"]["journey_results"] == [
         str(flow.journey_results[0].result_path)
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
+    assert verdict["runner_setup"] == "runner-setup.json"
 
 
 def test_unexpected_journey_exception_becomes_an_interrupted_attempt(
@@ -1676,6 +1747,7 @@ def test_unexpected_journey_exception_becomes_an_interrupted_attempt(
             "message": "ValueError: invalid segment boundary",
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
 
 
 def test_verdict_output_failure_finalizes_record_without_oracle_accounting(

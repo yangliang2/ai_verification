@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "issue": 150,
+  "stage": "M9-R2",
+  "status": "ready_for_r3",
+  "fixed_point": {
+    "origin_main": "76fb6730f065e6e4087ae0032e3edb780104807e",
+    "reviewed_implementation_head": "96d00b85b5da869adbd431da27d1dd2b3018fea6",
+    "attempt_05_remediation_base": "df842db96c7114d8321266410e95c1784f43b293",
+    "merge_base": "76fb6730f065e6e4087ae0032e3edb780104807e",
+    "worktree": "/Users/peter/projects/ai_verification-m9-r2",
+    "original_dirty_worktree_modified": false
+  },
+  "canary": {
+    "command": "/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-08 --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-08 --first-input /private/tmp/m9-r1-canary-recovery/control --second-input /private/tmp/m9-r1-canary-recovery/defect --device emulator-5554",
+    "exit_code": 0,
+    "structured_duration_seconds": 1837.461,
+    "timing_seconds": {
+      "real": 1837.64,
+      "user": 161.52,
+      "sys": 23.73
+    },
+    "result": "ready_for_fresh_qualification_packet",
+    "attempt_local_result": "ready_for_fresh_qualification_packet",
+    "ready_for_r3": true,
+    "accountable": 2,
+    "lane_count": 2,
+    "expected_control_rejected": 1,
+    "expected_defect_supported": 1,
+    "attempt_local_reviews_reported_survived": 2,
+    "independent_reviews_completed": 2,
+    "independent_reviews_challenged": 0,
+    "independent_review_dimensions_supported": 12,
+    "independent_review_dimensions_total": 12,
+    "review_input_audits_passed": 2,
+    "review_input_files_scanned": 150,
+    "review_input_forbidden_disclosures": 0,
+    "chain_checks_passed": 24,
+    "chain_checks_total": 24,
+    "troubleshooting_retries_in_invocation": 0,
+    "replacement_count": 0,
+    "non_holdout_canary": true,
+    "formal_denominator": false,
+    "formal_holdout_executed": false,
+    "formal_qualification_eligible": false,
+    "old_136_137_population_invoked": false,
+    "contradiction_rejected_before_side_effect": true,
+    "latest_attempt_artifacts_modified_after_seal": false,
+    "latest_attempt_reviews_rerun": false
+  },
+  "attempts": [
+    {
+      "attempt_id": "attempt-01",
+      "status": "terminal_failure",
+      "wall_duration_seconds": 909.89,
+      "first_failure": "control Codex driver exceeded its 900.14-second bound during repeated Compose text correction",
+      "files_including_ledger": 23,
+      "bytes": 175862,
+      "checksum_entries_passed": 20,
+      "checksum_entries_total": 20
+    },
+    {
+      "attempt_id": "attempt-02",
+      "status": "terminal_failure",
+      "wall_duration_seconds": 447.87,
+      "first_failure": "control execution identity could not obtain the transient Android version",
+      "additional_failures": [
+        "defect journey failed with the Chinese input subtype and save overlay",
+        "review response schema was rejected as invalid"
+      ],
+      "files_including_ledger": 61,
+      "bytes": 2491100,
+      "checksum_entries_passed": 58,
+      "checksum_entries_total": 58
+    },
+    {
+      "attempt_id": "review-schema-smoke",
+      "status": "passed_transport_only",
+      "wall_duration_seconds": 27.3,
+      "denominator_member": false,
+      "oracle_input": false,
+      "files_including_ledger": 7,
+      "bytes": 7491,
+      "checksum_entries_passed": 6,
+      "checksum_entries_total": 6
+    },
+    {
+      "attempt_id": "attempt-03",
+      "status": "terminal_failure",
+      "wall_duration_seconds": 1043.3,
+      "first_failure": "control falsification review referenced falsification-review-context.json outside the clean-context allowlist",
+      "files_including_ledger": 112,
+      "bytes": 12275134,
+      "checksum_entries_passed": 109,
+      "checksum_entries_total": 109
+    },
+    {
+      "attempt_id": "attempt-04",
+      "status": "runtime_pass_review_invalid",
+      "wall_duration_seconds": 1364.275,
+      "files_including_ledger": 171,
+      "bytes": 19173187,
+      "checksum_entries_passed": 168,
+      "checksum_entries_total": 168
+    },
+    {
+      "attempt_id": "attempt-05",
+      "status": "blocked_by_canary_evidence",
+      "wall_duration_seconds": 1487.582,
+      "first_failure": "both clean-context falsification reviews challenged the evidence contract",
+      "root_causes": [
+        "review-safe provenance read the source APK hash from the wrong JSON level and emitted a false mismatch",
+        "the defect lane had no admitted raw pre-save or immediate post-save checkpoint",
+        "the hypothesis over-attributed the black-box observation to an internal repository-refresh mechanism"
+      ],
+      "accountable_lanes": 2,
+      "chain_checks_passed": 24,
+      "chain_checks_total": 24,
+      "reviews_completed": 2,
+      "reviews_survived": 0,
+      "files_including_ledger": 202,
+      "bytes": 21350210,
+      "checksum_entries_passed": 199,
+      "checksum_entries_total": 199,
+      "control_lane_checksum_entries_passed": 96,
+      "control_lane_checksum_entries_total": 96,
+      "defect_lane_checksum_entries_passed": 96,
+      "defect_lane_checksum_entries_total": 96
+    },
+    {
+      "attempt_id": "attempt-06",
+      "status": "terminal_failure",
+      "wall_duration_seconds": 31.1,
+      "first_failure": "Android CLI static identity command timed out after reporting version 1.0.15498356",
+      "secondary_failure": "R2 reviewer-evidence packaging required execution provenance that cannot exist after identity-stage failure",
+      "accountable_lanes": 0,
+      "files_including_ledger": 15,
+      "bytes": 17785,
+      "checksum_entries_passed": 13,
+      "checksum_entries_total": 13,
+      "control_lane_checksum_entries_passed": 9,
+      "control_lane_checksum_entries_total": 9,
+      "rerun_permitted": false
+    },
+    {
+      "attempt_id": "attempt-07",
+      "status": "blocked_by_canary_evidence",
+      "wall_duration_seconds": 1615.359,
+      "first_failure": "the unconditional pre-Save Back rule discarded the control edit before Save",
+      "accountable_lanes": 2,
+      "chain_checks_passed": 24,
+      "chain_checks_total": 24,
+      "expected_control_rejected": 0,
+      "expected_defect_supported": 1,
+      "reviews_completed": 2,
+      "reviews_survived": 0,
+      "files_including_ledger": 374,
+      "bytes": 71612972,
+      "checksum_entries_passed": 371,
+      "checksum_entries_total": 371,
+      "control_lane_checksum_entries_passed": 182,
+      "control_lane_checksum_entries_total": 182,
+      "defect_lane_checksum_entries_passed": 182,
+      "defect_lane_checksum_entries_total": 182
+    },
+    {
+      "attempt_id": "attempt-08",
+      "status": "ready_for_fresh_qualification_packet",
+      "wall_duration_seconds": 1837.461,
+      "attempt_count_in_invocation": 1,
+      "accountable_lanes": 2,
+      "chain_checks_passed": 24,
+      "chain_checks_total": 24,
+      "expected_control_rejected": 1,
+      "expected_defect_supported": 1,
+      "reviews_completed": 2,
+      "reviews_survived": 2,
+      "review_dimensions_supported": 12,
+      "review_dimensions_total": 12,
+      "review_input_files_scanned": 150,
+      "review_input_forbidden_disclosures": 0,
+      "troubleshooting_retries": 0,
+      "replacement_count": 0,
+      "files_including_ledger": 374,
+      "bytes": 68245966,
+      "checksum_entries_passed": 371,
+      "checksum_entries_total": 371,
+      "control_lane_checksum_entries_passed": 182,
+      "control_lane_checksum_entries_total": 182,
+      "defect_lane_checksum_entries_passed": 182,
+      "defect_lane_checksum_entries_total": 182,
+      "root_ledger_sha256": "3a90d8d995ed9a1cd62be39417a01e14c366a438b83be090b6c3062fa9382d92",
+      "frozen_commit": "0d4d0350cd9c36ff292f95c3ca57e852ca3084d1"
+    }
+  ],
+  "focused_tests": {
+    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/runner/test_run_spec.py tests/runner/test_journey.py",
+    "passed": 71,
+    "failed": 0,
+    "pytest_duration_seconds": 0.14,
+    "timing_seconds": {
+      "real": 0.28,
+      "user": 0.16,
+      "sys": 0.05
+    }
+  },
+  "review_remediation_tests": {
+    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/runner/test_admission.py tests/runner/test_execution_record.py tests/runner/test_cli.py tests/bench/test_m9_recovery_canary.py",
+    "passed": 81,
+    "failed": 0,
+    "pytest_duration_seconds": 1.65,
+    "timing_seconds": {
+      "real": 1.8,
+      "user": 0.84,
+      "sys": 0.75
+    }
+  },
+  "full_tests": {
+    "command": "/usr/bin/time -p uv run pytest -qq --disable-warnings",
+    "passed": 919,
+    "failed": 0,
+    "pytest_duration_seconds": null,
+    "timing_seconds": {
+      "real": 32.09,
+      "user": 23.56,
+      "sys": 6.12
+    }
+  },
+  "static_checks": [
+    {
+      "command": "uv run python -m py_compile src/aiverify/bench/m9_recovery_canary.py src/aiverify/discovery/falsification_review.py src/aiverify/providers/codex_cli.py src/aiverify/runner/admission.py src/aiverify/runner/codex_identity.py src/aiverify/runner/execution_identity.py src/aiverify/runner/execution_record.py",
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check origin/main...HEAD -- bench src tests pyproject.toml",
+      "status": "passed"
+    },
+    {
+      "command": "shasum -a 256 -c checksums.sha256 from attempt-08 root and both lane directories",
+      "status": "passed",
+      "root_entries": "371/371",
+      "control_lane_entries": "182/182",
+      "defect_lane_entries": "182/182"
+    },
+    {
+      "command": "uv run python -m aiverify.bench.run_record_checksums docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary --verify",
+      "status": "passed",
+      "entries": "1346/1346"
+    }
+  ],
+  "manual_verification": {
+    "successful_final_screenshots_and_layouts_visually_inspected": true,
+    "screenshots_inspected": 6,
+    "control_state_coherent": true,
+    "defect_state_loss_coherent": true,
+    "successful_logcats_checked_for_fatal_or_anr": true,
+    "logcats_checked": 12,
+    "fatal_or_anr_pattern_hits": 0,
+    "capture_command_failures": 0,
+    "fatal_or_anr_found": false
+  },
+  "tools": {
+    "android_cli": "1.0.15498356",
+    "adb": "1.0.41 / platform-tools 37.0.0-14910828",
+    "codex_cli": "0.144.6",
+    "effective_default_model": "gpt-5.6-sol",
+    "git": "2.50.1 (Apple Git-155)",
+    "uv": "0.11.7",
+    "python": "3.11.15"
+  },
+  "known_gaps": [
+    "attempt 04 reviewer inputs disclosed the historical defect source; its review and readiness result are invalid",
+    "attempt 05 is authoritative non-ready evidence; its artifacts and reviews remain immutable while its remediation applies only to later fresh attempts",
+    "attempt 06 failed non-accountably during transient Android CLI identity capture and remains immutable",
+    "attempt 07 completed accountably but the control protocol discarded the edited value before Save and remains immutable",
+    "attempt 08 establishes only historical non-holdout canary readiness for R3 and is excluded from every formal denominator",
+    "raw Android logcat evidence preserves device-emitted trailing whitespace and is excluded from the authored-source diff whitespace check",
+    "external fixture worktrees and package build archives are reproducible but disposable",
+    "this historical canary cannot qualify a fresh cohort or support M9 Supported"
+  ]
+}

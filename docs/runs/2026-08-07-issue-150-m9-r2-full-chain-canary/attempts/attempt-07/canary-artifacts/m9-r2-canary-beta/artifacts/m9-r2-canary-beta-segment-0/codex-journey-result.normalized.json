@@ -1,0 +1,60 @@
+{
+  "journey": "m9-r2-canary-beta-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 74 216",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 568"
+      ],
+      "comment": "Opened the drawer, observed Task List at [540,568], and dispatched the tap.",
+      "action": "Open the task list"
+    },
+    {
+      "action_id": "action-2",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 426",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input text \"r2b0\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 969",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input text \"bdesc\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232"
+      ],
+      "comment": "Observed title r2b0 and description bdesc, dismissed the keyboard, relocated Save task at [975,2232], and dispatched the save tap.",
+      "action": "Create a task titled r2b0 with description bdesc"
+    },
+    {
+      "action_id": "action-3",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 552",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 426",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_MOVE_END",
+        "adb -s emulator-5554 shell input keyevent 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67",
+        "adb -s emulator-5554 shell input text \"r2b1\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Opened unique task r2b0, entered Edit Task, replaced its title once with r2b1, dismissed the keyboard, and verified r2b1 remained visible on Edit Task. Save was not tapped.",
+      "action": "Open the same uniquely created task, enter Edit Task, replace the title with r2b1, dismiss the keyboard, verify r2b1 remains visible, and leave Edit Task open without tapping Save"
+    }
+  ]
+}

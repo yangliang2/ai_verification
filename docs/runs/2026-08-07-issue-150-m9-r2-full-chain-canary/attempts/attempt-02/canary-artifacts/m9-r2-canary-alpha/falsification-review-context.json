@@ -1,0 +1,139 @@
+{
+  "admitted_attack_plan": {
+    "abort_boundary": "stop after the bounded terminal observation",
+    "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+    "evidence_expectations": [
+      "layout",
+      "screenshot",
+      "log output",
+      "terminal execution identity"
+    ],
+    "experiment_refs": [],
+    "fixture_refs": [
+      "fixture:local-api35-emulator"
+    ],
+    "hypothesis_id": "hypothesis-m9-r2-canary-alpha",
+    "observations": [
+      "observe the edited title after navigation and process restoration"
+    ],
+    "operator_id": "operator-task-persistence-observation",
+    "oracle": "oracle-task-title-persistence-v1",
+    "plan_id": "plan-m9-r2-canary-alpha",
+    "schema_version": 1,
+    "status": "admitted",
+    "target_id": "target-m9-r2-canary-alpha",
+    "trigger": "enter the recorded task boundary once"
+  },
+  "candidate_finding": {
+    "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+    "conclusion": "inconclusive",
+    "evidence_refs": [
+      "verdict.json"
+    ],
+    "finding_id": "finding-m9-r2-canary-alpha",
+    "hypothesis_id": "hypothesis-m9-r2-canary-alpha",
+    "impact": "an edited task title may not remain visible across the admitted navigation and process boundary",
+    "rationale": "The candidate conclusion is derived only from this terminal runner record, oracle outputs, and checksum-bound runtime evidence.",
+    "schema_version": 1,
+    "target_id": "target-m9-r2-canary-alpha"
+  },
+  "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+  "context_id": "review-context-m9-r2-canary-alpha",
+  "control_evidence": [
+    {
+      "immutable": true,
+      "kind": "peer-evidence-index",
+      "ref": "peer-evidence-index.json",
+      "schema_version": 1,
+      "sha256": "76ce7f5b6c8c6f208817668b52eb2d1b7f102dc334da1ba46ae4a426d96aaaad"
+    }
+  ],
+  "effective_identity": {
+    "immutable": true,
+    "kind": "effective-identity",
+    "ref": "effective-execution-identity.json",
+    "schema_version": 1,
+    "sha256": "0982f2b2c18a76493c2dbd4f033f9fa3d0c5f6eafcd21773b6e5ef09b42f14da"
+  },
+  "execution_record": {
+    "immutable": true,
+    "kind": "execution-record",
+    "ref": "execution-record.json",
+    "schema_version": 1,
+    "sha256": "b5482872f61319b2a735e6c01b554e8cae3415f3039ac64c0b287c6780611041"
+  },
+  "hypothesis": {
+    "assumptions": [
+      "the recorded UI actions reached the declared task-state boundary"
+    ],
+    "confidence": 0.5,
+    "consequence": "the edited task title is absent after reopening",
+    "hypothesis_id": "hypothesis-m9-r2-canary-alpha",
+    "mechanism": "repository refresh may replace the persisted local task state",
+    "quality_property": "edited task persistence across a process boundary",
+    "rationale": "The source boundary and runtime journey make task persistence falsifiable with local evidence.",
+    "required_evidence": [
+      "terminal execution record",
+      "runtime layout, screenshot, and log evidence",
+      "agent and oracle identity"
+    ],
+    "schema_version": 1,
+    "status": "frozen",
+    "supporting_fact_ids": [
+      "fact-task-repository",
+      "fact-process-boundary",
+      "fact-runtime-observation"
+    ],
+    "target_id": "target-m9-r2-canary-alpha",
+    "trigger": "create and edit one uniquely named task",
+    "unknowns": []
+  },
+  "oracle_contract": {
+    "immutable": true,
+    "kind": "oracle-contract",
+    "ref": "oracle-contract.json",
+    "schema_version": 1,
+    "sha256": "fea23dd0e19bd155e27525f10afd5ba81a62dca7ba2118b4d432fa6209a90c38"
+  },
+  "production_invocation_id": "6822df68-6f84-42e0-92ff-479c10894422",
+  "production_provider_family": "openai-codex-cli",
+  "raw_evidence": [
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "verdict.json",
+      "schema_version": 1,
+      "sha256": "69bb9e785fd3e381c8508811d5617712232f87c2e40f50efca37a654da2c4dd4"
+    }
+  ],
+  "schema_version": 1,
+  "source_refs": [
+    {
+      "immutable": true,
+      "kind": "source",
+      "ref": "source-target.json",
+      "schema_version": 1,
+      "sha256": "f4c318049d64050457726e1092d0af69450b77011652678e957d15f357d4719e"
+    }
+  ],
+  "target": {
+    "discovery_budget": 8,
+    "kind": "project",
+    "schema_version": 1,
+    "scope": [
+      "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+      "app/src/main/AndroidManifest.xml",
+      "app/build.gradle.kts",
+      "settings.gradle.kts"
+    ],
+    "source_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "source_origin": "https://github.com/android/architecture-samples.git",
+    "target_id": "target-m9-r2-canary-alpha",
+    "worktree": "/private/tmp/m9-r2-canary-fixtures/attempt-02/m9-r2-canary-alpha"
+  },
+  "validated_fact_ids": [
+    "fact-task-repository",
+    "fact-process-boundary",
+    "fact-runtime-observation"
+  ]
+}

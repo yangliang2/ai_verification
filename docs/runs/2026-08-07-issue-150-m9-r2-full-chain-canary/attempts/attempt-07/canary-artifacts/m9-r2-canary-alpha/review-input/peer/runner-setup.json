@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "device": "emulator-5554",
+  "launch_requested": true,
+  "operations": [
+    {
+      "operation": "logcat_clear",
+      "command": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "logcat",
+        "-c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "operation": "explicit_launch",
+      "command": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "am",
+        "start",
+        "-n",
+        "com.example.android.architecture.blueprints.main/com.example.android.architecture.blueprints.todoapp.TodoActivity"
+      ],
+      "returncode": 0,
+      "stdout": "Starting: Intent { cmp=com.example.android.architecture.blueprints.main/com.example.android.architecture.blueprints.todoapp.TodoActivity }\n",
+      "stderr": ""
+    }
+  ],
+  "duration_seconds": 0.121
+}

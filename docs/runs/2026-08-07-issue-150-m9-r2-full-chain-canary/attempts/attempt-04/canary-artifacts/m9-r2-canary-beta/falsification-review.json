@@ -1,0 +1,480 @@
+{
+  "clean_context_sha256": "3a2da10753d29559a33df98730069a3e3fe3505c70871f2aacc9f7fafe23267c",
+  "input_audit": {
+    "auditor_mapping_persisted_before_review": false,
+    "context_sha256": "3a2da10753d29559a33df98730069a3e3fe3505c70871f2aacc9f7fafe23267c",
+    "expected_result_disclosed": false,
+    "forbidden_disclosures": [],
+    "known_canary_role_disclosed": false,
+    "prompt_sha256": "4928303c6a3d1fe66925f49ec5208168aad0be210165e889df20c24252f7cb18",
+    "schema_version": 1,
+    "status": "pass"
+  },
+  "native_identity": {
+    "effective_model": "gpt-5.6-sol",
+    "model_override_present": false,
+    "ref": "review-invocation/falsification-review-call-1.identity.json",
+    "requested_model": null,
+    "selection_policy": "codex_cli_default",
+    "sha256": "387043c93cc38364feec33f9bae74fe4a59e36376a75d6af9d6c6172ea56d09b"
+  },
+  "production_oracle_path_used": false,
+  "reconciliation": {
+    "aggregate_supported": true,
+    "blocking_reasons": [],
+    "finding": {
+      "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+      "conclusion": "supported",
+      "evidence_refs": [
+        "verdict.json",
+        "runner-setup.json",
+        "live-validation-gate.json",
+        "execution-provenance.json",
+        "neutral-fixture-binding.json",
+        "device-input-setup.json",
+        "package-reset.json",
+        "production-seam-admission.json",
+        "raw/after-event-0/commands.json",
+        "raw/after-event-0/layout.json",
+        "raw/after-event-0/logcat.txt",
+        "raw/after-event-0/screen.png",
+        "raw/after-segment-0/commands.json",
+        "raw/after-segment-0/layout.json",
+        "raw/after-segment-0/logcat.txt",
+        "raw/after-segment-0/screen.png",
+        "raw/system-event-0/event.json"
+      ],
+      "finding_id": "finding-m9-r2-canary-beta",
+      "hypothesis_id": "hypothesis-m9-r2-canary-beta",
+      "impact": "an edited task title may not remain visible across the admitted navigation and process boundary",
+      "rationale": "The candidate conclusion is derived only from this terminal runner record, oracle outputs, and checksum-bound runtime evidence.",
+      "schema_version": 1,
+      "target_id": "target-m9-r2-canary-beta"
+    },
+    "raw_evidence_refs": [
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "verdict.json",
+        "schema_version": 1,
+        "sha256": "6b623eadbcde5035a329330dd0c00c7483cdf2db2d7f9cb27044d97c9a36d54d"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "runner-setup.json",
+        "schema_version": 1,
+        "sha256": "590a0652b01c2c02d0c93d97bb74e85efb03b0668db5e06c632897bd50ecbd1f"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "live-validation-gate.json",
+        "schema_version": 1,
+        "sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "execution-provenance.json",
+        "schema_version": 1,
+        "sha256": "4609331d1916f5c72075aa446426460f1bdcf4c213a010b6b351e5cc7bae3376"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "neutral-fixture-binding.json",
+        "schema_version": 1,
+        "sha256": "567ea6af4056d5ca87fca935be7e027226639c2ea5e727082ad7a39035af9db8"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "device-input-setup.json",
+        "schema_version": 1,
+        "sha256": "1ad87cf98df42d40e2ec819b7e7a4f3ba71b3755cfd81c4ee57bde5c2b07791c"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "package-reset.json",
+        "schema_version": 1,
+        "sha256": "dae853768eb14dc5bd8719a87fbe6684d3bc2534124887c66ac3532697c5b51f"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "production-seam-admission.json",
+        "schema_version": 1,
+        "sha256": "f71d85fba68c3b137171bacd685c42a99c1a399194479b4da4e86b24fb9389b4"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-event-0/commands.json",
+        "schema_version": 1,
+        "sha256": "a1782a6f7194853e7495b4986a4ac222012a360c6bd114108c2cf8356e3d1fc6"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-event-0/layout.json",
+        "schema_version": 1,
+        "sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-event-0/logcat.txt",
+        "schema_version": 1,
+        "sha256": "994668fe9272fa0775ea6c2dcdf5bb8ee7f9c029afe1e72487a4c110cd6abb38"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-event-0/screen.png",
+        "schema_version": 1,
+        "sha256": "c4a22f2f582d89dde7ccd1b44887be284d3941791e0ec105ccfa1a40caaf25a1"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-segment-0/commands.json",
+        "schema_version": 1,
+        "sha256": "ec070272b6744d7387feb5bf556a91832c4d6037dd58e9924fdb9cea96bc8de9"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-segment-0/layout.json",
+        "schema_version": 1,
+        "sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-segment-0/logcat.txt",
+        "schema_version": 1,
+        "sha256": "15b60e3e83c664140846dc0b2d2f9217c9315e7ddeb9a7cf37933ae4a0326cdb"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-segment-0/screen.png",
+        "schema_version": 1,
+        "sha256": "c4a22f2f582d89dde7ccd1b44887be284d3941791e0ec105ccfa1a40caaf25a1"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/system-event-0/event.json",
+        "schema_version": 1,
+        "sha256": "a2a1d7ccda5da52dfac14342f291210095baba3057f73141c66919ee4a7c0a28"
+      }
+    ],
+    "review_id": "falsification-review-finding-m9-r2-canary-beta",
+    "review_outcome": "survived",
+    "schema_version": 1
+  },
+  "result": {
+    "authoritative_output_sha256": "5c8f3f056da3c0a42ee6e7b2a644b4cd09a1225231eae3a007fb5f2ee1882d85",
+    "context_id": "review-context-m9-r2-canary-beta",
+    "rejection_reasons": [],
+    "review": {
+      "candidate_finding": {
+        "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+        "conclusion": "supported",
+        "evidence_refs": [
+          "verdict.json",
+          "runner-setup.json",
+          "live-validation-gate.json",
+          "execution-provenance.json",
+          "neutral-fixture-binding.json",
+          "device-input-setup.json",
+          "package-reset.json",
+          "production-seam-admission.json",
+          "raw/after-event-0/commands.json",
+          "raw/after-event-0/layout.json",
+          "raw/after-event-0/logcat.txt",
+          "raw/after-event-0/screen.png",
+          "raw/after-segment-0/commands.json",
+          "raw/after-segment-0/layout.json",
+          "raw/after-segment-0/logcat.txt",
+          "raw/after-segment-0/screen.png",
+          "raw/system-event-0/event.json"
+        ],
+        "finding_id": "finding-m9-r2-canary-beta",
+        "hypothesis_id": "hypothesis-m9-r2-canary-beta",
+        "impact": "an edited task title may not remain visible across the admitted navigation and process boundary",
+        "rationale": "The candidate conclusion is derived only from this terminal runner record, oracle outputs, and checksum-bound runtime evidence.",
+        "schema_version": 1,
+        "target_id": "target-m9-r2-canary-beta"
+      },
+      "context_id": "review-context-m9-r2-canary-beta",
+      "context_sha256": "3a2da10753d29559a33df98730069a3e3fe3505c70871f2aacc9f7fafe23267c",
+      "dimensions": [
+        {
+          "analysis": "The target record reports that r2b1 was visibly entered and Save task was dispatched, yet the reopened task showed r2b0. Successful resets, identical input-method configuration, and the peer's mirrored workflow retaining r2a1 counter stale-state, keyboard, and general interaction-path explanations.",
+          "dimension": "alternative_explanations",
+          "evidence_refs": [
+            "verdict.json",
+            "raw/after-segment-0/layout.json",
+            "peer/verdict.json",
+            "peer/raw/after-segment-0/layout.json",
+            "device-input-setup.json",
+            "peer/device-input-setup.json",
+            "package-reset.json",
+            "peer/package-reset.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The recorded journey marks every required action passed, including visible verification of r2b1 before saving and reopening the uniquely created task. Terminal layouts show the expected task-detail state, and the system-event record proves successful process removal and relaunch with different PIDs.",
+          "dimension": "assumption_violations",
+          "evidence_refs": [
+            "review-brief.json",
+            "verdict.json",
+            "execution-record.json",
+            "raw/after-segment-0/layout.json",
+            "raw/system-event-0/event.json",
+            "raw/after-event-0/layout.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "All target, context-binding, peer-index, and peer-inventory SHA-256 values match the supplied file bytes. Layouts agree with screenshots, checkpoint commands completed successfully, execution records report no phase errors, and provenance consistently identifies the deployed package, APK, device, tools, and agent roles.",
+          "dimension": "evidence_integrity",
+          "evidence_refs": [
+            "review-brief.json",
+            "peer-evidence-index.json",
+            "peer/raw-evidence-inventory.json",
+            "execution-record.json",
+            "execution-provenance.json",
+            "effective-execution-identity.json",
+            "raw/after-segment-0/commands.json",
+            "raw/after-segment-0/layout.json",
+            "raw/after-segment-0/screen.png",
+            "raw/after-event-0/commands.json",
+            "raw/after-event-0/layout.json",
+            "raw/after-event-0/screen.png"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The edited title was already absent after navigation and reopening, before process death, and remained absent after the successful kill/relaunch. Thus the evidence supports the bounded persistence failure across the admitted sequence without attributing it specifically to process death. The repository-refresh mechanism remains appropriately tentative in the hypothesis rather than asserted by the Finding.",
+          "dimension": "causal_attribution",
+          "evidence_refs": [
+            "review-brief.json",
+            "verdict.json",
+            "raw/after-segment-0/layout.json",
+            "raw/system-event-0/event.json",
+            "raw/after-event-0/layout.json",
+            "peer/verdict.json",
+            "peer/raw/after-segment-0/layout.json",
+            "peer/raw/after-event-0/layout.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The peer used the same package, activity, emulator, API level, build fingerprint, tool hashes, input method, reset procedure, runner policy, effective model, oracle structure, and semantically mirrored journey. It retained r2a1 before and after the same process event while the target displayed r2b0, providing a relevant matched comparison within the declared pair.",
+          "dimension": "control_comparison",
+          "evidence_refs": [
+            "execution-provenance.json",
+            "peer/execution-provenance.json",
+            "effective-execution-identity.json",
+            "peer/effective-execution-identity.json",
+            "runner-setup.json",
+            "peer/runner-setup.json",
+            "device-input-setup.json",
+            "peer/device-input-setup.json",
+            "package-reset.json",
+            "peer/package-reset.json",
+            "verdict.json",
+            "peer/verdict.json",
+            "raw/system-event-0/event.json",
+            "peer/raw/system-event-0/event.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The Finding is expressly limited to one local API-35 historical pair with recorded source, APK, package, runtime, agent, oracle, and review identities, and its impact is phrased as a possibility rather than a broader prevalence or mechanism claim. The supplied observations directly fit that boundary.",
+          "dimension": "claim_boundary",
+          "evidence_refs": [
+            "review-brief.json",
+            "source-target.json",
+            "oracle-contract.json",
+            "execution-provenance.json",
+            "neutral-fixture-binding.json",
+            "peer/finding.json",
+            "peer/execution-provenance.json",
+            "peer/neutral-fixture-binding.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        }
+      ],
+      "outcome": "survived",
+      "raw_evidence_refs": [
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "verdict.json",
+          "schema_version": 1,
+          "sha256": "6b623eadbcde5035a329330dd0c00c7483cdf2db2d7f9cb27044d97c9a36d54d"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "runner-setup.json",
+          "schema_version": 1,
+          "sha256": "590a0652b01c2c02d0c93d97bb74e85efb03b0668db5e06c632897bd50ecbd1f"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "live-validation-gate.json",
+          "schema_version": 1,
+          "sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "execution-provenance.json",
+          "schema_version": 1,
+          "sha256": "4609331d1916f5c72075aa446426460f1bdcf4c213a010b6b351e5cc7bae3376"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "neutral-fixture-binding.json",
+          "schema_version": 1,
+          "sha256": "567ea6af4056d5ca87fca935be7e027226639c2ea5e727082ad7a39035af9db8"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "device-input-setup.json",
+          "schema_version": 1,
+          "sha256": "1ad87cf98df42d40e2ec819b7e7a4f3ba71b3755cfd81c4ee57bde5c2b07791c"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "package-reset.json",
+          "schema_version": 1,
+          "sha256": "dae853768eb14dc5bd8719a87fbe6684d3bc2534124887c66ac3532697c5b51f"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "production-seam-admission.json",
+          "schema_version": 1,
+          "sha256": "f71d85fba68c3b137171bacd685c42a99c1a399194479b4da4e86b24fb9389b4"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-event-0/commands.json",
+          "schema_version": 1,
+          "sha256": "a1782a6f7194853e7495b4986a4ac222012a360c6bd114108c2cf8356e3d1fc6"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-event-0/layout.json",
+          "schema_version": 1,
+          "sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-event-0/logcat.txt",
+          "schema_version": 1,
+          "sha256": "994668fe9272fa0775ea6c2dcdf5bb8ee7f9c029afe1e72487a4c110cd6abb38"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-event-0/screen.png",
+          "schema_version": 1,
+          "sha256": "c4a22f2f582d89dde7ccd1b44887be284d3941791e0ec105ccfa1a40caaf25a1"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-segment-0/commands.json",
+          "schema_version": 1,
+          "sha256": "ec070272b6744d7387feb5bf556a91832c4d6037dd58e9924fdb9cea96bc8de9"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-segment-0/layout.json",
+          "schema_version": 1,
+          "sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-segment-0/logcat.txt",
+          "schema_version": 1,
+          "sha256": "15b60e3e83c664140846dc0b2d2f9217c9315e7ddeb9a7cf37933ae4a0326cdb"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-segment-0/screen.png",
+          "schema_version": 1,
+          "sha256": "c4a22f2f582d89dde7ccd1b44887be284d3941791e0ec105ccfa1a40caaf25a1"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/system-event-0/event.json",
+          "schema_version": 1,
+          "sha256": "a2a1d7ccda5da52dfac14342f291210095baba3057f73141c66919ee4a7c0a28"
+        }
+      ],
+      "reasons": [],
+      "review_id": "falsification-review-finding-m9-r2-canary-beta",
+      "reviewer_identity": {
+        "backend": "codex_cli",
+        "effective_model": "gpt-5.6-sol",
+        "identity_sha256": "1b3d15147e7de5950495881321fed07fcc79a5d9060594983c7cda45141b1ef4",
+        "invocation_id": "019fdd36-7954-7451-a784-584021a41112:019fdd36-9c5d-7bf2-a042-913e5b9a0594",
+        "provider_family": "openai-codex-cli",
+        "requested_model": null,
+        "role": "verification-agent-falsification-reviewer-v1",
+        "same_family_limitation": "same provider family, but a separate read-only invocation, clean context, identity, prompt, output schema, and no production adjudication code path",
+        "schema_version": 1
+      },
+      "schema_version": 1,
+      "target_id": "target-m9-r2-canary-beta"
+    },
+    "reviewer_identity": {
+      "backend": "codex_cli",
+      "effective_model": "gpt-5.6-sol",
+      "identity_sha256": "1b3d15147e7de5950495881321fed07fcc79a5d9060594983c7cda45141b1ef4",
+      "invocation_id": "019fdd36-7954-7451-a784-584021a41112:019fdd36-9c5d-7bf2-a042-913e5b9a0594",
+      "provider_family": "openai-codex-cli",
+      "requested_model": null,
+      "role": "verification-agent-falsification-reviewer-v1",
+      "same_family_limitation": "same provider family, but a separate read-only invocation, clean context, identity, prompt, output schema, and no production adjudication code path",
+      "schema_version": 1
+    },
+    "schema_version": 1,
+    "status": "complete"
+  },
+  "schema_version": 1
+}

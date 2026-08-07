@@ -1,0 +1,29 @@
+{
+  "audit": {
+    "command_calls": [],
+    "expected_admission": "rejected",
+    "formal_denominator": false,
+    "missing_fields": [
+      "target_source_identity",
+      "context_graph",
+      "operator_registry"
+    ],
+    "packet_id": "m9-r2-incomplete-context-v1",
+    "pre_side_effect_rejection": true,
+    "rejection_boundary": "before_any_build_device_agent_or_runtime_side_effect",
+    "side_effects": false,
+    "status": "pass"
+  },
+  "denominator_member": false,
+  "formal_qualification_eligible": false,
+  "non_holdout_canary": true,
+  "rejected_before_build_device_agent_runtime": true,
+  "schema_version": 1,
+  "source": {
+    "fresh_for_attempt": true,
+    "old_136_137_artifact": false,
+    "path": "r2-contradiction-packet.json",
+    "sha256": "bbb01f576c0c90ccd6bc015df88166454021401f359bc27a284f8b6aac51e8fd",
+    "stage": "M9-R2"
+  }
+}

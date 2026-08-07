@@ -1,0 +1,103 @@
+{
+  "device": "emulator-5554",
+  "expected_input_method": "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
+  "expected_subtype": {
+    "hash": "1594443099",
+    "name": "English (US)"
+  },
+  "operations": [
+    {
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "settings",
+        "get",
+        "secure",
+        "default_input_method"
+      ],
+      "cwd": null,
+      "duration_seconds": 0.028,
+      "operation": "default_input_method",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME\n"
+    },
+    {
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "settings",
+        "get",
+        "secure",
+        "enabled_input_methods"
+      ],
+      "cwd": null,
+      "duration_seconds": 0.027,
+      "operation": "enabled_input_methods",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME;617035939;1594443099:com.google.android.tts/com.google.android.apps.speech.tts.googletts.settings.asr.voiceime.VoiceInputMethodService\n"
+    },
+    {
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "settings",
+        "get",
+        "secure",
+        "selected_input_method_subtype"
+      ],
+      "cwd": null,
+      "duration_seconds": 0.025,
+      "operation": "selected_subtype_before",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "1594443099\n"
+    },
+    {
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "settings",
+        "put",
+        "secure",
+        "selected_input_method_subtype",
+        "1594443099"
+      ],
+      "cwd": null,
+      "duration_seconds": 0.021,
+      "operation": "select_english_us_subtype",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "settings",
+        "get",
+        "secure",
+        "selected_input_method_subtype"
+      ],
+      "cwd": null,
+      "duration_seconds": 0.018,
+      "operation": "selected_subtype_after",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "1594443099\n"
+    }
+  ],
+  "schema_version": 1,
+  "status": "passed"
+}

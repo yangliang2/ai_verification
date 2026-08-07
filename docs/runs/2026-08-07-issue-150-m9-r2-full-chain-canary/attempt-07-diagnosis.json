@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "issue": 150,
+  "stage": "M9-R2",
+  "attempt": "attempt-07",
+  "classification": "sealed_non_ready_canary",
+  "ready_for_r3": false,
+  "formal_denominator": false,
+  "formal_qualification_eligible": false,
+  "invocation": {
+    "command": "/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-07 --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-07 --first-input /private/tmp/m9-r1-canary-recovery/control --second-input /private/tmp/m9-r1-canary-recovery/defect --device emulator-5554",
+    "exit_code": 2,
+    "structured_duration_seconds": 1615.359,
+    "timing_seconds": {
+      "real": 1615.54,
+      "user": 197.04,
+      "sys": 24.66
+    },
+    "troubleshooting_retries": 0,
+    "replacement_count": 0
+  },
+  "runtime": {
+    "accountable_lanes": 2,
+    "required_chain_checks_passed": 24,
+    "required_chain_checks_total": 24,
+    "expected_control_rejected": 0,
+    "expected_defect_supported": 1,
+    "control_finding": "supported",
+    "defect_finding": "supported"
+  },
+  "confirmed_remediation": {
+    "review_workspace_files_per_lane": 75,
+    "review_workspace_audits_passed": 2,
+    "forbidden_disclosures": 0,
+    "source_admission_passed_lanes": 2,
+    "source_identity_verified_lanes": 2,
+    "source_and_installed_apk_match_lanes": 2,
+    "pre_save_checkpoint_control_token": "r2a1",
+    "pre_save_checkpoint_defect_token": "r2b1"
+  },
+  "root_cause": {
+    "kind": "conflicting_save_instruction",
+    "shared_instruction": "Before every Save tap, dismiss the keyboard once with KEYCODE_BACK.",
+    "scenario_precondition": "The prior action had already dismissed the keyboard and checkpointed Edit Task.",
+    "control_observation": "KEYCODE_BACK left Edit Task, discarded r2a1, and the driver reopened and saved r2a0.",
+    "defect_observation": "KEYCODE_BACK left Edit Task; the driver restored r2b1 before Save, after which the product showed r2b0.",
+    "effect": "The pair did not execute the same edited-value-at-Save protocol, so control rejection and a valid matched comparison were impossible."
+  },
+  "independent_reviews": {
+    "completed": 2,
+    "survived": 0,
+    "challenged": 2,
+    "control_reason_codes": [
+      "UNSAVED_EDIT_DISCARDED_BEFORE_SAVE",
+      "EDITED_VALUE_NOT_PRESENT_AT_SAVE_BOUNDARY",
+      "SAVE_PATH_NOT_TESTED_WITH_EDITED_VALUE",
+      "CONTROL_PROTOCOL_DIVERGENCE",
+      "CLAIM_EXCEEDS_ALPHA_OBSERVATION"
+    ],
+    "defect_reason_codes": [
+      "ALT_OPERATOR_DETOUR_NOT_RULED_OUT",
+      "ASSUMPTION_PRE_SAVE_STATE_INVALIDATED",
+      "CAUSAL_CHAIN_UNBOUND_AT_SAVE",
+      "CONTROL_SAVE_INPUT_MISMATCH",
+      "CLAIM_MATCHED_PAIR_NOT_ESTABLISHED"
+    ]
+  },
+  "bounded_remediation": [
+    "Apply pre-Save keyboard dismissal only in the same action that entered text.",
+    "When the prior checkpoint already dismissed the keyboard, forbid Back, reopening, and text re-entry.",
+    "Require the expected edited token in a fresh layout immediately before one Save tap; fail without repair if absent."
+  ],
+  "regression": {
+    "focused_command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/runner/test_run_spec.py tests/runner/test_journey.py",
+    "focused_passed": 71,
+    "focused_failed": 0,
+    "focused_pytest_seconds": 0.15,
+    "full_command": "/usr/bin/time -p uv run pytest -qq --disable-warnings",
+    "full_collected": 917,
+    "full_failed": 0,
+    "full_timing_seconds": {
+      "real": 30.74,
+      "user": 22.3,
+      "sys": 5.06
+    }
+  },
+  "checksum_verification": {
+    "files_including_ledgers": 374,
+    "bytes": 71612972,
+    "root_entries_passed": 371,
+    "root_entries_total": 371,
+    "control_lane_entries_passed": 182,
+    "control_lane_entries_total": 182,
+    "defect_lane_entries_passed": 182,
+    "defect_lane_entries_total": 182,
+    "root_ledger_sha256": "d02c4419a26fe401f16c61ad417b7bb929e1936b729ca747beaaf1328aad0d81",
+    "control_lane_ledger_sha256": "eb6b0ca621b4c780de2bdb762d50b2490db498d535847c822b603af620dc6273",
+    "defect_lane_ledger_sha256": "730fba6a0fb378a195177bf7048ef69c26af37454eb3410ff3af474f13ac8bef"
+  },
+  "immutability": {
+    "attempt_artifacts_modified_after_seal": false,
+    "attempt_reviews_rerun": false,
+    "replacement_attempt": false
+  }
+}

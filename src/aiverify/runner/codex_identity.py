@@ -168,6 +168,10 @@ def _validate_model_override(
     command: list[str],
 ) -> None:
     if requested_model is None:
+        if "--model" in command:
+            raise CodexIdentityError(
+                "Codex default model selection contradicts a command model override"
+            )
         return
     try:
         command_model = command[command.index("--model") + 1]

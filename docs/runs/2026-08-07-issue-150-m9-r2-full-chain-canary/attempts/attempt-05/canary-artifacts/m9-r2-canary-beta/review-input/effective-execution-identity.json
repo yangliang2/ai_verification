@@ -1,0 +1,51 @@
+{
+  "backend": "codex_cli",
+  "execution_provenance": {
+    "ref": "execution-provenance.json",
+    "sha256": "ad34ea8a870b728e1ecbde2afd54cb13ab866f5e3e67432d983b4922a5496f75"
+  },
+  "model_override_present": false,
+  "production_invocation_id": "019fdd59-87cd-7fe0-ad2b-55d5f8d7274e:019fdd59-a00a-7af2-ad27-ebec1302d136",
+  "requested_model": null,
+  "roles": {
+    "journey_driver": {
+      "invocations": [
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/m9-r2-canary-beta-segment-0/codex-invocation-identity.json",
+          "identity_sha256": "7b1c00df4acd299672a663e02c6d21025d4f9c5a0c78e6ed83afaf9baebfe77e",
+          "invocation_id": "019fdd59-87cd-7fe0-ad2b-55d5f8d7274e:019fdd59-a00a-7af2-ad27-ebec1302d136",
+          "model_override_present": false
+        }
+      ],
+      "model_override_present": false,
+      "requested_model": null,
+      "selection_policy": "codex_cli_default",
+      "status": "invoked"
+    },
+    "l3_semantic_judge": {
+      "invocations": [
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/l3-judge/l3-judge-call-1.identity.json",
+          "identity_sha256": "29b5c435a5c076a558432db907d5a4a2abd4e600a3697240a96aa13b8bd833d4",
+          "invocation_id": "019fdd5e-4c6a-7cc0-b0d3-7e514757e66d:019fdd5e-6746-7051-8d96-2e87fc29bf42",
+          "model_override_present": false
+        }
+      ],
+      "model_override_present": false,
+      "requested_model": null,
+      "selection_policy": "codex_cli_default",
+      "status": "invoked"
+    }
+  },
+  "schema_version": 1,
+  "selection_policy": "codex_cli_default",
+  "status": "complete",
+  "verdict_execution": {
+    "accounting_eligible": true,
+    "message": null,
+    "reason": null,
+    "status": "completed"
+  }
+}

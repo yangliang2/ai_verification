@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "role": "verification-agent-falsification-reviewer-v1",
+  "backend": "codex_cli",
+  "binary": {
+    "requested": "codex",
+    "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+    "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+    "version": "codex-cli 0.144.6"
+  },
+  "requested_model": null,
+  "effective_model": "gpt-5.6-sol",
+  "effective_model_source": {
+    "kind": "codex_session_turn_context",
+    "observation_sha256": "d7f5790f68919ada1d9fa573f3fde242783f5edabc642a8fe86da98336b02207",
+    "thread_id": "019fdd10-c7c8-7a52-8779-28d4d3cf0601",
+    "turn_id": "019fdd10-e28d-76f2-988c-48909e332629"
+  },
+  "source_observation": {
+    "session_meta": {
+      "id": "019fdd10-c7c8-7a52-8779-28d4d3cf0601",
+      "cwd": "/Users/peter/projects/ai_verification-m9-r2",
+      "cli_version": "0.144.6",
+      "source": "exec"
+    },
+    "turn_context": {
+      "turn_id": "019fdd10-e28d-76f2-988c-48909e332629",
+      "model": "gpt-5.6-sol"
+    }
+  },
+  "command": {
+    "argv_without_prompt": [
+      "codex",
+      "exec",
+      "--json",
+      "--output-last-message",
+      "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/preflight/review-schema-smoke/schema-smoke-1.md",
+      "--skip-git-repo-check",
+      "--sandbox",
+      "read-only",
+      "--output-schema",
+      "/Users/peter/projects/ai_verification-m9-r2/src/aiverify/bench/m9_falsification_review_schema.json",
+      "--cd",
+      "/Users/peter/projects/ai_verification-m9-r2"
+    ],
+    "prompt_sha256": "825b7b2e97a93f982bd042b57d95c864fea9fb52dcc2d37858a9d38c8813b4a2"
+  }
+}

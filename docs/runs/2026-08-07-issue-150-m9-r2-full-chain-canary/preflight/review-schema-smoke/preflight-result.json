@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-07T16:32:17Z",
+  "status": "passed",
+  "scope": {
+    "transport_only": true,
+    "denominator_member": false,
+    "oracle_input": false,
+    "formal_qualification_eligible": false
+  },
+  "invocation": {
+    "provider": "CodexCliProvider",
+    "role": "verification-agent-falsification-reviewer-v1",
+    "requested_model": null,
+    "selection_policy": "codex_cli_default",
+    "model_override_present": false,
+    "effective_model": "gpt-5.6-sol",
+    "codex_version": "codex-cli 0.144.6",
+    "exit_code": 0,
+    "real_seconds": 27.3,
+    "user_seconds": 0.93,
+    "sys_seconds": 0.8
+  },
+  "schema": {
+    "path": "src/aiverify/bench/m9_falsification_review_schema.json",
+    "sha256": "7e585b0606f296c03a4f0b669627d293ed3537980b11ccf25c44fbe03fc64f82"
+  },
+  "output": {
+    "ref": "schema-smoke-1.md",
+    "sha256": "2c4aaa7132118531283c6f6eea9cd7c2cb2627459830694927d6236120a733b1",
+    "outcome": "survived",
+    "dimension_count": 6
+  },
+  "validation_command": "uv run python -c '<load result and schema; jsonschema.validate; assert outcome survived; assert six dimensions>'",
+  "validation_result": "schema validation: PASS; dimensions=6; outcome=survived",
+  "claim_boundary": "This proves only that the Codex CLI accepted the response schema and returned conforming JSON. It is not a falsification review of a product lane."
+}

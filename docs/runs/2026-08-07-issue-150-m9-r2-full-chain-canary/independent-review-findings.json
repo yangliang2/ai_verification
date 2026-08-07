@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "issue": 150,
+  "fixed_point": "76fb6730f065e6e4087ae0032e3edb780104807e",
+  "reviewed_head": "96d00b85b5da869adbd431da27d1dd2b3018fea6",
+  "status": "passed",
+  "standards": {
+    "high": [
+      {
+        "finding": "The run root lacked a durable README, verification/build record, all-attempt inventory, and root checksum ledger.",
+        "resolution": "Run-root records are being added and will be checksum-sealed after the fresh attempt and confirmation reviews."
+      }
+    ],
+    "medium": [
+      {
+        "finding": "Post-setup failure paths omitted runner-setup.json from the terminal ExecutionRecord evidence map.",
+        "resolution": "Every setup, interrupted journey, oracle, identity, and output failure now binds an existing runner setup receipt; setup exceptions also emit a failed receipt."
+      },
+      {
+        "finding": "CodexCliProvider artifact_prefix could escape artifact_dir with an absolute path or parent traversal.",
+        "resolution": "The prefix is restricted to a 1-64 character conservative filename token with regression tests."
+      }
+    ],
+    "low": [
+      {
+        "finding": "The R2 executor is a broad orchestration module and should not become the formal-execution template without decomposition.",
+        "resolution": "Recorded as a maintainability follow-up; no behavior is duplicated into R4 from this canary-only module."
+      }
+    ]
+  },
+  "spec": {
+    "high": [
+      {
+        "finding": "Attempt 04 Falsification Reviews were role-contaminated by the allowlisted neutral-fixture-binding.json bytes.",
+        "resolution": "Attempt 04 is preserved and invalidated. A dedicated sanitized reviewer workspace plus byte-level allowlist audit gates fresh attempt 05."
+      },
+      {
+        "finding": "The required run-level audit record was absent.",
+        "resolution": "README, structured verification/build results, review record, attempt inventory, and a root checksum ledger are being committed."
+      }
+    ],
+    "medium": [
+      {
+        "finding": "Reconciliation did not bind exact terminal ExecutionRecords/review receipts and per-lane reconciliation omitted canary-only flags.",
+        "resolution": "Both exact receipt hashes and non-formal flags are now required in lane and root reconciliation artifacts."
+      },
+      {
+        "finding": "The canary re-read the frozen #136 contradiction artifact while declaring the old population uninvolved.",
+        "resolution": "Each future R2 attempt creates and audits a fresh R2-owned incomplete contradiction packet; #136/#137 are not read or invoked."
+      }
+    ]
+  },
+  "attempt_05_confirmation": {
+    "review_input_isolation": "passed",
+    "runtime_chain": "24/24 checks passed across two accountable lanes",
+    "runtime_observation": "control rejected and defect supported",
+    "review_result": "0/2 survived; authoritative ready_for_r3=false",
+    "diagnosis": "attempt-05-diagnosis.json"
+  },
+  "attempt_06": {
+    "result": "sealed_non_accountable_canary",
+    "primary_failure": "Android CLI version capture timeout",
+    "secondary_failure": "incomplete lane entered reviewer-evidence packaging",
+    "diagnosis": "attempt-06-diagnosis.json"
+  },
+  "attempt_07": {
+    "result": "sealed_non_ready_canary",
+    "runtime_chain": "24/24 checks passed across two accountable lanes",
+    "review_input_isolation": "75/75 files passed per lane with zero disclosures",
+    "source_identity_boundary": "passed in both lanes",
+    "primary_failure": "unconditional pre-Save Back discarded the control edit",
+    "reviews": "0/2 survived",
+    "diagnosis": "attempt-07-diagnosis.json"
+  },
+  "attempt_08": {
+    "result": "ready_for_fresh_qualification_packet",
+    "runtime_chain": "24/24 checks passed across two accountable lanes",
+    "runtime_observation": "control rejected and defect supported",
+    "review_input_isolation": "75/75 files passed per lane with zero disclosures",
+    "source_identity_boundary": "passed in both lanes",
+    "reviews": "2/2 survived; 12/12 dimensions supported",
+    "attempt_retries": 0,
+    "replacements": 0,
+    "frozen_commit": "0d4d0350cd9c36ff292f95c3ca57e852ca3084d1"
+  },
+  "confirmation_review": {
+    "fixed_point": "76fb6730f065e6e4087ae0032e3edb780104807e",
+    "reviewed_head": "96d00b85b5da869adbd431da27d1dd2b3018fea6",
+    "standards": {
+      "initial_outcome": "challenged",
+      "blocking_findings": 1,
+      "finding": "runner-setup.json was an owned checksum-bound output but was not reserved by admission or ExecutionRecord freshness gates",
+      "resolution": "Both gates now reject a pre-existing runner-setup.json before preflight or device action, with stale-byte preservation regressions.",
+      "confirmation_outcome": "passed",
+      "remaining_blockers": 0,
+      "focused_verification": "81/81 passed in 1.65s; reviewer recheck 9/9 passed"
+    },
+    "spec": {
+      "initial_substantive_findings": 0,
+      "initial_mechanical_finding": "Record the completed confirmation reviews and reseal the run root before merge.",
+      "post_fix_outcome": "passed",
+      "remaining_blockers": 0,
+      "impact": "The freshness delta is monotonic fail-closed hardening; attempt 08 is unchanged and remains valid."
+    }
+  },
+  "gate": "complete"
+}

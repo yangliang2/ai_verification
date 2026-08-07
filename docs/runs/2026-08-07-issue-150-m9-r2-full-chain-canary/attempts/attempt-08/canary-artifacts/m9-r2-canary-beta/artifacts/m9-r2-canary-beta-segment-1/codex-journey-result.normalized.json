@@ -1,0 +1,16 @@
+{
+  "journey": "m9-r2-canary-beta-segment-1",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Fresh layout showed Edit Task with r2b1 visible and Save task at [975,2232]. Save was tapped exactly once. The next fresh layout showed the All Tasks list; it displayed the old title r2b0. The task was not reopened.",
+      "action": "With Edit Task still open and the keyboard already dismissed at the prior checkpoint, do not press Back, reopen the editor, or re-enter text; verify r2b1 remains visible, locate Save task in a fresh layout, tap it exactly once, wait for the task list, and do not reopen the task yet"
+    }
+  ]
+}

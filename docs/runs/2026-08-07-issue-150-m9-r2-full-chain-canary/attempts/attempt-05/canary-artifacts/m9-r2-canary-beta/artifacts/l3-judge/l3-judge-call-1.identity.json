@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "role": "l3_semantic_judge",
+  "backend": "codex_cli",
+  "binary": {
+    "requested": "codex",
+    "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+    "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+    "version": "codex-cli 0.144.6"
+  },
+  "requested_model": null,
+  "effective_model": "gpt-5.6-sol",
+  "effective_model_source": {
+    "kind": "codex_session_turn_context",
+    "observation_sha256": "436dbdcef2df3a4aebacf117b9d6b9df7c70c0b5f5f06e27421f510e2112f556",
+    "thread_id": "019fdd5e-4c6a-7cc0-b0d3-7e514757e66d",
+    "turn_id": "019fdd5e-6746-7051-8d96-2e87fc29bf42"
+  },
+  "source_observation": {
+    "session_meta": {
+      "id": "019fdd5e-4c6a-7cc0-b0d3-7e514757e66d",
+      "cwd": "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-beta",
+      "cli_version": "0.144.6",
+      "source": "exec"
+    },
+    "turn_context": {
+      "turn_id": "019fdd5e-6746-7051-8d96-2e87fc29bf42",
+      "model": "gpt-5.6-sol"
+    }
+  },
+  "command": {
+    "argv_without_prompt": [
+      "codex",
+      "exec",
+      "--json",
+      "--output-last-message",
+      "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-05/canary-artifacts/m9-r2-canary-beta/artifacts/l3-judge/l3-judge-call-1.md",
+      "--skip-git-repo-check",
+      "--sandbox",
+      "read-only",
+      "--cd",
+      "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-beta"
+    ],
+    "prompt_sha256": "0ac0defa775b5b76eaa392c5aa43bc03abdf68e58a8a1c9df1fa4532864273f4"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "clear_performed": true,
+  "clear_result": {
+    "command": [
+      "adb",
+      "-s",
+      "emulator-5554",
+      "shell",
+      "pm",
+      "clear",
+      "com.example.android.architecture.blueprints.main"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "Success\n"
+  },
+  "identity": {
+    "device_serial": "emulator-5554",
+    "package": "com.example.android.architecture.blueprints.main"
+  },
+  "installed_paths": [
+    "/data/app/~~ybLSlVOHlvrbRArsuGtZSQ==/com.example.android.architecture.blueprints.main-hSBh3r2O3sFNj-4OiHCnlw==/base.apk"
+  ],
+  "presence_query": {
+    "command": [
+      "adb",
+      "-s",
+      "emulator-5554",
+      "shell",
+      "pm",
+      "path",
+      "com.example.android.architecture.blueprints.main"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "package:/data/app/~~ybLSlVOHlvrbRArsuGtZSQ==/com.example.android.architecture.blueprints.main-hSBh3r2O3sFNj-4OiHCnlw==/base.apk\n"
+  },
+  "schema_version": 1,
+  "status": "cleared"
+}

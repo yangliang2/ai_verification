@@ -1,0 +1,142 @@
+{
+  "deployment": {
+    "device": {
+      "api_level": "35",
+      "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+      "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8",
+      "profile": {
+        "device": "emu64a",
+        "kind": "emulator",
+        "model": "sdk_gphone64_arm64",
+        "name": "aiverify_api35"
+      },
+      "serial": "emulator-5554"
+    },
+    "installation_reported_successful": true,
+    "installed_artifact_count": 1,
+    "resolved_component": "com.example.android.architecture.blueprints.main/com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "returncode": 0,
+    "source_and_installed_apk_match": true,
+    "target": {
+      "component": "com.example.android.architecture.blueprints.main/com.example.android.architecture.blueprints.todoapp.TodoActivity",
+      "device": "emulator-5554",
+      "package": "com.example.android.architecture.blueprints.main"
+    },
+    "tools": {
+      "adb_sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+      "android_cli_sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc"
+    }
+  },
+  "device": {
+    "api_level": "35",
+    "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8",
+    "profile": {
+      "device": "emu64a",
+      "kind": "emulator",
+      "model": "sdk_gphone64_arm64",
+      "name": "aiverify_api35"
+    },
+    "serial": "emulator-5554"
+  },
+  "full_provenance_binding": {
+    "bytes": 8326,
+    "sha256": "b8f08e55e7607534b5c5b3a45fc7a9a9453814a310901b242c27ddfc54bfcb94"
+  },
+  "roles": {
+    "journey_driver": {
+      "invocation_ledger": [],
+      "invocations": [
+        {
+          "path": "artifacts/m9-r2-canary-beta-segment-0/codex-invocation-identity.json",
+          "sha256": "611b9ada1a4c3be85214f24ab6e616e221b458a9abf50f96c00c823c47a28b41"
+        },
+        {
+          "path": "artifacts/m9-r2-canary-beta-segment-1/codex-invocation-identity.json",
+          "sha256": "c6e00aa63e97a40c0866ab7b88040ff7ce70b6f5e36bbaa41249a18f96a796d3"
+        },
+        {
+          "path": "artifacts/m9-r2-canary-beta-segment-2/codex-invocation-identity.json",
+          "sha256": "8ecfa689d14a1f817cf0f30ab4339d276452e009a2b5f54a189862f949756977"
+        }
+      ],
+      "requested_model": null,
+      "status": "invoked"
+    },
+    "l3_semantic_judge": {
+      "invocation_ledger": [
+        {
+          "path": "artifacts/l3-judge/l3-judge-call-1.invocation.json",
+          "sha256": "78ac4dd778b793172d7f3cc53e66ee5467d06a5cd704a87e4205589fc7992e59"
+        }
+      ],
+      "invocations": [
+        {
+          "path": "artifacts/l3-judge/l3-judge-call-1.identity.json",
+          "sha256": "bafddf25e8f1820961562fe8b75573bf14d3e31b3d26b181de1ad39bedfb6fc8"
+        }
+      ],
+      "requested_model": null,
+      "status": "invoked"
+    }
+  },
+  "run_spec": {
+    "activity": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "consumed_sha256": "181300aaf2e53a6b8855bef972fd65f27faea8f20752c60689b956eb7a3a705c",
+    "package": "com.example.android.architecture.blueprints.main",
+    "scenario": "m9-r2-canary-beta",
+    "snapshot_sha256": "181300aaf2e53a6b8855bef972fd65f27faea8f20752c60689b956eb7a3a705c"
+  },
+  "schema_version": 2,
+  "source_admission_binding": {
+    "bytes": 4078,
+    "sha256": "5e3188868fce504223ef9ebfe2403b5368f2c2d2267c6d936ad653ef40b94d57"
+  },
+  "source_identity_disclosed": false,
+  "source_role_disclosed": false,
+  "source_verification": {
+    "admission_passed": true,
+    "run_spec_snapshot_matches_consumed": true,
+    "source_artifact_count": 1,
+    "source_identity_verified": true,
+    "worktree_clean_at_capture": true
+  },
+  "status": "sanitized_for_role_blind_review",
+  "tools": {
+    "adb": {
+      "identity_sha256": "38a82d1bcccaed89f0701833718dcde923cfde9a6080b8c42a1b5a5b6d341987",
+      "requested": "adb",
+      "resolved_path": "/opt/homebrew/Caskroom/android-platform-tools/37.0.0/platform-tools/adb",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+      "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)"
+    },
+    "android_cli": {
+      "identity_sha256": "234115eb377fbc59cb1c243bd769f30ef049f64186491c700e78be4301d450e8",
+      "requested": "android",
+      "resolved_path": "/Users/peter/.local/bin/android",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "version": "1.0.15498356"
+    },
+    "codex_cli": {
+      "identity_sha256": "8f26cbfe1000bcab862ab5b0c2d031763463c84daecccc82ed204e108cb40079",
+      "requested": "codex",
+      "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+      "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+      "version": "codex-cli 0.144.6"
+    },
+    "git": {
+      "identity_sha256": "fddd0e696681e24d624b01cfe9665a4a0d2ba4cb9f91e09874320cc632784f9c",
+      "requested": "git",
+      "resolved_path": "/usr/bin/git",
+      "sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb",
+      "version": "git version 2.50.1 (Apple Git-155)"
+    },
+    "python": {
+      "identity_sha256": "b72e1fc777a3f4289e1033343f7f42d4dfdc0c801f5bc07e866481b9058cd960",
+      "requested": "/Users/peter/projects/ai_verification-m9-r2/.venv/bin/python3",
+      "resolved_path": "/Users/peter/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11",
+      "sha256": "4c78423e7d5986362ac04df40edb18cdd1174f9818d653402e3abbd2a5bbf793",
+      "version": "3.11.15"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "backend": "codex_cli",
+  "execution_provenance": {
+    "ref": "execution-provenance.json",
+    "sha256": "ac7546421ef50589bccfb5ec1006d28e7755c1c6546c2521b3eb5d7c8046a613"
+  },
+  "model_override_present": false,
+  "production_invocation_id": "019fdd12-52ce-7233-b52e-e918ea033247:019fdd12-6c0b-78c3-b28c-73056a3185ab",
+  "requested_model": null,
+  "roles": {
+    "journey_driver": {
+      "invocations": [
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/m9-r2-canary-alpha-segment-0/codex-invocation-identity.json",
+          "identity_sha256": "75cf0efa11323cdfe71971aa441de7c514754cd20d086b4bcb206e419643f6fc",
+          "invocation_id": "019fdd12-52ce-7233-b52e-e918ea033247:019fdd12-6c0b-78c3-b28c-73056a3185ab",
+          "model_override_present": false
+        }
+      ],
+      "model_override_present": false,
+      "requested_model": null,
+      "selection_policy": "codex_cli_default",
+      "status": "invoked"
+    },
+    "l3_semantic_judge": {
+      "invocations": [
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/l3-judge/l3-judge-call-1.identity.json",
+          "identity_sha256": "286947db4ddf0efe0555a00d8387b4ac5eb96ec216190ce36bbbe322be273876",
+          "invocation_id": "019fdd17-bc14-7431-bd99-12bb713c3e66:019fdd17-d41d-75b3-beaf-1c89815f3cdd",
+          "model_override_present": false
+        }
+      ],
+      "model_override_present": false,
+      "requested_model": null,
+      "selection_policy": "codex_cli_default",
+      "status": "invoked"
+    }
+  },
+  "schema_version": 1,
+  "selection_policy": "codex_cli_default",
+  "status": "complete",
+  "verdict_execution": {
+    "accounting_eligible": true,
+    "message": null,
+    "reason": null,
+    "status": "completed"
+  }
+}

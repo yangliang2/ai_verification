@@ -512,7 +512,13 @@ class ExecutionIdentityCollector:
         result = self.runner.run(version_args, timeout_seconds=30)
         version = (result.stdout or result.stderr).strip()
         if result.returncode != 0 or not version:
-            raise ExecutionIdentityError(f"tool version is unavailable: {requested}")
+            stdout = result.stdout.strip() or "<empty>"
+            stderr = result.stderr.strip() or "<empty>"
+            raise ExecutionIdentityError(
+                f"tool version is unavailable: {requested}; "
+                f"returncode={result.returncode}; stdout={stdout!r}; "
+                f"stderr={stderr!r}"
+            )
         return {
             "requested": requested,
             "resolved_path": str(path),
@@ -1096,6 +1102,10 @@ def _validate_role_receipt(
             raise ExecutionIdentityError("role model override is absent from command") from error
         if command_model != requested_model:
             raise ExecutionIdentityError("role command model contradicts runner input")
+    elif "--model" in argv:
+        raise ExecutionIdentityError(
+            "role default model selection contradicts a command model override"
+        )
 
 
 def _verify_l3_ledger(

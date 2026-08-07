@@ -1,0 +1,16 @@
+{
+  "journey": "m9-r2-canary-beta-segment-2",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 315 552",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Fresh layout showed the unique task r2b0 at [315,552]. The tap was dispatched successfully, and the subsequent layout showed Task Details with title r2b0 and description bdesc.",
+      "action": "Reopen the same uniquely created task by tapping it, even if the displayed title is r2b0 rather than r2b1"
+    }
+  ]
+}
