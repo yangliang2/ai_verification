@@ -1,0 +1,75 @@
+{
+  "schema_version": 2,
+  "attempt_id": "7a5b85c1-1152-4f23-b1f0-ba5495822c20",
+  "scenario": "m9-r2-canary-alpha",
+  "lifecycle_state": "completed",
+  "started_at": "2026-08-07T16:33:05+00:00",
+  "finished_at": "2026-08-07T16:39:41+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 0
+  },
+  "timing": {
+    "started_at": "2026-08-07T16:33:05+00:00",
+    "finished_at": "2026-08-07T16:39:41+00:00",
+    "total_seconds": 396.277,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.699
+      },
+      {
+        "phase": "m9-r2-canary-alpha-segment-0",
+        "kind": "journey",
+        "seconds": 336.678
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.878
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "process_death",
+        "seconds": 12.159
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 2.925
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 33.413
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "live_validation_gate": "live-validation-gate.json",
+    "verdict": "verdict.json",
+    "journey_results": [
+      "artifacts/m9-r2-canary-alpha-segment-0/codex-journey-result.normalized.json"
+    ],
+    "checkpoints": [
+      "artifacts/after-segment-0",
+      "artifacts/after-event-0"
+    ],
+    "system_events": [
+      "artifacts/system-event-0/event.json"
+    ],
+    "execution_provenance": {
+      "path": "execution-provenance.json",
+      "sha256": "ac7546421ef50589bccfb5ec1006d28e7755c1c6546c2521b3eb5d7c8046a613"
+    },
+    "runner_setup": "runner-setup.json"
+  }
+}
