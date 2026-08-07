@@ -5,7 +5,9 @@ Spec review invalidated attempt 04 because reviewer-visible bytes disclosed
 the historical defect source. Attempt 05 fixed that isolation and completed
 both accountable runtime lanes, but both clean-context reviewers challenged
 the evidence contract. Its `ready_for_r3=false` result is authoritative.
-Bounded remediation is committed before a fresh attempt 06.
+Attempt 06 then failed non-accountably during static Android CLI identity
+capture and is also sealed. A fail-closed packaging correction is committed
+before fresh attempt 07.
 
 The run is explicitly `non_holdout_canary=true`,
 `formal_qualification_eligible=false`, and `formal_denominator=false`. It does
@@ -98,7 +100,8 @@ from every formal denominator. No attempt was retried or replaced in place.
 | 03 | 1043.30s | failure | Both runtime lanes completed accountably, but the control review cited a context file outside its allowlist. The rejected review also exposed missing peer semantic/provenance context. |
 | 04 | 1364.275s | runtime pass, review invalid | Two accountable runtime lanes and expected observed behavior; reviewer inputs were role-contaminated, so independent review rejects `ready_for_r3=true`. |
 | 05 | 1487.582s | blocked | Two accountable lanes and expected runtime behavior, but both clean-context reviews challenged: the role-blind derivative emitted a false APK mismatch, and the defect lane lacked a raw pre-save checkpoint. |
-| 06 | pending | pending | Fresh future-only evidence-contract attempt; no prior attempt is resumed, rewritten, or re-reviewed. |
+| 06 | 31.10s | failure | Android CLI printed version `1.0.15498356` but did not exit within the 30-second identity bound; the lane was non-accountable. A secondary packaging path then obscured that reason by requiring absent execution provenance. |
+| 07 | pending | pending | Fresh future-only evidence-contract attempt; no prior attempt is resumed, rewritten, or re-reviewed. |
 
 The bounded remediations were limited to future attempts: use a clean defect
 commit with the recovered tree, bound text replacement after the first
@@ -117,6 +120,33 @@ Artifact inventories and ledgers:
 | attempt 03 | 112 | 12,275,134 | 109/109 |
 | attempt 04 | 171 | 19,173,187 | 168/168 |
 | attempt 05 | 202 | 21,350,210 | 199/199 root; 96/96 per lane |
+| attempt 06 | 15 | 17,785 | 13/13 root; 9/9 control lane |
+
+## Early identity failure (attempt 06)
+
+Exact command:
+
+```text
+/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary \
+  --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-06 \
+  --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-06 \
+  --first-input /private/tmp/m9-r1-canary-recovery/control \
+  --second-input /private/tmp/m9-r1-canary-recovery/defect \
+  --device emulator-5554
+```
+
+The control lane terminated during `execution-identity-capture` after 30.444
+seconds. Android CLI emitted the expected version but timed out with return
+code 124, so the runner correctly classified execution as non-accountable.
+The R2 wrapper then attempted to derive reviewer provenance that could not
+exist for an identity-stage failure, producing a secondary `FileNotFoundError`.
+The root terminal receipt records `ready_for_r3=false` and
+`rerun_of_this_attempt_permitted=false`.
+
+Future-only remediation leaves strict identity admission unchanged and stops a
+non-accountable lane before reviewer-evidence packaging, preserving the
+original terminal reason. The structured diagnosis is
+[`attempt-06-diagnosis.json`](attempt-06-diagnosis.json).
 
 ## Blocked full-chain execution (attempt 05)
 
@@ -243,24 +273,22 @@ the rejection receipt SHA-256 is
 
 ## Verification
 
-Focused post-attempt-05 remediation regression:
+Focused post-attempt-06 fail-closed regression:
 
 ```text
 /usr/bin/time -p uv run pytest -q -o addopts='' \
   tests/bench/test_m9_recovery_canary.py \
-  tests/runner/test_run_spec.py \
-  tests/runner/test_journey.py \
-  tests/runner/test_cli.py
-→ 111 passed, 0 failed in 0.25s.
-→ real 0.38s; user 0.22s; sys 0.10s.
+  tests/runner/test_execution_identity.py
+→ 21 passed, 0 failed in 0.59s.
+→ real 0.71s; user 0.38s; sys 0.25s.
 ```
 
 Full suite:
 
 ```text
 /usr/bin/time -p uv run pytest -qq --disable-warnings
-→ 914 passed, 0 failed.
-→ real 32.19s; user 23.37s; sys 5.96s.
+→ 916 passed, 0 failed.
+→ real 32.92s; user 23.58s; sys 5.98s.
 ```
 
 Static/source checks:
@@ -284,7 +312,8 @@ Android in committed raw `logcat.txt` captures. Those source-faithful evidence
 bytes are checksum-bound and were not normalized. No authored source, test,
 specification, or package file failed the scoped check.
 
-Package build:
+Checkpoint package build (before the attempt-06 fail-closed wrapper change;
+final rebuild pending):
 
 ```text
 /usr/bin/time -p uv build --out-dir /private/tmp/m9-r2-build.buror6
@@ -394,6 +423,8 @@ after R2 and is forbidden from R3, R4, R5, or any future formal conclusion.
   enter a formal denominator.
 - Attempt 05 is authoritative non-ready evidence. Its reviews were not rerun,
   and its artifacts were not rewritten after diagnosis.
+- Attempt 06 is an authoritative non-accountable failure. It was not rerun or
+  replaced; its future-only correction affects attempt 07.
 - The external build archives and canary fixture worktrees are reproducible
   but disposable.
 - Raw Android logcat captures preserve device-emitted trailing whitespace.

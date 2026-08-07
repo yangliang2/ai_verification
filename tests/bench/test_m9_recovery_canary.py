@@ -25,6 +25,7 @@ from aiverify.bench.m9_recovery_canary import (
     _review_contract,
     _review_input_audit,
     _review_prompt,
+    _require_accountable_runtime,
     _write_review_safe_provenance,
 )
 from aiverify.discovery import Finding, FalsificationReviewerIdentity
@@ -611,6 +612,47 @@ def test_oracle_conclusion_is_terminal_and_fail_closed() -> None:
             }
         )
         == "inconclusive"
+    )
+
+
+def test_non_accountable_runtime_stops_before_evidence_packaging() -> None:
+    execution = {
+        "status": "non_accountable",
+        "accounting_eligible": False,
+        "reason": "execution_identity_error",
+        "message": "tool version is unavailable: android; returncode=124",
+    }
+
+    with pytest.raises(
+        M9RecoveryCanaryError,
+        match=(
+            "m9-r2-canary-alpha runtime is non-accountable: "
+            "execution_identity_error: tool version is unavailable"
+        ),
+    ):
+        _require_accountable_runtime(
+            "m9-r2-canary-alpha",
+            {"execution": execution},
+            {
+                "lifecycle_state": "failed",
+                "execution": execution,
+            },
+        )
+
+
+def test_accountable_runtime_can_enter_evidence_packaging() -> None:
+    execution = {
+        "status": "completed",
+        "accounting_eligible": True,
+    }
+
+    _require_accountable_runtime(
+        "m9-r2-canary-alpha",
+        {"execution": execution},
+        {
+            "lifecycle_state": "completed",
+            "execution": execution,
+        },
     )
 
 

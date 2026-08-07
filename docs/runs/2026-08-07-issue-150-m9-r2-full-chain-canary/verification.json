@@ -2,7 +2,7 @@
   "schema_version": 1,
   "issue": 150,
   "stage": "M9-R2",
-  "status": "blocked_pending_attempt_06",
+  "status": "blocked_pending_attempt_07",
   "fixed_point": {
     "origin_main": "76fb6730f065e6e4087ae0032e3edb780104807e",
     "reviewed_implementation_head": "43b471e0b7d9741fabeaae842741245d4a966df2",
@@ -124,28 +124,43 @@
       "control_lane_checksum_entries_total": 96,
       "defect_lane_checksum_entries_passed": 96,
       "defect_lane_checksum_entries_total": 96
+    },
+    {
+      "attempt_id": "attempt-06",
+      "status": "terminal_failure",
+      "wall_duration_seconds": 31.1,
+      "first_failure": "Android CLI static identity command timed out after reporting version 1.0.15498356",
+      "secondary_failure": "R2 reviewer-evidence packaging required execution provenance that cannot exist after identity-stage failure",
+      "accountable_lanes": 0,
+      "files_including_ledger": 15,
+      "bytes": 17785,
+      "checksum_entries_passed": 13,
+      "checksum_entries_total": 13,
+      "control_lane_checksum_entries_passed": 9,
+      "control_lane_checksum_entries_total": 9,
+      "rerun_permitted": false
     }
   ],
   "focused_tests": {
-    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/runner/test_run_spec.py tests/runner/test_journey.py tests/runner/test_cli.py",
-    "passed": 111,
+    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/runner/test_execution_identity.py",
+    "passed": 21,
     "failed": 0,
-    "pytest_duration_seconds": 0.25,
+    "pytest_duration_seconds": 0.59,
     "timing_seconds": {
-      "real": 0.38,
-      "user": 0.22,
-      "sys": 0.1
+      "real": 0.71,
+      "user": 0.38,
+      "sys": 0.25
     }
   },
   "full_tests": {
     "command": "/usr/bin/time -p uv run pytest -qq --disable-warnings",
-    "passed": 914,
+    "passed": 916,
     "failed": 0,
     "pytest_duration_seconds": null,
     "timing_seconds": {
-      "real": 32.19,
-      "user": 23.37,
-      "sys": 5.96
+      "real": 32.92,
+      "user": 23.58,
+      "sys": 5.98
     }
   },
   "static_checks": [
@@ -176,8 +191,9 @@
   },
   "known_gaps": [
     "attempt 04 reviewer inputs disclosed the historical defect source; its review and readiness result are invalid",
-    "attempt 05 is authoritative non-ready evidence; its artifacts and reviews remain immutable while remediation applies only to attempt 06",
-    "attempt 06 remains required before R2 can claim readiness for R3",
+    "attempt 05 is authoritative non-ready evidence; its artifacts and reviews remain immutable while its remediation applies only to later fresh attempts",
+    "attempt 06 failed non-accountably during transient Android CLI identity capture and remains immutable",
+    "attempt 07 remains required before R2 can claim readiness for R3",
     "raw Android logcat evidence preserves device-emitted trailing whitespace and is excluded from the authored-source diff whitespace check",
     "external fixture worktrees and package build archives are reproducible but disposable",
     "this historical canary cannot qualify a fresh cohort or support M9 Supported"

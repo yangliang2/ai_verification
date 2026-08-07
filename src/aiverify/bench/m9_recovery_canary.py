@@ -880,6 +880,33 @@ def _accountable(
     )
 
 
+def _require_accountable_runtime(
+    lane_id: str,
+    verdict: Mapping[str, Any],
+    record: Mapping[str, Any],
+) -> None:
+    """Stop an incomplete lane before evidence packaging obscures its cause."""
+
+    if _accountable(verdict, record):
+        return
+    execution = record.get("execution")
+    if not isinstance(execution, Mapping):
+        execution = verdict.get("execution")
+    reason = (
+        execution.get("reason", "unknown")
+        if isinstance(execution, Mapping)
+        else "missing_execution_status"
+    )
+    message = (
+        execution.get("message", "no terminal message")
+        if isinstance(execution, Mapping)
+        else "no terminal message"
+    )
+    raise M9RecoveryCanaryError(
+        f"{lane_id} runtime is non-accountable: {reason}: {message}"
+    )
+
+
 def _make_finding(
     lane_id: str,
     conclusion: str,
@@ -961,11 +988,12 @@ def _execute_runtime_lane(
     duration = round(time.monotonic() - started, 3)
     record = load_execution_record(lane_dir / "execution-record.json")
     identity = _write_effective_identity(lane_dir, verdict)
+    _require_accountable_runtime(variant.lane_id, verdict, record)
     raw_refs = _copy_raw_evidence(lane_dir)
     conclusion = _oracle_conclusion(verdict)
     finding = _make_finding(variant.lane_id, conclusion, raw_refs)
     _write_json(lane_dir / "finding.json", finding.to_dict())
-    accountable = _accountable(verdict, record)
+    accountable = True
     observation = {
         "schema_version": 1,
         "lane_id": variant.lane_id,

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "issue": 150,
+  "stage": "M9-R2",
+  "attempt": "attempt-06",
+  "classification": "sealed_non_accountable_canary",
+  "ready_for_r3": false,
+  "formal_denominator": false,
+  "formal_qualification_eligible": false,
+  "wall_duration_seconds": 31.1,
+  "primary_failure": {
+    "phase": "execution-identity-capture",
+    "lane": "m9-r2-canary-alpha",
+    "duration_seconds": 30.444,
+    "reason": "execution_identity_error",
+    "message": "Android CLI version capture timed out with returncode=124 after stdout reported 1.0.15498356.",
+    "accountable": false
+  },
+  "secondary_failure": {
+    "phase": "review-evidence-packaging",
+    "type": "FileNotFoundError",
+    "message": "The R2 wrapper required execution-provenance.json even though identity capture had terminated before that artifact could exist.",
+    "effect": "The root exception obscured, but did not alter, the original non-accountable ExecutionRecord."
+  },
+  "bounded_remediation": [
+    "Keep the strict static identity requirement and its 30-second command bound unchanged.",
+    "Inspect the terminal ExecutionRecord immediately after the runner returns.",
+    "Stop any non-accountable lane with its recorded reason before raw/reviewer evidence packaging."
+  ],
+  "regression": {
+    "focused_command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/runner/test_execution_identity.py",
+    "focused_passed": 21,
+    "focused_failed": 0,
+    "focused_pytest_seconds": 0.59,
+    "full_command": "/usr/bin/time -p uv run pytest -qq --disable-warnings",
+    "full_collected": 916,
+    "full_failed": 0,
+    "full_timing_seconds": {
+      "real": 32.92,
+      "user": 23.58,
+      "sys": 5.98
+    }
+  },
+  "checksum_verification": {
+    "files_including_ledgers": 15,
+    "bytes": 17785,
+    "root_entries_passed": 13,
+    "root_entries_total": 13,
+    "control_lane_entries_passed": 9,
+    "control_lane_entries_total": 9,
+    "root_ledger_sha256": "db6e79358c2bf3e10da144e6be1b60d46888f691c17030556837e053dbe65cc6",
+    "control_lane_ledger_sha256": "cbbfe276dde66b71193b6569adc2960f639d2e3994ae7e136ce4f3b1d302edaa"
+  },
+  "immutability": {
+    "attempt_artifacts_modified_after_seal": false,
+    "rerun_of_this_attempt_permitted": false,
+    "replacement_attempt": false
+  }
+}
