@@ -77,12 +77,14 @@ from aiverify.discovery.falsification_review import (
     REVIEW_DIMENSIONS,
     reconcile_finding,
 )
+from aiverify.harness.device.controller import DeviceController
 from aiverify.runner.admission import (
     AdmissionResult,
     PlannedRunnerOptions,
     admit_production_seam,
     write_admission_receipt,
 )
+from aiverify.runner.package_reset import PackageResetError, reset_package_data
 from aiverify.runner.cli import run as run_spec
 from aiverify.runner.execution_record import ExecutionRecordStore, load_execution_record
 from aiverify.runner.run_spec import load_run_spec
@@ -822,32 +824,26 @@ def _prepare_fixture(
     return fixture_root
 
 
-def _clear_package(lane_dir: Path) -> None:
-    result = _command(
-        ["adb", "-s", "emulator-5554", "shell", "pm", "clear", PACKAGE],
-        timeout=60,
-    )
-    if (
-        result["returncode"] != 0
-        and str(result.get("stdout", "")).strip() == "Failed"
-        and not str(result.get("stderr", "")).strip()
-    ):
-        # Android's pm clear returns the plain word "Failed" when the package
-        # is not installed.  That is an already-clean first-lane state, not a
-        # reason to consume an attempt as a device failure.
-        _write_json(
-            lane_dir / "package-clear.json",
-            {
-                "schema_version": 1,
-                "status": "not_installed_before_run",
-                "clear_performed": False,
-                "command_result": result,
-            },
+def _clear_package(
+    lane_dir: Path,
+    *,
+    device_serial: str = "emulator-5554",
+    package: str = PACKAGE,
+    controller: DeviceController | None = None,
+) -> None:
+    """Future-only package reset; the frozen #137 population is not rerun."""
+
+    active_controller = controller or DeviceController(serial=device_serial)
+    try:
+        result = reset_package_data(
+            controller=active_controller,
+            device_serial=device_serial,
+            package=package,
         )
-        return
-    _write_json(lane_dir / "package-clear.json", result)
-    if result["returncode"] != 0:
-        raise M9FormalExecutionError(f"package clear failed for lane: {result['stderr']}")
+    except PackageResetError as error:
+        _write_json(lane_dir / "package-clear.json", error.result.to_dict())
+        raise M9FormalExecutionError(str(error)) from error
+    _write_json(lane_dir / "package-clear.json", result.to_dict())
 
 
 def _load_invocation_model(lane_dir: Path, role: Mapping[str, Any]) -> str | None:
@@ -1492,7 +1488,6 @@ def _execute_lane(
     write_admission_receipt(admission, admission_path)
     if not admission.admitted:
         raise M9FormalExecutionError(f"{lane_id} production admission failed: {admission.reasons}")
-    _clear_package(lane_dir)
     started = time.monotonic()
     run_result = run_spec(
         spec,
@@ -1508,6 +1503,11 @@ def _execute_lane(
         admission_receipt=admission,
         admission_options=options,
         formal_one_attempt=True,
+        pre_run_setup=lambda: _clear_package(
+            lane_dir,
+            device_serial=options.device,
+            package=spec.package,
+        ),
     )
     duration = round(time.monotonic() - started, 3)
     record = load_execution_record(lane_dir / "execution-record.json")
