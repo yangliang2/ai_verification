@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "baseline_id": "m9-r1-non-holdout-canary-baseline-v1",
+  "source_contract": {
+    "path": "bench/m9/m9-project-qualification-v1.json",
+    "sha256": "dfc3e122c1b5e46788af0f898893bb8e768213fc2637b9759212e97b6cd3138d"
+  },
+  "boundary": {
+    "classification": "historical_fixture_recovered_for_non_holdout_canary_only",
+    "canary_eligible": true,
+    "formal_qualification_eligible": false,
+    "frozen_136_137_cohort_rerun": false,
+    "permitted_next_use": "R2 full-chain canary only",
+    "forbidden_uses": [
+      "R3 qualification packet",
+      "R4 formal lanes",
+      "M9 Supported conclusion"
+    ]
+  },
+  "target": {
+    "source_origin": "https://github.com/android/architecture-samples.git",
+    "base_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "base_tree": "19455e693ec8c96c37a56aec55059a220826c5a3",
+    "package": "com.example.android.architecture.blueprints.main",
+    "activity": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "min_sdk": 21,
+    "target_sdk": 35
+  },
+  "recovery_recipe": {
+    "external_root": "/private/tmp/m9-r1-canary-recovery",
+    "source_requirement": "a clone containing upstream baseline commit ee66e1526b84c026615df032c705842b7d2a521f",
+    "control": [
+      "git worktree add --detach <control-path> ee66e1526b84c026615df032c705842b7d2a521f",
+      "./gradlew --no-daemon --no-configuration-cache --max-workers=1 :app:assembleDebug"
+    ],
+    "defect": [
+      "git worktree add --detach <defect-path> ee66e1526b84c026615df032c705842b7d2a521f",
+      "git apply --index <aiverify-root>/docs/runs/2026-08-05-issue-136-qualification-freeze/candidate-option-A.patch",
+      "git write-tree",
+      "./gradlew --no-daemon --no-configuration-cache --max-workers=1 :app:assembleDebug"
+    ],
+    "patch": {
+      "path": "docs/runs/2026-08-05-issue-136-qualification-freeze/candidate-option-A.patch",
+      "sha256": "cc317d74012a83ab6a2e400fbc7442dfcb3bec8464fdbf68a1ba1cdc7974b277"
+    }
+  },
+  "variants": {
+    "control": {
+      "path": "/private/tmp/m9-r1-canary-recovery/control",
+      "origin": "https://github.com/android/architecture-samples.git",
+      "head_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+      "head_tree": "19455e693ec8c96c37a56aec55059a220826c5a3",
+      "index_tree": "19455e693ec8c96c37a56aec55059a220826c5a3",
+      "source_status": "clean",
+      "build": {
+        "result": "BUILD SUCCESSFUL",
+        "duration_reported": "43s",
+        "wall_seconds": 46.15,
+        "actionable_tasks": 43,
+        "executed_tasks": 43
+      },
+      "apk": {
+        "path": "/private/tmp/m9-r1-canary-recovery/control/app/build/outputs/apk/debug/app-debug.apk",
+        "bytes": 24681606,
+        "sha256": "d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66",
+        "matches_frozen_canary_identity": true
+      }
+    },
+    "defect": {
+      "path": "/private/tmp/m9-r1-canary-recovery/defect",
+      "origin": "https://github.com/android/architecture-samples.git",
+      "head_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+      "head_tree": "19455e693ec8c96c37a56aec55059a220826c5a3",
+      "index_tree": "34998af23aed59aa17eaf915d848ab1b916a63e2",
+      "source_status": "exact committed option-A patch staged over the upstream baseline",
+      "build": {
+        "result": "BUILD SUCCESSFUL",
+        "duration_reported": "27s",
+        "wall_seconds": 28.90,
+        "actionable_tasks": 43,
+        "executed_tasks": 43
+      },
+      "apk": {
+        "path": "/private/tmp/m9-r1-canary-recovery/defect/app/build/outputs/apk/debug/app-debug.apk",
+        "bytes": 24681461,
+        "sha256": "61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac",
+        "matches_frozen_canary_identity": true
+      }
+    }
+  },
+  "external_artifact_reason": "The two 24 MB APKs are reproducibly built canary inputs outside the repository; their exact source identities, byte counts, and SHA-256 values are committed here. They are not durable formal evidence and cannot enter R3 or R4.",
+  "status": "passed"
+}

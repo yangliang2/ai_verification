@@ -140,6 +140,18 @@ class TestForceStopAndKill:
         ctrl.clear_data("com.example.app")
         assert fake.commands[-1] == ["shell", "pm", "clear", "com.example.app"]
 
+    def test_package_paths(self):
+        ctrl, fake = _ctrl(serial="emulator-5554")
+        ctrl.package_paths("com.example.app")
+        assert fake.commands[-1] == [
+            "-s",
+            "emulator-5554",
+            "shell",
+            "pm",
+            "path",
+            "com.example.app",
+        ]
+
     def test_press_home(self):
         ctrl, fake = _ctrl()
         ctrl.press_home()

@@ -1,12 +1,15 @@
 # HANDOFF
 
-更新时间：2026-08-05
+更新时间：2026-08-07
 
-项目已完成 M8 state-evolution qualification 的失败收口，当前准备进入 M9
-unseen-project adversarial discovery。接手者应先读
+M9 首次 formal qualification 已以不可变的 `Not Supported` 失败证据收口：
+#137 的六条 lane 均在 install 前 non-accountable。#128 已重开并进入 M9-R
+recovery；R1 #148 已恢复可重复的 non-holdout canary baseline，并把 package reset
+改为先证明 installed/absent、再 fail closed。接手者应先读
 [`docs/current-capability-claim-matrix.md`](docs/current-capability-claim-matrix.md)，
-再读 M8 formal run 与 M9 parent/child issue，不要从旧 issue 编号或聊天记录推断当前
-声明。M8 的 `0/12 accountable`、`inconclusive` 结论是不可变的本地事实。
+再读 [#137 formal run](docs/runs/2026-08-06-issue-137-formal-execution/README.md)
+与 [#148 R1 run](docs/runs/2026-08-07-issue-148-m9-r1-recovery-baseline/README.md)，
+不要从旧 issue 编号或聊天记录推断当前声明。M8 与首次 M9 人口都保持不可变。
 
 ## 当前 tracker 状态
 
@@ -55,9 +58,12 @@ unseen-project adversarial discovery。接手者应先读
   `957f108`](https://github.com/yangliang2/ai_verification/commit/957f108d88afd74a8787b42be568ab558c5fb9b1)
   消费 exact #121 manifest，12/12 lanes 均在 execution-identity capture 阶段成为
   `non-accountable`，因此 aggregate 为 `0/12 accountable`、`inconclusive`。
-- M9 parent [#128](https://github.com/yangliang2/ai_verification/issues/128) 已批准为
-  bounded unseen-project adversarial discovery slice。#129 是 source-of-truth 起点；
-  后续正式 holdout 尚未开始。
+- M9 parent [#128](https://github.com/yangliang2/ai_verification/issues/128) 已重开。
+  #129–#137 的原实现、冻结和执行证据保持不变；#137 的真实 aggregate 是
+  `Not Supported`、0/6 accountable，没有 install/launch/agent/runtime evidence。
+- M9-R 从 #148 开始。R1 只恢复旧 fixture 为 R2 non-holdout canary 输入，并修复
+  pre-install package-reset 语义；它不改变 #137 结论，也不允许旧 fixture 进入
+  新 formal cohort。
 
 ## M8 immutable result
 
@@ -132,6 +138,11 @@ review limitation 变成不可逆系统政策，应重新评估 ADR 门槛。
   attempt-complete gate。五个 package checksum inventory 为 743/743 entries，
   root inventory 为 769/769 entries；唯一独立 Verification Agent 给出
   `locally_supported`。
+- #148：
+  [M9-R1 recovery baseline](docs/runs/2026-08-07-issue-148-m9-r1-recovery-baseline/README.md)
+  在不执行旧 cohort 的前提下复现 package-clear 失败语义，恢复出字节级一致的
+  control/defect canary APK，并将 absent/installed/failed/contradictory package
+  reset 分开记账。它只证明 R2 readiness。
 
 #80 只支持 Wikipedia、Codex CLI、单台 API 35 emulator、冻结五 seed/30 lane
 人口。它不是跨 host/backend/device-fleet 的 reliability 结论。
@@ -249,18 +260,20 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
 
 ## 接手时的正确下一步
 
-1. 保持 M8 #117–#122 的 `0/12 accountable`、`inconclusive` 证据不可变；不得重跑、
-   替换、改写或与 M9 合并。
-2. 完成 M9 #129 的 source-of-truth 文档合并后，按
-   `#129 → (#130 || #131) → #132 → (#133 || #135) → #134 → #136 → #137` 推进。
-3. #130/#131/#133/#135 的实现只能使用 bounded fake-backend、fixture 和 non-holdout
-   live receipt；不得启动正式 M9 holdout。
-4. #136 是唯一人工冻结门：人工批准 exact ProjectTarget、3+3 cohort、lane order、
-   hidden-mapping commitment/release、oracle/evidence/review、retry/abort 和
-   local-only claim 后，才允许冻结并合入 qualification contract。
-5. #137 只能消费 exact merged #136 commit，按冻结顺序执行六条 lane 与 contradiction
-   packet，并按实际结果收口；不得通过 retry、replacement、fixture/model/oracle 改动
-   追求 PASS。
+1. 保持 M8 #117–#122 与 M9 #136/#137 证据不可变；不得重跑、替换、改写或合并
+   旧 population。
+2. #148 必须先完成 PR merge 与 auditable tracker completion comment；在此之前
+   不得开始 R2。
+3. R2 只能使用 #148 恢复的旧 fixture 做 non-holdout full-chain canary，并必须实际
+   覆盖 install、launch、`codex-default` Effective Execution Identity、Verification
+   Agent、oracle、独立 Falsification Review 和 reconciliation。
+4. R2 merge 后，R3 才可准备一批全新的隐藏 3 defect + 3 control qualification
+   packet；旧 fixture、旧 mapping 和旧六 lane 都不得进入新 packet。
+5. R3 packet 与 pre-side-effect contradiction control 完成并合入后，必须暂停等待
+   人工冻结批准。批准前不得执行任何 formal lane。
+6. 获批后 R4 按冻结顺序单次执行六条 lane，one-attempt、zero-retry、
+   zero-replacement；R5 只按 6/6 accountability、3/3 defect、3/3 control、
+   6/6 review 与 contradiction gate reconcile，不得追结果重跑。
 
 任何文档或报告都必须同时说明支持结论和非声明范围。若实现、run record 与
 tracker 冲突，以 committed raw evidence 为准，先修 source-of-truth，再继续下游

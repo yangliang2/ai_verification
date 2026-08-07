@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "issue": 148,
+  "historical_failure": {
+    "evidence_ref": "../2026-08-06-issue-137-formal-execution/README.md",
+    "command": [
+      "adb",
+      "-s",
+      "emulator-5554",
+      "shell",
+      "pm",
+      "clear",
+      "com.example.android.architecture.blueprints.main"
+    ],
+    "returncode": 1,
+    "stdout": "Failed\n",
+    "stderr": "",
+    "affected_frozen_lanes": 6,
+    "accountable_lanes": 0
+  },
+  "current_reproduction": {
+    "device": "emulator-5554",
+    "api_level": 35,
+    "package": "com.example.android.architecture.blueprints.main",
+    "presence_query": {
+      "command": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "pm",
+        "path",
+        "com.example.android.architecture.blueprints.main"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "clear_probe": {
+      "command": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "pm",
+        "clear",
+        "com.example.android.architecture.blueprints.main"
+      ],
+      "returncode": 1,
+      "stdout": "Failed\n",
+      "stderr": ""
+    },
+    "reproduced": true
+  },
+  "ranked_hypotheses": [
+    {
+      "rank": 1,
+      "hypothesis": "package presence was not proved before interpreting the overloaded pm clear Failed response",
+      "prediction": "pm path will report the target package absent while pm clear returns the historical Failed shape",
+      "result": "confirmed"
+    },
+    {
+      "rank": 2,
+      "hypothesis": "the old target and APK inputs cannot be reconstructed from committed evidence",
+      "prediction": "a fresh baseline worktree plus the committed option-A patch will not reproduce the frozen trees or APK hashes",
+      "result": "rejected"
+    },
+    {
+      "rank": 3,
+      "hypothesis": "the current Android device environment cannot satisfy the side-effect-free runner gate",
+      "prediction": "device enumeration, boot identity, Android layout, or UIAutomator dump will fail",
+      "result": "rejected"
+    },
+    {
+      "rank": 4,
+      "hypothesis": "a later install, launch, agent, oracle, review, or reconciliation defect remains",
+      "prediction": "the R2 non-holdout full-chain canary will fail after the repaired package-reset boundary",
+      "result": "not_tested_in_r1"
+    }
+  ],
+  "root_cause": "The frozen executor called pm clear before install and treated its non-zero result as a setup failure. The first future-only patch then matched only the generic Failed text, which could also hide a real clear failure for an installed package. The hardened path first proves exact package presence and fails closed on all contradictory shapes.",
+  "frozen_136_137_evidence_modified": false,
+  "frozen_cohort_rerun": false
+}

@@ -3,8 +3,18 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from aiverify.bench import m9_formal
-from aiverify.bench.m9_formal import LANE_IDS, _clear_package, _oracle_conclusion, _reconcile
+import pytest
+
+from aiverify.harness.device import AdbResult
+from aiverify.harness.device.adb import FakeAdbRunner
+from aiverify.harness.device.controller import DeviceController
+from aiverify.bench.m9_formal import (
+    LANE_IDS,
+    M9FormalExecutionError,
+    _clear_package,
+    _oracle_conclusion,
+    _reconcile,
+)
 
 
 def test_formal_oracle_conclusion_is_terminal_and_fail_closed() -> None:
@@ -50,19 +60,55 @@ def test_formal_reconciliation_requires_all_six_accountable_rows(tmp_path: Path)
     assert rejected["supported_gate"]["six_of_six_accountable"] is False
 
 
-def test_formal_package_clear_treats_uninstalled_package_as_clean(monkeypatch, tmp_path: Path) -> None:
-    monkeypatch.setattr(
-        m9_formal,
-        "_command",
-        lambda *args, **kwargs: {
-            "command": ["adb", "shell", "pm", "clear"],
-            "returncode": 1,
-            "stdout": "Failed\n",
-            "stderr": "",
-        },
-    )
+def test_formal_package_clear_proves_uninstalled_package_is_clean(tmp_path: Path) -> None:
+    runner = FakeAdbRunner()
+    runner.enqueue(AdbResult(stdout="", stderr="", returncode=1))
+    controller = DeviceController(serial="emulator-r1", runner=runner)
     lane_dir = tmp_path / "lane"
     lane_dir.mkdir()
-    _clear_package(lane_dir)
+    _clear_package(
+        lane_dir,
+        device_serial="emulator-r1",
+        package="com.example.r1",
+        controller=controller,
+    )
     receipt = (lane_dir / "package-clear.json").read_text(encoding="utf-8")
-    assert '"status": "not_installed_before_run"' in receipt
+    assert '"status": "already_absent"' in receipt
+    assert '"device_serial": "emulator-r1"' in receipt
+    assert '"package": "com.example.r1"' in receipt
+
+
+def test_formal_package_clear_persists_an_installed_clear_failure(
+    tmp_path: Path,
+) -> None:
+    runner = FakeAdbRunner()
+    runner.enqueue_many(
+        [
+            AdbResult(
+                stdout="package:/data/app/com.example.r1/base.apk\n",
+                stderr="",
+                returncode=0,
+            ),
+            AdbResult(stdout="Failed\n", stderr="", returncode=1),
+        ]
+    )
+    controller = DeviceController(serial="emulator-r1", runner=runner)
+    lane_dir = tmp_path / "lane"
+    lane_dir.mkdir()
+
+    with pytest.raises(
+        M9FormalExecutionError,
+        match="installed package data clear failed",
+    ):
+        _clear_package(
+            lane_dir,
+            device_serial="emulator-r1",
+            package="com.example.r1",
+            controller=controller,
+        )
+
+    receipt = json.loads(
+        (lane_dir / "package-clear.json").read_text(encoding="utf-8")
+    )
+    assert receipt["status"] == "clear_failed"
+    assert receipt["clear_performed"] is True

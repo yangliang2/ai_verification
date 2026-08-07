@@ -54,6 +54,11 @@ class DeviceController:
         self._runner: AdbRunner = runner if runner is not None else SubprocessAdbRunner()
         self._logcat_analyzer = LogcatAnalyzer()
 
+    @property
+    def serial(self) -> str | None:
+        """Exact adb device serial bound to this controller."""
+        return self._serial
+
     # ------------------------------------------------------------------
     # 内部工具
     # ------------------------------------------------------------------
@@ -172,6 +177,17 @@ class DeviceController:
             AdbResult。
         """
         return self._shell(["pm", "clear", package])
+
+    def package_paths(self, package: str) -> AdbResult:
+        """Query the installed APK paths for one exact package identity.
+
+        ``pm path`` has a useful fail-closed distinction for runner setup:
+        an installed package returns one or more ``package:<absolute-path>``
+        lines with exit code zero, while an absent package returns empty
+        output with exit code one.  Callers must still reject stderr and
+        malformed output rather than treating every non-zero result as absent.
+        """
+        return self._shell(["pm", "path", package])
 
     def press_home(self) -> AdbResult:
         """按下 Home 键，将当前前台应用送入后台。"""
