@@ -69,3 +69,14 @@ No package-reset behavior defect or material scope creep was found.
 Initial review totals: Standards 1 Medium; Spec 1 High and 2 Medium. The
 evidence findings are resolved in the run record. The merge/tracker finding is
 recorded as the mandatory external pre-R2 gate.
+
+## Confirmation re-review
+
+The same two reviewers re-ran their axes against final evidence commit
+`edbb23c5bcaf5a4263e7a2394f5b3f2de5618bd9`.
+
+- Standards: pass, 0 material findings. The review, diagnostic captures,
+  living documents, and complete 11-entry ledger resolved the prior finding.
+- Spec: evidence pass, 0 material implementation/evidence findings. The only
+  remaining requirement was the explicitly recorded external PR/merge/tracker
+  gate, which must resolve before R2 begins.

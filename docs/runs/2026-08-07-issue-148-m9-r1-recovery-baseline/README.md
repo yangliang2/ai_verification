@@ -139,7 +139,9 @@ The evidence findings are resolved by the diagnostic artifacts, review receipt,
 and checksum ledger in this run record. The Spec High finding is the required
 external sequencing gate: PR, merge, and the #148 completion comment must
 finish before R2 starts. Full reports and resolutions are in
-[`dual-axis-review.md`](dual-axis-review.md).
+[`dual-axis-review.md`](dual-axis-review.md). A confirmation re-review of the
+resolved evidence returned 0 material Standards findings and 0 material Spec
+implementation/evidence findings.
 
 ## Implementation and tests
 
