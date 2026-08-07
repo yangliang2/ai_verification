@@ -37,6 +37,10 @@ def test_recovery_run_specs_use_new_neutral_lane_ids_and_default_model_policy(
     ]
     assert all(not spec.scenario.id.startswith("m9-lane-") for spec in specs)
     assert all(spec.scenario.l3_spec for spec in specs)
+    assert [spec.host_locator.expected_commit for spec in specs] == [
+        "ee66e1526b84c026615df032c705842b7d2a521f",
+        "208575f78d59716669d0733b5ed3e08797b08787",
+    ]
 
 
 def test_falsification_review_schema_is_valid() -> None:

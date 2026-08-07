@@ -28,6 +28,7 @@ from aiverify.bench.m9_qualification import (
     PACKAGE,
     RUNNER_POLICY,
     SOURCE_ORIGIN,
+    DEFECT_COMMIT,
     audit_contradiction_packet,
 )
 from aiverify.discovery import (
@@ -52,7 +53,7 @@ from aiverify.runner.admission import (
     admit_production_seam,
     write_admission_receipt,
 )
-from aiverify.runner.cli import run as run_spec
+from aiverify.runner.cli import build_instruction_prefix, run as run_spec
 from aiverify.runner.execution_record import load_execution_record
 from aiverify.runner.package_reset import PackageResetError, reset_package_data
 from aiverify.runner.run_spec import load_run_spec
@@ -104,6 +105,7 @@ class _Variant:
     environment_variable: str
     role: str
     source_input: Path
+    fixture_commit: str
     expected_tree: str
     expected_patch_sha256: str
     expected_apk_sha256: str
@@ -212,6 +214,7 @@ def _variants(first_input: Path, second_input: Path) -> tuple[_Variant, ...]:
             environment_variable="M9_R2_CANARY_ALPHA_PROJECT",
             role="control",
             source_input=first_input.resolve(),
+            fixture_commit=BASELINE_COMMIT,
             expected_tree=CONTROL_TREE,
             expected_patch_sha256=EMPTY_SHA256,
             expected_apk_sha256=FIRST_APK_SHA256,
@@ -221,6 +224,7 @@ def _variants(first_input: Path, second_input: Path) -> tuple[_Variant, ...]:
             environment_variable="M9_R2_CANARY_BETA_PROJECT",
             role="defect",
             source_input=second_input.resolve(),
+            fixture_commit=DEFECT_COMMIT,
             expected_tree=SECOND_TREE,
             expected_patch_sha256=SECOND_PATCH_SHA256,
             expected_apk_sha256=SECOND_APK_SHA256,
@@ -302,7 +306,7 @@ def _prepare_fixture(
             "add",
             "--detach",
             str(destination),
-            BASELINE_COMMIT,
+            variant.fixture_commit,
         ],
         cwd=variant.source_input,
         timeout=120,
@@ -311,19 +315,6 @@ def _prepare_fixture(
         raise M9RecoveryCanaryError(
             f"cannot create {variant.lane_id}: {created['stderr'].strip()}"
         )
-    patch = _git_patch(variant.source_input)
-    apply_receipt: dict[str, Any] | None = None
-    if patch:
-        apply_receipt = _command(
-            ["git", "apply", "--index", "--binary", "-"],
-            cwd=destination,
-            input_bytes=patch,
-        )
-        if apply_receipt["returncode"] != 0:
-            raise M9RecoveryCanaryError(
-                f"cannot bind {variant.lane_id} source patch: "
-                f"{apply_receipt['stderr'].strip()}"
-            )
     apk_source = variant.source_input / APK_RELATIVE
     apk_target = destination / APK_RELATIVE
     apk_target.parent.mkdir(parents=True, exist_ok=True)
@@ -333,8 +324,9 @@ def _prepare_fixture(
     observed_apk_sha = _sha256_path(apk_target)
     if (
         observed_tree != variant.expected_tree
-        or observed_patch_sha != variant.expected_patch_sha256
+        or observed_patch_sha != EMPTY_SHA256
         or observed_apk_sha != variant.expected_apk_sha256
+        or _git(destination, "rev-parse", "HEAD") != variant.fixture_commit
     ):
         raise M9RecoveryCanaryError(
             f"{variant.lane_id} neutral fixture identity drifted"
@@ -344,9 +336,10 @@ def _prepare_fixture(
         "lane_id": variant.lane_id,
         "neutral_worktree": str(destination),
         "source_origin": _git(destination, "remote", "get-url", "origin"),
-        "source_commit": _git(destination, "rev-parse", "HEAD"),
+        "source_commit": variant.fixture_commit,
         "source_tree": observed_tree,
-        "source_patch_sha256": observed_patch_sha,
+        "fixture_patch_sha256": observed_patch_sha,
+        "recovered_source_patch_sha256": variant.expected_patch_sha256,
         "apk": {
             "path": str(apk_target),
             "sha256": observed_apk_sha,
@@ -357,7 +350,7 @@ def _prepare_fixture(
         ),
         "preparation": {
             "worktree_add": created,
-            "patch_apply": apply_receipt,
+            "patch_apply": None,
             "android_build_performed": False,
         },
         "known_canary_role_disclosed": False,
@@ -376,6 +369,28 @@ def _reset_package(lane_dir: Path, *, device: str) -> None:
         _write_json(lane_dir / "package-reset.json", error.result.to_dict())
         raise
     _write_json(lane_dir / "package-reset.json", result.to_dict())
+
+
+def _canary_instruction_prefix(device: str) -> str:
+    delete_keys = " ".join(["67"] * 80)
+    return (
+        build_instruction_prefix(device)
+        + "\nCANARY BOUNDS AND TEXT-ENTRY RULES:\n"
+        + "- Finish within seven minutes and at most 40 device commands. "
+        + "After three unsuccessful correction cycles for one action, report "
+        + "that action FAILED and return the complete five-action result.\n"
+        + "- The task tokens contain no spaces. Type them exactly as written.\n"
+        + "- To replace an editable field, tap it, then run "
+        + f"`adb -s {device} shell input keyevent KEYCODE_MOVE_END`, followed "
+        + f"by `adb -s {device} shell input keyevent {delete_keys}`, then type "
+        + "the replacement once and verify it with one fresh layout.\n"
+        + "- Saving, navigating, and reopening are dispatch actions. If the "
+        + "product displays the old title after an edit, still tap that same "
+        + "unique task and mark the dispatch PASSED; the oracle, not the "
+        + "driver, judges the observed title.\n"
+        + "- Do not improvise alternate text values or repeatedly append "
+        + "partial strings.\n\n"
+    )
 
 
 def _receipt_path(lane_dir: Path, ref: Mapping[str, Any]) -> Path:
@@ -634,7 +649,7 @@ def _execute_runtime_lane(
         device=device,
         workdir=worktree,
         artifact_dir=artifact_dir,
-        expected_source_commit=BASELINE_COMMIT,
+        expected_source_commit=variant.fixture_commit,
         launch=True,
         requested_driver_model=None,
         requested_l3_model=None,
@@ -660,7 +675,7 @@ def _execute_runtime_lane(
         launch=True,
         model=None,
         l3_model=None,
-        instruction_prefix=None,
+        instruction_prefix=_canary_instruction_prefix(device),
         run_spec_path=spec_path,
         admission_required=True,
         admission_receipt=admission,
@@ -713,6 +728,7 @@ def _execute_runtime_lane(
         "finding_conclusion": conclusion,
         "duration_seconds": duration,
         "run_spec_sha256": spec.source_sha256,
+        "source_commit": variant.fixture_commit,
     }
 
 
@@ -766,7 +782,7 @@ def _review_contract(
     target = ProjectTarget(
         target_id=f"target-{lane_id}",
         source_origin=SOURCE_ORIGIN,
-        source_commit=BASELINE_COMMIT,
+        source_commit=str(row["source_commit"]),
         worktree=str(Path(row["worktree"])),
         scope=SOURCE_SCOPE,
         discovery_budget=8,
