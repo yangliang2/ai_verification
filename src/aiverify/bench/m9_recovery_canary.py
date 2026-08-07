@@ -70,12 +70,6 @@ DEFAULT_ARTIFACT_ROOT = (
 DEFAULT_FIXTURE_ROOT = Path("/private/tmp/m9-r2-canary-fixtures/attempt-01")
 DEFAULT_FIRST_INPUT = Path("/private/tmp/m9-r1-canary-recovery/control")
 DEFAULT_SECOND_INPUT = Path("/private/tmp/m9-r1-canary-recovery/defect")
-CONTRADICTION_PACKET = (
-    REPO_ROOT
-    / "docs/runs/2026-08-05-issue-136-qualification-freeze"
-    / "contradiction-packet.json"
-)
-
 CONTROL_TREE = "19455e693ec8c96c37a56aec55059a220826c5a3"
 SECOND_TREE = "34998af23aed59aa17eaf915d848ab1b916a63e2"
 EMPTY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -238,13 +232,24 @@ def _variants(first_input: Path, second_input: Path) -> tuple[_Variant, ...]:
 
 
 def _contradiction_gate(root: Path) -> dict[str, Any]:
-    packet = _read_json(CONTRADICTION_PACKET)
+    packet_path = root / "r2-contradiction-packet.json"
+    packet = {
+        "schema_version": 1,
+        "packet_id": "m9-r2-incomplete-context-v1",
+        "expected_admission": "rejected",
+        "formal_denominator": False,
+        "rejection_boundary": CONTRADICTION_REJECTION_BOUNDARY,
+    }
+    _write_json(packet_path, packet)
     audit = audit_contradiction_packet(packet, observed_command_calls=[])
     receipt = {
         "schema_version": 1,
         "source": {
-            "path": str(CONTRADICTION_PACKET.relative_to(REPO_ROOT)),
-            "sha256": _sha256_path(CONTRADICTION_PACKET),
+            "path": packet_path.name,
+            "sha256": _sha256_path(packet_path),
+            "stage": "M9-R2",
+            "fresh_for_attempt": True,
+            "old_136_137_artifact": False,
         },
         "audit": audit,
         "non_holdout_canary": True,
@@ -252,7 +257,8 @@ def _contradiction_gate(root: Path) -> dict[str, Any]:
         "denominator_member": False,
         "rejected_before_build_device_agent_runtime": audit["status"] == "pass",
     }
-    _write_json(root / "contradiction-rejection.json", receipt)
+    receipt_path = root / "contradiction-rejection.json"
+    _write_json(receipt_path, receipt)
     if (
         audit["status"] != "pass"
         or audit["rejection_boundary"] != CONTRADICTION_REJECTION_BOUNDARY
@@ -261,7 +267,17 @@ def _contradiction_gate(root: Path) -> dict[str, Any]:
         raise M9RecoveryCanaryError(
             "contradiction packet was not rejected before external side effects"
         )
-    return audit
+    return {
+        **audit,
+        "receipt": {
+            "ref": receipt_path.name,
+            "sha256": _sha256_path(receipt_path),
+        },
+        "packet": {
+            "ref": packet_path.name,
+            "sha256": _sha256_path(packet_path),
+        },
+    }
 
 
 def _inspect_source_input(variant: _Variant) -> dict[str, Any]:
@@ -630,14 +646,84 @@ def _write_effective_identity(
     return payload
 
 
+def _write_review_safe_provenance(lane_dir: Path) -> Path:
+    """Derive reviewer provenance without source-role or historical identity."""
+
+    source_path = lane_dir / "execution-provenance.json"
+    provenance = _read_json(source_path)
+    deployment = provenance.get("deployment", {})
+    process = deployment.get("process", {})
+    run_spec = provenance.get("run_spec", {})
+    source_apk = provenance.get("apk", {}).get("sha256")
+    installed = deployment.get("installed_artifacts", [])
+    installed_hashes = [
+        item.get("sha256")
+        for item in installed
+        if isinstance(item, Mapping) and isinstance(item.get("sha256"), str)
+    ]
+    payload = {
+        "schema_version": 1,
+        "status": "sanitized_for_role_blind_review",
+        "full_provenance_binding": {
+            "sha256": _sha256_path(source_path),
+            "bytes": source_path.stat().st_size,
+        },
+        "source_identity_disclosed": False,
+        "source_role_disclosed": False,
+        "deployment": {
+            "target": deployment.get("target"),
+            "returncode": process.get("returncode"),
+            "installation_reported_successful": (
+                process.get("returncode") == 0
+                and "Installation completed successfully"
+                in str(process.get("stdout", ""))
+            ),
+            "installed_artifact_count": len(installed_hashes),
+            "source_and_installed_apk_match": bool(
+                source_apk
+                and installed_hashes
+                and all(value == source_apk for value in installed_hashes)
+            ),
+            "resolved_component": deployment.get("resolved_component"),
+            "device": deployment.get("device"),
+            "tools": deployment.get("tools"),
+        },
+        "device": provenance.get("device"),
+        "tools": provenance.get("tools"),
+        "roles": provenance.get("roles"),
+        "run_spec": {
+            "consumed_sha256": run_spec.get("consumed_sha256"),
+            "snapshot_sha256": run_spec.get("snapshot_sha256"),
+            "scenario": run_spec.get("scenario"),
+            "package": run_spec.get("package"),
+            "activity": run_spec.get("activity"),
+        },
+    }
+    path = lane_dir / "review-execution-provenance.json"
+    _write_json(path, payload)
+    return path
+
+
 def _copy_raw_evidence(lane_dir: Path) -> tuple[str, ...]:
+    """Inventory full evidence while returning only role-blind review refs."""
+
+    review_provenance = _write_review_safe_provenance(lane_dir)
     refs: list[str] = []
     inventory = []
+    reviewer_visible = {
+        "verdict.json",
+        "runner-setup.json",
+        "live-validation-gate.json",
+        review_provenance.name,
+        "device-input-setup.json",
+        "package-reset.json",
+    }
     for ref in (
         "verdict.json",
         "runner-setup.json",
         "live-validation-gate.json",
         "execution-provenance.json",
+        review_provenance.name,
         "neutral-fixture-binding.json",
         "device-input-setup.json",
         "package-reset.json",
@@ -646,9 +732,16 @@ def _copy_raw_evidence(lane_dir: Path) -> tuple[str, ...]:
         path = lane_dir / ref
         if not path.is_file():
             continue
-        refs.append(ref)
+        visible = ref in reviewer_visible
+        if visible:
+            refs.append(ref)
         inventory.append(
-            {"ref": ref, "sha256": _sha256_path(path), "bytes": path.stat().st_size}
+            {
+                "ref": ref,
+                "sha256": _sha256_path(path),
+                "bytes": path.stat().st_size,
+                "reviewer_visible": visible,
+            }
         )
     for source in sorted((lane_dir / "artifacts").rglob("*")):
         if not source.is_file() or source.name not in {
@@ -670,6 +763,7 @@ def _copy_raw_evidence(lane_dir: Path) -> tuple[str, ...]:
                 "ref": ref,
                 "sha256": _sha256_path(destination),
                 "bytes": destination.stat().st_size,
+                "reviewer_visible": True,
             }
         )
     if not refs:
@@ -687,6 +781,7 @@ def _copy_raw_evidence(lane_dir: Path) -> tuple[str, ...]:
                 "ref": "raw/absence.json",
                 "sha256": _sha256_path(absence),
                 "bytes": absence.stat().st_size,
+                "reviewer_visible": True,
             }
         )
     _write_json(
@@ -858,23 +953,57 @@ def _execute_runtime_lane(
         "duration_seconds": duration,
         "run_spec_sha256": spec.source_sha256,
         "source_commit": variant.fixture_commit,
+        "execution_record_receipt": {
+            "ref": (
+                Path("canary-artifacts")
+                / variant.lane_id
+                / "execution-record.json"
+            ).as_posix(),
+            "sha256": _sha256_path(lane_dir / "execution-record.json"),
+        },
     }
 
 
-def _copy_peer_evidence(row: Mapping[str, Any], peer: Mapping[str, Any]) -> Path:
+def _copy_reviewer_evidence(row: Mapping[str, Any]) -> Path:
+    lane_dir = Path(row["lane_dir"])
+    review_root = lane_dir / "review-input"
+    review_root.mkdir(parents=True, exist_ok=False)
+    names = [
+        "execution-record.json",
+        "effective-execution-identity.json",
+        *row["raw_refs"],
+    ]
+    for name in dict.fromkeys(str(item) for item in names):
+        source = lane_dir / name
+        if not source.is_file():
+            raise M9RecoveryCanaryError(
+                f"review evidence is missing from terminal lane: {name}"
+            )
+        destination = review_root / Path(name)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+    return review_root
+
+
+def _copy_peer_evidence(
+    row: Mapping[str, Any],
+    peer: Mapping[str, Any],
+    review_root: Path | None = None,
+) -> Path:
     lane_dir = Path(row["lane_dir"])
     peer_dir = Path(peer["lane_dir"])
-    peer_root = lane_dir / "peer"
+    if review_root is None:
+        review_root = lane_dir / "review-input"
+        review_root.mkdir(parents=True, exist_ok=True)
+    peer_root = review_root / "peer"
     peer_root.mkdir(parents=True, exist_ok=False)
     copies = []
     names = [
         "verdict.json",
         "execution-record.json",
-        "raw-evidence-inventory.json",
         "effective-execution-identity.json",
-        "execution-provenance.json",
+        "review-execution-provenance.json",
         "finding.json",
-        "neutral-fixture-binding.json",
         "device-input-setup.json",
         "package-reset.json",
         "runner-setup.json",
@@ -897,7 +1026,7 @@ def _copy_peer_evidence(row: Mapping[str, Any], peer: Mapping[str, Any]) -> Path
                 "bytes": destination.stat().st_size,
             }
         )
-    path = lane_dir / "peer-evidence-index.json"
+    path = review_root / "peer-evidence-index.json"
     _write_json(
         path,
         {
@@ -951,6 +1080,7 @@ def _peer_control_artifacts(
 def _review_contract(
     row: Mapping[str, Any],
     peer_index: Path,
+    review_root: Path | None = None,
 ) -> tuple[
     FalsificationReviewContext,
     ProjectTarget,
@@ -959,11 +1089,12 @@ def _review_contract(
 ]:
     lane_id = str(row["lane_id"])
     lane_dir = Path(row["lane_dir"])
+    review_root = review_root or peer_index.parent
     target = ProjectTarget(
         target_id=f"target-{lane_id}",
-        source_origin=SOURCE_ORIGIN,
-        source_commit=str(row["source_commit"]),
-        worktree=str(Path(row["worktree"])),
+        source_origin="review-sanitized-runtime-evidence",
+        source_commit=f"review-source-{lane_id}",
+        worktree=f"review-input/{lane_id}",
         scope=SOURCE_SCOPE,
         discovery_budget=8,
     )
@@ -1015,13 +1146,13 @@ def _review_contract(
         fixture_refs=("fixture:local-api35-emulator",),
         status="admitted",
     )
-    source_path = lane_dir / "source-target.json"
+    source_path = review_root / "source-target.json"
     _write_json(source_path, target.to_dict())
     hypothesis_path = lane_dir / "risk-hypothesis.json"
     _write_json(hypothesis_path, hypothesis.to_dict())
     plan_path = lane_dir / "admitted-attack-plan.json"
     _write_json(plan_path, plan.to_dict())
-    oracle_path = lane_dir / "oracle-contract.json"
+    oracle_path = review_root / "oracle-contract.json"
     _write_json(
         oracle_path,
         {
@@ -1038,11 +1169,11 @@ def _review_contract(
         ImmutableArtifactRef(
             ref=ref,
             kind="raw-runtime-evidence",
-            sha256=_sha256_path(lane_dir / ref),
+            sha256=_sha256_path(review_root / ref),
         )
         for ref in row["raw_refs"]
     )
-    control_artifacts = _peer_control_artifacts(lane_dir, peer_index)
+    control_artifacts = _peer_control_artifacts(review_root, peer_index)
     oracle_artifact = ImmutableArtifactRef(
         ref="oracle-contract.json",
         kind="oracle-contract",
@@ -1051,14 +1182,16 @@ def _review_contract(
     execution_artifact = ImmutableArtifactRef(
         ref="execution-record.json",
         kind="execution-record",
-        sha256=_sha256_path(lane_dir / "execution-record.json"),
+        sha256=_sha256_path(review_root / "execution-record.json"),
     )
     identity_artifact = ImmutableArtifactRef(
         ref="effective-execution-identity.json",
         kind="effective-identity",
-        sha256=_sha256_path(lane_dir / "effective-execution-identity.json"),
+        sha256=_sha256_path(
+            review_root / "effective-execution-identity.json"
+        ),
     )
-    review_brief_path = lane_dir / "review-brief.json"
+    review_brief_path = review_root / "review-brief.json"
     _write_json(
         review_brief_path,
         {
@@ -1149,26 +1282,90 @@ def _review_prompt(
 def _review_input_audit(
     context: FalsificationReviewContext,
     prompt: str,
+    review_root: Path,
 ) -> dict[str, Any]:
-    encoded = json.dumps(
+    encoded_context = json.dumps(
         {"context": context.to_dict(), "prompt": prompt},
         ensure_ascii=False,
         sort_keys=True,
-    )
+    ).encode("utf-8")
     forbidden_fragments = {
-        "role_assignment_control": '"role": "control"',
-        "role_assignment_defect": '"role": "defect"',
-        "external_first_input_path": str(DEFAULT_FIRST_INPUT),
-        "external_second_input_path": str(DEFAULT_SECOND_INPUT),
-        "expected_supported_label": '"expected_result": "supported"',
-        "expected_rejected_label": '"expected_result": "rejected"',
+        "role_assignment_control": b'"role": "control"',
+        "role_assignment_defect": b'"role": "defect"',
+        "external_first_input_path": str(DEFAULT_FIRST_INPUT).encode(),
+        "external_second_input_path": str(DEFAULT_SECOND_INPUT).encode(),
+        "historical_control_commit": BASELINE_COMMIT.encode(),
+        "historical_defect_commit": DEFECT_COMMIT.encode(),
+        "historical_control_tree": CONTROL_TREE.encode(),
+        "historical_defect_tree": SECOND_TREE.encode(),
+        "historical_control_apk": FIRST_APK_SHA256.encode(),
+        "historical_defect_apk": SECOND_APK_SHA256.encode(),
+        "historical_defect_patch": SECOND_PATCH_SHA256.encode(),
+        "historical_defect_commit_subject": (
+            b"candidate(m9): omit persisted update for option a"
+        ),
+        "frozen_136_packet": b"m9-136-incomplete-context-v1",
+        "expected_supported_label": b'"expected_result": "supported"',
+        "expected_rejected_label": b'"expected_result": "rejected"',
     }
-    found = [
-        label for label, fragment in forbidden_fragments.items() if fragment in encoded
-    ]
+    artifact_refs = (
+        *context.source_refs,
+        context.oracle_contract,
+        context.execution_record,
+        context.effective_identity,
+        *context.raw_evidence,
+        *context.control_evidence,
+    )
+    expected = {item.ref: item for item in artifact_refs}
+    workspace_files = {
+        path.relative_to(review_root).as_posix(): path
+        for path in review_root.rglob("*")
+        if path.is_file()
+    }
+    findings = []
+    if len(expected) != len(artifact_refs):
+        findings.append("duplicated_allowlisted_ref")
+    for ref in sorted(set(expected) - set(workspace_files)):
+        findings.append(f"missing_allowlisted_file:{ref}")
+    for ref in sorted(set(workspace_files) - set(expected)):
+        findings.append(f"unallowlisted_workspace_file:{ref}")
+
+    audited_artifacts = []
+    payloads = {"<context-and-prompt>": encoded_context}
+    payloads.update(
+        {
+            ref: path.read_bytes()
+            for ref, path in workspace_files.items()
+            if ref in expected
+        }
+    )
+    for ref, artifact in sorted(expected.items()):
+        path = workspace_files.get(ref)
+        if path is None:
+            continue
+        observed_sha = _sha256_path(path)
+        if observed_sha != artifact.sha256:
+            findings.append(f"checksum_mismatch:{ref}")
+        audited_artifacts.append(
+            {
+                "ref": ref,
+                "bytes": path.stat().st_size,
+                "sha256": observed_sha,
+                "expected_sha256": artifact.sha256,
+            }
+        )
+    for ref, payload in payloads.items():
+        for label, fragment in forbidden_fragments.items():
+            if fragment in payload:
+                findings.append(f"{label}:{ref}")
+    found = list(dict.fromkeys(findings))
     return {
         "schema_version": 1,
         "status": "pass" if not found else "fail",
+        "audit_method": "byte_level_allowlisted_workspace_scan",
+        "workspace_file_count": len(workspace_files),
+        "allowlisted_file_count": len(expected),
+        "audited_artifacts": audited_artifacts,
         "forbidden_disclosures": found,
         "context_sha256": context.context_sha256,
         "prompt_sha256": _sha256_bytes(prompt.encode("utf-8")),
@@ -1183,18 +1380,19 @@ def _run_review(
     peer: Mapping[str, Any],
 ) -> dict[str, Any]:
     lane_dir = Path(row["lane_dir"])
-    peer_index = _copy_peer_evidence(row, peer)
-    context, _, _, _ = _review_contract(row, peer_index)
+    review_root = _copy_reviewer_evidence(row)
+    peer_index = _copy_peer_evidence(row, peer, review_root)
+    context, _, _, _ = _review_contract(row, peer_index, review_root)
     context_path = lane_dir / "falsification-review-context.json"
     _write_json(context_path, context.to_dict())
     prompt = _review_prompt(context)
-    audit = _review_input_audit(context, prompt)
+    audit = _review_input_audit(context, prompt, review_root)
     _write_json(lane_dir / "falsification-review-input-audit.json", audit)
     if audit["status"] != "pass":
         raise M9RecoveryCanaryError("falsification review input leaked auditor data")
     review_artifacts = lane_dir / "review-invocation"
     provider = CodexCliProvider(
-        workdir=lane_dir,
+        workdir=review_root,
         model=None,
         timeout_seconds=900,
         artifact_dir=review_artifacts,
@@ -1247,6 +1445,12 @@ def _run_review(
             + "; ".join(result.rejection_reasons)
         )
     reconciliation = reconcile_finding(row["finding"], result.review, context)
+    reconciliation_payload = {
+        **reconciliation.to_dict(),
+        "non_holdout_canary": True,
+        "formal_qualification_eligible": False,
+        "formal_denominator": False,
+    }
     payload = {
         "schema_version": 1,
         "clean_context_sha256": context.context_sha256,
@@ -1260,10 +1464,14 @@ def _run_review(
             "effective_model": native_identity["effective_model"],
         },
         "result": result.to_dict(),
-        "reconciliation": reconciliation.to_dict(),
+        "reconciliation": reconciliation_payload,
         "production_oracle_path_used": False,
+        "non_holdout_canary": True,
+        "formal_qualification_eligible": False,
+        "formal_denominator": False,
     }
-    _write_json(lane_dir / "falsification-review.json", payload)
+    receipt_path = lane_dir / "falsification-review.json"
+    _write_json(receipt_path, payload)
     return {
         "status": result.status,
         "outcome": result.review.outcome,
@@ -1273,6 +1481,14 @@ def _run_review(
         "effective_model": native_identity["effective_model"],
         "model_override_present": False,
         "separate_invocation": True,
+        "receipt": {
+            "ref": (
+                Path("canary-artifacts")
+                / str(row["lane_id"])
+                / receipt_path.name
+            ).as_posix(),
+            "sha256": _sha256_path(receipt_path),
+        },
     }
 
 
@@ -1384,6 +1600,11 @@ def _reconcile_canary(
                 "run_spec_sha256": row["run_spec_sha256"],
                 "review": row["review"],
                 "chain_checks": row["chain_checks"],
+                "execution_record": row["execution_record_receipt"],
+                "falsification_review": row["review"]["receipt"],
+                "non_holdout_canary": True,
+                "formal_qualification_eligible": False,
+                "formal_denominator": False,
             }
         )
     return {
@@ -1414,6 +1635,10 @@ def _reconcile_canary(
         "contradiction_rejected_before_side_effect": (
             contradiction.get("status") == "pass"
         ),
+        "contradiction_evidence": {
+            "packet": contradiction.get("packet"),
+            "rejection": contradiction.get("receipt"),
+        },
         "non_holdout_canary": True,
         "formal_qualification_eligible": False,
         "formal_holdout_executed": False,
@@ -1527,8 +1752,11 @@ def execute_canary(
                 "finding_conclusion": row["finding_conclusion"],
                 "review": row["review"],
                 "chain_checks": row["chain_checks"],
+                "execution_record": row["execution_record_receipt"],
+                "falsification_review": row["review"]["receipt"],
                 "non_holdout_canary": True,
                 "formal_qualification_eligible": False,
+                "formal_denominator": False,
             },
         )
         _checksums(Path(row["lane_dir"]))

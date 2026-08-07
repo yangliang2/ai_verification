@@ -522,6 +522,8 @@ def test_interrupted_journey_writes_non_accountable_run_result(tmp_path, monkeyp
     assert record["evidence_refs"]["system_events"] == [
         "artifacts/system-event-0/event.json"
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
+    assert verdict["runner_setup"] == "runner-setup.json"
     assert verdict["execution_record"] == str(
         artifact_dir.parent / "execution-record.json"
     )
@@ -821,6 +823,7 @@ def test_public_run_system_event_failure_is_canonical_and_skips_all_oracles(
             ),
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
 
 
 def test_public_run_reproduces_historical_anr_failed_status(
@@ -1139,6 +1142,8 @@ def test_identity_finalization_failure_discards_oracle_accounting(
     )
     assert record["lifecycle_state"] == "failed"
     assert record["execution"]["accounting_eligible"] is False
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
+    assert verdict["runner_setup"] == "runner-setup.json"
 
 
 def test_pre_agent_identity_drift_blocks_journey_and_oracles(tmp_path, monkeypatch):
@@ -1487,9 +1492,19 @@ def test_runner_setup_failure_finalizes_record_before_journey_or_oracles(
             "message": "OSError: logcat transport closed",
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
     assert record["evidence_refs"]["live_validation_gate"] == (
         "live-validation-gate.json"
     )
+    runner_setup = json.loads(
+        (artifact_dir.parent / "runner-setup.json").read_text(encoding="utf-8")
+    )
+    assert runner_setup["status"] == "failed"
+    assert runner_setup["operations"] == []
+    assert runner_setup["error"] == {
+        "type": "OSError",
+        "message": "logcat transport closed",
+    }
 
 
 def test_runner_setup_nonzero_logcat_exit_is_non_accountable_and_blocks_journey(
@@ -1548,6 +1563,7 @@ def test_runner_setup_nonzero_logcat_exit_is_non_accountable_and_blocks_journey(
             "message": verdict["execution"]["message"],
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
 
 
 def test_runner_setup_nonzero_launch_exit_is_non_accountable_and_blocks_journey(
@@ -1603,6 +1619,7 @@ def test_runner_setup_nonzero_launch_exit_is_non_accountable_and_blocks_journey(
             "message": verdict["execution"]["message"],
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
 
 
 def test_oracle_exception_preserves_flow_evidence_but_skips_oracle_accounting(
@@ -1656,6 +1673,8 @@ def test_oracle_exception_preserves_flow_evidence_but_skips_oracle_accounting(
     assert record["evidence_refs"]["journey_results"] == [
         str(flow.journey_results[0].result_path)
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
+    assert verdict["runner_setup"] == "runner-setup.json"
 
 
 def test_unexpected_journey_exception_becomes_an_interrupted_attempt(
@@ -1694,6 +1713,7 @@ def test_unexpected_journey_exception_becomes_an_interrupted_attempt(
             "message": "ValueError: invalid segment boundary",
         }
     ]
+    assert record["evidence_refs"]["runner_setup"] == "runner-setup.json"
 
 
 def test_verdict_output_failure_finalizes_record_without_oracle_accounting(

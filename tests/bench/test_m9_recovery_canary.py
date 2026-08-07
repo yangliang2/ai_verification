@@ -23,6 +23,7 @@ from aiverify.bench.m9_recovery_canary import (
     _peer_control_artifacts,
     _reconcile_canary,
     _review_contract,
+    _review_input_audit,
     _review_prompt,
 )
 from aiverify.discovery import Finding, FalsificationReviewerIdentity
@@ -151,13 +152,18 @@ def test_raw_evidence_exposes_provenance_and_fixture_binding(
 
     refs = _copy_raw_evidence(tmp_path)
 
-    assert "execution-provenance.json" in refs
-    assert "neutral-fixture-binding.json" in refs
+    assert "review-execution-provenance.json" in refs
+    assert "execution-provenance.json" not in refs
+    assert "neutral-fixture-binding.json" not in refs
+    assert "production-seam-admission.json" not in refs
     assert "device-input-setup.json" in refs
     inventory = json.loads(
         (tmp_path / "raw-evidence-inventory.json").read_text(encoding="utf-8")
     )
-    assert {item["ref"] for item in inventory["artifacts"]} == set(refs)
+    indexed = {item["ref"]: item for item in inventory["artifacts"]}
+    assert indexed["execution-provenance.json"]["reviewer_visible"] is False
+    assert indexed["neutral-fixture-binding.json"]["reviewer_visible"] is False
+    assert indexed["review-execution-provenance.json"]["reviewer_visible"] is True
 
 
 def test_peer_control_artifacts_verify_every_index_binding(
@@ -221,9 +227,8 @@ def test_peer_evidence_copy_includes_semantic_and_raw_files(
         "execution-record.json",
         "raw-evidence-inventory.json",
         "effective-execution-identity.json",
-        "execution-provenance.json",
+        "review-execution-provenance.json",
         "finding.json",
-        "neutral-fixture-binding.json",
         "device-input-setup.json",
         "package-reset.json",
         "runner-setup.json",
@@ -241,7 +246,7 @@ def test_peer_evidence_copy_includes_semantic_and_raw_files(
             "lane_id": "peer-neutral",
             "raw_refs": (
                 "verdict.json",
-                "execution-provenance.json",
+                "review-execution-provenance.json",
                 "raw/after-event-0/layout.json",
             ),
         },
@@ -251,9 +256,13 @@ def test_peer_evidence_copy_includes_semantic_and_raw_files(
     refs = [item["ref"] for item in index["artifacts"]]
     assert len(refs) == len(set(refs))
     assert "peer/finding.json" in refs
-    assert "peer/execution-provenance.json" in refs
+    assert "peer/review-execution-provenance.json" in refs
+    assert "peer/neutral-fixture-binding.json" not in refs
     assert "peer/raw/after-event-0/layout.json" in refs
-    assert (lane_dir / "peer/raw/after-event-0/layout.json").is_file()
+    assert (
+        lane_dir
+        / "review-input/peer/raw/after-event-0/layout.json"
+    ).is_file()
 
 
 def test_review_prompt_uses_citable_brief_and_exact_allowlist() -> None:
@@ -276,6 +285,55 @@ def test_review_prompt_uses_citable_brief_and_exact_allowlist() -> None:
     assert "- execution-provenance.json" in prompt
     assert "- peer/verdict.json" in prompt
     assert "must exactly match one bullet above" in prompt
+
+
+def test_review_input_audit_scans_allowlisted_artifact_bytes(
+    tmp_path: Path,
+) -> None:
+    def artifact(ref: str, content: bytes) -> SimpleNamespace:
+        path = tmp_path / ref
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+        return SimpleNamespace(
+            ref=ref,
+            sha256=hashlib.sha256(content).hexdigest(),
+        )
+
+    source = artifact("source-target.json", b"safe source")
+    oracle = artifact("oracle-contract.json", b"safe oracle")
+    record = artifact("execution-record.json", b"safe record")
+    identity = artifact("effective-execution-identity.json", b"safe identity")
+    raw = artifact(
+        "raw/layout.json",
+        (
+            b'{"cwd":"/private/tmp/m9-r1-canary-recovery/defect",'
+            b'"subject":"candidate(m9): omit persisted update for option a"}'
+        ),
+    )
+    peer = artifact("peer/layout.json", b"safe peer")
+    context = SimpleNamespace(
+        source_refs=(source,),
+        oracle_contract=oracle,
+        execution_record=record,
+        effective_identity=identity,
+        raw_evidence=(raw,),
+        control_evidence=(peer,),
+        context_sha256="a" * 64,
+        to_dict=lambda: {"context_id": "review-context-neutral"},
+    )
+
+    audit = _review_input_audit(context, "review only listed files", tmp_path)
+
+    assert audit["status"] == "fail"
+    assert audit["audit_method"] == "byte_level_allowlisted_workspace_scan"
+    assert any(
+        item.startswith("external_second_input_path:raw/layout.json")
+        for item in audit["forbidden_disclosures"]
+    )
+    assert any(
+        item.startswith("historical_defect_commit_subject:raw/layout.json")
+        for item in audit["forbidden_disclosures"]
+    )
 
 
 def test_review_contract_binds_brief_provenance_and_peer_semantics(
@@ -437,8 +495,16 @@ def _row(lane_id: str, role: str, conclusion: str) -> dict:
             "status": "complete",
             "outcome": "survived",
             "separate_invocation": True,
+            "receipt": {
+                "ref": f"canary-artifacts/{lane_id}/falsification-review.json",
+                "sha256": "b" * 64,
+            },
         },
         "chain_checks": {"full_chain": True},
+        "execution_record_receipt": {
+            "ref": f"canary-artifacts/{lane_id}/execution-record.json",
+            "sha256": "c" * 64,
+        },
     }
 
 
@@ -458,6 +524,17 @@ def test_canary_reconciliation_can_only_report_readiness_not_formal_support() ->
     assert result["old_136_137_population_invoked"] is False
     assert result["counts"]["accountable"] == 2
     assert all("role" not in lane for lane in result["lanes"])
+    assert all(lane["non_holdout_canary"] is True for lane in result["lanes"])
+    assert all(
+        lane["formal_qualification_eligible"] is False
+        and lane["formal_denominator"] is False
+        for lane in result["lanes"]
+    )
+    assert all(
+        lane["execution_record"]["sha256"] == "c" * 64
+        and lane["falsification_review"]["sha256"] == "b" * 64
+        for lane in result["lanes"]
+    )
     assert '"aggregate_result"' not in json.dumps(result)
 
     blocked_rows = [
@@ -482,3 +559,7 @@ def test_contradiction_gate_is_outside_denominator_and_has_no_commands(
     assert receipt["denominator_member"] is False
     assert receipt["formal_qualification_eligible"] is False
     assert receipt["rejected_before_build_device_agent_runtime"] is True
+    assert receipt["source"]["stage"] == "M9-R2"
+    assert receipt["source"]["fresh_for_attempt"] is True
+    assert receipt["source"]["old_136_137_artifact"] is False
+    assert (tmp_path / "r2-contradiction-packet.json").is_file()

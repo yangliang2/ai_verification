@@ -12,6 +12,7 @@ judge 只读证据、不得操作设备，因此 sandbox 固定为 read-only
 from __future__ import annotations
 
 import hashlib
+import re
 import tempfile
 from pathlib import Path
 
@@ -27,6 +28,9 @@ from aiverify.runner.execution_record import write_json_artifact
 
 class CodexCliProviderError(RuntimeError):
     """codex exec 调用失败或未产出最终回答时抛出。"""
+
+
+_ARTIFACT_PREFIX_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 
 
 class CodexCliProvider(LLMProvider):
@@ -65,6 +69,14 @@ class CodexCliProvider(LLMProvider):
         self.runner = runner if runner is not None else SubprocessCommandRunner()
         self.session_root = session_root or default_codex_session_root()
         self.role = role
+        if (
+            not isinstance(artifact_prefix, str)
+            or not _ARTIFACT_PREFIX_RE.fullmatch(artifact_prefix)
+        ):
+            raise ValueError(
+                "artifact_prefix must be a 1-64 character filename prefix "
+                "containing only letters, digits, dot, underscore, or hyphen"
+            )
         self.artifact_prefix = artifact_prefix
         self.output_schema = output_schema
         self._call_index = 0

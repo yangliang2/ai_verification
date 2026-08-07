@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "issue": 150,
+  "fixed_point": "76fb6730f065e6e4087ae0032e3edb780104807e",
+  "reviewed_head": "43b471e0b7d9741fabeaae842741245d4a966df2",
+  "status": "remediation_in_progress",
+  "standards": {
+    "high": [
+      {
+        "finding": "The run root lacked a durable README, verification/build record, all-attempt inventory, and root checksum ledger.",
+        "resolution": "Run-root records are being added and will be checksum-sealed after the fresh attempt and confirmation reviews."
+      }
+    ],
+    "medium": [
+      {
+        "finding": "Post-setup failure paths omitted runner-setup.json from the terminal ExecutionRecord evidence map.",
+        "resolution": "Every setup, interrupted journey, oracle, identity, and output failure now binds an existing runner setup receipt; setup exceptions also emit a failed receipt."
+      },
+      {
+        "finding": "CodexCliProvider artifact_prefix could escape artifact_dir with an absolute path or parent traversal.",
+        "resolution": "The prefix is restricted to a 1-64 character conservative filename token with regression tests."
+      }
+    ],
+    "low": [
+      {
+        "finding": "The R2 executor is a broad orchestration module and should not become the formal-execution template without decomposition.",
+        "resolution": "Recorded as a maintainability follow-up; no behavior is duplicated into R4 from this canary-only module."
+      }
+    ]
+  },
+  "spec": {
+    "high": [
+      {
+        "finding": "Attempt 04 Falsification Reviews were role-contaminated by the allowlisted neutral-fixture-binding.json bytes.",
+        "resolution": "Attempt 04 is preserved and invalidated. A dedicated sanitized reviewer workspace plus byte-level allowlist audit gates fresh attempt 05."
+      },
+      {
+        "finding": "The required run-level audit record was absent.",
+        "resolution": "README, structured verification/build results, review record, attempt inventory, and a root checksum ledger are being committed."
+      }
+    ],
+    "medium": [
+      {
+        "finding": "Reconciliation did not bind exact terminal ExecutionRecords/review receipts and per-lane reconciliation omitted canary-only flags.",
+        "resolution": "Both exact receipt hashes and non-formal flags are now required in lane and root reconciliation artifacts."
+      },
+      {
+        "finding": "The canary re-read the frozen #136 contradiction artifact while declaring the old population uninvolved.",
+        "resolution": "Each future R2 attempt creates and audits a fresh R2-owned incomplete contradiction packet; #136/#137 are not read or invoked."
+      }
+    ]
+  },
+  "gate": "Fresh attempt 05, full verification, root checksum sealing, and confirmation Standards/Spec reviews must all pass before PR/merge or R3."
+}

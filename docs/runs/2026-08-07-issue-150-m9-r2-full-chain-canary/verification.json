@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "issue": 150,
+  "stage": "M9-R2",
+  "status": "blocked_pending_attempt_05",
+  "fixed_point": {
+    "origin_main": "76fb6730f065e6e4087ae0032e3edb780104807e",
+    "reviewed_implementation_head": "43b471e0b7d9741fabeaae842741245d4a966df2",
+    "merge_base": "76fb6730f065e6e4087ae0032e3edb780104807e",
+    "worktree": "/Users/peter/projects/ai_verification-m9-r2",
+    "original_dirty_worktree_modified": false
+  },
+  "canary": {
+    "command": "/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-04 --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-04 --first-input /private/tmp/m9-r1-canary-recovery/control --second-input /private/tmp/m9-r1-canary-recovery/defect --device emulator-5554",
+    "exit_code": 0,
+    "structured_duration_seconds": 1364.275,
+    "timing_seconds": {
+      "real": 1364.38,
+      "user": 143.95,
+      "sys": 18.56
+    },
+    "result": "invalidated_by_independent_spec_review",
+    "attempt_local_result": "ready_for_fresh_qualification_packet",
+    "ready_for_r3": false,
+    "accountable": 2,
+    "lane_count": 2,
+    "expected_control_rejected": 1,
+    "expected_defect_supported": 1,
+    "attempt_local_reviews_reported_survived": 2,
+    "independent_reviews_valid": 0,
+    "chain_checks_passed": 24,
+    "chain_checks_total": 24,
+    "troubleshooting_retries_in_invocation": 0,
+    "replacement_count": 0,
+    "non_holdout_canary": true,
+    "formal_denominator": false,
+    "formal_holdout_executed": false,
+    "formal_qualification_eligible": false,
+    "old_136_137_population_invoked": false,
+    "contradiction_rejected_before_side_effect": true
+  },
+  "attempts": [
+    {
+      "attempt_id": "attempt-01",
+      "status": "terminal_failure",
+      "wall_duration_seconds": 909.89,
+      "first_failure": "control Codex driver exceeded its 900.14-second bound during repeated Compose text correction",
+      "files_including_ledger": 23,
+      "bytes": 175862,
+      "checksum_entries_passed": 20,
+      "checksum_entries_total": 20
+    },
+    {
+      "attempt_id": "attempt-02",
+      "status": "terminal_failure",
+      "wall_duration_seconds": 447.87,
+      "first_failure": "control execution identity could not obtain the transient Android version",
+      "additional_failures": [
+        "defect journey failed with the Chinese input subtype and save overlay",
+        "review response schema was rejected as invalid"
+      ],
+      "files_including_ledger": 61,
+      "bytes": 2491100,
+      "checksum_entries_passed": 58,
+      "checksum_entries_total": 58
+    },
+    {
+      "attempt_id": "review-schema-smoke",
+      "status": "passed_transport_only",
+      "wall_duration_seconds": 27.3,
+      "denominator_member": false,
+      "oracle_input": false,
+      "files_including_ledger": 7,
+      "bytes": 7491,
+      "checksum_entries_passed": 6,
+      "checksum_entries_total": 6
+    },
+    {
+      "attempt_id": "attempt-03",
+      "status": "terminal_failure",
+      "wall_duration_seconds": 1043.3,
+      "first_failure": "control falsification review referenced falsification-review-context.json outside the clean-context allowlist",
+      "files_including_ledger": 112,
+      "bytes": 12275134,
+      "checksum_entries_passed": 109,
+      "checksum_entries_total": 109
+    },
+    {
+      "attempt_id": "attempt-04",
+      "status": "runtime_pass_review_invalid",
+      "wall_duration_seconds": 1364.275,
+      "files_including_ledger": 171,
+      "bytes": 19173187,
+      "checksum_entries_passed": 168,
+      "checksum_entries_total": 168
+    }
+  ],
+  "focused_tests": {
+    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/discovery/test_falsification_review.py tests/runner/test_admission.py tests/runner/test_codex_backend.py tests/test_codex_cli_provider.py tests/runner/test_cli.py",
+    "passed": 91,
+    "failed": 0,
+    "pytest_duration_seconds": 1.88,
+    "timing_seconds": {
+      "real": 1.98,
+      "user": 1.03,
+      "sys": 0.79
+    }
+  },
+  "full_tests": {
+    "command": "/usr/bin/time -p uv run pytest",
+    "passed": 906,
+    "failed": 0,
+    "pytest_duration_seconds": 65.48,
+    "timing_seconds": {
+      "real": 65.65,
+      "user": 25.33,
+      "sys": 6.39
+    }
+  },
+  "static_checks": [
+    {
+      "command": "uv run python -m py_compile src/aiverify/bench/m9_recovery_canary.py src/aiverify/discovery/falsification_review.py src/aiverify/providers/codex_cli.py src/aiverify/runner/admission.py src/aiverify/runner/codex_identity.py src/aiverify/runner/execution_identity.py",
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check origin/main...HEAD -- bench src tests pyproject.toml",
+      "status": "passed"
+    }
+  ],
+  "manual_verification": {
+    "successful_final_screenshots_and_layouts_visually_inspected": true,
+    "control_state_coherent": true,
+    "defect_state_loss_coherent": true,
+    "successful_logcats_checked_for_fatal_or_anr": true,
+    "fatal_or_anr_found": false
+  },
+  "tools": {
+    "android_cli": "1.0.15498356",
+    "adb": "1.0.41 / platform-tools 37.0.0-14910828",
+    "codex_cli": "0.144.6",
+    "effective_default_model": "gpt-5.6-sol",
+    "git": "2.50.1 (Apple Git-155)",
+    "uv": "0.11.7",
+    "python": "3.11.15"
+  },
+  "known_gaps": [
+    "attempt 04 reviewer inputs disclosed the historical defect source; its review and readiness result are invalid and a fresh attempt is required",
+    "raw Android logcat evidence preserves device-emitted trailing whitespace and is excluded from the authored-source diff whitespace check",
+    "external fixture worktrees and package build archives are reproducible but disposable",
+    "this historical canary cannot qualify a fresh cohort or support M9 Supported"
+  ]
+}

@@ -234,6 +234,22 @@ def test_separate_role_uses_custom_artifact_prefix_and_output_schema(tmp_path):
     assert "--model" not in args
 
 
+@pytest.mark.parametrize(
+    "artifact_prefix",
+    ["", "../escape", "/absolute", "nested/path", "a" * 65],
+)
+def test_artifact_prefix_cannot_escape_evidence_namespace(
+    tmp_path,
+    artifact_prefix,
+):
+    with pytest.raises(ValueError, match="artifact_prefix"):
+        CodexCliProvider(
+            workdir=tmp_path,
+            artifact_dir=tmp_path / "review",
+            artifact_prefix=artifact_prefix,
+        )
+
+
 def test_nonzero_exit_raises(tmp_path):
     runner = FakeRunner(returncode=3)
     p = CodexCliProvider(workdir=tmp_path, runner=runner)

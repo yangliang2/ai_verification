@@ -416,6 +416,13 @@ def _portable_evidence_ref(path: str | Path, *, run_dir: Path) -> str:
         return str(path)
 
 
+def _runner_setup_evidence_ref(run_dir: Path) -> str | None:
+    path = run_dir / "runner-setup.json"
+    if not path.is_file():
+        return None
+    return _portable_evidence_ref(path, run_dir=run_dir)
+
+
 def _flow_evidence_refs(
     flow: JourneySegmentFlow, *, run_dir: Path
 ) -> dict[str, object]:
@@ -705,6 +712,11 @@ def _write_failed_run_verdict(
         evidence_refs["live_validation_gate"] = _portable_evidence_ref(
             preflight_summary["artifact"], run_dir=run_dir
         )
+    runner_setup_ref = _runner_setup_evidence_ref(run_dir)
+    if runner_setup_ref is not None:
+        verdict["runner_setup"] = runner_setup_ref
+        verdict["diagnostic_artifacts"]["runner_setup"] = runner_setup_ref
+        evidence_refs["runner_setup"] = runner_setup_ref
     if flow is not None:
         system_event_refs = [
             _portable_evidence_ref(path, run_dir=run_dir)
@@ -813,6 +825,11 @@ def _finalize_output_failure(
         evidence_refs["live_validation_gate"] = _portable_evidence_ref(
             gate_path, run_dir=run_dir
         )
+    runner_setup_ref = _runner_setup_evidence_ref(run_dir)
+    if runner_setup_ref is not None:
+        verdict["runner_setup"] = runner_setup_ref
+        verdict["diagnostic_artifacts"]["runner_setup"] = runner_setup_ref
+        evidence_refs["runner_setup"] = runner_setup_ref
     if flow is not None:
         journey_refs = [
             str(result.result_path) for result in flow.journey_results
@@ -935,6 +952,10 @@ def _write_non_accountable_verdict(
         },
         "execution_record": str(execution_record.path),
     }
+    runner_setup_ref = _runner_setup_evidence_ref(run_dir)
+    if runner_setup_ref is not None:
+        verdict["runner_setup"] = runner_setup_ref
+        verdict["diagnostic_artifacts"]["runner_setup"] = runner_setup_ref
     failed_timings = [
         timing for timing in flow.timings if timing.get("status") == "failed"
     ]
@@ -993,6 +1014,11 @@ def _write_non_accountable_verdict(
                 artifact_dir.parent / "verdict.json", run_dir=run_dir
             ),
             **_flow_evidence_refs(flow, run_dir=run_dir),
+            **(
+                {"runner_setup": runner_setup_ref}
+                if runner_setup_ref is not None
+                else {}
+            ),
         },
     )
     return verdict
@@ -1251,7 +1277,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             },
         )
     except Exception as error:
-        if setup_operations and not runner_setup_path.exists():
+        if not runner_setup_path.exists():
             try:
                 write_json_artifact(
                     runner_setup_path,
@@ -1261,6 +1287,10 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
                         "device": device,
                         "launch_requested": launch,
                         "operations": setup_operations,
+                        "error": {
+                            "type": type(error).__name__,
+                            "message": str(error),
+                        },
                         "duration_seconds": round(
                             time.monotonic() - setup_start, 3
                         ),
