@@ -1,0 +1,83 @@
+{
+  "journey": "m9-r2-canary-alpha-segment-0",
+  "results": [
+    {
+      "action_id": "action-1",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 74 216",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 568"
+      ],
+      "comment": "The initial layout showed the empty Todo task list. Opened the visible drawer, observed Task List at [540,568], and dispatched its tap.",
+      "action": "Open the task list"
+    },
+    {
+      "action_id": "action-2",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 426",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input text \"r2a0\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 969",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input text \"adesc\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232"
+      ],
+      "comment": "Tapped New Task, observed focus before each text entry, and verified title r2a0 and description adesc. Dismissed the keyboard, relocated Save task at [975,2232], and dispatched its tap.",
+      "action": "Create a task titled r2a0 with description adesc"
+    },
+    {
+      "action_id": "action-3",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 552",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 426",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_MOVE_END",
+        "adb -s emulator-5554 shell input keyevent 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67",
+        "adb -s emulator-5554 shell input text \"r2a1\"",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 975 2232"
+      ],
+      "comment": "Opened the unique r2a0 task and tapped Edit Task. Used the required replacement sequence and verified r2a1 in one fresh layout; adesc remained present. Dismissed the keyboard, relocated Save task, and dispatched its tap.",
+      "action": "Edit the task title to r2a1"
+    },
+    {
+      "action_id": "action-4",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 74 216",
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 568"
+      ],
+      "comment": "The fresh layout showed the task list with r2a1. Dispatched task-list navigation through the visible drawer by tapping Open Drawer and then Task List.",
+      "action": "Navigate back to the task list"
+    },
+    {
+      "action_id": "action-5",
+      "status": "PASSED",
+      "commands": [
+        "android layout --device=emulator-5554 --pretty",
+        "adb -s emulator-5554 shell input tap 540 552",
+        "android layout --device=emulator-5554 --pretty"
+      ],
+      "comment": "Observed the same unique task as r2a1 at row center [540,552] and dispatched its tap. The subsequent layout showed Task Details with r2a1 and adesc.",
+      "action": "Reopen the same uniquely created task by tapping it, even if the displayed title is r2a0 rather than r2a1"
+    }
+  ]
+}

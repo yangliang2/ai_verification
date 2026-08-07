@@ -1,0 +1,114 @@
+{
+  "canary_result": "ready_for_fresh_qualification_packet",
+  "chain_checks": {
+    "m9-r2-canary-alpha": {
+      "android_cli_install_deploy": true,
+      "codex_driver": true,
+      "default_model_identity": true,
+      "english_us_input_subtype": true,
+      "explicit_launch": true,
+      "layout_evidence": true,
+      "live_validation": true,
+      "logcat_evidence": true,
+      "oracle_path": true,
+      "package_reset": true,
+      "screenshot_evidence": true,
+      "terminal_execution_record": true
+    },
+    "m9-r2-canary-beta": {
+      "android_cli_install_deploy": true,
+      "codex_driver": true,
+      "default_model_identity": true,
+      "english_us_input_subtype": true,
+      "explicit_launch": true,
+      "layout_evidence": true,
+      "live_validation": true,
+      "logcat_evidence": true,
+      "oracle_path": true,
+      "package_reset": true,
+      "screenshot_evidence": true,
+      "terminal_execution_record": true
+    }
+  },
+  "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+  "contradiction_rejected_before_side_effect": true,
+  "counts": {
+    "accountable": 2,
+    "expected_control_rejected": 1,
+    "expected_defect_supported": 1,
+    "independent_reviews_survived": 2,
+    "lane_count": 2
+  },
+  "formal_denominator": false,
+  "formal_holdout_executed": false,
+  "formal_qualification_eligible": false,
+  "lanes": [
+    {
+      "accountable": true,
+      "chain_checks": {
+        "android_cli_install_deploy": true,
+        "codex_driver": true,
+        "default_model_identity": true,
+        "english_us_input_subtype": true,
+        "explicit_launch": true,
+        "layout_evidence": true,
+        "live_validation": true,
+        "logcat_evidence": true,
+        "oracle_path": true,
+        "package_reset": true,
+        "screenshot_evidence": true,
+        "terminal_execution_record": true
+      },
+      "duration_seconds": 388.279,
+      "finding_conclusion": "rejected",
+      "lane_id": "m9-r2-canary-alpha",
+      "review": {
+        "context_sha256": "ddd9ee4b89e35b6850b104c72da72d453f144970e628530497db9fd314429a60",
+        "effective_model": "gpt-5.6-sol",
+        "model_override_present": false,
+        "outcome": "survived",
+        "requested_model": null,
+        "reviewer_identity_sha256": "2d8b9c024359643acf6ab5b183693c2f7d7293343b930ea027aad798de6def27",
+        "separate_invocation": true,
+        "status": "complete"
+      },
+      "run_spec_sha256": "427089d06ccc740991dc1f05aadc9e74bf24e66f1a98aedadc69186c6b06a99d"
+    },
+    {
+      "accountable": true,
+      "chain_checks": {
+        "android_cli_install_deploy": true,
+        "codex_driver": true,
+        "default_model_identity": true,
+        "english_us_input_subtype": true,
+        "explicit_launch": true,
+        "layout_evidence": true,
+        "live_validation": true,
+        "logcat_evidence": true,
+        "oracle_path": true,
+        "package_reset": true,
+        "screenshot_evidence": true,
+        "terminal_execution_record": true
+      },
+      "duration_seconds": 355.053,
+      "finding_conclusion": "supported",
+      "lane_id": "m9-r2-canary-beta",
+      "review": {
+        "context_sha256": "3a2da10753d29559a33df98730069a3e3fe3505c70871f2aacc9f7fafe23267c",
+        "effective_model": "gpt-5.6-sol",
+        "model_override_present": false,
+        "outcome": "survived",
+        "requested_model": null,
+        "reviewer_identity_sha256": "1b3d15147e7de5950495881321fed07fcc79a5d9060594983c7cda45141b1ef4",
+        "separate_invocation": true,
+        "status": "complete"
+      },
+      "run_spec_sha256": "53b92d680a679dd7bef2e8f7dbcf9cb4767e05c689a1a857753a08eb9901b77f"
+    }
+  ],
+  "non_holdout_canary": true,
+  "old_136_137_population_invoked": false,
+  "prohibited_interpretation": "This result cannot support the M9 formal qualification conclusion.",
+  "ready_for_r3": true,
+  "schema_version": 1
+}
