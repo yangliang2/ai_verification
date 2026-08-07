@@ -1,0 +1,119 @@
+{
+  "run_id": "2026-08-06-smoke-setup-validation",
+  "recorded_at": "2026-08-06T21:00:21-0400",
+  "classification": "non-holdout-local-smoke",
+  "status": "complete",
+  "formal_m9_denominator_inclusion": false,
+  "formal_m9_conclusion_unchanged": "Not Supported",
+  "backend": "none",
+  "requested_model_identity": "not applicable",
+  "effective_model_identity": "not applicable",
+  "repository": {
+    "branch": "m9-smoke-setup-validation",
+    "base_commit": "716ce60020916127176b24c71e3829f603468a5e",
+    "origin_main": "716ce60020916127176b24c71e3829f603468a5e"
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "avd": "aiverify_api35",
+    "model": "sdk_gphone64_arm64",
+    "api_level": 35,
+    "boot_completed": true,
+    "network_policy_changed": false
+  },
+  "application": {
+    "package": "com.example.android.architecture.blueprints.main",
+    "activity": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "version_code": 1,
+    "version_name": "1.0",
+    "min_sdk": 21,
+    "target_sdk": 35
+  },
+  "fixtures": [
+    {
+      "id": "fixture-a",
+      "source_worktree": "/private/tmp/m9-136-candidate-a-control",
+      "source_branch": "m9-136-candidate-a-control",
+      "source_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+      "source_tree": "19455e693ec8c96c37a56aec55059a220826c5a3",
+      "build_command": "./gradlew --no-daemon assembleDebug",
+      "build_result": "pass",
+      "build_duration": "1m12s",
+      "gradle_actionable_tasks": 71,
+      "gradle_executed_tasks": 28,
+      "gradle_up_to_date_tasks": 43,
+      "apk_size_bytes": 24681606,
+      "apk_sha256": "d38b30f17010da114b5585dadec8326eb76b04dfbae4a175f7cb2840a0093c66",
+      "smoke": {
+        "install": "pass",
+        "cold_launch": "pass",
+        "launch_total_ms": 991,
+        "launch_wait_ms": 993,
+        "baseline_render": "pass",
+        "baseline_process_death_layout": "pass",
+        "create_task": "pass",
+        "edit_persisted_after_process_death": "pass",
+        "final_titles": ["SmokeControlB"],
+        "final_detail_text": ["SmokeControlB", "SmokeDescriptionControl", "Task Details"]
+      }
+    },
+    {
+      "id": "fixture-b",
+      "source_worktree": "/private/tmp/m9-136-option-a",
+      "source_branch": "m9-136-candidate-a-defect",
+      "source_commit": "208575f78d59716669d0733b5ed3e08797b08787",
+      "source_tree": "34998af23aed59aa17eaf915d848ab1b916a63e2",
+      "build_command": "./gradlew --no-daemon assembleDebug",
+      "build_result": "pass",
+      "build_duration": "11s",
+      "gradle_actionable_tasks": 71,
+      "gradle_executed_tasks": 28,
+      "gradle_up_to_date_tasks": 43,
+      "apk_size_bytes": 24681461,
+      "apk_sha256": "61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac",
+      "smoke": {
+        "install": "pass",
+        "cold_launch": "pass",
+        "launch_total_ms": 909,
+        "baseline_render": "pass",
+        "baseline_process_death_layout": "pass",
+        "create_task": "pass",
+        "edit_save_ui": "pass_with_old_title_observed",
+        "edit_persisted_after_process_death": "not_observed",
+        "final_titles": ["SmokeTitleA"],
+        "final_detail_text": ["SmokeTitleA", "SmokeDescriptionA", "Task Details"]
+      }
+    }
+  ],
+  "setup": {
+    "absent_package_pm_clear_exit_code": 1,
+    "absent_package_pm_clear_output": "Failed",
+    "install_command": "adb -s emulator-5554 install -r -d <fixture>/app/build/outputs/apk/debug/app-debug.apk",
+    "install_result": "Success",
+    "final_uninstall_result": "Success",
+    "final_pm_path_exit_code": 1
+  },
+  "repository_test": {
+    "command": "/usr/bin/time -p uv run --extra dev pytest -q -rA tests/bench/test_m9_formal.py",
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "real_seconds": 0.19,
+    "user_seconds": 0.15,
+    "sys_seconds": 0.03
+  },
+  "observed_artifacts": {
+    "fixture_a_files": 19,
+    "fixture_b_files": 24,
+    "metadata_files": ["README.md", "smoke-summary.json", "tool-versions.json", "checksums.sha256"]
+  },
+  "claim_boundary": [
+    "local-only",
+    "non-holdout",
+    "not a formal M9 qualification",
+    "no Supported claim",
+    "no hidden mapping release",
+    "no independent falsification review",
+    "no production, upstream, OEM, ColorOS, benchmark, recall, success-rate, or integrity claim"
+  ]
+}
