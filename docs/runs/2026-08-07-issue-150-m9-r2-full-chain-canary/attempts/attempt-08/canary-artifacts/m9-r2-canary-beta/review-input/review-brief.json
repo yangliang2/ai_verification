@@ -1,0 +1,640 @@
+{
+  "admitted_attack_plan": {
+    "abort_boundary": "stop after the bounded terminal observation",
+    "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+    "evidence_expectations": [
+      "pre-save and post-save layout",
+      "reopened and post-process layout",
+      "screenshot",
+      "log output",
+      "terminal execution identity"
+    ],
+    "experiment_refs": [],
+    "fixture_refs": [
+      "fixture:local-api35-emulator"
+    ],
+    "hypothesis_id": "hypothesis-m9-r2-canary-beta",
+    "observations": [
+      "observe the edited title before Save",
+      "observe the task immediately after Save",
+      "observe it again after reopening and process restoration"
+    ],
+    "operator_id": "operator-task-persistence-observation",
+    "oracle": "oracle-task-title-persistence-v1",
+    "plan_id": "plan-m9-r2-canary-beta",
+    "schema_version": 1,
+    "status": "admitted",
+    "target_id": "target-m9-r2-canary-beta",
+    "trigger": "enter the recorded task boundary once"
+  },
+  "candidate_finding": {
+    "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+    "conclusion": "supported",
+    "evidence_refs": [
+      "verdict.json",
+      "runner-setup.json",
+      "live-validation-gate.json",
+      "review-execution-provenance.json",
+      "device-input-setup.json",
+      "package-reset.json",
+      "raw/after-event-0/commands.json",
+      "raw/after-event-0/layout.json",
+      "raw/after-event-0/logcat.txt",
+      "raw/after-event-0/screen.png",
+      "raw/after-event-1/commands.json",
+      "raw/after-event-1/layout.json",
+      "raw/after-event-1/logcat.txt",
+      "raw/after-event-1/screen.png",
+      "raw/after-event-2/commands.json",
+      "raw/after-event-2/layout.json",
+      "raw/after-event-2/logcat.txt",
+      "raw/after-event-2/screen.png",
+      "raw/after-segment-0/commands.json",
+      "raw/after-segment-0/layout.json",
+      "raw/after-segment-0/logcat.txt",
+      "raw/after-segment-0/screen.png",
+      "raw/after-segment-1/commands.json",
+      "raw/after-segment-1/layout.json",
+      "raw/after-segment-1/logcat.txt",
+      "raw/after-segment-1/screen.png",
+      "raw/after-segment-2/commands.json",
+      "raw/after-segment-2/layout.json",
+      "raw/after-segment-2/logcat.txt",
+      "raw/after-segment-2/screen.png",
+      "raw/system-event-0/event.json",
+      "raw/system-event-1/event.json",
+      "raw/system-event-2/event.json"
+    ],
+    "finding_id": "finding-m9-r2-canary-beta",
+    "hypothesis_id": "hypothesis-m9-r2-canary-beta",
+    "impact": "an accepted task edit may fail to retain its title after the explicit save, reopen, and process-boundary sequence",
+    "rationale": "The candidate conclusion is derived only from this terminal runner record, oracle outputs, and checksum-bound runtime evidence.",
+    "schema_version": 1,
+    "target_id": "target-m9-r2-canary-beta"
+  },
+  "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+  "context_id": "review-context-m9-r2-canary-beta",
+  "effective_identity": {
+    "immutable": true,
+    "kind": "effective-identity",
+    "ref": "effective-execution-identity.json",
+    "schema_version": 1,
+    "sha256": "d2f39217727ee68a0ac33a1d26800515b0c38a98db2bac1163c2ce984e4dfa6f"
+  },
+  "execution_record": {
+    "immutable": true,
+    "kind": "execution-record",
+    "ref": "execution-record.json",
+    "schema_version": 1,
+    "sha256": "1419127091790be7d26f270e1082ac9fefc95c0fbefedeae3a7a8fe1486649e8"
+  },
+  "hypothesis": {
+    "assumptions": [
+      "the recorded UI actions reached the editor and explicit save navigation boundaries"
+    ],
+    "confidence": 0.5,
+    "consequence": "the edited title is absent immediately after save or after reopening",
+    "hypothesis_id": "hypothesis-m9-r2-canary-beta",
+    "mechanism": "the accepted save path may fail to retain the edited title across subsequent reads",
+    "quality_property": "edited task persistence across explicit save, reopen, and process boundaries",
+    "rationale": "Pre-save, post-save, reopened, and post-process checkpoints make the bounded persistence behavior falsifiable without attributing it to an internal repository mechanism.",
+    "required_evidence": [
+      "terminal execution record",
+      "pre-save and post-save runtime checkpoints",
+      "reopened and post-process layout, screenshot, and log evidence",
+      "agent and oracle identity"
+    ],
+    "schema_version": 1,
+    "status": "frozen",
+    "supporting_fact_ids": [
+      "fact-edit-save-boundary",
+      "fact-process-boundary",
+      "fact-runtime-observation"
+    ],
+    "target_id": "target-m9-r2-canary-beta",
+    "trigger": "create one uniquely named task, edit it, and invoke Save once",
+    "unknowns": []
+  },
+  "oracle_contract": {
+    "immutable": true,
+    "kind": "oracle-contract",
+    "ref": "oracle-contract.json",
+    "schema_version": 1,
+    "sha256": "0ef652e7a783077f87ab203bac38929e147d34472142085457cb0f7814f0cbbe"
+  },
+  "peer_evidence": [
+    {
+      "immutable": true,
+      "kind": "peer-evidence-index",
+      "ref": "peer-evidence-index.json",
+      "schema_version": 1,
+      "sha256": "911f74fc57563d02c4f4d2496d546a4094a9f2acd6f43fe9be066de12884b5f5"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/verdict.json",
+      "schema_version": 1,
+      "sha256": "cc760477932b5b213a189183417e5e982810fa4abcfe16f4d1440b674987b810"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/execution-record.json",
+      "schema_version": 1,
+      "sha256": "82bd178a52046a5eeb03a06cc3b502418b6dad13da3e06126bae03cbc4f8c85d"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/effective-execution-identity.json",
+      "schema_version": 1,
+      "sha256": "41efe0c62268d73254c56217efdb6ac3a119d06d9f2541c8fbe72ed595e35636"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/review-execution-provenance.json",
+      "schema_version": 1,
+      "sha256": "e2a8ec9d8682fc0b84601c855ee9a5decf221a28ece8e78cb37f32bac4a24059"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/finding.json",
+      "schema_version": 1,
+      "sha256": "2f7a8c4018b59f495663497fd83beae2a9c4589306ff188a902e6f45b8317dd7"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/device-input-setup.json",
+      "schema_version": 1,
+      "sha256": "590078ef8d391d4a4eeeba2b784f91c2257ff890898b3fac3a25057f2a416f5b"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/package-reset.json",
+      "schema_version": 1,
+      "sha256": "7672e9baff02866070f7e8ad8fb190f0329e6dddcdca362d5e1b622f30e9fba8"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/runner-setup.json",
+      "schema_version": 1,
+      "sha256": "9e5a6cd67b648e10564fe050124da6b8db8b663ecdb3df533ff499e8e6f8dbee"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/live-validation-gate.json",
+      "schema_version": 1,
+      "sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-0/commands.json",
+      "schema_version": 1,
+      "sha256": "3b2dc76a21c8b8c892dfec512d3771d8c252b2d260408fd7df5d725256f7d715"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-0/layout.json",
+      "schema_version": 1,
+      "sha256": "83cda0898513b16621553378cdfe644e6cbe6cd349f40eb02319722b6b5ae82f"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-0/logcat.txt",
+      "schema_version": 1,
+      "sha256": "357c55055e35a38b8855da33420adff61476225d71169e11437232cf1ccd83fb"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-0/screen.png",
+      "schema_version": 1,
+      "sha256": "c79e5765dd9963172fe41d9deeb252869db6e214b703533a60c53c7f98c82e7f"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-1/commands.json",
+      "schema_version": 1,
+      "sha256": "f3bc6a629b69a20828cd48eaa89c1e54fb0c87ac9ea2a313f92856f810d41d5a"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-1/layout.json",
+      "schema_version": 1,
+      "sha256": "5cea534a405790c504230ba0ad56e09c81354fa48c0568b4ca919833d907f058"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-1/logcat.txt",
+      "schema_version": 1,
+      "sha256": "aea03b52ba64b9afd7980c8867a02f3a9b43a4336e6dc6946307f7fbb2d34810"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-1/screen.png",
+      "schema_version": 1,
+      "sha256": "d98f8426788bbbc6c982b0df3f42e04dcd1e96483df8cb60cdbb4a6be2ad197f"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-2/commands.json",
+      "schema_version": 1,
+      "sha256": "f417c5ea402102dfa4adf0ec9ad466675ff608ef5571f96af19247fe86f44a49"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-2/layout.json",
+      "schema_version": 1,
+      "sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-2/logcat.txt",
+      "schema_version": 1,
+      "sha256": "9b7933a65c8c3880184e1f1b20ebb200fe5694fc24b39688e53013062248369a"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-event-2/screen.png",
+      "schema_version": 1,
+      "sha256": "34f90ddc4b4bce1b12a0291a0b366d6bc9751f0c9f5c3c84678a31c850abe85c"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-0/commands.json",
+      "schema_version": 1,
+      "sha256": "79dcc1005c2f0a69a5f8a9b2f07de20a3655c6bffab98c8c6a9b926fefa6703e"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-0/layout.json",
+      "schema_version": 1,
+      "sha256": "83cda0898513b16621553378cdfe644e6cbe6cd349f40eb02319722b6b5ae82f"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-0/logcat.txt",
+      "schema_version": 1,
+      "sha256": "9678635e35096d6da5e711dd191177fbb41e45408f3a0678df80e43604062a57"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-0/screen.png",
+      "schema_version": 1,
+      "sha256": "ed56dba5b404001ac171ee66f89967fcff84c4ae18eb28105883faac4b572a9e"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-1/commands.json",
+      "schema_version": 1,
+      "sha256": "0bbb2ee2aa0fd172ad5dab61b333eb248bf3c185fbd828308991bce87bb94852"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-1/layout.json",
+      "schema_version": 1,
+      "sha256": "5cea534a405790c504230ba0ad56e09c81354fa48c0568b4ca919833d907f058"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-1/logcat.txt",
+      "schema_version": 1,
+      "sha256": "d8a43e786742bbe28ae441b3a838e3d9c489871771d3308dffe62555dbe37326"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-1/screen.png",
+      "schema_version": 1,
+      "sha256": "d98f8426788bbbc6c982b0df3f42e04dcd1e96483df8cb60cdbb4a6be2ad197f"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-2/commands.json",
+      "schema_version": 1,
+      "sha256": "74338f6e6f8c3b97bcf4da3d165c33238f7e71705563fcf4c5d3a0df0bc52ff0"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-2/layout.json",
+      "schema_version": 1,
+      "sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-2/logcat.txt",
+      "schema_version": 1,
+      "sha256": "4ffd0d88c691ba691f3ecfeada22109dc9382c9ccaa9c9d13428b8e9cb505ae3"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/after-segment-2/screen.png",
+      "schema_version": 1,
+      "sha256": "34f90ddc4b4bce1b12a0291a0b366d6bc9751f0c9f5c3c84678a31c850abe85c"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/system-event-0/event.json",
+      "schema_version": 1,
+      "sha256": "e5f82194b6529ecd4adaa58bf672c90955e880b6b39dc0f2f97c9c8b8d64c481"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/system-event-1/event.json",
+      "schema_version": 1,
+      "sha256": "e5f82194b6529ecd4adaa58bf672c90955e880b6b39dc0f2f97c9c8b8d64c481"
+    },
+    {
+      "immutable": true,
+      "kind": "peer-runtime-evidence",
+      "ref": "peer/raw/system-event-2/event.json",
+      "schema_version": 1,
+      "sha256": "32ca8f1c562b842598b86f559e1cdecfcdaf87bd7c87c99f59a6053aa388b5a1"
+    }
+  ],
+  "raw_evidence": [
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "verdict.json",
+      "schema_version": 1,
+      "sha256": "03d3acc2d83dc0c0417c095c59ebcc42cea4b3c05e4306f152c7bf97a5c5cf63"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "runner-setup.json",
+      "schema_version": 1,
+      "sha256": "88105b3418ba63c3cd2fbe61abf229609d94a26cc67b61a9ae58ae065a5ab804"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "live-validation-gate.json",
+      "schema_version": 1,
+      "sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "review-execution-provenance.json",
+      "schema_version": 1,
+      "sha256": "221a800b9521321fe772925728e352ec1cebfd3549761e6ec0ecfc39f7387228"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "device-input-setup.json",
+      "schema_version": 1,
+      "sha256": "ed0abc7a6e5ba5417337055c89718f371e96940032fe9c45bd6df19763b5ec74"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "package-reset.json",
+      "schema_version": 1,
+      "sha256": "e28564a8dd1cd03a1fcbdbe4d56eaeecf16778cacdd2fc8c029b8b518e736795"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-0/commands.json",
+      "schema_version": 1,
+      "sha256": "8ec4db0a4eae019632777532e7cd47518431014184c8776558fe65667261d30f"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-0/layout.json",
+      "schema_version": 1,
+      "sha256": "31acdf9679eff05884eadf7c57533dce8e57151d1a16b132cf40db2e0b64cbd3"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-0/logcat.txt",
+      "schema_version": 1,
+      "sha256": "83777c485466f1ced91c486b9fc8639b115c8afa9ea0f0a4d407414afc6fe7a9"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-0/screen.png",
+      "schema_version": 1,
+      "sha256": "53259fdf3e84ba5b497de4e57dc4d4abda543b5a55949701cb66b3e499fd5780"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-1/commands.json",
+      "schema_version": 1,
+      "sha256": "f84fe03c8f266d2ea1218462fc5b1bb40fe61ac5c688c4cccab9ad13e4169d60"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-1/layout.json",
+      "schema_version": 1,
+      "sha256": "4880fa4281029391e97fac715858768488899f4342c26ce1bcf0d339180ce44b"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-1/logcat.txt",
+      "schema_version": 1,
+      "sha256": "6a3c82b60dee19722d5b259dce2f0e3ece6301e230f15b32049dabf6217abe7e"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-1/screen.png",
+      "schema_version": 1,
+      "sha256": "a6b04b96b42d9d347494f5a10c688fdadb3f43e6d0687a8a22418103c750de66"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-2/commands.json",
+      "schema_version": 1,
+      "sha256": "26cc26e19cd62b2c7781d91aaaa2b7a617037ef6fff82fadfb65ee0dfc2ec2de"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-2/layout.json",
+      "schema_version": 1,
+      "sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-2/logcat.txt",
+      "schema_version": 1,
+      "sha256": "f2f25ec76082559c7afbcd913cdbaa241554beafd8955142841511b4eff1d9a1"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-event-2/screen.png",
+      "schema_version": 1,
+      "sha256": "8d8b8af9835a007d9a45188679abb6ec46e908e97deb76d4f54f27628899d58e"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-0/commands.json",
+      "schema_version": 1,
+      "sha256": "480afd70a7fb0a4faae25dc28099f760b3b452144c10137e4daffd0d8ac9f034"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-0/layout.json",
+      "schema_version": 1,
+      "sha256": "31acdf9679eff05884eadf7c57533dce8e57151d1a16b132cf40db2e0b64cbd3"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-0/logcat.txt",
+      "schema_version": 1,
+      "sha256": "5aa998533317dcd01f8c4e1a72b4751bd870cd35f7716a12f386e41727fb2118"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-0/screen.png",
+      "schema_version": 1,
+      "sha256": "a10839d79eb6350f5dc0f8b5e4566bae4fbc3d9ad1d4a2b3684a02fa28b4eb5c"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-1/commands.json",
+      "schema_version": 1,
+      "sha256": "e208a906368b196b4413ff57ba3ed8b09f7793fa938813dea9097b506cc2342d"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-1/layout.json",
+      "schema_version": 1,
+      "sha256": "4880fa4281029391e97fac715858768488899f4342c26ce1bcf0d339180ce44b"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-1/logcat.txt",
+      "schema_version": 1,
+      "sha256": "a6692a88c3ce7f80045528b224a9203b6da146b32118d560489565109b7f2327"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-1/screen.png",
+      "schema_version": 1,
+      "sha256": "a6b04b96b42d9d347494f5a10c688fdadb3f43e6d0687a8a22418103c750de66"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-2/commands.json",
+      "schema_version": 1,
+      "sha256": "955fe5883aff7234b3df0293213dc73f1cf9b7c655591b7eaa34055d4555aff8"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-2/layout.json",
+      "schema_version": 1,
+      "sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-2/logcat.txt",
+      "schema_version": 1,
+      "sha256": "a5a65eb975ed1088388a67e18c31491a2b50f050afe8197c2f632aa6bbc02340"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/after-segment-2/screen.png",
+      "schema_version": 1,
+      "sha256": "eacede1f8298c7acd10e4f61b73bb5528450c67d042c9a74930786bb56080627"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/system-event-0/event.json",
+      "schema_version": 1,
+      "sha256": "e5f82194b6529ecd4adaa58bf672c90955e880b6b39dc0f2f97c9c8b8d64c481"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/system-event-1/event.json",
+      "schema_version": 1,
+      "sha256": "e5f82194b6529ecd4adaa58bf672c90955e880b6b39dc0f2f97c9c8b8d64c481"
+    },
+    {
+      "immutable": true,
+      "kind": "raw-runtime-evidence",
+      "ref": "raw/system-event-2/event.json",
+      "schema_version": 1,
+      "sha256": "7a99b70936d67718b2251777f22db159f4ed8b427b7b4610d1502ddb6d1153f1"
+    }
+  ],
+  "schema_version": 1,
+  "target": {
+    "discovery_budget": 8,
+    "kind": "project",
+    "schema_version": 1,
+    "scope": [
+      "app/src/main/java/com/example/android/architecture/blueprints/todoapp/data/DefaultTaskRepository.kt",
+      "app/src/main/AndroidManifest.xml",
+      "app/build.gradle.kts",
+      "settings.gradle.kts"
+    ],
+    "source_commit": "review-source-m9-r2-canary-beta",
+    "source_origin": "review-sanitized-runtime-evidence",
+    "target_id": "target-m9-r2-canary-beta",
+    "worktree": "review-input/m9-r2-canary-beta"
+  },
+  "validated_fact_ids": [
+    "fact-edit-save-boundary",
+    "fact-process-boundary",
+    "fact-runtime-observation"
+  ]
+}

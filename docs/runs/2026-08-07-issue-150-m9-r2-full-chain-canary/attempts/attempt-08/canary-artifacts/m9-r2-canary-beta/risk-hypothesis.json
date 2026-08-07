@@ -1,0 +1,27 @@
+{
+  "assumptions": [
+    "the recorded UI actions reached the editor and explicit save navigation boundaries"
+  ],
+  "confidence": 0.5,
+  "consequence": "the edited title is absent immediately after save or after reopening",
+  "hypothesis_id": "hypothesis-m9-r2-canary-beta",
+  "mechanism": "the accepted save path may fail to retain the edited title across subsequent reads",
+  "quality_property": "edited task persistence across explicit save, reopen, and process boundaries",
+  "rationale": "Pre-save, post-save, reopened, and post-process checkpoints make the bounded persistence behavior falsifiable without attributing it to an internal repository mechanism.",
+  "required_evidence": [
+    "terminal execution record",
+    "pre-save and post-save runtime checkpoints",
+    "reopened and post-process layout, screenshot, and log evidence",
+    "agent and oracle identity"
+  ],
+  "schema_version": 1,
+  "status": "frozen",
+  "supporting_fact_ids": [
+    "fact-edit-save-boundary",
+    "fact-process-boundary",
+    "fact-runtime-observation"
+  ],
+  "target_id": "target-m9-r2-canary-beta",
+  "trigger": "create one uniquely named task, edit it, and invoke Save once",
+  "unknowns": []
+}

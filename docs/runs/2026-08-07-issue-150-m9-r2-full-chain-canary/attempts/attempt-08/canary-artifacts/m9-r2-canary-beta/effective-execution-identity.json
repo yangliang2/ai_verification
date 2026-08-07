@@ -1,0 +1,65 @@
+{
+  "backend": "codex_cli",
+  "execution_provenance": {
+    "ref": "execution-provenance.json",
+    "sha256": "b8f08e55e7607534b5c5b3a45fc7a9a9453814a310901b242c27ddfc54bfcb94"
+  },
+  "model_override_present": false,
+  "production_invocation_id": "019fdda1-14ca-77b1-9dbd-f6ae4e53f053:019fdda1-2d5f-7613-8b51-a9c32f56f404",
+  "requested_model": null,
+  "roles": {
+    "journey_driver": {
+      "invocations": [
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/m9-r2-canary-beta-segment-0/codex-invocation-identity.json",
+          "identity_sha256": "611b9ada1a4c3be85214f24ab6e616e221b458a9abf50f96c00c823c47a28b41",
+          "invocation_id": "019fdda1-14ca-77b1-9dbd-f6ae4e53f053:019fdda1-2d5f-7613-8b51-a9c32f56f404",
+          "model_override_present": false
+        },
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/m9-r2-canary-beta-segment-1/codex-invocation-identity.json",
+          "identity_sha256": "c6e00aa63e97a40c0866ab7b88040ff7ce70b6f5e36bbaa41249a18f96a796d3",
+          "invocation_id": "019fdda5-1a5f-7ee1-a1ba-69675ca1f70c:019fdda5-3b8a-73c2-ae7d-979c296ba84f",
+          "model_override_present": false
+        },
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/m9-r2-canary-beta-segment-2/codex-invocation-identity.json",
+          "identity_sha256": "8ecfa689d14a1f817cf0f30ab4339d276452e009a2b5f54a189862f949756977",
+          "invocation_id": "019fdda6-5d0b-7b10-a746-e533213f35c8:019fdda6-7545-77a2-86f5-40d402f2dcd6",
+          "model_override_present": false
+        }
+      ],
+      "model_override_present": false,
+      "requested_model": null,
+      "selection_policy": "codex_cli_default",
+      "status": "invoked"
+    },
+    "l3_semantic_judge": {
+      "invocations": [
+        {
+          "effective_model": "gpt-5.6-sol",
+          "identity_ref": "artifacts/l3-judge/l3-judge-call-1.identity.json",
+          "identity_sha256": "bafddf25e8f1820961562fe8b75573bf14d3e31b3d26b181de1ad39bedfb6fc8",
+          "invocation_id": "019fdda7-c7ea-71e2-8493-12932bba6778:019fdda7-e024-72b0-89e7-ede6559cb852",
+          "model_override_present": false
+        }
+      ],
+      "model_override_present": false,
+      "requested_model": null,
+      "selection_policy": "codex_cli_default",
+      "status": "invoked"
+    }
+  },
+  "schema_version": 1,
+  "selection_policy": "codex_cli_default",
+  "status": "complete",
+  "verdict_execution": {
+    "accounting_eligible": true,
+    "message": null,
+    "reason": null,
+    "status": "completed"
+  }
+}

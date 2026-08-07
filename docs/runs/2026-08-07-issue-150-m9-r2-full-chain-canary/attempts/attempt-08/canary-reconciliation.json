@@ -1,0 +1,154 @@
+{
+  "canary_result": "ready_for_fresh_qualification_packet",
+  "chain_checks": {
+    "m9-r2-canary-alpha": {
+      "android_cli_install_deploy": true,
+      "codex_driver": true,
+      "default_model_identity": true,
+      "english_us_input_subtype": true,
+      "explicit_launch": true,
+      "layout_evidence": true,
+      "live_validation": true,
+      "logcat_evidence": true,
+      "oracle_path": true,
+      "package_reset": true,
+      "screenshot_evidence": true,
+      "terminal_execution_record": true
+    },
+    "m9-r2-canary-beta": {
+      "android_cli_install_deploy": true,
+      "codex_driver": true,
+      "default_model_identity": true,
+      "english_us_input_subtype": true,
+      "explicit_launch": true,
+      "layout_evidence": true,
+      "live_validation": true,
+      "logcat_evidence": true,
+      "oracle_path": true,
+      "package_reset": true,
+      "screenshot_evidence": true,
+      "terminal_execution_record": true
+    }
+  },
+  "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+  "contradiction_evidence": {
+    "packet": {
+      "ref": "r2-contradiction-packet.json",
+      "sha256": "bbb01f576c0c90ccd6bc015df88166454021401f359bc27a284f8b6aac51e8fd"
+    },
+    "rejection": {
+      "ref": "contradiction-rejection.json",
+      "sha256": "294369ed318ae08d33c4b01fc7f94a9d846e3d579bb807f780f72b53a002fc97"
+    }
+  },
+  "contradiction_rejected_before_side_effect": true,
+  "counts": {
+    "accountable": 2,
+    "expected_control_rejected": 1,
+    "expected_defect_supported": 1,
+    "independent_reviews_survived": 2,
+    "lane_count": 2
+  },
+  "formal_denominator": false,
+  "formal_holdout_executed": false,
+  "formal_qualification_eligible": false,
+  "lanes": [
+    {
+      "accountable": true,
+      "chain_checks": {
+        "android_cli_install_deploy": true,
+        "codex_driver": true,
+        "default_model_identity": true,
+        "english_us_input_subtype": true,
+        "explicit_launch": true,
+        "layout_evidence": true,
+        "live_validation": true,
+        "logcat_evidence": true,
+        "oracle_path": true,
+        "package_reset": true,
+        "screenshot_evidence": true,
+        "terminal_execution_record": true
+      },
+      "duration_seconds": 463.715,
+      "execution_record": {
+        "ref": "canary-artifacts/m9-r2-canary-alpha/execution-record.json",
+        "sha256": "82bd178a52046a5eeb03a06cc3b502418b6dad13da3e06126bae03cbc4f8c85d"
+      },
+      "falsification_review": {
+        "ref": "canary-artifacts/m9-r2-canary-alpha/falsification-review.json",
+        "sha256": "d34c6712dd8600ffa18ef1f7e5b993cd397cbd6ba343b31b6df0bd92e7d4344c"
+      },
+      "finding_conclusion": "rejected",
+      "formal_denominator": false,
+      "formal_qualification_eligible": false,
+      "lane_id": "m9-r2-canary-alpha",
+      "non_holdout_canary": true,
+      "review": {
+        "context_sha256": "8a6de6cecccd17f23456405a3341fecaac8b38936da947b06e27a99fd2b3eb5a",
+        "effective_model": "gpt-5.6-sol",
+        "model_override_present": false,
+        "outcome": "survived",
+        "receipt": {
+          "ref": "canary-artifacts/m9-r2-canary-alpha/falsification-review.json",
+          "sha256": "d34c6712dd8600ffa18ef1f7e5b993cd397cbd6ba343b31b6df0bd92e7d4344c"
+        },
+        "requested_model": null,
+        "reviewer_identity_sha256": "751c1cdae42283a9c46a5d7f65d5b27a0b5f7d516cfa5748e589f5d30a9c4462",
+        "separate_invocation": true,
+        "status": "complete"
+      },
+      "run_spec_sha256": "d3ede366d758c9b84f35f1fe484a088c348b7984dd7b12e49b8bf41bd8a8b6f5"
+    },
+    {
+      "accountable": true,
+      "chain_checks": {
+        "android_cli_install_deploy": true,
+        "codex_driver": true,
+        "default_model_identity": true,
+        "english_us_input_subtype": true,
+        "explicit_launch": true,
+        "layout_evidence": true,
+        "live_validation": true,
+        "logcat_evidence": true,
+        "oracle_path": true,
+        "package_reset": true,
+        "screenshot_evidence": true,
+        "terminal_execution_record": true
+      },
+      "duration_seconds": 481.449,
+      "execution_record": {
+        "ref": "canary-artifacts/m9-r2-canary-beta/execution-record.json",
+        "sha256": "1419127091790be7d26f270e1082ac9fefc95c0fbefedeae3a7a8fe1486649e8"
+      },
+      "falsification_review": {
+        "ref": "canary-artifacts/m9-r2-canary-beta/falsification-review.json",
+        "sha256": "587546fbde3b52c938a1c4dec7b580d391c1f32d2ff5da584dfcfd4d8c2f1448"
+      },
+      "finding_conclusion": "supported",
+      "formal_denominator": false,
+      "formal_qualification_eligible": false,
+      "lane_id": "m9-r2-canary-beta",
+      "non_holdout_canary": true,
+      "review": {
+        "context_sha256": "17d8aed4a2f38fd46386dbd86236945170006a6f754563800b9bcb4e0edf5c83",
+        "effective_model": "gpt-5.6-sol",
+        "model_override_present": false,
+        "outcome": "survived",
+        "receipt": {
+          "ref": "canary-artifacts/m9-r2-canary-beta/falsification-review.json",
+          "sha256": "587546fbde3b52c938a1c4dec7b580d391c1f32d2ff5da584dfcfd4d8c2f1448"
+        },
+        "requested_model": null,
+        "reviewer_identity_sha256": "59da8c2318122d6d27136d5be744679881a31885d799e570cd90915939230fab",
+        "separate_invocation": true,
+        "status": "complete"
+      },
+      "run_spec_sha256": "181300aaf2e53a6b8855bef972fd65f27faea8f20752c60689b956eb7a3a705c"
+    }
+  ],
+  "non_holdout_canary": true,
+  "old_136_137_population_invoked": false,
+  "prohibited_interpretation": "This result cannot support the M9 formal qualification conclusion.",
+  "ready_for_r3": true,
+  "schema_version": 1
+}

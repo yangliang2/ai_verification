@@ -1,0 +1,320 @@
+{
+  "scenario": "m9-r2-canary-alpha",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "preflight": {
+    "live_validation_gate": {
+      "status": "passed",
+      "artifact": "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-08/canary-artifacts/m9-r2-canary-alpha/live-validation-gate.json",
+      "failed_checks": []
+    }
+  },
+  "metric_context": {
+    "seed_id": "m9-r2-canary-alpha",
+    "seed_kind": "unspecified",
+    "seed_outcome": "not_detected",
+    "taxonomy_category": null,
+    "taxonomy_pattern_id": null,
+    "expected_oracle_level": null,
+    "expected_oracle_defect_class": null,
+    "oracle_outcomes": {
+      "L1": "inconclusive",
+      "L2": "pass",
+      "L3": "pass"
+    },
+    "oracle_defect_classes": {
+      "L1": null,
+      "L2": null,
+      "L3": null
+    },
+    "failed_oracles": []
+  },
+  "l1": {
+    "verdict_id": "L1-22f59a3d",
+    "level": "L1",
+    "outcome": "inconclusive",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Open the task list",
+      "Create a task titled r2a0 with description adesc",
+      "Open the same uniquely created task, enter Edit Task, replace the title with r2a1, dismiss the keyboard, verify r2a1 remains visible, and leave Edit Task open without tapping Save",
+      "With Edit Task still open and the keyboard already dismissed at the prior checkpoint, do not press Back, reopen the editor, or re-enter text; verify r2a1 remains visible, locate Save task in a fresh layout, tap it exactly once, wait for the task list, and do not reopen the task yet",
+      "Reopen the same uniquely created task by tapping it, even if the displayed title is r2a0 rather than r2a1",
+      "[boundary] inject wait {'seconds': '1', 'expect_resumed': 'target'}",
+      "[boundary] inject wait {'seconds': '1', 'expect_resumed': 'target'}",
+      "[boundary] inject process_death {}"
+    ],
+    "evidence": [],
+    "confidence": 0.0
+  },
+  "l2": {
+    "verdict_id": "L2-8c4a1cf4",
+    "level": "L2",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "Open the task list",
+      "Create a task titled r2a0 with description adesc",
+      "Open the same uniquely created task, enter Edit Task, replace the title with r2a1, dismiss the keyboard, verify r2a1 remains visible, and leave Edit Task open without tapping Save",
+      "With Edit Task still open and the keyboard already dismissed at the prior checkpoint, do not press Back, reopen the editor, or re-enter text; verify r2a1 remains visible, locate Save task in a fresh layout, tap it exactly once, wait for the task list, and do not reopen the task yet",
+      "Reopen the same uniquely created task by tapping it, even if the displayed title is r2a0 rather than r2a1",
+      "[boundary] inject wait {'seconds': '1', 'expect_resumed': 'target'}",
+      "[boundary] inject wait {'seconds': '1', 'expect_resumed': 'target'}",
+      "[boundary] inject process_death {}"
+    ],
+    "evidence": [],
+    "confidence": 0.9
+  },
+  "l3": {
+    "verdict_id": "L3-8f2c71a4",
+    "level": "L3",
+    "outcome": "pass",
+    "defect_class_hypothesis": null,
+    "trigger_steps": [
+      "创建标题为 r2a0、描述为 adesc 的任务",
+      "打开该任务并进入 Edit Task，将标题替换为 r2a1",
+      "关闭键盘并保持 Edit Task 打开，未点击 Save",
+      "在后续分段的新布局中确认 r2a1 仍可见，并仅点击一次 Save task",
+      "返回任务列表后确认标题显示为 r2a1",
+      "跨分段边界重新打开同一任务并检查 Task Details"
+    ],
+    "evidence": [
+      {
+        "type": "llm_reasoning",
+        "ref": "segment-0/action-3",
+        "note": "标题编辑为 r2a1 后关闭键盘，布局中仍显示 r2a1，且此时未执行保存。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "segment-1/action-1",
+        "note": "跨分段后的新布局仍显示 Edit Task 和 r2a1；点击一次 Save 后，任务列表显示 r2a1。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "segment-2/action-1",
+        "note": "再次跨分段并重新打开唯一任务后，Task Details 显示标题 r2a1 和描述 adesc。"
+      },
+      {
+        "type": "llm_reasoning",
+        "ref": "after-event-2 UI layout",
+        "note": "最终 checkpoint 明确包含文本 r2a1 和 adesc，与保存前编辑内容一致，证明标题在显式保存、重新打开及已承认的进程边界后保持不变，符合功能规格。"
+      }
+    ],
+    "confidence": 0.99
+  },
+  "journey_results": [
+    {
+      "journey": "m9-r2-canary-alpha-segment-0",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 74 216",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 246 568"
+          ],
+          "comment": "The task list was already visible. Opened the drawer, observed “Task List,” and dispatched its tap.",
+          "action": "Open the task list"
+        },
+        {
+          "action_id": "action-2",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 975 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 426",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input text \"r2a0\"",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 287 583",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input text \"adesc\"",
+            "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 975 2232"
+          ],
+          "comment": "Entered title “r2a0” and description “adesc.” After dismissing the keyboard, both tokens remained visible; Save task was located and tapped once.",
+          "action": "Create a task titled r2a0 with description adesc"
+        },
+        {
+          "action_id": "action-3",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 314 552",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 975 2232",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 540 426",
+            "adb -s emulator-5554 shell input keyevent KEYCODE_MOVE_END",
+            "adb -s emulator-5554 shell input keyevent 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67",
+            "adb -s emulator-5554 shell input text \"r2a1\"",
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input keyevent KEYCODE_BACK",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Opened the unique “r2a0” task and entered Edit Task. Replaced the title using the required key sequence; “r2a1” remained visible after keyboard dismissal. Edit Task was left open and Save was not tapped.",
+          "action": "Open the same uniquely created task, enter Edit Task, replace the title with r2a1, dismiss the keyboard, verify r2a1 remains visible, and leave Edit Task open without tapping Save"
+        }
+      ]
+    },
+    {
+      "journey": "m9-r2-canary-alpha-segment-1",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 975 2232",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Fresh layout showed Edit Task with r2a1 visible and Save task at [975,2232]. Dispatched exactly one Save tap. The next layout showed the Todo task list with All Tasks and r2a1; the task was not reopened.",
+          "action": "With Edit Task still open and the keyboard already dismissed at the prior checkpoint, do not press Back, reopen the editor, or re-enter text; verify r2a1 remains visible, locate Save task in a fresh layout, tap it exactly once, wait for the task list, and do not reopen the task yet"
+        }
+      ]
+    },
+    {
+      "journey": "m9-r2-canary-alpha-segment-2",
+      "results": [
+        {
+          "action_id": "action-1",
+          "status": "PASSED",
+          "commands": [
+            "android layout --device=emulator-5554 --pretty",
+            "adb -s emulator-5554 shell input tap 314 552",
+            "android layout --device=emulator-5554 --pretty"
+          ],
+          "comment": "Observed the unique task titled r2a1 in All Tasks and tapped its center. The subsequent layout showed Task Details for r2a1 with description adesc.",
+          "action": "Reopen the same uniquely created task by tapping it, even if the displayed title is r2a0 rather than r2a1"
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    "after-segment-0",
+    "after-event-0",
+    "after-segment-1",
+    "after-event-1",
+    "after-segment-2",
+    "after-event-2"
+  ],
+  "injected_events": [
+    {
+      "event": "wait",
+      "args": {
+        "seconds": "1",
+        "expect_resumed": "target"
+      }
+    },
+    {
+      "event": "wait",
+      "args": {
+        "seconds": "1",
+        "expect_resumed": "target"
+      }
+    },
+    {
+      "event": "process_death",
+      "args": {}
+    }
+  ],
+  "system_event_evidence": [
+    "artifacts/system-event-0/event.json",
+    "artifacts/system-event-1/event.json",
+    "artifacts/system-event-2/event.json"
+  ],
+  "timing": {
+    "started_at": "2026-08-07T19:01:17+00:00",
+    "finished_at": "2026-08-07T19:09:01+00:00",
+    "total_seconds": 463.565,
+    "phases": [
+      {
+        "phase": "live-validation-preflight",
+        "kind": "preflight",
+        "seconds": 4.759
+      },
+      {
+        "phase": "m9-r2-canary-alpha-segment-0",
+        "kind": "journey",
+        "seconds": 263.861
+      },
+      {
+        "phase": "after-segment-0",
+        "kind": "checkpoint",
+        "seconds": 2.868
+      },
+      {
+        "phase": "event-0",
+        "kind": "system_event",
+        "event": "wait",
+        "seconds": 1.054
+      },
+      {
+        "phase": "after-event-0",
+        "kind": "checkpoint",
+        "seconds": 2.897
+      },
+      {
+        "phase": "m9-r2-canary-alpha-segment-1",
+        "kind": "journey",
+        "seconds": 63.924
+      },
+      {
+        "phase": "after-segment-1",
+        "kind": "checkpoint",
+        "seconds": 2.859
+      },
+      {
+        "phase": "event-1",
+        "kind": "system_event",
+        "event": "wait",
+        "seconds": 1.053
+      },
+      {
+        "phase": "after-event-1",
+        "kind": "checkpoint",
+        "seconds": 2.875
+      },
+      {
+        "phase": "m9-r2-canary-alpha-segment-2",
+        "kind": "journey",
+        "seconds": 64.622
+      },
+      {
+        "phase": "after-segment-2",
+        "kind": "checkpoint",
+        "seconds": 2.853
+      },
+      {
+        "phase": "event-2",
+        "kind": "system_event",
+        "event": "process_death",
+        "seconds": 12.204
+      },
+      {
+        "phase": "after-event-2",
+        "kind": "checkpoint",
+        "seconds": 2.921
+      },
+      {
+        "phase": "l3-judge",
+        "kind": "oracle",
+        "seconds": 31.47
+      }
+    ]
+  },
+  "execution_record": "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-08/canary-artifacts/m9-r2-canary-alpha/execution-record.json",
+  "execution_provenance": {
+    "path": "execution-provenance.json",
+    "sha256": "3ae1faed921be4293b21316248257db3277ecb90cfa8175f2024fc57cc680e32"
+  },
+  "runner_setup": "runner-setup.json"
+}
