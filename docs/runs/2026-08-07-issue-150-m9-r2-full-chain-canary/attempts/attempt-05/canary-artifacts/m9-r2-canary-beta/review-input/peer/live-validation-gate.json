@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "device": "emulator-5554",
+  "failed_checks": [],
+  "checks": [
+    {
+      "name": "adb-device-present",
+      "args": [
+        "adb",
+        "devices",
+        "-l"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "List of devices attached\nemulator-5554          device product:sdk_gphone64_arm64 model:sdk_gphone64_arm64 device:emu64a transport_id:3\n\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-completed",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "sys.boot_completed"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "1\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "boot-animation-stopped",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "getprop",
+        "init.svc.bootanim"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "stopped\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "android-layout-json",
+      "args": [
+        "android",
+        "layout",
+        "--pretty",
+        "--device",
+        "emulator-5554"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "[\n  {\n    \"interactions\": [\n      \"scrollable\"\n    ],\n    \"center\": \"[540,1200]\",\n    \"bounds\": \"[0,0][1080,2400]\",\n    \"resource-id\": \"workspace\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"主屏幕\",\n    \"center\": \"[540,1234]\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Google 搜索\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,2207]\",\n    \"resource-id\": \"search_container_hotseat\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"电话\",\n    \"content-desc\": \"电话\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[169,1970]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"信息\",\n    \"content-desc\": \"信息\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[416,1970]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Chrome\",\n    \"content-desc\": \"Chrome\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[663,1970]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Todo\",\n    \"content-desc\": \"预测的应用：Todo\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[910,1970]\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Google 应用\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[164,2207]\",\n    \"resource-id\": \"g_icon\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"Gmail\",\n    \"content-desc\": \"Gmail\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[416,1623]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"相册\",\n    \"content-desc\": \"相册\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[663,1623]\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"YouTube\",\n    \"content-desc\": \"YouTube\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[910,1623]\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"语音搜索\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[790,2207]\",\n    \"resource-id\": \"mic_icon\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"Google 智能镜头\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[916,2207]\",\n    \"resource-id\": \"lens_icon\",\n    \"key\": 3506402\n  },\n  {\n    \"content-desc\": \"资讯一览\",\n    \"interactions\": [\n      \"focusable\",\n      \"long-clickable\"\n    ],\n    \"center\": \"[540,363]\",\n    \"resource-id\": \"smartspace_card_pager\",\n    \"key\": 3506402\n  },\n  {\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[540,363]\",\n    \"resource-id\": \"base_template_card_with_date\",\n    \"key\": 3506402\n  },\n  {\n    \"text\": \"8月7日周五\",\n    \"content-desc\": \"8月7日周五\",\n    \"interactions\": [\n      \"clickable\",\n      \"focusable\"\n    ],\n    \"center\": \"[219,357]\",\n    \"resource-id\": \"date\",\n    \"key\": 3506402\n  }\n]\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    },
+    {
+      "name": "uiautomator-dump",
+      "args": [
+        "adb",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "uiautomator",
+        "dump",
+        "/sdcard/window_dump.xml"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "stdout_snippet": "UI hierchary dumped to: /sdcard/window_dump.xml\n",
+      "stderr_snippet": "",
+      "stdout_truncated": false,
+      "stderr_truncated": false,
+      "timeout_seconds": 30,
+      "error": null
+    }
+  ]
+}

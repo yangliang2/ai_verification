@@ -1,0 +1,110 @@
+{
+  "admitted": true,
+  "artifact_namespace": {
+    "artifact_dir": "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-05/canary-artifacts/m9-r2-canary-alpha/artifacts",
+    "formal_outputs_absent": true,
+    "run_dir": "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-05/canary-artifacts/m9-r2-canary-alpha"
+  },
+  "checks": {
+    "artifact_namespace": {
+      "status": "passed"
+    },
+    "host_identity": {
+      "status": "passed"
+    },
+    "run_spec_bytes": {
+      "bytes": 851,
+      "sha256": "427089d06ccc740991dc1f05aadc9e74bf24e66f1a98aedadc69186c6b06a99d",
+      "status": "passed"
+    },
+    "runner_policy": {
+      "status": "passed"
+    },
+    "target_declaration": {
+      "status": "passed"
+    }
+  },
+  "host": {
+    "commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "host_project": "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-alpha",
+    "host_project_within_repository": false,
+    "origin": "https://github.com/android/architecture-samples.git",
+    "repository_root": "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-alpha",
+    "worktree": {
+      "clean": true,
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "reasons": [],
+  "run_spec": {
+    "path": "/Users/peter/projects/ai_verification-m9-r2/bench/m9/recovery-canary/m9-r2-canary-alpha.yaml",
+    "scenario": "m9-r2-canary-alpha",
+    "serialized_bytes": 851,
+    "sha256": "427089d06ccc740991dc1f05aadc9e74bf24e66f1a98aedadc69186c6b06a99d"
+  },
+  "runner_policy": {
+    "backend": "codex_cli",
+    "options": {
+      "adb_bin": "adb",
+      "allow_host_project_subdir": false,
+      "android_bin": "android",
+      "artifact_dir": "/Users/peter/projects/ai_verification-m9-r2/docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-05/canary-artifacts/m9-r2-canary-alpha/artifacts",
+      "backend": "codex_cli",
+      "codex_bin": "codex",
+      "device": "emulator-5554",
+      "expected_source_commit": "ee66e1526b84c026615df032c705842b7d2a521f",
+      "launch": true,
+      "requested_driver_model": null,
+      "requested_l3_model": null,
+      "runner_policy_version": "m9-production-seam-v1",
+      "workdir": "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-alpha"
+    },
+    "tools": {
+      "adb": {
+        "requested": "adb",
+        "resolved_path": "/opt/homebrew/Caskroom/android-platform-tools/37.0.0/platform-tools/adb",
+        "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+      },
+      "android": {
+        "requested": "android",
+        "resolved_path": "/Users/peter/.local/bin/android",
+        "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc"
+      },
+      "codex": {
+        "requested": "codex",
+        "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+        "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff"
+      },
+      "model_selection": {
+        "journey_driver": {
+          "model_override_present": false,
+          "policy": "codex_cli_default",
+          "requested_model": null
+        },
+        "l3_semantic_judge": {
+          "model_override_present": false,
+          "policy": "codex_cli_default",
+          "requested_model": null
+        }
+      }
+    },
+    "version": "m9-production-seam-v1"
+  },
+  "schema_version": 1,
+  "side_effects": {
+    "agent": false,
+    "build": false,
+    "declaration": "read-only git and local source/metadata inspection only",
+    "device": false,
+    "external": false
+  },
+  "status": "admitted",
+  "target": {
+    "activity": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "apk_locator": {
+      "glob": "app/build/outputs/apk/debug/app-debug.apk",
+      "relative_to": "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-alpha"
+    },
+    "package": "com.example.android.architecture.blueprints.main"
+  }
+}

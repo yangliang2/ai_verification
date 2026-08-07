@@ -1,0 +1,22 @@
+host_project:
+  root: ${M9_R2_CANARY_BETA_PROJECT}
+  origin: https://github.com/android/architecture-samples.git
+  commit: 208575f78d59716669d0733b5ed3e08797b08787
+apk_glob: app/build/outputs/apk/debug/app-debug.apk
+package: com.example.android.architecture.blueprints.main
+activity: com.example.android.architecture.blueprints.todoapp.TodoActivity
+scenario:
+  id: m9-r2-canary-beta
+  user_actions:
+  - Open the task list
+  - Create a task titled r2b0 with description bdesc
+  - Edit the task title to r2b1
+  - Navigate back to the task list
+  - Reopen the same uniquely created task by tapping it, even if the displayed title
+    is r2b0 rather than r2b1
+  system_events:
+  - step_index: 4
+    event: process_death
+  l2_boundary_index: 0
+  l3_spec: The title r2b1 remains visible after navigation, reopening,
+    and the admitted process boundary.

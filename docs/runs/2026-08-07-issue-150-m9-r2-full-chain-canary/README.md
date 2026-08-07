@@ -1,10 +1,11 @@
 # M9-R2 non-holdout full-chain recovery canary
 
-Status: attempt 04 completed the runtime chain, but independent Spec review
-invalidated its two Falsification Reviews because reviewer-visible bytes
-disclosed the historical defect source. Its emitted `ready_for_r3=true` is
-therefore rejected. The attempt remains immutable evidence; bounded
-remediation and fresh attempt 05 are in progress.
+Status: attempts 04 and 05 are preserved, immutable, and non-ready. Independent
+Spec review invalidated attempt 04 because reviewer-visible bytes disclosed
+the historical defect source. Attempt 05 fixed that isolation and completed
+both accountable runtime lanes, but both clean-context reviewers challenged
+the evidence contract. Its `ready_for_r3=false` result is authoritative.
+Bounded remediation is committed before a fresh attempt 06.
 
 The run is explicitly `non_holdout_canary=true`,
 `formal_qualification_eligible=false`, and `formal_denominator=false`. It does
@@ -13,8 +14,8 @@ cohort, or support M9 `Supported`.
 
 ## Outcome
 
-Attempt 04 traversed the complete production-seam runtime chain on the exact
-#148 historical control/defect pair:
+Attempt 05 traversed the complete production-seam runtime chain on the exact
+#148 historical control/defect pair and correctly blocked progression:
 
 - both lanes reset the package, froze the English-US input subtype, installed
   the exact APK with Android CLI, launched the explicit activity, passed the
@@ -24,21 +25,52 @@ Attempt 04 traversed the complete production-seam runtime chain on the exact
 - all 24 required chain checks passed: 12/12 for the control and 12/12 for the
   defect;
 - the control finding was rejected and the defect finding was supported;
-- both separately invoked reviewers returned `survived`, but those responses
-  are not valid clean-context reviews because the allowlisted fixture receipt
-  leaked the historical source assignment;
-- the attempt-local reconciliation reported 2/2 accountable lanes, 1/1
-  expected control rejection, 1/1 expected defect support, and 2/2 surviving
-  reviews, but independent review rejects that readiness result;
+- both 39-file reviewer workspaces passed the byte-level allowlist audit with
+  no historical source identity, role assignment, expected result, or #136
+  packet disclosure;
+- both separately invoked clean-context reviewers returned `challenged`, so
+  the attempt-local reconciliation reported 0/2 surviving reviews and
+  `ready_for_r3=false`;
 - the contradiction packet was rejected before any build, device, agent, or
   runtime command, with zero side effects and no denominator membership.
 
-The invalidated attempt-local aggregate is
-[`attempts/attempt-04/canary-reconciliation.json`](attempts/attempt-04/canary-reconciliation.json).
+The authoritative blocked reconciliation is
+[`attempts/attempt-05/canary-reconciliation.json`](attempts/attempt-05/canary-reconciliation.json).
 The one-invocation execution result is
-[`attempts/attempt-04/canary-execution-summary.json`](attempts/attempt-04/canary-execution-summary.json).
+[`attempts/attempt-05/canary-execution-summary.json`](attempts/attempt-05/canary-execution-summary.json).
 
-### Independent review invalidation
+### Attempt 05 diagnosis and bounded remediation
+
+The control review identified an exact-source contradiction:
+`review-execution-provenance.json` reported
+`source_and_installed_apk_match=false` even though the full provenance recorded
+the same source and installed APK SHA-256. The role-blind derivative read
+`apk.sha256`, while the captured schema stores APKs under
+`apk.artifacts[].sha256`.
+
+The defect review found the same false exact-source signal and a separate
+causal-evidence gap. The only runner checkpoints were after reopening and
+after process death, so no admitted raw checkpoint proved that the edited
+title was visible before Save. It could not distinguish the bounded behavioral
+claim from missed edit/save or attribute the already-observed reversion to the
+later process event.
+
+Attempt 05 was not modified or re-reviewed. Future-only remediation:
+
+- compares the full source and installed APK artifact sets and emits
+  role-blind admission, clean-worktree, Run-Spec binding, and exact-byte-match
+  booleans without source hashes or roles;
+- splits edit and Save into separate actions with non-mutating observation
+  boundaries, producing raw pre-save, post-save, reopened, and post-process
+  checkpoints;
+- narrows the risk to the accepted save path retaining the edited title; it
+  does not claim an internal repository mechanism or claim that process death
+  caused an earlier reversion.
+
+The structured diagnosis is
+[`attempt-05-diagnosis.json`](attempt-05-diagnosis.json).
+
+### Attempt 04 independent review invalidation
 
 The Spec reviewer found that `neutral-fixture-binding.json` exposed the
 historical `/defect` input path and commit subject. Both Codex review event
@@ -46,12 +78,12 @@ ledgers show that the receipt was actually opened. The pre-review audit scanned
 only prompt/context strings, not the referenced artifact bytes, and therefore
 produced a false-negative leakage result.
 
-Attempt 04 cannot establish R2 readiness. The remediation creates a dedicated
+Attempt 04 cannot establish R2 readiness. The remediation created a dedicated
 review workspace, replaces full source provenance with a role-blind derivative,
 scans every allowlisted file byte-for-byte for historical identities and
 assignments, binds every reconciliation to exact terminal/review receipts, and
-uses a fresh R2-owned contradiction packet. A complete fresh attempt 05,
-including runtime, reviews, and reconciliation, is required.
+uses a fresh R2-owned contradiction packet. Attempt 05 verifies those isolation
+properties but remains non-ready for the independent reasons above.
 
 ## Attempt inventory
 
@@ -65,7 +97,8 @@ from every formal denominator. No attempt was retried or replaced in place.
 | schema smoke | 27.30s | pass, transport only | Codex default `gpt-5.6-sol` accepted the corrected schema and returned six conforming dimensions. This was not a lane review or oracle input. |
 | 03 | 1043.30s | failure | Both runtime lanes completed accountably, but the control review cited a context file outside its allowlist. The rejected review also exposed missing peer semantic/provenance context. |
 | 04 | 1364.275s | runtime pass, review invalid | Two accountable runtime lanes and expected observed behavior; reviewer inputs were role-contaminated, so independent review rejects `ready_for_r3=true`. |
-| 05 | pending | pending | Fresh full-chain remediation attempt; no prior attempt is resumed or overwritten. |
+| 05 | 1487.582s | blocked | Two accountable lanes and expected runtime behavior, but both clean-context reviews challenged: the role-blind derivative emitted a false APK mismatch, and the defect lane lacked a raw pre-save checkpoint. |
+| 06 | pending | pending | Fresh future-only evidence-contract attempt; no prior attempt is resumed, rewritten, or re-reviewed. |
 
 The bounded remediations were limited to future attempts: use a clean defect
 commit with the recovered tree, bound text replacement after the first
@@ -83,8 +116,37 @@ Artifact inventories and ledgers:
 | review schema smoke | 7 | 7,491 | 6/6 |
 | attempt 03 | 112 | 12,275,134 | 109/109 |
 | attempt 04 | 171 | 19,173,187 | 168/168 |
+| attempt 05 | 202 | 21,350,210 | 199/199 root; 96/96 per lane |
 
-## Successful full-chain execution
+## Blocked full-chain execution (attempt 05)
+
+Exact command:
+
+```text
+/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary \
+  --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-05 \
+  --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-05 \
+  --first-input /private/tmp/m9-r1-canary-recovery/control \
+  --second-input /private/tmp/m9-r1-canary-recovery/defect \
+  --device emulator-5554
+```
+
+Result:
+
+```text
+{"accountable": 2, "canary_result": "blocked_by_canary_evidence", "ready_for_r3": false}
+exit 2
+real 1487.76
+user 125.41
+sys 19.07
+```
+
+The structured duration is 1487.582 seconds. There were zero troubleshooting
+retries and zero replacements. Both lane and root checksum ledgers pass when
+verified from their owning directories. Root ledger SHA-256:
+`db5c94c2fe94f7c789537185312619a00eeeaa743e46cb19135e120d7bf7d2ef`.
+
+## Invalidated full-chain execution (attempt 04)
 
 Exact command:
 
@@ -173,31 +235,32 @@ side effect, independent Spec review correctly found that reuse inconsistent
 with the declaration that the old population was not invoked.
 [`attempts/attempt-04/contradiction-rejection.json`](attempts/attempt-04/contradiction-rejection.json)
 records an empty command list, `side_effects=false`, and
-`denominator_member=false`. Attempt 05 must instead create and reject its own
-fresh R2 packet; it does not read #136/#137.
+`denominator_member=false`. Attempt 05 instead created and rejected its own
+fresh R2 packet; it did not read #136/#137. The packet SHA-256 is
+`bbb01f576c0c90ccd6bc015df88166454021401f359bc27a284f8b6aac51e8fd`;
+the rejection receipt SHA-256 is
+`294369ed318ae08d33c4b01fc7f94a9d846e3d579bb807f780f72b53a002fc97`.
 
 ## Verification
 
-Focused final-state regression:
+Focused post-attempt-05 remediation regression:
 
 ```text
 /usr/bin/time -p uv run pytest -q -o addopts='' \
   tests/bench/test_m9_recovery_canary.py \
-  tests/discovery/test_falsification_review.py \
-  tests/runner/test_admission.py \
-  tests/runner/test_codex_backend.py \
-  tests/test_codex_cli_provider.py \
+  tests/runner/test_run_spec.py \
+  tests/runner/test_journey.py \
   tests/runner/test_cli.py
-→ 91 passed, 0 failed in 1.88s.
-→ real 1.98s; user 1.03s; sys 0.79s.
+→ 111 passed, 0 failed in 0.25s.
+→ real 0.38s; user 0.22s; sys 0.10s.
 ```
 
 Full suite:
 
 ```text
-/usr/bin/time -p uv run pytest
-→ 906 passed, 0 failed in 65.48s.
-→ real 65.65s; user 25.33s; sys 6.39s.
+/usr/bin/time -p uv run pytest -qq --disable-warnings
+→ 914 passed, 0 failed.
+→ real 32.19s; user 23.37s; sys 5.96s.
 ```
 
 Static/source checks:
@@ -224,15 +287,15 @@ specification, or package file failed the scoped check.
 Package build:
 
 ```text
-/usr/bin/time -p uv build --out-dir /private/tmp/m9-r2-build.9OQxQD
+/usr/bin/time -p uv build --out-dir /private/tmp/m9-r2-build.buror6
 → aiverify 0.1.0 built successfully.
-→ real 3.07s; user 0.65s; sys 0.24s.
+→ real 3.07s; user 0.63s; sys 0.23s.
 ```
 
-The 410,480-byte wheel SHA-256 is
-`8ddfed9769b4f4bdfcdcadd6e545ffed3286d606858b65a828a0063380b5cea4`;
-the 373,502-byte sdist SHA-256 is
-`909baf7652cf513d466073ea2d30c7ee0030a3120bb1283d6418e6c3cec2d879`.
+The 413,139-byte wheel SHA-256 is
+`24ffdbbacbcd7691b50d9c5660fdc7053bcf5123449699bc27491360dd09767a`;
+the 376,193-byte sdist SHA-256 is
+`640dea5d9698f37f562108a0e5802b5b03eae0d3b38e5ca0701edecd529583fb`.
 Both archives contain the new runner and falsification-review schema. Exact
 structured results are in [`verification.json`](verification.json) and
 [`package-build.json`](package-build.json).
@@ -263,7 +326,7 @@ structured results are in [`verification.json`](verification.json) and
 
 ## Environment and artifact inventory
 
-The successful run used `emulator-5554`, AVD `aiverify_api35`, API 35, model
+The accountable runs used `emulator-5554`, AVD `aiverify_api35`, API 35, model
 `sdk_gphone64_arm64`, and fingerprint
 `google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys`.
 The package was
@@ -298,7 +361,8 @@ External artifacts:
 - `/private/tmp/m9-r1-canary-recovery/control` and
   `/private/tmp/m9-r1-canary-recovery/defect`;
 - `/private/tmp/m9-r2-canary-fixtures/attempt-04/`;
-- `/private/tmp/m9-r2-build.9OQxQD/`.
+- `/private/tmp/m9-r2-canary-fixtures/attempt-05/`;
+- `/private/tmp/m9-r2-build.buror6/`.
 
 The first two paths are historical canary inputs or disposable detached
 worktrees, and the build directory contains reproducible package outputs.
@@ -328,6 +392,8 @@ after R2 and is forbidden from R3, R4, R5, or any future formal conclusion.
   upstream behavior.
 - The successful lane evidence does not qualify a fresh cohort and may not
   enter a formal denominator.
+- Attempt 05 is authoritative non-ready evidence. Its reviews were not rerun,
+  and its artifacts were not rewritten after diagnosis.
 - The external build archives and canary fixture worktrees are reproducible
   but disposable.
 - Raw Android logcat captures preserve device-emitted trailing whitespace.

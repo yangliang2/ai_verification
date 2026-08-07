@@ -3,7 +3,7 @@
   "issue": 150,
   "fixed_point": "76fb6730f065e6e4087ae0032e3edb780104807e",
   "reviewed_head": "43b471e0b7d9741fabeaae842741245d4a966df2",
-  "status": "remediation_in_progress",
+  "status": "attempt_05_blocked_remediation_for_attempt_06",
   "standards": {
     "high": [
       {
@@ -50,5 +50,12 @@
       }
     ]
   },
-  "gate": "Fresh attempt 05, full verification, root checksum sealing, and confirmation Standards/Spec reviews must all pass before PR/merge or R3."
+  "attempt_05_confirmation": {
+    "review_input_isolation": "passed",
+    "runtime_chain": "24/24 checks passed across two accountable lanes",
+    "runtime_observation": "control rejected and defect supported",
+    "review_result": "0/2 survived; authoritative ready_for_r3=false",
+    "diagnosis": "attempt-05-diagnosis.json"
+  },
+  "gate": "Fresh attempt 06, full verification, root checksum sealing, and confirmation Standards/Spec reviews must all pass before PR/merge or R3."
 }

@@ -2,32 +2,37 @@
   "schema_version": 1,
   "issue": 150,
   "stage": "M9-R2",
-  "status": "blocked_pending_attempt_05",
+  "status": "blocked_pending_attempt_06",
   "fixed_point": {
     "origin_main": "76fb6730f065e6e4087ae0032e3edb780104807e",
     "reviewed_implementation_head": "43b471e0b7d9741fabeaae842741245d4a966df2",
+    "attempt_05_remediation_base": "df842db96c7114d8321266410e95c1784f43b293",
     "merge_base": "76fb6730f065e6e4087ae0032e3edb780104807e",
     "worktree": "/Users/peter/projects/ai_verification-m9-r2",
     "original_dirty_worktree_modified": false
   },
   "canary": {
-    "command": "/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-04 --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-04 --first-input /private/tmp/m9-r1-canary-recovery/control --second-input /private/tmp/m9-r1-canary-recovery/defect --device emulator-5554",
-    "exit_code": 0,
-    "structured_duration_seconds": 1364.275,
+    "command": "/usr/bin/time -p uv run python -m aiverify.bench.m9_recovery_canary --artifact-root docs/runs/2026-08-07-issue-150-m9-r2-full-chain-canary/attempts/attempt-05 --fixture-root /private/tmp/m9-r2-canary-fixtures/attempt-05 --first-input /private/tmp/m9-r1-canary-recovery/control --second-input /private/tmp/m9-r1-canary-recovery/defect --device emulator-5554",
+    "exit_code": 2,
+    "structured_duration_seconds": 1487.582,
     "timing_seconds": {
-      "real": 1364.38,
-      "user": 143.95,
-      "sys": 18.56
+      "real": 1487.76,
+      "user": 125.41,
+      "sys": 19.07
     },
-    "result": "invalidated_by_independent_spec_review",
-    "attempt_local_result": "ready_for_fresh_qualification_packet",
+    "result": "blocked_by_canary_evidence",
+    "attempt_local_result": "blocked_by_canary_evidence",
     "ready_for_r3": false,
     "accountable": 2,
     "lane_count": 2,
     "expected_control_rejected": 1,
     "expected_defect_supported": 1,
-    "attempt_local_reviews_reported_survived": 2,
-    "independent_reviews_valid": 0,
+    "attempt_local_reviews_reported_survived": 0,
+    "independent_reviews_completed": 2,
+    "independent_reviews_challenged": 2,
+    "review_input_audits_passed": 2,
+    "review_input_files_scanned": 78,
+    "review_input_forbidden_disclosures": 0,
     "chain_checks_passed": 24,
     "chain_checks_total": 24,
     "troubleshooting_retries_in_invocation": 0,
@@ -37,7 +42,9 @@
     "formal_holdout_executed": false,
     "formal_qualification_eligible": false,
     "old_136_137_population_invoked": false,
-    "contradiction_rejected_before_side_effect": true
+    "contradiction_rejected_before_side_effect": true,
+    "attempt_05_artifacts_modified_after_seal": false,
+    "attempt_05_reviews_rerun": false
   },
   "attempts": [
     {
@@ -93,28 +100,52 @@
       "bytes": 19173187,
       "checksum_entries_passed": 168,
       "checksum_entries_total": 168
+    },
+    {
+      "attempt_id": "attempt-05",
+      "status": "blocked_by_canary_evidence",
+      "wall_duration_seconds": 1487.582,
+      "first_failure": "both clean-context falsification reviews challenged the evidence contract",
+      "root_causes": [
+        "review-safe provenance read the source APK hash from the wrong JSON level and emitted a false mismatch",
+        "the defect lane had no admitted raw pre-save or immediate post-save checkpoint",
+        "the hypothesis over-attributed the black-box observation to an internal repository-refresh mechanism"
+      ],
+      "accountable_lanes": 2,
+      "chain_checks_passed": 24,
+      "chain_checks_total": 24,
+      "reviews_completed": 2,
+      "reviews_survived": 0,
+      "files_including_ledger": 202,
+      "bytes": 21350210,
+      "checksum_entries_passed": 199,
+      "checksum_entries_total": 199,
+      "control_lane_checksum_entries_passed": 96,
+      "control_lane_checksum_entries_total": 96,
+      "defect_lane_checksum_entries_passed": 96,
+      "defect_lane_checksum_entries_total": 96
     }
   ],
   "focused_tests": {
-    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/discovery/test_falsification_review.py tests/runner/test_admission.py tests/runner/test_codex_backend.py tests/test_codex_cli_provider.py tests/runner/test_cli.py",
-    "passed": 91,
+    "command": "/usr/bin/time -p uv run pytest -q -o addopts='' tests/bench/test_m9_recovery_canary.py tests/runner/test_run_spec.py tests/runner/test_journey.py tests/runner/test_cli.py",
+    "passed": 111,
     "failed": 0,
-    "pytest_duration_seconds": 1.88,
+    "pytest_duration_seconds": 0.25,
     "timing_seconds": {
-      "real": 1.98,
-      "user": 1.03,
-      "sys": 0.79
+      "real": 0.38,
+      "user": 0.22,
+      "sys": 0.1
     }
   },
   "full_tests": {
-    "command": "/usr/bin/time -p uv run pytest",
-    "passed": 906,
+    "command": "/usr/bin/time -p uv run pytest -qq --disable-warnings",
+    "passed": 914,
     "failed": 0,
-    "pytest_duration_seconds": 65.48,
+    "pytest_duration_seconds": null,
     "timing_seconds": {
-      "real": 65.65,
-      "user": 25.33,
-      "sys": 6.39
+      "real": 32.19,
+      "user": 23.37,
+      "sys": 5.96
     }
   },
   "static_checks": [
@@ -144,7 +175,9 @@
     "python": "3.11.15"
   },
   "known_gaps": [
-    "attempt 04 reviewer inputs disclosed the historical defect source; its review and readiness result are invalid and a fresh attempt is required",
+    "attempt 04 reviewer inputs disclosed the historical defect source; its review and readiness result are invalid",
+    "attempt 05 is authoritative non-ready evidence; its artifacts and reviews remain immutable while remediation applies only to attempt 06",
+    "attempt 06 remains required before R2 can claim readiness for R3",
     "raw Android logcat evidence preserves device-emitted trailing whitespace and is excluded from the authored-source diff whitespace check",
     "external fixture worktrees and package build archives are reproducible but disposable",
     "this historical canary cannot qualify a fresh cohort or support M9 Supported"

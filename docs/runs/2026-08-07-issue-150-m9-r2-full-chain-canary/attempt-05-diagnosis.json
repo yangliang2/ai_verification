@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "issue": 150,
+  "stage": "M9-R2",
+  "attempt": "attempt-05",
+  "classification": "sealed_non_ready_canary",
+  "ready_for_r3": false,
+  "formal_denominator": false,
+  "formal_qualification_eligible": false,
+  "runtime": {
+    "accountable_lanes": 2,
+    "required_chain_checks_passed": 24,
+    "required_chain_checks_total": 24,
+    "expected_control_rejected": 1,
+    "expected_defect_supported": 1
+  },
+  "review_input_isolation": {
+    "lane_count": 2,
+    "audit_method": "byte_level_allowlisted_workspace_scan",
+    "workspace_files_per_lane": 39,
+    "audits_passed": 2,
+    "forbidden_disclosures": 0
+  },
+  "independent_reviews": {
+    "completed": 2,
+    "survived": 0,
+    "challenged": 2,
+    "control_reason_codes": [
+      "ALT_EXECUTABLE_IDENTITY_CONFOUND",
+      "EVIDENCE_CHAIN_SOURCE_BINDING_FAILED",
+      "CAUSAL_ATTRIBUTION_SOURCE_UNRESOLVED",
+      "CONTROL_MATCH_SOURCE_UNVERIFIABLE",
+      "CLAIM_BOUNDARY_EXACT_SOURCE_UNSUPPORTED"
+    ],
+    "defect_reason_codes": [
+      "ALT_EDIT_OR_SAVE_FAILURE_NOT_EXCLUDED",
+      "TASK_STATE_BOUNDARY_NOT_INDEPENDENTLY_VERIFIED",
+      "SOURCE_APK_MATCH_FALSE",
+      "PROCESS_EVENT_OCCURS_AFTER_OBSERVED_REVERSION",
+      "REPOSITORY_MECHANISM_NOT_ISOLATED",
+      "CONTROL_SOURCE_BINDING_UNAVAILABLE",
+      "EXACT_SOURCE_CLAUSE_CONTRADICTED"
+    ]
+  },
+  "root_causes": [
+    {
+      "kind": "review_safe_provenance_derivation",
+      "evidence": "The full provenance stores source APK identities in apk.artifacts[].sha256, but the derivative read apk.sha256 and emitted source_and_installed_apk_match=false.",
+      "scope": "future attempts only"
+    },
+    {
+      "kind": "causal_checkpoint_gap",
+      "evidence": "The admitted raw checkpoints began after reopen and therefore did not independently show the edited title before Save or immediately after Save.",
+      "scope": "future attempts only"
+    },
+    {
+      "kind": "over_specific_mechanism",
+      "evidence": "The review hypothesis named an internal repository-refresh mechanism that the black-box runtime evidence did not isolate.",
+      "scope": "future attempts only"
+    }
+  ],
+  "bounded_remediation": [
+    "Compare complete source and installed APK artifact hash sets and expose only role-blind verification booleans.",
+    "Bind the sanitized derivative to the full provenance and production-seam admission receipts.",
+    "Split edit and Save actions with non-mutating observation boundaries to capture pre-save, post-save, reopened, and post-process raw evidence.",
+    "Limit the hypothesis to accepted-save-path behavior without attributing an internal repository mechanism or claiming that process death caused an earlier reversion."
+  ],
+  "non_mutating_validation": {
+    "attempt_05_artifacts_modified": false,
+    "attempt_05_reviews_rerun": false,
+    "corrected_derivative_replayed_in_external_temp_directory": true,
+    "control_source_identity_verified": true,
+    "control_source_and_installed_apk_match": true,
+    "defect_source_identity_verified": true,
+    "defect_source_and_installed_apk_match": true,
+    "source_identity_disclosed": false,
+    "source_role_disclosed": false
+  },
+  "checksum_verification": {
+    "root_entries_passed": 199,
+    "root_entries_total": 199,
+    "control_lane_entries_passed": 96,
+    "control_lane_entries_total": 96,
+    "defect_lane_entries_passed": 96,
+    "defect_lane_entries_total": 96,
+    "root_ledger_sha256": "db5c94c2fe94f7c789537185312619a00eeeaa743e46cb19135e120d7bf7d2ef",
+    "control_lane_ledger_sha256": "a49677c942f30c44d33b936b2302c4728ea4d9af5949f514eef646d93bf1aa15",
+    "defect_lane_ledger_sha256": "6056b606565b7b30aea64a8603d02bd41f023802573b1dcaf406aafb7f2e3ca1"
+  }
+}

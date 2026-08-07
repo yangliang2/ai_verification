@@ -25,6 +25,7 @@ from aiverify.bench.m9_recovery_canary import (
     _review_contract,
     _review_input_audit,
     _review_prompt,
+    _write_review_safe_provenance,
 )
 from aiverify.discovery import Finding, FalsificationReviewerIdentity
 from aiverify.runner.run_spec import load_run_spec
@@ -52,6 +53,26 @@ def test_recovery_run_specs_use_new_neutral_lane_ids_and_default_model_policy(
         "ee66e1526b84c026615df032c705842b7d2a521f",
         "208575f78d59716669d0733b5ed3e08797b08787",
     ]
+    assert all(len(spec.scenario.user_actions) == 5 for spec in specs)
+    assert all(
+        [event.event for event in spec.scenario.system_events]
+        == ["wait", "wait", "process_death"]
+        for spec in specs
+    )
+    assert all(
+        [event.step_index for event in spec.scenario.system_events] == [2, 3, 4]
+        for spec in specs
+    )
+    assert all(spec.scenario.l2_boundary_index == 2 for spec in specs)
+    assert all(
+        "leave Edit Task open without tapping Save"
+        in spec.scenario.user_actions[2]
+        for spec in specs
+    )
+    assert all(
+        "Tap Save task exactly once" in spec.scenario.user_actions[3]
+        for spec in specs
+    )
 
 
 def test_falsification_review_schema_is_valid() -> None:
@@ -164,6 +185,116 @@ def test_raw_evidence_exposes_provenance_and_fixture_binding(
     assert indexed["execution-provenance.json"]["reviewer_visible"] is False
     assert indexed["neutral-fixture-binding.json"]["reviewer_visible"] is False
     assert indexed["review-execution-provenance.json"]["reviewer_visible"] is True
+
+
+def test_review_safe_provenance_verifies_exact_source_without_disclosure(
+    tmp_path: Path,
+) -> None:
+    source_hash = "a" * 64
+    provenance = {
+        "host": {"worktree": {"clean": True}},
+        "apk": {
+            "artifacts": [
+                {
+                    "path": "/private/source/app-debug.apk",
+                    "sha256": source_hash,
+                }
+            ]
+        },
+        "deployment": {
+            "process": {
+                "returncode": 0,
+                "stdout": "Installation completed successfully",
+            },
+            "installed_artifacts": [
+                {
+                    "path": "/data/app/private/base.apk",
+                    "sha256": source_hash,
+                }
+            ],
+        },
+        "run_spec": {
+            "consumed_sha256": "b" * 64,
+            "snapshot_sha256": "b" * 64,
+        },
+    }
+    admission = {
+        "status": "admitted",
+        "checks": {
+            name: {"status": "passed"}
+            for name in (
+                "artifact_namespace",
+                "host_identity",
+                "run_spec_bytes",
+                "runner_policy",
+                "target_declaration",
+            )
+        },
+    }
+    (tmp_path / "execution-provenance.json").write_text(
+        json.dumps(provenance) + "\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "production-seam-admission.json").write_text(
+        json.dumps(admission) + "\n",
+        encoding="utf-8",
+    )
+
+    safe_path = _write_review_safe_provenance(tmp_path)
+    safe = json.loads(safe_path.read_text(encoding="utf-8"))
+
+    assert safe["source_verification"] == {
+        "admission_passed": True,
+        "run_spec_snapshot_matches_consumed": True,
+        "source_artifact_count": 1,
+        "source_identity_verified": True,
+        "worktree_clean_at_capture": True,
+    }
+    assert safe["deployment"]["installed_artifact_count"] == 1
+    assert safe["deployment"]["source_and_installed_apk_match"] is True
+    assert safe["source_identity_disclosed"] is False
+    assert safe["source_role_disclosed"] is False
+    serialized = safe_path.read_text(encoding="utf-8")
+    assert source_hash not in serialized
+    assert "/private/source" not in serialized
+    assert "/data/app/private" not in serialized
+
+
+def test_review_safe_provenance_fails_closed_on_apk_mismatch(
+    tmp_path: Path,
+) -> None:
+    provenance = {
+        "host": {"worktree": {"clean": True}},
+        "apk": {"artifacts": [{"sha256": "a" * 64}]},
+        "deployment": {
+            "process": {"returncode": 0, "stdout": "installed"},
+            "installed_artifacts": [{"sha256": "b" * 64}],
+        },
+        "run_spec": {
+            "consumed_sha256": "c" * 64,
+            "snapshot_sha256": "d" * 64,
+        },
+    }
+    (tmp_path / "execution-provenance.json").write_text(
+        json.dumps(provenance) + "\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "production-seam-admission.json").write_text(
+        "{}\n",
+        encoding="utf-8",
+    )
+
+    safe = json.loads(
+        _write_review_safe_provenance(tmp_path).read_text(encoding="utf-8")
+    )
+
+    assert safe["deployment"]["source_and_installed_apk_match"] is False
+    assert safe["source_verification"]["admission_passed"] is False
+    assert (
+        safe["source_verification"]["run_spec_snapshot_matches_consumed"]
+        is False
+    )
+    assert safe["source_verification"]["source_identity_verified"] is False
 
 
 def test_peer_control_artifacts_verify_every_index_binding(

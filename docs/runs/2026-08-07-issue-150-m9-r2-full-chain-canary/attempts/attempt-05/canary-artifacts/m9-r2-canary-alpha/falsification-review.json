@@ -1,0 +1,737 @@
+{
+  "clean_context_sha256": "ed6d78b1af49d1363089dc40efc463750d43fca6e42201ba4a30197167f74cc3",
+  "formal_denominator": false,
+  "formal_qualification_eligible": false,
+  "input_audit": {
+    "allowlisted_file_count": 39,
+    "audit_method": "byte_level_allowlisted_workspace_scan",
+    "audited_artifacts": [
+      {
+        "bytes": 2411,
+        "expected_sha256": "e009881a5d54a9bbc9f725a4f6b0ab2dd2285a608def9b4ac653f7916a19bbdb",
+        "ref": "device-input-setup.json",
+        "sha256": "e009881a5d54a9bbc9f725a4f6b0ab2dd2285a608def9b4ac653f7916a19bbdb"
+      },
+      {
+        "bytes": 1795,
+        "expected_sha256": "155528aee44ffd8d45e657f6615025d9025f52903444a6c19e292255f1cfd8e7",
+        "ref": "effective-execution-identity.json",
+        "sha256": "155528aee44ffd8d45e657f6615025d9025f52903444a6c19e292255f1cfd8e7"
+      },
+      {
+        "bytes": 1885,
+        "expected_sha256": "bc2df51373b3732dc43bc3fbdd6c9fc6c7840a429d0582255618dcb3cb48e808",
+        "ref": "execution-record.json",
+        "sha256": "bc2df51373b3732dc43bc3fbdd6c9fc6c7840a429d0582255618dcb3cb48e808"
+      },
+      {
+        "bytes": 5865,
+        "expected_sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881",
+        "ref": "live-validation-gate.json",
+        "sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881"
+      },
+      {
+        "bytes": 233,
+        "expected_sha256": "fea23dd0e19bd155e27525f10afd5ba81a62dca7ba2118b4d432fa6209a90c38",
+        "ref": "oracle-contract.json",
+        "sha256": "fea23dd0e19bd155e27525f10afd5ba81a62dca7ba2118b4d432fa6209a90c38"
+      },
+      {
+        "bytes": 998,
+        "expected_sha256": "8204780416632dd2e15300a8a588db447f7df3b47bef763907270b3e209e2e76",
+        "ref": "package-reset.json",
+        "sha256": "8204780416632dd2e15300a8a588db447f7df3b47bef763907270b3e209e2e76"
+      },
+      {
+        "bytes": 3135,
+        "expected_sha256": "07f1bf86d8af8d606a173e084279259c88b31929e43b8e19666c100d2589ec73",
+        "ref": "peer-evidence-index.json",
+        "sha256": "07f1bf86d8af8d606a173e084279259c88b31929e43b8e19666c100d2589ec73"
+      },
+      {
+        "bytes": 2410,
+        "expected_sha256": "a64b090d46171f1db54e78879955bf2dd218a879f944debd73057d466331aa8b",
+        "ref": "peer/device-input-setup.json",
+        "sha256": "a64b090d46171f1db54e78879955bf2dd218a879f944debd73057d466331aa8b"
+      },
+      {
+        "bytes": 1794,
+        "expected_sha256": "61375a448022c6462fa56c50945fa68bcbcf2aea9fd4dd77cdc761cd266522c6",
+        "ref": "peer/effective-execution-identity.json",
+        "sha256": "61375a448022c6462fa56c50945fa68bcbcf2aea9fd4dd77cdc761cd266522c6"
+      },
+      {
+        "bytes": 1884,
+        "expected_sha256": "f5e1313eac52244bb42de7088167327303c3ae45f6258080abf315828f6399e7",
+        "ref": "peer/execution-record.json",
+        "sha256": "f5e1313eac52244bb42de7088167327303c3ae45f6258080abf315828f6399e7"
+      },
+      {
+        "bytes": 1141,
+        "expected_sha256": "8948419b711eb2b4473732993e0e76076954a01b0bf5d594bb6f1adea1f249fc",
+        "ref": "peer/finding.json",
+        "sha256": "8948419b711eb2b4473732993e0e76076954a01b0bf5d594bb6f1adea1f249fc"
+      },
+      {
+        "bytes": 5865,
+        "expected_sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881",
+        "ref": "peer/live-validation-gate.json",
+        "sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881"
+      },
+      {
+        "bytes": 998,
+        "expected_sha256": "aa6db1421862aab395bdb9209d9d4b4a8d1d9e1574df8bfcd8fe3d881ae41df6",
+        "ref": "peer/package-reset.json",
+        "sha256": "aa6db1421862aab395bdb9209d9d4b4a8d1d9e1574df8bfcd8fe3d881ae41df6"
+      },
+      {
+        "bytes": 646953,
+        "expected_sha256": "3a0dbf392264b648b393a410774c2dc8951edee0e7ba23242b2bf140fbc44d5e",
+        "ref": "peer/raw/after-event-0/commands.json",
+        "sha256": "3a0dbf392264b648b393a410774c2dc8951edee0e7ba23242b2bf140fbc44d5e"
+      },
+      {
+        "bytes": 1003,
+        "expected_sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7",
+        "ref": "peer/raw/after-event-0/layout.json",
+        "sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7"
+      },
+      {
+        "bytes": 637656,
+        "expected_sha256": "5b9f5152872029a82358c552ff1b3c683ccd9ac9fbb927733c5c2e5c12a17a00",
+        "ref": "peer/raw/after-event-0/logcat.txt",
+        "sha256": "5b9f5152872029a82358c552ff1b3c683ccd9ac9fbb927733c5c2e5c12a17a00"
+      },
+      {
+        "bytes": 44519,
+        "expected_sha256": "8dee3dac8f26dd49a9dd5fe96edd36b648e851ffb73ec101101a77f435cbfaa6",
+        "ref": "peer/raw/after-event-0/screen.png",
+        "sha256": "8dee3dac8f26dd49a9dd5fe96edd36b648e851ffb73ec101101a77f435cbfaa6"
+      },
+      {
+        "bytes": 529985,
+        "expected_sha256": "e3c997a0d6e65ab61fccb131ebfabe3f8f71eade61c42bb38de0741c84ee83aa",
+        "ref": "peer/raw/after-segment-0/commands.json",
+        "sha256": "e3c997a0d6e65ab61fccb131ebfabe3f8f71eade61c42bb38de0741c84ee83aa"
+      },
+      {
+        "bytes": 1003,
+        "expected_sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7",
+        "ref": "peer/raw/after-segment-0/layout.json",
+        "sha256": "ce74f2ce322bdfeaaa8207b527b2240c05c87dbe52458e1fbcd77c788131b9d7"
+      },
+      {
+        "bytes": 521482,
+        "expected_sha256": "7ee1ee400093674cdaf2cdc215b96a52f589e85a328eb04b14512e0257dca661",
+        "ref": "peer/raw/after-segment-0/logcat.txt",
+        "sha256": "7ee1ee400093674cdaf2cdc215b96a52f589e85a328eb04b14512e0257dca661"
+      },
+      {
+        "bytes": 43861,
+        "expected_sha256": "dda61632dba53d423c7e1ce116af76cc28445f81aeed44caa9122d96dc097e7d",
+        "ref": "peer/raw/after-segment-0/screen.png",
+        "sha256": "dda61632dba53d423c7e1ce116af76cc28445f81aeed44caa9122d96dc097e7d"
+      },
+      {
+        "bytes": 576,
+        "expected_sha256": "345d5231dc5890fa1684c9fa6e75cb084e6d2b1aa0c46fe0e043a7bbec622c8c",
+        "ref": "peer/raw/system-event-0/event.json",
+        "sha256": "345d5231dc5890fa1684c9fa6e75cb084e6d2b1aa0c46fe0e043a7bbec622c8c"
+      },
+      {
+        "bytes": 5094,
+        "expected_sha256": "637db1843d492153c0a19c2550bc25ff536865cbfccaa3a8f1f8c30478dea170",
+        "ref": "peer/review-execution-provenance.json",
+        "sha256": "637db1843d492153c0a19c2550bc25ff536865cbfccaa3a8f1f8c30478dea170"
+      },
+      {
+        "bytes": 899,
+        "expected_sha256": "88105b3418ba63c3cd2fbe61abf229609d94a26cc67b61a9ae58ae065a5ab804",
+        "ref": "peer/runner-setup.json",
+        "sha256": "88105b3418ba63c3cd2fbe61abf229609d94a26cc67b61a9ae58ae065a5ab804"
+      },
+      {
+        "bytes": 9330,
+        "expected_sha256": "babb59ea47c32373d39356eae236f06c540de969bd59f6eb2205782d3bc00e93",
+        "ref": "peer/verdict.json",
+        "sha256": "babb59ea47c32373d39356eae236f06c540de969bd59f6eb2205782d3bc00e93"
+      },
+      {
+        "bytes": 632069,
+        "expected_sha256": "bd9bba61049928bcc391ad408e82df1c45647cf99f1f91b05d0087e8b536909e",
+        "ref": "raw/after-event-0/commands.json",
+        "sha256": "bd9bba61049928bcc391ad408e82df1c45647cf99f1f91b05d0087e8b536909e"
+      },
+      {
+        "bytes": 1003,
+        "expected_sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a",
+        "ref": "raw/after-event-0/layout.json",
+        "sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a"
+      },
+      {
+        "bytes": 622994,
+        "expected_sha256": "079229f37f87d58c16cd559aafd35ac8c66b71383939d275a25c4faa31beeb38",
+        "ref": "raw/after-event-0/logcat.txt",
+        "sha256": "079229f37f87d58c16cd559aafd35ac8c66b71383939d275a25c4faa31beeb38"
+      },
+      {
+        "bytes": 43552,
+        "expected_sha256": "859f1e3ff4102be3d29e2dab4fe4c7d085b909ac36cad97a9d05ad91bedfaeac",
+        "ref": "raw/after-event-0/screen.png",
+        "sha256": "859f1e3ff4102be3d29e2dab4fe4c7d085b909ac36cad97a9d05ad91bedfaeac"
+      },
+      {
+        "bytes": 501780,
+        "expected_sha256": "65d013419427616ed634656f466f65503b69c9eee838ad8ebfe7934e0c54bbc6",
+        "ref": "raw/after-segment-0/commands.json",
+        "sha256": "65d013419427616ed634656f466f65503b69c9eee838ad8ebfe7934e0c54bbc6"
+      },
+      {
+        "bytes": 1003,
+        "expected_sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a",
+        "ref": "raw/after-segment-0/layout.json",
+        "sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a"
+      },
+      {
+        "bytes": 493637,
+        "expected_sha256": "64ce86d5d05a4723601241f101783234c144a46fc4d6d8ae64f6377859ae59b9",
+        "ref": "raw/after-segment-0/logcat.txt",
+        "sha256": "64ce86d5d05a4723601241f101783234c144a46fc4d6d8ae64f6377859ae59b9"
+      },
+      {
+        "bytes": 43552,
+        "expected_sha256": "859f1e3ff4102be3d29e2dab4fe4c7d085b909ac36cad97a9d05ad91bedfaeac",
+        "ref": "raw/after-segment-0/screen.png",
+        "sha256": "859f1e3ff4102be3d29e2dab4fe4c7d085b909ac36cad97a9d05ad91bedfaeac"
+      },
+      {
+        "bytes": 575,
+        "expected_sha256": "0ac3987e2ec84a2429c16523ceb5cb440262c0d227f26943cf60d8010027ae43",
+        "ref": "raw/system-event-0/event.json",
+        "sha256": "0ac3987e2ec84a2429c16523ceb5cb440262c0d227f26943cf60d8010027ae43"
+      },
+      {
+        "bytes": 12674,
+        "expected_sha256": "c2509ccd18d54db5ce7433e026064b2c6fe7d7b3045e01a0dd9fb49b6159025c",
+        "ref": "review-brief.json",
+        "sha256": "c2509ccd18d54db5ce7433e026064b2c6fe7d7b3045e01a0dd9fb49b6159025c"
+      },
+      {
+        "bytes": 5096,
+        "expected_sha256": "31c7c3aa0361264aef43dad21cf2bdd72a48cc61d399c8abd76dc5b1e78a420f",
+        "ref": "review-execution-provenance.json",
+        "sha256": "31c7c3aa0361264aef43dad21cf2bdd72a48cc61d399c8abd76dc5b1e78a420f"
+      },
+      {
+        "bytes": 900,
+        "expected_sha256": "d6c15081898229b335b42849cf14ae571ec66b44a48f7a169bc018f63885e580",
+        "ref": "runner-setup.json",
+        "sha256": "d6c15081898229b335b42849cf14ae571ec66b44a48f7a169bc018f63885e580"
+      },
+      {
+        "bytes": 495,
+        "expected_sha256": "9eb10a543bae91996f448c310ed59db5a29a8690b57a945ac88736bcb78e65e1",
+        "ref": "source-target.json",
+        "sha256": "9eb10a543bae91996f448c310ed59db5a29a8690b57a945ac88736bcb78e65e1"
+      },
+      {
+        "bytes": 8730,
+        "expected_sha256": "aadc2c7ff5eedfbfbee107ef4618cc1075c0fdf7495b1a5a5d23d9785d2d3dfa",
+        "ref": "verdict.json",
+        "sha256": "aadc2c7ff5eedfbfbee107ef4618cc1075c0fdf7495b1a5a5d23d9785d2d3dfa"
+      }
+    ],
+    "auditor_mapping_persisted_before_review": false,
+    "context_sha256": "ed6d78b1af49d1363089dc40efc463750d43fca6e42201ba4a30197167f74cc3",
+    "expected_result_disclosed": false,
+    "forbidden_disclosures": [],
+    "known_canary_role_disclosed": false,
+    "prompt_sha256": "410b4435e63200c622c36f180f39a926811ee3b12076a47ce507597b38fe4e42",
+    "schema_version": 1,
+    "status": "pass",
+    "workspace_file_count": 39
+  },
+  "native_identity": {
+    "effective_model": "gpt-5.6-sol",
+    "model_override_present": false,
+    "ref": "review-invocation/falsification-review-call-1.identity.json",
+    "requested_model": null,
+    "selection_policy": "codex_cli_default",
+    "sha256": "e0fcc004f745ad78254a2aa2bc910b9d6737ff82ac7f5d7c80a8ca8e8e044891"
+  },
+  "non_holdout_canary": true,
+  "production_oracle_path_used": false,
+  "reconciliation": {
+    "aggregate_supported": false,
+    "blocking_reasons": [
+      "falsification review blocks aggregate support"
+    ],
+    "finding": {
+      "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+      "conclusion": "rejected",
+      "evidence_refs": [
+        "verdict.json",
+        "runner-setup.json",
+        "live-validation-gate.json",
+        "review-execution-provenance.json",
+        "device-input-setup.json",
+        "package-reset.json",
+        "raw/after-event-0/commands.json",
+        "raw/after-event-0/layout.json",
+        "raw/after-event-0/logcat.txt",
+        "raw/after-event-0/screen.png",
+        "raw/after-segment-0/commands.json",
+        "raw/after-segment-0/layout.json",
+        "raw/after-segment-0/logcat.txt",
+        "raw/after-segment-0/screen.png",
+        "raw/system-event-0/event.json"
+      ],
+      "finding_id": "finding-m9-r2-canary-alpha",
+      "hypothesis_id": "hypothesis-m9-r2-canary-alpha",
+      "impact": "an edited task title may not remain visible across the admitted navigation and process boundary",
+      "rationale": "The candidate conclusion is derived only from this terminal runner record, oracle outputs, and checksum-bound runtime evidence.",
+      "schema_version": 1,
+      "target_id": "target-m9-r2-canary-alpha"
+    },
+    "formal_denominator": false,
+    "formal_qualification_eligible": false,
+    "non_holdout_canary": true,
+    "raw_evidence_refs": [
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "verdict.json",
+        "schema_version": 1,
+        "sha256": "aadc2c7ff5eedfbfbee107ef4618cc1075c0fdf7495b1a5a5d23d9785d2d3dfa"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "runner-setup.json",
+        "schema_version": 1,
+        "sha256": "d6c15081898229b335b42849cf14ae571ec66b44a48f7a169bc018f63885e580"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "live-validation-gate.json",
+        "schema_version": 1,
+        "sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "review-execution-provenance.json",
+        "schema_version": 1,
+        "sha256": "31c7c3aa0361264aef43dad21cf2bdd72a48cc61d399c8abd76dc5b1e78a420f"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "device-input-setup.json",
+        "schema_version": 1,
+        "sha256": "e009881a5d54a9bbc9f725a4f6b0ab2dd2285a608def9b4ac653f7916a19bbdb"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "package-reset.json",
+        "schema_version": 1,
+        "sha256": "8204780416632dd2e15300a8a588db447f7df3b47bef763907270b3e209e2e76"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-event-0/commands.json",
+        "schema_version": 1,
+        "sha256": "bd9bba61049928bcc391ad408e82df1c45647cf99f1f91b05d0087e8b536909e"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-event-0/layout.json",
+        "schema_version": 1,
+        "sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-event-0/logcat.txt",
+        "schema_version": 1,
+        "sha256": "079229f37f87d58c16cd559aafd35ac8c66b71383939d275a25c4faa31beeb38"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-event-0/screen.png",
+        "schema_version": 1,
+        "sha256": "859f1e3ff4102be3d29e2dab4fe4c7d085b909ac36cad97a9d05ad91bedfaeac"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-segment-0/commands.json",
+        "schema_version": 1,
+        "sha256": "65d013419427616ed634656f466f65503b69c9eee838ad8ebfe7934e0c54bbc6"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-segment-0/layout.json",
+        "schema_version": 1,
+        "sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-segment-0/logcat.txt",
+        "schema_version": 1,
+        "sha256": "64ce86d5d05a4723601241f101783234c144a46fc4d6d8ae64f6377859ae59b9"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/after-segment-0/screen.png",
+        "schema_version": 1,
+        "sha256": "859f1e3ff4102be3d29e2dab4fe4c7d085b909ac36cad97a9d05ad91bedfaeac"
+      },
+      {
+        "immutable": true,
+        "kind": "raw-runtime-evidence",
+        "ref": "raw/system-event-0/event.json",
+        "schema_version": 1,
+        "sha256": "0ac3987e2ec84a2429c16523ceb5cb440262c0d227f26943cf60d8010027ae43"
+      }
+    ],
+    "review_id": "falsification-review-m9-r2-canary-alpha",
+    "review_outcome": "challenged",
+    "schema_version": 1
+  },
+  "result": {
+    "authoritative_output_sha256": "a4f7431ce7b3160eb50c726a465abf21d732fc3daf76f3d9b67cf3d7c0810496",
+    "context_id": "review-context-m9-r2-canary-alpha",
+    "rejection_reasons": [],
+    "review": {
+      "candidate_finding": {
+        "claim_boundary": "local API-35 execution of one historical matched pair with exact source, package, runtime, agent, oracle, and review evidence",
+        "conclusion": "rejected",
+        "evidence_refs": [
+          "verdict.json",
+          "runner-setup.json",
+          "live-validation-gate.json",
+          "review-execution-provenance.json",
+          "device-input-setup.json",
+          "package-reset.json",
+          "raw/after-event-0/commands.json",
+          "raw/after-event-0/layout.json",
+          "raw/after-event-0/logcat.txt",
+          "raw/after-event-0/screen.png",
+          "raw/after-segment-0/commands.json",
+          "raw/after-segment-0/layout.json",
+          "raw/after-segment-0/logcat.txt",
+          "raw/after-segment-0/screen.png",
+          "raw/system-event-0/event.json"
+        ],
+        "finding_id": "finding-m9-r2-canary-alpha",
+        "hypothesis_id": "hypothesis-m9-r2-canary-alpha",
+        "impact": "an edited task title may not remain visible across the admitted navigation and process boundary",
+        "rationale": "The candidate conclusion is derived only from this terminal runner record, oracle outputs, and checksum-bound runtime evidence.",
+        "schema_version": 1,
+        "target_id": "target-m9-r2-canary-alpha"
+      },
+      "context_id": "review-context-m9-r2-canary-alpha",
+      "context_sha256": "ed6d78b1af49d1363089dc40efc463750d43fca6e42201ba4a30197167f74cc3",
+      "dimensions": [
+        {
+          "analysis": "The runtime evidence rules out a missed edit, a missed process death, and a judge-only artifact: r2a1 appears before and after the boundary, while PID 9479 is killed and replaced by PID 10135. However, provenance explicitly records source_and_installed_apk_match=false. Execution of an APK other than the declared source therefore remains an evidenced alternative that undermines rejection at the exact-source boundary.",
+          "dimension": "alternative_explanations",
+          "evidence_refs": [
+            "review-brief.json",
+            "verdict.json",
+            "execution-record.json",
+            "review-execution-provenance.json",
+            "raw/after-segment-0/layout.json",
+            "raw/system-event-0/event.json",
+            "raw/after-event-0/layout.json",
+            "raw/after-event-0/logcat.txt"
+          ],
+          "reason_codes": [
+            "ALT_EXECUTABLE_IDENTITY_CONFOUND"
+          ],
+          "schema_version": 1,
+          "status": "challenged"
+        },
+        {
+          "analysis": "The brief's explicit hypothesis assumption is that the UI actions reached the declared task-state boundary. The journey reports successful creation, editing, navigation, and reopening; the pre-event checkpoint shows Task Details with r2a1; and the event evidence records successful backgrounding, process removal, relaunch, and restoration to the target package. The post-event checkpoint again shows r2a1.",
+          "dimension": "assumption_violations",
+          "evidence_refs": [
+            "review-brief.json",
+            "verdict.json",
+            "raw/after-segment-0/layout.json",
+            "raw/system-event-0/event.json",
+            "raw/after-event-0/layout.json"
+          ],
+          "reason_codes": [],
+          "schema_version": 1,
+          "status": "supported"
+        },
+        {
+          "analysis": "The checksum-bound artifacts and their duplicated representations are internally consistent: command captures agree with standalone layouts and logcats, and the final layout agrees with the screenshot and verdict. Nevertheless, end-to-end provenance integrity fails at the source-to-executable link because the installed APK is explicitly reported not to match the source.",
+          "dimension": "evidence_integrity",
+          "evidence_refs": [
+            "review-brief.json",
+            "review-execution-provenance.json",
+            "raw/after-event-0/commands.json",
+            "raw/after-event-0/layout.json",
+            "raw/after-event-0/logcat.txt",
+            "raw/after-event-0/screen.png",
+            "peer-evidence-index.json"
+          ],
+          "reason_codes": [
+            "EVIDENCE_CHAIN_SOURCE_BINDING_FAILED"
+          ],
+          "schema_version": 1,
+          "status": "challenged"
+        },
+        {
+          "analysis": "The evidence establishes that the installed package displayed r2a1 after navigation, reopening, and process replacement. Because that executable is not bound to the declared source, the observation cannot be attributed to the target source or used to resolve the proposed repository-refresh mechanism.",
+          "dimension": "causal_attribution",
+          "evidence_refs": [
+            "review-brief.json",
+            "oracle-contract.json",
+            "review-execution-provenance.json",
+            "raw/system-event-0/event.json",
+            "raw/after-event-0/layout.json"
+          ],
+          "reason_codes": [
+            "CAUSAL_ATTRIBUTION_SOURCE_UNRESOLVED"
+          ],
+          "schema_version": 1,
+          "status": "inconclusive"
+        },
+        {
+          "analysis": "The peer is a strong procedural contrast: it uses the same API-35 device identity, package and component, tools, input method, reset procedure, and process-death operation, while its checkpoints retain r2b0 and L3 fails. But both provenance records report source_and_installed_apk_match=false and withhold source identity and role. Without inferring source assignment, the authorized evidence cannot establish an exact-source matched control pair.",
+          "dimension": "control_comparison",
+          "evidence_refs": [
+            "verdict.json",
+            "review-execution-provenance.json",
+            "device-input-setup.json",
+            "package-reset.json",
+            "peer-evidence-index.json",
+            "peer/verdict.json",
+            "peer/review-execution-provenance.json",
+            "peer/device-input-setup.json",
+            "peer/package-reset.json",
+            "peer/raw/after-event-0/layout.json",
+            "peer/raw/system-event-0/event.json"
+          ],
+          "reason_codes": [
+            "CONTROL_MATCH_SOURCE_UNVERIFIABLE"
+          ],
+          "schema_version": 1,
+          "status": "inconclusive"
+        },
+        {
+          "analysis": "The claim boundary expressly includes exact source execution. Although source-target.json declares a target source, provenance says the installed APK does not match that source and that source identity is undisclosed. The boundary therefore exceeds what the checksum-bound runtime evidence supports.",
+          "dimension": "claim_boundary",
+          "evidence_refs": [
+            "source-target.json",
+            "review-brief.json",
+            "review-execution-provenance.json"
+          ],
+          "reason_codes": [
+            "CLAIM_BOUNDARY_EXACT_SOURCE_UNSUPPORTED"
+          ],
+          "schema_version": 1,
+          "status": "challenged"
+        }
+      ],
+      "outcome": "challenged",
+      "raw_evidence_refs": [
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "verdict.json",
+          "schema_version": 1,
+          "sha256": "aadc2c7ff5eedfbfbee107ef4618cc1075c0fdf7495b1a5a5d23d9785d2d3dfa"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "runner-setup.json",
+          "schema_version": 1,
+          "sha256": "d6c15081898229b335b42849cf14ae571ec66b44a48f7a169bc018f63885e580"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "live-validation-gate.json",
+          "schema_version": 1,
+          "sha256": "7715a685c0a7940ca8c28d9e65e87d9c0f78b41ee149a6f70c9a8785a0f66881"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "review-execution-provenance.json",
+          "schema_version": 1,
+          "sha256": "31c7c3aa0361264aef43dad21cf2bdd72a48cc61d399c8abd76dc5b1e78a420f"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "device-input-setup.json",
+          "schema_version": 1,
+          "sha256": "e009881a5d54a9bbc9f725a4f6b0ab2dd2285a608def9b4ac653f7916a19bbdb"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "package-reset.json",
+          "schema_version": 1,
+          "sha256": "8204780416632dd2e15300a8a588db447f7df3b47bef763907270b3e209e2e76"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-event-0/commands.json",
+          "schema_version": 1,
+          "sha256": "bd9bba61049928bcc391ad408e82df1c45647cf99f1f91b05d0087e8b536909e"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-event-0/layout.json",
+          "schema_version": 1,
+          "sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-event-0/logcat.txt",
+          "schema_version": 1,
+          "sha256": "079229f37f87d58c16cd559aafd35ac8c66b71383939d275a25c4faa31beeb38"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-event-0/screen.png",
+          "schema_version": 1,
+          "sha256": "859f1e3ff4102be3d29e2dab4fe4c7d085b909ac36cad97a9d05ad91bedfaeac"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-segment-0/commands.json",
+          "schema_version": 1,
+          "sha256": "65d013419427616ed634656f466f65503b69c9eee838ad8ebfe7934e0c54bbc6"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-segment-0/layout.json",
+          "schema_version": 1,
+          "sha256": "908facac196b8fca257d88b4f8de0fdc9896165e2ef4b5755587f4c0c3e7157a"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-segment-0/logcat.txt",
+          "schema_version": 1,
+          "sha256": "64ce86d5d05a4723601241f101783234c144a46fc4d6d8ae64f6377859ae59b9"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/after-segment-0/screen.png",
+          "schema_version": 1,
+          "sha256": "859f1e3ff4102be3d29e2dab4fe4c7d085b909ac36cad97a9d05ad91bedfaeac"
+        },
+        {
+          "immutable": true,
+          "kind": "raw-runtime-evidence",
+          "ref": "raw/system-event-0/event.json",
+          "schema_version": 1,
+          "sha256": "0ac3987e2ec84a2429c16523ceb5cb440262c0d227f26943cf60d8010027ae43"
+        }
+      ],
+      "reasons": [
+        {
+          "code": "ALT_EXECUTABLE_IDENTITY_CONFOUND",
+          "evidence_refs": [
+            "review-brief.json",
+            "review-execution-provenance.json"
+          ],
+          "message": "A different executable is an evidenced alternative because the installed APK is reported not to match the declared source.",
+          "schema_version": 1
+        },
+        {
+          "code": "EVIDENCE_CHAIN_SOURCE_BINDING_FAILED",
+          "evidence_refs": [
+            "review-brief.json",
+            "review-execution-provenance.json"
+          ],
+          "message": "Internal checksum consistency does not repair the explicit failure to bind the installed APK to the declared source.",
+          "schema_version": 1
+        },
+        {
+          "code": "CAUSAL_ATTRIBUTION_SOURCE_UNRESOLVED",
+          "evidence_refs": [
+            "review-brief.json",
+            "review-execution-provenance.json",
+            "raw/after-event-0/layout.json"
+          ],
+          "message": "Observed title persistence cannot be attributed to the declared source or proposed repository mechanism without source-to-executable binding.",
+          "schema_version": 1
+        },
+        {
+          "code": "CONTROL_MATCH_SOURCE_UNVERIFIABLE",
+          "evidence_refs": [
+            "peer-evidence-index.json",
+            "review-execution-provenance.json",
+            "peer/review-execution-provenance.json"
+          ],
+          "message": "Both lanes conceal source assignment and report source/APK mismatch, so an exact-source matched comparison cannot be verified.",
+          "schema_version": 1
+        },
+        {
+          "code": "CLAIM_BOUNDARY_EXACT_SOURCE_UNSUPPORTED",
+          "evidence_refs": [
+            "source-target.json",
+            "review-brief.json",
+            "review-execution-provenance.json"
+          ],
+          "message": "The exact-source claim is contradicted by the recorded false source-and-installed-APK match.",
+          "schema_version": 1
+        }
+      ],
+      "review_id": "falsification-review-m9-r2-canary-alpha",
+      "reviewer_identity": {
+        "backend": "codex_cli",
+        "effective_model": "gpt-5.6-sol",
+        "identity_sha256": "8f92ea27755b2821392c9ea10c2531520467a1f8a88a273cb428a03b5606cf00",
+        "invocation_id": "019fdd5e-e460-7a82-ad03-388f35ef3382:019fdd5e-fd13-7cb1-9e3a-e5682b709ed8",
+        "provider_family": "openai-codex-cli",
+        "requested_model": null,
+        "role": "verification-agent-falsification-reviewer-v1",
+        "same_family_limitation": "same provider family, but a separate read-only invocation, clean context, identity, prompt, output schema, and no production adjudication code path",
+        "schema_version": 1
+      },
+      "schema_version": 1,
+      "target_id": "target-m9-r2-canary-alpha"
+    },
+    "reviewer_identity": {
+      "backend": "codex_cli",
+      "effective_model": "gpt-5.6-sol",
+      "identity_sha256": "8f92ea27755b2821392c9ea10c2531520467a1f8a88a273cb428a03b5606cf00",
+      "invocation_id": "019fdd5e-e460-7a82-ad03-388f35ef3382:019fdd5e-fd13-7cb1-9e3a-e5682b709ed8",
+      "provider_family": "openai-codex-cli",
+      "requested_model": null,
+      "role": "verification-agent-falsification-reviewer-v1",
+      "same_family_limitation": "same provider family, but a separate read-only invocation, clean context, identity, prompt, output schema, and no production adjudication code path",
+      "schema_version": 1
+    },
+    "schema_version": 1,
+    "status": "complete"
+  },
+  "schema_version": 1
+}

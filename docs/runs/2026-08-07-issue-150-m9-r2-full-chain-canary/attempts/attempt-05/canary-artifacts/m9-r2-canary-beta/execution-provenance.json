@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "attempt_id": "82c278a3-4d52-4e00-9504-f8952ab399d1",
+  "scenario": "m9-r2-canary-beta",
+  "captured_at": "2026-08-07T17:56:51+00:00",
+  "run_spec": {
+    "invocation_path": "/Users/peter/projects/ai_verification-m9-r2/bench/m9/recovery-canary/m9-r2-canary-beta.yaml",
+    "consumed_sha256": "53b92d680a679dd7bef2e8f7dbcf9cb4767e05c689a1a857753a08eb9901b77f",
+    "snapshot_path": "identity/run-spec.yaml",
+    "snapshot_sha256": "53b92d680a679dd7bef2e8f7dbcf9cb4767e05c689a1a857753a08eb9901b77f",
+    "scenario": "m9-r2-canary-beta",
+    "host_project": "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-beta",
+    "apk_glob": "app/build/outputs/apk/debug/app-debug.apk",
+    "package": "com.example.android.architecture.blueprints.main",
+    "activity": "com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "host_locator": {
+      "root": "${M9_R2_CANARY_BETA_PROJECT}",
+      "resolution": "environment",
+      "resolved_path": "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-beta",
+      "expected_origin": "https://github.com/android/architecture-samples.git",
+      "expected_commit": "208575f78d59716669d0733b5ed3e08797b08787"
+    },
+    "identity_sha256": "3f66d3cd692d4649d32a331de8fa9144c3778583833243fa7c902713340a2d1b"
+  },
+  "host": {
+    "repository_root": "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-beta",
+    "origin": "https://github.com/android/architecture-samples.git",
+    "commit": "208575f78d59716669d0733b5ed3e08797b08787",
+    "worktree": {
+      "clean": true,
+      "status": "",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_files": [],
+      "patch_path": "identity/host.patch",
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "identity_sha256": "bba812a1125e2e091f45af71e5232933a328c0bcdfda78a44589058c5f1fc4d0"
+  },
+  "apk": {
+    "artifacts": [
+      {
+        "path": "/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-beta/app/build/outputs/apk/debug/app-debug.apk",
+        "bytes": 24681461,
+        "sha256": "61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac"
+      }
+    ],
+    "identity_sha256": "a3d40b3f3d6e722d9a917ba277126a952e61bf8d874d36707ad5f6291544d88b"
+  },
+  "device": {
+    "serial": "emulator-5554",
+    "api_level": "35",
+    "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "profile": {
+      "kind": "emulator",
+      "name": "aiverify_api35",
+      "model": "sdk_gphone64_arm64",
+      "device": "emu64a"
+    },
+    "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+  },
+  "tools": {
+    "android_cli": {
+      "requested": "android",
+      "resolved_path": "/Users/peter/.local/bin/android",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "version": "1.0.15498356",
+      "identity_sha256": "234115eb377fbc59cb1c243bd769f30ef049f64186491c700e78be4301d450e8"
+    },
+    "adb": {
+      "requested": "adb",
+      "resolved_path": "/opt/homebrew/Caskroom/android-platform-tools/37.0.0/platform-tools/adb",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+      "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)",
+      "identity_sha256": "38a82d1bcccaed89f0701833718dcde923cfde9a6080b8c42a1b5a5b6d341987"
+    },
+    "codex_cli": {
+      "requested": "codex",
+      "resolved_path": "/opt/homebrew/Caskroom/codex/0.144.6/codex-aarch64-apple-darwin",
+      "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff",
+      "version": "codex-cli 0.144.6",
+      "identity_sha256": "8f26cbfe1000bcab862ab5b0c2d031763463c84daecccc82ed204e108cb40079"
+    },
+    "git": {
+      "requested": "git",
+      "resolved_path": "/usr/bin/git",
+      "sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb",
+      "version": "git version 2.50.1 (Apple Git-155)",
+      "identity_sha256": "fddd0e696681e24d624b01cfe9665a4a0d2ba4cb9f91e09874320cc632784f9c"
+    },
+    "python": {
+      "requested": "/Users/peter/projects/ai_verification-m9-r2/.venv/bin/python3",
+      "resolved_path": "/Users/peter/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11",
+      "sha256": "4c78423e7d5986362ac04df40edb18cdd1174f9818d653402e3abbd2a5bbf793",
+      "version": "3.11.15",
+      "identity_sha256": "b72e1fc777a3f4289e1033343f7f42d4dfdc0c801f5bc07e866481b9058cd960"
+    }
+  },
+  "deployment": {
+    "target": {
+      "device": "emulator-5554",
+      "package": "com.example.android.architecture.blueprints.main",
+      "component": "com.example.android.architecture.blueprints.main/com.example.android.architecture.blueprints.todoapp.TodoActivity"
+    },
+    "process": {
+      "args": [
+        "android",
+        "run",
+        "--device=emulator-5554",
+        "--apks=/private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-beta/app/build/outputs/apk/debug/app-debug.apk",
+        "--activity=com.example.android.architecture.blueprints.todoapp.TodoActivity",
+        "--type=ACTIVITY"
+      ],
+      "returncode": 0,
+      "stdout": "App loaded: com.example.android.architecture.blueprints.main\nDebuggable: true\nSelected component: com.example.android.architecture.blueprints.todoapp.TodoActivity\nInstalling APKs: /private/tmp/m9-r2-canary-fixtures/attempt-05/m9-r2-canary-beta/app/build/outputs/apk/debug/app-debug.apk\nInstallation completed successfully\nExecuting: Launching Activity for com.example.android.architecture.blueprints.main\nActivation completed successfully\n",
+      "stderr": "",
+      "identity_sha256": "5be2a049768f1c305d0295b78f0738551558f54a58dabbdaeeb2c30e8233eacf"
+    },
+    "installed_artifacts": [
+      {
+        "path": "/data/app/~~4bo2UhMgz2IunlpxllQZvw==/com.example.android.architecture.blueprints.main-P92UQ0xU4EmR4TFhOdqV6w==/base.apk",
+        "sha256": "61063a0fd247eb03d1bd251b0d9359c3c2a5ea07cb8abe4b38d3daae57c153ac"
+      }
+    ],
+    "resolved_component": "com.example.android.architecture.blueprints.main/com.example.android.architecture.blueprints.todoapp.TodoActivity",
+    "device": {
+      "serial": "emulator-5554",
+      "api_level": "35",
+      "build_fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+      "profile": {
+        "kind": "emulator",
+        "name": "aiverify_api35",
+        "model": "sdk_gphone64_arm64",
+        "device": "emu64a"
+      },
+      "identity_sha256": "1e5b24e58c54a55c587aa2680cfdc6db5d5043f954a5de9f1974146e318ad5f8"
+    },
+    "tools": {
+      "android_cli_sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+      "adb_sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+    },
+    "identity_sha256": "da8744f8d49e3f2e8b1ca693125de037f63afe86cf7c74659ca3ebb6c112edef"
+  },
+  "roles": {
+    "journey_driver": {
+      "status": "invoked",
+      "requested_model": null,
+      "invocations": [
+        {
+          "path": "artifacts/m9-r2-canary-beta-segment-0/codex-invocation-identity.json",
+          "sha256": "7b1c00df4acd299672a663e02c6d21025d4f9c5a0c78e6ed83afaf9baebfe77e"
+        }
+      ],
+      "invocation_ledger": []
+    },
+    "l3_semantic_judge": {
+      "status": "invoked",
+      "requested_model": null,
+      "invocations": [
+        {
+          "path": "artifacts/l3-judge/l3-judge-call-1.identity.json",
+          "sha256": "29b5c435a5c076a558432db907d5a4a2abd4e600a3697240a96aa13b8bd833d4"
+        }
+      ],
+      "invocation_ledger": [
+        {
+          "path": "artifacts/l3-judge/l3-judge-call-1.invocation.json",
+          "sha256": "8153670cac12a0d623a34e127c8300059900f708a83bc775148cd0f07b0f6ed8"
+        }
+      ]
+    }
+  }
+}

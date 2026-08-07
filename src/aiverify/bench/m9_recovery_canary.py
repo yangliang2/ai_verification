@@ -651,25 +651,80 @@ def _write_review_safe_provenance(lane_dir: Path) -> Path:
 
     source_path = lane_dir / "execution-provenance.json"
     provenance = _read_json(source_path)
+    admission_path = lane_dir / "production-seam-admission.json"
+    admission = _read_json(admission_path)
     deployment = provenance.get("deployment", {})
     process = deployment.get("process", {})
     run_spec = provenance.get("run_spec", {})
-    source_apk = provenance.get("apk", {}).get("sha256")
+    host = provenance.get("host", {})
+    source_artifacts = provenance.get("apk", {}).get("artifacts", [])
+    source_hashes = [
+        item.get("sha256")
+        for item in source_artifacts
+        if isinstance(item, Mapping) and isinstance(item.get("sha256"), str)
+    ]
     installed = deployment.get("installed_artifacts", [])
     installed_hashes = [
         item.get("sha256")
         for item in installed
         if isinstance(item, Mapping) and isinstance(item.get("sha256"), str)
     ]
+    admission_checks = admission.get("checks", {})
+    required_admission_checks = {
+        "artifact_namespace",
+        "host_identity",
+        "run_spec_bytes",
+        "runner_policy",
+        "target_declaration",
+    }
+    source_admission_passed = bool(
+        admission.get("status") == "admitted"
+        and isinstance(admission_checks, Mapping)
+        and required_admission_checks <= set(admission_checks)
+        and all(
+            isinstance(admission_checks[name], Mapping)
+            and admission_checks[name].get("status") == "passed"
+            for name in required_admission_checks
+        )
+    )
+    run_spec_bytes_match = bool(
+        isinstance(run_spec.get("consumed_sha256"), str)
+        and run_spec.get("consumed_sha256") == run_spec.get("snapshot_sha256")
+    )
+    worktree_clean = bool(
+        isinstance(host, Mapping)
+        and isinstance(host.get("worktree"), Mapping)
+        and host["worktree"].get("clean") is True
+    )
+    source_and_installed_apk_match = bool(
+        source_hashes
+        and installed_hashes
+        and sorted(source_hashes) == sorted(installed_hashes)
+    )
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "sanitized_for_role_blind_review",
         "full_provenance_binding": {
             "sha256": _sha256_path(source_path),
             "bytes": source_path.stat().st_size,
         },
+        "source_admission_binding": {
+            "sha256": _sha256_path(admission_path),
+            "bytes": admission_path.stat().st_size,
+        },
         "source_identity_disclosed": False,
         "source_role_disclosed": False,
+        "source_verification": {
+            "admission_passed": source_admission_passed,
+            "run_spec_snapshot_matches_consumed": run_spec_bytes_match,
+            "worktree_clean_at_capture": worktree_clean,
+            "source_identity_verified": bool(
+                source_admission_passed
+                and run_spec_bytes_match
+                and worktree_clean
+            ),
+            "source_artifact_count": len(source_hashes),
+        },
         "deployment": {
             "target": deployment.get("target"),
             "returncode": process.get("returncode"),
@@ -679,11 +734,7 @@ def _write_review_safe_provenance(lane_dir: Path) -> Path:
                 in str(process.get("stdout", ""))
             ),
             "installed_artifact_count": len(installed_hashes),
-            "source_and_installed_apk_match": bool(
-                source_apk
-                and installed_hashes
-                and all(value == source_apk for value in installed_hashes)
-            ),
+            "source_and_installed_apk_match": source_and_installed_apk_match,
             "resolved_component": deployment.get("resolved_component"),
             "device": deployment.get("device"),
             "tools": deployment.get("tools"),
@@ -841,8 +892,8 @@ def _make_finding(
         conclusion=conclusion,
         evidence_refs=raw_refs,
         impact=(
-            "an edited task title may not remain visible across the admitted "
-            "navigation and process boundary"
+            "an accepted task edit may fail to retain its title after the "
+            "explicit save, reopen, and process-boundary sequence"
         ),
         claim_boundary=CLAIM_BOUNDARY,
         rationale=(
@@ -1101,26 +1152,37 @@ def _review_contract(
     hypothesis = RiskHypothesis(
         hypothesis_id=f"hypothesis-{lane_id}",
         target_id=target.target_id,
-        quality_property="edited task persistence across a process boundary",
-        assumptions=(
-            "the recorded UI actions reached the declared task-state boundary",
+        quality_property=(
+            "edited task persistence across explicit save, reopen, and process "
+            "boundaries"
         ),
-        trigger="create and edit one uniquely named task",
-        mechanism="repository refresh may replace the persisted local task state",
-        consequence="the edited task title is absent after reopening",
+        assumptions=(
+            "the recorded UI actions reached the editor and explicit save "
+            "navigation boundaries",
+        ),
+        trigger="create one uniquely named task, edit it, and invoke Save once",
+        mechanism=(
+            "the accepted save path may fail to retain the edited title across "
+            "subsequent reads"
+        ),
+        consequence=(
+            "the edited title is absent immediately after save or after reopening"
+        ),
         rationale=(
-            "The source boundary and runtime journey make task persistence "
-            "falsifiable with local evidence."
+            "Pre-save, post-save, reopened, and post-process checkpoints make "
+            "the bounded persistence behavior falsifiable without attributing "
+            "it to an internal repository mechanism."
         ),
         required_evidence=(
             "terminal execution record",
-            "runtime layout, screenshot, and log evidence",
+            "pre-save and post-save runtime checkpoints",
+            "reopened and post-process layout, screenshot, and log evidence",
             "agent and oracle identity",
         ),
         confidence=0.5,
         status="frozen",
         supporting_fact_ids=(
-            "fact-task-repository",
+            "fact-edit-save-boundary",
             "fact-process-boundary",
             "fact-runtime-observation",
         ),
@@ -1132,10 +1194,13 @@ def _review_contract(
         operator_id="operator-task-persistence-observation",
         trigger="enter the recorded task boundary once",
         observations=(
-            "observe the edited title after navigation and process restoration",
+            "observe the edited title before Save",
+            "observe the task immediately after Save",
+            "observe it again after reopening and process restoration",
         ),
         evidence_expectations=(
-            "layout",
+            "pre-save and post-save layout",
+            "reopened and post-process layout",
             "screenshot",
             "log output",
             "terminal execution identity",
@@ -1159,8 +1224,8 @@ def _review_contract(
             "schema_version": 1,
             "oracle_id": "oracle-task-title-persistence-v1",
             "correct_behavior": (
-                "the uniquely edited task title remains visible after navigation, "
-                "reopening, and the process boundary"
+                "the uniquely edited task title remains visible after the explicit "
+                "Save action, reopening, and the process boundary"
             ),
             "source_role_input": False,
         },
@@ -1268,7 +1333,11 @@ def _review_prompt(
         "the following checksum-bound files in the current directory; do not "
         "inspect parent directories or infer any source assignment:\n"
         + "\n".join(f"- {ref}" for ref in refs)
-        + "\n\nAssess all six dimensions in this exact order: "
+        + "\n\nSource identity and canary role are intentionally withheld. "
+        "Use source_verification and source_and_installed_apk_match in each "
+        "review-execution-provenance.json as the role-blind source boundary; "
+        "challenge false or missing checks without trying to infer assignment. "
+        "Assess all six dimensions in this exact order: "
         + ", ".join(REVIEW_DIMENSIONS)
         + ". A dimension is supported only when the cited files support the "
         "candidate Finding against that challenge. Every evidence_refs value "
