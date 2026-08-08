@@ -368,6 +368,43 @@ or runtime oracle evidence exists. The immutable run record is committed at
 `docs/runs/2026-08-06-issue-137-formal-execution/`; the future-only idempotent
 package-clear repair is not authorization to rerun or replace this population.
 
+## M9-R recovery result
+
+The recovery sequence is #148 → #150 → #152 → #154 → #157. #148 repaired
+future package-reset admission while preserving #137. #150 used only the
+historical pair for a non-holdout canary and reached two accountable full-chain
+results; those inputs are exhausted and cannot enter a formal denominator. #152
+then froze a new, human-approved, hidden `project-defect × 3` /
+`project-control × 3` packet with lane order `m9-r4-lane-01` through
+`m9-r4-lane-06`.
+
+#154 consumed its merged one-shot consumer exactly once. The contradiction packet
+was rejected before side effects, and Context Acquisition plus the three-prior
+Hypothesis Portfolio completed. The consumer then failed closed at
+`PORTFOLIO_FROZEN`: the target-specific Attack Plan evidence expectations did not
+cover the selected hypothesis requirements. Mapping release, source-fixture
+creation, production admission, Android/device work, model invocation, runtime
+evidence, oracle, Finding, Project Risk Map, and Falsification Review were never
+reached. Six ordered, unique terminal ExecutionRecords were sealed as typed
+absences; all are non-accountable. The formal packet has one invocation and zero
+retry, replacement, or discretionary rerun and is permanently exhausted.
+
+#157 applied the frozen pure reducer after verifying the committed mapping and all
+R3/R4 ledgers. The aggregate is pre-runtime `Not Supported`: 0/6 accountable,
+0/6 evidence-valid, 0/3 defect supported, 0/3 controls locally rejected, and 0/6
+reviews survived. Only the contradiction-rejection and attempt-inventory checksum
+gates passed; eight gates failed. Numeric accounting still records one formal
+attempt, six unique terminal records, and zero retries, but the composite
+one-attempt gate also fails because the pre-runtime rows do not reverse-bind their
+ExecutionRecord references.
+
+The raw reducer's `formal_holdout_executed=true` means that R5 reconciled a formal
+attempt. It does **not** override the R4 source record
+`formal_holdout_executed=false`, which is authoritative about runtime reach. This
+result is neither an application runtime FAIL nor evidence of runtime discovery.
+Future-only hardening is tracked in #158; it cannot mutate or authorize a rerun of
+the R3/R4 packet. #136/#137 remain independently immutable.
+
 ## ADR assessment
 
 #129 reviewed ADR-0001, ADR-0002, and ADR-0003. No new ADR is required for this

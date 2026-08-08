@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "issue": 157,
+  "qualification_id": "m9-recovery-project-qualification-v2",
+  "formal_attempt_id": "m9-r4-formal-attempt-01",
+  "decision": "Not Supported",
+  "decision_characterization": "pre_runtime_formal_qualification_evidence",
+  "runtime_verdict": null,
+  "formal_attempt_reconciled": true,
+  "runtime_holdout_executed": false,
+  "raw_reducer_formal_holdout_executed": true,
+  "execution_field_interpretation": "The reducer field records that a formal attempt was reconciled. The R4 formal-execution-summary field is authoritative about runtime reach and is false.",
+  "terminal_stage": "PORTFOLIO_FROZEN",
+  "terminal_error": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements",
+  "passed_gates": [
+    "contradiction_rejected_before_side_effect",
+    "formal_attempt_inventory_checksum_bound"
+  ],
+  "failed_gates": [
+    "six_of_six_accountable",
+    "attempt_evidence_six_of_six_validated",
+    "defect_three_of_three_supported",
+    "control_three_of_three_rejected",
+    "falsification_six_of_six_survived",
+    "review_identities_unique_and_policy_bound",
+    "formal_attempt_artifacts_exhaustively_enumerated",
+    "one_formal_attempt_zero_retry_replacement"
+  ],
+  "counts": {
+    "formal_attempt_count": 1,
+    "lane_count": 6,
+    "terminal_lane_count": 6,
+    "unique_execution_record_attempt_ids": 6,
+    "accountable": 0,
+    "attempt_evidence_validated": 0,
+    "defect_supported": 0,
+    "control_locally_rejected": 0,
+    "falsification_review_survived": 0,
+    "retry_count": 0,
+    "replacement_count": 0,
+    "discretionary_rerun_count": 0
+  },
+  "inventory_interpretation": {
+    "execution_record_count": 6,
+    "execution_records_exhaustive": true,
+    "execution_record_attempt_ids_unique": true,
+    "lane_roots_exact": true,
+    "root_ledger_exhaustive": true,
+    "inventory_execution_records_bound": false,
+    "composite_one_attempt_gate": false,
+    "reason": "The pre-runtime rows have empty attempt-evidence receipts and therefore do not reverse-bind their canonical ExecutionRecords, even though the numeric attempt and retry counts are exact."
+  },
+  "role_overlay": {
+    "scope": "R5 auditor in-memory copy only",
+    "persisted_into_r4_evidence": false,
+    "lane_order_verified": true,
+    "control_count": 3,
+    "defect_count": 3,
+    "mapping_raw_sha256": "4da963ad23e5e8aca18e79328069a23a62a3071eb814d929246675fc7f4b84eb",
+    "mapping_canonical_sha256": "d69c0421ed68bf7de020326043fcf787250abbdb9aa0c9a10ecc3a2cc1eba8a4"
+  },
+  "inputs": {
+    "r4_merge_commit": "47a6e5b03a46a886ba35658dcaac9a5062bd973f",
+    "r4_merge_tree": "565c3bf3395a317f4b316527493788233760b0cc",
+    "r4_evidence_commit": "ac2756bcf7f4a86afa52239cdd359bcf82e83e92",
+    "r3_ledger_sha256": "0d3b311387dae768cf361a1f7683605a97600851ccb1e38c8ce2632b3ee9dc47",
+    "r4_formal_ledger_sha256": "94488b89e52739e3d2fdd8d4d0633cc2feda104e90e5d2268ff51da598f28160",
+    "r4_audit_ledger_sha256": "a5ea13cbc83ad23b9f8d6a1d207fe139cd7a73b76d314d502feb095c6403ba97",
+    "contradiction_audit_sha256": "ed594192326034c9a0eb576fbfa1fe76f29a0e5af5f1099074d2d187c9ab254e",
+    "reconciliation_sha256": "a665db14da5c3cc18ff60016a602e0922f3f7e051de35332d99d7a3d7885437e"
+  },
+  "side_effects": {
+    "formal_command_calls": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "build_calls": 0,
+    "install_calls": 0,
+    "launch_calls": 0,
+    "oracle_calls": 0,
+    "review_calls": 0,
+    "r4_evidence_writes": 0
+  },
+  "follow_up_issue": 158,
+  "claim_boundary": "This result applies only to the exhausted frozen M9-R4 packet and proves a pre-runtime Not Supported qualification outcome, not an application runtime result or a broader Android capability."
+}

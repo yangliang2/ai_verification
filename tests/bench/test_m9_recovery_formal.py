@@ -17,7 +17,13 @@ from aiverify.bench.m9_recovery_qualification import (
 )
 
 
-def test_static_preflight_preserves_zero_formal_counters() -> None:
+def test_static_preflight_preserves_zero_formal_counters(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "formal-attempt"
+    monkeypatch.setattr(formal, "FORMAL_ROOT", root)
+
     result = formal.static_preflight()
 
     assert result["status"] == "passed"
@@ -26,7 +32,7 @@ def test_static_preflight_preserves_zero_formal_counters() -> None:
     assert result["model_calls"] == 0
     assert result["formal_lane_attempts"] == 0
     assert result["r3_ledger"]["entries"] == 57
-    assert not formal.FORMAL_ROOT.exists()
+    assert not root.exists()
 
 
 def test_formal_root_claim_is_create_only(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

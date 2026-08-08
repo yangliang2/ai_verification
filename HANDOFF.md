@@ -1,14 +1,15 @@
 # HANDOFF
 
-更新时间：2026-08-07
+更新时间：2026-08-08
 
-M9 首次 formal qualification 已以不可变的 `Not Supported` 失败证据收口：
-#137 的六条 lane 均在 install 前 non-accountable。#128 已重开并进入 M9-R
-recovery；R1 #148 已恢复可重复的 non-holdout canary baseline，并把 package reset
-改为先证明 installed/absent、再 fail closed。接手者应先读
+M9 与 M9-R 均已以不可变的 `Not Supported` 失败证据收口。#137 的六条 lane 均在
+install 前 non-accountable；fresh recovery packet #154 的唯一调用更早在
+`PORTFOLIO_FROZEN` fail closed，未到 mapping、device、model 或 runtime。#157
+机械归约得到 0/6 accountable、0/6 evidence-valid、0/3 defect support、0/3
+control rejection、0/6 review，零 retry/replacement/rerun。接手者应先读
 [`docs/current-capability-claim-matrix.md`](docs/current-capability-claim-matrix.md)，
 再读 [#137 formal run](docs/runs/2026-08-06-issue-137-formal-execution/README.md)
-与 [#148 R1 run](docs/runs/2026-08-07-issue-148-m9-r1-recovery-baseline/README.md)，
+与 [#157 R5 run](docs/runs/2026-08-08-issue-157-m9-r5-reconciliation/README.md)，
 不要从旧 issue 编号或聊天记录推断当前声明。M8 与首次 M9 人口都保持不可变。
 
 ## 当前 tracker 状态
@@ -58,12 +59,14 @@ recovery；R1 #148 已恢复可重复的 non-holdout canary baseline，并把 pa
   `957f108`](https://github.com/yangliang2/ai_verification/commit/957f108d88afd74a8787b42be568ab558c5fb9b1)
   消费 exact #121 manifest，12/12 lanes 均在 execution-identity capture 阶段成为
   `non-accountable`，因此 aggregate 为 `0/12 accountable`、`inconclusive`。
-- M9 parent [#128](https://github.com/yangliang2/ai_verification/issues/128) 已重开。
-  #129–#137 的原实现、冻结和执行证据保持不变；#137 的真实 aggregate 是
-  `Not Supported`、0/6 accountable，没有 install/launch/agent/runtime evidence。
-- M9-R 从 #148 开始。R1 只恢复旧 fixture 为 R2 non-holdout canary 输入，并修复
-  pre-install package-reset 语义；它不改变 #137 结论，也不允许旧 fixture 进入
-  新 formal cohort。
+- M9 parent [#128](https://github.com/yangliang2/ai_verification/issues/128) 已在 R5
+  终局证据合入后收口。#129–#137 的原实现、冻结和执行证据保持不变；#137 的真实
+  aggregate 仍是 `Not Supported`、0/6 accountable，没有 install/launch/agent/
+  runtime evidence。
+- M9-R #148–#157 已完成。R2 historical canary 的 2/2 accountable 结果只证明
+  forward readiness；R3 fresh packet 的 R4 正式调用在 Attack Plan contract gate
+  终止。R5 是 pre-runtime `Not Supported`，不是 runtime FAIL。#158 只做 future-only
+  contract hardening，不重开 parent 或正式 packet。
 
 ## M8 immutable result
 
@@ -260,20 +263,15 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
 
 ## 接手时的正确下一步
 
-1. 保持 M8 #117–#122 与 M9 #136/#137 证据不可变；不得重跑、替换、改写或合并
-   旧 population。
-2. #148 必须先完成 PR merge 与 auditable tracker completion comment；在此之前
-   不得开始 R2。
-3. R2 只能使用 #148 恢复的旧 fixture 做 non-holdout full-chain canary，并必须实际
-   覆盖 install、launch、`codex-default` Effective Execution Identity、Verification
-   Agent、oracle、独立 Falsification Review 和 reconciliation。
-4. R2 merge 后，R3 才可准备一批全新的隐藏 3 defect + 3 control qualification
-   packet；旧 fixture、旧 mapping 和旧六 lane 都不得进入新 packet。
-5. R3 packet 与 pre-side-effect contradiction control 完成并合入后，必须暂停等待
-   人工冻结批准。批准前不得执行任何 formal lane。
-6. 获批后 R4 按冻结顺序单次执行六条 lane，one-attempt、zero-retry、
-   zero-replacement；R5 只按 6/6 accountability、3/3 defect、3/3 control、
-   6/6 review 与 contradiction gate reconcile，不得追结果重跑。
+1. 保持 M8 #117–#122、M9 #136/#137、M9-R #152/#154/#157 证据不可变；不得重跑、
+   替换、改写、回填或合并 population。
+2. #154 packet 已耗尽。任何 consumer、Attack Plan、inventory 或 reducer 修复都不得
+   触发第二次 formal command。
+3. 当前唯一明确的 forward work 是 #158：在未来 packet 声明 namespace 前完成
+   target-specific plan preclaim，并让 pre-runtime terminal rows 双向绑定 inventory、
+   区分 “attempt reconciled” 与 “runtime executed”。
+4. 若未来需要再次度量 M9，必须另开 PRD、选择全新 cohort/mapping、重新人工冻结并
+   获得新的正式执行授权；#158 本身不提供该授权。
 
 任何文档或报告都必须同时说明支持结论和非声明范围。若实现、run record 与
 tracker 冲突，以 committed raw evidence 为准，先修 source-of-truth，再继续下游

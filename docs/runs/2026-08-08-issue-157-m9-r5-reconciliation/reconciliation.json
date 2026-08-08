@@ -1,0 +1,259 @@
+{
+  "aggregate_result": "Not Supported",
+  "contradiction_audit_sha256": "ed594192326034c9a0eb576fbfa1fe76f29a0e5af5f1099074d2d187c9ab254e",
+  "counts": {
+    "accountable": 0,
+    "attempt_evidence_validated": 0,
+    "contradiction_packet_pre_side_effect": true,
+    "control_locally_rejected": 0,
+    "defect_supported": 0,
+    "execution_record_attempt_ids_unique": true,
+    "execution_record_count": 6,
+    "execution_records_exhaustive": true,
+    "falsification_review_survived": 0,
+    "formal_attempt_inventory_checksum_bound": true,
+    "inventory_execution_records_bound": false,
+    "lane_attempt_count": 6,
+    "lane_count": 6,
+    "lane_discretionary_rerun_count": 0,
+    "lane_replacement_count": 0,
+    "lane_retry_count": 0,
+    "lane_roots_exact": true,
+    "production_identities_authoritative": false,
+    "production_identities_unique": false,
+    "review_identities_unique": false,
+    "review_production_identities_disjoint": false,
+    "root_ledger_exhaustive": true
+  },
+  "discretionary_rerun_count": 0,
+  "formal_attempt_count": 1,
+  "formal_attempt_inventory": [
+    {
+      "attempt_number": 1,
+      "discretionary_rerun_count": 0,
+      "execution_records": [
+        {
+          "execution_record_attempt_id": "c00e4ec7-5453-4775-bc03-2f6ef40eaeb5",
+          "lane_id": "m9-r4-lane-01",
+          "path": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-01/execution-record.json",
+          "sha256": "dd33400bd8ec2078db26cdec86b462483214205a46117def107787b340e37db6"
+        },
+        {
+          "execution_record_attempt_id": "7f63e7d0-6229-4c1d-8aae-3b9ebe739e48",
+          "lane_id": "m9-r4-lane-02",
+          "path": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-02/execution-record.json",
+          "sha256": "019bd5abdd07f25533cee792026a249ca6e9d74a2fa91b61e5af1c83858134fc"
+        },
+        {
+          "execution_record_attempt_id": "a188c46a-43da-47b4-8911-ccf26ab6f57b",
+          "lane_id": "m9-r4-lane-03",
+          "path": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-03/execution-record.json",
+          "sha256": "6a869c1d2ef92973f96d2594dde28e7121bb23262059805652ee3ef64e9d58f0"
+        },
+        {
+          "execution_record_attempt_id": "6902cbe1-71b8-4493-a3fe-de5d01da5418",
+          "lane_id": "m9-r4-lane-04",
+          "path": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-04/execution-record.json",
+          "sha256": "246094a670fe7f295e7a00f2123c706735e3167e229294be95f2404b5c1ec105"
+        },
+        {
+          "execution_record_attempt_id": "0e38d527-fbfc-42ac-a18c-29aa3558769b",
+          "lane_id": "m9-r4-lane-05",
+          "path": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-05/execution-record.json",
+          "sha256": "2488ac315060e554c1adca8218f79ccbd8a0cc9a49c7516eb493a926df5188d9"
+        },
+        {
+          "execution_record_attempt_id": "9c590ec9-8b82-4c09-a9bc-970bf996d722",
+          "lane_id": "m9-r4-lane-06",
+          "path": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-06/execution-record.json",
+          "sha256": "ca8ad11b5668263f4425b4f7879389a01c45952aec280ffeadfb438401505ea2"
+        }
+      ],
+      "formal_attempt_id": "m9-r4-formal-attempt-01",
+      "lane_count": 6,
+      "lane_order": [
+        "m9-r4-lane-01",
+        "m9-r4-lane-02",
+        "m9-r4-lane-03",
+        "m9-r4-lane-04",
+        "m9-r4-lane-05",
+        "m9-r4-lane-06"
+      ],
+      "replacement_count": 0,
+      "retry_count": 0,
+      "terminal_lane_count": 6
+    }
+  ],
+  "formal_holdout_executed": true,
+  "lane_order": [
+    "m9-r4-lane-01",
+    "m9-r4-lane-02",
+    "m9-r4-lane-03",
+    "m9-r4-lane-04",
+    "m9-r4-lane-05",
+    "m9-r4-lane-06"
+  ],
+  "lanes": [
+    {
+      "accountable": false,
+      "attempt_evidence": {},
+      "attempt_evidence_receipt": {},
+      "discretionary_rerun_count": 0,
+      "duration_seconds": 0.0,
+      "execution_record_accountable": false,
+      "execution_record_attempt_id": "c00e4ec7-5453-4775-bc03-2f6ef40eaeb5",
+      "falsification_review": {
+        "outcome": "inconclusive",
+        "status": "not_run",
+        "typed_absence": "typed-absence.json"
+      },
+      "finding_conclusion": "inconclusive",
+      "formal_attempt_id": "m9-r4-formal-attempt-01",
+      "lane_attempt_count": 1,
+      "lane_id": "m9-r4-lane-01",
+      "production_identity_sha256": null,
+      "production_invocation_id": null,
+      "replacement_count": 0,
+      "retry_count": 0,
+      "terminal": true,
+      "terminal_error": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements"
+    },
+    {
+      "accountable": false,
+      "attempt_evidence": {},
+      "attempt_evidence_receipt": {},
+      "discretionary_rerun_count": 0,
+      "duration_seconds": 0.0,
+      "execution_record_accountable": false,
+      "execution_record_attempt_id": "7f63e7d0-6229-4c1d-8aae-3b9ebe739e48",
+      "falsification_review": {
+        "outcome": "inconclusive",
+        "status": "not_run",
+        "typed_absence": "typed-absence.json"
+      },
+      "finding_conclusion": "inconclusive",
+      "formal_attempt_id": "m9-r4-formal-attempt-01",
+      "lane_attempt_count": 1,
+      "lane_id": "m9-r4-lane-02",
+      "production_identity_sha256": null,
+      "production_invocation_id": null,
+      "replacement_count": 0,
+      "retry_count": 0,
+      "terminal": true,
+      "terminal_error": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements"
+    },
+    {
+      "accountable": false,
+      "attempt_evidence": {},
+      "attempt_evidence_receipt": {},
+      "discretionary_rerun_count": 0,
+      "duration_seconds": 0.0,
+      "execution_record_accountable": false,
+      "execution_record_attempt_id": "a188c46a-43da-47b4-8911-ccf26ab6f57b",
+      "falsification_review": {
+        "outcome": "inconclusive",
+        "status": "not_run",
+        "typed_absence": "typed-absence.json"
+      },
+      "finding_conclusion": "inconclusive",
+      "formal_attempt_id": "m9-r4-formal-attempt-01",
+      "lane_attempt_count": 1,
+      "lane_id": "m9-r4-lane-03",
+      "production_identity_sha256": null,
+      "production_invocation_id": null,
+      "replacement_count": 0,
+      "retry_count": 0,
+      "terminal": true,
+      "terminal_error": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements"
+    },
+    {
+      "accountable": false,
+      "attempt_evidence": {},
+      "attempt_evidence_receipt": {},
+      "discretionary_rerun_count": 0,
+      "duration_seconds": 0.0,
+      "execution_record_accountable": false,
+      "execution_record_attempt_id": "6902cbe1-71b8-4493-a3fe-de5d01da5418",
+      "falsification_review": {
+        "outcome": "inconclusive",
+        "status": "not_run",
+        "typed_absence": "typed-absence.json"
+      },
+      "finding_conclusion": "inconclusive",
+      "formal_attempt_id": "m9-r4-formal-attempt-01",
+      "lane_attempt_count": 1,
+      "lane_id": "m9-r4-lane-04",
+      "production_identity_sha256": null,
+      "production_invocation_id": null,
+      "replacement_count": 0,
+      "retry_count": 0,
+      "terminal": true,
+      "terminal_error": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements"
+    },
+    {
+      "accountable": false,
+      "attempt_evidence": {},
+      "attempt_evidence_receipt": {},
+      "discretionary_rerun_count": 0,
+      "duration_seconds": 0.0,
+      "execution_record_accountable": false,
+      "execution_record_attempt_id": "0e38d527-fbfc-42ac-a18c-29aa3558769b",
+      "falsification_review": {
+        "outcome": "inconclusive",
+        "status": "not_run",
+        "typed_absence": "typed-absence.json"
+      },
+      "finding_conclusion": "inconclusive",
+      "formal_attempt_id": "m9-r4-formal-attempt-01",
+      "lane_attempt_count": 1,
+      "lane_id": "m9-r4-lane-05",
+      "production_identity_sha256": null,
+      "production_invocation_id": null,
+      "replacement_count": 0,
+      "retry_count": 0,
+      "terminal": true,
+      "terminal_error": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements"
+    },
+    {
+      "accountable": false,
+      "attempt_evidence": {},
+      "attempt_evidence_receipt": {},
+      "discretionary_rerun_count": 0,
+      "duration_seconds": 0.0,
+      "execution_record_accountable": false,
+      "execution_record_attempt_id": "9c590ec9-8b82-4c09-a9bc-970bf996d722",
+      "falsification_review": {
+        "outcome": "inconclusive",
+        "status": "not_run",
+        "typed_absence": "typed-absence.json"
+      },
+      "finding_conclusion": "inconclusive",
+      "formal_attempt_id": "m9-r4-formal-attempt-01",
+      "lane_attempt_count": 1,
+      "lane_id": "m9-r4-lane-06",
+      "production_identity_sha256": null,
+      "production_invocation_id": null,
+      "replacement_count": 0,
+      "retry_count": 0,
+      "terminal": true,
+      "terminal_error": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements"
+    }
+  ],
+  "mapping_assignment_verified": true,
+  "mapping_commitment_sha256": "d69c0421ed68bf7de020326043fcf787250abbdb9aa0c9a10ecc3a2cc1eba8a4",
+  "replacement_count": 0,
+  "retry_count": 0,
+  "schema_version": 2,
+  "supported_gate": {
+    "attempt_evidence_six_of_six_validated": false,
+    "contradiction_rejected_before_side_effect": true,
+    "control_three_of_three_rejected": false,
+    "defect_three_of_three_supported": false,
+    "falsification_six_of_six_survived": false,
+    "formal_attempt_artifacts_exhaustively_enumerated": false,
+    "formal_attempt_inventory_checksum_bound": true,
+    "one_formal_attempt_zero_retry_replacement": false,
+    "review_identities_unique_and_policy_bound": false,
+    "six_of_six_accountable": false
+  }
+}

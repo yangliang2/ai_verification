@@ -21,7 +21,7 @@ Run Spec
 
 ## 当前状态
 
-截至 2026-08-05：
+截至 2026-08-08：
 
 - #58 已由 fresh #80 M3.1 population 的有效证据收口。#80 在冻结的五 seed、
   30 lane 人口上得到 30/30 first-attempt 和 eventual accountability、
@@ -49,11 +49,16 @@ Run Spec
   记录了 exact #121 manifest 的正式结果：12/12 lanes 一次性终止于
   `execution-identity-capture`，0/12 accountable，qualification
   `inconclusive`。这不是 runtime PASS/FAIL 结果，且不可重跑、替换或重写。
-- M9 parent [#128](https://github.com/yangliang2/ai_verification/issues/128) 是计划中的
-  unseen-project adversarial discovery slice；#129 正在先收口 source of truth。
-  M9 尚未进入正式 holdout，后续实现必须继承 ProjectTarget-only、ChangeTarget
-  regression-only、三 priors、六 formal lanes、contradiction packet 和 local-only
-  claim boundary。
+- M9 parent [#128](https://github.com/yangliang2/ai_verification/issues/128) 的原始
+  #136/#137 人口保持不可变：#137 是 install 前 0/6 accountable 的
+  `Not Supported`，不形成 runtime claim。
+- M9-R recovery 已按 #148 → #150 → #152 → #154 → #157 收口。R2 只证明两条
+  historical canary 能走完整链；R3 冻结了全新 3+3 packet；R4 的唯一正式调用在
+  `PORTFOLIO_FROZEN` 因 Attack Plan evidence contract 不满足而 fail closed。R5
+  机械归约为 pre-runtime `Not Supported`：0/6 accountable、0/6 evidence-valid、
+  0/3 defect support、0/3 control rejection、0/6 review，且零 retry/replacement/
+  rerun。future-only hardening 由 [#158](https://github.com/yangliang2/ai_verification/issues/158)
+  跟踪，不授权重跑该 packet。
 
 ## M8 结果与 M9 边界
 
@@ -86,6 +91,15 @@ drift、lifetime/ownership drift。正式 cohort 是 `project-defect × 3` 与
 `project-control × 3` 的六 lane；一个 incomplete/contradictory context packet
 先 fail closed、留在 denominator 外。M9 未形成任何 benchmark-rate、project-
 completeness、Android/OEM/ColorOS、production 或 upstream claim。
+
+M9-R 的 durable evidence 分三层：
+[R3 fresh freeze](docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/README.md)、
+[R4 terminal formal attempt](docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-execution-summary.json)
+与 [R5 reconciliation](docs/runs/2026-08-08-issue-157-m9-r5-reconciliation/README.md)。
+R4 先正确拒绝 denominator-external contradiction packet，再完成 Context Acquisition
+和三-prior portfolio；它在 mapping release、fresh fixture、device、model 和 runtime
+之前终止。六个 terminal rows 是 checksum-bound typed absence，不是六条 runtime
+观察。R5 的 `Not Supported` 只说明冻结的 all-or-nothing gate 未通过。
 
 ## 当前可支持的有界结论
 
@@ -246,8 +260,9 @@ M7 已按上述依赖完成；没有新的明确授权，不进行任何 upstrea
 M9 的四个 canonical domain terms 是 `Context Acquisition`、`Hypothesis Portfolio`、
 `Exploration Stop Rule` 和 `Falsification Review`，定义与既有 `Context Fact`、
 `Quality Context Graph`、`Risk Hypothesis`、`Attack Plan`、`Finding`、`Residual Risk`
-和 `Project Risk Map` 的关系见 [`CONTEXT.md`](CONTEXT.md)。这些是当前批准的 domain
-contracts，不表示后续代码或正式 holdout 已存在。
+和 `Project Risk Map` 的关系见 [`CONTEXT.md`](CONTEXT.md)。这些 domain contracts
+已被 #129–#157 的实现与证据消费，但 R4/R5 的 pre-runtime `Not Supported` 不证明
+该链具备正式 runtime discovery 能力。
 
 M9 只对 ProjectTarget 进行 formal qualification；ChangeTarget 仅用于 regression
 coverage。三 priors 必须在一个 Hypothesis Portfolio 中竞争：synchronous critical-
@@ -261,6 +276,14 @@ same-family limitation。
 M8 的 `0/12 accountable`、`inconclusive` 结果是不可变 evidence；不得以
 `22af9b2` 或任何后续代码重跑/替换/改写。所有 M9 结论只能是 exact source/build/
 device/operator/backend-model/oracle/review/evidence 范围内的 local-only claim。
+
+M9-R 的 fresh recovery packet 只调用一次。R5 读取 exact R4 merge、验证 R3/R4
+账本与 committed auditor mapping，并调用冻结 reducer；10 个 gate 中只有
+contradiction pre-side-effect rejection 与 attempt-inventory checksum binding 通过。
+原始 R4 summary 的 `formal_holdout_executed=false` 是 runtime 权威事实；R5 reducer
+输出中的同名 `true` 只表示它归约了一个 formal attempt，不能解释成 runtime 已开始。
+这项字段语义与 pre-runtime inventory reverse-binding gap 一并由 #158 future-only
+修复，绝不回填或重跑 #154。
 
 本 issue 复核了 ADR-0001、0002、0003。#129 只补齐 domain vocabulary 与 bounded
 qualification boundary，没有新增 hard-to-reverse architecture、provider、data
