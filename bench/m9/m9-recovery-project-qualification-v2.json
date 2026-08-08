@@ -1,0 +1,1147 @@
+{
+  "admission": {
+    "allowed_subprocesses": [
+      "read-only git identity commands"
+    ],
+    "audit": {
+      "checks": [
+        {
+          "lane_id": "m9-r4-lane-01",
+          "receipt_status": "admitted",
+          "side_effects": {
+            "agent": false,
+            "build": false,
+            "declaration": "read-only git and local source/metadata inspection only",
+            "device": false,
+            "external": false
+          },
+          "status": "pass"
+        },
+        {
+          "lane_id": "m9-r4-lane-02",
+          "receipt_status": "admitted",
+          "side_effects": {
+            "agent": false,
+            "build": false,
+            "declaration": "read-only git and local source/metadata inspection only",
+            "device": false,
+            "external": false
+          },
+          "status": "pass"
+        },
+        {
+          "lane_id": "m9-r4-lane-03",
+          "receipt_status": "admitted",
+          "side_effects": {
+            "agent": false,
+            "build": false,
+            "declaration": "read-only git and local source/metadata inspection only",
+            "device": false,
+            "external": false
+          },
+          "status": "pass"
+        },
+        {
+          "lane_id": "m9-r4-lane-04",
+          "receipt_status": "admitted",
+          "side_effects": {
+            "agent": false,
+            "build": false,
+            "declaration": "read-only git and local source/metadata inspection only",
+            "device": false,
+            "external": false
+          },
+          "status": "pass"
+        },
+        {
+          "lane_id": "m9-r4-lane-05",
+          "receipt_status": "admitted",
+          "side_effects": {
+            "agent": false,
+            "build": false,
+            "declaration": "read-only git and local source/metadata inspection only",
+            "device": false,
+            "external": false
+          },
+          "status": "pass"
+        },
+        {
+          "lane_id": "m9-r4-lane-06",
+          "receipt_status": "admitted",
+          "side_effects": {
+            "agent": false,
+            "build": false,
+            "declaration": "read-only git and local source/metadata inspection only",
+            "device": false,
+            "external": false
+          },
+          "status": "pass"
+        }
+      ],
+      "formal_execution_started": false,
+      "receipt_count": 6,
+      "status": "pass"
+    },
+    "forbidden_before_formal_execution": [
+      "gradle",
+      "android",
+      "adb",
+      "codex",
+      "device",
+      "install",
+      "launch",
+      "runtime"
+    ],
+    "path_rebinding": {
+      "artifact_dir": "resolve docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/<lane-id>/artifacts against the R4 clean repository worktree",
+      "immutable_runner_fields": [
+        "device",
+        "backend",
+        "requested_driver_model",
+        "requested_l3_model",
+        "runner_policy_version",
+        "expected_source_commit",
+        "launch",
+        "allow_host_project_subdir",
+        "android_bin",
+        "adb_bin",
+        "codex_bin"
+      ],
+      "only_paths_may_be_re_resolved": true,
+      "workdir": "resolve a fresh clean source worktree from the released lane mapping; reverify origin, commit, and tree"
+    },
+    "r3_receipt_scope": "side_effect_free_feasibility_only_not_reusable_for_r4",
+    "r4_fresh_re_admission_required": true,
+    "receipts_are_auditor_evidence_not_verifier_inputs": true,
+    "side_effects": false,
+    "six_exact_run_specs": true,
+    "six_exact_runner_policy_pairs": true
+  },
+  "approval": {
+    "approved_at": "2026-08-08T04:22:04+00:00",
+    "approved_by": "yangliang2",
+    "comment_url": "https://github.com/yangliang2/ai_verification/issues/152#issuecomment-5224480146",
+    "issue_url": "https://github.com/yangliang2/ai_verification/issues/152",
+    "required_scope": [
+      "exact ProjectTarget snapshot and matched pair",
+      "six-lane blocked hidden assignment commitment",
+      "unsent-draft portrait-to-landscape recreation probe",
+      "one formal attempt with zero retry or replacement",
+      "all-or-nothing Supported gate and local-only boundary"
+    ],
+    "status": "approved"
+  },
+  "attack_plan": {
+    "claim_boundary": "local-only",
+    "contract": {
+      "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/attack-plan-contract.json",
+      "sha256": "3d986b34754eee3457137a642d9d2daaa7aca06fedee362e455f0577033566b0",
+      "source_receipt_sha256": "49377cb16b5739f7f8f0ea13f79223eb3f64c9f79e413f83f092be5ac755ca26",
+      "status": "admitted_contract_reference"
+    },
+    "safety_boundary": "local public-project copy, local emulator, and declared evidence roots only",
+    "target_specific_plan_generation": "R4 only after fresh context and portfolio freeze"
+  },
+  "claim_boundary": {
+    "exclusions": [
+      "rewrite or rerun of #136/#137",
+      "R1/R2 population reuse",
+      "production, upstream, OEM, ColorOS, or physical-device claims",
+      "success rate, recall, completeness, or benchmark-scale claims",
+      "automatic repair"
+    ],
+    "known_gaps": [
+      "R3 performs no emulator, UI, agent, oracle, or review execution; all six runtime results remain unknown",
+      "the controlled rotation probe is an evidence-grounded configuration-recreation analogue of the upstream multi-window resize report, not a replay of its exact UI gesture",
+      "R4 must implement and statically verify the recovery-v2 formal consumer before starting the single attempt, without changing this packet"
+    ],
+    "local_only": true,
+    "preserved_runtime_result": "#137 remains Not Supported and is never rerun or rewritten",
+    "scope": "one approved compose-samples Jetchat matched pair, one API-35 emulator profile, six frozen lanes, and one formal attempt"
+  },
+  "cohort": {
+    "assignment_is_opaque": true,
+    "blocked_randomization": "three_blocks_of_one_plus_one",
+    "control_count": 3,
+    "defect_count": 3,
+    "lane_count": 6,
+    "lane_order": [
+      "m9-r4-lane-01",
+      "m9-r4-lane-02",
+      "m9-r4-lane-03",
+      "m9-r4-lane-04",
+      "m9-r4-lane-05",
+      "m9-r4-lane-06"
+    ],
+    "mapping_commitment": {
+      "algorithm": "sha256(canonical_json_bytes(auditor_mapping))",
+      "artifact": "bench/m9/recovery-v2/auditor/matched-pair.json",
+      "clear_mapping_in_verifier_inputs": false,
+      "raw_artifact_sha256": "4da963ad23e5e8aca18e79328069a23a62a3071eb814d929246675fc7f4b84eb",
+      "release_after": [
+        "Context Acquisition",
+        "top-3 Hypothesis Portfolio",
+        "Attack Plan admission",
+        "leakage audit"
+      ],
+      "sha256": "d69c0421ed68bf7de020326043fcf787250abbdb9aa0c9a10ecc3a2cc1eba8a4",
+      "verify_before_lane_release": true
+    }
+  },
+  "context_acquisition": {
+    "discovery_budget": 8,
+    "fresh_execution_required_in_r4": true,
+    "no_build_device_agent_runtime_side_effect": true,
+    "order": [
+      "repository",
+      "build",
+      "manifest",
+      "call_site",
+      "state",
+      "version",
+      "execution_boundary"
+    ],
+    "source_index": {
+      "canonical_inventory_sha256": "f1c5789053bd3c642ad45ab8bf95ee60db294c660309a38f79b3f98e3573097a",
+      "input_count": 6,
+      "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/source-context-inputs.json",
+      "sha256": "c10d83f7aad017c4a078a778524c5351d47382af135735f5c541e16c60e12a47"
+    },
+    "unknown_and_contradictory_are_first_class": true
+  },
+  "contradiction_packet": {
+    "audit": {
+      "command_calls": [],
+      "expected_admission": "rejected",
+      "formal_denominator": false,
+      "missing_fields": [
+        "target_source_identity",
+        "context_graph",
+        "operator_registry"
+      ],
+      "packet_id": "m9-r3-incomplete-context-v2",
+      "pre_side_effect_rejection": true,
+      "rejection_boundary": "before_any_build_device_agent_or_runtime_side_effect",
+      "side_effects": false,
+      "status": "pass"
+    },
+    "audit_canonical_sha256": "ed594192326034c9a0eb576fbfa1fe76f29a0e5af5f1099074d2d187c9ab254e",
+    "audit_path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/contradiction-audit.json",
+    "audit_sha256": "22f718f88fae2d703e70ff95669f1895e50927b585aa9a56d5253416dd9cc00f",
+    "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/contradiction-packet.json",
+    "sha256": "ef80f36eed35df32e551a92756acc02787fe49ed6ca1c4c51880e9db333fc511"
+  },
+  "evidence": {
+    "append_only": true,
+    "attempt_evidence_validation": {
+      "byte_validation_required_before_counting": true,
+      "repository_root": "r4_clean_worktree",
+      "required_refs": {
+        "claim_boundary": "claim-boundary.json",
+        "effective_execution_identity": "effective-execution-identity.json",
+        "execution_provenance": "execution-provenance.json",
+        "execution_record": "execution-record.json",
+        "falsification_review": "falsification-review.json",
+        "falsification_review_context": "falsification-review-context.json",
+        "falsification_review_events": "falsification-review-events.jsonl",
+        "falsification_review_identity": "falsification-review-identity.json",
+        "falsification_review_invocation": "falsification-review-invocation.json",
+        "falsification_review_output": "falsification-review-output.json",
+        "falsification_review_output_schema": "falsification-review-output-schema.json",
+        "falsification_review_prompt": "falsification-review-prompt.md",
+        "filtered_logcat": "raw/logcat/rotation.txt",
+        "finding": "finding.json",
+        "lane_ledger": "checksums.sha256",
+        "layout_after": "raw/layout/after.json",
+        "layout_before": "raw/layout/before.json",
+        "oracle_receipt": "oracle-receipt.json",
+        "production_seam_admission": "production-seam-admission.json",
+        "project_risk_map": "project-risk-map.json",
+        "residual_risk": "residual-risk.json",
+        "rotation_event": "rotation-event.json",
+        "runner_setup": "runner-setup.json",
+        "screenshot_after": "raw/screenshots/after.png",
+        "screenshot_before": "raw/screenshots/before.png"
+      },
+      "validator_check_ids": [
+        "execution_record_terminal",
+        "execution_record_attempt_bound",
+        "execution_provenance_semantically_valid",
+        "effective_identity_bound",
+        "authoritative_production_identities_bound",
+        "fresh_production_admission_bound",
+        "runner_setup_bound",
+        "raw_oracle_evidence_bound",
+        "oracle_bound",
+        "finding_evidence_refs_bound",
+        "residual_risk_bound",
+        "project_risk_map_bound",
+        "claim_boundary_local",
+        "falsification_review_bound",
+        "falsification_review_output_bound",
+        "authoritative_review_identity_bound",
+        "clean_review_context_bound",
+        "review_inputs_role_blind",
+        "lane_ledger_exhaustive"
+      ],
+      "validator_checks": [
+        "terminal authoritative ExecutionRecord",
+        "ExecutionRecord attempt id bound to lane and inventory",
+        "complete execution provenance semantically validated and cross-bound",
+        "effective production identity summary",
+        "authoritative Codex event receipts for all production invocations",
+        "fresh R4 production-seam admission",
+        "successful explicit runner setup and launch",
+        "ordered screenshot/layout/logcat/rotation evidence",
+        "oracle conclusion, token observations, and accountability",
+        "semantic Finding and evidence references",
+        "semantic ResidualRisk preserving unresolved frontier",
+        "semantic Project Risk Map",
+        "local-only claim boundary preserving #137",
+        "separate bound Falsification Review",
+        "structured review output, invocation ledger, and Codex event stream cross-bound",
+        "authoritative Codex event receipt for the review",
+        "checksum-bound clean review context",
+        "byte-scanned allowlisted review inputs with role and expected result withheld",
+        "exhaustive lane checksum ledger"
+      ],
+      "version": "m9-recovery-attempt-evidence-v2"
+    },
+    "checksums_required": true,
+    "formal_attempt_inventory": {
+      "formal_attempt_id": "m9-r4-formal-attempt-01",
+      "path": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-attempt-inventory.json",
+      "required_before_reconciliation": true
+    },
+    "formal_attempt_root_must_be_empty": true,
+    "required_artifacts": [
+      "execution-record.json",
+      "execution-provenance.json",
+      "effective-execution-identity.json",
+      "production-identities/*.json",
+      "runner-setup.json",
+      "production-seam-admission.json",
+      "raw/screenshots/before.png",
+      "raw/screenshots/after.png",
+      "raw/layout/before.json",
+      "raw/layout/after.json",
+      "raw/logcat/rotation.txt",
+      "rotation-event.json",
+      "oracle-receipt.json",
+      "finding.json",
+      "residual-risk.json",
+      "project-risk-map.json",
+      "claim-boundary.json",
+      "falsification-review.json",
+      "falsification-review-output.json",
+      "falsification-review-output-schema.json",
+      "falsification-review-events.jsonl",
+      "falsification-review-invocation.json",
+      "falsification-review-prompt.md",
+      "falsification-review-identity.json",
+      "falsification-review-context.json",
+      "review-input/execution-summary.json",
+      "review-input/effective-execution-identity.json",
+      "review-input/raw/screenshots/before.png",
+      "review-input/raw/screenshots/after.png",
+      "review-input/raw/layout/before.json",
+      "review-input/raw/layout/after.json",
+      "review-input/raw/logcat/rotation.txt",
+      "review-input/rotation-event.json",
+      "review-input/oracle-receipt.json",
+      "review-input/finding.json",
+      "review-input/claim-boundary.json",
+      "attempt-evidence-validation.json",
+      "checksums.sha256"
+    ],
+    "root": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/<lane-id>/"
+  },
+  "exploration_stop_rule": {
+    "id": "m9-recovery-exploration-stop-v2",
+    "no_retry_or_replacement": true,
+    "stop_when": [
+      "the admitted top-three portfolio is exhausted",
+      "no additional admissible plan remains in the frozen boundary",
+      "all required evidence for the selected probe is terminal"
+    ],
+    "unresolved_risk": "preserve as ResidualRisk; never infer support"
+  },
+  "falsification_review": {
+    "allowed_outcomes": [
+      "survived",
+      "challenged",
+      "inconclusive"
+    ],
+    "authoritative_identity_receipt_required": true,
+    "backend": "codex_cli",
+    "byte_level_role_and_expected_result_scan_required": true,
+    "checksum_bound_clean_context_required": true,
+    "clean_context": true,
+    "effective_model_identity": "record each review from authoritative Codex CLI event",
+    "execution_helper": "aiverify.bench.m9_recovery_qualification.execute_falsification_review",
+    "explicit_model_override_forbidden": true,
+    "finding_not_rewritten": true,
+    "globally_disjoint_from_all_production_identities": true,
+    "independent_invocation_identity": true,
+    "isolated_allowlisted_workdir_required": true,
+    "model_selection": "codex_cli_default",
+    "no_production_oracle_path": true,
+    "one_per_lane": true,
+    "output_schema_enforced_by_codex_cli": true,
+    "pre_invocation_production_binding_required": true,
+    "prompt_embeds_exact_schema_and_dimensions": true,
+    "prompt_transport": "final_argv",
+    "read_only_exact_command_required": true,
+    "requested_model": null,
+    "required_input_files": [
+      "execution-summary.json",
+      "effective-execution-identity.json",
+      "raw/screenshots/before.png",
+      "raw/screenshots/after.png",
+      "raw/layout/before.json",
+      "raw/layout/after.json",
+      "raw/logcat/rotation.txt",
+      "rotation-event.json",
+      "oracle-receipt.json",
+      "finding.json",
+      "claim-boundary.json"
+    ],
+    "required_receipt_fields": [
+      "path",
+      "sha256",
+      "schema_version",
+      "review_id",
+      "lane_id",
+      "status",
+      "outcome",
+      "candidate_finding_id",
+      "candidate_finding_sha256",
+      "invocation_id",
+      "identity_path",
+      "identity_sha256",
+      "production_invocation_id",
+      "production_identity_sha256",
+      "clean_context",
+      "clean_context_path",
+      "clean_context_sha256",
+      "output_path",
+      "output_sha256",
+      "output_schema_path",
+      "output_schema_sha256",
+      "events_path",
+      "events_sha256",
+      "invocation_ledger_path",
+      "invocation_ledger_sha256",
+      "prompt_path",
+      "prompt_sha256",
+      "backend",
+      "requested_model",
+      "model_selection",
+      "effective_model",
+      "authoritative_observation_source",
+      "source_role_disclosed",
+      "expected_result_disclosed",
+      "production_oracle_path_used",
+      "same_provider_family_limitation_disclosed"
+    ],
+    "required_reviews": 6,
+    "resume_forbidden": true,
+    "role_and_expected_result_withheld": true,
+    "runner_generated_receipt_envelope": true,
+    "runtime_metadata_excluded_from_model_output": true,
+    "same_provider_family_limitation_disclosed": true,
+    "semantic_output_only": true,
+    "single_invocation_no_retry": true,
+    "source_bytes_or_semantic_projection_bound": true,
+    "structured_output_and_event_stream_required": true,
+    "terminal_failure_receipt_lane_ledger_required": true,
+    "terminal_failure_receipt_required": true,
+    "terminal_failure_receipt_schema_version": 2,
+    "terminal_failure_stages": [
+      "runner_exception",
+      "runner_command_mismatch",
+      "process_exit",
+      "timeout",
+      "event_stream_persistence",
+      "missing_output",
+      "identity_capture",
+      "final_binding"
+    ],
+    "thread_id_disjoint_from_all_production": true,
+    "unique_fields_across_reviews": [
+      "invocation_id",
+      "identity_sha256",
+      "clean_context_sha256",
+      "production_invocation_id",
+      "production_identity_sha256"
+    ],
+    "workspace_relative_prompt_inputs": true
+  },
+  "formal_denominator": false,
+  "formal_holdout_executed": false,
+  "frozen_at": "2026-08-08T04:22:04+00:00",
+  "history_exclusion": {
+    "copy_into_denominator_permitted": false,
+    "forbidden_issues": [
+      "#136",
+      "#137",
+      "#148",
+      "#150"
+    ],
+    "forbidden_qualification_ids": [
+      "m9-project-qualification-v1",
+      "m9-r1-recovery-baseline",
+      "m9-r2-non-holdout-canary"
+    ],
+    "freshness_audit": {
+      "audit": {
+        "base_main_commit": "099cf64228273ef67bd23c6bad4af6239e580aa1",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-E",
+          "compose-samples|Jetchat|56b59e237b253bc52e2ce1141dce26af07503415|038c8208307508ceedcb5dd07a4fe2794017644c|m9-unsent-draft",
+          "099cf64228273ef67bd23c6bad4af6239e580aa1",
+          "--",
+          "."
+        ],
+        "historical_population_reused": false,
+        "matched_paths": [],
+        "returncode": 1,
+        "schema_version": 2,
+        "status": "pass",
+        "stderr": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/freshness-audit.json",
+      "sha256": "a6d8675433525c616b307f8da305ebc248692e9315622d9ad9ec76cbc954ae9d"
+    },
+    "historical_artifact_rewrite_permitted": false,
+    "reuse_permitted": false
+  },
+  "implementation": {
+    "base_main_commit": "099cf64228273ef67bd23c6bad4af6239e580aa1",
+    "branch": "m9-r3-fresh-qualification-freeze",
+    "formal_consumer_entrypoint": "python -m aiverify.bench.m9_recovery_formal",
+    "formal_consumer_implementation": "R4 only after merged freeze",
+    "issue": "#152",
+    "qualification_module": "src/aiverify/bench/m9_recovery_qualification.py",
+    "repository": "https://github.com/yangliang2/ai_verification.git"
+  },
+  "lanes": [
+    {
+      "lane_id": "m9-r4-lane-01",
+      "one_attempt": true,
+      "planned_r4_runner": {
+        "artifact_dir_relative": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-01/artifacts",
+        "fresh_side_effect_free_re_admission_required": true,
+        "path_resolution_root": "r4_clean_worktree",
+        "source_binding_ref": "545771a78dda2a71460c26c170e720230b572409",
+        "workdir_binding": "clean_source_worktree_resolved_from_released_mapping"
+      },
+      "probe_token": "r4q01-nacre",
+      "r3_feasibility_admission_receipt": {
+        "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/admission/m9-r4-lane-01.json",
+        "sha256": "d1c52af6d1ccd07a0471ca738a28d6dacf1f359e61d0e4086056851399e7bf35"
+      },
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/recovery-v2/run-specs/m9-r4-lane-01.yaml",
+        "sha256": "39850a29f19f50daaf6d9f9121d2cdddc8276c8b4a280ef1fd40a99a6e568369",
+        "source_binding_ref": "545771a78dda2a71460c26c170e720230b572409"
+      }
+    },
+    {
+      "lane_id": "m9-r4-lane-02",
+      "one_attempt": true,
+      "planned_r4_runner": {
+        "artifact_dir_relative": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-02/artifacts",
+        "fresh_side_effect_free_re_admission_required": true,
+        "path_resolution_root": "r4_clean_worktree",
+        "source_binding_ref": "5b89e9105531f8a00abadd1042dd5683e3e63a9e",
+        "workdir_binding": "clean_source_worktree_resolved_from_released_mapping"
+      },
+      "probe_token": "r4q02-ember",
+      "r3_feasibility_admission_receipt": {
+        "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/admission/m9-r4-lane-02.json",
+        "sha256": "d8d8be4947ea342121f3a623dccd2d0d46657f0587b272424f2b4fc7105cba15"
+      },
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/recovery-v2/run-specs/m9-r4-lane-02.yaml",
+        "sha256": "5afaf0e44077e1e57ce7c7de58d4026cbc2aa9dcf1f4f37c7f34f5d0cba0a5d9",
+        "source_binding_ref": "5b89e9105531f8a00abadd1042dd5683e3e63a9e"
+      }
+    },
+    {
+      "lane_id": "m9-r4-lane-03",
+      "one_attempt": true,
+      "planned_r4_runner": {
+        "artifact_dir_relative": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-03/artifacts",
+        "fresh_side_effect_free_re_admission_required": true,
+        "path_resolution_root": "r4_clean_worktree",
+        "source_binding_ref": "1d0a54dd72b1c9c3f20039942e0cb48a1969a778",
+        "workdir_binding": "clean_source_worktree_resolved_from_released_mapping"
+      },
+      "probe_token": "r4q03-lumen",
+      "r3_feasibility_admission_receipt": {
+        "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/admission/m9-r4-lane-03.json",
+        "sha256": "b2d87c7df6a5136523d9d3281ec321ce7d7be73145274a0fcf49adaf1ec88eee"
+      },
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/recovery-v2/run-specs/m9-r4-lane-03.yaml",
+        "sha256": "67e1c56edb5761770fbdaee369e3c03c598b20514a0f19344bdb3eab33d1fc70",
+        "source_binding_ref": "1d0a54dd72b1c9c3f20039942e0cb48a1969a778"
+      }
+    },
+    {
+      "lane_id": "m9-r4-lane-04",
+      "one_attempt": true,
+      "planned_r4_runner": {
+        "artifact_dir_relative": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-04/artifacts",
+        "fresh_side_effect_free_re_admission_required": true,
+        "path_resolution_root": "r4_clean_worktree",
+        "source_binding_ref": "62fd0145463505e45ac1084a98eb0ad1a87bf5dc",
+        "workdir_binding": "clean_source_worktree_resolved_from_released_mapping"
+      },
+      "probe_token": "r4q04-cobalt",
+      "r3_feasibility_admission_receipt": {
+        "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/admission/m9-r4-lane-04.json",
+        "sha256": "379768d938635d29beed98db7282a305a4463564bbde6555cda6c2a017371d34"
+      },
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/recovery-v2/run-specs/m9-r4-lane-04.yaml",
+        "sha256": "d0161a768158fc5122b95ff019e24a2c23a8514370b8cd2f33eab36ee6a08079",
+        "source_binding_ref": "62fd0145463505e45ac1084a98eb0ad1a87bf5dc"
+      }
+    },
+    {
+      "lane_id": "m9-r4-lane-05",
+      "one_attempt": true,
+      "planned_r4_runner": {
+        "artifact_dir_relative": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-05/artifacts",
+        "fresh_side_effect_free_re_admission_required": true,
+        "path_resolution_root": "r4_clean_worktree",
+        "source_binding_ref": "bb52eaaab9485b55d23749ef6a5fcad5c6c73423",
+        "workdir_binding": "clean_source_worktree_resolved_from_released_mapping"
+      },
+      "probe_token": "r4q05-saffron",
+      "r3_feasibility_admission_receipt": {
+        "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/admission/m9-r4-lane-05.json",
+        "sha256": "d9b6ab63b4cf3c23fa859ec43ed597f349a91d8674702358eee8578183330d5d"
+      },
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/recovery-v2/run-specs/m9-r4-lane-05.yaml",
+        "sha256": "1bb0244f816786479510b47b7e53770d0e14584df91cc2733fedb246f0bad514",
+        "source_binding_ref": "bb52eaaab9485b55d23749ef6a5fcad5c6c73423"
+      }
+    },
+    {
+      "lane_id": "m9-r4-lane-06",
+      "one_attempt": true,
+      "planned_r4_runner": {
+        "artifact_dir_relative": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-artifacts/m9-r4-lane-06/artifacts",
+        "fresh_side_effect_free_re_admission_required": true,
+        "path_resolution_root": "r4_clean_worktree",
+        "source_binding_ref": "6892363229584bf1fc28ad8d730a146edaba6dee",
+        "workdir_binding": "clean_source_worktree_resolved_from_released_mapping"
+      },
+      "probe_token": "r4q06-velvet",
+      "r3_feasibility_admission_receipt": {
+        "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/admission/m9-r4-lane-06.json",
+        "sha256": "f86f8bb0b47dba558111d8742e49ed1e85cd21b28b5708332d78d237288c2e02"
+      },
+      "replacement": false,
+      "retry": false,
+      "run_spec": {
+        "path": "bench/m9/recovery-v2/run-specs/m9-r4-lane-06.yaml",
+        "sha256": "cd0762cafbbe1685e213bf690624858ef91c9fb0571e29296f006db6a4feed98",
+        "source_binding_ref": "6892363229584bf1fc28ad8d730a146edaba6dee"
+      }
+    }
+  ],
+  "leakage_audit": {
+    "mapping_released": false,
+    "neutral_packets": {
+      "audit": {
+        "checks": [
+          {
+            "expected_evidence_withheld": true,
+            "forbidden_terms": [],
+            "mapping_withheld": true,
+            "oracle_conclusion_withheld": true,
+            "packet_id": "packet-m9-r4-lane-01",
+            "status": "pass",
+            "verdict_withheld": true
+          },
+          {
+            "expected_evidence_withheld": true,
+            "forbidden_terms": [],
+            "mapping_withheld": true,
+            "oracle_conclusion_withheld": true,
+            "packet_id": "packet-m9-r4-lane-02",
+            "status": "pass",
+            "verdict_withheld": true
+          },
+          {
+            "expected_evidence_withheld": true,
+            "forbidden_terms": [],
+            "mapping_withheld": true,
+            "oracle_conclusion_withheld": true,
+            "packet_id": "packet-m9-r4-lane-03",
+            "status": "pass",
+            "verdict_withheld": true
+          },
+          {
+            "expected_evidence_withheld": true,
+            "forbidden_terms": [],
+            "mapping_withheld": true,
+            "oracle_conclusion_withheld": true,
+            "packet_id": "packet-m9-r4-lane-04",
+            "status": "pass",
+            "verdict_withheld": true
+          },
+          {
+            "expected_evidence_withheld": true,
+            "forbidden_terms": [],
+            "mapping_withheld": true,
+            "oracle_conclusion_withheld": true,
+            "packet_id": "packet-m9-r4-lane-05",
+            "status": "pass",
+            "verdict_withheld": true
+          },
+          {
+            "expected_evidence_withheld": true,
+            "forbidden_terms": [],
+            "mapping_withheld": true,
+            "oracle_conclusion_withheld": true,
+            "packet_id": "packet-m9-r4-lane-06",
+            "status": "pass",
+            "verdict_withheld": true
+          }
+        ],
+        "mapping_released": false,
+        "packet_count": 6,
+        "release_point": "after_context_acquisition_portfolio_attack_plan_and_leakage_audit",
+        "status": "pass"
+      },
+      "audit_path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/final-leakage-audit.json",
+      "audit_sha256": "93277b1e08f6c806e74d9e7154ae9a65d26204fdda271d3e281cebae9a9e7762",
+      "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/final-neutral-verifier-packets.json",
+      "sha256": "5f9aaf3a0278afbc11c0fafd22f23b93d72e2709ed67470e8059d5d666d78b6d"
+    },
+    "run_specs": {
+      "audit": {
+        "checks": [
+          {
+            "actual_source_identity_disclosed": false,
+            "forbidden_material": [],
+            "lane_id": "m9-r4-lane-01",
+            "role_disclosed": false,
+            "status": "pass"
+          },
+          {
+            "actual_source_identity_disclosed": false,
+            "forbidden_material": [],
+            "lane_id": "m9-r4-lane-02",
+            "role_disclosed": false,
+            "status": "pass"
+          },
+          {
+            "actual_source_identity_disclosed": false,
+            "forbidden_material": [],
+            "lane_id": "m9-r4-lane-03",
+            "role_disclosed": false,
+            "status": "pass"
+          },
+          {
+            "actual_source_identity_disclosed": false,
+            "forbidden_material": [],
+            "lane_id": "m9-r4-lane-04",
+            "role_disclosed": false,
+            "status": "pass"
+          },
+          {
+            "actual_source_identity_disclosed": false,
+            "forbidden_material": [],
+            "lane_id": "m9-r4-lane-05",
+            "role_disclosed": false,
+            "status": "pass"
+          },
+          {
+            "actual_source_identity_disclosed": false,
+            "forbidden_material": [],
+            "lane_id": "m9-r4-lane-06",
+            "role_disclosed": false,
+            "status": "pass"
+          }
+        ],
+        "mapping_released": false,
+        "schema_version": 2,
+        "status": "pass"
+      },
+      "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/run-spec-leakage-audit.json",
+      "sha256": "69cdf1ca4b24dd85fc35390db1ce187e3957ec9e8bd3aade0598e2cd1120ec0a"
+    }
+  },
+  "oracle": {
+    "accounting_rule": "non-accountable terminal evidence cannot enter Supported",
+    "allowed_conclusions": [
+      "locally_supported",
+      "locally_rejected",
+      "inconclusive"
+    ],
+    "boundary": {
+      "activity_recreation_expected": true,
+      "event": "rotate",
+      "rotation": 1
+    },
+    "correct_behavior_spec": "The exact unsent lane token remains in Jetchat Text input after the admitted portrait-to-landscape configuration recreation without retyping or sending.",
+    "id": "m9-unsent-draft-config-recreation-v1",
+    "input_fields": [
+      "terminal ExecutionRecord",
+      "Effective Execution Identity",
+      "ordered before/after screenshot evidence",
+      "ordered before/after layout evidence",
+      "filtered logcat evidence",
+      "rotation event receipt and postconditions",
+      "exact lane-token observations"
+    ],
+    "quality_property": "unsent TextFieldValue survives activity recreation",
+    "variant_input": false
+  },
+  "package_buildability": {
+    "formal_holdout_executed": false,
+    "snapshot_a_duration_seconds": 621.84,
+    "snapshot_b_duration_seconds": 25.5,
+    "status": "passed"
+  },
+  "packet_commitment": {
+    "algorithm": "sha256(canonical_json_bytes(freeze_payload))",
+    "approval_envelope_excluded": true,
+    "sha256": "a2ae1d8ca4902a500c67aa6107a0f42fe06a3948ca484305861d2d2670033225",
+    "status_and_timestamps_excluded": true
+  },
+  "policy": {
+    "abort_before_side_effect_on_contradiction": true,
+    "adverse_result_is_terminal": true,
+    "denominator_changes_after_start": false,
+    "one_attempt_per_lane": true,
+    "one_formal_attempt": true,
+    "portfolio_budget": 8,
+    "top_three_portfolio": true,
+    "zero_discretionary_rerun": true,
+    "zero_replacement": true,
+    "zero_retry": true
+  },
+  "portfolio": {
+    "approved_registry": {
+      "operator_ids": [
+        "operator-bounded-latency",
+        "operator-bounded-historical-state-replay",
+        "operator-bounded-lifecycle-ownership-drift"
+      ],
+      "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/operator-registry.json",
+      "prior_count": 3,
+      "prior_ids": [
+        "prior-synchronous-critical-path-v1",
+        "prior-state-evolution-compatibility-v1",
+        "prior-lifetime-ownership-drift-v1"
+      ],
+      "sha256": "f2500aa3a0acaeb8c7dfcff73c87bd13a62d8f1bb80c51ab4e1298a2612fe0da"
+    },
+    "budget": 8,
+    "formal_holdout_executed": false,
+    "selected_only_after_fresh_context_acquisition": true,
+    "top_three": true
+  },
+  "prepared_at": "2026-08-07T23:57:41+00:00",
+  "qualification_id": "m9-recovery-project-qualification-v2",
+  "runner": {
+    "api_level": 35,
+    "avd": "aiverify_api35",
+    "backend": "codex_cli",
+    "boundary_orientation": "landscape",
+    "device": "emulator-5554",
+    "effective_model_identity": "record each invocation from authoritative Codex CLI event",
+    "instruction_contract": [
+      "type the exact lane token once",
+      "never tap Send",
+      "after the boundary never retype, repair, navigate, or reopen",
+      "the driver reports observations; the oracle decides"
+    ],
+    "live_validation": "environment gate before deployment; installed app surface is verified by explicit launch and the first Journey checkpoint",
+    "model_selection": "codex_cli_default",
+    "network_policy": "disabled",
+    "orientation_postconditions": {
+      "accelerometer_rotation": "0",
+      "after": "user_rotation=1",
+      "before": "user_rotation=0"
+    },
+    "package_reset": "idempotent already-absent-or-cleared",
+    "policy_version": "m9-production-seam-v1",
+    "pre_lane_orientation": "portrait",
+    "requested_driver_model": null,
+    "requested_l3_model": null,
+    "tool_identity_path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/tool-versions.json"
+  },
+  "schema_version": 2,
+  "status": "frozen",
+  "supported_gate": {
+    "accountable": "6/6",
+    "all_required": true,
+    "attempt_evidence_validated": "6/6",
+    "contradiction_pre_side_effect": true,
+    "control_rejected": "3/3",
+    "defect_supported": "3/3",
+    "falsification_review_survived": "6/6",
+    "formal_attempt_artifacts_exhaustively_enumerated": true,
+    "formal_attempt_inventory_checksum_bound": true,
+    "one_formal_attempt_zero_retry_replacement": true,
+    "otherwise": "Not Supported",
+    "review_identities_unique_and_policy_bound": true
+  },
+  "target": {
+    "activity": "com.example.compose.jetchat.NavActivity",
+    "apk_glob": "Jetchat/app/build/outputs/apk/debug/app-debug.apk",
+    "build_command": "./gradlew --no-daemon --no-configuration-cache --max-workers=1 :app:assembleDebug",
+    "build_cwd": "Jetchat",
+    "compile_sdk": 33,
+    "control": {
+      "apk": {
+        "bytes": 17511449,
+        "inspection": {
+          "manifest": {
+            "command": [
+              "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+              "manifest",
+              "print",
+              "/private/tmp/m9-r3-snapshot-b/Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+            ],
+            "returncode": 0,
+            "stderr": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"1\"\n    android:versionName=\"1.0\"\n    android:compileSdkVersion=\"33\"\n    android:compileSdkVersionCodename=\"13\"\n    package=\"com.example.compose.jetchat\"\n    platformBuildVersionCode=\"33\"\n    platformBuildVersionName=\"13\">\n\n    <uses-sdk\n        android:minSdkVersion=\"21\"\n        android:targetSdkVersion=\"33\" />\n\n    <permission\n        android:name=\"com.example.compose.jetchat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\"\n        android:protectionLevel=\"0x2\" />\n\n    <uses-permission\n        android:name=\"com.example.compose.jetchat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\" />\n\n    <application\n        android:theme=\"@ref/0x7f140207\"\n        android:label=\"@ref/0x7f13001d\"\n        android:icon=\"@ref/0x7f100000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:appComponentFactory=\"androidx.core.app.CoreComponentFactory\">\n\n        <activity\n            android:label=\"@ref/0x7f13001d\"\n            android:name=\"com.example.compose.jetchat.NavActivity\"\n            android:exported=\"true\"\n            android:windowSoftInputMode=\"0x10\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"androidx.compose.ui.tooling.PreviewActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"androidx.activity.ComponentActivity\"\n            android:exported=\"true\" />\n\n        <provider\n            android:name=\"androidx.startup.InitializationProvider\"\n            android:exported=\"false\"\n            android:authorities=\"com.example.compose.jetchat.androidx-startup\">\n\n            <meta-data\n                android:name=\"androidx.emoji2.text.EmojiCompatInitializer\"\n                android:value=\"androidx.startup\" />\n\n            <meta-data\n                android:name=\"androidx.lifecycle.ProcessLifecycleInitializer\"\n                android:value=\"androidx.startup\" />\n\n            <meta-data\n                android:name=\"androidx.profileinstaller.ProfileInstallerInitializer\"\n                android:value=\"androidx.startup\" />\n        </provider>\n\n        <uses-library\n            android:name=\"androidx.window.extensions\"\n            android:required=\"false\" />\n\n        <uses-library\n            android:name=\"androidx.window.sidecar\"\n            android:required=\"false\" />\n\n        <receiver\n            android:name=\"androidx.profileinstaller.ProfileInstallReceiver\"\n            android:permission=\"android.permission.DUMP\"\n            android:enabled=\"true\"\n            android:exported=\"true\"\n            android:directBootAware=\"false\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"androidx.profileinstaller.action.INSTALL_PROFILE\" />\n            </intent-filter>\n\n            <intent-filter>\n\n                <action\n                    android:name=\"androidx.profileinstaller.action.SKIP_FILE\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>",
+            "stdout_sha256": "ad8291bec49b6b1f4da88678341fd850d0459c783dd4c54008d8a803245fd67c"
+          },
+          "package": {
+            "command": [
+              "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+              "manifest",
+              "application-id",
+              "/private/tmp/m9-r3-snapshot-b/Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+            ],
+            "returncode": 0,
+            "stderr": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout": "com.example.compose.jetchat",
+            "stdout_sha256": "e89448af107d8ac193fc80717fa678e155a64c6d09e32f024b5a7f59ee942b2a"
+          },
+          "tool": {
+            "requested": "apkanalyzer",
+            "resolved_path": "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+            "sha256": "4574a128bdb0b2787008b0bac0cbf63c52b11fb1c8c751c903f31bbc23956eb6"
+          }
+        },
+        "launchable_activities": [
+          "com.example.compose.jetchat.NavActivity"
+        ],
+        "package": "com.example.compose.jetchat",
+        "path": "/private/tmp/m9-r3-snapshot-b/Jetchat/app/build/outputs/apk/debug/app-debug.apk",
+        "sha256": "a1536cec09a33063f7796dc77e0effdf1847a3ad325dcef707216fa87d78386d"
+      },
+      "build_log": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/build-logs/snapshot-b.log",
+      "build_log_sha256": "c30a2fe29e37201ac36c01126fbd2b3464729a6892d5a1c5765a702e0b5fbfbc",
+      "commit": "038c8208307508ceedcb5dd07a4fe2794017644c",
+      "source_identity": {
+        "clean": true,
+        "commit": "038c8208307508ceedcb5dd07a4fe2794017644c",
+        "origin": "https://github.com/android/compose-samples.git",
+        "path": "/private/tmp/m9-r3-snapshot-b",
+        "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree": "e658ec4cdbb25d8e75a04879e9e20a0c245832e9"
+      },
+      "tree": "e658ec4cdbb25d8e75a04879e9e20a0c245832e9"
+    },
+    "defect": {
+      "apk": {
+        "bytes": 17511239,
+        "inspection": {
+          "manifest": {
+            "command": [
+              "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+              "manifest",
+              "print",
+              "/private/tmp/m9-r3-snapshot-a/Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+            ],
+            "returncode": 0,
+            "stderr": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"1\"\n    android:versionName=\"1.0\"\n    android:compileSdkVersion=\"33\"\n    android:compileSdkVersionCodename=\"13\"\n    package=\"com.example.compose.jetchat\"\n    platformBuildVersionCode=\"33\"\n    platformBuildVersionName=\"13\">\n\n    <uses-sdk\n        android:minSdkVersion=\"21\"\n        android:targetSdkVersion=\"33\" />\n\n    <permission\n        android:name=\"com.example.compose.jetchat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\"\n        android:protectionLevel=\"0x2\" />\n\n    <uses-permission\n        android:name=\"com.example.compose.jetchat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\" />\n\n    <application\n        android:theme=\"@ref/0x7f140207\"\n        android:label=\"@ref/0x7f13001d\"\n        android:icon=\"@ref/0x7f100000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:appComponentFactory=\"androidx.core.app.CoreComponentFactory\">\n\n        <activity\n            android:label=\"@ref/0x7f13001d\"\n            android:name=\"com.example.compose.jetchat.NavActivity\"\n            android:exported=\"true\"\n            android:windowSoftInputMode=\"0x10\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"androidx.compose.ui.tooling.PreviewActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"androidx.activity.ComponentActivity\"\n            android:exported=\"true\" />\n\n        <provider\n            android:name=\"androidx.startup.InitializationProvider\"\n            android:exported=\"false\"\n            android:authorities=\"com.example.compose.jetchat.androidx-startup\">\n\n            <meta-data\n                android:name=\"androidx.emoji2.text.EmojiCompatInitializer\"\n                android:value=\"androidx.startup\" />\n\n            <meta-data\n                android:name=\"androidx.lifecycle.ProcessLifecycleInitializer\"\n                android:value=\"androidx.startup\" />\n\n            <meta-data\n                android:name=\"androidx.profileinstaller.ProfileInstallerInitializer\"\n                android:value=\"androidx.startup\" />\n        </provider>\n\n        <uses-library\n            android:name=\"androidx.window.extensions\"\n            android:required=\"false\" />\n\n        <uses-library\n            android:name=\"androidx.window.sidecar\"\n            android:required=\"false\" />\n\n        <receiver\n            android:name=\"androidx.profileinstaller.ProfileInstallReceiver\"\n            android:permission=\"android.permission.DUMP\"\n            android:enabled=\"true\"\n            android:exported=\"true\"\n            android:directBootAware=\"false\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"androidx.profileinstaller.action.INSTALL_PROFILE\" />\n            </intent-filter>\n\n            <intent-filter>\n\n                <action\n                    android:name=\"androidx.profileinstaller.action.SKIP_FILE\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>",
+            "stdout_sha256": "ad8291bec49b6b1f4da88678341fd850d0459c783dd4c54008d8a803245fd67c"
+          },
+          "package": {
+            "command": [
+              "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+              "manifest",
+              "application-id",
+              "/private/tmp/m9-r3-snapshot-a/Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+            ],
+            "returncode": 0,
+            "stderr": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout": "com.example.compose.jetchat",
+            "stdout_sha256": "e89448af107d8ac193fc80717fa678e155a64c6d09e32f024b5a7f59ee942b2a"
+          },
+          "tool": {
+            "requested": "apkanalyzer",
+            "resolved_path": "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+            "sha256": "4574a128bdb0b2787008b0bac0cbf63c52b11fb1c8c751c903f31bbc23956eb6"
+          }
+        },
+        "launchable_activities": [
+          "com.example.compose.jetchat.NavActivity"
+        ],
+        "package": "com.example.compose.jetchat",
+        "path": "/private/tmp/m9-r3-snapshot-a/Jetchat/app/build/outputs/apk/debug/app-debug.apk",
+        "sha256": "41d7c3ff47f2f2d2a04942d11ab57c6c76ac7314ff6abf8dad14fd9b3149e55b"
+      },
+      "build_log": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/build-logs/snapshot-a.log",
+      "build_log_sha256": "32d87b7896a06328a54a2ca39829e9c1b8eeebe2ea19946cf8044da2973931e5",
+      "commit": "56b59e237b253bc52e2ce1141dce26af07503415",
+      "source_identity": {
+        "clean": true,
+        "commit": "56b59e237b253bc52e2ce1141dce26af07503415",
+        "origin": "https://github.com/android/compose-samples.git",
+        "path": "/private/tmp/m9-r3-snapshot-a",
+        "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree": "993432fb446913107df1bc0c040a05f8dae1c5b2"
+      },
+      "tree": "993432fb446913107df1bc0c040a05f8dae1c5b2"
+    },
+    "focused_diff": {
+      "patch": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/auditor/matched-pair.patch",
+      "patch_sha256": "9198e9be9167d303c6b3159d2a2c23d220d0b9c1419a65d1c1a728d3d9ef8e18",
+      "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/auditor/candidate-provenance.json",
+      "sha256": "325711aef3459de5afbeb3508bbf355677941fc9cd5934f372a4d5ee9785750e"
+    },
+    "license": "Apache-2.0",
+    "matched_pair_relation": "control merge commit has defect commit as first parent and differs by one focused source file",
+    "min_sdk": 21,
+    "package": "com.example.compose.jetchat",
+    "project_target_id": "compose-samples-jetchat-038c8208",
+    "source_commit": "038c8208307508ceedcb5dd07a4fe2794017644c",
+    "source_index_sha256": "f1c5789053bd3c642ad45ab8bf95ee60db294c660309a38f79b3f98e3573097a",
+    "source_origin": "https://github.com/android/compose-samples.git",
+    "source_scope": [
+      "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+      "Jetchat/app/src/main/AndroidManifest.xml",
+      "Jetchat/app/build.gradle.kts",
+      "Jetchat/settings.gradle.kts",
+      "Jetchat/gradle/libs.versions.toml",
+      "LICENSE"
+    ],
+    "source_tree": "e658ec4cdbb25d8e75a04879e9e20a0c245832e9",
+    "target_sdk": 33,
+    "unfamiliarity": "fresh_public_project_and_behavior_for_m9_recovery",
+    "upstream_pr": "https://github.com/android/compose-samples/pull/996"
+  },
+  "tool_identity": {
+    "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/tool-versions.json",
+    "payload": {
+      "backend": "codex_cli",
+      "commands": [
+        {
+          "command": [
+            "git",
+            "--version"
+          ],
+          "duration_seconds": 0.009555,
+          "output": "git version 2.50.1 (Apple Git-155)",
+          "output_sha256": "c864f56363af8843669df640e41edf03b2b84e30215d9b0f1d70ff03326531e7",
+          "returncode": 0,
+          "status": "passed"
+        },
+        {
+          "command": [
+            "java",
+            "-version"
+          ],
+          "duration_seconds": 0.025161,
+          "output": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Homebrew (build 17.0.19+0)\nOpenJDK 64-Bit Server VM Homebrew (build 17.0.19+0, mixed mode, sharing)",
+          "output_sha256": "2a35caa960bc478729f0f24c1dd9af4fd23c6351421e67b7735f30091403e781",
+          "returncode": 0,
+          "status": "passed"
+        },
+        {
+          "command": [
+            "./gradlew",
+            "--no-daemon",
+            "--version"
+          ],
+          "duration_seconds": 0.256703,
+          "output": "------------------------------------------------------------\nGradle 7.5.1\n------------------------------------------------------------\n\nBuild time:   2022-08-05 21:17:56 UTC\nRevision:     d1daa0cbf1a0103000b71484e1dbfe096e095918\n\nKotlin:       1.6.21\nGroovy:       3.0.10\nAnt:          Apache Ant(TM) version 1.10.11 compiled on July 10 2021\nJVM:          17.0.19 (Homebrew 17.0.19+0)\nOS:           Mac OS X 26.3 aarch64",
+          "output_sha256": "7a8592b97bc6f9d14f3ec264f95e013de3299d3f836b760bac3764bbc6c14171",
+          "returncode": 0,
+          "status": "passed"
+        },
+        {
+          "command": [
+            "android",
+            "--version"
+          ],
+          "duration_seconds": 0.314284,
+          "output": "1.0.15498356",
+          "output_sha256": "36c367db358395653eb35e61261ca8ce8544a35bf9279f4b8b9f12b021473152",
+          "returncode": 0,
+          "status": "passed"
+        },
+        {
+          "command": [
+            "adb",
+            "version"
+          ],
+          "duration_seconds": 0.010155,
+          "output": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)",
+          "output_sha256": "f83d9b8596167caee89e425db13353345d1a2f9b7dcb624bc5792dc11c75cb21",
+          "returncode": 0,
+          "status": "passed"
+        },
+        {
+          "command": [
+            "codex",
+            "--version"
+          ],
+          "duration_seconds": 0.024211,
+          "output": "codex-cli 0.144.6",
+          "output_sha256": "a560ff1e62b63d4f161d1705f0b0ed337f602f084c3b45e15ef213478d24f2b3",
+          "returncode": 0,
+          "status": "passed"
+        }
+      ],
+      "device": "emulator-5554",
+      "device_accessed": false,
+      "model_selection": "codex_cli_default",
+      "python": {
+        "implementation": "CPython",
+        "platform": "macOS-26.3-arm64-arm-64bit",
+        "version": "3.11.15"
+      },
+      "requested_driver_model": null,
+      "requested_l3_model": null,
+      "schema_version": 2
+    },
+    "sha256": "1e4e0c6d1ee168a67f6aadf40b96e7e949acd8608608d53bb654f5b48d00a978"
+  }
+}

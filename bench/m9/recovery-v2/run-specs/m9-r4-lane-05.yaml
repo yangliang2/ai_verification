@@ -1,0 +1,29 @@
+host_project:
+  root: ${M9_M9_R4_LANE_05_PROJECT}
+  origin: https://github.com/android/compose-samples.git
+  commit: bb52eaaab9485b55d23749ef6a5fcad5c6c73423
+apk_glob: Jetchat/app/build/outputs/apk/debug/app-debug.apk
+package: com.example.compose.jetchat
+activity: com.example.compose.jetchat.NavActivity
+live_validation:
+  timeout_seconds: 30
+scenario:
+  id: m9-r4-lane-05
+  user_actions:
+  - On the launched Jetchat conversation screen, locate the Text input field. Do not
+    type or tap Send yet.
+  - Tap Text input, enter the exact token r4q05-saffron, dismiss only the soft keyboard
+    without sending, verify r4q05-saffron remains visible, and leave the unsent draft
+    in place.
+  - After the configuration boundary, do not type, repair, send, navigate, or reopen
+    anything. Inspect the same Text input field and report whether the exact token
+    r4q05-saffron remains visible.
+  system_events:
+  - step_index: 1
+    event: rotate
+    args:
+      rotation: '1'
+  l2_boundary_index: 0
+  l3_spec: The unsent draft token r4q05-saffron remains present in the Jetchat Text
+    input after the admitted portrait-to-landscape activity recreation, without retyping
+    or sending it.

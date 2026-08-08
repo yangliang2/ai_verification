@@ -1,0 +1,20 @@
+Command:
+/usr/bin/time -p uv run python -m pytest -o addopts='' -q \
+  tests/bench/test_m9_recovery_qualification.py \
+  tests/bench/test_m9_qualification.py \
+  tests/runner/test_admission.py \
+  tests/runner/test_run_spec.py \
+  tests/runner/test_system_events.py \
+  tests/runner/test_execution_identity.py \
+  tests/runner/test_codex_backend.py \
+  tests/test_codex_cli_provider.py
+
+Result:
+........................................................................ [ 36%]
+........................................................................ [ 73%]
+...................................................                      [100%]
+195 passed in 17.65s
+real 17.78
+user 8.01
+sys 8.94
+exit 0

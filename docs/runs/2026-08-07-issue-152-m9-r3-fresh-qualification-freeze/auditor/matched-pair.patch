@@ -1,0 +1,15 @@
+diff --git a/Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt b/Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt
+index 0ab45efe..f8edb4e3 100644
+--- a/Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt
++++ b/Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt
+@@ -129,7 +129,9 @@ fun UserInput(
+         BackPressHandler(onBackPressed = dismissKeyboard)
+     }
+
+-    var textState by remember { mutableStateOf(TextFieldValue()) }
++    var textState by rememberSaveable(stateSaver = TextFieldValue.Saver) {
++        mutableStateOf(TextFieldValue())
++    }
+
+     // Used to decide if the keyboard should be shown
+     var textFieldFocusState by remember { mutableStateOf(false) }
