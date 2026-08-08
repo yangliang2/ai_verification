@@ -1033,6 +1033,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         run_spec_path: Path | None = None,
         identity_command_runner: CommandRunner | None = None,
         identity_collector: ExecutionIdentityCollector | None = None,
+        identity_collector_factory: Callable[[str], ExecutionIdentityCollector] | None = None,
         allow_host_project_subdir: bool = False,
         admission_required: bool = False,
         admission_receipt: AdmissionResult | Mapping[str, object] | None = None,
@@ -1041,6 +1042,10 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         formal_one_attempt: bool = False) -> dict:
     artifact_dir = Path(artifact_dir).resolve()
     workdir = Path(workdir).resolve()
+    if identity_collector is not None and identity_collector_factory is not None:
+        raise ProductionSeamAdmissionError(
+            "provide either identity_collector or identity_collector_factory, not both"
+        )
     if admission_required:
         if admission_receipt is None or admission_options is None:
             raise ProductionSeamAdmissionError(
@@ -1076,6 +1081,8 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         scenario=spec.scenario.id,
         started_at=started_at,
     )
+    if identity_collector_factory is not None:
+        identity_collector = identity_collector_factory(execution_record.attempt_id)
     if pre_run_setup is not None:
         setup_start = time.monotonic()
         try:

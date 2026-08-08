@@ -1615,6 +1615,14 @@ def _execution_review_summary(
     }
 
 
+def build_execution_review_summary(
+    execution_record: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Return the role-blind accountability summary used by an R4 review."""
+
+    return _execution_review_summary(execution_record)
+
+
 def _review_context_is_eligible(
     context: Mapping[str, Any],
     *,
@@ -2879,16 +2887,13 @@ def _execution_provenance_is_eligible(
         )
         and roles["journey_driver"].get("status") == "invoked"
         and (
-            (
+            roles["l3_semantic_judge"].get("status") == "invoked"
+            or (
                 role == "defect"
                 and roles["l3_semantic_judge"].get("status")
                 == "not_applicable"
                 and roles["l3_semantic_judge"].get("reason")
                 == "gated_by_lower_oracle"
-            )
-            or (
-                role == "control"
-                and roles["l3_semantic_judge"].get("status") == "invoked"
             )
         )
         and provenance_refs == effective_refs
@@ -3726,6 +3731,19 @@ def reconcile_formal_rows(
     }
 
 
+def validate_formal_attempt_row(
+    row: Mapping[str, Any],
+    *,
+    evidence_repository_root: str | Path,
+) -> bool:
+    """Validate one sealed R4 row against every frozen byte-level contract."""
+
+    return _attempt_evidence_is_eligible(
+        row,
+        repository_root=Path(evidence_repository_root).resolve(),
+    )
+
+
 def _manifest_errors(
     document: Mapping[str, Any],
     *,
@@ -4439,11 +4457,13 @@ __all__ = [
     "SOURCE_ORIGIN",
     "audit_contradiction_packet",
     "audit_neutral_packets",
+    "build_execution_review_summary",
     "canonical_json_bytes",
     "freeze_payload",
     "freeze_payload_sha256",
     "ensure_candidate_regeneration_allowed",
     "ensure_evidence_ledger_regeneration_allowed",
+    "execute_falsification_review",
     "load_auditor_mapping",
     "load_manifest",
     "reconcile_formal_rows",
@@ -4451,5 +4471,6 @@ __all__ = [
     "sha256_bytes",
     "sha256_file",
     "validate_admission_receipts",
+    "validate_formal_attempt_row",
     "validate_human_approval",
 ]
