@@ -18,11 +18,16 @@ from aiverify.bench.m9_recovery_qualification import (
     ACTIVITY,
     APK_GLOB,
     BACKEND,
+    CONTROL_APK_BYTES,
+    CONTROL_APK_SHA256,
+    DEFECT_APK_BYTES,
+    DEFECT_APK_SHA256,
     DEFECT_COMMIT,
     DEVICE,
     FalsificationReviewExecutionError,
     FalsificationReviewInvocationPlan,
     FORMAL_ATTEMPT_ID,
+    FORMAL_HYPOTHESIS_ID,
     LANE_IDS,
     LOCAL_CLAIM_BOUNDARY,
     M9RecoveryQualificationError,
@@ -229,6 +234,11 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(source.read_bytes())
 
+    formal_fact_ids = (
+        "fact-formal-context-input",
+        "fact-formal-context-recreation",
+        "fact-formal-context-source",
+    )
     rows = []
     for index, lane_id in enumerate(LANE_IDS, start=1):
         token = PROBE_TOKENS[index - 1]
@@ -244,6 +254,19 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             if roles[lane_id] == "defect"
             else "locally_rejected"
         )
+        after_token_visible = finding_conclusion == "locally_rejected"
+
+        def text_input_observation(token_visible: bool) -> dict[str, object]:
+            count = 1 if token_visible else 0
+            return {
+                "field_semantics": "content-desc:Text input",
+                "input_field_anchor_count": 1,
+                "exact_token_node_count": count,
+                "editable_exact_token_node_count": count,
+                "bound_exact_token_node_count": count,
+                "input_field_present": True,
+                "exact_token_visible_in_input": token_visible,
+            }
         reference_files = {
             "execution_record": "execution-record.json",
             "execution_provenance": "execution-provenance.json",
@@ -456,6 +479,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "orientation": "portrait",
                 "probe_token": token,
                 "token_visible": True,
+                "text_input_observation": text_input_observation(True),
             },
         )
         write_json(
@@ -466,7 +490,10 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "checkpoint": "after",
                 "orientation": "landscape",
                 "probe_token": token,
-                "token_visible": finding_conclusion == "locally_rejected",
+                "token_visible": after_token_visible,
+                "text_input_observation": text_input_observation(
+                    after_token_visible
+                ),
             },
         )
         (lane_root / "raw/logcat").mkdir(parents=True, exist_ok=True)
@@ -667,8 +694,10 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 },
             }
         )
-        apk_sha256 = sha256_bytes(
-            f"{lane_id}:{expected_commit}:apk".encode("utf-8")
+        apk_bytes, apk_sha256 = (
+            (DEFECT_APK_BYTES, DEFECT_APK_SHA256)
+            if roles[lane_id] == "defect"
+            else (CONTROL_APK_BYTES, CONTROL_APK_SHA256)
         )
         apk_path = str(Path(source_workdir) / APK_GLOB)
         apk_identity = bind_identity(
@@ -676,7 +705,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "artifacts": [
                     {
                         "path": apk_path,
-                        "bytes": 1024 + index,
+                        "bytes": apk_bytes,
                         "sha256": apk_sha256,
                     }
                 ]
@@ -865,6 +894,8 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "lane_id": lane_id,
             "accountable": True,
             "conclusion": finding_conclusion,
+            "hypothesis_id": FORMAL_HYPOTHESIS_ID,
+            "explored_fact_ids": list(formal_fact_ids),
             "probe_token": token,
             "sent": False,
             "retyped_after_boundary": False,
@@ -877,7 +908,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "schema_version": 1,
             "finding_id": f"finding-{lane_id}",
             "target_id": PROJECT_TARGET_ID,
-            "hypothesis_id": f"hypothesis-{lane_id}",
+            "hypothesis_id": FORMAL_HYPOTHESIS_ID,
             "conclusion": (
                 "supported"
                 if finding_conclusion == "locally_supported"
@@ -902,7 +933,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "schema_version": 1,
             "risk_id": f"residual-{lane_id}",
             "target_id": PROJECT_TARGET_ID,
-            "hypothesis_id": f"hypothesis-{lane_id}",
+            "hypothesis_id": FORMAL_HYPOTHESIS_ID,
             "reason": "The local probe does not establish broader behavior.",
             "evidence_gap": "Other devices and lifecycle boundaries are unexplored.",
             "scope": LOCAL_CLAIM_BOUNDARY,
@@ -919,7 +950,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "target_id": PROJECT_TARGET_ID,
             "findings": [finding],
             "residual_risks": [residual],
-            "explored_fact_ids": [f"fact-{lane_id}"],
+            "explored_fact_ids": list(formal_fact_ids),
             "coverage_frontier": [
                 "production, OEM, and physical-device behavior remains unexplored"
             ],
@@ -2409,6 +2440,46 @@ def test_supported_rejects_semantically_empty_execution_provenance(
     )
     _write_json(record_path, record)
     _reseal_lane(tmp_path, row)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
+def test_supported_rejects_execution_time_apk_identity_drift(
+    tmp_path: Path,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    row = fixture["rows"][0]
+    assert isinstance(row, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    provenance_path = lane_root / "execution-provenance.json"
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    drifted_sha256 = "0" * 64
+    provenance["apk"]["artifacts"][0]["sha256"] = drifted_sha256
+    provenance["deployment"]["installed_artifacts"][0][
+        "sha256"
+    ] = drifted_sha256
+
+    for key in ("apk", "deployment"):
+        identity = provenance[key]
+        identity["identity_sha256"] = sha256_bytes(
+            canonical_json_bytes(
+                {
+                    name: value
+                    for name, value in identity.items()
+                    if name != "identity_sha256"
+                }
+            )
+        )
+    _write_json(provenance_path, provenance)
+    record_path = lane_root / "execution-record.json"
+    record = json.loads(record_path.read_text(encoding="utf-8"))
+    record["evidence_refs"]["execution_provenance"]["sha256"] = (
+        sha256_bytes(provenance_path.read_bytes())
+    )
+    _write_json(record_path, record)
+    _reseal_lane(tmp_path, row)
+
     result = _reconcile_fixture(fixture)
     assert result["counts"]["attempt_evidence_validated"] == 5
     assert result["aggregate_result"] == "Not Supported"

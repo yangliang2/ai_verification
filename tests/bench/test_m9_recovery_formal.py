@@ -170,10 +170,66 @@ def test_identity_factory_binds_frozen_and_effective_specs(
     )
 
 
-def test_probe_token_detection_is_recursive_and_exactly_lane_scoped() -> None:
-    for token in PROBE_TOKENS:
-        assert formal._contains_token([{"text": f"draft {token}"}], token)
-    assert not formal._contains_token({"text": PROBE_TOKENS[0]}, PROBE_TOKENS[1])
+def test_probe_token_is_exactly_bound_to_the_text_input() -> None:
+    token = PROBE_TOKENS[0]
+    layout = [
+        {"content-desc": "Text input", "center": "[540,1000]"},
+        {
+            "text": token,
+            "interactions": ["clickable", "focusable", "long-clickable"],
+            "center": "[420,1000]",
+        },
+    ]
+    observation = formal._observe_text_input_token(layout, token)
+    assert observation["input_field_present"] is True
+    assert observation["exact_token_visible_in_input"] is True
+
+    substring = [
+        {"content-desc": "Text input", "center": "[540,1000]"},
+        {
+            "text": f"draft {token}",
+            "interactions": ["focusable", "long-clickable"],
+            "center": "[420,1000]",
+        },
+    ]
+    assert (
+        formal._observe_text_input_token(substring, token)[
+            "exact_token_visible_in_input"
+        ]
+        is False
+    )
+
+    unrelated_field = [
+        {"content-desc": "Text input", "center": "[540,1000]"},
+        {
+            "text": token,
+            "interactions": ["focusable", "long-clickable"],
+            "center": "[420,200]",
+        },
+    ]
+    assert (
+        formal._observe_text_input_token(unrelated_field, token)[
+            "exact_token_visible_in_input"
+        ]
+        is False
+    )
+
+
+def test_activity_recreation_requires_destroy_then_create_or_relaunch() -> None:
+    activity = formal.ACTIVITY
+    lifecycle = (
+        f"I/am_on_create_called: [0,{activity},performCreate]\n"
+        f"I/am_on_destroy_called: [0,{activity},performDestroy]\n"
+        f"I/am_on_create_called: [0,{activity},performCreate]\n"
+    )
+    lines, observed = formal._activity_recreation_lines(lifecycle)
+    assert observed is True
+    assert len(lines) == 3
+
+    _lines, observed = formal._activity_recreation_lines(
+        f"I/am_on_create_called: [0,{activity},performCreate]\n"
+    )
+    assert observed is False
 
 
 def test_lane_exception_creates_one_terminal_record_and_typed_absence(
@@ -212,7 +268,125 @@ def test_lane_exception_creates_one_terminal_record_and_typed_absence(
     assert absence["terminal"] is True
     assert absence["retry_permitted"] is False
     assert absence["absent_artifacts"]
+    assert "production-identities/*.json" in absence["absent_artifacts"]
     assert (artifact_root / lane_id / "checksums.sha256").is_file()
+
+
+def test_semantic_evidence_uses_portfolio_lineage_and_withholds_finding(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    artifact_root = tmp_path / "formal-artifacts"
+    monkeypatch.setattr(formal, "FORMAL_ARTIFACT_ROOT", artifact_root)
+    lineage = formal.EvidenceLineage(
+        hypothesis_id=formal.FORMAL_HYPOTHESIS_ID,
+        explored_fact_ids=("fact-context-1", "fact-context-2"),
+    )
+    lane_id = LANE_IDS[0]
+    (artifact_root / lane_id).mkdir(parents=True)
+    monkeypatch.setattr(formal, "is_execution_record_accountable", lambda _record: False)
+
+    oracle, finding = formal._write_semantic_evidence(
+        lane_id,
+        PROBE_TOKENS[0],
+        {"lifecycle_state": "completed"},
+        {},
+        "inconclusive",
+        lineage,
+    )
+
+    assert oracle["accountable"] is False
+    assert finding is None
+    assert not (artifact_root / lane_id / "finding.json").exists()
+    residual = json.loads(
+        (artifact_root / lane_id / "residual-risk.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    risk_map = json.loads(
+        (artifact_root / lane_id / "project-risk-map.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert residual["hypothesis_id"] == formal.FORMAL_HYPOTHESIS_ID
+    assert risk_map["findings"] == []
+    assert risk_map["explored_fact_ids"] == ["fact-context-1", "fact-context-2"]
+
+
+def test_external_input_failure_precedes_irreversible_root_claim(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    claimed = False
+    monkeypatch.setattr(formal, "static_preflight", lambda **_kwargs: {})
+    monkeypatch.setattr(formal, "_repository_identity", lambda _commit: {})
+    monkeypatch.setattr(formal, "_source_bindings", lambda _inputs: {})
+
+    def reject_inputs(_inputs: object, _bindings: object) -> dict[str, object]:
+        raise formal.M9RecoveryFormalError("external APK drift")
+
+    def claim(_preflight: object, _repository: object) -> None:
+        nonlocal claimed
+        claimed = True
+
+    monkeypatch.setattr(formal, "_validate_formal_inputs", reject_inputs)
+    monkeypatch.setattr(formal, "_claim_formal_root", claim)
+
+    with pytest.raises(formal.M9RecoveryFormalError, match="external APK drift"):
+        formal.execute_formal(
+            formal.FormalInputs(expected_consumer_commit="a" * 40)
+        )
+    assert claimed is False
+
+
+def test_claimed_pre_lane_failure_seals_all_six_terminal_absences(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    formal_root = tmp_path / "formal-attempt"
+    artifact_root = formal_root / "formal-artifacts"
+    monkeypatch.setattr(formal, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(formal, "FORMAL_ROOT", formal_root)
+    monkeypatch.setattr(formal, "FORMAL_ARTIFACT_ROOT", artifact_root)
+    monkeypatch.setattr(formal, "static_preflight", lambda **_kwargs: {})
+    monkeypatch.setattr(
+        formal,
+        "_repository_identity",
+        lambda commit: {"head": commit},
+    )
+    monkeypatch.setattr(formal, "_source_bindings", lambda _inputs: {})
+    monkeypatch.setattr(
+        formal,
+        "_validate_formal_inputs",
+        lambda _inputs, _bindings: {"status": "passed"},
+    )
+
+    def fail_contradiction(_manifest: object) -> dict[str, object]:
+        raise formal.M9RecoveryFormalError("pre-lane terminal failure")
+
+    monkeypatch.setattr(formal, "_reject_contradiction", fail_contradiction)
+
+    result = formal.execute_formal(
+        formal.FormalInputs(
+            expected_consumer_commit="b" * 40,
+            source_root=tmp_path / "fresh-sources",
+        )
+    )
+
+    assert result["status"] == "terminal_failed"
+    assert result["terminal_lane_count"] == 6
+    assert result["formal_holdout_executed"] is False
+    inventory = json.loads(
+        (formal_root / "formal-attempt-inventory.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert inventory["formal_attempts"][0]["terminal_lane_count"] == 6
+    for lane_id in LANE_IDS:
+        lane_root = artifact_root / lane_id
+        assert (lane_root / "execution-record.json").is_file()
+        assert (lane_root / "typed-absence.json").is_file()
+        assert (lane_root / "checksums.sha256").is_file()
+    assert (formal_root / "checksums.sha256").is_file()
 
 
 @pytest.mark.parametrize(

@@ -32,11 +32,16 @@ from aiverify.bench.m9_recovery_qualification import (
     ACTIVITY,
     APK_GLOB,
     BACKEND,
+    CONTROL_APK_BYTES,
+    CONTROL_APK_SHA256,
     CONTRADICTION_REQUIRED_FIELDS,
+    DEFECT_APK_BYTES,
+    DEFECT_APK_SHA256,
     DEFECT_COMMIT,
     DEFECT_TREE,
     DEVICE,
     FORMAL_ATTEMPT_ID,
+    FORMAL_HYPOTHESIS_ID,
     LANE_IDS,
     LOCAL_CLAIM_BOUNDARY,
     PACKAGE,
@@ -130,14 +135,6 @@ FROZEN_MAPPING_CANONICAL_SHA256 = (
 FROZEN_CONTRADICTION_AUDIT_CANONICAL_SHA256 = (
     "ed594192326034c9a0eb576fbfa1fe76f29a0e5af5f1099074d2d187c9ab254e"
 )
-CONTROL_APK_BYTES = 17_511_449
-CONTROL_APK_SHA256 = (
-    "a1536cec09a33063f7796dc77e0effdf1847a3ad325dcef707216fa87d78386d"
-)
-DEFECT_APK_BYTES = 17_511_239
-DEFECT_APK_SHA256 = (
-    "41d7c3ff47f2f2d2a04942d11ab57c6c76ac7314ff6abf8dad14fd9b3149e55b"
-)
 DEFAULT_PROJECT_TARGET = Path("/private/tmp/m9-r3-snapshot-b")
 DEFAULT_CONTROL_APK = (
     DEFAULT_PROJECT_TARGET / "Jetchat/app/build/outputs/apk/debug/app-debug.apk"
@@ -159,6 +156,7 @@ SAFETY_BOUNDARY = (
     "local public-project copy, local emulator, and declared evidence roots only"
 )
 _ROLE_LEAKAGE = re.compile(r"(?i)(?:\bdefect\b|\bcontrol\b|expected[_ ]result)")
+_LAYOUT_CENTER = re.compile(r"^\[(\d+),(\d+)\]$")
 
 
 class M9RecoveryFormalError(RuntimeError):
@@ -236,6 +234,62 @@ class FormalInputs:
     defect_project: Path = DEFAULT_DEFECT_PROJECT
     defect_apk: Path = DEFAULT_DEFECT_APK
     source_root: Path = DEFAULT_SOURCE_ROOT
+
+
+@dataclass(frozen=True)
+class SourceBinding:
+    """One auditor-selected immutable source/APK pair without a role label."""
+
+    project: Path
+    commit: str
+    tree: str
+    apk: Path
+    apk_bytes: int
+    apk_sha256: str
+
+
+@dataclass(frozen=True)
+class AdmittedLane:
+    """A neutral, production-admitted lane ready for one runner attempt."""
+
+    frozen_path: Path
+    spec: RunSpec
+    options: PlannedRunnerOptions
+    admission: AdmissionResult
+    source: SourceBinding
+
+
+@dataclass(frozen=True)
+class EvidenceLineage:
+    """The selected Risk Hypothesis and its acquired Context Facts."""
+
+    hypothesis_id: str
+    explored_fact_ids: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if self.hypothesis_id != FORMAL_HYPOTHESIS_ID:
+            raise M9RecoveryFormalError(
+                "selected state-evolution hypothesis identity drifted"
+            )
+        if (
+            not self.explored_fact_ids
+            or len(set(self.explored_fact_ids)) != len(self.explored_fact_ids)
+            or any(not fact_id.strip() for fact_id in self.explored_fact_ids)
+        ):
+            raise M9RecoveryFormalError(
+                "selected state-evolution supporting facts are invalid"
+            )
+
+
+@dataclass(frozen=True)
+class ExecutedLane:
+    """Role-neutral material returned by one completed lane execution."""
+
+    record: Mapping[str, Any]
+    identity: Mapping[str, Any]
+    finding_conclusion: str
+    review: Mapping[str, Any]
+    duration_seconds: float
 
 
 def _utc_now() -> str:
@@ -842,57 +896,128 @@ def _mapping_roles(mapping: Mapping[str, Any]) -> dict[str, str]:
     }
 
 
-def _source_binding(role: str, inputs: FormalInputs) -> tuple[Path, str, str, Path, int, str]:
-    if role == "defect":
-        return (
-            inputs.defect_project.resolve(),
-            DEFECT_COMMIT,
-            DEFECT_TREE,
-            inputs.defect_apk.resolve(),
-            DEFECT_APK_BYTES,
-            DEFECT_APK_SHA256,
+def _source_bindings(inputs: FormalInputs) -> dict[str, SourceBinding]:
+    """Decode the two auditor roles exactly once at the mapping boundary."""
+
+    return {
+        "defect": SourceBinding(
+            project=inputs.defect_project.resolve(),
+            commit=DEFECT_COMMIT,
+            tree=DEFECT_TREE,
+            apk=inputs.defect_apk.resolve(),
+            apk_bytes=DEFECT_APK_BYTES,
+            apk_sha256=DEFECT_APK_SHA256,
+        ),
+        "control": SourceBinding(
+            project=inputs.project_target.resolve(),
+            commit=PROJECT_TARGET_COMMIT,
+            tree=PROJECT_TARGET_TREE,
+            apk=inputs.control_apk.resolve(),
+            apk_bytes=CONTROL_APK_BYTES,
+            apk_sha256=CONTROL_APK_SHA256,
+        ),
+    }
+
+
+def _verify_apk(path: Path, *, expected_bytes: int, expected_sha256: str) -> None:
+    if (
+        not path.is_file()
+        or path.stat().st_size != expected_bytes
+        or sha256_file(path) != expected_sha256
+    ):
+        raise M9RecoveryFormalError(f"frozen R3 APK identity drifted: {path}")
+
+
+def _validate_formal_inputs(
+    inputs: FormalInputs,
+    bindings: Mapping[str, SourceBinding],
+) -> dict[str, Any]:
+    """Verify all external identities before claiming the one-shot namespace."""
+
+    source_root = inputs.source_root.resolve()
+    if source_root.exists():
+        raise M9RecoveryFormalError(
+            f"fresh lane source namespace already exists: {source_root}"
         )
-    if role == "control":
-        return (
-            inputs.project_target.resolve(),
-            PROJECT_TARGET_COMMIT,
-            PROJECT_TARGET_TREE,
-            inputs.control_apk.resolve(),
-            CONTROL_APK_BYTES,
-            CONTROL_APK_SHA256,
+    receipts: list[dict[str, Any]] = []
+    for index, binding in enumerate(bindings.values(), start=1):
+        source = _verify_source(
+            binding.project,
+            commit=binding.commit,
+            tree=binding.tree,
         )
-    raise M9RecoveryFormalError("released mapping contains an unknown role")
+        _verify_apk(
+            binding.apk,
+            expected_bytes=binding.apk_bytes,
+            expected_sha256=binding.apk_sha256,
+        )
+        receipts.append(
+            {
+                "binding_id": f"source-binding-{index:02d}",
+                "source": source,
+                "apk": {
+                    "path": str(binding.apk),
+                    "bytes": binding.apk_bytes,
+                    "sha256": binding.apk_sha256,
+                },
+            }
+        )
+    return {
+        "schema_version": 2,
+        "status": "passed",
+        "side_effects": False,
+        "verified_before_formal_root_claim": True,
+        "source_root": str(source_root),
+        "source_root_absent": True,
+        "bindings": receipts,
+    }
 
 
 def _prepare_source_fixture(
     lane_id: str,
-    role: str,
+    binding: SourceBinding,
     inputs: FormalInputs,
 ) -> tuple[Path, dict[str, Any]]:
-    source, commit, tree, apk, apk_bytes, apk_sha = _source_binding(role, inputs)
-    _verify_source(source, commit=commit, tree=tree)
-    if not apk.is_file() or apk.stat().st_size != apk_bytes or sha256_file(apk) != apk_sha:
-        raise M9RecoveryFormalError(f"frozen R3 APK identity drifted for {lane_id}")
+    _verify_source(binding.project, commit=binding.commit, tree=binding.tree)
+    _verify_apk(
+        binding.apk,
+        expected_bytes=binding.apk_bytes,
+        expected_sha256=binding.apk_sha256,
+    )
     destination = inputs.source_root.resolve() / lane_id
     if destination.exists():
         raise M9RecoveryFormalError(f"fresh lane source already exists: {destination}")
-    clone = _run(["git", "clone", "--no-checkout", str(source), str(destination)], timeout=300)
-    checkout = _run(["git", "checkout", "--detach", commit], cwd=destination, timeout=120)
+    clone = _run(
+        ["git", "clone", "--no-checkout", str(binding.project), str(destination)],
+        timeout=300,
+    )
+    checkout = _run(
+        ["git", "checkout", "--detach", binding.commit],
+        cwd=destination,
+        timeout=120,
+    )
     remote = _run(["git", "remote", "set-url", "origin", SOURCE_ORIGIN], cwd=destination, timeout=60)
     target_apk = destination / APK_GLOB
     target_apk.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(apk, target_apk)
-    identity = _verify_source(destination, commit=commit, tree=tree)
-    if target_apk.stat().st_size != apk_bytes or sha256_file(target_apk) != apk_sha:
-        raise M9RecoveryFormalError(f"fresh lane APK copy drifted for {lane_id}")
+    shutil.copyfile(binding.apk, target_apk)
+    identity = _verify_source(
+        destination,
+        commit=binding.commit,
+        tree=binding.tree,
+    )
+    _verify_apk(
+        target_apk,
+        expected_bytes=binding.apk_bytes,
+        expected_sha256=binding.apk_sha256,
+    )
     return destination, {
         "schema_version": 2,
         "lane_id": lane_id,
         "source": identity,
         "apk": {
             "path": str(target_apk),
-            "bytes": apk_bytes,
-            "sha256": apk_sha,
+            "bytes": binding.apk_bytes,
+            "sha256": binding.apk_sha256,
         },
         "commands": [clone, checkout, remote],
         "fresh_fixture": True,
@@ -909,30 +1034,36 @@ def _load_frozen_spec(lane_id: str, workdir: Path) -> tuple[Path, RunSpec]:
 
 
 def _admit_lanes(
-    mapping: Mapping[str, Any],
+    roles: Mapping[str, str],
+    bindings: Mapping[str, SourceBinding],
     inputs: FormalInputs,
     state: FormalState,
-) -> tuple[dict[str, tuple[Path, RunSpec, PlannedRunnerOptions, AdmissionResult, str]], list[dict[str, Any]]]:
+) -> tuple[dict[str, AdmittedLane], list[dict[str, Any]]]:
     if inputs.source_root.exists():
         raise M9RecoveryFormalError("fresh source namespace already exists")
     inputs.source_root.mkdir(parents=True, exist_ok=False)
-    roles = _mapping_roles(mapping)
-    admitted: dict[str, tuple[Path, RunSpec, PlannedRunnerOptions, AdmissionResult, str]] = {}
+    admitted: dict[str, AdmittedLane] = {}
     fixture_receipts: list[dict[str, Any]] = []
     receipts: list[Mapping[str, Any]] = []
     expected_specs: dict[str, Mapping[str, Any]] = {}
     for lane_id in LANE_IDS:
         role = roles[lane_id]
-        workdir, fixture = _prepare_source_fixture(lane_id, role, inputs)
+        binding = bindings.get(role)
+        if binding is None:
+            raise M9RecoveryFormalError("released mapping contains an unknown role")
+        workdir, fixture = _prepare_source_fixture(lane_id, binding, inputs)
         fixture_receipts.append(fixture)
+        _write_json(
+            FORMAL_ROOT / "source-fixtures" / f"{lane_id}.json",
+            fixture,
+        )
         spec_path, spec = _load_frozen_spec(lane_id, workdir)
-        commit = DEFECT_COMMIT if role == "defect" else PROJECT_TARGET_COMMIT
         lane_root = FORMAL_ARTIFACT_ROOT / lane_id
         options = PlannedRunnerOptions(
             device=DEVICE,
             workdir=workdir,
             artifact_dir=lane_root / "artifacts",
-            expected_source_commit=commit,
+            expected_source_commit=binding.commit,
             launch=True,
             requested_driver_model=None,
             requested_l3_model=None,
@@ -950,9 +1081,15 @@ def _admit_lanes(
         receipts.append(result.receipt)
         expected_specs[lane_id] = {
             "run_spec_sha256": spec.source_sha256,
-            "commit": commit,
+            "commit": binding.commit,
         }
-        admitted[lane_id] = (spec_path, spec, options, result, role)
+        admitted[lane_id] = AdmittedLane(
+            frozen_path=spec_path,
+            spec=spec,
+            options=options,
+            admission=result,
+            source=binding,
+        )
         state.admit(lane_id)
     audit = validate_admission_receipts(receipts, expected_run_specs=expected_specs)
     if audit.get("status") != "pass":
@@ -991,6 +1128,7 @@ def _pre_run_environment(lane_root: Path, ime_guard: dict[str, str]) -> None:
     _write_json(lane_root / "package-reset.json", package_payload)
 
     operations = {
+        "activity_event_log_clear": _adb_receipt("logcat", "-b", "events", "-c"),
         "accelerometer_rotation_disable": _adb_receipt(
             "shell", "settings", "put", "system", "accelerometer_rotation", "0"
         ),
@@ -1165,14 +1303,61 @@ def _write_effective_identity(lane_id: str, record: Mapping[str, Any]) -> dict[s
     return identity
 
 
-def _contains_token(value: object, token: str) -> bool:
-    if isinstance(value, str):
-        return token in value
-    if isinstance(value, Mapping):
-        return any(_contains_token(item, token) for item in value.values())
-    if isinstance(value, (list, tuple)):
-        return any(_contains_token(item, token) for item in value)
-    return False
+def _layout_center(node: Mapping[str, Any]) -> tuple[int, int] | None:
+    value = node.get("center")
+    match = _LAYOUT_CENTER.fullmatch(value) if isinstance(value, str) else None
+    if match is None:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def _observe_text_input_token(layout: object, token: str) -> dict[str, Any]:
+    """Bind an exact token observation to Jetchat's Text input semantics."""
+
+    if not isinstance(layout, list):
+        raise M9RecoveryFormalError("Android layout evidence is not a node list")
+    nodes = [item for item in layout if isinstance(item, Mapping)]
+    anchors = [
+        item
+        for item in nodes
+        if item.get("content-desc", item.get("contentDesc")) == "Text input"
+    ]
+    exact_nodes = [item for item in nodes if item.get("text") == token]
+    editable_exact_nodes = []
+    for item in exact_nodes:
+        interactions = item.get("interactions")
+        if (
+            isinstance(interactions, list)
+            and {"focusable", "long-clickable"}.issubset(interactions)
+        ):
+            editable_exact_nodes.append(item)
+    bound_exact_nodes = []
+    for item in editable_exact_nodes:
+        item_center = _layout_center(item)
+        if item_center is None:
+            continue
+        if any(
+            anchor_center is not None
+            and abs(anchor_center[1] - item_center[1]) <= 96
+            for anchor_center in (_layout_center(anchor) for anchor in anchors)
+        ):
+            bound_exact_nodes.append(item)
+    field_present = len(anchors) == 1
+    token_visible = (
+        field_present
+        and len(exact_nodes) == 1
+        and len(editable_exact_nodes) == 1
+        and len(bound_exact_nodes) == 1
+    )
+    return {
+        "field_semantics": "content-desc:Text input",
+        "input_field_anchor_count": len(anchors),
+        "exact_token_node_count": len(exact_nodes),
+        "editable_exact_token_node_count": len(editable_exact_nodes),
+        "bound_exact_token_node_count": len(bound_exact_nodes),
+        "input_field_present": field_present,
+        "exact_token_visible_in_input": token_visible,
+    }
 
 
 def _png_dimensions(path: Path) -> tuple[int, int]:
@@ -1205,10 +1390,40 @@ def _filtered_rotation_logcat(source: Path) -> str:
     return result + "\n"
 
 
+def _activity_recreation_lines(event_logcat: str) -> tuple[list[str], bool]:
+    lifecycle = [
+        line
+        for line in event_logcat.splitlines()
+        if ACTIVITY in line
+        and any(
+            marker in line
+            for marker in (
+                "am_on_create_called",
+                "am_on_destroy_called",
+                "am_relaunch_resume_activity",
+            )
+        )
+    ]
+    destroy_indexes = [
+        index
+        for index, line in enumerate(lifecycle)
+        if "am_on_destroy_called" in line
+    ]
+    create_indexes = [
+        index
+        for index, line in enumerate(lifecycle)
+        if "am_on_create_called" in line
+    ]
+    relaunched = any("am_relaunch_resume_activity" in line for line in lifecycle)
+    destroy_then_create = any(
+        destroy < create for destroy in destroy_indexes for create in create_indexes
+    )
+    return lifecycle, relaunched or destroy_then_create
+
+
 def _normalize_raw_evidence(
     lane_id: str,
     token: str,
-    workdir: Path,
 ) -> tuple[dict[str, dict[str, str]], str]:
     lane_root = FORMAL_ARTIFACT_ROOT / lane_id
     before_root = lane_root / "artifacts/after-segment-0"
@@ -1221,18 +1436,25 @@ def _normalize_raw_evidence(
     before_layout = json.loads(before_layout_source.read_text(encoding="utf-8"))
     after_layout = json.loads(after_layout_source.read_text(encoding="utf-8"))
     event = json.loads(event_source.read_text(encoding="utf-8"))
+    event_logcat_receipt = _adb_receipt(
+        "logcat", "-b", "events", "-d", "-v", "threadtime"
+    )
+    _require_adb(event_logcat_receipt, "activity lifecycle event log capture")
+    lifecycle_lines, lifecycle_recreated = _activity_recreation_lines(
+        str(event_logcat_receipt["stdout"])
+    )
+    _write_json(
+        lane_root / "raw/logcat/events-command.json",
+        event_logcat_receipt,
+    )
     before_dimensions = _png_dimensions(before_screen)
     after_dimensions = _png_dimensions(after_screen)
     if before_dimensions[0] >= before_dimensions[1] or after_dimensions[0] <= after_dimensions[1]:
         raise M9RecoveryFormalError("raw screenshots do not prove portrait-to-landscape order")
-    before_visible = _contains_token(before_layout, token)
-    after_visible = _contains_token(after_layout, token)
-    if not before_visible:
-        conclusion = "inconclusive"
-    elif after_visible:
-        conclusion = "locally_rejected"
-    else:
-        conclusion = "locally_supported"
+    before_observation = _observe_text_input_token(before_layout, token)
+    after_observation = _observe_text_input_token(after_layout, token)
+    before_visible = before_observation["exact_token_visible_in_input"] is True
+    after_visible = after_observation["exact_token_visible_in_input"] is True
 
     before_out = lane_root / "raw/screenshots/before.png"
     after_out = lane_root / "raw/screenshots/after.png"
@@ -1245,6 +1467,7 @@ def _normalize_raw_evidence(
         "orientation": "portrait",
         "probe_token": token,
         "token_visible": before_visible,
+        "text_input_observation": before_observation,
         "source_path": before_screen.relative_to(lane_root).as_posix(),
         "source_layout_sha256": sha256_file(before_layout_source),
         "screenshot_dimensions": list(before_dimensions),
@@ -1256,6 +1479,7 @@ def _normalize_raw_evidence(
         "orientation": "landscape",
         "probe_token": token,
         "token_visible": after_visible,
+        "text_input_observation": after_observation,
         "source_path": after_screen.relative_to(lane_root).as_posix(),
         "source_layout_sha256": sha256_file(after_layout_source),
         "screenshot_dimensions": list(after_dimensions),
@@ -1265,18 +1489,39 @@ def _normalize_raw_evidence(
     _write_json(before_layout_out, before_summary)
     _write_json(after_layout_out, after_summary)
     logcat_out = lane_root / "raw/logcat/rotation.txt"
-    _write_text(logcat_out, _filtered_rotation_logcat(after_root / "logcat.txt"))
+    checkpoint_logcat = _filtered_rotation_logcat(after_root / "logcat.txt")
+    lifecycle_logcat = "\n".join(lifecycle_lines).strip()
+    _write_text(
+        logcat_out,
+        (
+            "# activity lifecycle event buffer\n"
+            + (lifecycle_logcat or "<no matching lifecycle events>")
+            + "\n# after-rotation checkpoint buffers\n"
+            + checkpoint_logcat
+        ),
+    )
     event_evidence = event.get("evidence", {})
-    manifest_text = (
-        workdir / "Jetchat/app/src/main/AndroidManifest.xml"
-    ).read_text(encoding="utf-8")
     recreation_observed = (
         event.get("status") == "passed"
         and event.get("event") == "rotate"
         and event_evidence.get("accelerometer_rotation") == "0"
         and event_evidence.get("user_rotation") == "1"
-        and "android:configChanges" not in manifest_text
+        and lifecycle_recreated
     )
+    if (
+        not recreation_observed
+        or not before_visible
+        or after_observation["input_field_present"] is not True
+        or (
+            not after_visible
+            and after_observation["exact_token_node_count"] != 0
+        )
+    ):
+        conclusion = "inconclusive"
+    elif after_visible:
+        conclusion = "locally_rejected"
+    else:
+        conclusion = "locally_supported"
     rotation = {
         "schema_version": 1,
         "lane_id": lane_id,
@@ -1291,7 +1536,8 @@ def _normalize_raw_evidence(
             "artifacts/system-event-0/event.json",
             "raw/screenshots/before.png",
             "raw/screenshots/after.png",
-            "Jetchat AndroidManifest activity has no configChanges override",
+            "raw/logcat/events-command.json",
+            "a NavActivity destroy-then-create sequence or explicit relaunch callback",
         ],
         "retyped_after_boundary": False,
         "repaired_after_boundary": False,
@@ -1315,7 +1561,8 @@ def _write_semantic_evidence(
     record: Mapping[str, Any],
     raw_refs: Mapping[str, Mapping[str, str]],
     conclusion: str,
-) -> tuple[dict[str, Any], dict[str, Any]]:
+    lineage: EvidenceLineage,
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
     lane_root = FORMAL_ARTIFACT_ROOT / lane_id
     accountable = bool(
         conclusion in {"locally_supported", "locally_rejected"}
@@ -1329,6 +1576,8 @@ def _write_semantic_evidence(
         "lane_id": lane_id,
         "accountable": accountable,
         "conclusion": conclusion,
+        "hypothesis_id": lineage.hypothesis_id,
+        "explored_fact_ids": list(lineage.explored_fact_ids),
         "probe_token": token,
         "sent": False,
         "retyped_after_boundary": False,
@@ -1336,39 +1585,49 @@ def _write_semantic_evidence(
         "evidence_refs": dict(raw_refs),
     }
     _write_json(lane_root / "oracle-receipt.json", oracle)
-    finding_conclusion = {
-        "locally_supported": "supported",
-        "locally_rejected": "rejected",
-        "inconclusive": "inconclusive",
-    }[conclusion]
-    finding = {
-        "schema_version": 1,
-        "finding_id": f"finding-{lane_id}",
-        "target_id": PROJECT_TARGET_ID,
-        "hypothesis_id": f"hypothesis-{lane_id}",
-        "conclusion": finding_conclusion,
-        "evidence_refs": [
-            "execution-record.json",
-            "effective-execution-identity.json",
-            "oracle-receipt.json",
-            "raw/screenshots/before.png",
-            "raw/screenshots/after.png",
-            "raw/layout/before.json",
-            "raw/layout/after.json",
-            "raw/logcat/rotation.txt",
-            "rotation-event.json",
-        ],
-        "impact": "an unsent Jetchat draft may be lost across activity recreation",
-        "claim_boundary": LOCAL_CLAIM_BOUNDARY,
-        "rationale": "Derived only from the terminal checksum-bound lane observations.",
-    }
+    finding: dict[str, Any] | None = None
+    if accountable:
+        finding = {
+            "schema_version": 1,
+            "finding_id": f"finding-{lane_id}",
+            "target_id": PROJECT_TARGET_ID,
+            "hypothesis_id": lineage.hypothesis_id,
+            "conclusion": {
+                "locally_supported": "supported",
+                "locally_rejected": "rejected",
+            }[conclusion],
+            "evidence_refs": [
+                "execution-record.json",
+                "effective-execution-identity.json",
+                "oracle-receipt.json",
+                "raw/screenshots/before.png",
+                "raw/screenshots/after.png",
+                "raw/layout/before.json",
+                "raw/layout/after.json",
+                "raw/logcat/rotation.txt",
+                "rotation-event.json",
+            ],
+            "impact": "an unsent Jetchat draft may be lost across activity recreation",
+            "claim_boundary": LOCAL_CLAIM_BOUNDARY,
+            "rationale": (
+                "Derived only from the terminal checksum-bound lane observations."
+            ),
+        }
     residual = {
         "schema_version": 1,
         "risk_id": f"residual-{lane_id}",
         "target_id": PROJECT_TARGET_ID,
-        "hypothesis_id": f"hypothesis-{lane_id}",
-        "reason": "The local probe does not establish behavior outside the frozen boundary.",
-        "evidence_gap": "Other devices, releases, and lifecycle boundaries remain unexplored.",
+        "hypothesis_id": lineage.hypothesis_id,
+        "reason": (
+            "The local probe does not establish behavior outside the frozen boundary."
+            if accountable
+            else "The terminal lane is non-accountable, so it cannot create a Finding."
+        ),
+        "evidence_gap": (
+            "Other devices, releases, and lifecycle boundaries remain unexplored."
+            if accountable
+            else "Accountable terminal oracle evidence is unavailable."
+        ),
         "scope": LOCAL_CLAIM_BOUNDARY,
         "basis_refs": ["execution-record.json", "oracle-receipt.json"],
         "next_probe": "Any next probe requires a new approved contract.",
@@ -1378,9 +1637,9 @@ def _write_semantic_evidence(
         "schema_version": 1,
         "map_id": f"risk-map-{lane_id}",
         "target_id": PROJECT_TARGET_ID,
-        "findings": [finding],
+        "findings": [finding] if finding is not None else [],
         "residual_risks": [residual],
-        "explored_fact_ids": [f"fact-{lane_id}-unsent-draft-recreation"],
+        "explored_fact_ids": list(lineage.explored_fact_ids),
         "coverage_frontier": [
             "production, upstream, OEM, ColorOS, and physical-device behavior remains unexplored"
         ],
@@ -1399,7 +1658,8 @@ def _write_semantic_evidence(
             "physical-device",
         ],
     }
-    _write_json(lane_root / "finding.json", finding)
+    if finding is not None:
+        _write_json(lane_root / "finding.json", finding)
     _write_json(lane_root / "residual-risk.json", residual)
     _write_json(lane_root / "project-risk-map.json", risk_map)
     _write_json(lane_root / "claim-boundary.json", claim_boundary)
@@ -1611,9 +1871,23 @@ def _terminal_record(lane_id: str, error: Exception) -> Mapping[str, Any]:
     )
 
 
+def _absent_required_artifacts(
+    lane_root: Path,
+    required: Sequence[str],
+) -> list[str]:
+    absent: list[str] = []
+    for item in required:
+        if any(marker in item for marker in ("*", "?", "[")):
+            if not any(path.is_file() for path in lane_root.glob(item)):
+                absent.append(item)
+        elif not (lane_root / item).is_file():
+            absent.append(item)
+    return absent
+
+
 def _seal_failed_lane(
     lane_id: str,
-    role: str,
+    role: str | None,
     error: Exception,
     *,
     duration_seconds: float,
@@ -1641,7 +1915,8 @@ def _seal_failed_lane(
         return {
             "lane_id": lane_id,
             "role": role,
-            "accountable": is_execution_record_accountable(record),
+            "accountable": False,
+            "execution_record_accountable": is_execution_record_accountable(record),
             "terminal": True,
             "formal_attempt_id": FORMAL_ATTEMPT_ID,
             "execution_record_attempt_id": record["attempt_id"],
@@ -1661,11 +1936,7 @@ def _seal_failed_lane(
     required = load_manifest(MANIFEST_PATH, require_frozen=True).document["evidence"][
         "required_artifacts"
     ]
-    absent = [
-        item
-        for item in required
-        if "*" not in item and not (lane_root / item).exists()
-    ]
+    absent = _absent_required_artifacts(lane_root, required)
     _write_json(
         lane_root / "typed-absence.json",
         {
@@ -1675,6 +1946,7 @@ def _seal_failed_lane(
             "formal_attempt_id": FORMAL_ATTEMPT_ID,
             "terminal": True,
             "reason": f"{type(error).__name__}: {error}",
+            "execution_record_accountable": is_execution_record_accountable(record),
             "absent_artifacts": absent,
             "retry_permitted": False,
             "replacement_permitted": False,
@@ -1685,7 +1957,8 @@ def _seal_failed_lane(
     return {
         "lane_id": lane_id,
         "role": role,
-        "accountable": is_execution_record_accountable(record),
+        "accountable": False,
+        "execution_record_accountable": is_execution_record_accountable(record),
         "terminal": True,
         "formal_attempt_id": FORMAL_ATTEMPT_ID,
         "execution_record_attempt_id": record["attempt_id"],
@@ -1710,19 +1983,32 @@ def _seal_failed_lane(
 
 def _execute_lane_once(
     lane_id: str,
-    admitted: tuple[Path, RunSpec, PlannedRunnerOptions, AdmissionResult, str],
+    admitted: AdmittedLane,
     *,
     ime_guard: dict[str, str],
-) -> dict[str, Any]:
-    frozen_path, spec, options, admission, role = admitted
+    lineage: EvidenceLineage,
+) -> ExecutedLane:
+    frozen_path = admitted.frozen_path
+    spec = admitted.spec
+    options = admitted.options
+    admission = admitted.admission
     lane_root = FORMAL_ARTIFACT_ROOT / lane_id
     token = PROBE_TOKENS[LANE_IDS.index(lane_id)]
-    commit = DEFECT_COMMIT if role == "defect" else PROJECT_TARGET_COMMIT
+    _verify_source(
+        options.workdir,
+        commit=admitted.source.commit,
+        tree=admitted.source.tree,
+    )
+    _verify_apk(
+        options.workdir / APK_GLOB,
+        expected_bytes=admitted.source.apk_bytes,
+        expected_sha256=admitted.source.apk_sha256,
+    )
     effective_path, effective_spec = _resolved_spec(
         lane_id,
         frozen_path,
         options.workdir,
-        commit,
+        admitted.source.commit,
     )
     started = time.monotonic()
     result = run_spec(
@@ -1758,7 +2044,6 @@ def _execute_lane_once(
     raw_refs, conclusion = _normalize_raw_evidence(
         lane_id,
         token,
-        options.workdir,
     )
     oracle, _finding = _write_semantic_evidence(
         lane_id,
@@ -1766,6 +2051,7 @@ def _execute_lane_once(
         record,
         raw_refs,
         conclusion,
+        lineage,
     )
     if oracle["accountable"] is not True:
         raise M9RecoveryFormalError(f"{lane_id} oracle evidence is inconclusive")
@@ -1778,27 +2064,40 @@ def _execute_lane_once(
         production_identity_sha256=identity_sha,
         timeout_seconds=900,
     )
-    return _seal_successful_lane(
-        lane_id,
-        role,
-        record,
-        identity,
-        conclusion,
-        review,
-        duration,
+    return ExecutedLane(
+        record=record,
+        identity=identity,
+        finding_conclusion=conclusion,
+        review=review,
+        duration_seconds=duration,
     )
 
 
 def _execute_or_preserve_terminal(
     lane_id: str,
-    admitted: tuple[Path, RunSpec, PlannedRunnerOptions, AdmissionResult, str],
+    admitted: AdmittedLane,
+    role: str,
     *,
     ime_guard: dict[str, str],
+    lineage: EvidenceLineage,
 ) -> dict[str, Any]:
     started = time.monotonic()
-    role = admitted[-1]
     try:
-        return _execute_lane_once(lane_id, admitted, ime_guard=ime_guard)
+        executed = _execute_lane_once(
+            lane_id,
+            admitted,
+            ime_guard=ime_guard,
+            lineage=lineage,
+        )
+        return _seal_successful_lane(
+            lane_id,
+            role,
+            executed.record,
+            executed.identity,
+            executed.finding_conclusion,
+            executed.review,
+            executed.duration_seconds,
+        )
     except Exception as error:  # noqa: BLE001 - every lane must receive one terminal row
         return _seal_failed_lane(
             lane_id,
@@ -1855,62 +2154,38 @@ def _root_ledger() -> dict[str, str]:
     return _artifact_ref(path)
 
 
-def execute_formal(inputs: FormalInputs) -> dict[str, Any]:
-    """Execute the approved recovery-v2 packet once and stop before R5 reduction."""
-
-    if not re.fullmatch(r"[0-9a-f]{40}", inputs.expected_consumer_commit):
-        raise M9RecoveryFormalError("expected consumer commit must be a Git SHA-1")
-    preflight = static_preflight(require_formal_root_absent=True)
-    repository = _repository_identity(inputs.expected_consumer_commit)
-    _verify_source(
-        inputs.project_target.resolve(),
-        commit=PROJECT_TARGET_COMMIT,
-        tree=PROJECT_TARGET_TREE,
-    )
-    _verify_source(
-        inputs.defect_project.resolve(),
-        commit=DEFECT_COMMIT,
-        tree=DEFECT_TREE,
-    )
-    _claim_formal_root(preflight, repository)
-    state = FormalState()
-    started = time.monotonic()
-    manifest = load_manifest(MANIFEST_PATH, require_frozen=True).document
-
-    contradiction = _reject_contradiction(manifest)
-    state.advance(FormalStage.CREATED, FormalStage.CONTRADICTION_REJECTED)
-    target, context, _portfolio, metadata = _discover_context_and_portfolio(
-        inputs.project_target.resolve()
-    )
-    state.advance(FormalStage.CONTRADICTION_REJECTED, FormalStage.CONTEXT_ACQUIRED)
-    state.advance(FormalStage.CONTEXT_ACQUIRED, FormalStage.PORTFOLIO_FROZEN)
-    generation = _attack_plan(
-        target,
-        context,
-        metadata,
-        inputs.project_target.resolve(),
-    )
-    state.advance(FormalStage.PORTFOLIO_FROZEN, FormalStage.PLAN_ADMITTED)
-    leakage = _leakage_gate(manifest, metadata, generation)
-    state.advance(FormalStage.PLAN_ADMITTED, FormalStage.LEAKAGE_AUDITED)
-    mapping = _release_mapping(manifest)
-    state.advance(FormalStage.LEAKAGE_AUDITED, FormalStage.MAPPING_RELEASED)
-    admitted, fixtures = _admit_lanes(mapping, inputs, state)
-
-    rows: list[dict[str, Any]] = []
-    ime_guard: dict[str, str] = {}
+def _seal_remaining_lanes(
+    rows: list[dict[str, Any]],
+    roles: Mapping[str, str] | None,
+    error: Exception,
+) -> None:
+    completed = {str(row["lane_id"]) for row in rows}
     for lane_id in LANE_IDS:
-        state.start_lane(lane_id)
-        row = _execute_or_preserve_terminal(
-            lane_id,
-            admitted[lane_id],
-            ime_guard=ime_guard,
+        if lane_id in completed:
+            continue
+        rows.append(
+            _seal_failed_lane(
+                lane_id,
+                roles.get(lane_id) if roles is not None else None,
+                error,
+                duration_seconds=0.0,
+            )
         )
-        rows.append(row)
-        state.finish_lane(lane_id)
-    if state.stage is not FormalStage.TERMINAL:
-        raise M9RecoveryFormalError("formal cohort did not reach six terminal lanes")
 
+
+def _finalize_formal_attempt(
+    *,
+    rows: Sequence[Mapping[str, Any]],
+    inputs: FormalInputs,
+    contradiction: Mapping[str, Any] | None,
+    mapping: Mapping[str, Any] | None,
+    leakage: Mapping[str, Any] | None,
+    fixtures: Sequence[Mapping[str, Any]],
+    ime_guard: Mapping[str, str],
+    started: float,
+    state: FormalState,
+    terminal_error: str | None,
+) -> dict[str, Any]:
     attempts, inventory_ref = _write_attempt_inventory(rows)
     auditor_input = {
         "schema_version": 2,
@@ -1918,29 +2193,56 @@ def execute_formal(inputs: FormalInputs) -> dict[str, Any]:
         "formal_attempt_id": FORMAL_ATTEMPT_ID,
         "consumer_commit": inputs.expected_consumer_commit,
         "lane_order": list(LANE_IDS),
-        "rows": rows,
+        "rows": list(rows),
         "contradiction": contradiction,
-        "contradiction_canonical_sha256": sha256_bytes(
-            canonical_json_bytes(contradiction)
+        "contradiction_canonical_sha256": (
+            sha256_bytes(canonical_json_bytes(contradiction))
+            if contradiction is not None
+            else None
         ),
         "mapping": mapping,
-        "mapping_canonical_sha256": sha256_bytes(canonical_json_bytes(mapping)),
+        "mapping_released": mapping is not None,
+        "mapping_canonical_sha256": (
+            sha256_bytes(canonical_json_bytes(mapping))
+            if mapping is not None
+            else None
+        ),
         "formal_attempt_inventory": attempts,
         "formal_attempt_inventory_receipt": inventory_ref,
+        "terminal_error": terminal_error,
         "aggregate_interpretation_reserved_for": "M9-R5",
     }
     _write_json(FORMAL_ROOT / "auditor-reconciliation-input.json", auditor_input)
+    if terminal_error is not None:
+        _write_json(
+            FORMAL_ROOT / "formal-attempt-terminal-failure.json",
+            {
+                "schema_version": 2,
+                "kind": "formal_attempt_terminal_failure",
+                "formal_attempt_id": FORMAL_ATTEMPT_ID,
+                "terminal": True,
+                "stage": state.stage.name,
+                "reason": terminal_error,
+                "mapping_released": mapping is not None,
+                "retry_permitted": False,
+                "replacement_permitted": False,
+                "discretionary_rerun_permitted": False,
+            },
+        )
     summary = {
         "schema_version": 2,
+        "status": "completed" if terminal_error is None else "terminal_failed",
         "qualification_id": QUALIFICATION_ID,
         "formal_attempt_id": FORMAL_ATTEMPT_ID,
         "formal_execution_started": True,
-        "formal_holdout_executed": True,
+        "formal_holdout_executed": state.stage >= FormalStage.EXECUTING,
         "consumer_commit": inputs.expected_consumer_commit,
         "duration_seconds": round(time.monotonic() - started, 3),
         "lane_order": list(LANE_IDS),
         "terminal_lane_count": len(rows),
-        "execution_accountable_count": sum(row["accountable"] is True for row in rows),
+        "execution_accountable_count": sum(
+            row["accountable"] is True for row in rows
+        ),
         "attempt_evidence_validated_count": sum(
             row.get("attempt_evidence_validated") is True for row in rows
         ),
@@ -1951,18 +2253,125 @@ def execute_formal(inputs: FormalInputs) -> dict[str, Any]:
         "retry_count": 0,
         "replacement_count": 0,
         "discretionary_rerun_count": 0,
-        "mapping_released_after_neutral_gates": True,
-        "leakage_audit_status": leakage["audit"]["status"],
-        "source_fixture_count": len(fixtures),
+        "mapping_released_after_neutral_gates": mapping is not None,
+        "leakage_audit_status": (
+            leakage["audit"]["status"] if leakage is not None else "not_completed"
+        ),
+        "source_fixture_count": max(
+            len(fixtures),
+            len(list((FORMAL_ROOT / "source-fixtures").glob("*.json"))),
+        ),
         "default_input_method": ime_guard.get("value"),
+        "terminal_error": terminal_error,
         "aggregate_result": "reserved_for_M9_R5",
         "claim_boundary": LOCAL_CLAIM_BOUNDARY,
         "r1_r2_inputs_reused": False,
-        "preserved_runtime_result": "#137 remains Not Supported and is never rerun or rewritten",
+        "preserved_runtime_result": (
+            "#137 remains Not Supported and is never rerun or rewritten"
+        ),
     }
     _write_json(FORMAL_ROOT / "formal-execution-summary.json", summary)
     summary["root_ledger"] = _root_ledger()
     return summary
+
+
+def execute_formal(inputs: FormalInputs) -> dict[str, Any]:
+    """Execute the approved recovery-v2 packet once and stop before R5 reduction."""
+
+    if not re.fullmatch(r"[0-9a-f]{40}", inputs.expected_consumer_commit):
+        raise M9RecoveryFormalError("expected consumer commit must be a Git SHA-1")
+    preflight = static_preflight(require_formal_root_absent=True)
+    repository = _repository_identity(inputs.expected_consumer_commit)
+    bindings = _source_bindings(inputs)
+    input_preflight = _validate_formal_inputs(inputs, bindings)
+    _claim_formal_root(preflight, repository)
+    state = FormalState()
+    started = time.monotonic()
+    contradiction: Mapping[str, Any] | None = None
+    leakage: Mapping[str, Any] | None = None
+    mapping: Mapping[str, Any] | None = None
+    roles: dict[str, str] | None = None
+    fixtures: list[dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
+    ime_guard: dict[str, str] = {}
+    try:
+        _write_json(FORMAL_ROOT / "formal-input-preflight.json", input_preflight)
+        manifest = load_manifest(MANIFEST_PATH, require_frozen=True).document
+        contradiction = _reject_contradiction(manifest)
+        state.advance(FormalStage.CREATED, FormalStage.CONTRADICTION_REJECTED)
+        target, context, _portfolio, metadata = _discover_context_and_portfolio(
+            inputs.project_target.resolve()
+        )
+        lineage = EvidenceLineage(
+            hypothesis_id=metadata["selected"].hypothesis.hypothesis_id,
+            explored_fact_ids=tuple(
+                metadata["selected"].hypothesis.supporting_fact_ids
+            ),
+        )
+        state.advance(
+            FormalStage.CONTRADICTION_REJECTED,
+            FormalStage.CONTEXT_ACQUIRED,
+        )
+        state.advance(FormalStage.CONTEXT_ACQUIRED, FormalStage.PORTFOLIO_FROZEN)
+        generation = _attack_plan(
+            target,
+            context,
+            metadata,
+            inputs.project_target.resolve(),
+        )
+        state.advance(FormalStage.PORTFOLIO_FROZEN, FormalStage.PLAN_ADMITTED)
+        leakage = _leakage_gate(manifest, metadata, generation)
+        state.advance(FormalStage.PLAN_ADMITTED, FormalStage.LEAKAGE_AUDITED)
+        mapping = _release_mapping(manifest)
+        roles = _mapping_roles(mapping)
+        state.advance(FormalStage.LEAKAGE_AUDITED, FormalStage.MAPPING_RELEASED)
+        admitted, fixtures = _admit_lanes(
+            roles,
+            bindings,
+            inputs,
+            state,
+        )
+        for lane_id in LANE_IDS:
+            state.start_lane(lane_id)
+            row = _execute_or_preserve_terminal(
+                lane_id,
+                admitted[lane_id],
+                roles[lane_id],
+                ime_guard=ime_guard,
+                lineage=lineage,
+            )
+            rows.append(row)
+            state.finish_lane(lane_id)
+        if state.stage is not FormalStage.TERMINAL:
+            raise M9RecoveryFormalError(
+                "formal cohort did not reach six terminal lanes"
+            )
+    except Exception as error:  # noqa: BLE001 - claimed attempts must be terminal
+        _seal_remaining_lanes(rows, roles, error)
+        return _finalize_formal_attempt(
+            rows=rows,
+            inputs=inputs,
+            contradiction=contradiction,
+            mapping=mapping,
+            leakage=leakage,
+            fixtures=fixtures,
+            ime_guard=ime_guard,
+            started=started,
+            state=state,
+            terminal_error=f"{type(error).__name__}: {error}",
+        )
+    return _finalize_formal_attempt(
+        rows=rows,
+        inputs=inputs,
+        contradiction=contradiction,
+        mapping=mapping,
+        leakage=leakage,
+        fixtures=fixtures,
+        ime_guard=ime_guard,
+        started=started,
+        state=state,
+        terminal_error=None,
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1993,7 +2402,7 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
     print(json.dumps(result, ensure_ascii=False, sort_keys=True))
-    return 0
+    return 2 if result.get("status") == "terminal_failed" else 0
 
 
 if __name__ == "__main__":

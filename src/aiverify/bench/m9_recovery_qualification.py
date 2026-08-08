@@ -70,10 +70,19 @@ PROJECT_TARGET_ID = "compose-samples-jetchat-038c8208"
 PACKAGE = "com.example.compose.jetchat"
 ACTIVITY = "com.example.compose.jetchat.NavActivity"
 APK_GLOB = "Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+CONTROL_APK_BYTES = 17_511_449
+CONTROL_APK_SHA256 = (
+    "a1536cec09a33063f7796dc77e0effdf1847a3ad325dcef707216fa87d78386d"
+)
+DEFECT_APK_BYTES = 17_511_239
+DEFECT_APK_SHA256 = (
+    "41d7c3ff47f2f2d2a04942d11ab57c6c76ac7314ff6abf8dad14fd9b3149e55b"
+)
 RUNNER_POLICY = "m9-production-seam-v1"
 BACKEND = "codex_cli"
 DEVICE = "emulator-5554"
 FORMAL_ATTEMPT_ID = "m9-r4-formal-attempt-01"
+FORMAL_HYPOTHESIS_ID = "hypothesis-m9-r4-portfolio-2"
 R3_RUN_RECORD = (
     "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze"
 )
@@ -1151,9 +1160,12 @@ def _production_admission_is_eligible(
         if isinstance(target, Mapping)
         else None
     )
-    expected_commit = (
-        DEFECT_COMMIT if role == "defect" else PROJECT_TARGET_COMMIT
-    )
+    if role == "defect":
+        expected_commit = DEFECT_COMMIT
+    elif role == "control":
+        expected_commit = PROJECT_TARGET_COMMIT
+    else:
+        return False
     expected_run_spec = (
         repository_root
         / "bench/m9/recovery-v2/run-specs"
@@ -1438,6 +1450,33 @@ def _raw_probe_is_eligible(
     if not all(isinstance(value, Mapping) for value in (before, after, event)):
         return False
     expected_after_visible = conclusion == "locally_rejected"
+    before_observation = before.get("text_input_observation")
+    after_observation = after.get("text_input_observation")
+    if not all(
+        isinstance(value, Mapping)
+        for value in (before_observation, after_observation)
+    ):
+        return False
+
+    def text_input_observation_is_eligible(
+        observation: Mapping[str, Any],
+        *,
+        token_visible: bool,
+    ) -> bool:
+        expected_count = 1 if token_visible else 0
+        return (
+            observation.get("field_semantics") == "content-desc:Text input"
+            and observation.get("input_field_anchor_count") == 1
+            and observation.get("input_field_present") is True
+            and observation.get("exact_token_node_count") == expected_count
+            and observation.get("editable_exact_token_node_count")
+            == expected_count
+            and observation.get("bound_exact_token_node_count")
+            == expected_count
+            and observation.get("exact_token_visible_in_input")
+            is token_visible
+        )
+
     try:
         logcat = bound_paths["filtered_logcat"].read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
@@ -1456,12 +1495,20 @@ def _raw_probe_is_eligible(
         and before.get("orientation") == "portrait"
         and before.get("probe_token") == token
         and before.get("token_visible") is True
+        and text_input_observation_is_eligible(
+            before_observation,
+            token_visible=True,
+        )
         and after.get("schema_version") == 1
         and after.get("lane_id") == lane_id
         and after.get("checkpoint") == "after"
         and after.get("orientation") == "landscape"
         and after.get("probe_token") == token
         and after.get("token_visible") is expected_after_visible
+        and text_input_observation_is_eligible(
+            after_observation,
+            token_visible=expected_after_visible,
+        )
         and event.get("schema_version") == 1
         and event.get("lane_id") == lane_id
         and event.get("status") == "passed"
@@ -2727,9 +2774,16 @@ def _execution_provenance_is_eligible(
         )
     except (ExecutionIdentityError, OSError, ValueError):
         return False
-    expected_commit = (
-        DEFECT_COMMIT if role == "defect" else PROJECT_TARGET_COMMIT
-    )
+    if role == "defect":
+        expected_commit = DEFECT_COMMIT
+        expected_apk_bytes = DEFECT_APK_BYTES
+        expected_apk_sha256 = DEFECT_APK_SHA256
+    elif role == "control":
+        expected_commit = PROJECT_TARGET_COMMIT
+        expected_apk_bytes = CONTROL_APK_BYTES
+        expected_apk_sha256 = CONTROL_APK_SHA256
+    else:
+        return False
     run_spec = provenance.get("run_spec")
     host = provenance.get("host")
     apk = provenance.get("apk")
@@ -2867,7 +2921,8 @@ def _execution_provenance_is_eligible(
         == expected_apk_path
         and isinstance(apk_artifact.get("bytes"), int)
         and not isinstance(apk_artifact.get("bytes"), bool)
-        and apk_artifact.get("bytes", 0) > 0
+        and apk_artifact.get("bytes") == expected_apk_bytes
+        and apk_artifact.get("sha256") == expected_apk_sha256
         and device.get("serial") == DEVICE
         and device.get("api_level") == "35"
         and device_profile.get("kind") == "emulator"
@@ -3154,6 +3209,9 @@ def _attempt_evidence_is_eligible(
         and oracle.get("accountable") is row.get("accountable")
         and oracle.get("conclusion") == row.get("finding_conclusion")
         and oracle.get("status") == "complete"
+        and oracle.get("hypothesis_id") == FORMAL_HYPOTHESIS_ID
+        and isinstance(oracle.get("explored_fact_ids"), list)
+        and tuple(oracle["explored_fact_ids"]) == risk_map.explored_fact_ids
         and oracle.get("probe_token") == token
         and oracle.get("sent") is False
         and oracle.get("retyped_after_boundary") is False
@@ -3162,13 +3220,13 @@ def _attempt_evidence_is_eligible(
         and expected_finding is not None
         and finding.finding_id == f"finding-{lane_id}"
         and finding.target_id == PROJECT_TARGET_ID
-        and finding.hypothesis_id == f"hypothesis-{lane_id}"
+        and finding.hypothesis_id == FORMAL_HYPOTHESIS_ID
         and finding.conclusion == expected_finding
         and finding.claim_boundary == LOCAL_CLAIM_BOUNDARY
         and finding_required_refs.issubset(set(finding.evidence_refs))
         and residual.risk_id == f"residual-{lane_id}"
         and residual.target_id == PROJECT_TARGET_ID
-        and residual.hypothesis_id == f"hypothesis-{lane_id}"
+        and residual.hypothesis_id == FORMAL_HYPOTHESIS_ID
         and residual.scope == LOCAL_CLAIM_BOUNDARY
         and residual.status in {"open", "accepted"}
         and residual.next_probe is not None
@@ -3181,6 +3239,8 @@ def _attempt_evidence_is_eligible(
         and risk_map.findings == (finding,)
         and risk_map.residual_risks == (residual,)
         and bool(risk_map.explored_fact_ids)
+        and len(set(risk_map.explored_fact_ids))
+        == len(risk_map.explored_fact_ids)
         and bool(risk_map.coverage_frontier)
         and claim_boundary.get("schema_version") == 2
         and claim_boundary.get("lane_id") == lane_id
@@ -4436,13 +4496,18 @@ __all__ = [
     "ACTIVITY",
     "APK_GLOB",
     "BACKEND",
+    "CONTROL_APK_BYTES",
+    "CONTROL_APK_SHA256",
     "CONTRADICTION_PACKET_ID",
     "CONTRADICTION_REJECTION_BOUNDARY",
     "CONTRADICTION_REQUIRED_FIELDS",
     "DEFECT_COMMIT",
+    "DEFECT_APK_BYTES",
+    "DEFECT_APK_SHA256",
     "DEFECT_TREE",
     "DEVICE",
     "FORMAL_ATTEMPT_ID",
+    "FORMAL_HYPOTHESIS_ID",
     "LANE_IDS",
     "M9RecoveryAuditorMapping",
     "M9RecoveryQualificationError",
