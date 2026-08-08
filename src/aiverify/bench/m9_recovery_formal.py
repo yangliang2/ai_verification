@@ -1944,7 +1944,10 @@ def _seal_failed_lane(
     required = load_manifest(MANIFEST_PATH, require_frozen=True).document["evidence"][
         "required_artifacts"
     ]
-    absent = _absent_required_artifacts(lane_root, required)
+    absent = _absent_required_artifacts(
+        lane_root,
+        tuple(item for item in required if item != "checksums.sha256"),
+    )
     _write_json(
         lane_root / "typed-absence.json",
         {
