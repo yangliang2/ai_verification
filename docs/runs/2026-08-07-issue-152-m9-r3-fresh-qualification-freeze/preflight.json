@@ -1,0 +1,388 @@
+{
+  "admission_audit": {
+    "checks": [
+      {
+        "lane_id": "m9-r4-lane-01",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-r4-lane-02",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-r4-lane-03",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-r4-lane-04",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-r4-lane-05",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      },
+      {
+        "lane_id": "m9-r4-lane-06",
+        "receipt_status": "admitted",
+        "side_effects": {
+          "agent": false,
+          "build": false,
+          "declaration": "read-only git and local source/metadata inspection only",
+          "device": false,
+          "external": false
+        },
+        "status": "pass"
+      }
+    ],
+    "formal_execution_started": false,
+    "receipt_count": 6,
+    "status": "pass"
+  },
+  "admitted": true,
+  "approval_gate_passed": false,
+  "canonical_manifest_sha256": "da619075266e65c9c79d39cf75ecfbfb5651ce3b5656af79c7c2df9ffcfb29cd",
+  "checks": [
+    {
+      "name": "fresh_source_pair_identity",
+      "status": "pass"
+    },
+    {
+      "name": "focused_one_file_upstream_diff",
+      "status": "pass"
+    },
+    {
+      "name": "host_buildability_both_snapshots",
+      "status": "pass"
+    },
+    {
+      "count": 6,
+      "name": "six_exact_run_specs",
+      "status": "pass"
+    },
+    {
+      "name": "six_production_seam_admissions",
+      "status": "pass"
+    },
+    {
+      "name": "neutral_leakage_audit",
+      "status": "pass"
+    },
+    {
+      "name": "contradiction_pre_side_effect_rejection",
+      "status": "pass"
+    },
+    {
+      "name": "human_freeze_approval",
+      "status": "pending"
+    }
+  ],
+  "claim_boundary": {
+    "exclusions": [
+      "rewrite or rerun of #136/#137",
+      "R1/R2 population reuse",
+      "production, upstream, OEM, ColorOS, or physical-device claims",
+      "success rate, recall, completeness, or benchmark-scale claims",
+      "automatic repair"
+    ],
+    "known_gaps": [
+      "R3 performs no emulator, UI, agent, oracle, or review execution; all six runtime results remain unknown",
+      "the controlled rotation probe is an evidence-grounded configuration-recreation analogue of the upstream multi-window resize report, not a replay of its exact UI gesture",
+      "R4 must implement and statically verify the recovery-v2 formal consumer before starting the single attempt, without changing this packet"
+    ],
+    "local_only": true,
+    "preserved_runtime_result": "#137 remains Not Supported and is never rerun or rewritten",
+    "scope": "one approved compose-samples Jetchat matched pair, one API-35 emulator profile, six frozen lanes, and one formal attempt"
+  },
+  "contradiction_audit": {
+    "command_calls": [],
+    "expected_admission": "rejected",
+    "formal_denominator": false,
+    "missing_fields": [
+      "target_source_identity",
+      "context_graph",
+      "operator_registry"
+    ],
+    "packet_id": "m9-r3-incomplete-context-v2",
+    "pre_side_effect_rejection": true,
+    "rejection_boundary": "before_any_build_device_agent_or_runtime_side_effect",
+    "side_effects": false,
+    "status": "pass"
+  },
+  "duration_seconds": 7.830391,
+  "final_leakage_audit": {
+    "audit": {
+      "checks": [
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-01",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-02",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-03",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-04",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-05",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-06",
+          "status": "pass",
+          "verdict_withheld": true
+        }
+      ],
+      "mapping_released": false,
+      "packet_count": 6,
+      "release_point": "after_context_acquisition_portfolio_attack_plan_and_leakage_audit",
+      "status": "pass"
+    },
+    "audit_path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/final-leakage-audit.json",
+    "audit_sha256": "93277b1e08f6c806e74d9e7154ae9a65d26204fdda271d3e281cebae9a9e7762",
+    "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/final-neutral-verifier-packets.json",
+    "sha256": "5f9aaf3a0278afbc11c0fafd22f23b93d72e2709ed67470e8059d5d666d78b6d"
+  },
+  "formal_execution_started": false,
+  "formal_holdout_executed": false,
+  "lane_admissions": [
+    {
+      "admission_receipt_sha256": "d1c52af6d1ccd07a0471ca738a28d6dacf1f359e61d0e4086056851399e7bf35",
+      "git_only_call_count": 4,
+      "lane_id": "m9-r4-lane-01",
+      "run_spec_sha256": "39850a29f19f50daaf6d9f9121d2cdddc8276c8b4a280ef1fd40a99a6e568369"
+    },
+    {
+      "admission_receipt_sha256": "d8d8be4947ea342121f3a623dccd2d0d46657f0587b272424f2b4fc7105cba15",
+      "git_only_call_count": 4,
+      "lane_id": "m9-r4-lane-02",
+      "run_spec_sha256": "5afaf0e44077e1e57ce7c7de58d4026cbc2aa9dcf1f4f37c7f34f5d0cba0a5d9"
+    },
+    {
+      "admission_receipt_sha256": "b2d87c7df6a5136523d9d3281ec321ce7d7be73145274a0fcf49adaf1ec88eee",
+      "git_only_call_count": 4,
+      "lane_id": "m9-r4-lane-03",
+      "run_spec_sha256": "67e1c56edb5761770fbdaee369e3c03c598b20514a0f19344bdb3eab33d1fc70"
+    },
+    {
+      "admission_receipt_sha256": "379768d938635d29beed98db7282a305a4463564bbde6555cda6c2a017371d34",
+      "git_only_call_count": 4,
+      "lane_id": "m9-r4-lane-04",
+      "run_spec_sha256": "d0161a768158fc5122b95ff019e24a2c23a8514370b8cd2f33eab36ee6a08079"
+    },
+    {
+      "admission_receipt_sha256": "d9b6ab63b4cf3c23fa859ec43ed597f349a91d8674702358eee8578183330d5d",
+      "git_only_call_count": 4,
+      "lane_id": "m9-r4-lane-05",
+      "run_spec_sha256": "1bb0244f816786479510b47b7e53770d0e14584df91cc2733fedb246f0bad514"
+    },
+    {
+      "admission_receipt_sha256": "f86f8bb0b47dba558111d8742e49ed1e85cd21b28b5708332d78d237288c2e02",
+      "git_only_call_count": 4,
+      "lane_id": "m9-r4-lane-06",
+      "run_spec_sha256": "cd0762cafbbe1685e213bf690624858ef91c9fb0571e29296f006db6a4feed98"
+    }
+  ],
+  "manifest_sha256": "d8dc5d2570b8686dba9aa63c9f8999c918e82ae698502b6184941fbd39bbf75f",
+  "mapping_released": false,
+  "packet_commitment_sha256": "a2ae1d8ca4902a500c67aa6107a0f42fe06a3948ca484305861d2d2670033225",
+  "pre_release_leakage_audit": {
+    "audit": {
+      "checks": [
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-01",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-02",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-03",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-04",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-05",
+          "status": "pass",
+          "verdict_withheld": true
+        },
+        {
+          "expected_evidence_withheld": true,
+          "forbidden_terms": [],
+          "mapping_withheld": true,
+          "oracle_conclusion_withheld": true,
+          "packet_id": "packet-m9-r4-lane-06",
+          "status": "pass",
+          "verdict_withheld": true
+        }
+      ],
+      "mapping_released": false,
+      "packet_count": 6,
+      "release_point": "after_context_acquisition_portfolio_attack_plan_and_leakage_audit",
+      "status": "pass"
+    },
+    "audit_path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/pre-release-leakage-audit.json",
+    "audit_sha256": "93277b1e08f6c806e74d9e7154ae9a65d26204fdda271d3e281cebae9a9e7762",
+    "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/pre-release-neutral-verifier-packets.json",
+    "sha256": "8a5ac9f41a2e631bdc5580a5d0d1171aa308eb67a58563aea46ad63a5951a4d0"
+  },
+  "qualification_id": "m9-recovery-project-qualification-v2",
+  "run_spec_leakage_audit": {
+    "audit": {
+      "checks": [
+        {
+          "actual_source_identity_disclosed": false,
+          "forbidden_material": [],
+          "lane_id": "m9-r4-lane-01",
+          "role_disclosed": false,
+          "status": "pass"
+        },
+        {
+          "actual_source_identity_disclosed": false,
+          "forbidden_material": [],
+          "lane_id": "m9-r4-lane-02",
+          "role_disclosed": false,
+          "status": "pass"
+        },
+        {
+          "actual_source_identity_disclosed": false,
+          "forbidden_material": [],
+          "lane_id": "m9-r4-lane-03",
+          "role_disclosed": false,
+          "status": "pass"
+        },
+        {
+          "actual_source_identity_disclosed": false,
+          "forbidden_material": [],
+          "lane_id": "m9-r4-lane-04",
+          "role_disclosed": false,
+          "status": "pass"
+        },
+        {
+          "actual_source_identity_disclosed": false,
+          "forbidden_material": [],
+          "lane_id": "m9-r4-lane-05",
+          "role_disclosed": false,
+          "status": "pass"
+        },
+        {
+          "actual_source_identity_disclosed": false,
+          "forbidden_material": [],
+          "lane_id": "m9-r4-lane-06",
+          "role_disclosed": false,
+          "status": "pass"
+        }
+      ],
+      "mapping_released": false,
+      "schema_version": 2,
+      "status": "pass"
+    },
+    "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/run-spec-leakage-audit.json",
+    "sha256": "69cdf1ca4b24dd85fc35390db1ce187e3957ec9e8bd3aade0598e2cd1120ec0a"
+  },
+  "schema_version": 2,
+  "side_effects": false,
+  "status": "technically_admitted_awaiting_human_approval"
+}

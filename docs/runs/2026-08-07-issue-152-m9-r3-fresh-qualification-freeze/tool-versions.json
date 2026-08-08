@@ -1,0 +1,83 @@
+{
+  "backend": "codex_cli",
+  "commands": [
+    {
+      "command": [
+        "git",
+        "--version"
+      ],
+      "duration_seconds": 0.009555,
+      "output": "git version 2.50.1 (Apple Git-155)",
+      "output_sha256": "c864f56363af8843669df640e41edf03b2b84e30215d9b0f1d70ff03326531e7",
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "command": [
+        "java",
+        "-version"
+      ],
+      "duration_seconds": 0.025161,
+      "output": "openjdk version \"17.0.19\" 2026-04-21\nOpenJDK Runtime Environment Homebrew (build 17.0.19+0)\nOpenJDK 64-Bit Server VM Homebrew (build 17.0.19+0, mixed mode, sharing)",
+      "output_sha256": "2a35caa960bc478729f0f24c1dd9af4fd23c6351421e67b7735f30091403e781",
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "command": [
+        "./gradlew",
+        "--no-daemon",
+        "--version"
+      ],
+      "duration_seconds": 0.256703,
+      "output": "------------------------------------------------------------\nGradle 7.5.1\n------------------------------------------------------------\n\nBuild time:   2022-08-05 21:17:56 UTC\nRevision:     d1daa0cbf1a0103000b71484e1dbfe096e095918\n\nKotlin:       1.6.21\nGroovy:       3.0.10\nAnt:          Apache Ant(TM) version 1.10.11 compiled on July 10 2021\nJVM:          17.0.19 (Homebrew 17.0.19+0)\nOS:           Mac OS X 26.3 aarch64",
+      "output_sha256": "7a8592b97bc6f9d14f3ec264f95e013de3299d3f836b760bac3764bbc6c14171",
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "command": [
+        "android",
+        "--version"
+      ],
+      "duration_seconds": 0.314284,
+      "output": "1.0.15498356",
+      "output_sha256": "36c367db358395653eb35e61261ca8ce8544a35bf9279f4b8b9f12b021473152",
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "command": [
+        "adb",
+        "version"
+      ],
+      "duration_seconds": 0.010155,
+      "output": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.3.0 (arm64)",
+      "output_sha256": "f83d9b8596167caee89e425db13353345d1a2f9b7dcb624bc5792dc11c75cb21",
+      "returncode": 0,
+      "status": "passed"
+    },
+    {
+      "command": [
+        "codex",
+        "--version"
+      ],
+      "duration_seconds": 0.024211,
+      "output": "codex-cli 0.144.6",
+      "output_sha256": "a560ff1e62b63d4f161d1705f0b0ed337f602f084c3b45e15ef213478d24f2b3",
+      "returncode": 0,
+      "status": "passed"
+    }
+  ],
+  "device": "emulator-5554",
+  "device_accessed": false,
+  "model_selection": "codex_cli_default",
+  "python": {
+    "implementation": "CPython",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "version": "3.11.15"
+  },
+  "requested_driver_model": null,
+  "requested_l3_model": null,
+  "schema_version": 2
+}

@@ -1,0 +1,124 @@
+{
+  "snapshot-a": {
+    "actionable_tasks": 32,
+    "apk": {
+      "bytes": 17511239,
+      "inspection": {
+        "manifest": {
+          "command": [
+            "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+            "manifest",
+            "print",
+            "/private/tmp/m9-r3-snapshot-a/Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+          ],
+          "returncode": 0,
+          "stderr": "",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"1\"\n    android:versionName=\"1.0\"\n    android:compileSdkVersion=\"33\"\n    android:compileSdkVersionCodename=\"13\"\n    package=\"com.example.compose.jetchat\"\n    platformBuildVersionCode=\"33\"\n    platformBuildVersionName=\"13\">\n\n    <uses-sdk\n        android:minSdkVersion=\"21\"\n        android:targetSdkVersion=\"33\" />\n\n    <permission\n        android:name=\"com.example.compose.jetchat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\"\n        android:protectionLevel=\"0x2\" />\n\n    <uses-permission\n        android:name=\"com.example.compose.jetchat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\" />\n\n    <application\n        android:theme=\"@ref/0x7f140207\"\n        android:label=\"@ref/0x7f13001d\"\n        android:icon=\"@ref/0x7f100000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:appComponentFactory=\"androidx.core.app.CoreComponentFactory\">\n\n        <activity\n            android:label=\"@ref/0x7f13001d\"\n            android:name=\"com.example.compose.jetchat.NavActivity\"\n            android:exported=\"true\"\n            android:windowSoftInputMode=\"0x10\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"androidx.compose.ui.tooling.PreviewActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"androidx.activity.ComponentActivity\"\n            android:exported=\"true\" />\n\n        <provider\n            android:name=\"androidx.startup.InitializationProvider\"\n            android:exported=\"false\"\n            android:authorities=\"com.example.compose.jetchat.androidx-startup\">\n\n            <meta-data\n                android:name=\"androidx.emoji2.text.EmojiCompatInitializer\"\n                android:value=\"androidx.startup\" />\n\n            <meta-data\n                android:name=\"androidx.lifecycle.ProcessLifecycleInitializer\"\n                android:value=\"androidx.startup\" />\n\n            <meta-data\n                android:name=\"androidx.profileinstaller.ProfileInstallerInitializer\"\n                android:value=\"androidx.startup\" />\n        </provider>\n\n        <uses-library\n            android:name=\"androidx.window.extensions\"\n            android:required=\"false\" />\n\n        <uses-library\n            android:name=\"androidx.window.sidecar\"\n            android:required=\"false\" />\n\n        <receiver\n            android:name=\"androidx.profileinstaller.ProfileInstallReceiver\"\n            android:permission=\"android.permission.DUMP\"\n            android:enabled=\"true\"\n            android:exported=\"true\"\n            android:directBootAware=\"false\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"androidx.profileinstaller.action.INSTALL_PROFILE\" />\n            </intent-filter>\n\n            <intent-filter>\n\n                <action\n                    android:name=\"androidx.profileinstaller.action.SKIP_FILE\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>",
+          "stdout_sha256": "ad8291bec49b6b1f4da88678341fd850d0459c783dd4c54008d8a803245fd67c"
+        },
+        "package": {
+          "command": [
+            "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+            "manifest",
+            "application-id",
+            "/private/tmp/m9-r3-snapshot-a/Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+          ],
+          "returncode": 0,
+          "stderr": "",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout": "com.example.compose.jetchat",
+          "stdout_sha256": "e89448af107d8ac193fc80717fa678e155a64c6d09e32f024b5a7f59ee942b2a"
+        },
+        "tool": {
+          "requested": "apkanalyzer",
+          "resolved_path": "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+          "sha256": "4574a128bdb0b2787008b0bac0cbf63c52b11fb1c8c751c903f31bbc23956eb6"
+        }
+      },
+      "launchable_activities": [
+        "com.example.compose.jetchat.NavActivity"
+      ],
+      "package": "com.example.compose.jetchat",
+      "path": "/private/tmp/m9-r3-snapshot-a/Jetchat/app/build/outputs/apk/debug/app-debug.apk",
+      "sha256": "41d7c3ff47f2f2d2a04942d11ab57c6c76ac7314ff6abf8dad14fd9b3149e55b"
+    },
+    "duration_seconds": 621.84,
+    "external_source_path": "/private/tmp/m9-r3-snapshot-a-build.log",
+    "external_source_sha256": "a702b1f36e9f78c70929c6de2ea0f01a3eaf1024db19280a9ebc847571b61dbc",
+    "normalization": "rstrip_trailing_whitespace_per_line",
+    "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/build-logs/snapshot-a.log",
+    "sha256": "32d87b7896a06328a54a2ca39829e9c1b8eeebe2ea19946cf8044da2973931e5",
+    "source_identity": {
+      "clean": true,
+      "commit": "56b59e237b253bc52e2ce1141dce26af07503415",
+      "origin": "https://github.com/android/compose-samples.git",
+      "path": "/private/tmp/m9-r3-snapshot-a",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tree": "993432fb446913107df1bc0c040a05f8dae1c5b2"
+    },
+    "status": "passed",
+    "task_summary": "32 executed"
+  },
+  "snapshot-b": {
+    "actionable_tasks": 32,
+    "apk": {
+      "bytes": 17511449,
+      "inspection": {
+        "manifest": {
+          "command": [
+            "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+            "manifest",
+            "print",
+            "/private/tmp/m9-r3-snapshot-b/Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+          ],
+          "returncode": 0,
+          "stderr": "",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:versionCode=\"1\"\n    android:versionName=\"1.0\"\n    android:compileSdkVersion=\"33\"\n    android:compileSdkVersionCodename=\"13\"\n    package=\"com.example.compose.jetchat\"\n    platformBuildVersionCode=\"33\"\n    platformBuildVersionName=\"13\">\n\n    <uses-sdk\n        android:minSdkVersion=\"21\"\n        android:targetSdkVersion=\"33\" />\n\n    <permission\n        android:name=\"com.example.compose.jetchat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\"\n        android:protectionLevel=\"0x2\" />\n\n    <uses-permission\n        android:name=\"com.example.compose.jetchat.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\" />\n\n    <application\n        android:theme=\"@ref/0x7f140207\"\n        android:label=\"@ref/0x7f13001d\"\n        android:icon=\"@ref/0x7f100000\"\n        android:debuggable=\"true\"\n        android:allowBackup=\"true\"\n        android:supportsRtl=\"true\"\n        android:appComponentFactory=\"androidx.core.app.CoreComponentFactory\">\n\n        <activity\n            android:label=\"@ref/0x7f13001d\"\n            android:name=\"com.example.compose.jetchat.NavActivity\"\n            android:exported=\"true\"\n            android:windowSoftInputMode=\"0x10\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"android.intent.action.MAIN\" />\n\n                <category\n                    android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n\n        <activity\n            android:name=\"androidx.compose.ui.tooling.PreviewActivity\"\n            android:exported=\"true\" />\n\n        <activity\n            android:name=\"androidx.activity.ComponentActivity\"\n            android:exported=\"true\" />\n\n        <provider\n            android:name=\"androidx.startup.InitializationProvider\"\n            android:exported=\"false\"\n            android:authorities=\"com.example.compose.jetchat.androidx-startup\">\n\n            <meta-data\n                android:name=\"androidx.emoji2.text.EmojiCompatInitializer\"\n                android:value=\"androidx.startup\" />\n\n            <meta-data\n                android:name=\"androidx.lifecycle.ProcessLifecycleInitializer\"\n                android:value=\"androidx.startup\" />\n\n            <meta-data\n                android:name=\"androidx.profileinstaller.ProfileInstallerInitializer\"\n                android:value=\"androidx.startup\" />\n        </provider>\n\n        <uses-library\n            android:name=\"androidx.window.extensions\"\n            android:required=\"false\" />\n\n        <uses-library\n            android:name=\"androidx.window.sidecar\"\n            android:required=\"false\" />\n\n        <receiver\n            android:name=\"androidx.profileinstaller.ProfileInstallReceiver\"\n            android:permission=\"android.permission.DUMP\"\n            android:enabled=\"true\"\n            android:exported=\"true\"\n            android:directBootAware=\"false\">\n\n            <intent-filter>\n\n                <action\n                    android:name=\"androidx.profileinstaller.action.INSTALL_PROFILE\" />\n            </intent-filter>\n\n            <intent-filter>\n\n                <action\n                    android:name=\"androidx.profileinstaller.action.SKIP_FILE\" />\n            </intent-filter>\n        </receiver>\n    </application>\n</manifest>",
+          "stdout_sha256": "ad8291bec49b6b1f4da88678341fd850d0459c783dd4c54008d8a803245fd67c"
+        },
+        "package": {
+          "command": [
+            "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+            "manifest",
+            "application-id",
+            "/private/tmp/m9-r3-snapshot-b/Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+          ],
+          "returncode": 0,
+          "stderr": "",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout": "com.example.compose.jetchat",
+          "stdout_sha256": "e89448af107d8ac193fc80717fa678e155a64c6d09e32f024b5a7f59ee942b2a"
+        },
+        "tool": {
+          "requested": "apkanalyzer",
+          "resolved_path": "/opt/homebrew/share/android-commandlinetools/cmdline-tools/latest/bin/apkanalyzer",
+          "sha256": "4574a128bdb0b2787008b0bac0cbf63c52b11fb1c8c751c903f31bbc23956eb6"
+        }
+      },
+      "launchable_activities": [
+        "com.example.compose.jetchat.NavActivity"
+      ],
+      "package": "com.example.compose.jetchat",
+      "path": "/private/tmp/m9-r3-snapshot-b/Jetchat/app/build/outputs/apk/debug/app-debug.apk",
+      "sha256": "a1536cec09a33063f7796dc77e0effdf1847a3ad325dcef707216fa87d78386d"
+    },
+    "duration_seconds": 25.5,
+    "external_source_path": "/private/tmp/m9-r3-snapshot-b-build.log",
+    "external_source_sha256": "05a5b10cacdf1bd94a0e51da13be6a97cad8520dc8ccd3efe9b00e7864a1f90e",
+    "normalization": "rstrip_trailing_whitespace_per_line",
+    "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/build-logs/snapshot-b.log",
+    "sha256": "c30a2fe29e37201ac36c01126fbd2b3464729a6892d5a1c5765a702e0b5fbfbc",
+    "source_identity": {
+      "clean": true,
+      "commit": "038c8208307508ceedcb5dd07a4fe2794017644c",
+      "origin": "https://github.com/android/compose-samples.git",
+      "path": "/private/tmp/m9-r3-snapshot-b",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tree": "e658ec4cdbb25d8e75a04879e9e20a0c245832e9"
+    },
+    "status": "passed",
+    "task_summary": "15 executed, 17 from cache"
+  }
+}
