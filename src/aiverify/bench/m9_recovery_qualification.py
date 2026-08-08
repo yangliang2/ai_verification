@@ -1597,6 +1597,37 @@ def _activity_recreation_source_is_bound(
             )
         )
     ]
+    checkpoint_path = lane_root / "artifacts/after-event-0/logcat.txt"
+    try:
+        checkpoint_source = checkpoint_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    checkpoint_terms = (
+        "jetchat",
+        "NavActivity",
+        "ActivityTaskManager",
+        "ActivityManager",
+        "configuration",
+        "relaunch",
+        "WindowManager",
+    )
+    checkpoint_lines = [
+        line
+        for line in checkpoint_source.splitlines()
+        if any(term in line for term in checkpoint_terms)
+    ]
+    if not checkpoint_lines:
+        checkpoint_lines = checkpoint_source.splitlines()
+    checkpoint_logcat = "\n".join(checkpoint_lines).strip()
+    if not checkpoint_logcat:
+        return False
+    expected_normalized_logcat = (
+        "# activity lifecycle event buffer\n"
+        + ("\n".join(source_lifecycle).strip() or "<no matching lifecycle events>")
+        + "\n# after-rotation checkpoint buffers\n"
+        + checkpoint_logcat
+        + "\n"
+    )
     expected_command = [
         "adb",
         "-s",
@@ -1625,7 +1656,8 @@ def _activity_recreation_source_is_bound(
         and not isinstance(duration, bool)
         and duration >= 0
         and bool(source_lifecycle)
-        and normalized_lifecycle[: len(source_lifecycle)] == source_lifecycle
+        and normalized_lifecycle == source_lifecycle
+        and normalized_logcat == expected_normalized_logcat
         and _activity_recreation_log_is_eligible(stdout)
     )
 

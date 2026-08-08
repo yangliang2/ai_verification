@@ -159,6 +159,7 @@ _RAW_SOURCE_EVIDENCE_FILES = (
     "artifacts/after-segment-0/layout.json",
     "artifacts/after-segment-0/screen.png",
     "artifacts/after-event-0/layout.json",
+    "artifacts/after-event-0/logcat.txt",
     "artifacts/after-event-0/screen.png",
     "artifacts/system-event-0/event.json",
     "raw/logcat/events-command.json",

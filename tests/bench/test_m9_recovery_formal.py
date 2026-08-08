@@ -269,6 +269,7 @@ def test_lane_exception_creates_one_terminal_record_and_typed_absence(
     assert absence["retry_permitted"] is False
     assert absence["absent_artifacts"]
     assert "production-identities/*.json" in absence["absent_artifacts"]
+    assert "artifacts/after-event-0/logcat.txt" in absence["absent_artifacts"]
     assert "raw/logcat/events-command.json" in absence["absent_artifacts"]
     assert "checksums.sha256" not in absence["absent_artifacts"]
     assert (artifact_root / lane_id / "checksums.sha256").is_file()

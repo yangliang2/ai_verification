@@ -495,6 +495,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
         after_source_screen = after_source_root / "screen.png"
         before_source_layout = before_source_root / "layout.json"
         after_source_layout = after_source_root / "layout.json"
+        after_source_logcat = after_source_root / "logcat.txt"
         event_source = lane_root / "artifacts/system-event-0/event.json"
         before_nodes = text_input_nodes(True)
         after_nodes = text_input_nodes(after_token_visible)
@@ -502,6 +503,13 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
         write_png(after_source_screen, f"{lane_id}-after")
         write_json(before_source_layout, before_nodes)
         write_json(after_source_layout, after_nodes)
+        after_checkpoint_logcat = (
+            f"I/ActivityTaskManager: {lane_id} configuration completed\n"
+        )
+        after_source_logcat.write_text(
+            after_checkpoint_logcat,
+            encoding="utf-8",
+        )
         write_json(
             event_source,
             {
@@ -590,8 +598,10 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             },
         )
         (lane_root / "raw/logcat/rotation.txt").write_text(
-            lifecycle_logcat
-            + f"{lane_id} WindowInsetsController recreation completed\n",
+            "# activity lifecycle event buffer\n"
+            + lifecycle_logcat.strip()
+            + "\n# after-rotation checkpoint buffers\n"
+            + after_checkpoint_logcat,
             encoding="utf-8",
         )
         write_json(
@@ -2576,6 +2586,39 @@ def test_supported_binds_lifecycle_to_adb_events_receipt(
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     receipt["stdout"] = "no activity lifecycle evidence\n"
     _write_json(receipt_path, receipt)
+    _reseal_lane(tmp_path, first)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ("missing_checkpoint", "tampered_checkpoint", "derived_suffix"),
+)
+def test_supported_reconstructs_normalized_logcat_from_raw_sources(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    checkpoint_path = lane_root / "artifacts/after-event-0/logcat.txt"
+    if mutation == "missing_checkpoint":
+        checkpoint_path.unlink()
+    elif mutation == "tampered_checkpoint":
+        checkpoint_path.write_text(
+            "I/ActivityTaskManager: different checkpoint bytes\n",
+            encoding="utf-8",
+        )
+    else:
+        normalized_path = lane_root / "raw/logcat/rotation.txt"
+        normalized_path.write_text(
+            normalized_path.read_text(encoding="utf-8")
+            + "fabricated trailing evidence\n",
+            encoding="utf-8",
+        )
     _reseal_lane(tmp_path, first)
     result = _reconcile_fixture(fixture)
     assert result["counts"]["attempt_evidence_validated"] == 5
