@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "attempt_id": "a188c46a-43da-47b4-8911-ccf26ab6f57b",
+  "scenario": "m9-r4-lane-03",
+  "lifecycle_state": "failed",
+  "started_at": "2026-08-08T06:52:30.700987+00:00",
+  "finished_at": "2026-08-08T06:52:30.701460+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "formal_lane_exception",
+    "message": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-08-08T06:52:30.700987+00:00",
+    "finished_at": "2026-08-08T06:52:30.701460+00:00",
+    "total_seconds": 0.0,
+    "phases": []
+  },
+  "phase_errors": [
+    {
+      "phase": "formal-lane-consumer",
+      "kind": "consumer",
+      "reason": "formal_lane_exception",
+      "message": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements"
+    }
+  ],
+  "evidence_refs": {}
+}

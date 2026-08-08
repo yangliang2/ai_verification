@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "audit": {
+    "packet_id": "m9-r3-incomplete-context-v2",
+    "status": "pass",
+    "missing_fields": [
+      "target_source_identity",
+      "context_graph",
+      "operator_registry"
+    ],
+    "expected_admission": "rejected",
+    "formal_denominator": false,
+    "side_effects": false,
+    "rejection_boundary": "before_any_build_device_agent_or_runtime_side_effect",
+    "command_calls": [],
+    "pre_side_effect_rejection": true
+  },
+  "packet": {
+    "path": "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze/contradiction-packet.json",
+    "sha256": "ef80f36eed35df32e551a92756acc02787fe49ed6ca1c4c51880e9db333fc511"
+  },
+  "rejected_before_build_device_agent_runtime": true,
+  "formal_denominator": false,
+  "side_effects": false
+}

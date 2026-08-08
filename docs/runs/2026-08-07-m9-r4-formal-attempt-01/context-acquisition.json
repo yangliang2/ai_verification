@@ -1,0 +1,2726 @@
+{
+  "schema_version": 2,
+  "duration_seconds": 0.164,
+  "result": {
+    "schema_version": 1,
+    "target": {
+      "kind": "project",
+      "target_id": "compose-samples-jetchat-038c8208",
+      "source_origin": "https://github.com/android/compose-samples.git",
+      "source_commit": "038c8208307508ceedcb5dd07a4fe2794017644c",
+      "worktree": "/private/tmp/m9-r3-snapshot-b",
+      "scope": [
+        "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+        "Jetchat/app/src/main/AndroidManifest.xml",
+        "Jetchat/app/build.gradle.kts",
+        "Jetchat/settings.gradle.kts",
+        "Jetchat/gradle/libs.versions.toml",
+        "LICENSE"
+      ],
+      "discovery_budget": 8,
+      "schema_version": 1
+    },
+    "graph": {
+      "schema_version": 1,
+      "graph_id": "compose-samples-jetchat-038c8208-context-b0c6d8e275a8",
+      "target_id": "compose-samples-jetchat-038c8208",
+      "facts": [
+        {
+          "fact_id": "fact-0216e0efa7b9dd78b4d4",
+          "subject": "Jetchat/app/build.gradle.kts:top-level",
+          "predicate": "call_site",
+          "value": {
+            "callee": "rootProject.file",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:39"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-1037f9c42dfe65c13226",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotImplementedError",
+          "predicate": "function_signature",
+          "value": "NotImplementedError",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:216"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.96,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-187ac5ac4486e5d217dc",
+          "subject": "Jetchat/app/build.gradle.kts:top-level",
+          "predicate": "call_site",
+          "value": {
+            "callee": "targetSdk.get",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:28"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-1fa48c1e79eb9c8f8b2d",
+          "subject": "Jetchat/app/build.gradle.kts:top-level",
+          "predicate": "call_site",
+          "value": {
+            "callee": "compiler.get",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:70"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-1fee39de3b9fa24c6068",
+          "subject": "Jetchat/app/build.gradle.kts",
+          "predicate": "build_version",
+          "value": {
+            "field": "versionName",
+            "value": "1.0"
+          },
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:30"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 1.0,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-21176c595e639109aff7",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable",
+          "predicate": "call_site",
+          "value": {
+            "callee": "textState.addText",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:171"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-21a59eec1cfe14be3165",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:UserInputPreview",
+          "predicate": "function_signature",
+          "value": "UserInputPreview",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:113"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.96,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-228a6662341f51c34c57",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "ButtonDefaults.buttonColors",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:308"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-22b9870932d663d6ab78",
+          "subject": "Jetchat/gradle/libs.versions.toml:98",
+          "predicate": "persistence_version",
+          "value": "version",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:98"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.92,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-250aea5708b32d1dced6",
+          "subject": "Jetchat/gradle/libs.versions.toml:91",
+          "predicate": "quality_contract_signal",
+          "value": "androidx-lifecycle-viewmodel-savedstate = { module = \"androidx.lifecycle:lifecycle-viewmodel-savedstate\", version.ref = \"androidx-lifecycle-compose\" }",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:91"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-2577d5cf94c88b347911",
+          "subject": "Jetchat/gradle/libs.versions.toml",
+          "predicate": "build_version",
+          "value": {
+            "field": "targetSdk",
+            "value": "33"
+          },
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:50"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 1.0,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-26fb7952997aef05ed9b",
+          "subject": "Jetchat/gradle/libs.versions.toml:86",
+          "predicate": "quality_contract_signal",
+          "value": "androidx-lifecycle-livedata-ktx = { module = \"androidx.lifecycle:lifecycle-viewmodel-ktx\", version.ref = \"androidx-lifecycle-compose\" }",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:86"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-270929b770b5597f8112",
+          "subject": "Jetchat/settings.gradle.kts",
+          "predicate": "build_version",
+          "value": {
+            "field": "Version",
+            "value": "2.0"
+          },
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/settings.gradle.kts",
+              "source_sha256": "70a5988a2c45cfb43572a4c91f15a77c9fe27f3f628555e288c0e07228e06c4b",
+              "locator": "line:4"
+            }
+          ],
+          "source_version": "70a5988a2c45cfb43572a4c91f15a77c9fe27f3f628555e288c0e07228e06c4b",
+          "confidence": 1.0,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-28df39f103d9ce352ccc",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "onSurface.copy",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:488"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-2bdde95130147d89d3a9",
+          "subject": "Jetchat/app/build.gradle.kts:top-level",
+          "predicate": "call_site",
+          "value": {
+            "callee": "compileSdk.get",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:23"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-32dca0729dba8cb43200",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable",
+          "predicate": "call_site",
+          "value": {
+            "callee": "focusRequester.requestFocus",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:205"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-40a2bd54f92a153b6678",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.padding",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:472"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-41f3440083bd7dfe1a4c",
+          "subject": "Jetchat/gradle/libs.versions.toml:97",
+          "predicate": "persistence_version",
+          "value": "version",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:97"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.92,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-4620a5a6a3d160ba81a0",
+          "subject": "project",
+          "predicate": "application_id",
+          "value": "com.example.compose.jetchat",
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:26"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 1.0,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-46a9c689ee89b950dfc0",
+          "subject": ".NavActivity",
+          "predicate": "component_kind",
+          "value": "activity",
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/AndroidManifest.xml",
+              "source_sha256": "7e8d64434b1a679c355eb4f0b38cfacc6cb7f9853f04828728374c1e73df4671",
+              "locator": "line:28"
+            }
+          ],
+          "source_version": "7e8d64434b1a679c355eb4f0b38cfacc6cb7f9853f04828728374c1e73df4671",
+          "confidence": 1.0,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-46f0ecbf08ae6bd68617",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "bodyLarge.copy",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:430"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-49291bbf2e1b033a57ed",
+          "subject": "Jetchat/gradle/libs.versions.toml:88",
+          "predicate": "quality_contract_signal",
+          "value": "androidx-lifecycle-runtime-compose = { module = \"androidx.lifecycle:lifecycle-runtime-compose\", version.ref = \"androidx-lifecycle-runtime-compose\" }",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:88"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-4b32251b96316fab2e60",
+          "subject": "Jetchat/gradle/libs.versions.toml",
+          "predicate": "build_version",
+          "value": {
+            "field": "compileSdk",
+            "value": "33"
+          },
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:28"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 1.0,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-4e559cc4a907bda2254f",
+          "subject": "LICENSE:19",
+          "predicate": "quality_contract_signal",
+          "value": "otherwise, or (ii) ownership of fifty percent (50%) or more of the",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "LICENSE",
+              "source_sha256": "0a3428546fa34277a64d60b372f74f880a1aa9a30b6c96ac76d30740b6ad9326",
+              "locator": "line:19"
+            }
+          ],
+          "source_version": "0a3428546fa34277a64d60b372f74f880a1aa9a30b6c96ac76d30740b6ad9326",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-579afa53b07ae1c73203",
+          "subject": "project",
+          "predicate": "persistence_restore_fallback",
+          "value": null,
+          "source_kind": "unknown",
+          "provenance": [],
+          "source_version": "038c8208307508ceedcb5dd07a4fe2794017644c",
+          "confidence": 0.0,
+          "status": "unknown",
+          "rationale": "No deterministic source evidence for restore_fallback persistence behavior was found in scope."
+        },
+        {
+          "fact_id": "fact-57d311cfe71f383331c7",
+          "subject": "Jetchat/settings.gradle.kts:top-level",
+          "predicate": "call_site",
+          "value": {
+            "callee": "repositoriesMode.set",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/settings.gradle.kts",
+              "source_sha256": "70a5988a2c45cfb43572a4c91f15a77c9fe27f3f628555e288c0e07228e06c4b",
+              "locator": "line:26"
+            }
+          ],
+          "source_version": "70a5988a2c45cfb43572a4c91f15a77c9fe27f3f628555e288c0e07228e06c4b",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-67edd716ffbdbd6bd6f9",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.padding",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:324"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-697e81153f244877428c",
+          "subject": "Jetchat/app/build.gradle.kts:build",
+          "predicate": "function_signature",
+          "value": "build",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:75"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.96,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-69a2f20369697a5c6bd0",
+          "subject": "Jetchat/gradle/libs.versions.toml:90",
+          "predicate": "quality_contract_signal",
+          "value": "androidx-lifecycle-viewmodel-ktx = { module = \"androidx.lifecycle:lifecycle-viewmodel-ktx\", version.ref = \"androidx-lifecycle-compose\" }",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:90"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-6c2c6392df4eb36ed4c4",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable",
+          "predicate": "call_site",
+          "value": {
+            "callee": "this.copy",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:189"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-6c32825983b079962b4c",
+          "subject": "Jetchat/app/build.gradle.kts:95",
+          "predicate": "quality_contract_signal",
+          "value": "implementation(libs.androidx.lifecycle.runtime.compose)",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:95"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-6ff0a1471dc700e30fa3",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "modifier.fillMaxWidth",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:514"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-7063aa6a969cd93e8a57",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable",
+          "predicate": "call_site",
+          "value": {
+            "callee": "TextFieldValue.addText",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:178"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-70c99fb768d8240a386a",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.weight",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:462"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-7e4a8c1d4694cdb65f66",
+          "subject": "Jetchat/app/build.gradle.kts",
+          "predicate": "build_system",
+          "value": "gradle",
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:1"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 1.0,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-83bbe73b14de5bfcf841",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.background",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:338"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-84e0045e99b94abf7abd",
+          "subject": ".NavActivity",
+          "predicate": "component_exported",
+          "value": true,
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/AndroidManifest.xml",
+              "source_sha256": "7e8d64434b1a679c355eb4f0b38cfacc6cb7f9853f04828728374c1e73df4671",
+              "locator": "line:28"
+            }
+          ],
+          "source_version": "7e8d64434b1a679c355eb4f0b38cfacc6cb7f9853f04828728374c1e73df4671",
+          "confidence": 1.0,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-871bc95869b4b4841fa8",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "onSurface.copy",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:299"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-89e965e35406a421d347",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.height",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:315"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-8bf08439b6808968be1c",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.weight",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:304"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-8e3818f750b54d8ff17f",
+          "subject": "LICENSE:20",
+          "predicate": "quality_contract_signal",
+          "value": "outstanding shares, or (iii) beneficial ownership of such entity.",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "LICENSE",
+              "source_sha256": "0a3428546fa34277a64d60b372f74f880a1aa9a30b6c96ac76d30740b6ad9326",
+              "locator": "line:20"
+            }
+          ],
+          "source_version": "0a3428546fa34277a64d60b372f74f880a1aa9a30b6c96ac76d30740b6ad9326",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-9025dedfaf4cca0f2433",
+          "subject": "Jetchat/gradle/libs.versions.toml:96",
+          "predicate": "persistence_version",
+          "value": "version",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:96"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.92,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-93b0d4225680314116a3",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.fillMaxWidth",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:517"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-9444de897b2c0646dde6",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "function_signature",
+          "value": "FunctionalityNotAvailablePanel",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:223"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.96,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-99707cba9d1ced657445",
+          "subject": "Jetchat/app/build.gradle.kts:top-level",
+          "predicate": "call_site",
+          "value": {
+            "callee": "signingConfigs.getByName",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:53"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-9a677243c3e7e1815dab",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable",
+          "predicate": "ownership_boundary",
+          "value": "close",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:161"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.94,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-a23760d23f2218d15c97",
+          "subject": "Jetchat/app/build.gradle.kts",
+          "predicate": "build_version",
+          "value": {
+            "field": "Version",
+            "value": "2.0"
+          },
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:4"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 1.0,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-a4f9262148efdd9bb49e",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.verticalScroll",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:471"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-a70e9fd426cd35a15977",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "function_signature",
+          "value": "NotAvailablePopup",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:364"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.96,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-a845e88d43cafb8303f6",
+          "subject": "Jetchat/app/build.gradle.kts:top-level",
+          "predicate": "call_site",
+          "value": {
+            "callee": "minSdk.get",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:27"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-a98bccfb6538586d2daf",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable",
+          "predicate": "call_site",
+          "value": {
+            "callee": "text.replaceRange",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:179"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-b11397bade4b78f6b6c5",
+          "subject": "project",
+          "predicate": "manifest_package",
+          "value": "com.example.compose.jetchat",
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/AndroidManifest.xml",
+              "source_sha256": "7e8d64434b1a679c355eb4f0b38cfacc6cb7f9853f04828728374c1e73df4671",
+              "locator": "line:18"
+            }
+          ],
+          "source_version": "7e8d64434b1a679c355eb4f0b38cfacc6cb7f9853f04828728374c1e73df4671",
+          "confidence": 1.0,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-b64505adf9c2e574ec05",
+          "subject": "Jetchat/app/build.gradle.kts:94",
+          "predicate": "quality_contract_signal",
+          "value": "implementation(libs.androidx.lifecycle.viewModelCompose)",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:94"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-b8fbc81c7be0f40ca0fc",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable",
+          "predicate": "call_site",
+          "value": {
+            "callee": "text.isNotBlank",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:158"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-c4643552c4b8b8dbe28b",
+          "subject": "project",
+          "predicate": "persistence_reader",
+          "value": null,
+          "source_kind": "unknown",
+          "provenance": [],
+          "source_version": "038c8208307508ceedcb5dd07a4fe2794017644c",
+          "confidence": 0.0,
+          "status": "unknown",
+          "rationale": "No deterministic source evidence for reader persistence behavior was found in scope."
+        },
+        {
+          "fact_id": "fact-c56024da2d3630fd3f2c",
+          "subject": "Jetchat/gradle/libs.versions.toml",
+          "predicate": "build_system",
+          "value": "gradle",
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:1"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 1.0,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-c8ac8353443c7e60a921",
+          "subject": "EmojiStickerSelector",
+          "predicate": "symbol_kind",
+          "value": "enum_class",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:106"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.98,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-c90de4c41b17cefd6d99",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable",
+          "predicate": "function_signature",
+          "value": "rememberSaveable",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:132"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.96,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-c9fb21ffc77dd08e0cf5",
+          "subject": "Jetchat/gradle/libs.versions.toml",
+          "predicate": "build_version",
+          "value": {
+            "field": "minSdk",
+            "value": "21"
+          },
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:42"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 1.0,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-d1046de2d4291617d80b",
+          "subject": "Jetchat/gradle/libs.versions.toml:16",
+          "predicate": "quality_contract_signal",
+          "value": "androidx-lifecycle-runtime-compose = \"2.6.0-alpha03\"",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:16"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-d40567ba157142c035b4",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "current.copy",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:528"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-d499fff40f648ff7c2b2",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "ButtonDefaults.buttonColors",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:487"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-d4b22d8fa9ff9090904c",
+          "subject": "Jetchat/gradle/libs.versions.toml:89",
+          "predicate": "quality_contract_signal",
+          "value": "androidx-lifecycle-viewModelCompose = { module = \"androidx.lifecycle:lifecycle-viewmodel-compose\", version.ref = \"androidx-lifecycle-compose\" }",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:89"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-d8b3f421324149068b60",
+          "subject": "InputSelector",
+          "predicate": "symbol_kind",
+          "value": "enum_class",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:97"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.98,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-d90478d58f414cd395e6",
+          "subject": "Jetchat/settings.gradle.kts:top-level",
+          "predicate": "call_site",
+          "value": {
+            "callee": "System.getenv",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/settings.gradle.kts",
+              "source_sha256": "70a5988a2c45cfb43572a4c91f15a77c9fe27f3f628555e288c0e07228e06c4b",
+              "locator": "line:16"
+            }
+          ],
+          "source_version": "70a5988a2c45cfb43572a4c91f15a77c9fe27f3f628555e288c0e07228e06c4b",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-da4277be9b60fb1fc273",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "onSurface.copy",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:492"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-dacfff38cfc193e8639d",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.size",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:347"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-dc62dd92718f7e2be2c1",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "text.isEmpty",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:424"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-e01e30f46f78acd4a166",
+          "subject": "LICENSE:167",
+          "predicate": "quality_contract_signal",
+          "value": "or other liability obligations and/or rights consistent with this",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "LICENSE",
+              "source_sha256": "0a3428546fa34277a64d60b372f74f880a1aa9a30b6c96ac76d30740b6ad9326",
+              "locator": "line:167"
+            }
+          ],
+          "source_version": "0a3428546fa34277a64d60b372f74f880a1aa9a30b6c96ac76d30740b6ad9326",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-e0a70b2c2e5037a967cd",
+          "subject": "Jetchat/app/build.gradle.kts",
+          "predicate": "build_version",
+          "value": {
+            "field": "versionCode",
+            "value": "1"
+          },
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:29"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 1.0,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-e34747b3d07031096b39",
+          "subject": "Jetchat/gradle/libs.versions.toml:87",
+          "predicate": "quality_contract_signal",
+          "value": "androidx-lifecycle-runtime = { module = \"androidx.lifecycle:lifecycle-runtime-ktx\", version.ref = \"androidx-lifecycle-compose\" }",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:87"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-e7986210e54af38adc79",
+          "subject": "project",
+          "predicate": "persistence_writer",
+          "value": null,
+          "source_kind": "unknown",
+          "provenance": [],
+          "source_version": "038c8208307508ceedcb5dd07a4fe2794017644c",
+          "confidence": 0.0,
+          "status": "unknown",
+          "rationale": "No deterministic source evidence for writer persistence behavior was found in scope."
+        },
+        {
+          "fact_id": "fact-f15d73234db7b5a6e934",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.padding",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:357"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-f1ef77f80a31a2435c31",
+          "subject": "project",
+          "predicate": "persistence_migration",
+          "value": null,
+          "source_kind": "unknown",
+          "provenance": [],
+          "source_version": "038c8208307508ceedcb5dd07a4fe2794017644c",
+          "confidence": 0.0,
+          "status": "unknown",
+          "rationale": "No deterministic source evidence for migration persistence behavior was found in scope."
+        },
+        {
+          "fact_id": "fact-f38f0dca3be74a53d9d7",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.paddingFrom",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:242"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-f3c777fa695b2fad35c6",
+          "subject": "Jetchat/gradle/libs.versions.toml:15",
+          "predicate": "quality_contract_signal",
+          "value": "androidx-lifecycle-compose = \"2.5.1\"",
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/gradle/libs.versions.toml",
+              "source_sha256": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+              "locator": "line:15"
+            }
+          ],
+          "source_version": "03dbd588df4ccbde73aec804af7a020d52edee17eb4d087bd211fb9d1a35c3cb",
+          "confidence": 0.85,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-f494316a8f6bda056bd3",
+          "subject": "Jetchat/settings.gradle.kts",
+          "predicate": "build_system",
+          "value": "gradle",
+          "source_kind": "declared",
+          "provenance": [
+            {
+              "ref": "Jetchat/settings.gradle.kts",
+              "source_sha256": "70a5988a2c45cfb43572a4c91f15a77c9fe27f3f628555e288c0e07228e06c4b",
+              "locator": "line:1"
+            }
+          ],
+          "source_version": "70a5988a2c45cfb43572a4c91f15a77c9fe27f3f628555e288c0e07228e06c4b",
+          "confidence": 1.0,
+          "status": "known"
+        },
+        {
+          "fact_id": "fact-f5d50b9c25985513a450",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "predicate": "call_site",
+          "value": {
+            "callee": "onSurface.copy",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:306"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-f6371a81b8acb6ddb2fb",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "current.copy",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:419"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-f6ba72b996ed56526763",
+          "subject": "Jetchat/app/build.gradle.kts:top-level",
+          "predicate": "call_site",
+          "value": {
+            "callee": "signingConfigs.getByName",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/build.gradle.kts",
+              "source_sha256": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+              "locator": "line:48"
+            }
+          ],
+          "source_version": "63199f042a4c791130ffb502196a182d0eb7bdefc220596103dfdf35d80ba2fa",
+          "confidence": 0.9,
+          "status": "contradictory"
+        },
+        {
+          "fact_id": "fact-f9d07294a47b9f146f65",
+          "subject": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "predicate": "call_site",
+          "value": {
+            "callee": "Modifier.weight",
+            "asynchronous": false
+          },
+          "source_kind": "derived",
+          "provenance": [
+            {
+              "ref": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+              "source_sha256": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+              "locator": "line:468"
+            }
+          ],
+          "source_version": "5a5f17cbe032a749a3ed5776d00c2585d073500df0bfb0ae74242dff065be5f2",
+          "confidence": 0.9,
+          "status": "contradictory"
+        }
+      ],
+      "nodes": [
+        {
+          "node_id": "api-e994c5dc43ed76e1",
+          "kind": "api",
+          "label": "ButtonDefaults.buttonColors",
+          "source_fact_ids": [
+            "fact-228a6662341f51c34c57",
+            "fact-d499fff40f648ff7c2b2"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-ec7d436f9e1acf22",
+          "kind": "api",
+          "label": "Modifier.background",
+          "source_fact_ids": [
+            "fact-83bbe73b14de5bfcf841"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-8ffc4688045012ae",
+          "kind": "api",
+          "label": "Modifier.fillMaxWidth",
+          "source_fact_ids": [
+            "fact-93b0d4225680314116a3"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-19528adc1f5b1182",
+          "kind": "api",
+          "label": "Modifier.height",
+          "source_fact_ids": [
+            "fact-89e965e35406a421d347"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-99ecc946dd655334",
+          "kind": "api",
+          "label": "Modifier.padding",
+          "source_fact_ids": [
+            "fact-40a2bd54f92a153b6678",
+            "fact-67edd716ffbdbd6bd6f9",
+            "fact-f15d73234db7b5a6e934"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-60c926a6e2d4d96c",
+          "kind": "api",
+          "label": "Modifier.paddingFrom",
+          "source_fact_ids": [
+            "fact-f38f0dca3be74a53d9d7"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-85c28d89966b54a0",
+          "kind": "api",
+          "label": "Modifier.size",
+          "source_fact_ids": [
+            "fact-dacfff38cfc193e8639d"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-f75743aacbc5dc7c",
+          "kind": "api",
+          "label": "Modifier.verticalScroll",
+          "source_fact_ids": [
+            "fact-a4f9262148efdd9bb49e"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-20e278b980ec5440",
+          "kind": "api",
+          "label": "Modifier.weight",
+          "source_fact_ids": [
+            "fact-70c99fb768d8240a386a",
+            "fact-8bf08439b6808968be1c",
+            "fact-f9d07294a47b9f146f65"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-8fec32d72b490221",
+          "kind": "api",
+          "label": "System.getenv",
+          "source_fact_ids": [
+            "fact-d90478d58f414cd395e6"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-b06137a534db6003",
+          "kind": "api",
+          "label": "TextFieldValue.addText",
+          "source_fact_ids": [
+            "fact-7063aa6a969cd93e8a57"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-2ff2c8fb779625ce",
+          "kind": "api",
+          "label": "bodyLarge.copy",
+          "source_fact_ids": [
+            "fact-46f0ecbf08ae6bd68617"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-7a66fce2942c7c7a",
+          "kind": "api",
+          "label": "compileSdk.get",
+          "source_fact_ids": [
+            "fact-2bdde95130147d89d3a9"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-65fb99307b7c36c3",
+          "kind": "api",
+          "label": "compiler.get",
+          "source_fact_ids": [
+            "fact-1fa48c1e79eb9c8f8b2d"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-f548fc791a2c35a2",
+          "kind": "api",
+          "label": "current.copy",
+          "source_fact_ids": [
+            "fact-d40567ba157142c035b4",
+            "fact-f6371a81b8acb6ddb2fb"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-bbb76d93ff3352d7",
+          "kind": "api",
+          "label": "focusRequester.requestFocus",
+          "source_fact_ids": [
+            "fact-32dca0729dba8cb43200"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-2aad3e945c126ffc",
+          "kind": "api",
+          "label": "minSdk.get",
+          "source_fact_ids": [
+            "fact-a845e88d43cafb8303f6"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-636476bdbf4da468",
+          "kind": "api",
+          "label": "modifier.fillMaxWidth",
+          "source_fact_ids": [
+            "fact-6ff0a1471dc700e30fa3"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-f64b6b69b751c4fa",
+          "kind": "api",
+          "label": "onSurface.copy",
+          "source_fact_ids": [
+            "fact-28df39f103d9ce352ccc",
+            "fact-871bc95869b4b4841fa8",
+            "fact-da4277be9b60fb1fc273",
+            "fact-f5d50b9c25985513a450"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-9ee60054827b018c",
+          "kind": "api",
+          "label": "repositoriesMode.set",
+          "source_fact_ids": [
+            "fact-57d311cfe71f383331c7"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-43a85b08826d9792",
+          "kind": "api",
+          "label": "rootProject.file",
+          "source_fact_ids": [
+            "fact-0216e0efa7b9dd78b4d4"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-8fe68a608966aab7",
+          "kind": "api",
+          "label": "signingConfigs.getByName",
+          "source_fact_ids": [
+            "fact-99707cba9d1ced657445",
+            "fact-f6ba72b996ed56526763"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-7f874ddd97b405e3",
+          "kind": "api",
+          "label": "targetSdk.get",
+          "source_fact_ids": [
+            "fact-187ac5ac4486e5d217dc"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-e06655bcb1f1378b",
+          "kind": "api",
+          "label": "text.isEmpty",
+          "source_fact_ids": [
+            "fact-dc62dd92718f7e2be2c1"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-5f787580a555e4f3",
+          "kind": "api",
+          "label": "text.isNotBlank",
+          "source_fact_ids": [
+            "fact-b8fbc81c7be0f40ca0fc"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-5353e14adc480392",
+          "kind": "api",
+          "label": "text.replaceRange",
+          "source_fact_ids": [
+            "fact-a98bccfb6538586d2daf"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-709062713bd73008",
+          "kind": "api",
+          "label": "textState.addText",
+          "source_fact_ids": [
+            "fact-21176c595e639109aff7"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "api-03cef97adc0bf163",
+          "kind": "api",
+          "label": "this.copy",
+          "source_fact_ids": [
+            "fact-6c2c6392df4eb36ed4c4"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "component-1d7b44b9326b4b74",
+          "kind": "component",
+          "label": ".NavActivity",
+          "source_fact_ids": [
+            "fact-46a9c689ee89b950dfc0",
+            "fact-84e0045e99b94abf7abd"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "component-d49a7bfe1ce8acf7",
+          "kind": "component",
+          "label": "EmojiStickerSelector",
+          "source_fact_ids": [
+            "fact-c8ac8353443c7e60a921"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "component-0e44d9984e877d1f",
+          "kind": "component",
+          "label": "InputSelector",
+          "source_fact_ids": [
+            "fact-d8b3f421324149068b60"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "component-e89448af107d8ac1",
+          "kind": "component",
+          "label": "com.example.compose.jetchat",
+          "source_fact_ids": [
+            "fact-4620a5a6a3d160ba81a0",
+            "fact-b11397bade4b78f6b6c5"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "operation-b2743f76ae56ce32",
+          "kind": "operation",
+          "label": "Jetchat/app/build.gradle.kts:build",
+          "source_fact_ids": [
+            "fact-697e81153f244877428c"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "operation-5862c30139deb44f",
+          "kind": "operation",
+          "label": "Jetchat/app/build.gradle.kts:top-level",
+          "source_fact_ids": [
+            "fact-0216e0efa7b9dd78b4d4",
+            "fact-187ac5ac4486e5d217dc",
+            "fact-1fa48c1e79eb9c8f8b2d",
+            "fact-2bdde95130147d89d3a9",
+            "fact-99707cba9d1ced657445",
+            "fact-a845e88d43cafb8303f6",
+            "fact-f6ba72b996ed56526763"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "operation-724956b0bfabf58b",
+          "kind": "operation",
+          "label": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel",
+          "source_fact_ids": [
+            "fact-228a6662341f51c34c57",
+            "fact-67edd716ffbdbd6bd6f9",
+            "fact-83bbe73b14de5bfcf841",
+            "fact-871bc95869b4b4841fa8",
+            "fact-89e965e35406a421d347",
+            "fact-8bf08439b6808968be1c",
+            "fact-9444de897b2c0646dde6",
+            "fact-dacfff38cfc193e8639d",
+            "fact-f15d73234db7b5a6e934",
+            "fact-f38f0dca3be74a53d9d7",
+            "fact-f5d50b9c25985513a450"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "operation-41d831e7af20c160",
+          "kind": "operation",
+          "label": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup",
+          "source_fact_ids": [
+            "fact-28df39f103d9ce352ccc",
+            "fact-40a2bd54f92a153b6678",
+            "fact-46f0ecbf08ae6bd68617",
+            "fact-6ff0a1471dc700e30fa3",
+            "fact-70c99fb768d8240a386a",
+            "fact-93b0d4225680314116a3",
+            "fact-a4f9262148efdd9bb49e",
+            "fact-a70e9fd426cd35a15977",
+            "fact-d40567ba157142c035b4",
+            "fact-d499fff40f648ff7c2b2",
+            "fact-da4277be9b60fb1fc273",
+            "fact-dc62dd92718f7e2be2c1",
+            "fact-f6371a81b8acb6ddb2fb",
+            "fact-f9d07294a47b9f146f65"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "operation-994d2b7eadb479c7",
+          "kind": "operation",
+          "label": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotImplementedError",
+          "source_fact_ids": [
+            "fact-1037f9c42dfe65c13226"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "operation-a11fd0e149446044",
+          "kind": "operation",
+          "label": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:UserInputPreview",
+          "source_fact_ids": [
+            "fact-21a59eec1cfe14be3165"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "operation-daf01ffd321ced0d",
+          "kind": "operation",
+          "label": "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable",
+          "source_fact_ids": [
+            "fact-21176c595e639109aff7",
+            "fact-32dca0729dba8cb43200",
+            "fact-6c2c6392df4eb36ed4c4",
+            "fact-7063aa6a969cd93e8a57",
+            "fact-9a677243c3e7e1815dab",
+            "fact-a98bccfb6538586d2daf",
+            "fact-b8fbc81c7be0f40ca0fc",
+            "fact-c90de4c41b17cefd6d99"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "operation-162379d4fc2bcaa1",
+          "kind": "operation",
+          "label": "Jetchat/settings.gradle.kts:top-level",
+          "source_fact_ids": [
+            "fact-57d311cfe71f383331c7",
+            "fact-d90478d58f414cd395e6"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "quality_contract-d5ec388114709550",
+          "kind": "quality_contract",
+          "label": "build:gradle",
+          "source_fact_ids": [
+            "fact-7e4a8c1d4694cdb65f66",
+            "fact-c56024da2d3630fd3f2c",
+            "fact-f494316a8f6bda056bd3"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-c3f5d478223c2550",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/app/build.gradle.kts:94",
+          "source_fact_ids": [
+            "fact-b64505adf9c2e574ec05"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-1a47edd7f8045eed",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/app/build.gradle.kts:95",
+          "source_fact_ids": [
+            "fact-6c32825983b079962b4c"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-007be3422f0d8955",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/gradle/libs.versions.toml:15",
+          "source_fact_ids": [
+            "fact-f3c777fa695b2fad35c6"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-0f4def7e5f91eb1f",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/gradle/libs.versions.toml:16",
+          "source_fact_ids": [
+            "fact-d1046de2d4291617d80b"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-0c6bfead61e1a00b",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/gradle/libs.versions.toml:86",
+          "source_fact_ids": [
+            "fact-26fb7952997aef05ed9b"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-44a2eb6281121d5d",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/gradle/libs.versions.toml:87",
+          "source_fact_ids": [
+            "fact-e34747b3d07031096b39"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-a3ce4d80c65e58d4",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/gradle/libs.versions.toml:88",
+          "source_fact_ids": [
+            "fact-49291bbf2e1b033a57ed"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-c6c3bbc0a0dd4662",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/gradle/libs.versions.toml:89",
+          "source_fact_ids": [
+            "fact-d4b22d8fa9ff9090904c"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-2d993bd4d81381cb",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/gradle/libs.versions.toml:90",
+          "source_fact_ids": [
+            "fact-69a2f20369697a5c6bd0"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-8a8bbb7d80e00b1f",
+          "kind": "quality_contract",
+          "label": "quality:Jetchat/gradle/libs.versions.toml:91",
+          "source_fact_ids": [
+            "fact-250aea5708b32d1dced6"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-1ec633d2896f28dc",
+          "kind": "quality_contract",
+          "label": "quality:LICENSE:167",
+          "source_fact_ids": [
+            "fact-e01e30f46f78acd4a166"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-e5a5a686b5cb8bb7",
+          "kind": "quality_contract",
+          "label": "quality:LICENSE:19",
+          "source_fact_ids": [
+            "fact-4e559cc4a907bda2254f"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-18a02f11e1565fde",
+          "kind": "quality_contract",
+          "label": "quality:LICENSE:20",
+          "source_fact_ids": [
+            "fact-8e3818f750b54d8ff17f"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "quality_contract-e8a883614b35a10b",
+          "kind": "quality_contract",
+          "label": "version:Version",
+          "source_fact_ids": [
+            "fact-270929b770b5597f8112",
+            "fact-a23760d23f2218d15c97"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "quality_contract-b41cdc34d66cc374",
+          "kind": "quality_contract",
+          "label": "version:compileSdk",
+          "source_fact_ids": [
+            "fact-4b32251b96316fab2e60"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "quality_contract-210c8235a7825a88",
+          "kind": "quality_contract",
+          "label": "version:minSdk",
+          "source_fact_ids": [
+            "fact-c9fb21ffc77dd08e0cf5"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "quality_contract-1f04edec160b0383",
+          "kind": "quality_contract",
+          "label": "version:targetSdk",
+          "source_fact_ids": [
+            "fact-2577d5cf94c88b347911"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "quality_contract-606492e7e2fb1551",
+          "kind": "quality_contract",
+          "label": "version:versionCode",
+          "source_fact_ids": [
+            "fact-e0a70b2c2e5037a967cd"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "quality_contract-2d1ffd69e364a474",
+          "kind": "quality_contract",
+          "label": "version:versionName",
+          "source_fact_ids": [
+            "fact-1fee39de3b9fa24c6068"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "node_id": "resource-57eef4b4b01b6df1",
+          "kind": "resource",
+          "label": "Jetchat/gradle/libs.versions.toml:96",
+          "source_fact_ids": [
+            "fact-9025dedfaf4cca0f2433"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "resource-da660e71d260d73d",
+          "kind": "resource",
+          "label": "Jetchat/gradle/libs.versions.toml:97",
+          "source_fact_ids": [
+            "fact-41f3440083bd7dfe1a4c"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "resource-9783bda70f1249ee",
+          "kind": "resource",
+          "label": "Jetchat/gradle/libs.versions.toml:98",
+          "source_fact_ids": [
+            "fact-22b9870932d663d6ab78"
+          ],
+          "status": "known"
+        },
+        {
+          "node_id": "resource-310ff200149b44a3",
+          "kind": "resource",
+          "label": "close",
+          "source_fact_ids": [
+            "fact-9a677243c3e7e1815dab"
+          ],
+          "status": "known"
+        }
+      ],
+      "edges": [
+        {
+          "edge_id": "edge-2420bcd72806cda891fa",
+          "from_node_id": "operation-162379d4fc2bcaa1",
+          "to_node_id": "api-8fec32d72b490221",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-d90478d58f414cd395e6"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-a23c9826d30a75368779",
+          "from_node_id": "operation-162379d4fc2bcaa1",
+          "to_node_id": "api-9ee60054827b018c",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-57d311cfe71f383331c7"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-b4125b9bbdb432bf7cfb",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-20e278b980ec5440",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-70c99fb768d8240a386a"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-fe337a3ee1a95b7c5e2d",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-20e278b980ec5440",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-f9d07294a47b9f146f65"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-bd0982a4cf9762389b83",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-2ff2c8fb779625ce",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-46f0ecbf08ae6bd68617"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-ae52c299a5ad78547a43",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-636476bdbf4da468",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-6ff0a1471dc700e30fa3"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-7e631bebde16e5044993",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-8ffc4688045012ae",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-93b0d4225680314116a3"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-46d0914cf488c66d4fd6",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-99ecc946dd655334",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-40a2bd54f92a153b6678"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-bac618ad19a12c95adbc",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-e06655bcb1f1378b",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-dc62dd92718f7e2be2c1"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-229e9b0bc692a1525ab3",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-e994c5dc43ed76e1",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-d499fff40f648ff7c2b2"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-8213976cc44e68d8286e",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-f548fc791a2c35a2",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-d40567ba157142c035b4"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-3440dece33bcf9bacfe6",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-f548fc791a2c35a2",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-f6371a81b8acb6ddb2fb"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-e17f28934bd8aec8adb3",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-f64b6b69b751c4fa",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-28df39f103d9ce352ccc"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-f80d0a1b840a950627a7",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-f64b6b69b751c4fa",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-da4277be9b60fb1fc273"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-648ae6da6822cd8f2d92",
+          "from_node_id": "operation-41d831e7af20c160",
+          "to_node_id": "api-f75743aacbc5dc7c",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-a4f9262148efdd9bb49e"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-bcc4e4859ef46f414904",
+          "from_node_id": "operation-5862c30139deb44f",
+          "to_node_id": "api-2aad3e945c126ffc",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-a845e88d43cafb8303f6"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-757dabbdbf1556b50d32",
+          "from_node_id": "operation-5862c30139deb44f",
+          "to_node_id": "api-43a85b08826d9792",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-0216e0efa7b9dd78b4d4"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-84e6b1d8fdb634f5d30d",
+          "from_node_id": "operation-5862c30139deb44f",
+          "to_node_id": "api-65fb99307b7c36c3",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-1fa48c1e79eb9c8f8b2d"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-f59ef66017ddea936adc",
+          "from_node_id": "operation-5862c30139deb44f",
+          "to_node_id": "api-7a66fce2942c7c7a",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-2bdde95130147d89d3a9"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-9efed34fb1a9a59dcc00",
+          "from_node_id": "operation-5862c30139deb44f",
+          "to_node_id": "api-7f874ddd97b405e3",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-187ac5ac4486e5d217dc"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-a13a8acf9315a5c29327",
+          "from_node_id": "operation-5862c30139deb44f",
+          "to_node_id": "api-8fe68a608966aab7",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-99707cba9d1ced657445"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-897607541a8fa67577ea",
+          "from_node_id": "operation-5862c30139deb44f",
+          "to_node_id": "api-8fe68a608966aab7",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-f6ba72b996ed56526763"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-b498f34b67b10b6fff5e",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-19528adc1f5b1182",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-89e965e35406a421d347"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-2070274eacc4ac8abd72",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-20e278b980ec5440",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-8bf08439b6808968be1c"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-6192c43ec1dcbe8e04b6",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-60c926a6e2d4d96c",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-f38f0dca3be74a53d9d7"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-2caec979f66662a471e3",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-85c28d89966b54a0",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-dacfff38cfc193e8639d"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-692b63bfc5ce96818cc5",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-99ecc946dd655334",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-67edd716ffbdbd6bd6f9"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-ae151b6650e1c2db2608",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-99ecc946dd655334",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-f15d73234db7b5a6e934"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-6c8ea61a05f7b56d2082",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-e994c5dc43ed76e1",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-228a6662341f51c34c57"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-f87fd3bca982ac3db666",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-ec7d436f9e1acf22",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-83bbe73b14de5bfcf841"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-42d7c021f624355881e1",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-f64b6b69b751c4fa",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-871bc95869b4b4841fa8"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-5cbb5ba82262ed96c54f",
+          "from_node_id": "operation-724956b0bfabf58b",
+          "to_node_id": "api-f64b6b69b751c4fa",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-f5d50b9c25985513a450"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-ff23b72773b67d909aa9",
+          "from_node_id": "operation-daf01ffd321ced0d",
+          "to_node_id": "api-03cef97adc0bf163",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-6c2c6392df4eb36ed4c4"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-6651153e15554016bc26",
+          "from_node_id": "operation-daf01ffd321ced0d",
+          "to_node_id": "api-5353e14adc480392",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-a98bccfb6538586d2daf"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-f95bc18486dd545c077a",
+          "from_node_id": "operation-daf01ffd321ced0d",
+          "to_node_id": "api-5f787580a555e4f3",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-b8fbc81c7be0f40ca0fc"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-4f78b5b56cc589de3762",
+          "from_node_id": "operation-daf01ffd321ced0d",
+          "to_node_id": "api-709062713bd73008",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-21176c595e639109aff7"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-87cd0313061e67021a44",
+          "from_node_id": "operation-daf01ffd321ced0d",
+          "to_node_id": "api-b06137a534db6003",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-7063aa6a969cd93e8a57"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-74961e43e7d67f10c77f",
+          "from_node_id": "operation-daf01ffd321ced0d",
+          "to_node_id": "api-bbb76d93ff3352d7",
+          "kind": "calls",
+          "semantics": "synchronous",
+          "source_fact_ids": [
+            "fact-32dca0729dba8cb43200"
+          ],
+          "status": "contradictory"
+        },
+        {
+          "edge_id": "edge-903255760ebaba0f9803",
+          "from_node_id": "operation-daf01ffd321ced0d",
+          "to_node_id": "resource-310ff200149b44a3",
+          "kind": "depends_on",
+          "semantics": "unknown",
+          "source_fact_ids": [
+            "fact-9a677243c3e7e1815dab"
+          ],
+          "status": "known"
+        }
+      ],
+      "source_origin": "https://github.com/android/compose-samples.git",
+      "source_commit": "038c8208307508ceedcb5dd07a4fe2794017644c",
+      "source_tree_sha256": "b0c6d8e275a89f6371c32bede56fde92eb44764bfe54a94b7e07954c439393e5"
+    },
+    "receipt": {
+      "schema_version": 1,
+      "target_id": "compose-samples-jetchat-038c8208",
+      "source_origin": "https://github.com/android/compose-samples.git",
+      "source_commit": "038c8208307508ceedcb5dd07a4fe2794017644c",
+      "source_tree_sha256": "b0c6d8e275a89f6371c32bede56fde92eb44764bfe54a94b7e07954c439393e5",
+      "requested_evidence": [
+        "manifest",
+        "build",
+        "symbols_calls",
+        "persistence_state",
+        "lifecycle_ownership",
+        "quality_version"
+      ],
+      "inspected_scope": [
+        "Jetchat/app/build.gradle.kts",
+        "Jetchat/app/src/main/AndroidManifest.xml",
+        "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+        "Jetchat/gradle/libs.versions.toml",
+        "Jetchat/settings.gradle.kts",
+        "LICENSE"
+      ],
+      "skipped_scope": [],
+      "discovery_budget": 8,
+      "budget_used": 6,
+      "graph_sha256": "bee5b519236608225dc5e908efbd4ed0dcee4076e53633e6d1780aae19c8081b",
+      "adapters": [
+        {
+          "adapter_id": "manifest",
+          "status": "complete",
+          "inspected_files": [
+            "Jetchat/app/src/main/AndroidManifest.xml"
+          ],
+          "facts_emitted": 3,
+          "unresolved": []
+        },
+        {
+          "adapter_id": "build",
+          "status": "complete",
+          "inspected_files": [
+            "Jetchat/app/build.gradle.kts",
+            "Jetchat/gradle/libs.versions.toml",
+            "Jetchat/settings.gradle.kts"
+          ],
+          "facts_emitted": 11,
+          "unresolved": []
+        },
+        {
+          "adapter_id": "symbols_calls",
+          "status": "complete",
+          "inspected_files": [
+            "Jetchat/app/build.gradle.kts",
+            "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+            "Jetchat/settings.gradle.kts"
+          ],
+          "facts_emitted": 46,
+          "unresolved": []
+        },
+        {
+          "adapter_id": "persistence_state",
+          "status": "partial",
+          "inspected_files": [
+            "Jetchat/app/build.gradle.kts",
+            "Jetchat/app/src/main/AndroidManifest.xml",
+            "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+            "Jetchat/gradle/libs.versions.toml",
+            "Jetchat/settings.gradle.kts",
+            "LICENSE"
+          ],
+          "facts_emitted": 7,
+          "unresolved": [
+            "persistence writer evidence is unresolved",
+            "persistence reader evidence is unresolved",
+            "persistence migration evidence is unresolved",
+            "persistence restore_fallback evidence is unresolved"
+          ]
+        },
+        {
+          "adapter_id": "lifecycle_ownership",
+          "status": "complete",
+          "inspected_files": [
+            "Jetchat/app/build.gradle.kts",
+            "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+            "Jetchat/settings.gradle.kts"
+          ],
+          "facts_emitted": 1,
+          "unresolved": []
+        },
+        {
+          "adapter_id": "quality_version",
+          "status": "complete",
+          "inspected_files": [
+            "Jetchat/app/build.gradle.kts",
+            "Jetchat/app/src/main/AndroidManifest.xml",
+            "Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt",
+            "Jetchat/gradle/libs.versions.toml",
+            "Jetchat/settings.gradle.kts",
+            "LICENSE"
+          ],
+          "facts_emitted": 13,
+          "unresolved": []
+        }
+      ],
+      "unresolved": [
+        "persistence writer evidence is unresolved",
+        "persistence reader evidence is unresolved",
+        "persistence migration evidence is unresolved",
+        "persistence restore_fallback evidence is unresolved",
+        "contradictory evidence for Jetchat/app/build.gradle.kts predicate build_version",
+        "contradictory evidence for Jetchat/gradle/libs.versions.toml predicate build_version",
+        "contradictory evidence for Jetchat/app/build.gradle.kts:top-level predicate call_site",
+        "contradictory evidence for Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable predicate call_site",
+        "contradictory evidence for Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel predicate call_site",
+        "contradictory evidence for Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup predicate call_site",
+        "contradictory evidence for Jetchat/settings.gradle.kts:top-level predicate call_site"
+      ],
+      "suggested_probes": [
+        "Resolve: persistence writer evidence is unresolved",
+        "Resolve: persistence reader evidence is unresolved",
+        "Resolve: persistence migration evidence is unresolved",
+        "Resolve: persistence restore_fallback evidence is unresolved",
+        "Resolve: contradictory evidence for Jetchat/app/build.gradle.kts predicate build_version",
+        "Resolve: contradictory evidence for Jetchat/gradle/libs.versions.toml predicate build_version",
+        "Resolve: contradictory evidence for Jetchat/app/build.gradle.kts:top-level predicate call_site",
+        "Resolve: contradictory evidence for Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:rememberSaveable predicate call_site",
+        "Resolve: contradictory evidence for Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:FunctionalityNotAvailablePanel predicate call_site",
+        "Resolve: contradictory evidence for Jetchat/app/src/main/java/com/example/compose/jetchat/conversation/UserInput.kt:NotAvailablePopup predicate call_site",
+        "Resolve: contradictory evidence for Jetchat/settings.gradle.kts:top-level predicate call_site"
+      ],
+      "coverage_frontier": [
+        "complete-language-data-flow-index",
+        "out-of-scope-tracked-files",
+        "runtime-thread-and-process-observation"
+      ],
+      "no_diff": true,
+      "status": "partial"
+    }
+  },
+  "side_effects": false,
+  "mapping_released": false
+}
