@@ -9,6 +9,7 @@ import platform
 import shutil
 import sys
 from collections import Counter
+from collections.abc import Mapping
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -44,6 +45,9 @@ class ExecutionIdentityCollector:
         codex_bin: str = "codex",
         git_bin: str = "git",
         allow_host_project_subdir: bool = False,
+        run_spec_snapshot_path: Path | None = None,
+        run_spec_identity_annotations: Mapping[str, object] | None = None,
+        authoritative_role_identity_dir: Path | None = None,
     ) -> None:
         self.run_dir = Path(run_dir).resolve()
         self.artifact_dir = Path(artifact_dir).resolve()
@@ -61,6 +65,19 @@ class ExecutionIdentityCollector:
         self.git_bin = git_bin
         self.allow_host_project_subdir = allow_host_project_subdir
         self.identity_dir = self.run_dir / "identity"
+        self.run_spec_snapshot_path = (
+            Path(run_spec_snapshot_path).resolve()
+            if run_spec_snapshot_path is not None
+            else self.identity_dir / "run-spec.yaml"
+        )
+        self.run_spec_identity_annotations = dict(
+            run_spec_identity_annotations or {}
+        )
+        self.authoritative_role_identity_dir = (
+            Path(authoritative_role_identity_dir).resolve()
+            if authoritative_role_identity_dir is not None
+            else None
+        )
         self.provenance_path = self.run_dir / "execution-provenance.json"
         self._static: dict | None = None
         self._deployment: dict | None = None
@@ -68,9 +85,21 @@ class ExecutionIdentityCollector:
     def capture_static(self) -> None:
         """Capture immutable inputs before deployment or agent invocation."""
         source_bytes = self._run_spec_bytes()
-        snapshot_path = self.identity_dir / "run-spec.yaml"
+        snapshot_path = self.run_spec_snapshot_path
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
-        write_bytes_artifact(snapshot_path, source_bytes)
+        if snapshot_path == self.run_spec_path:
+            try:
+                snapshot_bytes = snapshot_path.read_bytes()
+            except OSError as error:
+                raise ExecutionIdentityError(
+                    f"Run Spec snapshot cannot be read: {error}"
+                ) from error
+            if snapshot_bytes != source_bytes:
+                raise ExecutionIdentityError(
+                    "Run Spec source contradicts its authoritative snapshot"
+                )
+        else:
+            write_bytes_artifact(snapshot_path, source_bytes)
 
         host = self._host_identity()
         patch_path = self.identity_dir / "host.patch"
@@ -107,6 +136,16 @@ class ExecutionIdentityCollector:
                 "expected_origin": locator.expected_origin,
                 "expected_commit": locator.expected_commit,
             }
+        reserved_annotations = set(run_spec) | {"identity_sha256"}
+        overlap = reserved_annotations.intersection(
+            self.run_spec_identity_annotations
+        )
+        if overlap:
+            raise ExecutionIdentityError(
+                "Run Spec identity annotation overrides reserved field(s): "
+                + ", ".join(sorted(overlap))
+            )
+        run_spec.update(self.run_spec_identity_annotations)
         run_spec["identity_sha256"] = _identity_sha256(run_spec)
         self._static = {
             "run_spec": run_spec,
@@ -246,6 +285,20 @@ class ExecutionIdentityCollector:
         l3_ledger_paths = sorted(
             (self.artifact_dir / "l3-judge").glob("l3-judge-call-*.invocation.json")
         )
+        if self.authoritative_role_identity_dir is not None:
+            driver_paths = self._export_role_files(
+                prefix="journey-driver",
+                paths=driver_paths,
+            )
+            l3_paths = self._export_role_files(
+                prefix="l3-semantic-judge",
+                paths=l3_paths,
+            )
+            l3_ledger_paths = self._export_role_files(
+                prefix="l3-semantic-judge",
+                paths=l3_ledger_paths,
+                suffix=".invocation.json",
+            )
         if not driver_paths:
             raise ExecutionIdentityError("journey driver identity receipt is missing")
         driver = self._role_identity(
@@ -294,6 +347,38 @@ class ExecutionIdentityCollector:
             base_dir=self.run_dir,
         )
         return binding
+
+    def _export_role_files(
+        self,
+        *,
+        prefix: str,
+        paths: list[Path],
+        suffix: str = ".json",
+    ) -> list[Path]:
+        """Create stable authoritative copies of role receipts inside the run."""
+
+        destination_root = self.authoritative_role_identity_dir
+        if destination_root is None:
+            return paths
+        try:
+            destination_root.relative_to(self.run_dir)
+        except ValueError as error:
+            raise ExecutionIdentityError(
+                "authoritative role identity directory is outside the run"
+            ) from error
+        exported: list[Path] = []
+        destination_root.mkdir(parents=True, exist_ok=True)
+        for index, source in enumerate(paths, start=1):
+            destination = destination_root / f"{prefix}-{index:02d}{suffix}"
+            try:
+                payload = source.read_bytes()
+            except OSError as error:
+                raise ExecutionIdentityError(
+                    f"role identity artifact cannot be read: {source}: {error}"
+                ) from error
+            write_bytes_artifact(destination, payload)
+            exported.append(destination)
+        return exported
 
     def verify_ready_for_agent(self) -> None:
         """Fail closed if captured inputs drift before agent invocation."""

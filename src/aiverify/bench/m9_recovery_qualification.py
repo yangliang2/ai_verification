@@ -70,10 +70,19 @@ PROJECT_TARGET_ID = "compose-samples-jetchat-038c8208"
 PACKAGE = "com.example.compose.jetchat"
 ACTIVITY = "com.example.compose.jetchat.NavActivity"
 APK_GLOB = "Jetchat/app/build/outputs/apk/debug/app-debug.apk"
+CONTROL_APK_BYTES = 17_511_449
+CONTROL_APK_SHA256 = (
+    "a1536cec09a33063f7796dc77e0effdf1847a3ad325dcef707216fa87d78386d"
+)
+DEFECT_APK_BYTES = 17_511_239
+DEFECT_APK_SHA256 = (
+    "41d7c3ff47f2f2d2a04942d11ab57c6c76ac7314ff6abf8dad14fd9b3149e55b"
+)
 RUNNER_POLICY = "m9-production-seam-v1"
 BACKEND = "codex_cli"
 DEVICE = "emulator-5554"
 FORMAL_ATTEMPT_ID = "m9-r4-formal-attempt-01"
+FORMAL_HYPOTHESIS_ID = "hypothesis-m9-r4-portfolio-2"
 R3_RUN_RECORD = (
     "docs/runs/2026-08-07-issue-152-m9-r3-fresh-qualification-freeze"
 )
@@ -93,6 +102,32 @@ LOCAL_CLAIM_BOUNDARY = (
     "emulator in the frozen six-lane M9-R4 attempt"
 )
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+_LAYOUT_CENTER = re.compile(r"^\[(\d+),(\d+)\]$")
+_ACTIVITY_LIFECYCLE_MARKERS = (
+    "am_on_create_called",
+    "am_on_destroy_called",
+    "am_relaunch_resume_activity",
+)
+_CHECKPOINT_LOGCAT_TERMS = (
+    "jetchat",
+    "NavActivity",
+    "ActivityTaskManager",
+    "ActivityManager",
+    "configuration",
+    "relaunch",
+    "WindowManager",
+)
+_ADB_ACTIVITY_EVENTS_COMMAND = (
+    "adb",
+    "-s",
+    DEVICE,
+    "logcat",
+    "-b",
+    "events",
+    "-d",
+    "-v",
+    "threadtime",
+)
 _APPROVAL_COMMENT_URL = re.compile(
     r"^https://github\.com/yangliang2/ai_verification/"
     r"issues/152#issuecomment-[0-9]+$"
@@ -1151,9 +1186,12 @@ def _production_admission_is_eligible(
         if isinstance(target, Mapping)
         else None
     )
-    expected_commit = (
-        DEFECT_COMMIT if role == "defect" else PROJECT_TARGET_COMMIT
-    )
+    if role == "defect":
+        expected_commit = DEFECT_COMMIT
+    elif role == "control":
+        expected_commit = PROJECT_TARGET_COMMIT
+    else:
+        return False
     expected_run_spec = (
         repository_root
         / "bench/m9/recovery-v2/run-specs"
@@ -1425,6 +1463,217 @@ def _png_dimensions(path: Path) -> tuple[int, int] | None:
     return width, height
 
 
+def _layout_center(node: Mapping[str, Any]) -> tuple[int, int] | None:
+    value = node.get("center")
+    match = _LAYOUT_CENTER.fullmatch(value) if isinstance(value, str) else None
+    if match is None:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def _text_input_observation(
+    nodes_value: object,
+    token: str,
+) -> dict[str, Any] | None:
+    if not isinstance(nodes_value, list):
+        return None
+    nodes = [item for item in nodes_value if isinstance(item, Mapping)]
+    anchors = [
+        item
+        for item in nodes
+        if item.get("content-desc", item.get("contentDesc")) == "Text input"
+    ]
+    exact_nodes = [item for item in nodes if item.get("text") == token]
+    editable_exact_nodes = []
+    for item in exact_nodes:
+        interactions = item.get("interactions")
+        if (
+            isinstance(interactions, list)
+            and {"focusable", "long-clickable"}.issubset(interactions)
+        ):
+            editable_exact_nodes.append(item)
+    bound_exact_nodes = []
+    for item in editable_exact_nodes:
+        item_center = _layout_center(item)
+        if item_center is None:
+            continue
+        if any(
+            anchor_center is not None
+            and abs(anchor_center[1] - item_center[1]) <= 96
+            for anchor_center in (_layout_center(anchor) for anchor in anchors)
+        ):
+            bound_exact_nodes.append(item)
+    field_present = len(anchors) == 1
+    token_visible = (
+        field_present
+        and len(exact_nodes) == 1
+        and len(editable_exact_nodes) == 1
+        and len(bound_exact_nodes) == 1
+    )
+    return {
+        "field_semantics": "content-desc:Text input",
+        "input_field_anchor_count": len(anchors),
+        "exact_token_node_count": len(exact_nodes),
+        "editable_exact_token_node_count": len(editable_exact_nodes),
+        "bound_exact_token_node_count": len(bound_exact_nodes),
+        "input_field_present": field_present,
+        "exact_token_visible_in_input": token_visible,
+    }
+
+
+def _source_layout_is_bound(
+    summary: Mapping[str, Any],
+    *,
+    lane_root: Path,
+    checkpoint: str,
+    bound_screenshot: Path,
+) -> bool:
+    runner_checkpoint = (
+        "after-segment-0" if checkpoint == "before" else "after-event-0"
+    )
+    expected_layout = f"artifacts/{runner_checkpoint}/layout.json"
+    expected_screenshot = f"artifacts/{runner_checkpoint}/screen.png"
+    layout_path = lane_root / expected_layout
+    screenshot_path = lane_root / expected_screenshot
+    try:
+        source_nodes = json.loads(layout_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    return (
+        summary.get("source_layout_path") == expected_layout
+        and summary.get("source_screenshot_path") == expected_screenshot
+        and layout_path.is_file()
+        and screenshot_path.is_file()
+        and summary.get("source_layout_sha256") == sha256_file(layout_path)
+        and summary.get("source_screenshot_sha256")
+        == sha256_file(screenshot_path)
+        == sha256_file(bound_screenshot)
+        and canonical_json_bytes(summary.get("nodes"))
+        == canonical_json_bytes(source_nodes)
+    )
+
+
+def _activity_lifecycle_lines(logcat: str) -> list[str]:
+    return [
+        line
+        for line in logcat.splitlines()
+        if ACTIVITY in line
+        and any(marker in line for marker in _ACTIVITY_LIFECYCLE_MARKERS)
+    ]
+
+
+def _activity_recreation_log_is_eligible(logcat: str) -> bool:
+    lifecycle = _activity_lifecycle_lines(logcat)
+    destroy_indexes = [
+        index
+        for index, line in enumerate(lifecycle)
+        if "am_on_destroy_called" in line
+    ]
+    create_indexes = [
+        index
+        for index, line in enumerate(lifecycle)
+        if "am_on_create_called" in line
+    ]
+    return any("am_relaunch_resume_activity" in line for line in lifecycle) or any(
+        destroy < create for destroy in destroy_indexes for create in create_indexes
+    )
+
+
+def _adb_events_lifecycle(
+    receipt: Mapping[str, Any],
+) -> list[str] | None:
+    stdout = receipt.get("stdout")
+    stderr = receipt.get("stderr")
+    duration = receipt.get("duration_seconds")
+    if not isinstance(stdout, str) or not isinstance(stderr, str):
+        return None
+    lifecycle = _activity_lifecycle_lines(stdout)
+    if not (
+        set(receipt)
+        == {
+            "command",
+            "cwd",
+            "returncode",
+            "duration_seconds",
+            "stdout",
+            "stderr",
+        }
+        and receipt.get("command") == list(_ADB_ACTIVITY_EVENTS_COMMAND)
+        and receipt.get("cwd") is None
+        and receipt.get("returncode") == 0
+        and isinstance(duration, (int, float))
+        and not isinstance(duration, bool)
+        and duration >= 0
+        and bool(lifecycle)
+        and _activity_recreation_log_is_eligible(stdout)
+    ):
+        return None
+    return lifecycle
+
+
+def _normalized_checkpoint_logcat(path: Path) -> str | None:
+    try:
+        source = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    selected = [
+        line
+        for line in source.splitlines()
+        if any(term in line for term in _CHECKPOINT_LOGCAT_TERMS)
+    ]
+    normalized = "\n".join(selected or source.splitlines()).strip()
+    return normalized or None
+
+
+def _activity_recreation_source_is_bound(
+    lane_root: Path,
+    normalized_logcat: str,
+) -> bool:
+    receipt = _read_json_object(
+        lane_root / "raw/logcat/events-command.json"
+    )
+    if receipt is None:
+        return False
+    source_lifecycle = _adb_events_lifecycle(receipt)
+    checkpoint_logcat = _normalized_checkpoint_logcat(
+        lane_root / "artifacts/after-event-0/logcat.txt"
+    )
+    if source_lifecycle is None or checkpoint_logcat is None:
+        return False
+    expected_normalized_logcat = (
+        "# activity lifecycle event buffer\n"
+        + ("\n".join(source_lifecycle).strip() or "<no matching lifecycle events>")
+        + "\n# after-rotation checkpoint buffers\n"
+        + checkpoint_logcat
+        + "\n"
+    )
+    return (
+        _activity_lifecycle_lines(normalized_logcat) == source_lifecycle
+        and normalized_logcat == expected_normalized_logcat
+    )
+
+
+def _rotation_event_source_is_bound(
+    summary: Mapping[str, Any],
+    *,
+    lane_root: Path,
+) -> bool:
+    expected_path = "artifacts/system-event-0/event.json"
+    source_path = lane_root / expected_path
+    source = _read_json_object(source_path)
+    evidence = source.get("evidence") if source is not None else None
+    return bool(
+        source is not None
+        and isinstance(evidence, Mapping)
+        and summary.get("source_event_path") == expected_path
+        and summary.get("source_event_sha256") == sha256_file(source_path)
+        and source.get("status") == "passed"
+        and source.get("event") == "rotate"
+        and evidence.get("accelerometer_rotation") == "0"
+        and evidence.get("user_rotation") == "1"
+    )
+
+
 def _raw_probe_is_eligible(
     *,
     bound_paths: Mapping[str, Path],
@@ -1438,6 +1687,60 @@ def _raw_probe_is_eligible(
     if not all(isinstance(value, Mapping) for value in (before, after, event)):
         return False
     expected_after_visible = conclusion == "locally_rejected"
+    before_observation = before.get("text_input_observation")
+    after_observation = after.get("text_input_observation")
+    if not all(
+        isinstance(value, Mapping)
+        for value in (before_observation, after_observation)
+    ):
+        return False
+    computed_before = _text_input_observation(before.get("nodes"), token)
+    computed_after = _text_input_observation(after.get("nodes"), token)
+    if (
+        computed_before is None
+        or computed_after is None
+        or canonical_json_bytes(before_observation)
+        != canonical_json_bytes(computed_before)
+        or canonical_json_bytes(after_observation)
+        != canonical_json_bytes(computed_after)
+    ):
+        return False
+    lane_root = bound_paths["layout_before"].parents[2]
+    if not (
+        _source_layout_is_bound(
+            before,
+            lane_root=lane_root,
+            checkpoint="before",
+            bound_screenshot=bound_paths["screenshot_before"],
+        )
+        and _source_layout_is_bound(
+            after,
+            lane_root=lane_root,
+            checkpoint="after",
+            bound_screenshot=bound_paths["screenshot_after"],
+        )
+    ):
+        return False
+
+    def text_input_observation_is_eligible(
+        observation: Mapping[str, Any],
+        *,
+        token_visible: bool,
+    ) -> bool:
+        expected_count = 1 if token_visible else 0
+        return (
+            observation.get("field_semantics") == "content-desc:Text input"
+            and observation.get("input_field_anchor_count") == 1
+            and observation.get("input_field_present") is True
+            and observation.get("exact_token_node_count") == expected_count
+            and observation.get("editable_exact_token_node_count")
+            == expected_count
+            and observation.get("bound_exact_token_node_count")
+            == expected_count
+            and observation.get("exact_token_visible_in_input")
+            is token_visible
+        )
+
     try:
         logcat = bound_paths["filtered_logcat"].read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
@@ -1450,18 +1753,28 @@ def _raw_probe_is_eligible(
         and after_dimensions is not None
         and after_dimensions[0] > after_dimensions[1]
         and bool(logcat.strip())
+        and _activity_recreation_source_is_bound(lane_root, logcat)
+        and _rotation_event_source_is_bound(event, lane_root=lane_root)
         and before.get("schema_version") == 1
         and before.get("lane_id") == lane_id
         and before.get("checkpoint") == "before"
         and before.get("orientation") == "portrait"
         and before.get("probe_token") == token
         and before.get("token_visible") is True
+        and text_input_observation_is_eligible(
+            before_observation,
+            token_visible=True,
+        )
         and after.get("schema_version") == 1
         and after.get("lane_id") == lane_id
         and after.get("checkpoint") == "after"
         and after.get("orientation") == "landscape"
         and after.get("probe_token") == token
         and after.get("token_visible") is expected_after_visible
+        and text_input_observation_is_eligible(
+            after_observation,
+            token_visible=expected_after_visible,
+        )
         and event.get("schema_version") == 1
         and event.get("lane_id") == lane_id
         and event.get("status") == "passed"
@@ -1613,6 +1926,14 @@ def _execution_review_summary(
             else None
         ),
     }
+
+
+def build_execution_review_summary(
+    execution_record: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Return the role-blind accountability summary used by an R4 review."""
+
+    return _execution_review_summary(execution_record)
 
 
 def _review_context_is_eligible(
@@ -2719,9 +3040,16 @@ def _execution_provenance_is_eligible(
         )
     except (ExecutionIdentityError, OSError, ValueError):
         return False
-    expected_commit = (
-        DEFECT_COMMIT if role == "defect" else PROJECT_TARGET_COMMIT
-    )
+    if role == "defect":
+        expected_commit = DEFECT_COMMIT
+        expected_apk_bytes = DEFECT_APK_BYTES
+        expected_apk_sha256 = DEFECT_APK_SHA256
+    elif role == "control":
+        expected_commit = PROJECT_TARGET_COMMIT
+        expected_apk_bytes = CONTROL_APK_BYTES
+        expected_apk_sha256 = CONTROL_APK_SHA256
+    else:
+        return False
     run_spec = provenance.get("run_spec")
     host = provenance.get("host")
     apk = provenance.get("apk")
@@ -2859,7 +3187,8 @@ def _execution_provenance_is_eligible(
         == expected_apk_path
         and isinstance(apk_artifact.get("bytes"), int)
         and not isinstance(apk_artifact.get("bytes"), bool)
-        and apk_artifact.get("bytes", 0) > 0
+        and apk_artifact.get("bytes") == expected_apk_bytes
+        and apk_artifact.get("sha256") == expected_apk_sha256
         and device.get("serial") == DEVICE
         and device.get("api_level") == "35"
         and device_profile.get("kind") == "emulator"
@@ -2879,16 +3208,13 @@ def _execution_provenance_is_eligible(
         )
         and roles["journey_driver"].get("status") == "invoked"
         and (
-            (
+            roles["l3_semantic_judge"].get("status") == "invoked"
+            or (
                 role == "defect"
                 and roles["l3_semantic_judge"].get("status")
                 == "not_applicable"
                 and roles["l3_semantic_judge"].get("reason")
                 == "gated_by_lower_oracle"
-            )
-            or (
-                role == "control"
-                and roles["l3_semantic_judge"].get("status") == "invoked"
             )
         )
         and provenance_refs == effective_refs
@@ -2904,22 +3230,23 @@ def _execution_provenance_is_eligible(
     )
 
 
-def _lane_ledger_is_exhaustive(
+def _checksum_ledger_is_exhaustive(
     ledger_path: Path,
     *,
-    lane_root: Path,
+    evidence_root: Path,
+    ignored: set[str],
 ) -> bool:
     ledger_entries: dict[str, str] = {}
     try:
         for line in ledger_path.read_text(encoding="utf-8").splitlines():
             digest, separator, label = line.partition("  ")
-            candidate = (lane_root / label).resolve()
+            candidate = (evidence_root / label).resolve()
             if (
                 separator != "  "
                 or not _is_sha256(digest)
                 or not label
                 or label in ledger_entries
-                or not candidate.is_relative_to(lane_root)
+                or not candidate.is_relative_to(evidence_root)
                 or not candidate.is_file()
                 or sha256_file(candidate) != digest
             ):
@@ -2927,14 +3254,25 @@ def _lane_ledger_is_exhaustive(
             ledger_entries[label] = digest
     except (OSError, UnicodeDecodeError):
         return False
-    ignored = {"checksums.sha256", "attempt-evidence-validation.json"}
     actual = {
-        path.relative_to(lane_root).as_posix(): sha256_file(path)
-        for path in lane_root.rglob("*")
+        path.relative_to(evidence_root).as_posix(): sha256_file(path)
+        for path in evidence_root.rglob("*")
         if path.is_file()
-        and path.relative_to(lane_root).as_posix() not in ignored
+        and path.relative_to(evidence_root).as_posix() not in ignored
     }
     return ledger_entries == actual
+
+
+def _lane_ledger_is_exhaustive(
+    ledger_path: Path,
+    *,
+    lane_root: Path,
+) -> bool:
+    return _checksum_ledger_is_exhaustive(
+        ledger_path,
+        evidence_root=lane_root,
+        ignored={"checksums.sha256", "attempt-evidence-validation.json"},
+    )
 
 
 def _attempt_evidence_is_eligible(
@@ -3149,6 +3487,9 @@ def _attempt_evidence_is_eligible(
         and oracle.get("accountable") is row.get("accountable")
         and oracle.get("conclusion") == row.get("finding_conclusion")
         and oracle.get("status") == "complete"
+        and oracle.get("hypothesis_id") == FORMAL_HYPOTHESIS_ID
+        and isinstance(oracle.get("explored_fact_ids"), list)
+        and tuple(oracle["explored_fact_ids"]) == risk_map.explored_fact_ids
         and oracle.get("probe_token") == token
         and oracle.get("sent") is False
         and oracle.get("retyped_after_boundary") is False
@@ -3157,13 +3498,13 @@ def _attempt_evidence_is_eligible(
         and expected_finding is not None
         and finding.finding_id == f"finding-{lane_id}"
         and finding.target_id == PROJECT_TARGET_ID
-        and finding.hypothesis_id == f"hypothesis-{lane_id}"
+        and finding.hypothesis_id == FORMAL_HYPOTHESIS_ID
         and finding.conclusion == expected_finding
         and finding.claim_boundary == LOCAL_CLAIM_BOUNDARY
         and finding_required_refs.issubset(set(finding.evidence_refs))
         and residual.risk_id == f"residual-{lane_id}"
         and residual.target_id == PROJECT_TARGET_ID
-        and residual.hypothesis_id == f"hypothesis-{lane_id}"
+        and residual.hypothesis_id == FORMAL_HYPOTHESIS_ID
         and residual.scope == LOCAL_CLAIM_BOUNDARY
         and residual.status in {"open", "accepted"}
         and residual.next_probe is not None
@@ -3176,6 +3517,8 @@ def _attempt_evidence_is_eligible(
         and risk_map.findings == (finding,)
         and risk_map.residual_risks == (residual,)
         and bool(risk_map.explored_fact_ids)
+        and len(set(risk_map.explored_fact_ids))
+        == len(risk_map.explored_fact_ids)
         and bool(risk_map.coverage_frontier)
         and claim_boundary.get("schema_version") == 2
         and claim_boundary.get("lane_id") == lane_id
@@ -3249,6 +3592,7 @@ def _formal_attempt_artifact_audit(
     attempt_root = (repository_root / R4_RUN_RECORD).resolve()
     artifact_root = (repository_root / R4_ARTIFACT_ROOT).resolve()
     result: dict[str, Any] = {
+        "root_ledger_exhaustive": False,
         "lane_roots_exact": False,
         "execution_records_exhaustive": False,
         "execution_record_count": 0,
@@ -3257,6 +3601,11 @@ def _formal_attempt_artifact_audit(
     }
     if not attempt_root.is_dir() or not artifact_root.is_dir():
         return result
+    result["root_ledger_exhaustive"] = _checksum_ledger_is_exhaustive(
+        attempt_root / "checksums.sha256",
+        evidence_root=attempt_root,
+        ignored={"checksums.sha256"},
+    )
     try:
         lane_roots = {
             path.name
@@ -3724,6 +4073,19 @@ def reconcile_formal_rows(
         "mapping_assignment_verified": True,
         "contradiction_audit_sha256": actual_contradiction_commitment,
     }
+
+
+def validate_formal_attempt_row(
+    row: Mapping[str, Any],
+    *,
+    evidence_repository_root: str | Path,
+) -> bool:
+    """Validate one sealed R4 row against every frozen byte-level contract."""
+
+    return _attempt_evidence_is_eligible(
+        row,
+        repository_root=Path(evidence_repository_root).resolve(),
+    )
 
 
 def _manifest_errors(
@@ -4418,13 +4780,18 @@ __all__ = [
     "ACTIVITY",
     "APK_GLOB",
     "BACKEND",
+    "CONTROL_APK_BYTES",
+    "CONTROL_APK_SHA256",
     "CONTRADICTION_PACKET_ID",
     "CONTRADICTION_REJECTION_BOUNDARY",
     "CONTRADICTION_REQUIRED_FIELDS",
     "DEFECT_COMMIT",
+    "DEFECT_APK_BYTES",
+    "DEFECT_APK_SHA256",
     "DEFECT_TREE",
     "DEVICE",
     "FORMAL_ATTEMPT_ID",
+    "FORMAL_HYPOTHESIS_ID",
     "LANE_IDS",
     "M9RecoveryAuditorMapping",
     "M9RecoveryQualificationError",
@@ -4439,11 +4806,13 @@ __all__ = [
     "SOURCE_ORIGIN",
     "audit_contradiction_packet",
     "audit_neutral_packets",
+    "build_execution_review_summary",
     "canonical_json_bytes",
     "freeze_payload",
     "freeze_payload_sha256",
     "ensure_candidate_regeneration_allowed",
     "ensure_evidence_ledger_regeneration_allowed",
+    "execute_falsification_review",
     "load_auditor_mapping",
     "load_manifest",
     "reconcile_formal_rows",
@@ -4451,5 +4820,6 @@ __all__ = [
     "sha256_bytes",
     "sha256_file",
     "validate_admission_receipts",
+    "validate_formal_attempt_row",
     "validate_human_approval",
 ]

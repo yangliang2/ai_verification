@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-08T06:30:48Z",
+  "issue": 154,
+  "phase": "M9-R4 Phase A formal consumer",
+  "result": "pass",
+  "code_seal": {
+    "base_commit": "6ec408f1aec57adfcd90e0e25e2453a9eda05fc1",
+    "consumer_commit": "5c404d2bcf19b4edad7fb1f709e1124952b17fa6",
+    "consumer_tree": "5b1fa2ca2b952bdc49e293d92dcceabac337a7e2",
+    "base_to_consumer_diff_sha256": "9a4fa807429fb0c43f755e6e5931e9a7a58bddebc7e48ba141e441d2783589a7",
+    "worktree_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "files_changed": 7,
+    "insertions": 3686,
+    "deletions": 37,
+    "commits": [
+      "fc41556a56a42c64995a14d6044b2226980017c5",
+      "2feefd3a5f2cfd31bfcb7ff675c9a0ee835f6e25",
+      "187f6648e76ff3b681a3f3511bf7d5c5189b807f",
+      "90b2a61a4aebe0961f23f3d36ea8bbeddb387ca6",
+      "1cb872f34482bc07574c7659a0935bcc3cf64749",
+      "3dd5e044a2a850fae5d506f8ac9706b3c8bf06f9",
+      "5c404d2bcf19b4edad7fb1f709e1124952b17fa6"
+    ]
+  },
+  "frozen_inputs": {
+    "r3_merge_commit": "6ec408f1aec57adfcd90e0e25e2453a9eda05fc1",
+    "packet_commitment_sha256": "a2ae1d8ca4902a500c67aa6107a0f42fe06a3948ca484305861d2d2670033225",
+    "manifest_sha256": "aa860f4b10144c2e6374912685ef914a420a234fc805d36cebb72b0c705629ad",
+    "r3_ledger_sha256": "0d3b311387dae768cf361a1f7683605a97600851ccb1e38c8ce2632b3ee9dc47",
+    "r3_ledger_entries_verified": 57,
+    "mapping_canonical_sha256": "d69c0421ed68bf7de020326043fcf787250abbdb9aa0c9a10ecc3a2cc1eba8a4",
+    "mapping_raw_sha256": "4da963ad23e5e8aca18e79328069a23a62a3071eb814d929246675fc7f4b84eb",
+    "defect": {
+      "origin": "https://github.com/android/compose-samples.git",
+      "commit": "56b59e237b253bc52e2ce1141dce26af07503415",
+      "tree": "993432fb446913107df1bc0c040a05f8dae1c5b2",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apk_path": "/private/tmp/m9-r3-snapshot-a/Jetchat/app/build/outputs/apk/debug/app-debug.apk",
+      "apk_bytes": 17511239,
+      "apk_sha256": "41d7c3ff47f2f2d2a04942d11ab57c6c76ac7314ff6abf8dad14fd9b3149e55b"
+    },
+    "control": {
+      "origin": "https://github.com/android/compose-samples.git",
+      "commit": "038c8208307508ceedcb5dd07a4fe2794017644c",
+      "tree": "e658ec4cdbb25d8e75a04879e9e20a0c245832e9",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apk_path": "/private/tmp/m9-r3-snapshot-b/Jetchat/app/build/outputs/apk/debug/app-debug.apk",
+      "apk_bytes": 17511449,
+      "apk_sha256": "a1536cec09a33063f7796dc77e0effdf1847a3ad325dcef707216fa87d78386d"
+    }
+  },
+  "formal_state": {
+    "formal_root": "docs/runs/2026-08-07-m9-r4-formal-attempt-01",
+    "formal_root_exists": false,
+    "source_root": "/private/tmp/m9-r4-formal-sources",
+    "source_root_exists": false,
+    "formal_execution_started": false,
+    "formal_holdout_executed": false,
+    "mapping_released": false,
+    "device_calls": 0,
+    "model_calls": 0,
+    "formal_lane_attempts": 0,
+    "r1_r2_inputs_reused": false,
+    "issue_136_rerun": false,
+    "issue_137_rerun": false,
+    "issue_137_result": "Runtime Not Supported"
+  },
+  "verification": {
+    "focused_tests": {
+      "command": "/usr/bin/time -p uv run pytest tests/bench/test_m9_recovery_formal.py tests/bench/test_m9_recovery_qualification.py",
+      "exit_code": 0,
+      "passed": 92,
+      "failed": 0,
+      "duration_seconds": 16.18,
+      "wall_seconds": 16.28
+    },
+    "full_tests": {
+      "command": "/usr/bin/time -p -o /private/tmp/m9-r4-full-final-5c404d2.YpSjce/time.txt uv run python -m pytest --junitxml=/private/tmp/m9-r4-full-final-5c404d2.YpSjce/junit.xml",
+      "exit_code": 0,
+      "tests": 1011,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_duration_seconds": 49.161,
+      "wall_seconds": 50.45,
+      "user_seconds": 31.72,
+      "system_seconds": 15.64,
+      "junit_bytes": 141288,
+      "junit_sha256": "7527ccc745fdd1921c8aa42c2fb9f57bb65536d7ce306a2b47699836e0ef0e9e",
+      "timing_sha256": "a9e63f1e5f249029eaa7b7d55c4dcc2827e368f394a22f46024c0e7a565da09b"
+    },
+    "static_preflight": {
+      "command": "uv run python -m aiverify.bench.m9_recovery_formal --static-preflight",
+      "exit_code": 0,
+      "status": "passed",
+      "side_effects": false,
+      "duration_seconds": 0.26,
+      "device_calls": 0,
+      "model_calls": 0,
+      "formal_lane_attempts": 0
+    },
+    "external_input_preflight": {
+      "command": "/usr/bin/time -p uv run python - <<'PY'\nimport json\nfrom aiverify.bench.m9_recovery_formal import FormalInputs, _source_bindings, _validate_formal_inputs\ninputs = FormalInputs(expected_consumer_commit='5c404d2bcf19b4edad7fb1f709e1124952b17fa6')\nprint(json.dumps(_validate_formal_inputs(inputs, _source_bindings(inputs)), sort_keys=True))\nPY",
+      "exit_code": 0,
+      "status": "passed",
+      "side_effects": false,
+      "verified_before_formal_root_claim": true,
+      "source_root_absent": true,
+      "duration_seconds": 0.28
+    },
+    "manifest_check": {
+      "command": "uv run python -m aiverify.bench.m9_recovery_qualification --check-manifest bench/m9/m9-recovery-project-qualification-v2.json",
+      "exit_code": 0,
+      "stdout": ""
+    },
+    "py_compile": {
+      "command": "uv run python -m py_compile src/aiverify/bench/m9_recovery_formal.py src/aiverify/bench/m9_recovery_qualification.py",
+      "exit_code": 0,
+      "stdout": ""
+    },
+    "diff_check": {
+      "command": "git diff --check 6ec408f1aec57adfcd90e0e25e2453a9eda05fc1..5c404d2bcf19b4edad7fb1f709e1124952b17fa6",
+      "exit_code": 0,
+      "stdout": ""
+    }
+  },
+  "package_build": {
+    "command": "/usr/bin/time -p uv build --out-dir /private/tmp/m9-r4-phase-a-package-5c404d2.NVPHj8",
+    "exit_code": 0,
+    "duration_seconds": 3.36,
+    "package": "aiverify",
+    "version": "0.1.0",
+    "requires_python": ">=3.11",
+    "wheel": {
+      "path": "/private/tmp/m9-r4-phase-a-package-5c404d2.NVPHj8/aiverify-0.1.0-py3-none-any.whl",
+      "sha256": "866a269363084fb5c050c15b5e947509ed198cdf8ed2eb3f20ed75dd79ad99a7"
+    },
+    "sdist": {
+      "path": "/private/tmp/m9-r4-phase-a-package-5c404d2.NVPHj8/aiverify-0.1.0.tar.gz",
+      "sha256": "c280ff244e14498712a9010e2ff7777d203a25a22465bf68c1b5f2c04a0b85c3"
+    },
+    "source_wheel_sdist_bytes_match": true,
+    "content_verification_commands": [
+      "shasum -a 256 /private/tmp/m9-r4-phase-a-package-5c404d2.NVPHj8/*",
+      "shasum -a 256 src/aiverify/bench/m9_recovery_formal.py src/aiverify/bench/m9_recovery_qualification.py src/aiverify/runner/cli.py src/aiverify/runner/execution_identity.py",
+      "unzip -p <wheel> <module> | shasum -a 256 for each listed module",
+      "tar -xOf <sdist> aiverify-0.1.0/<module> | shasum -a 256 for each listed module",
+      "unzip -p <wheel> aiverify-0.1.0.dist-info/METADATA"
+    ],
+    "module_sha256": {
+      "src/aiverify/bench/m9_recovery_formal.py": "e8ea4b81c5f3d67ed70c0667c3baad1f7f9df8f063ce29a9cf12590e2575335a",
+      "src/aiverify/bench/m9_recovery_qualification.py": "c298337dfa428a1bbb1f88af72a083399e2bd43c59732d32bb375fe9ffdc5449",
+      "src/aiverify/runner/cli.py": "d0a47bcef3154b3d71c8be2c33ecd9e2139903034f37ab9efdca5904e6aaaf18",
+      "src/aiverify/runner/execution_identity.py": "9f27fcad0c739d182b4c4e08ca9eda68150bdfdbe0497a53a65c76d02a34cd29"
+    }
+  },
+  "tools": {
+    "python": {
+      "version": "3.11.15"
+    },
+    "android": {
+      "version": "1.0.15498356",
+      "path": "/Users/peter/.local/bin/android",
+      "sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc"
+    },
+    "adb": {
+      "version": "1.0.41 / 37.0.0-14910828",
+      "path": "/opt/homebrew/bin/adb",
+      "sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7"
+    },
+    "codex": {
+      "version": "0.144.6",
+      "path": "/opt/homebrew/bin/codex",
+      "sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff"
+    },
+    "uv": {
+      "version": "0.11.7",
+      "path": "/Users/peter/.local/bin/uv",
+      "sha256": "40a78912c850286ea5756211f1f88c0928fb15b788869d46d4355cd4ac556023"
+    },
+    "git": {
+      "version": "2.50.1 (Apple Git-155)",
+      "path": "/usr/bin/git",
+      "sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb"
+    }
+  },
+  "reviews": {
+    "standards": {
+      "result": "pass",
+      "standards_violations": 0,
+      "judgement_findings": 0,
+      "path": "standards-review.md",
+      "seal_commit": "5c404d2bcf19b4edad7fb1f709e1124952b17fa6",
+      "seal_tree": "5b1fa2ca2b952bdc49e293d92dcceabac337a7e2"
+    },
+    "spec": {
+      "result": "pass",
+      "remaining_findings": 0,
+      "path": "spec-review.md",
+      "seal_commit": "5c404d2bcf19b4edad7fb1f709e1124952b17fa6",
+      "seal_tree": "5b1fa2ca2b952bdc49e293d92dcceabac337a7e2"
+    }
+  },
+  "original_worktree": {
+    "path": "/Users/peter/projects/ai_verfication",
+    "branch": "issue-73-accessibility-slice",
+    "head": "ef94cb543b76254687acab5e2de1b6527076d9ae",
+    "status_sha256": "af08d39f3854aa888b242408361083afe51117ad8ef078aa365cfaef19443ceb",
+    "tracked_diff_sha256": "75e2cd7dc7750142ef17eab9e719f15cc2ee244600528ec6973a68e778239e57",
+    "staged_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unchanged": true,
+    "verification_commands": [
+      "git branch --show-current",
+      "git rev-parse HEAD",
+      "git status --porcelain=v1 --untracked-files=all | shasum -a 256",
+      "git diff --binary | shasum -a 256",
+      "git diff --cached --binary | shasum -a 256"
+    ]
+  },
+  "external_artifacts": [
+    {
+      "kind": "junit_xml",
+      "path": "/private/tmp/m9-r4-full-final-5c404d2.YpSjce/junit.xml",
+      "bytes": 141288,
+      "sha256": "7527ccc745fdd1921c8aa42c2fb9f57bb65536d7ce306a2b47699836e0ef0e9e",
+      "committed": false,
+      "reason": "reproducible generated per-test report; durable counts and checksum are committed here"
+    },
+    {
+      "kind": "test_timing",
+      "path": "/private/tmp/m9-r4-full-final-5c404d2.YpSjce/time.txt",
+      "sha256": "a9e63f1e5f249029eaa7b7d55c4dcc2827e368f394a22f46024c0e7a565da09b",
+      "committed": false,
+      "reason": "reproducible generated timing receipt; durable values and checksum are committed here"
+    },
+    {
+      "kind": "wheel",
+      "path": "/private/tmp/m9-r4-phase-a-package-5c404d2.NVPHj8/aiverify-0.1.0-py3-none-any.whl",
+      "sha256": "866a269363084fb5c050c15b5e947509ed198cdf8ed2eb3f20ed75dd79ad99a7",
+      "committed": false,
+      "reason": "reproducible generated package binary; durable identity is committed here"
+    },
+    {
+      "kind": "sdist",
+      "path": "/private/tmp/m9-r4-phase-a-package-5c404d2.NVPHj8/aiverify-0.1.0.tar.gz",
+      "sha256": "c280ff244e14498712a9010e2ff7777d203a25a22465bf68c1b5f2c04a0b85c3",
+      "committed": false,
+      "reason": "reproducible generated package archive; durable identity is committed here"
+    }
+  ],
+  "manual_verification": {
+    "performed": false,
+    "reason": "Phase A forbids formal device execution; screenshot review is reserved for Phase B"
+  },
+  "known_gaps": [
+    "Phase B formal execution has not run by design.",
+    "No device, deployment, production model, falsification-review model, or visual screenshot verification occurred in Phase A.",
+    "Generated JUnit and package artifacts remain outside Git; absolute paths, results, sizes where relevant, and SHA-256 identities are committed in this record."
+  ]
+}

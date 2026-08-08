@@ -286,12 +286,19 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
 
     run_dir = tmp_path / "run"
     artifact_dir = run_dir / "artifacts"
+    resolved_run_spec_path = run_dir / "identity" / "resolved-run-spec.yaml"
+    resolved_run_spec_path.parent.mkdir(parents=True)
+    resolved_run_spec_path.write_bytes(run_spec_path.read_bytes())
+    effective_spec = load_run_spec(
+        resolved_run_spec_path,
+        environ={"WIKIPEDIA_SOURCE": str(host)},
+    )
     collector = ExecutionIdentityCollector(
         run_dir=run_dir,
         artifact_dir=artifact_dir,
         attempt_id="attempt-1",
-        spec=spec,
-        run_spec_path=run_spec_path,
+        spec=effective_spec,
+        run_spec_path=resolved_run_spec_path,
         workdir=host,
         device="emulator-5554",
         requested_driver_model="gpt-5.1-codex",
@@ -301,6 +308,12 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
         adb_bin=str(binaries["adb"]),
         codex_bin=str(binaries["codex"]),
         git_bin=str(git_bin),
+        run_spec_snapshot_path=resolved_run_spec_path,
+        run_spec_identity_annotations={
+            "frozen_source_sha256": _sha256(run_spec_path),
+            "source_binding_ref": "a" * 40,
+        },
+        authoritative_role_identity_dir=run_dir / "production-identities",
     )
 
     collector.capture_static()
@@ -334,10 +347,22 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
         scenario="identity-smoke",
         base_dir=run_dir,
     )
-    assert provenance["run_spec"]["consumed_sha256"] == _sha256(run_spec_path)
+    assert provenance["run_spec"]["consumed_sha256"] == _sha256(
+        resolved_run_spec_path
+    )
     assert provenance["run_spec"]["snapshot_sha256"] == _sha256(
         run_dir / provenance["run_spec"]["snapshot_path"]
     )
+    assert provenance["run_spec"]["invocation_path"] == str(
+        resolved_run_spec_path
+    )
+    assert provenance["run_spec"]["snapshot_path"] == (
+        "identity/resolved-run-spec.yaml"
+    )
+    assert provenance["run_spec"]["frozen_source_sha256"] == _sha256(
+        run_spec_path
+    )
+    assert provenance["run_spec"]["source_binding_ref"] == "a" * 40
     assert provenance["run_spec"]["host_locator"] == {
         "root": "${WIKIPEDIA_SOURCE}",
         "resolution": "environment",
@@ -369,6 +394,9 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
         "identity_sha256": provenance["device"]["identity_sha256"],
     }
     assert provenance["roles"]["journey_driver"]["status"] == "invoked"
+    assert provenance["roles"]["journey_driver"]["invocations"][0][
+        "path"
+    ] == "production-identities/journey-driver-01.json"
     assert provenance["roles"]["l3_semantic_judge"] == {
         "status": "not_applicable",
         "reason": "scenario_has_no_l3_spec",

@@ -18,11 +18,16 @@ from aiverify.bench.m9_recovery_qualification import (
     ACTIVITY,
     APK_GLOB,
     BACKEND,
+    CONTROL_APK_BYTES,
+    CONTROL_APK_SHA256,
+    DEFECT_APK_BYTES,
+    DEFECT_APK_SHA256,
     DEFECT_COMMIT,
     DEVICE,
     FalsificationReviewExecutionError,
     FalsificationReviewInvocationPlan,
     FORMAL_ATTEMPT_ID,
+    FORMAL_HYPOTHESIS_ID,
     LANE_IDS,
     LOCAL_CLAIM_BOUNDARY,
     M9RecoveryQualificationError,
@@ -229,6 +234,11 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(source.read_bytes())
 
+    formal_fact_ids = (
+        "fact-formal-context-input",
+        "fact-formal-context-recreation",
+        "fact-formal-context-source",
+    )
     rows = []
     for index, lane_id in enumerate(LANE_IDS, start=1):
         token = PROBE_TOKENS[index - 1]
@@ -244,6 +254,40 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             if roles[lane_id] == "defect"
             else "locally_rejected"
         )
+        after_token_visible = finding_conclusion == "locally_rejected"
+
+        def text_input_observation(token_visible: bool) -> dict[str, object]:
+            count = 1 if token_visible else 0
+            return {
+                "field_semantics": "content-desc:Text input",
+                "input_field_anchor_count": 1,
+                "exact_token_node_count": count,
+                "editable_exact_token_node_count": count,
+                "bound_exact_token_node_count": count,
+                "input_field_present": True,
+                "exact_token_visible_in_input": token_visible,
+            }
+
+        def text_input_nodes(token_visible: bool) -> list[dict[str, object]]:
+            nodes: list[dict[str, object]] = [
+                {
+                    "content-desc": "Text input",
+                    "center": "[540,1000]",
+                }
+            ]
+            if token_visible:
+                nodes.append(
+                    {
+                        "text": token,
+                        "interactions": [
+                            "clickable",
+                            "focusable",
+                            "long-clickable",
+                        ],
+                        "center": "[420,1000]",
+                    }
+                )
+            return nodes
         reference_files = {
             "execution_record": "execution-record.json",
             "execution_provenance": "execution-provenance.json",
@@ -445,8 +489,43 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
         }
         write_json(lane_root / "production-seam-admission.json", admission)
 
-        write_png(lane_root / "raw/screenshots/before.png", f"{lane_id}-before")
-        write_png(lane_root / "raw/screenshots/after.png", f"{lane_id}-after")
+        before_source_root = lane_root / "artifacts/after-segment-0"
+        after_source_root = lane_root / "artifacts/after-event-0"
+        before_source_screen = before_source_root / "screen.png"
+        after_source_screen = after_source_root / "screen.png"
+        before_source_layout = before_source_root / "layout.json"
+        after_source_layout = after_source_root / "layout.json"
+        after_source_logcat = after_source_root / "logcat.txt"
+        event_source = lane_root / "artifacts/system-event-0/event.json"
+        before_nodes = text_input_nodes(True)
+        after_nodes = text_input_nodes(after_token_visible)
+        write_png(before_source_screen, f"{lane_id}-before")
+        write_png(after_source_screen, f"{lane_id}-after")
+        write_json(before_source_layout, before_nodes)
+        write_json(after_source_layout, after_nodes)
+        after_checkpoint_logcat = (
+            f"I/ActivityTaskManager: {lane_id} configuration completed\n"
+        )
+        after_source_logcat.write_text(
+            after_checkpoint_logcat,
+            encoding="utf-8",
+        )
+        write_json(
+            event_source,
+            {
+                "status": "passed",
+                "event": "rotate",
+                "evidence": {
+                    "accelerometer_rotation": "0",
+                    "user_rotation": "1",
+                },
+            },
+        )
+        before_raw_screen = lane_root / "raw/screenshots/before.png"
+        after_raw_screen = lane_root / "raw/screenshots/after.png"
+        before_raw_screen.parent.mkdir(parents=True, exist_ok=True)
+        before_raw_screen.write_bytes(before_source_screen.read_bytes())
+        after_raw_screen.write_bytes(after_source_screen.read_bytes())
         write_json(
             lane_root / "raw/layout/before.json",
             {
@@ -456,6 +535,16 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "orientation": "portrait",
                 "probe_token": token,
                 "token_visible": True,
+                "text_input_observation": text_input_observation(True),
+                "nodes": before_nodes,
+                "source_screenshot_path": "artifacts/after-segment-0/screen.png",
+                "source_screenshot_sha256": sha256_bytes(
+                    before_source_screen.read_bytes()
+                ),
+                "source_layout_path": "artifacts/after-segment-0/layout.json",
+                "source_layout_sha256": sha256_bytes(
+                    before_source_layout.read_bytes()
+                ),
             },
         )
         write_json(
@@ -466,12 +555,53 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "checkpoint": "after",
                 "orientation": "landscape",
                 "probe_token": token,
-                "token_visible": finding_conclusion == "locally_rejected",
+                "token_visible": after_token_visible,
+                "text_input_observation": text_input_observation(
+                    after_token_visible
+                ),
+                "nodes": after_nodes,
+                "source_screenshot_path": "artifacts/after-event-0/screen.png",
+                "source_screenshot_sha256": sha256_bytes(
+                    after_source_screen.read_bytes()
+                ),
+                "source_layout_path": "artifacts/after-event-0/layout.json",
+                "source_layout_sha256": sha256_bytes(
+                    after_source_layout.read_bytes()
+                ),
             },
         )
         (lane_root / "raw/logcat").mkdir(parents=True, exist_ok=True)
+        lifecycle_logcat = (
+            f"I/am_on_create_called: [0,{ACTIVITY},performCreate]\n"
+            f"I/am_on_destroy_called: [0,{ACTIVITY},performDestroy]\n"
+            f"I/am_on_create_called: [0,{ACTIVITY},performCreate]\n"
+        )
+        write_json(
+            lane_root / "raw/logcat/events-command.json",
+            {
+                "command": [
+                    "adb",
+                    "-s",
+                    DEVICE,
+                    "logcat",
+                    "-b",
+                    "events",
+                    "-d",
+                    "-v",
+                    "threadtime",
+                ],
+                "cwd": None,
+                "returncode": 0,
+                "duration_seconds": 0.1,
+                "stdout": lifecycle_logcat,
+                "stderr": "",
+            },
+        )
         (lane_root / "raw/logcat/rotation.txt").write_text(
-            f"{lane_id} WindowInsetsController activity recreation completed\n",
+            "# activity lifecycle event buffer\n"
+            + lifecycle_logcat.strip()
+            + "\n# after-rotation checkpoint buffers\n"
+            + after_checkpoint_logcat,
             encoding="utf-8",
         )
         write_json(
@@ -488,6 +618,10 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "activity_recreation_observed": True,
                 "retyped_after_boundary": False,
                 "repaired_after_boundary": False,
+                "source_event_path": "artifacts/system-event-0/event.json",
+                "source_event_sha256": sha256_bytes(
+                    event_source.read_bytes()
+                ),
             },
         )
 
@@ -667,8 +801,10 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 },
             }
         )
-        apk_sha256 = sha256_bytes(
-            f"{lane_id}:{expected_commit}:apk".encode("utf-8")
+        apk_bytes, apk_sha256 = (
+            (DEFECT_APK_BYTES, DEFECT_APK_SHA256)
+            if roles[lane_id] == "defect"
+            else (CONTROL_APK_BYTES, CONTROL_APK_SHA256)
         )
         apk_path = str(Path(source_workdir) / APK_GLOB)
         apk_identity = bind_identity(
@@ -676,7 +812,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "artifacts": [
                     {
                         "path": apk_path,
-                        "bytes": 1024 + index,
+                        "bytes": apk_bytes,
                         "sha256": apk_sha256,
                     }
                 ]
@@ -865,6 +1001,8 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "lane_id": lane_id,
             "accountable": True,
             "conclusion": finding_conclusion,
+            "hypothesis_id": FORMAL_HYPOTHESIS_ID,
+            "explored_fact_ids": list(formal_fact_ids),
             "probe_token": token,
             "sent": False,
             "retyped_after_boundary": False,
@@ -877,7 +1015,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "schema_version": 1,
             "finding_id": f"finding-{lane_id}",
             "target_id": PROJECT_TARGET_ID,
-            "hypothesis_id": f"hypothesis-{lane_id}",
+            "hypothesis_id": FORMAL_HYPOTHESIS_ID,
             "conclusion": (
                 "supported"
                 if finding_conclusion == "locally_supported"
@@ -902,7 +1040,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "schema_version": 1,
             "risk_id": f"residual-{lane_id}",
             "target_id": PROJECT_TARGET_ID,
-            "hypothesis_id": f"hypothesis-{lane_id}",
+            "hypothesis_id": FORMAL_HYPOTHESIS_ID,
             "reason": "The local probe does not establish broader behavior.",
             "evidence_gap": "Other devices and lifecycle boundaries are unexplored.",
             "scope": LOCAL_CLAIM_BOUNDARY,
@@ -919,7 +1057,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "target_id": PROJECT_TARGET_ID,
             "findings": [finding],
             "residual_risks": [residual],
-            "explored_fact_ids": [f"fact-{lane_id}"],
+            "explored_fact_ids": list(formal_fact_ids),
             "coverage_frontier": [
                 "production, OEM, and physical-device behavior remains unexplored"
             ],
@@ -1220,6 +1358,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "formal_attempts": attempt_inventory,
         },
     )
+    _write_root_ledger(tmp_path)
     return {
         "manifest": manifest,
         "mapping": mapping,
@@ -1242,6 +1381,24 @@ def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(value, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _write_root_ledger(repository_root: Path) -> None:
+    attempt_root = repository_root / R4_RUN_RECORD
+    ledger_path = attempt_root / "checksums.sha256"
+    entries = sorted(
+        path
+        for path in attempt_root.rglob("*")
+        if path.is_file() and path != ledger_path
+    )
+    ledger_path.write_text(
+        "".join(
+            f"{sha256_bytes(path.read_bytes())}  "
+            f"{path.relative_to(attempt_root).as_posix()}\n"
+            for path in entries
+        ),
         encoding="utf-8",
     )
 
@@ -1438,6 +1595,7 @@ def _reseal_lane(
     receipt = row["attempt_evidence_receipt"]
     assert isinstance(receipt, dict)
     receipt["sha256"] = sha256_bytes(validation_path.read_bytes())
+    _write_root_ledger(repository_root)
 
 
 def _reconcile_fixture(fixture: dict[str, object]) -> dict[str, object]:
@@ -1662,6 +1820,7 @@ def test_supported_requires_every_frozen_gate(tmp_path: Path) -> None:
         "lane_replacement_count": 0,
         "lane_discretionary_rerun_count": 0,
         "formal_attempt_inventory_checksum_bound": True,
+        "root_ledger_exhaustive": True,
         "lane_roots_exact": True,
         "execution_records_exhaustive": True,
         "execution_record_count": 6,
@@ -1697,6 +1856,28 @@ def test_supported_requires_every_frozen_gate(tmp_path: Path) -> None:
         )["aggregate_result"]
         == "Not Supported"
     )
+
+
+@pytest.mark.parametrize("mutation", ("missing", "tampered", "extra"))
+def test_supported_requires_exhaustive_root_ledger(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    attempt_root = tmp_path / R4_RUN_RECORD
+    ledger_path = attempt_root / "checksums.sha256"
+    if mutation == "missing":
+        ledger_path.unlink()
+    elif mutation == "tampered":
+        lines = ledger_path.read_text(encoding="utf-8").splitlines()
+        lines[0] = "0" * 64 + lines[0][64:]
+        ledger_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    else:
+        _write_json(attempt_root / "unlisted-root-artifact.json", {"extra": True})
+
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["root_ledger_exhaustive"] is False
+    assert result["aggregate_result"] == "Not Supported"
 
 
 def test_falsification_review_producer_uses_semantic_output_and_runner_envelope(
@@ -2362,6 +2543,105 @@ def test_supported_rejects_signature_only_png_after_reseal(
     assert result["aggregate_result"] == "Not Supported"
 
 
+def test_supported_recomputes_text_input_and_recreation_evidence(
+    tmp_path: Path,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    layout_path = lane_root / "raw/layout/before.json"
+    layout = json.loads(layout_path.read_text(encoding="utf-8"))
+    layout["text_input_observation"]["exact_token_visible_in_input"] = False
+    _write_json(layout_path, layout)
+    _reseal_lane(tmp_path, first)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+    fixture = _formal_fixture(tmp_path / "recreation")
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = (
+        tmp_path / "recreation" / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    )
+    (lane_root / "raw/logcat/rotation.txt").write_text(
+        "rotation completed without lifecycle evidence\n",
+        encoding="utf-8",
+    )
+    _reseal_lane(tmp_path / "recreation", first)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
+def test_supported_binds_lifecycle_to_adb_events_receipt(
+    tmp_path: Path,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    receipt_path = lane_root / "raw/logcat/events-command.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt["stdout"] = "no activity lifecycle evidence\n"
+    _write_json(receipt_path, receipt)
+    _reseal_lane(tmp_path, first)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ("missing_checkpoint", "tampered_checkpoint", "derived_suffix"),
+)
+def test_supported_reconstructs_normalized_logcat_from_raw_sources(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    checkpoint_path = lane_root / "artifacts/after-event-0/logcat.txt"
+    if mutation == "missing_checkpoint":
+        checkpoint_path.unlink()
+    elif mutation == "tampered_checkpoint":
+        checkpoint_path.write_text(
+            "I/ActivityTaskManager: different checkpoint bytes\n",
+            encoding="utf-8",
+        )
+    else:
+        normalized_path = lane_root / "raw/logcat/rotation.txt"
+        normalized_path.write_text(
+            normalized_path.read_text(encoding="utf-8")
+            + "fabricated trailing evidence\n",
+            encoding="utf-8",
+        )
+    _reseal_lane(tmp_path, first)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
+def test_supported_binds_rotation_to_runner_event_receipt(
+    tmp_path: Path,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    event_path = lane_root / "artifacts/system-event-0/event.json"
+    event = json.loads(event_path.read_text(encoding="utf-8"))
+    event["evidence"]["user_rotation"] = "0"
+    _write_json(event_path, event)
+    _reseal_lane(tmp_path, first)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
 @pytest.mark.parametrize(
     "field",
     (
@@ -2409,6 +2689,46 @@ def test_supported_rejects_semantically_empty_execution_provenance(
     )
     _write_json(record_path, record)
     _reseal_lane(tmp_path, row)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
+def test_supported_rejects_execution_time_apk_identity_drift(
+    tmp_path: Path,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    row = fixture["rows"][0]
+    assert isinstance(row, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    provenance_path = lane_root / "execution-provenance.json"
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    drifted_sha256 = "0" * 64
+    provenance["apk"]["artifacts"][0]["sha256"] = drifted_sha256
+    provenance["deployment"]["installed_artifacts"][0][
+        "sha256"
+    ] = drifted_sha256
+
+    for key in ("apk", "deployment"):
+        identity = provenance[key]
+        identity["identity_sha256"] = sha256_bytes(
+            canonical_json_bytes(
+                {
+                    name: value
+                    for name, value in identity.items()
+                    if name != "identity_sha256"
+                }
+            )
+        )
+    _write_json(provenance_path, provenance)
+    record_path = lane_root / "execution-record.json"
+    record = json.loads(record_path.read_text(encoding="utf-8"))
+    record["evidence_refs"]["execution_provenance"]["sha256"] = (
+        sha256_bytes(provenance_path.read_bytes())
+    )
+    _write_json(record_path, record)
+    _reseal_lane(tmp_path, row)
+
     result = _reconcile_fixture(fixture)
     assert result["counts"]["attempt_evidence_validated"] == 5
     assert result["aggregate_result"] == "Not Supported"
