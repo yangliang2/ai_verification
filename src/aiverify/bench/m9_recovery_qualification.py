@@ -1557,6 +1557,100 @@ def _activity_recreation_log_is_eligible(logcat: str) -> bool:
     )
 
 
+def _activity_recreation_source_is_bound(
+    lane_root: Path,
+    normalized_logcat: str,
+) -> bool:
+    receipt = _read_json_object(
+        lane_root / "raw/logcat/events-command.json"
+    )
+    if receipt is None:
+        return False
+    stdout = receipt.get("stdout")
+    stderr = receipt.get("stderr")
+    duration = receipt.get("duration_seconds")
+    if not isinstance(stdout, str) or not isinstance(stderr, str):
+        return False
+    source_lifecycle = [
+        line
+        for line in stdout.splitlines()
+        if ACTIVITY in line
+        and any(
+            marker in line
+            for marker in (
+                "am_on_create_called",
+                "am_on_destroy_called",
+                "am_relaunch_resume_activity",
+            )
+        )
+    ]
+    normalized_lifecycle = [
+        line
+        for line in normalized_logcat.splitlines()
+        if ACTIVITY in line
+        and any(
+            marker in line
+            for marker in (
+                "am_on_create_called",
+                "am_on_destroy_called",
+                "am_relaunch_resume_activity",
+            )
+        )
+    ]
+    expected_command = [
+        "adb",
+        "-s",
+        DEVICE,
+        "logcat",
+        "-b",
+        "events",
+        "-d",
+        "-v",
+        "threadtime",
+    ]
+    return (
+        set(receipt)
+        == {
+            "command",
+            "cwd",
+            "returncode",
+            "duration_seconds",
+            "stdout",
+            "stderr",
+        }
+        and receipt.get("command") == expected_command
+        and receipt.get("cwd") is None
+        and receipt.get("returncode") == 0
+        and isinstance(duration, (int, float))
+        and not isinstance(duration, bool)
+        and duration >= 0
+        and bool(source_lifecycle)
+        and normalized_lifecycle[: len(source_lifecycle)] == source_lifecycle
+        and _activity_recreation_log_is_eligible(stdout)
+    )
+
+
+def _rotation_event_source_is_bound(
+    summary: Mapping[str, Any],
+    *,
+    lane_root: Path,
+) -> bool:
+    expected_path = "artifacts/system-event-0/event.json"
+    source_path = lane_root / expected_path
+    source = _read_json_object(source_path)
+    evidence = source.get("evidence") if source is not None else None
+    return bool(
+        source is not None
+        and isinstance(evidence, Mapping)
+        and summary.get("source_event_path") == expected_path
+        and summary.get("source_event_sha256") == sha256_file(source_path)
+        and source.get("status") == "passed"
+        and source.get("event") == "rotate"
+        and evidence.get("accelerometer_rotation") == "0"
+        and evidence.get("user_rotation") == "1"
+    )
+
+
 def _raw_probe_is_eligible(
     *,
     bound_paths: Mapping[str, Path],
@@ -1636,7 +1730,8 @@ def _raw_probe_is_eligible(
         and after_dimensions is not None
         and after_dimensions[0] > after_dimensions[1]
         and bool(logcat.strip())
-        and _activity_recreation_log_is_eligible(logcat)
+        and _activity_recreation_source_is_bound(lane_root, logcat)
+        and _rotation_event_source_is_bound(event, lane_root=lane_root)
         and before.get("schema_version") == 1
         and before.get("lane_id") == lane_id
         and before.get("checkpoint") == "before"
@@ -3112,22 +3207,23 @@ def _execution_provenance_is_eligible(
     )
 
 
-def _lane_ledger_is_exhaustive(
+def _checksum_ledger_is_exhaustive(
     ledger_path: Path,
     *,
-    lane_root: Path,
+    evidence_root: Path,
+    ignored: set[str],
 ) -> bool:
     ledger_entries: dict[str, str] = {}
     try:
         for line in ledger_path.read_text(encoding="utf-8").splitlines():
             digest, separator, label = line.partition("  ")
-            candidate = (lane_root / label).resolve()
+            candidate = (evidence_root / label).resolve()
             if (
                 separator != "  "
                 or not _is_sha256(digest)
                 or not label
                 or label in ledger_entries
-                or not candidate.is_relative_to(lane_root)
+                or not candidate.is_relative_to(evidence_root)
                 or not candidate.is_file()
                 or sha256_file(candidate) != digest
             ):
@@ -3135,14 +3231,25 @@ def _lane_ledger_is_exhaustive(
             ledger_entries[label] = digest
     except (OSError, UnicodeDecodeError):
         return False
-    ignored = {"checksums.sha256", "attempt-evidence-validation.json"}
     actual = {
-        path.relative_to(lane_root).as_posix(): sha256_file(path)
-        for path in lane_root.rglob("*")
+        path.relative_to(evidence_root).as_posix(): sha256_file(path)
+        for path in evidence_root.rglob("*")
         if path.is_file()
-        and path.relative_to(lane_root).as_posix() not in ignored
+        and path.relative_to(evidence_root).as_posix() not in ignored
     }
     return ledger_entries == actual
+
+
+def _lane_ledger_is_exhaustive(
+    ledger_path: Path,
+    *,
+    lane_root: Path,
+) -> bool:
+    return _checksum_ledger_is_exhaustive(
+        ledger_path,
+        evidence_root=lane_root,
+        ignored={"checksums.sha256", "attempt-evidence-validation.json"},
+    )
 
 
 def _attempt_evidence_is_eligible(
@@ -3462,6 +3569,7 @@ def _formal_attempt_artifact_audit(
     attempt_root = (repository_root / R4_RUN_RECORD).resolve()
     artifact_root = (repository_root / R4_ARTIFACT_ROOT).resolve()
     result: dict[str, Any] = {
+        "root_ledger_exhaustive": False,
         "lane_roots_exact": False,
         "execution_records_exhaustive": False,
         "execution_record_count": 0,
@@ -3470,6 +3578,11 @@ def _formal_attempt_artifact_audit(
     }
     if not attempt_root.is_dir() or not artifact_root.is_dir():
         return result
+    result["root_ledger_exhaustive"] = _checksum_ledger_is_exhaustive(
+        attempt_root / "checksums.sha256",
+        evidence_root=attempt_root,
+        ignored={"checksums.sha256"},
+    )
     try:
         lane_roots = {
             path.name

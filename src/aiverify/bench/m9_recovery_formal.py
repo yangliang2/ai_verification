@@ -155,6 +155,14 @@ SOURCE_SCOPE = (
 SAFETY_BOUNDARY = (
     "local public-project copy, local emulator, and declared evidence roots only"
 )
+_RAW_SOURCE_EVIDENCE_FILES = (
+    "artifacts/after-segment-0/layout.json",
+    "artifacts/after-segment-0/screen.png",
+    "artifacts/after-event-0/layout.json",
+    "artifacts/after-event-0/screen.png",
+    "artifacts/system-event-0/event.json",
+    "raw/logcat/events-command.json",
+)
 _ROLE_LEAKAGE = re.compile(r"(?i)(?:\bdefect\b|\bcontrol\b|expected[_ ]result)")
 _LAYOUT_CENTER = re.compile(r"^\[(\d+),(\d+)\]$")
 
@@ -1549,6 +1557,8 @@ def _normalize_raw_evidence(
         ],
         "retyped_after_boundary": False,
         "repaired_after_boundary": False,
+        "source_event_path": event_source.relative_to(lane_root).as_posix(),
+        "source_event_sha256": sha256_file(event_source),
     }
     rotation_out = lane_root / "rotation-event.json"
     _write_json(rotation_out, rotation)
@@ -1946,7 +1956,11 @@ def _seal_failed_lane(
     ]
     absent = _absent_required_artifacts(
         lane_root,
-        tuple(item for item in required if item != "checksums.sha256"),
+        tuple(
+            item
+            for item in (*required, *_RAW_SOURCE_EVIDENCE_FILES)
+            if item != "checksums.sha256"
+        ),
     )
     _write_json(
         lane_root / "typed-absence.json",

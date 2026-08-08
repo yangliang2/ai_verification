@@ -495,12 +495,24 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
         after_source_screen = after_source_root / "screen.png"
         before_source_layout = before_source_root / "layout.json"
         after_source_layout = after_source_root / "layout.json"
+        event_source = lane_root / "artifacts/system-event-0/event.json"
         before_nodes = text_input_nodes(True)
         after_nodes = text_input_nodes(after_token_visible)
         write_png(before_source_screen, f"{lane_id}-before")
         write_png(after_source_screen, f"{lane_id}-after")
         write_json(before_source_layout, before_nodes)
         write_json(after_source_layout, after_nodes)
+        write_json(
+            event_source,
+            {
+                "status": "passed",
+                "event": "rotate",
+                "evidence": {
+                    "accelerometer_rotation": "0",
+                    "user_rotation": "1",
+                },
+            },
+        )
         before_raw_screen = lane_root / "raw/screenshots/before.png"
         after_raw_screen = lane_root / "raw/screenshots/after.png"
         before_raw_screen.parent.mkdir(parents=True, exist_ok=True)
@@ -551,13 +563,35 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             },
         )
         (lane_root / "raw/logcat").mkdir(parents=True, exist_ok=True)
+        lifecycle_logcat = (
+            f"I/am_on_create_called: [0,{ACTIVITY},performCreate]\n"
+            f"I/am_on_destroy_called: [0,{ACTIVITY},performDestroy]\n"
+            f"I/am_on_create_called: [0,{ACTIVITY},performCreate]\n"
+        )
+        write_json(
+            lane_root / "raw/logcat/events-command.json",
+            {
+                "command": [
+                    "adb",
+                    "-s",
+                    DEVICE,
+                    "logcat",
+                    "-b",
+                    "events",
+                    "-d",
+                    "-v",
+                    "threadtime",
+                ],
+                "cwd": None,
+                "returncode": 0,
+                "duration_seconds": 0.1,
+                "stdout": lifecycle_logcat,
+                "stderr": "",
+            },
+        )
         (lane_root / "raw/logcat/rotation.txt").write_text(
-            (
-                f"I/am_on_create_called: [0,{ACTIVITY},performCreate]\n"
-                f"I/am_on_destroy_called: [0,{ACTIVITY},performDestroy]\n"
-                f"I/am_on_create_called: [0,{ACTIVITY},performCreate]\n"
-                f"{lane_id} WindowInsetsController recreation completed\n"
-            ),
+            lifecycle_logcat
+            + f"{lane_id} WindowInsetsController recreation completed\n",
             encoding="utf-8",
         )
         write_json(
@@ -574,6 +608,10 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "activity_recreation_observed": True,
                 "retyped_after_boundary": False,
                 "repaired_after_boundary": False,
+                "source_event_path": "artifacts/system-event-0/event.json",
+                "source_event_sha256": sha256_bytes(
+                    event_source.read_bytes()
+                ),
             },
         )
 
@@ -1310,6 +1348,7 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
             "formal_attempts": attempt_inventory,
         },
     )
+    _write_root_ledger(tmp_path)
     return {
         "manifest": manifest,
         "mapping": mapping,
@@ -1332,6 +1371,24 @@ def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(value, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _write_root_ledger(repository_root: Path) -> None:
+    attempt_root = repository_root / R4_RUN_RECORD
+    ledger_path = attempt_root / "checksums.sha256"
+    entries = sorted(
+        path
+        for path in attempt_root.rglob("*")
+        if path.is_file() and path != ledger_path
+    )
+    ledger_path.write_text(
+        "".join(
+            f"{sha256_bytes(path.read_bytes())}  "
+            f"{path.relative_to(attempt_root).as_posix()}\n"
+            for path in entries
+        ),
         encoding="utf-8",
     )
 
@@ -1528,6 +1585,7 @@ def _reseal_lane(
     receipt = row["attempt_evidence_receipt"]
     assert isinstance(receipt, dict)
     receipt["sha256"] = sha256_bytes(validation_path.read_bytes())
+    _write_root_ledger(repository_root)
 
 
 def _reconcile_fixture(fixture: dict[str, object]) -> dict[str, object]:
@@ -1752,6 +1810,7 @@ def test_supported_requires_every_frozen_gate(tmp_path: Path) -> None:
         "lane_replacement_count": 0,
         "lane_discretionary_rerun_count": 0,
         "formal_attempt_inventory_checksum_bound": True,
+        "root_ledger_exhaustive": True,
         "lane_roots_exact": True,
         "execution_records_exhaustive": True,
         "execution_record_count": 6,
@@ -1787,6 +1846,28 @@ def test_supported_requires_every_frozen_gate(tmp_path: Path) -> None:
         )["aggregate_result"]
         == "Not Supported"
     )
+
+
+@pytest.mark.parametrize("mutation", ("missing", "tampered", "extra"))
+def test_supported_requires_exhaustive_root_ledger(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    attempt_root = tmp_path / R4_RUN_RECORD
+    ledger_path = attempt_root / "checksums.sha256"
+    if mutation == "missing":
+        ledger_path.unlink()
+    elif mutation == "tampered":
+        lines = ledger_path.read_text(encoding="utf-8").splitlines()
+        lines[0] = "0" * 64 + lines[0][64:]
+        ledger_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    else:
+        _write_json(attempt_root / "unlisted-root-artifact.json", {"extra": True})
+
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["root_ledger_exhaustive"] is False
+    assert result["aggregate_result"] == "Not Supported"
 
 
 def test_falsification_review_producer_uses_semantic_output_and_runner_envelope(
@@ -2479,6 +2560,40 @@ def test_supported_recomputes_text_input_and_recreation_evidence(
         encoding="utf-8",
     )
     _reseal_lane(tmp_path / "recreation", first)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
+def test_supported_binds_lifecycle_to_adb_events_receipt(
+    tmp_path: Path,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    receipt_path = lane_root / "raw/logcat/events-command.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt["stdout"] = "no activity lifecycle evidence\n"
+    _write_json(receipt_path, receipt)
+    _reseal_lane(tmp_path, first)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
+def test_supported_binds_rotation_to_runner_event_receipt(
+    tmp_path: Path,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    event_path = lane_root / "artifacts/system-event-0/event.json"
+    event = json.loads(event_path.read_text(encoding="utf-8"))
+    event["evidence"]["user_rotation"] = "0"
+    _write_json(event_path, event)
+    _reseal_lane(tmp_path, first)
     result = _reconcile_fixture(fixture)
     assert result["counts"]["attempt_evidence_validated"] == 5
     assert result["aggregate_result"] == "Not Supported"
