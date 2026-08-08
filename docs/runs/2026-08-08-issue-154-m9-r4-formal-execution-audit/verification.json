@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "issue": 154,
+  "phase": "M9-R4-Phase-B",
+  "generated_at": "2026-08-08T06:55:40Z",
+  "consumer": {
+    "commit": "ba81f04b088ce457ea4e047848f9ae4d60fcbc92",
+    "tree": "86fac0a045dc9418f385213a1361b0e4d6f530e8",
+    "origin_main": "ba81f04b088ce457ea4e047848f9ae4d60fcbc92",
+    "clean_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "worktree": "/Users/peter/projects/ai_verification-m9-r4-phase-b"
+  },
+  "formal_invocation": {
+    "command": "uv run python -m aiverify.bench.m9_recovery_formal --execute --expected-consumer-commit ba81f04b088ce457ea4e047848f9ae4d60fcbc92",
+    "invocation_count": 1,
+    "exit_code": 2,
+    "status": "terminal_failed",
+    "reported_duration_seconds": 0.206,
+    "observed_wall_seconds": 0.702841,
+    "terminal_stage": "PORTFOLIO_FROZEN",
+    "terminal_error": "M9RecoveryFormalError: target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements",
+    "formal_execution_started": true,
+    "formal_holdout_executed": false,
+    "aggregate_result": "reserved_for_M9_R5"
+  },
+  "preflight": {
+    "static_status": "passed",
+    "static_side_effects": false,
+    "static_device_calls": 0,
+    "static_model_calls": 0,
+    "static_formal_lane_attempts": 0,
+    "manifest_sha256": "aa860f4b10144c2e6374912685ef914a420a234fc805d36cebb72b0c705629ad",
+    "packet_commitment_sha256": "a2ae1d8ca4902a500c67aa6107a0f42fe06a3948ca484305861d2d2670033225",
+    "mapping_raw_sha256": "4da963ad23e5e8aca18e79328069a23a62a3071eb814d929246675fc7f4b84eb",
+    "mapping_canonical_sha256": "d69c0421ed68bf7de020326043fcf787250abbdb9aa0c9a10ecc3a2cc1eba8a4",
+    "r3_ledger_entries": 57,
+    "r3_ledger_sha256": "0d3b311387dae768cf361a1f7683605a97600851ccb1e38c8ce2632b3ee9dc47",
+    "formal_root_absent": true,
+    "source_root_absent": true,
+    "external_input_validation": "passed",
+    "focused_test_first_attempt": {
+      "exit_code": 2,
+      "tests_collected": 0,
+      "reason": "optional dev extra not installed; pytest executable absent"
+    },
+    "development_dependency_sync": {
+      "command": "uv sync --extra dev",
+      "status": "passed",
+      "packages_installed": 5
+    },
+    "focused_test_rerun": {
+      "command": "/usr/bin/time -p uv run pytest tests/bench/test_m9_recovery_formal.py tests/bench/test_m9_recovery_qualification.py",
+      "passed": 92,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 15.16,
+      "wall_seconds": 17.77
+    }
+  },
+  "sources": {
+    "origin": "https://github.com/android/compose-samples.git",
+    "defect": {
+      "commit": "56b59e237b253bc52e2ce1141dce26af07503415",
+      "tree": "993432fb446913107df1bc0c040a05f8dae1c5b2",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apk_bytes": 17511239,
+      "apk_sha256": "41d7c3ff47f2f2d2a04942d11ab57c6c76ac7314ff6abf8dad14fd9b3149e55b"
+    },
+    "control": {
+      "commit": "038c8208307508ceedcb5dd07a4fe2794017644c",
+      "tree": "e658ec4cdbb25d8e75a04879e9e20a0c245832e9",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "apk_bytes": 17511449,
+      "apk_sha256": "a1536cec09a33063f7796dc77e0effdf1847a3ad325dcef707216fa87d78386d"
+    },
+    "fresh_source_fixture_count": 0,
+    "r1_r2_inputs_reused": false,
+    "formal_source_root_after_execution": "absent"
+  },
+  "contradiction": {
+    "status": "pass",
+    "formal_denominator": false,
+    "side_effects": false,
+    "command_calls": 0,
+    "pre_side_effect_rejection": true,
+    "canonical_sha256": "ed594192326034c9a0eb576fbfa1fe76f29a0e5af5f1099074d2d187c9ab254e"
+  },
+  "terminal_population": {
+    "lane_count": 6,
+    "terminal_lane_count": 6,
+    "unique_execution_record_attempt_ids": 6,
+    "execution_accountable_count": 0,
+    "attempt_evidence_validated_count": 0,
+    "review_survived_count": 0,
+    "retry_count": 0,
+    "replacement_count": 0,
+    "discretionary_rerun_count": 0,
+    "mapping_released": false,
+    "leakage_audit_status": "not_completed",
+    "default_input_method_during_formal": null,
+    "device_calls_during_formal": 0,
+    "model_calls_during_formal": 0
+  },
+  "device_environment": {
+    "environmental_checks_only": true,
+    "serial": "emulator-5554",
+    "state": "device",
+    "boot_completed": "1",
+    "avd_name": "aiverify_api35",
+    "android_release": "15",
+    "api_level": 35,
+    "abi": "arm64-v8a",
+    "physical_size": "1080x2400",
+    "default_input_method": "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME"
+  },
+  "evidence": {
+    "formal_root": "docs/runs/2026-08-07-m9-r4-formal-attempt-01",
+    "file_count": 28,
+    "total_bytes": 277331,
+    "json_count": 21,
+    "json_parse_status": "passed",
+    "root_ledger_entries": 27,
+    "root_ledger_sha256": "94488b89e52739e3d2fdd8d4d0633cc2feda104e90e5d2268ff51da598f28160",
+    "root_ledger_verified_entries": 27,
+    "lane_ledger_count": 6,
+    "lane_ledger_entries_each": 2,
+    "lane_ledger_verified_entries": 12,
+    "typed_absence_path_checks": 258,
+    "typed_absence_violations": 0,
+    "screenshot_count": 0,
+    "layout_dump_count": 0,
+    "logcat_count": 0,
+    "visual_inspection": "not_applicable_typed_absence",
+    "manual_device_steps": []
+  },
+  "tools": {
+    "formal_python": "CPython 3.11.15",
+    "host_python": "3.14.4",
+    "uv": "0.11.7",
+    "git": "2.50.1 Apple Git-155",
+    "android_cli": "1.0.15498356",
+    "adb": "1.0.41 / 37.0.0-14910828",
+    "codex_cli": "0.144.6",
+    "uv_sha256": "40a78912c850286ea5756211f1f88c0928fb15b788869d46d4355cd4ac556023",
+    "git_sha256": "506cb2ddd061e2992c8ee7c53853340688b53d9fcec94c3aa936524cea5b40cb",
+    "android_cli_sha256": "288c28a83023fb2c2385dc9f7ed4497d3ef7d39111213bcdb4cb30a93d0243fc",
+    "adb_sha256": "9fdf861259dc807937b13afdd5f053c7fda9f3b7726933fe0e0f45130ecb8dc7",
+    "codex_cli_sha256": "80a3933d11a9d13ef806aa24f7bb8afc9169cfe4e9b09d6da6a92922cbde9cff"
+  },
+  "protected_dirty_worktree": {
+    "path": "/Users/peter/projects/ai_verfication",
+    "branch": "issue-73-accessibility-slice",
+    "head": "ef94cb543b76254687acab5e2de1b6527076d9ae",
+    "status_sha256_before_and_after": "af08d39f3854aa888b242408361083afe51117ad8ef078aa365cfaef19443ceb",
+    "tracked_diff_sha256_before_and_after": "75e2cd7dc7750142ef17eab9e719f15cc2ee244600528ec6973a68e778239e57",
+    "staged_diff_sha256_before_and_after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unchanged": true
+  },
+  "known_gaps": [
+    "Attack Plan admission failed before mapping release and runtime.",
+    "No formal device, APK, agent, oracle, Finding, Project Risk Map, or review evidence exists beyond typed absences.",
+    "The formal packet is exhausted and may not be retried, replaced, repaired, or rerun.",
+    "Aggregate interpretation remains reserved for M9-R5."
+  ],
+  "claim_boundary": "one approved compose-samples Jetchat matched pair on one local API-35 emulator in the frozen six-lane M9-R4 attempt; no runtime or broader claim"
+}
