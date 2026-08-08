@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "issue": 157,
+  "generated_at": "2026-08-08T07:23:11Z",
+  "worktree": {
+    "path": "/Users/peter/projects/ai_verification-m9-r5",
+    "branch": "m9-r5-reconciliation",
+    "base_commit": "47a6e5b03a46a886ba35658dcaac9a5062bd973f",
+    "base_tree": "565c3bf3395a317f4b316527493788233760b0cc",
+    "origin_main_at_start": "47a6e5b03a46a886ba35658dcaac9a5062bd973f",
+    "clean_status_sha256_at_start": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable_inputs": {
+    "r4_evidence_commit": "ac2756bcf7f4a86afa52239cdd359bcf82e83e92",
+    "r3_ledger_entries": 57,
+    "r3_ledger_sha256_before_and_after": "0d3b311387dae768cf361a1f7683605a97600851ccb1e38c8ce2632b3ee9dc47",
+    "r4_formal_ledger_entries": 27,
+    "r4_formal_ledger_sha256_before_and_after": "94488b89e52739e3d2fdd8d4d0633cc2feda104e90e5d2268ff51da598f28160",
+    "r4_lane_ledger_count": 6,
+    "r4_lane_entries_verified_before_and_after": 12,
+    "r4_audit_ledger_entries": 2,
+    "r4_audit_ledger_sha256_before_and_after": "a5ea13cbc83ad23b9f8d6a1d207fe139cd7a73b76d314d502feb095c6403ba97",
+    "mapping_raw_sha256": "4da963ad23e5e8aca18e79328069a23a62a3071eb814d929246675fc7f4b84eb",
+    "mapping_canonical_sha256": "d69c0421ed68bf7de020326043fcf787250abbdb9aa0c9a10ecc3a2cc1eba8a4",
+    "contradiction_audit_sha256": "ed594192326034c9a0eb576fbfa1fe76f29a0e5af5f1099074d2d187c9ab254e",
+    "r4_files_modified": 0
+  },
+  "role_overlay": {
+    "scope": "in_memory_R5_auditor_copy",
+    "sealed_rows_initial_role": null,
+    "lane_order_verified": true,
+    "assignment_count": 6,
+    "defect_count": 3,
+    "control_count": 3,
+    "persisted_into_r4": false
+  },
+  "reducer": {
+    "function": "reconcile_formal_rows",
+    "formal_evidence_invocation_count": 1,
+    "exit_code": 0,
+    "aggregate_result": "Not Supported",
+    "raw_output_path": "docs/runs/2026-08-08-issue-157-m9-r5-reconciliation/reconciliation.json",
+    "raw_output_sha256": "a665db14da5c3cc18ff60016a602e0922f3f7e051de35332d99d7a3d7885437e",
+    "gate_count": 10,
+    "passed_gate_count": 2,
+    "failed_gate_count": 8,
+    "passed_gates": [
+      "contradiction_rejected_before_side_effect",
+      "formal_attempt_inventory_checksum_bound"
+    ],
+    "formal_attempt_count": 1,
+    "lane_count": 6,
+    "unique_execution_record_attempt_ids": 6,
+    "accountable": 0,
+    "attempt_evidence_validated": 0,
+    "defect_supported": 0,
+    "control_locally_rejected": 0,
+    "falsification_review_survived": 0,
+    "retry_count": 0,
+    "replacement_count": 0,
+    "discretionary_rerun_count": 0,
+    "independent_structure_audit": {
+      "status": "pass",
+      "reducer_called": false,
+      "gate_count": 10,
+      "passed_gates": 2,
+      "failed_gates": 8,
+      "lanes": 6,
+      "unique_attempt_ids": 6,
+      "runtime_holdout_executed": false
+    }
+  },
+  "interpretation": {
+    "decision": "Not Supported",
+    "kind": "pre_runtime_formal_qualification_evidence",
+    "runtime_verdict": null,
+    "formal_attempt_reconciled": true,
+    "runtime_holdout_executed": false,
+    "raw_reducer_formal_holdout_executed": true,
+    "authoritative_runtime_field_source": "docs/runs/2026-08-07-m9-r4-formal-attempt-01/formal-execution-summary.json",
+    "inventory_execution_records_bound": false,
+    "follow_up_issue": 158
+  },
+  "side_effects": {
+    "formal_command_calls": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "build_calls": 0,
+    "install_calls": 0,
+    "launch_calls": 0,
+    "oracle_calls": 0,
+    "review_calls": 0,
+    "manual_ui_steps": 0
+  },
+  "tests": {
+    "focused_initial": {
+      "command": "/usr/bin/time -p uv run pytest tests/bench/test_m9_recovery_formal.py tests/bench/test_m9_recovery_qualification.py",
+      "passed": 91,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 17.19,
+      "wall_seconds": 19.84,
+      "reason": "static-preflight test referenced the now-committed real formal root"
+    },
+    "test_isolation_fix": {
+      "file": "tests/bench/test_m9_recovery_formal.py",
+      "change": "monkeypatch FORMAL_ROOT to an absent tmp_path in the static-preflight test",
+      "production_files_changed": 0,
+      "sealed_evidence_files_changed": 0
+    },
+    "focused_final": {
+      "command": "/usr/bin/time -p uv run pytest tests/bench/test_m9_recovery_formal.py tests/bench/test_m9_recovery_qualification.py",
+      "passed": 92,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 18.33,
+      "wall_seconds": 18.51
+    },
+    "full_preliminary": {
+      "command": "/usr/bin/time -p -o /private/tmp/m9-r5-full-final.gE7dS5/time.txt uv run python -m pytest --junitxml=/private/tmp/m9-r5-full-final.gE7dS5/junit.xml",
+      "passed": 1010,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 85.72,
+      "wall_seconds": 85.92,
+      "reason": "living-doc link targeted the R5 README before that file existed",
+      "junit_bytes": 142684,
+      "junit_sha256": "9163bf5e143085eeacaf7eb27d34dd7f7dbb72e249ce5391818ed69ef1e13bbc",
+      "time_sha256": "4f81ada23433f9ebb7983567e2881e48d61380f14faec5729b73ae8378ed7e9d"
+    },
+    "full_final": {
+      "command": "/usr/bin/time -p -o /private/tmp/m9-r5-full-final2.vvrA6C/time.txt uv run python -m pytest --junitxml=/private/tmp/m9-r5-full-final2.vvrA6C/junit.xml",
+      "passed": 1011,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 56.79,
+      "wall_seconds": 57.02,
+      "user_seconds": 37.02,
+      "sys_seconds": 18.14,
+      "junit_bytes": 141288,
+      "junit_sha256": "1213af5f706157c038892d2b1e1f46b1d3cdfda12378ed8c75286ad9a12e579c",
+      "time_sha256": "2aed30210c62c330ad24ec3c3d5316757e413cf12e6b128634934541acc063fe"
+    },
+    "living_docs_final": {
+      "command": "/usr/bin/time -p uv run pytest tests/bench/test_current_claim_matrix.py",
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.01,
+      "wall_seconds": 0.11
+    },
+    "git_diff_check": "passed"
+  },
+  "files": {
+    "runtime_modules_changed": [],
+    "tests_changed": [
+      "tests/bench/test_m9_recovery_formal.py"
+    ],
+    "living_docs_changed": [
+      "CONTEXT.md",
+      "README.md",
+      "HANDOFF.md",
+      "docs/current-capability-claim-matrix.md"
+    ],
+    "run_record_files": [
+      "README.md",
+      "reconciliation.json",
+      "interpretation.json",
+      "verification.json",
+      "checksums.sha256"
+    ],
+    "screenshot_count": 0,
+    "layout_count": 0,
+    "logcat_count": 0,
+    "model_receipt_count": 0,
+    "device_receipt_count": 0
+  },
+  "tools": {
+    "python": "CPython 3.11.15",
+    "uv": "0.11.7",
+    "git": "2.50.1 Apple Git-155"
+  },
+  "external_artifacts": {
+    "reason": "JUnit and timing receipts are transient and larger than the durable fact record; their exact paths and checksums are committed here.",
+    "paths": [
+      "/private/tmp/m9-r5-full-final.gE7dS5/junit.xml",
+      "/private/tmp/m9-r5-full-final.gE7dS5/time.txt",
+      "/private/tmp/m9-r5-full-final2.vvrA6C/junit.xml",
+      "/private/tmp/m9-r5-full-final2.vvrA6C/time.txt"
+    ]
+  },
+  "protected_dirty_worktree": {
+    "path": "/Users/peter/projects/ai_verfication",
+    "branch": "issue-73-accessibility-slice",
+    "head": "ef94cb543b76254687acab5e2de1b6527076d9ae",
+    "status_sha256_before_and_after": "af08d39f3854aa888b242408361083afe51117ad8ef078aa365cfaef19443ceb",
+    "tracked_diff_sha256_before_and_after": "75e2cd7dc7750142ef17eab9e719f15cc2ee244600528ec6973a68e778239e57",
+    "staged_diff_sha256_before_and_after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unchanged": true
+  },
+  "known_gaps": [
+    "R4 produced no runtime evidence because Attack Plan admission failed after formal start.",
+    "Pre-runtime rows do not reverse-bind their canonical ExecutionRecords, so two composite Supported gates fail despite exact numeric attempt counts.",
+    "The raw reducer formal_holdout_executed field is broader than actual runtime reach and requires explicit interpretation.",
+    "Future-only remediation is tracked in issue #158 and cannot retry or mutate this packet."
+  ],
+  "claim_boundary": "Exact exhausted M9-R4 packet and R5 pure reconciliation only; pre-runtime Not Supported, with no Android runtime or broader capability claim."
+}
