@@ -102,6 +102,7 @@ LOCAL_CLAIM_BOUNDARY = (
     "emulator in the frozen six-lane M9-R4 attempt"
 )
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+_LAYOUT_CENTER = re.compile(r"^\[(\d+),(\d+)\]$")
 _APPROVAL_COMMENT_URL = re.compile(
     r"^https://github\.com/yangliang2/ai_verification/"
     r"issues/152#issuecomment-[0-9]+$"
@@ -1437,6 +1438,125 @@ def _png_dimensions(path: Path) -> tuple[int, int] | None:
     return width, height
 
 
+def _layout_center(node: Mapping[str, Any]) -> tuple[int, int] | None:
+    value = node.get("center")
+    match = _LAYOUT_CENTER.fullmatch(value) if isinstance(value, str) else None
+    if match is None:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def _text_input_observation(
+    nodes_value: object,
+    token: str,
+) -> dict[str, Any] | None:
+    if not isinstance(nodes_value, list):
+        return None
+    nodes = [item for item in nodes_value if isinstance(item, Mapping)]
+    anchors = [
+        item
+        for item in nodes
+        if item.get("content-desc", item.get("contentDesc")) == "Text input"
+    ]
+    exact_nodes = [item for item in nodes if item.get("text") == token]
+    editable_exact_nodes = []
+    for item in exact_nodes:
+        interactions = item.get("interactions")
+        if (
+            isinstance(interactions, list)
+            and {"focusable", "long-clickable"}.issubset(interactions)
+        ):
+            editable_exact_nodes.append(item)
+    bound_exact_nodes = []
+    for item in editable_exact_nodes:
+        item_center = _layout_center(item)
+        if item_center is None:
+            continue
+        if any(
+            anchor_center is not None
+            and abs(anchor_center[1] - item_center[1]) <= 96
+            for anchor_center in (_layout_center(anchor) for anchor in anchors)
+        ):
+            bound_exact_nodes.append(item)
+    field_present = len(anchors) == 1
+    token_visible = (
+        field_present
+        and len(exact_nodes) == 1
+        and len(editable_exact_nodes) == 1
+        and len(bound_exact_nodes) == 1
+    )
+    return {
+        "field_semantics": "content-desc:Text input",
+        "input_field_anchor_count": len(anchors),
+        "exact_token_node_count": len(exact_nodes),
+        "editable_exact_token_node_count": len(editable_exact_nodes),
+        "bound_exact_token_node_count": len(bound_exact_nodes),
+        "input_field_present": field_present,
+        "exact_token_visible_in_input": token_visible,
+    }
+
+
+def _source_layout_is_bound(
+    summary: Mapping[str, Any],
+    *,
+    lane_root: Path,
+    checkpoint: str,
+    bound_screenshot: Path,
+) -> bool:
+    runner_checkpoint = (
+        "after-segment-0" if checkpoint == "before" else "after-event-0"
+    )
+    expected_layout = f"artifacts/{runner_checkpoint}/layout.json"
+    expected_screenshot = f"artifacts/{runner_checkpoint}/screen.png"
+    layout_path = lane_root / expected_layout
+    screenshot_path = lane_root / expected_screenshot
+    try:
+        source_nodes = json.loads(layout_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    return (
+        summary.get("source_layout_path") == expected_layout
+        and summary.get("source_screenshot_path") == expected_screenshot
+        and layout_path.is_file()
+        and screenshot_path.is_file()
+        and summary.get("source_layout_sha256") == sha256_file(layout_path)
+        and summary.get("source_screenshot_sha256")
+        == sha256_file(screenshot_path)
+        == sha256_file(bound_screenshot)
+        and canonical_json_bytes(summary.get("nodes"))
+        == canonical_json_bytes(source_nodes)
+    )
+
+
+def _activity_recreation_log_is_eligible(logcat: str) -> bool:
+    lifecycle = [
+        line
+        for line in logcat.splitlines()
+        if ACTIVITY in line
+        and any(
+            marker in line
+            for marker in (
+                "am_on_create_called",
+                "am_on_destroy_called",
+                "am_relaunch_resume_activity",
+            )
+        )
+    ]
+    destroy_indexes = [
+        index
+        for index, line in enumerate(lifecycle)
+        if "am_on_destroy_called" in line
+    ]
+    create_indexes = [
+        index
+        for index, line in enumerate(lifecycle)
+        if "am_on_create_called" in line
+    ]
+    return any("am_relaunch_resume_activity" in line for line in lifecycle) or any(
+        destroy < create for destroy in destroy_indexes for create in create_indexes
+    )
+
+
 def _raw_probe_is_eligible(
     *,
     bound_paths: Mapping[str, Path],
@@ -1455,6 +1575,33 @@ def _raw_probe_is_eligible(
     if not all(
         isinstance(value, Mapping)
         for value in (before_observation, after_observation)
+    ):
+        return False
+    computed_before = _text_input_observation(before.get("nodes"), token)
+    computed_after = _text_input_observation(after.get("nodes"), token)
+    if (
+        computed_before is None
+        or computed_after is None
+        or canonical_json_bytes(before_observation)
+        != canonical_json_bytes(computed_before)
+        or canonical_json_bytes(after_observation)
+        != canonical_json_bytes(computed_after)
+    ):
+        return False
+    lane_root = bound_paths["layout_before"].parents[2]
+    if not (
+        _source_layout_is_bound(
+            before,
+            lane_root=lane_root,
+            checkpoint="before",
+            bound_screenshot=bound_paths["screenshot_before"],
+        )
+        and _source_layout_is_bound(
+            after,
+            lane_root=lane_root,
+            checkpoint="after",
+            bound_screenshot=bound_paths["screenshot_after"],
+        )
     ):
         return False
 
@@ -1489,6 +1636,7 @@ def _raw_probe_is_eligible(
         and after_dimensions is not None
         and after_dimensions[0] > after_dimensions[1]
         and bool(logcat.strip())
+        and _activity_recreation_log_is_eligible(logcat)
         and before.get("schema_version") == 1
         and before.get("lane_id") == lane_id
         and before.get("checkpoint") == "before"

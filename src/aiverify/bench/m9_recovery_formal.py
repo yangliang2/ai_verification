@@ -1468,7 +1468,12 @@ def _normalize_raw_evidence(
         "probe_token": token,
         "token_visible": before_visible,
         "text_input_observation": before_observation,
-        "source_path": before_screen.relative_to(lane_root).as_posix(),
+        "nodes": before_layout,
+        "source_screenshot_path": before_screen.relative_to(lane_root).as_posix(),
+        "source_screenshot_sha256": sha256_file(before_screen),
+        "source_layout_path": before_layout_source.relative_to(
+            lane_root
+        ).as_posix(),
         "source_layout_sha256": sha256_file(before_layout_source),
         "screenshot_dimensions": list(before_dimensions),
     }
@@ -1480,7 +1485,10 @@ def _normalize_raw_evidence(
         "probe_token": token,
         "token_visible": after_visible,
         "text_input_observation": after_observation,
-        "source_path": after_screen.relative_to(lane_root).as_posix(),
+        "nodes": after_layout,
+        "source_screenshot_path": after_screen.relative_to(lane_root).as_posix(),
+        "source_screenshot_sha256": sha256_file(after_screen),
+        "source_layout_path": after_layout_source.relative_to(lane_root).as_posix(),
         "source_layout_sha256": sha256_file(after_layout_source),
         "screenshot_dimensions": list(after_dimensions),
     }

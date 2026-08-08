@@ -267,6 +267,27 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "input_field_present": True,
                 "exact_token_visible_in_input": token_visible,
             }
+
+        def text_input_nodes(token_visible: bool) -> list[dict[str, object]]:
+            nodes: list[dict[str, object]] = [
+                {
+                    "content-desc": "Text input",
+                    "center": "[540,1000]",
+                }
+            ]
+            if token_visible:
+                nodes.append(
+                    {
+                        "text": token,
+                        "interactions": [
+                            "clickable",
+                            "focusable",
+                            "long-clickable",
+                        ],
+                        "center": "[420,1000]",
+                    }
+                )
+            return nodes
         reference_files = {
             "execution_record": "execution-record.json",
             "execution_provenance": "execution-provenance.json",
@@ -468,8 +489,23 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
         }
         write_json(lane_root / "production-seam-admission.json", admission)
 
-        write_png(lane_root / "raw/screenshots/before.png", f"{lane_id}-before")
-        write_png(lane_root / "raw/screenshots/after.png", f"{lane_id}-after")
+        before_source_root = lane_root / "artifacts/after-segment-0"
+        after_source_root = lane_root / "artifacts/after-event-0"
+        before_source_screen = before_source_root / "screen.png"
+        after_source_screen = after_source_root / "screen.png"
+        before_source_layout = before_source_root / "layout.json"
+        after_source_layout = after_source_root / "layout.json"
+        before_nodes = text_input_nodes(True)
+        after_nodes = text_input_nodes(after_token_visible)
+        write_png(before_source_screen, f"{lane_id}-before")
+        write_png(after_source_screen, f"{lane_id}-after")
+        write_json(before_source_layout, before_nodes)
+        write_json(after_source_layout, after_nodes)
+        before_raw_screen = lane_root / "raw/screenshots/before.png"
+        after_raw_screen = lane_root / "raw/screenshots/after.png"
+        before_raw_screen.parent.mkdir(parents=True, exist_ok=True)
+        before_raw_screen.write_bytes(before_source_screen.read_bytes())
+        after_raw_screen.write_bytes(after_source_screen.read_bytes())
         write_json(
             lane_root / "raw/layout/before.json",
             {
@@ -480,6 +516,15 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "probe_token": token,
                 "token_visible": True,
                 "text_input_observation": text_input_observation(True),
+                "nodes": before_nodes,
+                "source_screenshot_path": "artifacts/after-segment-0/screen.png",
+                "source_screenshot_sha256": sha256_bytes(
+                    before_source_screen.read_bytes()
+                ),
+                "source_layout_path": "artifacts/after-segment-0/layout.json",
+                "source_layout_sha256": sha256_bytes(
+                    before_source_layout.read_bytes()
+                ),
             },
         )
         write_json(
@@ -494,11 +539,25 @@ def _formal_fixture(tmp_path: Path) -> dict[str, object]:
                 "text_input_observation": text_input_observation(
                     after_token_visible
                 ),
+                "nodes": after_nodes,
+                "source_screenshot_path": "artifacts/after-event-0/screen.png",
+                "source_screenshot_sha256": sha256_bytes(
+                    after_source_screen.read_bytes()
+                ),
+                "source_layout_path": "artifacts/after-event-0/layout.json",
+                "source_layout_sha256": sha256_bytes(
+                    after_source_layout.read_bytes()
+                ),
             },
         )
         (lane_root / "raw/logcat").mkdir(parents=True, exist_ok=True)
         (lane_root / "raw/logcat/rotation.txt").write_text(
-            f"{lane_id} WindowInsetsController activity recreation completed\n",
+            (
+                f"I/am_on_create_called: [0,{ACTIVITY},performCreate]\n"
+                f"I/am_on_destroy_called: [0,{ACTIVITY},performDestroy]\n"
+                f"I/am_on_create_called: [0,{ACTIVITY},performCreate]\n"
+                f"{lane_id} WindowInsetsController recreation completed\n"
+            ),
             encoding="utf-8",
         )
         write_json(
@@ -2388,6 +2447,38 @@ def test_supported_rejects_signature_only_png_after_reseal(
     )
     screenshot.write_bytes(b"\x89PNG\r\n\x1a\n" + b"not-a-complete-png")
     _reseal_lane(tmp_path, row)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+
+def test_supported_recomputes_text_input_and_recreation_evidence(
+    tmp_path: Path,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = tmp_path / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    layout_path = lane_root / "raw/layout/before.json"
+    layout = json.loads(layout_path.read_text(encoding="utf-8"))
+    layout["text_input_observation"]["exact_token_visible_in_input"] = False
+    _write_json(layout_path, layout)
+    _reseal_lane(tmp_path, first)
+    result = _reconcile_fixture(fixture)
+    assert result["counts"]["attempt_evidence_validated"] == 5
+    assert result["aggregate_result"] == "Not Supported"
+
+    fixture = _formal_fixture(tmp_path / "recreation")
+    first = fixture["rows"][0]
+    assert isinstance(first, dict)
+    lane_root = (
+        tmp_path / "recreation" / R4_ARTIFACT_ROOT / LANE_IDS[0]
+    )
+    (lane_root / "raw/logcat/rotation.txt").write_text(
+        "rotation completed without lifecycle evidence\n",
+        encoding="utf-8",
+    )
+    _reseal_lane(tmp_path / "recreation", first)
     result = _reconcile_fixture(fixture)
     assert result["counts"]["attempt_evidence_validated"] == 5
     assert result["aggregate_result"] == "Not Supported"
