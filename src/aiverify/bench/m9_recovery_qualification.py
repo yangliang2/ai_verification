@@ -103,6 +103,31 @@ LOCAL_CLAIM_BOUNDARY = (
 )
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _LAYOUT_CENTER = re.compile(r"^\[(\d+),(\d+)\]$")
+_ACTIVITY_LIFECYCLE_MARKERS = (
+    "am_on_create_called",
+    "am_on_destroy_called",
+    "am_relaunch_resume_activity",
+)
+_CHECKPOINT_LOGCAT_TERMS = (
+    "jetchat",
+    "NavActivity",
+    "ActivityTaskManager",
+    "ActivityManager",
+    "configuration",
+    "relaunch",
+    "WindowManager",
+)
+_ADB_ACTIVITY_EVENTS_COMMAND = (
+    "adb",
+    "-s",
+    DEVICE,
+    "logcat",
+    "-b",
+    "events",
+    "-d",
+    "-v",
+    "threadtime",
+)
 _APPROVAL_COMMENT_URL = re.compile(
     r"^https://github\.com/yangliang2/ai_verification/"
     r"issues/152#issuecomment-[0-9]+$"
@@ -1528,20 +1553,17 @@ def _source_layout_is_bound(
     )
 
 
-def _activity_recreation_log_is_eligible(logcat: str) -> bool:
-    lifecycle = [
+def _activity_lifecycle_lines(logcat: str) -> list[str]:
+    return [
         line
         for line in logcat.splitlines()
         if ACTIVITY in line
-        and any(
-            marker in line
-            for marker in (
-                "am_on_create_called",
-                "am_on_destroy_called",
-                "am_relaunch_resume_activity",
-            )
-        )
+        and any(marker in line for marker in _ACTIVITY_LIFECYCLE_MARKERS)
     ]
+
+
+def _activity_recreation_log_is_eligible(logcat: str) -> bool:
+    lifecycle = _activity_lifecycle_lines(logcat)
     destroy_indexes = [
         index
         for index, line in enumerate(lifecycle)
@@ -1557,89 +1579,16 @@ def _activity_recreation_log_is_eligible(logcat: str) -> bool:
     )
 
 
-def _activity_recreation_source_is_bound(
-    lane_root: Path,
-    normalized_logcat: str,
-) -> bool:
-    receipt = _read_json_object(
-        lane_root / "raw/logcat/events-command.json"
-    )
-    if receipt is None:
-        return False
+def _adb_events_lifecycle(
+    receipt: Mapping[str, Any],
+) -> list[str] | None:
     stdout = receipt.get("stdout")
     stderr = receipt.get("stderr")
     duration = receipt.get("duration_seconds")
     if not isinstance(stdout, str) or not isinstance(stderr, str):
-        return False
-    source_lifecycle = [
-        line
-        for line in stdout.splitlines()
-        if ACTIVITY in line
-        and any(
-            marker in line
-            for marker in (
-                "am_on_create_called",
-                "am_on_destroy_called",
-                "am_relaunch_resume_activity",
-            )
-        )
-    ]
-    normalized_lifecycle = [
-        line
-        for line in normalized_logcat.splitlines()
-        if ACTIVITY in line
-        and any(
-            marker in line
-            for marker in (
-                "am_on_create_called",
-                "am_on_destroy_called",
-                "am_relaunch_resume_activity",
-            )
-        )
-    ]
-    checkpoint_path = lane_root / "artifacts/after-event-0/logcat.txt"
-    try:
-        checkpoint_source = checkpoint_path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return False
-    checkpoint_terms = (
-        "jetchat",
-        "NavActivity",
-        "ActivityTaskManager",
-        "ActivityManager",
-        "configuration",
-        "relaunch",
-        "WindowManager",
-    )
-    checkpoint_lines = [
-        line
-        for line in checkpoint_source.splitlines()
-        if any(term in line for term in checkpoint_terms)
-    ]
-    if not checkpoint_lines:
-        checkpoint_lines = checkpoint_source.splitlines()
-    checkpoint_logcat = "\n".join(checkpoint_lines).strip()
-    if not checkpoint_logcat:
-        return False
-    expected_normalized_logcat = (
-        "# activity lifecycle event buffer\n"
-        + ("\n".join(source_lifecycle).strip() or "<no matching lifecycle events>")
-        + "\n# after-rotation checkpoint buffers\n"
-        + checkpoint_logcat
-        + "\n"
-    )
-    expected_command = [
-        "adb",
-        "-s",
-        DEVICE,
-        "logcat",
-        "-b",
-        "events",
-        "-d",
-        "-v",
-        "threadtime",
-    ]
-    return (
+        return None
+    lifecycle = _activity_lifecycle_lines(stdout)
+    if not (
         set(receipt)
         == {
             "command",
@@ -1649,16 +1598,58 @@ def _activity_recreation_source_is_bound(
             "stdout",
             "stderr",
         }
-        and receipt.get("command") == expected_command
+        and receipt.get("command") == list(_ADB_ACTIVITY_EVENTS_COMMAND)
         and receipt.get("cwd") is None
         and receipt.get("returncode") == 0
         and isinstance(duration, (int, float))
         and not isinstance(duration, bool)
         and duration >= 0
-        and bool(source_lifecycle)
-        and normalized_lifecycle == source_lifecycle
-        and normalized_logcat == expected_normalized_logcat
+        and bool(lifecycle)
         and _activity_recreation_log_is_eligible(stdout)
+    ):
+        return None
+    return lifecycle
+
+
+def _normalized_checkpoint_logcat(path: Path) -> str | None:
+    try:
+        source = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    selected = [
+        line
+        for line in source.splitlines()
+        if any(term in line for term in _CHECKPOINT_LOGCAT_TERMS)
+    ]
+    normalized = "\n".join(selected or source.splitlines()).strip()
+    return normalized or None
+
+
+def _activity_recreation_source_is_bound(
+    lane_root: Path,
+    normalized_logcat: str,
+) -> bool:
+    receipt = _read_json_object(
+        lane_root / "raw/logcat/events-command.json"
+    )
+    if receipt is None:
+        return False
+    source_lifecycle = _adb_events_lifecycle(receipt)
+    checkpoint_logcat = _normalized_checkpoint_logcat(
+        lane_root / "artifacts/after-event-0/logcat.txt"
+    )
+    if source_lifecycle is None or checkpoint_logcat is None:
+        return False
+    expected_normalized_logcat = (
+        "# activity lifecycle event buffer\n"
+        + ("\n".join(source_lifecycle).strip() or "<no matching lifecycle events>")
+        + "\n# after-rotation checkpoint buffers\n"
+        + checkpoint_logcat
+        + "\n"
+    )
+    return (
+        _activity_lifecycle_lines(normalized_logcat) == source_lifecycle
+        and normalized_logcat == expected_normalized_logcat
     )
 
 
