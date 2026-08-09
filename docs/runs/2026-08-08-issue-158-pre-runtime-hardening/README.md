@@ -51,7 +51,13 @@ PASS (exit 0)
 
 /usr/bin/time -p uv run --extra dev python -m pytest
 1017 passed in 52.30s; real 52.51s; user 31.97s; sys 17.01s
+
+/usr/bin/time -p uv run --extra dev python -m pytest -q
+1017 passed; exit 0; real 63.27s; user 38.72s; sys 20.32s
 ```
+
+The final-HEAD smoke run above reached 100%; a separate collection check
+reported 1017 tests.
 
 The frozen-target regression confirms the exact #154 target-specific Attack
 Plan mismatch is rejected before a formal root is created.  The full suite

@@ -34,6 +34,21 @@
       "failed": 0,
       "duration_seconds": 52.30,
       "wall_seconds": 52.51
+    },
+    "final_head_smoke": {
+      "command": "uv run --extra dev python -m pytest -q",
+      "status": "pass",
+      "passed": 1017,
+      "failed": 0,
+      "duration_seconds": 63.27,
+      "user_seconds": 38.72,
+      "sys_seconds": 20.32,
+      "collection_check": {
+        "command": "uv run --extra dev python -m pytest --collect-only -q | awk -F': ' '{sum += $2} END {print sum}'",
+        "collected": 1017,
+        "status": "pass",
+        "exit_code": 0
+      }
     }
   },
   "side_effects": {
