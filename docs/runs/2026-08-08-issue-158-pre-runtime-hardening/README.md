@@ -16,7 +16,8 @@ packet or the #137 result.
     discovery/planning pass.
   - Gives terminal pre-runtime rows minimal absence evidence that binds the
     canonical `ExecutionRecord` path and SHA-256, while keeping them
-    non-accountable.
+    non-accountable.  The receipt is named `terminal_absence_receipt`; it is
+    deliberately separate from glossary-defined `Attempt Evidence`.
   - Separates runtime reach from formal-attempt reconciliation in execution
     summaries.
 - `src/aiverify/bench/m9_recovery_qualification.py`
@@ -54,10 +55,13 @@ PASS (exit 0)
 
 /usr/bin/time -p uv run --extra dev python -m pytest -q
 1017 passed; exit 0; real 63.27s; user 38.72s; sys 20.32s
+
+/usr/bin/time -p uv run --extra dev python -m pytest -q
+1017 passed; exit 0; real 73.53s; user 39.90s; sys 22.04s
 ```
 
-The final-HEAD smoke run above reached 100%; a separate collection check
-reported 1017 tests.
+The final-HEAD smoke runs reached 100%; a separate collection check reported
+1017 tests.  The latest run includes the post-review receipt terminology fix.
 
 The frozen-target regression confirms the exact #154 target-specific Attack
 Plan mismatch is rejected before a formal root is created.  The full suite

@@ -3276,7 +3276,11 @@ def _lane_ledger_is_exhaustive(
     return _checksum_ledger_is_exhaustive(
         ledger_path,
         evidence_root=lane_root,
-        ignored={"checksums.sha256", "attempt-evidence-validation.json"},
+        ignored={
+            "checksums.sha256",
+            "attempt-evidence-validation.json",
+            "terminal-absence-receipt.json",
+        },
     )
 
 
@@ -3675,6 +3679,8 @@ def _formal_attempt_artifact_audit(
     expected_records: list[dict[str, Any]] = []
     for row in rows:
         evidence = row.get("attempt_evidence")
+        if not isinstance(evidence, Mapping):
+            evidence = row.get("terminal_absence_receipt")
         refs = evidence.get("refs") if isinstance(evidence, Mapping) else None
         execution_ref = (
             refs.get("execution_record") if isinstance(refs, Mapping) else None

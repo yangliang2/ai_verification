@@ -439,15 +439,19 @@ def test_lane_exception_creates_one_terminal_record_and_typed_absence(
     assert "raw/logcat/events-command.json" in absence["absent_artifacts"]
     assert "checksums.sha256" not in absence["absent_artifacts"]
     assert (artifact_root / lane_id / "checksums.sha256").is_file()
-    evidence = row["attempt_evidence"]
+    assert "attempt_evidence" not in row
+    evidence = row["terminal_absence_receipt"]
     assert evidence["refs"]["execution_record"]["path"].endswith(
         f"{lane_id}/execution-record.json"
     )
     assert evidence["refs"]["execution_record"]["sha256"] == sha256_file(
         artifact_root / lane_id / "execution-record.json"
     )
-    assert row["attempt_evidence_receipt"]["path"].endswith(
-        f"{lane_id}/attempt-evidence-validation.json"
+    assert row["terminal_absence_receipt_ref"]["path"].endswith(
+        f"{lane_id}/terminal-absence-receipt.json"
+    )
+    assert row["terminal_absence_receipt_ref"]["sha256"] == sha256_file(
+        artifact_root / lane_id / "terminal-absence-receipt.json"
     )
 
 

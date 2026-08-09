@@ -2018,7 +2018,12 @@ def _lane_ledger(lane_root: Path) -> dict[str, str]:
         path
         for path in sorted(lane_root.rglob("*"))
         if path.is_file()
-        and path.name not in {"checksums.sha256", "attempt-evidence-validation.json"}
+        and path.name
+        not in {
+            "checksums.sha256",
+            "attempt-evidence-validation.json",
+            "terminal-absence-receipt.json",
+        }
     ]
     _write_text(
         ledger,
@@ -2180,7 +2185,7 @@ def _absent_required_artifacts(
     return absent
 
 
-def _write_terminal_attempt_evidence(
+def _write_terminal_absence_receipt(
     lane_id: str,
     record: Mapping[str, Any],
     *,
@@ -2189,12 +2194,13 @@ def _write_terminal_attempt_evidence(
     runtime_started: bool,
     reason: str,
 ) -> tuple[dict[str, Any], dict[str, str]]:
-    """Persist a minimal receipt that binds a terminal row to its record.
+    """Persist a minimal absence receipt that binds a terminal row to its record.
 
     A pre-runtime lane has no accountable production evidence, so it must not
-    pass the full attempt-evidence validator.  It still has a canonical
-    terminal ExecutionRecord and an exhaustive lane ledger; keeping those two
-    references in the row makes inventory reconciliation bidirectional.
+    be labelled Attempt Evidence.  It still has a canonical terminal
+    ExecutionRecord and an exhaustive lane ledger; keeping those two
+    references in a separately named receipt makes inventory reconciliation
+    bidirectional.
     """
 
     record_path = FORMAL_ARTIFACT_ROOT / lane_id / "execution-record.json"
@@ -2224,9 +2230,11 @@ def _write_terminal_attempt_evidence(
             "runtime_evidence_absent": runtime_started is False,
         },
     }
-    validation_path = FORMAL_ARTIFACT_ROOT / lane_id / "attempt-evidence-validation.json"
-    _write_json(validation_path, evidence)
-    return evidence, _artifact_ref(validation_path)
+    receipt_path = (
+        FORMAL_ARTIFACT_ROOT / lane_id / "terminal-absence-receipt.json"
+    )
+    _write_json(receipt_path, evidence)
+    return evidence, _artifact_ref(receipt_path)
 
 
 def _seal_failed_lane(
@@ -2258,7 +2266,10 @@ def _seal_failed_lane(
                 "discretionary_rerun_permitted": False,
             },
         )
-        attempt_evidence, attempt_evidence_receipt = _write_terminal_attempt_evidence(
+        (
+            terminal_absence_receipt,
+            terminal_absence_receipt_ref,
+        ) = _write_terminal_absence_receipt(
             lane_id,
             record,
             ledger_ref=_artifact_ref(existing_ledger),
@@ -2281,8 +2292,8 @@ def _seal_failed_lane(
             "production_invocation_id": None,
             "production_identity_sha256": None,
             "finding_conclusion": "inconclusive",
-            "attempt_evidence": attempt_evidence,
-            "attempt_evidence_receipt": attempt_evidence_receipt,
+            "terminal_absence_receipt": terminal_absence_receipt,
+            "terminal_absence_receipt_ref": terminal_absence_receipt_ref,
             "attempt_evidence_validated": False,
             "runtime_started": runtime_started,
             "falsification_review": {"status": "unknown", "outcome": "inconclusive"},
@@ -2317,7 +2328,10 @@ def _seal_failed_lane(
         },
     )
     ledger_ref = _lane_ledger(lane_root)
-    attempt_evidence, attempt_evidence_receipt = _write_terminal_attempt_evidence(
+    (
+        terminal_absence_receipt,
+        terminal_absence_receipt_ref,
+    ) = _write_terminal_absence_receipt(
         lane_id,
         record,
         ledger_ref=ledger_ref,
@@ -2340,8 +2354,8 @@ def _seal_failed_lane(
         "production_invocation_id": None,
         "production_identity_sha256": None,
         "finding_conclusion": "inconclusive",
-        "attempt_evidence": attempt_evidence,
-        "attempt_evidence_receipt": attempt_evidence_receipt,
+        "terminal_absence_receipt": terminal_absence_receipt,
+        "terminal_absence_receipt_ref": terminal_absence_receipt_ref,
         "attempt_evidence_validated": False,
         "runtime_started": runtime_started,
         "falsification_review": {

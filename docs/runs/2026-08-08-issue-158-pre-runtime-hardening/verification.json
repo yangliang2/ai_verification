@@ -49,6 +49,20 @@
         "status": "pass",
         "exit_code": 0
       }
+    },
+    "post_review_receipt_fix": {
+      "command": "uv run --extra dev python -m pytest -q",
+      "status": "pass",
+      "passed": 1017,
+      "failed": 0,
+      "duration_seconds": 73.53,
+      "user_seconds": 39.90,
+      "sys_seconds": 22.04,
+      "changes_verified": [
+        "pre-runtime rows use terminal_absence_receipt",
+        "full Attempt Evidence remains reserved for accountable runtime rows",
+        "inventory audit accepts both canonical receipt types"
+      ]
     }
   },
   "side_effects": {

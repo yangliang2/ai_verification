@@ -1887,7 +1887,7 @@ def test_pre_runtime_rows_bind_inventory_without_claiming_runtime(
                 "production_invocation_id": None,
                 "production_identity_sha256": None,
                 "finding_conclusion": "inconclusive",
-                "attempt_evidence": {
+                "terminal_absence_receipt": {
                     "schema_version": 1,
                     "validation_version": "m9-recovery-terminal-absence-v1",
                     "status": "not_applicable",
@@ -1904,7 +1904,7 @@ def test_pre_runtime_rows_bind_inventory_without_claiming_runtime(
                         ],
                     },
                 },
-                "attempt_evidence_receipt": {},
+                "terminal_absence_receipt_ref": {},
                 "attempt_evidence_validated": False,
                 "runtime_started": False,
                 "falsification_review": {
@@ -1931,6 +1931,7 @@ def test_pre_runtime_rows_bind_inventory_without_claiming_runtime(
     )
 
     assert result["formal_attempt_reconciled"] is True
+    assert all("attempt_evidence" not in row for row in minimal_rows)
     assert result["runtime_holdout_executed"] is False
     assert result["formal_holdout_executed"] is False
     assert result["counts"]["inventory_execution_records_bound"] is True
