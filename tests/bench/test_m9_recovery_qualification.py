@@ -1858,6 +1858,111 @@ def test_supported_requires_every_frozen_gate(tmp_path: Path) -> None:
     )
 
 
+def test_pre_runtime_rows_bind_inventory_without_claiming_runtime(
+    tmp_path: Path,
+) -> None:
+    fixture = _formal_fixture(tmp_path)
+    minimal_rows: list[dict[str, object]] = []
+    for original in fixture["rows"]:
+        assert isinstance(original, dict)
+        original_evidence = original["attempt_evidence"]
+        assert isinstance(original_evidence, dict)
+        original_refs = original_evidence["refs"]
+        assert isinstance(original_refs, dict)
+        minimal_rows.append(
+            {
+                "lane_id": original["lane_id"],
+                "role": original["role"],
+                "accountable": False,
+                "execution_record_accountable": False,
+                "terminal": True,
+                "formal_attempt_id": FORMAL_ATTEMPT_ID,
+                "execution_record_attempt_id": original[
+                    "execution_record_attempt_id"
+                ],
+                "lane_attempt_count": 1,
+                "retry_count": 0,
+                "replacement_count": 0,
+                "discretionary_rerun_count": 0,
+                "production_invocation_id": None,
+                "production_identity_sha256": None,
+                "finding_conclusion": "inconclusive",
+                "attempt_evidence": {
+                    "schema_version": 1,
+                    "validation_version": "m9-recovery-terminal-absence-v1",
+                    "status": "not_applicable",
+                    "lane_id": original["lane_id"],
+                    "formal_attempt_id": FORMAL_ATTEMPT_ID,
+                    "execution_record_attempt_id": original[
+                        "execution_record_attempt_id"
+                    ],
+                    "accountable": False,
+                    "runtime_started": False,
+                    "refs": {
+                        "execution_record": original_refs[
+                            "execution_record"
+                        ],
+                    },
+                },
+                "attempt_evidence_receipt": {},
+                "attempt_evidence_validated": False,
+                "runtime_started": False,
+                "falsification_review": {
+                    "status": "not_run",
+                    "outcome": "inconclusive",
+                },
+            }
+        )
+    assert len(minimal_rows) == 6
+
+    result = reconcile_formal_rows(
+        minimal_rows,
+        fixture["contradiction"],
+        auditor_mapping=fixture["mapping"],
+        expected_mapping_commitment_sha256=fixture["mapping_commitment"],
+        expected_contradiction_audit_sha256=fixture[
+            "contradiction_commitment"
+        ],
+        formal_attempt_inventory=fixture["attempt_inventory"],
+        formal_attempt_inventory_receipt=fixture[
+            "attempt_inventory_receipt"
+        ],
+        evidence_repository_root=fixture["evidence_repository_root"],
+    )
+
+    assert result["formal_attempt_reconciled"] is True
+    assert result["runtime_holdout_executed"] is False
+    assert result["formal_holdout_executed"] is False
+    assert result["counts"]["inventory_execution_records_bound"] is True
+    assert result["counts"]["execution_records_exhaustive"] is True
+    assert result["counts"]["execution_record_attempt_ids_unique"] is True
+    assert result["retry_count"] == 0
+    assert result["replacement_count"] == 0
+    assert result["discretionary_rerun_count"] == 0
+    assert result["supported_gate"][
+        "one_formal_attempt_zero_retry_replacement"
+    ] is True
+    assert result["aggregate_result"] == "Not Supported"
+
+
+def test_historical_r5_reconciliation_artifact_remains_checksum_bound() -> None:
+    historical_root = (
+        ROOT / "docs/runs/2026-08-08-issue-157-m9-r5-reconciliation"
+    )
+    ledger = historical_root / "checksums.sha256"
+    entries = {}
+    for line in ledger.read_text(encoding="utf-8").splitlines():
+        digest, separator, name = line.partition("  ")
+        assert separator == "  "
+        entries[name] = digest
+    assert entries["reconciliation.json"] == sha256_bytes(
+        (historical_root / "reconciliation.json").read_bytes()
+    )
+    assert entries["interpretation.json"] == sha256_bytes(
+        (historical_root / "interpretation.json").read_bytes()
+    )
+
+
 @pytest.mark.parametrize("mutation", ("missing", "tampered", "extra"))
 def test_supported_requires_exhaustive_root_ledger(
     tmp_path: Path,

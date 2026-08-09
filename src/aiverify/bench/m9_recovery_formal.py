@@ -9,6 +9,12 @@ contradiction control, and then executes each of the six lanes exactly once.
 No role assignment is placed in discovery, planning, runner, oracle, or review
 inputs.  The released mapping is retained only by the auditor-side source
 resolver and the later mechanical reconciliation input.
+
+Future packets run a target-specific, side-effect-free Context Acquisition →
+Hypothesis Portfolio → Attack Plan preclaim before the formal namespace is
+claimed.  Terminal pre-runtime rows retain only checksum-bound absence
+receipts; this hardening is future-only and never rewrites an exhausted R4
+packet.
 """
 
 from __future__ import annotations
@@ -246,6 +252,29 @@ class FormalInputs:
 
 
 @dataclass(frozen=True)
+class TargetSpecificPreclaim:
+    """Pure target-specific admission work completed before namespace claim.
+
+    The receipt is deliberately kept alongside the in-memory products.  The
+    formal consumer writes it only after the irreversible namespace claim and
+    then consumes the same objects, preventing a second discovery/planning
+    pass from drifting away from the preclaim decision.
+    """
+
+    target: ProjectTarget
+    context: Any
+    portfolio: Any
+    metadata: Mapping[str, Any]
+    generation: Any
+    compiled: Any
+    attack_request: AttackPlanGenerationRequest
+    receipt: Mapping[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return dict(self.receipt)
+
+
+@dataclass(frozen=True)
 class SourceBinding:
     """One auditor-selected immutable source/APK pair without a role label."""
 
@@ -462,26 +491,101 @@ def static_preflight(*, require_formal_root_absent: bool = True) -> dict[str, An
     }
 
 
-def _claim_formal_root(preflight: Mapping[str, Any], repository: Mapping[str, Any]) -> None:
+def _claim_formal_root(
+    preflight: Mapping[str, Any],
+    repository: Mapping[str, Any],
+    *,
+    preclaim: TargetSpecificPreclaim | None = None,
+) -> None:
+    preclaim_payload: dict[str, Any] | None = None
+    if preclaim is not None:
+        preclaim_payload = preclaim.to_dict()
+        if preclaim_payload.get("status") != "passed":
+            raise M9RecoveryFormalError("target-specific preclaim is not passed")
     if FORMAL_ROOT.exists():
         raise M9RecoveryFormalError("formal attempt namespace already exists; retry is forbidden")
     FORMAL_ROOT.mkdir(parents=True, exist_ok=False)
-    _write_json(
-        FORMAL_ROOT / "formal-start.json",
-        {
-            "schema_version": 2,
-            "formal_attempt_id": FORMAL_ATTEMPT_ID,
-            "attempt_number": 1,
-            "started_at": _utc_now(),
-            "consumer": repository,
-            "preflight": dict(preflight),
-            "formal_execution_started": True,
-            "lane_attempt_count_at_start": 0,
-            "retry_count": 0,
-            "replacement_count": 0,
-            "discretionary_rerun_count": 0,
-        },
-    )
+    start = {
+        "schema_version": 2,
+        "formal_attempt_id": FORMAL_ATTEMPT_ID,
+        "attempt_number": 1,
+        "started_at": _utc_now(),
+        "consumer": repository,
+        "preflight": dict(preflight),
+        "formal_execution_started": True,
+        "lane_attempt_count_at_start": 0,
+        "retry_count": 0,
+        "replacement_count": 0,
+        "discretionary_rerun_count": 0,
+    }
+    if preclaim is not None:
+        preclaim_path = FORMAL_ROOT / "target-specific-preclaim.json"
+        assert preclaim_payload is not None
+        _write_json(preclaim_path, preclaim_payload)
+        try:
+            preclaim_relative = preclaim_path.resolve().relative_to(REPO_ROOT).as_posix()
+        except ValueError:
+            preclaim_relative = str(preclaim_path.resolve())
+        start["target_specific_preclaim"] = {
+            "path": preclaim_relative,
+            "sha256": sha256_file(preclaim_path),
+            "receipt_sha256": preclaim_payload.get("receipt_sha256"),
+        }
+    _write_json(FORMAL_ROOT / "formal-start.json", start)
+
+
+def _verify_target_specific_preclaim(
+    preclaim: TargetSpecificPreclaim,
+) -> dict[str, Any]:
+    """Verify the persisted receipt is byte-equivalent to the preclaim input."""
+
+    path = FORMAL_ROOT / "target-specific-preclaim.json"
+    try:
+        persisted = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise M9RecoveryFormalError(
+            "target-specific preclaim receipt cannot be read"
+        ) from error
+    expected = preclaim.to_dict()
+    if canonical_json_bytes(persisted) != canonical_json_bytes(expected):
+        raise M9RecoveryFormalError(
+            "target-specific preclaim receipt drifted before formal start"
+        )
+    receipt_digest = persisted.get("receipt_sha256")
+    unsigned = {
+        key: value for key, value in persisted.items() if key != "receipt_sha256"
+    }
+    if receipt_digest != sha256_bytes(canonical_json_bytes(unsigned)):
+        raise M9RecoveryFormalError(
+            "target-specific preclaim receipt checksum is invalid"
+        )
+    start_path = FORMAL_ROOT / "formal-start.json"
+    try:
+        start = json.loads(start_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise M9RecoveryFormalError(
+            "formal start receipt cannot be read for preclaim binding"
+        ) from error
+    binding = start.get("target_specific_preclaim")
+    if not isinstance(binding, Mapping):
+        raise M9RecoveryFormalError(
+            "formal start receipt is missing target-specific preclaim binding"
+        )
+    try:
+        expected_path = path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        expected_path = str(path.resolve())
+    if binding.get("path") != expected_path:
+        raise M9RecoveryFormalError(
+            "formal start receipt target-specific preclaim path drifted"
+        )
+    if binding.get("sha256") != sha256_file(path) or binding.get(
+        "receipt_sha256"
+    ) != receipt_digest:
+        raise M9RecoveryFormalError(
+            "formal start receipt does not bind target-specific preclaim"
+        )
+    return persisted
 
 
 def _reject_contradiction(manifest: Mapping[str, Any]) -> dict[str, Any]:
@@ -612,23 +716,20 @@ def _candidate_backend(request: HypothesisGenerationRequest) -> Mapping[str, Any
     return {"schema_version": 1, "candidates": candidates}
 
 
+_DEFAULT_PERSIST_ROOT = object()
+
+
 def _discover_context_and_portfolio(
     project: Path,
+    *,
+    persist_root: Path | None | object = _DEFAULT_PERSIST_ROOT,
 ) -> tuple[ProjectTarget, Any, Any, dict[str, Any]]:
+    if persist_root is _DEFAULT_PERSIST_ROOT:
+        persist_root = FORMAL_ROOT
     target = _make_target(project)
     started = time.monotonic()
     context = acquire_project_context(target)
     context_seconds = round(time.monotonic() - started, 3)
-    _write_json(
-        FORMAL_ROOT / "context-acquisition.json",
-        {
-            "schema_version": 2,
-            "duration_seconds": context_seconds,
-            "result": context.to_dict(),
-            "side_effects": False,
-            "mapping_released": False,
-        },
-    )
     registry = approved_m9_prior_registry()
     request = HypothesisGenerationRequest(
         request_id="m9-r4-hypothesis-generation-01",
@@ -654,32 +755,62 @@ def _discover_context_and_portfolio(
     ]
     if len(state_candidates) != 1:
         raise M9RecoveryFormalError("state-evolution hypothesis is not uniquely selected")
-    value = {
-        "schema_version": 2,
-        "request": request.to_dict(),
-        "response": response.to_dict(),
-        "portfolio": portfolio.to_dict(),
-        "selected_probe_hypothesis_id": state_candidates[0].hypothesis.hypothesis_id,
-        "duration_seconds": context_seconds,
-        "side_effects": False,
-        "mapping_released": False,
-    }
-    _write_json(FORMAL_ROOT / "hypothesis-portfolio.json", value)
-    return target, context, portfolio, {
+    metadata = {
         "context_seconds": context_seconds,
         "graph_sha256": context.receipt.graph_sha256,
         "portfolio_sha256": sha256_bytes(canonical_json_bytes(portfolio.to_dict())),
         "registry": registry,
         "selected": state_candidates[0],
+        "portfolio": portfolio,
+        "request": request,
+        "response": response,
     }
+    if persist_root is not None:
+        _write_discovery_artifacts(context, metadata, persist_root)
+    return target, context, portfolio, metadata
 
 
-def _attack_plan(
+def _write_discovery_artifacts(
+    context: Any,
+    metadata: Mapping[str, Any],
+    persist_root: Path,
+) -> None:
+    """Persist already-computed discovery products after a successful claim."""
+
+    request = metadata["request"]
+    response = metadata["response"]
+    selected = metadata["selected"]
+    _write_json(
+        persist_root / "context-acquisition.json",
+        {
+            "schema_version": 2,
+            "duration_seconds": metadata["context_seconds"],
+            "result": context.to_dict(),
+            "side_effects": False,
+            "mapping_released": False,
+        },
+    )
+    _write_json(
+        persist_root / "hypothesis-portfolio.json",
+        {
+            "schema_version": 2,
+            "request": request.to_dict(),
+            "response": response.to_dict(),
+            "portfolio": metadata["portfolio"].to_dict(),
+            "selected_probe_hypothesis_id": selected.hypothesis.hypothesis_id,
+            "duration_seconds": metadata["context_seconds"],
+            "side_effects": False,
+            "mapping_released": False,
+        },
+    )
+
+
+def _build_attack_plan(
     target: ProjectTarget,
     context: Any,
     metadata: Mapping[str, Any],
     project: Path,
-) -> Any:
+) -> tuple[Any, Any, AttackPlanGenerationRequest]:
     selected = metadata["selected"]
     definition = next(
         item
@@ -816,8 +947,17 @@ def _attack_plan(
         package_name=PACKAGE,
         activity=ACTIVITY,
     )
+    return generation, compiled, request
+
+
+def _write_attack_plan_artifact(
+    request: AttackPlanGenerationRequest,
+    generation: Any,
+    compiled: Any,
+    persist_root: Path,
+) -> None:
     _write_json(
-        FORMAL_ROOT / "attack-plan-generation.json",
+        persist_root / "attack-plan-generation.json",
         {
             "schema_version": 2,
             "request": request.to_dict(),
@@ -827,7 +967,143 @@ def _attack_plan(
             "mapping_released": False,
         },
     )
+
+
+def _attack_plan(
+    target: ProjectTarget,
+    context: Any,
+    metadata: Mapping[str, Any],
+    project: Path,
+    *,
+    persist_root: Path | None = None,
+) -> Any:
+    """Build the target-specific plan and persist its receipt when requested.
+
+    The compatibility default preserves the historical private helper
+    behaviour; the preclaim path calls ``_build_attack_plan`` directly so it
+    cannot write the formal namespace.
+    """
+
+    generation, compiled, request = _build_attack_plan(
+        target,
+        context,
+        metadata,
+        project,
+    )
+    _write_attack_plan_artifact(
+        request,
+        generation,
+        compiled,
+        FORMAL_ROOT if persist_root is None else persist_root,
+    )
     return generation
+
+
+def _preclaim_payload(
+    target: ProjectTarget,
+    context: Any,
+    portfolio: Any,
+    metadata: Mapping[str, Any],
+    generation: Any,
+    compiled: Any,
+    attack_request: AttackPlanGenerationRequest,
+) -> dict[str, Any]:
+    """Return the checksum-bound, side-effect-free target admission receipt."""
+
+    request = metadata["request"]
+    response = metadata["response"]
+    payload: dict[str, Any] = {
+        "schema_version": 1,
+        "status": "passed",
+        "side_effects": False,
+        "formal_namespace_claimed": False,
+        "mapping_released": False,
+        "side_effect_counters": {
+            "formal_root_writes": 0,
+            "mapping_release_calls": 0,
+            "source_fixture_calls": 0,
+            "build_calls": 0,
+            "device_calls": 0,
+            "model_calls": 0,
+            "runtime_calls": 0,
+            "oracle_calls": 0,
+            "review_calls": 0,
+        },
+        "target": {
+            "target_id": target.target_id,
+            "source_origin": target.source_origin,
+            "source_commit": target.source_commit,
+            "worktree": target.worktree,
+        },
+        "checks": [
+            {
+                "id": "context_acquisition",
+                "status": "pass",
+                "graph_sha256": context.receipt.graph_sha256,
+            },
+            {
+                "id": "hypothesis_portfolio",
+                "status": "pass",
+                "portfolio_sha256": metadata["portfolio_sha256"],
+                "selected_hypothesis_id": metadata["selected"].hypothesis.hypothesis_id,
+            },
+            {
+                "id": "attack_plan_admission",
+                "status": "pass",
+                "plan_sha256": generation.authoritative_output_sha256,
+                "semantics_sha256": compiled.semantics_sha256,
+            },
+        ],
+        "context_acquisition": context.to_dict(),
+        "hypothesis_portfolio": {
+            "request": request.to_dict(),
+            "response": response.to_dict(),
+            "portfolio": portfolio.to_dict(),
+            "selected_probe_hypothesis_id": metadata["selected"].hypothesis.hypothesis_id,
+            "duration_seconds": metadata["context_seconds"],
+        },
+        "attack_plan": {
+            "request": attack_request.to_dict(),
+            "generation": generation.to_dict(),
+            "compiled_neutral_plan": compiled.to_dict(),
+        },
+    }
+    payload["receipt_sha256"] = sha256_bytes(canonical_json_bytes(payload))
+    return payload
+
+
+def validate_target_specific_preclaim(project: Path) -> TargetSpecificPreclaim:
+    """Run exact target discovery/planning without claiming formal namespace."""
+
+    target, context, portfolio, metadata = _discover_context_and_portfolio(
+        project.resolve(),
+        persist_root=None,
+    )
+    generation, compiled, attack_request = _build_attack_plan(
+        target,
+        context,
+        metadata,
+        project.resolve(),
+    )
+    receipt = _preclaim_payload(
+        target,
+        context,
+        portfolio,
+        metadata,
+        generation,
+        compiled,
+        attack_request,
+    )
+    return TargetSpecificPreclaim(
+        target=target,
+        context=context,
+        portfolio=portfolio,
+        metadata=metadata,
+        generation=generation,
+        compiled=compiled,
+        attack_request=attack_request,
+        receipt=receipt,
+    )
 
 
 def _leakage_gate(
@@ -1825,6 +2101,7 @@ def _seal_successful_lane(
         "finding_conclusion": finding_conclusion,
         "attempt_evidence": attempt,
         "attempt_evidence_receipt": _artifact_ref(validation_path),
+        "runtime_started": True,
         "falsification_review": {
             "path": refs["falsification_review"]["path"],
             "sha256": refs["falsification_review"]["sha256"],
@@ -1904,20 +2181,71 @@ def _absent_required_artifacts(
     return absent
 
 
+def _write_terminal_attempt_evidence(
+    lane_id: str,
+    record: Mapping[str, Any],
+    *,
+    ledger_ref: Mapping[str, str],
+    absence_path: Path,
+    runtime_started: bool,
+    reason: str,
+) -> tuple[dict[str, Any], dict[str, str]]:
+    """Persist a minimal receipt that binds a terminal row to its record.
+
+    A pre-runtime lane has no accountable production evidence, so it must not
+    pass the full attempt-evidence validator.  It still has a canonical
+    terminal ExecutionRecord and an exhaustive lane ledger; keeping those two
+    references in the row makes inventory reconciliation bidirectional.
+    """
+
+    record_path = FORMAL_ARTIFACT_ROOT / lane_id / "execution-record.json"
+    refs = {
+        "execution_record": _artifact_ref(record_path),
+        "lane_ledger": dict(ledger_ref),
+        "typed_absence": _artifact_ref(absence_path),
+    }
+    evidence = {
+        "schema_version": 1,
+        "validation_version": "m9-recovery-terminal-absence-v1",
+        "status": "not_applicable",
+        "lane_id": lane_id,
+        "formal_attempt_id": FORMAL_ATTEMPT_ID,
+        "terminal_lifecycle": "terminal",
+        "execution_record_attempt_id": record["attempt_id"],
+        "execution_record_lifecycle_state": record.get("lifecycle_state"),
+        "accountable": False,
+        "runtime_started": runtime_started,
+        "reason": reason,
+        "refs": refs,
+        "evidence_refs_sha256": sha256_bytes(canonical_json_bytes(refs)),
+        "validator_checks": {
+            "execution_record_terminal": record.get("lifecycle_state") != "in_progress",
+            "execution_record_attempt_bound": True,
+            "lane_ledger_bound": True,
+            "runtime_evidence_absent": runtime_started is False,
+        },
+    }
+    validation_path = FORMAL_ARTIFACT_ROOT / lane_id / "attempt-evidence-validation.json"
+    _write_json(validation_path, evidence)
+    return evidence, _artifact_ref(validation_path)
+
+
 def _seal_failed_lane(
     lane_id: str,
     role: str | None,
     error: Exception,
     *,
     duration_seconds: float,
+    runtime_started: bool = False,
 ) -> dict[str, Any]:
     lane_root = FORMAL_ARTIFACT_ROOT / lane_id
     lane_root.mkdir(parents=True, exist_ok=True)
     record = _terminal_record(lane_id, error)
     existing_ledger = lane_root / "checksums.sha256"
     if existing_ledger.exists():
+        terminal_failure_path = FORMAL_ROOT / "terminal-failures" / f"{lane_id}.json"
         _write_json(
-            FORMAL_ROOT / "terminal-failures" / f"{lane_id}.json",
+            terminal_failure_path,
             {
                 "schema_version": 2,
                 "kind": "post_seal_terminal_failure",
@@ -1930,6 +2258,14 @@ def _seal_failed_lane(
                 "replacement_permitted": False,
                 "discretionary_rerun_permitted": False,
             },
+        )
+        attempt_evidence, attempt_evidence_receipt = _write_terminal_attempt_evidence(
+            lane_id,
+            record,
+            ledger_ref=_artifact_ref(existing_ledger),
+            absence_path=terminal_failure_path,
+            runtime_started=runtime_started,
+            reason=f"{type(error).__name__}: {error}",
         )
         return {
             "lane_id": lane_id,
@@ -1946,8 +2282,10 @@ def _seal_failed_lane(
             "production_invocation_id": None,
             "production_identity_sha256": None,
             "finding_conclusion": "inconclusive",
-            "attempt_evidence": {},
-            "attempt_evidence_receipt": {},
+            "attempt_evidence": attempt_evidence,
+            "attempt_evidence_receipt": attempt_evidence_receipt,
+            "attempt_evidence_validated": False,
+            "runtime_started": runtime_started,
             "falsification_review": {"status": "unknown", "outcome": "inconclusive"},
             "duration_seconds": duration_seconds,
             "terminal_error": f"{type(error).__name__}: {error}",
@@ -1979,7 +2317,15 @@ def _seal_failed_lane(
             "discretionary_rerun_permitted": False,
         },
     )
-    _lane_ledger(lane_root)
+    ledger_ref = _lane_ledger(lane_root)
+    attempt_evidence, attempt_evidence_receipt = _write_terminal_attempt_evidence(
+        lane_id,
+        record,
+        ledger_ref=ledger_ref,
+        absence_path=lane_root / "typed-absence.json",
+        runtime_started=runtime_started,
+        reason=f"{type(error).__name__}: {error}",
+    )
     return {
         "lane_id": lane_id,
         "role": role,
@@ -1995,8 +2341,10 @@ def _seal_failed_lane(
         "production_invocation_id": None,
         "production_identity_sha256": None,
         "finding_conclusion": "inconclusive",
-        "attempt_evidence": {},
-        "attempt_evidence_receipt": {},
+        "attempt_evidence": attempt_evidence,
+        "attempt_evidence_receipt": attempt_evidence_receipt,
+        "attempt_evidence_validated": False,
+        "runtime_started": runtime_started,
         "falsification_review": {
             "status": "not_run",
             "outcome": "inconclusive",
@@ -2013,6 +2361,7 @@ def _execute_lane_once(
     *,
     ime_guard: dict[str, str],
     lineage: EvidenceLineage,
+    runtime_started: dict[str, bool] | None = None,
 ) -> ExecutedLane:
     frozen_path = admitted.frozen_path
     spec = admitted.spec
@@ -2037,6 +2386,8 @@ def _execute_lane_once(
         admitted.source.commit,
     )
     started = time.monotonic()
+    if runtime_started is not None:
+        runtime_started["value"] = True
     result = run_spec(
         spec,
         device=options.device,
@@ -2108,12 +2459,14 @@ def _execute_or_preserve_terminal(
     lineage: EvidenceLineage,
 ) -> dict[str, Any]:
     started = time.monotonic()
+    runtime_started = {"value": False}
     try:
         executed = _execute_lane_once(
             lane_id,
             admitted,
             ime_guard=ime_guard,
             lineage=lineage,
+            runtime_started=runtime_started,
         )
         return _seal_successful_lane(
             lane_id,
@@ -2130,6 +2483,7 @@ def _execute_or_preserve_terminal(
             role,
             error,
             duration_seconds=round(time.monotonic() - started, 3),
+            runtime_started=runtime_started["value"],
         )
 
 
@@ -2261,7 +2615,13 @@ def _finalize_formal_attempt(
         "qualification_id": QUALIFICATION_ID,
         "formal_attempt_id": FORMAL_ATTEMPT_ID,
         "formal_execution_started": True,
-        "formal_holdout_executed": state.stage >= FormalStage.EXECUTING,
+        "formal_attempt_reconciled": False,
+        "runtime_holdout_executed": any(
+            row.get("runtime_started") is True for row in rows
+        ),
+        "formal_holdout_executed": any(
+            row.get("runtime_started") is True for row in rows
+        ),
         "consumer_commit": inputs.expected_consumer_commit,
         "duration_seconds": round(time.monotonic() - started, 3),
         "lane_order": list(LANE_IDS),
@@ -2310,7 +2670,10 @@ def execute_formal(inputs: FormalInputs) -> dict[str, Any]:
     repository = _repository_identity(inputs.expected_consumer_commit)
     bindings = _source_bindings(inputs)
     input_preflight = _validate_formal_inputs(inputs, bindings)
-    _claim_formal_root(preflight, repository)
+    # This is the last pure gate.  A target-specific plan mismatch must stop
+    # here, before the one-shot formal namespace becomes irreversible.
+    preclaim = validate_target_specific_preclaim(inputs.project_target.resolve())
+    _claim_formal_root(preflight, repository, preclaim=preclaim)
     state = FormalState()
     started = time.monotonic()
     contradiction: Mapping[str, Any] | None = None
@@ -2321,13 +2684,15 @@ def execute_formal(inputs: FormalInputs) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     ime_guard: dict[str, str] = {}
     try:
+        _verify_target_specific_preclaim(preclaim)
         _write_json(FORMAL_ROOT / "formal-input-preflight.json", input_preflight)
         manifest = load_manifest(MANIFEST_PATH, require_frozen=True).document
         contradiction = _reject_contradiction(manifest)
         state.advance(FormalStage.CREATED, FormalStage.CONTRADICTION_REJECTED)
-        target, context, _portfolio, metadata = _discover_context_and_portfolio(
-            inputs.project_target.resolve()
-        )
+        target = preclaim.target
+        context = preclaim.context
+        metadata = preclaim.metadata
+        _write_discovery_artifacts(context, metadata, FORMAL_ROOT)
         lineage = EvidenceLineage(
             hypothesis_id=metadata["selected"].hypothesis.hypothesis_id,
             explored_fact_ids=tuple(
@@ -2339,11 +2704,12 @@ def execute_formal(inputs: FormalInputs) -> dict[str, Any]:
             FormalStage.CONTEXT_ACQUIRED,
         )
         state.advance(FormalStage.CONTEXT_ACQUIRED, FormalStage.PORTFOLIO_FROZEN)
-        generation = _attack_plan(
-            target,
-            context,
-            metadata,
-            inputs.project_target.resolve(),
+        generation = preclaim.generation
+        _write_attack_plan_artifact(
+            preclaim.attack_request,
+            generation,
+            preclaim.compiled,
+            FORMAL_ROOT,
         )
         state.advance(FormalStage.PORTFOLIO_FROZEN, FormalStage.PLAN_ADMITTED)
         leakage = _leakage_gate(manifest, metadata, generation)
