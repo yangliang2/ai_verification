@@ -9,6 +9,11 @@ receipt never builds, installs, launches, accesses a device, or invokes an
 agent.  A candidate packet may be technically admitted while it waits for the
 required human freeze approval; only an approved packet may have ``frozen``
 status.
+
+Future reconciliation may bind pre-runtime terminal rows to their canonical
+ExecutionRecords and report formal-attempt reconciliation separately from
+runtime reach.  Existing R3/R4 evidence and its historical reducer output are
+immutable and are never rewritten by these contracts.
 """
 
 from __future__ import annotations
@@ -3271,7 +3276,11 @@ def _lane_ledger_is_exhaustive(
     return _checksum_ledger_is_exhaustive(
         ledger_path,
         evidence_root=lane_root,
-        ignored={"checksums.sha256", "attempt-evidence-validation.json"},
+        ignored={
+            "checksums.sha256",
+            "attempt-evidence-validation.json",
+            "terminal-absence-receipt.json",
+        },
     )
 
 
@@ -3670,6 +3679,8 @@ def _formal_attempt_artifact_audit(
     expected_records: list[dict[str, Any]] = []
     for row in rows:
         evidence = row.get("attempt_evidence")
+        if not isinstance(evidence, Mapping):
+            evidence = row.get("terminal_absence_receipt")
         refs = evidence.get("refs") if isinstance(evidence, Mapping) else None
         execution_ref = (
             refs.get("execution_record") if isinstance(refs, Mapping) else None
@@ -3695,6 +3706,20 @@ def _formal_attempt_artifact_audit(
         and expected_records == actual_records
     )
     return result
+
+
+def _runtime_holdout_started(row: Mapping[str, Any]) -> bool:
+    """Return whether a row crossed the runner/runtime boundary.
+
+    New terminal rows carry an explicit ``runtime_started`` bit.  The
+    accountable rows in the original R4 schema predate that bit and are
+    necessarily runtime rows, so they retain a safe compatibility fallback.
+    """
+
+    value = row.get("runtime_started")
+    if isinstance(value, bool):
+        return value
+    return row.get("accountable") is True
 
 
 def reconcile_formal_rows(
@@ -4029,6 +4054,9 @@ def reconcile_formal_rows(
         ),
         "one_formal_attempt_zero_retry_replacement": one_attempt_passed,
     }
+    runtime_holdout_executed = any(
+        _runtime_holdout_started(item) for item in ordered
+    )
     return {
         "schema_version": 2,
         "lane_order": list(LANE_IDS),
@@ -4063,7 +4091,11 @@ def reconcile_formal_rows(
         },
         "aggregate_result": "Supported" if all(gates.values()) else "Not Supported",
         "supported_gate": gates,
-        "formal_holdout_executed": True,
+        "formal_attempt_reconciled": True,
+        "runtime_holdout_executed": runtime_holdout_executed,
+        # Backward-compatible field name; it now reflects runtime reach rather
+        # than the fact that reconciliation itself ran.
+        "formal_holdout_executed": runtime_holdout_executed,
         "formal_attempt_count": formal_attempt_count,
         "retry_count": retry_count,
         "replacement_count": replacement_count,

@@ -1,0 +1,95 @@
+{
+  "issue": 158,
+  "status": "implementation_verified",
+  "base_commit": "3ef1f7d5125aae672b430e0d14ff945ddfb00b56",
+  "base_tree": "8e3b4503b7960e7d7bf848f7061c8dad5d6b322f",
+  "branch": "issue-158-pre-runtime-reconciliation",
+  "tool_versions": {
+    "uv": "0.11.7 (9d177269e 2026-04-15 aarch64-apple-darwin)",
+    "python": "3.11.15"
+  },
+  "verification": {
+    "compileall": {
+      "command": "uv run --extra dev python -m compileall -q src tests",
+      "status": "pass",
+      "exit_code": 0
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "status": "pass",
+      "exit_code": 0
+    },
+    "focused": {
+      "command": "uv run --extra dev python -m pytest tests/bench/test_m9_recovery_formal.py tests/bench/test_m9_recovery_qualification.py",
+      "status": "pass",
+      "passed": 98,
+      "failed": 0,
+      "duration_seconds": 18.22,
+      "wall_seconds": 18.38
+    },
+    "full": {
+      "command": "uv run --extra dev python -m pytest",
+      "status": "pass",
+      "passed": 1017,
+      "failed": 0,
+      "duration_seconds": 52.30,
+      "wall_seconds": 52.51
+    },
+    "final_head_smoke": {
+      "command": "uv run --extra dev python -m pytest -q",
+      "status": "pass",
+      "passed": 1017,
+      "failed": 0,
+      "duration_seconds": 63.27,
+      "user_seconds": 38.72,
+      "sys_seconds": 20.32,
+      "collection_check": {
+        "command": "uv run --extra dev python -m pytest --collect-only -q | awk -F': ' '{sum += $2} END {print sum}'",
+        "collected": 1017,
+        "status": "pass",
+        "exit_code": 0
+      }
+    },
+    "post_review_receipt_fix": {
+      "command": "uv run --extra dev python -m pytest -q",
+      "status": "pass",
+      "passed": 1017,
+      "failed": 0,
+      "duration_seconds": 73.53,
+      "user_seconds": 39.90,
+      "sys_seconds": 22.04,
+      "changes_verified": [
+        "pre-runtime rows use terminal_absence_receipt",
+        "full Attempt Evidence remains reserved for accountable runtime rows",
+        "inventory audit accepts both canonical receipt types"
+      ]
+    }
+  },
+  "side_effects": {
+    "formal_namespace_claimed": false,
+    "mapping_release_calls": 0,
+    "source_fixture_calls": 0,
+    "build_calls": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "runtime_calls": 0,
+    "oracle_calls": 0,
+    "review_calls": 0,
+    "manual_steps": 0
+  },
+  "artifacts": [
+    "README.md",
+    "verification.json",
+    "checksums.sha256"
+  ],
+  "known_gaps": [
+    "No successful preclaim was run against a new admitted packet; the frozen #154 target remains the intentional mismatch regression.",
+    "No merge, release, or issue close was performed in this local implementation run."
+  ],
+  "historical_scope": {
+    "r3_r4_evidence_mutated": false,
+    "issue_137_reexecuted": false,
+    "issue_154_retried": false,
+    "issue_157_reconciliation_rewritten": false
+  }
+}

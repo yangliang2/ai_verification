@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -49,6 +50,165 @@ def test_formal_root_claim_is_create_only(monkeypatch: pytest.MonkeyPatch, tmp_p
     assert start["retry_count"] == 0
     with pytest.raises(formal.M9RecoveryFormalError, match="already exists"):
         formal._claim_formal_root({"status": "passed"}, {"head": "a" * 40})
+
+
+def test_formal_root_claim_binds_target_specific_preclaim(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "formal-attempt"
+    monkeypatch.setattr(formal, "FORMAL_ROOT", root)
+    payload = {
+        "schema_version": 1,
+        "status": "passed",
+        "side_effects": False,
+    }
+    payload["receipt_sha256"] = formal.sha256_bytes(
+        formal.canonical_json_bytes(payload)
+    )
+    preclaim = SimpleNamespace(to_dict=lambda: payload)
+
+    formal._claim_formal_root(
+        {"status": "passed"},
+        {"head": "a" * 40},
+        preclaim=preclaim,
+    )
+
+    receipt_path = root / "target-specific-preclaim.json"
+    start = json.loads((root / "formal-start.json").read_text(encoding="utf-8"))
+    assert json.loads(receipt_path.read_text(encoding="utf-8")) == payload
+    assert start["target_specific_preclaim"]["path"] == str(receipt_path)
+    assert start["target_specific_preclaim"]["sha256"] == sha256_file(receipt_path)
+    assert formal._verify_target_specific_preclaim(preclaim) == payload
+
+    receipt_path.write_text(
+        json.dumps({**payload, "status": "tampered"}),
+        encoding="utf-8",
+    )
+    with pytest.raises(formal.M9RecoveryFormalError, match="drifted"):
+        formal._verify_target_specific_preclaim(preclaim)
+
+
+def test_target_specific_preclaim_is_side_effect_free(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    formal_root = tmp_path / "formal-attempt"
+    monkeypatch.setattr(formal, "FORMAL_ROOT", formal_root)
+    target = SimpleNamespace(
+        target_id="target",
+        source_origin="origin",
+        source_commit="a" * 40,
+        worktree=str(tmp_path),
+    )
+    context = SimpleNamespace(
+        receipt=SimpleNamespace(graph_sha256="b" * 64),
+        to_dict=lambda: {"status": "partial"},
+    )
+    portfolio = SimpleNamespace(to_dict=lambda: {"selected": []})
+    selected = SimpleNamespace(
+        hypothesis=SimpleNamespace(hypothesis_id="hypothesis")
+    )
+    request = SimpleNamespace(to_dict=lambda: {"kind": "hypothesis"})
+    response = SimpleNamespace(to_dict=lambda: {"kind": "response"})
+    metadata = {
+        "context_seconds": 0.01,
+        "graph_sha256": "b" * 64,
+        "portfolio_sha256": "c" * 64,
+        "selected": selected,
+        "request": request,
+        "response": response,
+    }
+    generation = SimpleNamespace(
+        authoritative_output_sha256="d" * 64,
+        to_dict=lambda: {"kind": "generation"},
+    )
+    compiled = SimpleNamespace(
+        semantics_sha256="e" * 64,
+        to_dict=lambda: {"kind": "compiled"},
+    )
+    attack_request = SimpleNamespace(to_dict=lambda: {"kind": "attack"})
+    monkeypatch.setattr(
+        formal,
+        "_discover_context_and_portfolio",
+        lambda *_args, **_kwargs: (target, context, portfolio, metadata),
+    )
+    monkeypatch.setattr(
+        formal,
+        "_build_attack_plan",
+        lambda *_args, **_kwargs: (generation, compiled, attack_request),
+    )
+
+    result = formal.validate_target_specific_preclaim(tmp_path)
+
+    assert result.receipt["status"] == "passed"
+    assert result.receipt["side_effects"] is False
+    assert result.receipt["formal_namespace_claimed"] is False
+    assert result.receipt["mapping_released"] is False
+    assert all(
+        count == 0 for count in result.receipt["side_effect_counters"].values()
+    )
+    assert result.receipt["receipt_sha256"] == formal.sha256_bytes(
+        formal.canonical_json_bytes(
+            {
+                key: value
+                for key, value in result.receipt.items()
+                if key != "receipt_sha256"
+            }
+        )
+    )
+    assert not formal_root.exists()
+
+
+def test_target_specific_mismatch_is_rejected_before_namespace_claim(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    claimed = False
+    monkeypatch.setattr(formal, "static_preflight", lambda **_kwargs: {})
+    monkeypatch.setattr(formal, "_repository_identity", lambda _commit: {})
+    monkeypatch.setattr(formal, "_source_bindings", lambda _inputs: {})
+    monkeypatch.setattr(
+        formal,
+        "_validate_formal_inputs",
+        lambda _inputs, _bindings: {"status": "passed"},
+    )
+
+    def reject(_project: Path) -> object:
+        raise formal.M9RecoveryFormalError(
+            "target-specific Attack Plan was rejected: evidence expectations do not cover hypothesis requirements"
+        )
+
+    def claim(*_args: object, **_kwargs: object) -> None:
+        nonlocal claimed
+        claimed = True
+
+    monkeypatch.setattr(formal, "validate_target_specific_preclaim", reject)
+    monkeypatch.setattr(formal, "_claim_formal_root", claim)
+
+    with pytest.raises(formal.M9RecoveryFormalError, match="evidence expectations"):
+        formal.execute_formal(
+            formal.FormalInputs(expected_consumer_commit="a" * 40)
+        )
+    assert claimed is False
+
+
+@pytest.mark.skipif(
+    not formal.DEFAULT_PROJECT_TARGET.is_dir(),
+    reason="the frozen R3 target snapshot is unavailable",
+)
+def test_frozen_target_specific_mismatch_is_side_effect_free(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    formal_root = tmp_path / "formal-attempt"
+    monkeypatch.setattr(formal, "FORMAL_ROOT", formal_root)
+
+    with pytest.raises(
+        formal.M9RecoveryFormalError,
+        match="evidence expectations do not cover hypothesis requirements",
+    ):
+        formal.validate_target_specific_preclaim(formal.DEFAULT_PROJECT_TARGET)
+    assert not formal_root.exists()
 
 
 def test_state_rejects_mapping_release_reordering_and_lane_retry() -> None:
@@ -279,6 +439,20 @@ def test_lane_exception_creates_one_terminal_record_and_typed_absence(
     assert "raw/logcat/events-command.json" in absence["absent_artifacts"]
     assert "checksums.sha256" not in absence["absent_artifacts"]
     assert (artifact_root / lane_id / "checksums.sha256").is_file()
+    assert "attempt_evidence" not in row
+    evidence = row["terminal_absence_receipt"]
+    assert evidence["refs"]["execution_record"]["path"].endswith(
+        f"{lane_id}/execution-record.json"
+    )
+    assert evidence["refs"]["execution_record"]["sha256"] == sha256_file(
+        artifact_root / lane_id / "execution-record.json"
+    )
+    assert row["terminal_absence_receipt_ref"]["path"].endswith(
+        f"{lane_id}/terminal-absence-receipt.json"
+    )
+    assert row["terminal_absence_receipt_ref"]["sha256"] == sha256_file(
+        artifact_root / lane_id / "terminal-absence-receipt.json"
+    )
 
 
 def test_semantic_evidence_uses_portfolio_lineage_and_withholds_finding(
@@ -367,6 +541,17 @@ def test_claimed_pre_lane_failure_seals_all_six_terminal_absences(
         formal,
         "_validate_formal_inputs",
         lambda _inputs, _bindings: {"status": "passed"},
+    )
+    monkeypatch.setattr(
+        formal,
+        "validate_target_specific_preclaim",
+        lambda _project: SimpleNamespace(
+            to_dict=lambda: {
+                "schema_version": 1,
+                "status": "passed",
+                "receipt_sha256": "a" * 64,
+            }
+        ),
     )
 
     def fail_contradiction(_manifest: object) -> dict[str, object]:
