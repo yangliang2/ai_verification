@@ -975,7 +975,7 @@ def _attack_plan(
     metadata: Mapping[str, Any],
     project: Path,
     *,
-    persist_root: Path | None = None,
+    persist_root: Path | None | object = _DEFAULT_PERSIST_ROOT,
 ) -> Any:
     """Build the target-specific plan and persist its receipt when requested.
 
@@ -984,18 +984,17 @@ def _attack_plan(
     cannot write the formal namespace.
     """
 
+    if persist_root is _DEFAULT_PERSIST_ROOT:
+        persist_root = FORMAL_ROOT
+
     generation, compiled, request = _build_attack_plan(
         target,
         context,
         metadata,
         project,
     )
-    _write_attack_plan_artifact(
-        request,
-        generation,
-        compiled,
-        FORMAL_ROOT if persist_root is None else persist_root,
-    )
+    if persist_root is not None:
+        _write_attack_plan_artifact(request, generation, compiled, persist_root)
     return generation
 
 
