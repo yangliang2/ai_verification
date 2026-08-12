@@ -2,14 +2,20 @@
 
 Status: implementation and local verification complete on
 `issue-161-source-of-truth-reconciliation`. This run record is durable only after
-the branch commit containing it is merged; the exact evidence commit is recorded
-in the Issue #161 completion comment.
+the branch commit containing it is merged.
 
 ## Objective and frozen source
 
 - Issue: `#161` (`bug`, `ready-for-agent`).
-- Source revision: `9dfb19e2afa3f4b02a87d9c43a1cd05913174583`.
-- Source tree: `8b832def6da1bd54dc1326c025589c7e078c5d1c`.
+- Base revision: `9dfb19e2afa3f4b02a87d9c43a1cd05913174583`.
+- Base tree: `8b832def6da1bd54dc1326c025589c7e078c5d1c`.
+- Tested implementation/evidence revision:
+  `697025168c9c2d73bc475fa8989f9200cb065eef`.
+- Tested implementation/evidence tree:
+  `51b6b4bf9096bc13ad2349893bbdcdc38d006773`.
+- The final evidence commit is the commit that contains this run record and its
+  checksum ledger; its exact merged identity is recorded in the Issue #161
+  completion comment.
 - Source state: PR #160 and #158 were merged/closed, while current guidance still
   described #158 as remaining forward work.
 - Claim boundary: documentation and source-of-truth regression only.

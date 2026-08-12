@@ -21,7 +21,7 @@ Run Spec
 
 ## 当前状态
 
-截至 2026-08-08：
+截至 2026-08-12：
 
 - #58 已由 fresh #80 M3.1 population 的有效证据收口。#80 在冻结的五 seed、
   30 lane 人口上得到 30/30 first-attempt 和 eventual accountability、
