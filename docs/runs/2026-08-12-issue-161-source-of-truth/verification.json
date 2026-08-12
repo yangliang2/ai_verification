@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "issue": 161,
+  "status": "implementation_verified_with_one_external_fixture_gap",
+  "branch": "issue-161-source-of-truth-reconciliation",
+  "source_revision": "9dfb19e2afa3f4b02a87d9c43a1cd05913174583",
+  "source_tree": "8b832def6da1bd54dc1326c025589c7e078c5d1c",
+  "tool_versions": {
+    "os": "macOS 26.3 (25D125)",
+    "git": "2.50.1 (Apple Git-155)",
+    "uv": "0.11.7 (9d177269e 2026-04-15 aarch64-apple-darwin)",
+    "python": "3.11.15",
+    "pytest": "9.1.1"
+  },
+  "verification": {
+    "red_source_of_truth_test": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest tests/bench/test_current_claim_matrix.py -q",
+      "status": "expected_failure",
+      "passed": 5,
+      "failed": 1,
+      "wall_seconds": 5.94
+    },
+    "focused": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q tests/bench/test_current_claim_matrix.py",
+      "status": "pass",
+      "passed": 7,
+      "failed": 0,
+      "pytest_seconds": 0.01,
+      "wall_seconds": 0.10
+    },
+    "compileall": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m compileall -q src tests",
+      "status": "pass",
+      "exit_code": 0,
+      "wall_seconds": 0.26
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "status": "pass",
+      "exit_code": 0
+    },
+    "collection": {
+      "command": "uv run --extra dev python -m pytest --collect-only -q | awk -F': ' '{sum += $2} END {print sum}'",
+      "status": "pass",
+      "collected": 1018
+    },
+    "unfiltered_full": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -q",
+      "status": "environment_failure",
+      "passed": 1017,
+      "failed": 1,
+      "wall_seconds": 89.02,
+      "failure": "test_frozen_target_specific_mismatch_is_side_effect_free ran against /private/tmp/m9-r3-snapshot-b, which existed without a .git entry"
+    },
+    "full_except_external_fixture": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -k 'not frozen_target_specific_mismatch_is_side_effect_free'",
+      "status": "pass",
+      "passed": 1017,
+      "failed": 0,
+      "deselected": 1,
+      "pytest_seconds": 48.07,
+      "wall_seconds": 48.20
+    }
+  },
+  "changed_surfaces": [
+    "CONTEXT.md",
+    "HANDOFF.md",
+    "README.md",
+    "docs/current-capability-claim-matrix.md",
+    "tests/bench/test_current_claim_matrix.py"
+  ],
+  "historical_evidence_mutated": false,
+  "side_effects": {
+    "formal_invocations": 0,
+    "namespace_claims": 0,
+    "mapping_releases": 0,
+    "android_builds": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "oracle_calls": 0,
+    "manual_steps": 0,
+    "external_snapshot_mutations": 0
+  },
+  "known_gaps": [
+    "One existing test keys its skip decision only on the existence of a hard-coded external directory; the local directory existed but was not a Git repository."
+  ]
+}

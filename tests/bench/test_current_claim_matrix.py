@@ -16,6 +16,12 @@ _LIVING_DOCS = (
     _MATRIX,
     _GAP_REGISTER,
 )
+_CURRENT_SOURCE_OF_TRUTH_DOCS = (
+    _ROOT / "README.md",
+    _ROOT / "HANDOFF.md",
+    _ROOT / "CONTEXT.md",
+    _MATRIX,
+)
 _MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 
 
@@ -113,6 +119,40 @@ def test_living_docs_do_not_present_m6_as_the_current_milestone() -> None:
         text = path.read_text(encoding="utf-8")
         assert "current milestone is M6" not in text
         assert "M6 计划" not in text
+
+
+def test_current_source_of_truth_records_issue_158_as_completed() -> None:
+    texts = {
+        document: document.read_text(encoding="utf-8")
+        for document in _CURRENT_SOURCE_OF_TRUTH_DOCS
+    }
+    combined = "\n".join(texts.values())
+
+    for document, text in texts.items():
+        assert "#158" in text, document
+        assert "PR #160" in text, document
+        assert "9dfb19e" in text, document
+
+    for capability in (
+        "target-specific preclaim",
+        "terminal_absence_receipt",
+        "formal_attempt_reconciled",
+        "runtime_holdout_executed",
+    ):
+        assert capability in combined
+
+    for stale_guidance in (
+        "当前唯一明确的 forward work 是 #158",
+        "剩余 #158",
+        "Future-only hardening is tracked in #158",
+    ):
+        assert stale_guidance not in combined
+
+    assert re.search(
+        r"没有已批准\s*的新\s+formal population",
+        texts[_ROOT / "HANDOFF.md"],
+    )
+    assert "不回填或重跑 #154" in combined
 
 
 def test_all_relative_links_in_living_docs_resolve() -> None:

@@ -1,6 +1,6 @@
 # AI Verification 当前能力与声明矩阵
 
-更新时间：2026-08-08
+更新时间：2026-08-12
 
 本矩阵是当前里程碑声明的入口。它把“仓库中存在实现”与“已有可审计证据
 支持某个声明”分开，并使用以下状态：
@@ -20,6 +20,7 @@
 | Effective Execution Identity | 有界证据支持 | [#61 run](runs/2026-07-17-issue-61-effective-execution-identity/README.md) | 绑定实际 Run Spec、source、APK/安装态、device、tool、backend/model |
 | portable、identity-bound host locator | 有界证据支持 | [#67 run](runs/2026-07-18-issue-67-portable-host-locator/README.md) | 声明的 source origin/commit 与解析后的本机路径 |
 | attempt-complete 可靠性 gate | 有界证据支持 | [#80 fresh M3.1 run](runs/2026-07-21-issue-80-m3-fresh/README.md) | Wikipedia、Codex CLI、单台 API 35 emulator、五 seed/30 lane 人口 |
+| future pre-runtime formal hardening | 有界证据支持（纯合同与回归） | [#158 run](runs/2026-08-08-issue-158-pre-runtime-hardening/README.md)、PR #160 merge `9dfb19e`；target-specific preclaim、`terminal_absence_receipt` inventory binding、`formal_attempt_reconciled`/`runtime_holdout_executed` 分离 | 只约束未来 packet；没有新 formal invocation、runtime evidence 或对 #154/#157 的回填 |
 
 #80 的冻结人口结果为 30/30 first-attempt 和 eventual accountability、15/15
 baseline controls passed、15/15 defect lanes 在预注册 oracle/class 被捕获、0
@@ -41,7 +42,7 @@ Agent 的结论为 `locally_supported`。
 | M6 blinded AI-change qualification | aggregate integrity PASS；M7 scale gate 未通过 | 6 个 frozen packages、36/36 lanes accountable、0 retries、6/6 adjudication agreement；historical 18 lanes 保持独立；prospective P-01/P-02 `locally_supported`，P-03 `inconclusive` | 六个 package、各自 track denominator、P-03 contradiction 与单一路线的本地事实 | M7 scale pass、benchmark-wide detection/false-positive rate、P-03 修复或重跑、upstream acceptance |
 | M8 state-evolution formal qualification | 有界失败证据；`inconclusive` | exact #121 manifest 进入 #122；12/12 ordered terminal attempts、0/12 accountable、change/project 分母 0/6 各自成立；共同原因是 execution-identity capture 的 fixture `host_project` 与 runner root policy mismatch | 冻结人口的 admission/accountability 失败事实与不可重跑边界 | state-evolution runtime detection、migration correctness、M7 合并、Android/OEM/production 或 benchmark-wide claim |
 | M9 unseen-project adversarial discovery | 有界失败证据；`Not Supported`；不形成 runtime claim | exact #136 merge 进入 #137；contradiction packet pre-side-effect rejected；Context Acquisition partial (64 facts)；top-3 portfolio、Attack Plan、leakage audit passed；6/6 ordered terminal lanes，0/6 accountable，0/3 defect support，0/3 control rejection，6/6 independent reviews，0 retries/replacements；共同原因是 fresh emulator 上 package-clear 在 install 前返回 `Failed` | 冻结 M9 population 的 gate、admission、accountability、non-accountable lane 和 independent-review facts | M9 runtime detection/rejection、project completeness、benchmark rate、Android/OEM/ColorOS、production/upstream acceptance |
-| M9-R fresh recovery qualification | 有界失败证据；pre-runtime `Not Supported`；不形成 runtime claim | [#157 R5](runs/2026-08-08-issue-157-m9-r5-reconciliation/README.md) 消费 exact #154 evidence；contradiction packet pre-side-effect rejected；Context Acquisition 与 top-3 portfolio 完成；Attack Plan evidence contract 在 `PORTFOLIO_FROZEN` fail closed；6/6 unique terminal rows，0/6 accountable、0/6 evidence-valid、0/3 defect support、0/3 control rejection、0/6 reviews，1 formal attempt、0 retries/replacements/reruns；未到 mapping/source fixture/device/model/runtime | 冻结 recovery packet 的 pre-runtime gate、typed absence、one-shot accounting 与 reducer `Not Supported` 事实 | 不声明 runtime FAIL、M9 runtime detection/rejection、project completeness、benchmark rate、Android/OEM/ColorOS、production/upstream acceptance；#158 只约束未来 packet |
+| M9-R fresh recovery qualification | 有界失败证据；pre-runtime `Not Supported`；不形成 runtime claim | [#157 R5](runs/2026-08-08-issue-157-m9-r5-reconciliation/README.md) 消费 exact #154 evidence；contradiction packet pre-side-effect rejected；Context Acquisition 与 top-3 portfolio 完成；Attack Plan evidence contract 在 `PORTFOLIO_FROZEN` fail closed；6/6 unique terminal rows，0/6 accountable、0/6 evidence-valid、0/3 defect support、0/3 control rejection、0/6 reviews，1 formal attempt、0 retries/replacements/reruns；未到 mapping/source fixture/device/model/runtime | 冻结 recovery packet 的 pre-runtime gate、typed absence、one-shot accounting 与 reducer `Not Supported` 事实 | 不声明 runtime FAIL、M9 runtime detection/rejection、project completeness、benchmark rate、Android/OEM/ColorOS、production/upstream acceptance；已合入的 #158/PR #160 (`9dfb19e`) 只约束未来 packet |
 
 #148 的 forward-only recovery 不改变原 #137 行；完整 recovery 结果单列在 M9-R 行。
 [R1 evidence](runs/2026-08-07-issue-148-m9-r1-recovery-baseline/README.md)
@@ -158,7 +159,9 @@ contradiction pre-side-effect rejection 与 attempt-inventory checksum binding �
 因此结果是 pre-runtime `Not Supported`。raw reducer 的
 `formal_holdout_executed=true` 只表示一次 formal attempt 被归约；R4 summary 的
 `formal_holdout_executed=false` 才是 runtime reach 的权威字段。#158 future-only
-修复这项语义与 inventory reverse-binding gap，不回填或重跑 #154。
+hardening 已通过 PR #160 在 `9dfb19e` 合入：target-specific preclaim 在 namespace
+claim 前运行，`terminal_absence_receipt` 绑定 pre-runtime rows，结果分别使用
+`formal_attempt_reconciled` 与 `runtime_holdout_executed`。它不回填或重跑 #154。
 
 ## M9 收口记录
 
@@ -179,4 +182,6 @@ M9-R recovery 顺序为：
 #152 是 recovery 的人工冻结门；#154 只消费一次 exact packet；#157 只读取已封印
 证据与 committed mapping 并运行 pure reducer。最终 `Not Supported` 是 pre-runtime
 qualification evidence，不是应用 runtime verdict。parent #128 与 #154/#157 在 R5
-证据合入后关闭；剩余 #158 是独立 future-only hardening，不授权任何旧人口重测。
+证据合入后关闭；独立的 #158 future-only hardening 也已通过 PR #160 (`9dfb19e`)
+完成。当前没有获批的新 formal population；任何后续 measurement 必须重新立项、冻结
+并授权，且不得重测任何旧人口。
