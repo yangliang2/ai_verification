@@ -21,7 +21,7 @@ Run Spec
 
 ## 当前状态
 
-截至 2026-08-08：
+截至 2026-08-12：
 
 - #58 已由 fresh #80 M3.1 population 的有效证据收口。#80 在冻结的五 seed、
   30 lane 人口上得到 30/30 first-attempt 和 eventual accountability、
@@ -57,8 +57,9 @@ Run Spec
   `PORTFOLIO_FROZEN` 因 Attack Plan evidence contract 不满足而 fail closed。R5
   机械归约为 pre-runtime `Not Supported`：0/6 accountable、0/6 evidence-valid、
   0/3 defect support、0/3 control rejection、0/6 review，且零 retry/replacement/
-  rerun。future-only hardening 由 [#158](https://github.com/yangliang2/ai_verification/issues/158)
-  跟踪，不授权重跑该 packet。
+  rerun。future-only hardening 已由 [#158](https://github.com/yangliang2/ai_verification/issues/158)
+  完成，并通过 PR #160 在 `9dfb19e` 合入；它不授权重跑该 packet，也不建立新的
+  formal population 或 runtime claim。
 
 ## M8 结果与 M9 边界
 
@@ -282,8 +283,11 @@ M9-R 的 fresh recovery packet 只调用一次。R5 读取 exact R4 merge、验�
 contradiction pre-side-effect rejection 与 attempt-inventory checksum binding 通过。
 原始 R4 summary 的 `formal_holdout_executed=false` 是 runtime 权威事实；R5 reducer
 输出中的同名 `true` 只表示它归约了一个 formal attempt，不能解释成 runtime 已开始。
-这项字段语义与 pre-runtime inventory reverse-binding gap 一并由 #158 future-only
-修复，绝不回填或重跑 #154。
+这项字段语义与 pre-runtime inventory reverse-binding gap 已由 #158 future-only
+修复并通过 PR #160 在 `9dfb19e` 合入。未来 packet 使用 target-specific preclaim，
+pre-runtime row 以 `terminal_absence_receipt` 绑定 canonical ExecutionRecord；归约结果
+分别报告 `formal_attempt_reconciled` 与 `runtime_holdout_executed`。这些合同绝不回填
+或重跑 #154。
 
 本 issue 复核了 ADR-0001、0002、0003。#129 只补齐 domain vocabulary 与 bounded
 qualification boundary，没有新增 hard-to-reverse architecture、provider、data

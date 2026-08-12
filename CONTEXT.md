@@ -245,7 +245,7 @@ A non-accountable or inconclusive lane is terminal evidence, not a retry.
 
 ## Current Milestone Boundary
 
-As of 2026-08-05, the repository has bounded evidence for the public verification
+As of 2026-08-09, the repository has bounded evidence for the public verification
 chain, fail-closed ExecutionRecord and Effective Execution Identity contracts, the
 fresh #80 30-lane attempt-complete M3.1 gate, the M4 prospective pilot, M5
 capability slices G-01 through G-08, and the completed M6 aggregate through PR #97.
@@ -402,8 +402,12 @@ The raw reducer's `formal_holdout_executed=true` means that R5 reconciled a form
 attempt. It does **not** override the R4 source record
 `formal_holdout_executed=false`, which is authoritative about runtime reach. This
 result is neither an application runtime FAIL nor evidence of runtime discovery.
-Future-only hardening is tracked in #158; it cannot mutate or authorize a rerun of
-the R3/R4 packet. #136/#137 remain independently immutable.
+#158 completed the future-only hardening and merged through PR #160 at `9dfb19e`.
+Future packets now require a target-specific preclaim before namespace creation,
+bind pre-runtime rows through `terminal_absence_receipt`, and report
+`formal_attempt_reconciled` separately from `runtime_holdout_executed`. These
+contracts cannot mutate or authorize a rerun of the R3/R4 packet. #136/#137 remain
+independently immutable, and no new formal population is currently approved.
 
 ## ADR assessment
 

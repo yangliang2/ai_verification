@@ -1,6 +1,6 @@
 # HANDOFF
 
-更新时间：2026-08-08
+更新时间：2026-08-12
 
 M9 与 M9-R 均已以不可变的 `Not Supported` 失败证据收口。#137 的六条 lane 均在
 install 前 non-accountable；fresh recovery packet #154 的唯一调用更早在
@@ -65,8 +65,11 @@ control rejection、0/6 review，零 retry/replacement/rerun。接手者应先�
   runtime evidence。
 - M9-R #148–#157 已完成。R2 historical canary 的 2/2 accountable 结果只证明
   forward readiness；R3 fresh packet 的 R4 正式调用在 Attack Plan contract gate
-  终止。R5 是 pre-runtime `Not Supported`，不是 runtime FAIL。#158 只做 future-only
-  contract hardening，不重开 parent 或正式 packet。
+  终止。R5 是 pre-runtime `Not Supported`，不是 runtime FAIL。#158 的 future-only
+  contract hardening 已通过 PR #160 在 `9dfb19e` 合入：未来 packet 在 namespace
+  claim 前执行 target-specific preclaim，pre-runtime row 使用
+  `terminal_absence_receipt` 双向绑定 inventory，并以 `formal_attempt_reconciled` 与
+  `runtime_holdout_executed` 区分归约和 runtime reach。它不重开 parent 或正式 packet。
 
 ## M8 immutable result
 
@@ -267,11 +270,14 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
    替换、改写、回填或合并 population。
 2. #154 packet 已耗尽。任何 consumer、Attack Plan、inventory 或 reducer 修复都不得
    触发第二次 formal command。
-3. 当前唯一明确的 forward work 是 #158：在未来 packet 声明 namespace 前完成
-   target-specific plan preclaim，并让 pre-runtime terminal rows 双向绑定 inventory、
-   区分 “attempt reconciled” 与 “runtime executed”。
-4. 若未来需要再次度量 M9，必须另开 PRD、选择全新 cohort/mapping、重新人工冻结并
-   获得新的正式执行授权；#158 本身不提供该授权。
+3. #158 已由 PR #160 在 `9dfb19e` 完成并关闭；除本次 #161 source-of-truth
+   reconciliation 外，既有 capability forward-work 队列已经耗尽，且没有已批准的新
+   formal population 或 formal rerun。
+4. 新的 white-box coverage initiative 必须作为独立工作项重新 triage，绑定明确的
+   Behavior-Layer Defect、Quality Contract、关键失败路径与声明边界；它不是 #158 的
+   隐式延续，也不自动授权 runtime measurement。
+5. 若未来需要再次度量 M9，必须另开 PRD、选择全新 cohort/mapping、重新人工冻结并
+   获得新的正式执行授权；已完成的 #158 不提供该授权。
 
 任何文档或报告都必须同时说明支持结论和非声明范围。若实现、run record 与
 tracker 冲突，以 committed raw evidence 为准，先修 source-of-truth，再继续下游
