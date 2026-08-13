@@ -10,6 +10,24 @@
     "covered_branch_percentage": "covered_branches / num_branches from the coverage.py file summary.",
     "combined_coverage_percentage": "coverage.py percent_covered, which combines statement and branch opportunities; it is never a branch percentage or a Verification Agent capability claim."
   },
+  "coverage_measurements": {
+    "src/aiverify/runner/admission.py": {"covered_branches": 44, "num_branches": 76, "missing_branches": 32, "covered_branch_percentage": 57.89473684210526, "combined_coverage_percentage": 75.56270096463022},
+    "src/aiverify/runner/cli.py": {"covered_branches": 62, "num_branches": 80, "missing_branches": 18, "covered_branch_percentage": 77.5, "combined_coverage_percentage": 88.59470468431772},
+    "src/aiverify/runner/execution_record.py": {"covered_branches": 55, "num_branches": 80, "missing_branches": 25, "covered_branch_percentage": 68.75, "combined_coverage_percentage": 78.83211678832117},
+    "src/aiverify/runner/execution_identity.py": {"covered_branches": 227, "num_branches": 388, "missing_branches": 161, "covered_branch_percentage": 58.50515463917526, "combined_coverage_percentage": 68.416447944007},
+    "src/aiverify/runner/package_reset.py": {"covered_branches": 24, "num_branches": 28, "missing_branches": 4, "covered_branch_percentage": 85.71428571428571, "combined_coverage_percentage": 91.75257731958763},
+    "src/aiverify/discovery/acquisition.py": {"covered_branches": 172, "num_branches": 246, "missing_branches": 74, "covered_branch_percentage": 69.91869918699187, "combined_coverage_percentage": 81.87919463087249},
+    "src/aiverify/discovery/campaign.py": {"covered_branches": 173, "num_branches": 290, "missing_branches": 117, "covered_branch_percentage": 59.6551724137931, "combined_coverage_percentage": 71.0352422907489},
+    "src/aiverify/discovery/attack_planning.py": {"covered_branches": 141, "num_branches": 238, "missing_branches": 97, "covered_branch_percentage": 59.2436974789916, "combined_coverage_percentage": 70.56603773584905},
+    "src/aiverify/bench/m9_recovery_formal.py": {"covered_branches": 76, "num_branches": 226, "missing_branches": 150, "covered_branch_percentage": 33.6283185840708, "combined_coverage_percentage": 45.78096947935368},
+    "src/aiverify/bench/m9_recovery_qualification.py": {"covered_branches": 326, "num_branches": 474, "missing_branches": 148, "covered_branch_percentage": 68.77637130801688, "combined_coverage_percentage": 80.39757040309222},
+    "src/aiverify/runner/system_events.py": {"covered_branches": 132, "num_branches": 176, "missing_branches": 44, "covered_branch_percentage": 75, "combined_coverage_percentage": 84.95867768595042},
+    "src/aiverify/runner/evidence.py": {"covered_branches": 32, "num_branches": 34, "missing_branches": 2, "covered_branch_percentage": 94.11764705882354, "combined_coverage_percentage": 98.45360824742268},
+    "src/aiverify/bench/m8_formal.py": {"covered_branches": 27, "num_branches": 194, "missing_branches": 167, "covered_branch_percentage": 13.917525773195877, "combined_coverage_percentage": 23.955773955773957},
+    "src/aiverify/bench/m9_formal.py": {"covered_branches": 10, "num_branches": 160, "missing_branches": 150, "covered_branch_percentage": 6.25, "combined_coverage_percentage": 17.77456647398844},
+    "src/aiverify/discovery/hypothesis_portfolio.py": {"covered_branches": 165, "num_branches": 278, "missing_branches": 113, "covered_branch_percentage": 59.35251798561151, "combined_coverage_percentage": 72.10810810810811},
+    "src/aiverify/discovery/contracts.py": {"covered_branches": 161, "num_branches": 234, "missing_branches": 73, "covered_branch_percentage": 68.80341880341881, "combined_coverage_percentage": 81.04325699745547}
+  },
   "surfaces": [
     {
       "id": "WB-P0-01",

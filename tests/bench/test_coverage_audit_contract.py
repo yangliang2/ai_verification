@@ -43,6 +43,15 @@ def test_p0_p1_branch_actions_cover_every_missing_coverage_arc() -> None:
             )
         for source_path in surface["source_paths"]:
             file_coverage = coverage["files"][source_path]
+            measurement = risk_map["coverage_measurements"][source_path]
+            summary = file_coverage["summary"]
+            assert measurement == {
+                "covered_branches": summary["covered_branches"],
+                "num_branches": summary["num_branches"],
+                "missing_branches": summary["missing_branches"],
+                "covered_branch_percentage": summary["percent_branches_covered"],
+                "combined_coverage_percentage": summary["percent_covered"],
+            }
             for from_line, to_line in file_coverage["missing_branches"]:
                 expected_arcs.add((source_path, from_line, to_line))
                 assigned_arcs.add((source_path, from_line, to_line, surface["id"]))
