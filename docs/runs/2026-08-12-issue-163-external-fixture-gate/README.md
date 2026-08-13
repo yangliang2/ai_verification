@@ -14,6 +14,14 @@ identity is recorded in the Issue #163 completion comment.
   `4fec201acb357fff56351780fb077771c0694578`.
 - Tested implementation tree:
   `c7ceb94e31fa046bb50c4e530786ef2c140fa2df`.
+- Tested evidence revision:
+  `8b3cb2508f243f461c4fe6ae3fffbc70310ef293`.
+- Tested evidence tree:
+  `0b78bf67d7131ecff3b629fa752bfcac26780fcf`.
+- The tested evidence revision is the first commit containing both the tested
+  implementation and this run record with its checksum ledger. The exact final
+  reconciliation and merged identities are recorded in the Issue #163 completion
+  comment.
 - Claim boundary: pytest test-infrastructure hardening only. Production formal
   defaults, discovery identity rules, and frozen #137/#154/#157 evidence were not
   changed, invoked, or reinterpreted.
