@@ -172,6 +172,14 @@ uv pip install --python .venv/bin/python pytest pyyaml jsonschema
 PYTHONPATH=src .venv/bin/python -m pytest
 ```
 
+默认测试会跳过带 `external_fixture` 标记、依赖仓库外冻结输入的用例。仅在已确认
+外部快照身份后显式放行；该开关不放宽 source identity、commit/tree 或 clean
+worktree 校验，任何漂移仍然 fail closed：
+
+```bash
+PYTHONPATH=src .venv/bin/python -m pytest --run-external-fixtures
+```
+
 Android live run 还需要：
 
 ```bash
