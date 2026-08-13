@@ -192,10 +192,7 @@ def test_target_specific_mismatch_is_rejected_before_namespace_claim(
     assert claimed is False
 
 
-@pytest.mark.skipif(
-    not formal.DEFAULT_PROJECT_TARGET.is_dir(),
-    reason="the frozen R3 target snapshot is unavailable",
-)
+@pytest.mark.external_fixture
 def test_frozen_target_specific_mismatch_is_side_effect_free(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
