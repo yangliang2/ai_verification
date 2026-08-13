@@ -9,7 +9,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "coverage>=7.0"]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -38,3 +38,14 @@ where = ["src"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-q"
+
+[tool.coverage.run]
+branch = true
+source = ["aiverify"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.coverage.json]
+pretty_print = true
