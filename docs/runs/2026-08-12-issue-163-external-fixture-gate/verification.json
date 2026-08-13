@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "issue": 163,
+  "status": "implementation_verified_valid_external_snapshot_unavailable",
+  "branch": "issue-163-external-fixture-gate",
+  "base_revision": "314831758f723f3362e44144a62dc44c3f31a1c0",
+  "base_tree": "8edb3483d5041d64b3bcd5fc660be240c9ddfbe0",
+  "tested_implementation_revision": "4fec201acb357fff56351780fb077771c0694578",
+  "tested_implementation_tree": "c7ceb94e31fa046bb50c4e530786ef2c140fa2df",
+  "tool_versions": {
+    "os": "macOS 26.3 (25D125), Darwin 25.3.0",
+    "git": "2.50.1 (Apple Git-155)",
+    "uv": "0.11.7 (9d177269e 2026-04-15 aarch64-apple-darwin)",
+    "python": "3.11.15",
+    "pytest": "9.1.1"
+  },
+  "tdd": {
+    "baseline_bug": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q tests/bench/test_m9_recovery_formal.py::test_frozen_target_specific_mismatch_is_side_effect_free",
+      "status": "expected_failure",
+      "passed": 0,
+      "failed": 1,
+      "pytest_seconds": 1.64,
+      "wall_seconds": 1.81,
+      "failure": "DiscoveryContractError: source identity command failed because the existing external directory was not a Git repository"
+    },
+    "default_gate_red": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q tests/test_external_fixture_gate.py::test_default_run_skips_external_fixture",
+      "status": "expected_failure",
+      "passed": 0,
+      "failed": 1,
+      "pytest_seconds": 1.62,
+      "wall_seconds": 1.91,
+      "failure": "the isolated pytest process could not import the not-yet-implemented plugin"
+    },
+    "explicit_option_red": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q tests/test_external_fixture_gate.py::test_explicit_option_runs_external_fixture",
+      "status": "expected_failure",
+      "passed": 0,
+      "failed": 1,
+      "pytest_exit_code": 4,
+      "pytest_seconds": 0.08,
+      "wall_seconds": 0.18,
+      "failure": "pytest rejected the unknown --run-external-fixtures argument"
+    }
+  },
+  "verification": {
+    "focused_contracts": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q tests/test_external_fixture_gate.py",
+      "status": "pass",
+      "passed": 4,
+      "failed": 0,
+      "pytest_seconds": 2.04,
+      "wall_seconds": 2.33
+    },
+    "default_historical_fixture": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q tests/bench/test_m9_recovery_formal.py::test_frozen_target_specific_mismatch_is_side_effect_free -rs",
+      "status": "pass",
+      "passed": 0,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 0.10,
+      "wall_seconds": 0.41
+    },
+    "explicit_invalid_historical_fixture": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q tests/bench/test_m9_recovery_formal.py::test_frozen_target_specific_mismatch_is_side_effect_free --run-external-fixtures",
+      "status": "expected_strict_failure",
+      "passed": 0,
+      "failed": 1,
+      "pytest_seconds": 0.16,
+      "wall_seconds": 0.33,
+      "failure": "DiscoveryContractError: source identity command failed because the admitted path was not a Git repository"
+    },
+    "help": {
+      "command": "uv run --extra dev python -m pytest --help | rg -n -A2 '^aiverify:|--run-external-fixtures'",
+      "status": "pass",
+      "option": "--run-external-fixtures"
+    },
+    "markers": {
+      "command": "uv run --extra dev python -m pytest --markers | rg -n -A1 '^@pytest.mark.external_fixture'",
+      "status": "pass",
+      "marker": "external_fixture"
+    },
+    "compileall": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m compileall -q src tests",
+      "status": "pass",
+      "exit_code": 0,
+      "wall_seconds": 0.23
+    },
+    "collection": {
+      "command": "uv run --extra dev python -m pytest --collect-only -q | awk -F': ' 'NF == 2 {sum += $2} END {print sum}'",
+      "status": "pass",
+      "collected": 1022
+    },
+    "unfiltered_full": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs",
+      "status": "pass",
+      "passed": 1021,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 50.45,
+      "wall_seconds": 50.57
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "status": "pass",
+      "exit_code": 0
+    },
+    "run_record_checksums": {
+      "command": "uv run --extra dev python -m aiverify.bench.run_record_checksums docs/runs/2026-08-12-issue-163-external-fixture-gate --verify",
+      "status": "pass",
+      "verified_artifacts": 2
+    },
+    "record_contracts": {
+      "command": "uv run --extra dev python -m pytest -o addopts='' -q tests/bench/test_current_claim_matrix.py tests/bench/test_run_record_checksums.py",
+      "status": "pass",
+      "passed": 13,
+      "failed": 0,
+      "pytest_seconds": 0.02
+    }
+  },
+  "changed_surfaces": [
+    "README.md",
+    "src/aiverify/pytest_external_fixtures.py",
+    "tests/conftest.py",
+    "tests/test_external_fixture_gate.py",
+    "tests/bench/test_m9_recovery_formal.py"
+  ],
+  "external_fixture": {
+    "path": "/private/tmp/m9-r3-snapshot-b",
+    "type": "directory",
+    "git_entry_present": false,
+    "modified_before": "2026-08-12T00:00:02-0400",
+    "modified_after": "2026-08-12T00:00:02-0400",
+    "mutated": false
+  },
+  "historical_evidence_mutated": false,
+  "side_effects": {
+    "formal_invocations": 0,
+    "namespace_claims": 0,
+    "mapping_releases": 0,
+    "android_builds": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "oracle_calls": 0,
+    "manual_steps": 0,
+    "external_snapshot_mutations": 0
+  },
+  "known_gaps": [
+    "The exact valid historical frozen source was unavailable, so its target-specific expected-mismatch body was not replayed; the unchanged body, generic opt-in execution, and strict invalid-source rejection were verified."
+  ]
+}
