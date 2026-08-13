@@ -14,7 +14,12 @@ evidence identities are recorded in the Issue #165 completion comment.
   `60bbc8f6ca20312755f3726cfbfa3dd61f68cca3`.
 - Tested implementation tree:
   `643caad2c8fb572d2043f1eae669328868ce6e14`.
-- Tested evidence revision: recorded by the identity-binding follow-up commit.
+- Tested evidence revision: `ff44bc510ef212c83a8e7020caf62a9c14859bcb`.
+- Tested evidence tree: `ab40c742fde732195bc12baea21cd8c24f48a42e`.
+- The tested evidence revision is the first commit containing the tested
+  implementation and this complete run record. This binding follow-up refreshes
+  its ledger; the exact pushed and merged identities remain in the Issue #165
+  completion comment.
 - Claim boundary: this is a test-infrastructure measurement and audit. It does
   not establish Agent behavior coverage, a production quality threshold, or a
   formal-run claim.
