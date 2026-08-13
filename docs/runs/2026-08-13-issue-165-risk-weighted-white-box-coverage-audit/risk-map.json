@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "coverage_artifact": "artifacts/coverage.json",
+  "primary_quality_contract": {
+    "name": "fail-closed accountability",
+    "definition": "The Verification Agent rejects missing, unknown, stale, contradictory, or invalid source, Effective Execution Identity, ExecutionRecord, or evidence before the relevant external side effect; it cannot create an accountable ExecutionRecord, Finding, or Local Conclusion from that input."
+  },
+  "measurement_semantics": {
+    "missing_branch_arcs": "The canonical unmeasured/partial branch inventory is coverage_artifact.files[source_path].missing_branches. Each [from_line, to_line] arc is assigned the next_action of its surface below.",
+    "covered_branch_percentage": "covered_branches / num_branches from the coverage.py file summary.",
+    "combined_coverage_percentage": "coverage.py percent_covered, which combines statement and branch opportunities; it is never a branch percentage or a Verification Agent capability claim."
+  },
+  "surfaces": [
+    {
+      "id": "WB-P0-01",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "production-seam admission",
+      "source_paths": ["src/aiverify/runner/admission.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/runner/test_admission.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Add a table-driven admission contract suite that exercises every missing branch arc for host identity, exact Run Spec bytes, target, runner policy, receipt, and artifact namespace checks; assert no ExecutionRecord, device, model, or formal-root callback occurs on rejection."
+    },
+    {
+      "id": "WB-P0-02",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "Runner CLI external-side-effect ordering",
+      "source_paths": ["src/aiverify/runner/cli.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/runner/test_cli.py", "tests/runner/test_admission.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Inject a failure at every missing Runner CLI branch between admission, ExecutionRecord establishment, identity capture, live preflight, deployment, runner setup, journey, oracle, and finalization; assert each earliest failing phase precedes later device, backend, model, or oracle side effects and leaves one terminal non-accountable ExecutionRecord where establishment succeeded."
+    },
+    {
+      "id": "WB-P0-03",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "ExecutionRecord terminal accounting",
+      "source_paths": ["src/aiverify/runner/execution_record.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/runner/test_execution_record.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Fault-inject each missing validation, write, replace, and final-reason branch; assert one terminal non-accountable ExecutionRecord for every established rejected attempt and no contradictory record becomes accountable."
+    },
+    {
+      "id": "WB-P0-04",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "Effective Execution Identity",
+      "source_paths": ["src/aiverify/runner/execution_identity.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/runner/test_execution_identity.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Add parameterized ExecutionIdentityCollector contracts for every missing arc, explicitly including the Run Spec snapshot contradiction at 97→98, static identity/checksum guards, tool lookup, deployment/device/APK drift, role-receipt binding, and finalization drift; assert verify_ready_for_agent cannot succeed and no accountable evidence is emitted."
+    },
+    {
+      "id": "WB-P0-05",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "package-reset destructive boundary",
+      "source_paths": ["src/aiverify/runner/package_reset.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/runner/test_package_reset.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Add command-result permutations for every missing package-reset arc, including malformed package paths and terminal command failures; assert no false already-clean result or successful reset receipt."
+    },
+    {
+      "id": "WB-P0-06",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "Context Acquisition source identity and evidence state",
+      "source_paths": ["src/aiverify/discovery/acquisition.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/discovery/test_acquisition.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Use a generated Git fixture to exercise every missing Context Acquisition arc, including final identity re-check and adapter failure/unknown/contradictory results; assert no trusted Quality Context Graph, Finding, or Local Conclusion is returned."
+    },
+    {
+      "id": "WB-P0-07",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "Discovery Campaign evidence reduction",
+      "source_paths": ["src/aiverify/discovery/campaign.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/discovery/test_campaign.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Mutate every missing evidence-reduction arc for terminal ExecutionRecord state, Effective Execution Identity digest, claim boundary, and ledger order; assert no Finding or Local Conclusion survives invalid evidence and a Residual Risk remains instead."
+    },
+    {
+      "id": "WB-P0-08",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "Attack Plan admission",
+      "source_paths": ["src/aiverify/discovery/attack_planning.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/discovery/test_attack_planning.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Table-drive every missing Attack Plan admission arc for malformed planner payloads, required preflight evidence, identity, leakage, and claim-boundary checks; assert planner backend and compilation side effects remain zero."
+    },
+    {
+      "id": "WB-P0-09",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "M9 target-specific preclaim and irreversible namespace claim",
+      "source_paths": ["src/aiverify/bench/m9_recovery_formal.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/bench/test_m9_recovery_formal.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "First introduce an isolated disposable namespace and command seam, then parameterize every missing preclaim, claim, lane-exception, and terminal-absence arc against that fixture; never invoke, alter, or replay frozen M9 evidence."
+    },
+    {
+      "id": "WB-P0-10",
+      "priority": "P0",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "M9 terminal absence and reconciliation",
+      "source_paths": ["src/aiverify/bench/m9_recovery_qualification.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/bench/test_m9_recovery_qualification.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Create synthetic six-lane packets that target every missing terminal-absence, inventory, identity, review, and reconciliation arc; assert the qualifier stays unsupported without a new population or formal measurement."
+    },
+    {
+      "id": "WB-P1-01",
+      "priority": "P1",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "system-event evidence binding",
+      "source_paths": ["src/aiverify/runner/system_events.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/runner/test_system_events.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Inject missing, reordered, malformed, and contradictory raw-event inputs for every missing arc; assert they are rejected before evidence promotion."
+    },
+    {
+      "id": "WB-P1-02",
+      "priority": "P1",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "evidence artifact binding",
+      "source_paths": ["src/aiverify/runner/evidence.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/runner/test_evidence.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Cover every remaining evidence-artifact path and checksum/reference error arc; assert no malformed artifact is promoted into accountable evidence."
+    },
+    {
+      "id": "WB-P1-03",
+      "priority": "P1",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "immutable M8 formal orchestration",
+      "source_paths": ["src/aiverify/bench/m8_formal.py"],
+      "coverage_status": "intentionally_unmeasured_in_part",
+      "existing_evidence": ["tests/bench/test_m8_formal.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "First specify an immutable disposable-packet seam, then parameterize every listed missing orchestration arc there; do not replay or alter frozen M8 evidence."
+    },
+    {
+      "id": "WB-P1-04",
+      "priority": "P1",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "immutable M9 formal orchestration",
+      "source_paths": ["src/aiverify/bench/m9_formal.py"],
+      "coverage_status": "intentionally_unmeasured_in_part",
+      "existing_evidence": ["tests/bench/test_m9_formal.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "First specify an immutable disposable-packet seam, then parameterize every listed missing orchestration arc there; do not replay or alter frozen M9 evidence."
+    },
+    {
+      "id": "WB-P1-05",
+      "priority": "P1",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "Hypothesis Portfolio selection",
+      "source_paths": ["src/aiverify/discovery/hypothesis_portfolio.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/discovery/test_hypothesis_portfolio.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Cover every missing Risk Prior, Attack Operator, selection, ordering, and serialization contradiction arc before a hypothesis can reach Attack Plan admission."
+    },
+    {
+      "id": "WB-P1-06",
+      "priority": "P1",
+      "quality_contract": "fail-closed accountability",
+      "trust_boundary": "Discovery Campaign domain contract validation",
+      "source_paths": ["src/aiverify/discovery/contracts.py"],
+      "coverage_status": "partially_evidenced",
+      "existing_evidence": ["tests/discovery/test_contracts.py"],
+      "branch_disposition": "all_missing_branch_arcs",
+      "next_action": "Cover every missing domain-contract validation and serialization contradiction arc; assert unsupported inputs cannot create a Finding or a claimable Local Conclusion."
+    },
+    {
+      "id": "WB-P2-01",
+      "priority": "P2",
+      "quality_contract": "deferred wrapper coverage",
+      "trust_boundary": "providers, Android harness, and small wrappers after P0/P1 admission",
+      "source_paths": ["src/aiverify/providers", "src/aiverify/harness"],
+      "coverage_status": "deferred",
+      "existing_evidence": ["tests/test_providers.py", "tests/harness"],
+      "next_action": "Add a focused contract only when a concrete defect or P0/P1 boundary trace identifies a wrapper branch; do not optimize the aggregate percentage."
+    }
+  ]
+}
