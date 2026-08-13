@@ -11,9 +11,9 @@ evidence identities are recorded in the Issue #165 completion comment.
 - Base revision: `27e0c6449562659a2e62339d3ab27b25ca014855`.
 - Base tree: `a7516116eef16ec7ffe31c23fe83ab4952b204c4`.
 - Tested implementation revision:
-  `4027291c96fe2b7c48d567a3d7e16b991a5083b5`.
+  `177cae13ff66bddc2934ded7b8fa687fadfedfd3`.
 - Tested implementation tree:
-  `b654402cfdaff778fcf7e407f6a05b6cd5ac6813`.
+  `211942d6a6241bc3ef46f9df9ce03594fcf36d57`.
 - Tested evidence revision: recorded by the identity-binding follow-up commit.
 - Claim boundary: this is a test-infrastructure measurement and audit. It does
   not establish Verification Agent behavior-layer capability, a production
@@ -54,7 +54,7 @@ PASS: 1024 tests collected.
 /usr/bin/time -p uv run --extra dev python -m coverage run \
   --data-file=docs/runs/2026-08-13-issue-165-risk-weighted-white-box-coverage-audit/artifacts/coverage.data \
   -m pytest -rs
-PASS: 1023 passed, 1 skipped in 93.24s; real 93.52s, user 70.74s, sys 18.68s.
+PASS: 1023 passed, 1 skipped in 92.35s; real 92.69s, user 69.79s, sys 17.89s.
 Skip: tests/bench/test_m9_recovery_formal.py:195 requires explicit admission
 of a repository-external fixture.
 
@@ -130,9 +130,9 @@ threshold.
 ## Artifact inventory, side effects, and known gaps
 
 - `artifacts/coverage.data` — raw coverage.py data for the measured suite,
-  SHA-256 `19a5b38616e0f6e6aa1086f20439d25701831bad013cfda484d65b0676c06551`.
+  SHA-256 `4762c5f798c52ce852ec5bea106d1894b6eb8b23ed7163d465fc70eecea65c94`.
 - `artifacts/coverage.json` — machine-readable line and branch report,
-  SHA-256 `74caabe53ee6165173a83ae3c9b8cd97604ecd0660a2498de748a01893c27d17`.
+  SHA-256 `8ca405e5b543e086885baa5c51d1086fa82744a8dcc788123ba0afd11310609e`.
 - `risk-map.json` — checked Quality Contract/risk/action projection,
   SHA-256 `9b7d276b2ba078e96d1631ca4208382de77ff2c92399f7b77169078d6884673c`.
 - `verification.json` — machine-readable source identity, commands, metrics,
