@@ -79,6 +79,7 @@ def test_verification_totals_are_derived_from_coverage_artifact() -> None:
         "covered_branches",
         "num_branches",
         "missing_branches",
+        "num_partial_branches",
         "percent_covered",
         "percent_statements_covered",
         "percent_branches_covered",
@@ -87,5 +88,6 @@ def test_verification_totals_are_derived_from_coverage_artifact() -> None:
             "percent_covered": "percent_total",
             "percent_statements_covered": "percent_statements",
             "percent_branches_covered": "percent_branches",
+            "num_partial_branches": "partial_branches",
         }.get(key, key)
         assert report[verification_key] == totals[key]

@@ -5,11 +5,11 @@
   "branch": "issue-165-risk-weighted-white-box-coverage-audit",
   "base_revision": "27e0c6449562659a2e62339d3ab27b25ca014855",
   "base_tree": "a7516116eef16ec7ffe31c23fe83ab4952b204c4",
-  "tested_implementation_revision": "60bbc8f6ca20312755f3726cfbfa3dd61f68cca3",
-  "tested_implementation_tree": "643caad2c8fb572d2043f1eae669328868ce6e14",
-  "tested_evidence_revision": "ff44bc510ef212c83a8e7020caf62a9c14859bcb",
-  "tested_evidence_tree": "ab40c742fde732195bc12baea21cd8c24f48a42e",
-  "claim_boundary": "test-infrastructure measurement and audit only; no Agent behavior coverage, quality threshold, production result, or formal-run claim",
+  "tested_implementation_revision": "4027291c96fe2b7c48d567a3d7e16b991a5083b5",
+  "tested_implementation_tree": "b654402cfdaff778fcf7e407f6a05b6cd5ac6813",
+  "tested_evidence_revision": "pending_identity_binding",
+  "tested_evidence_tree": "pending_identity_binding",
+  "claim_boundary": "test-infrastructure measurement and audit only; no Verification Agent behavior-layer capability, quality threshold, production result, or formal-run claim",
   "tool_versions": {
     "os": "macOS 26.3 (25D125), Darwin 25.3.0, arm64",
     "git": "2.50.1 (Apple Git-155)",
@@ -24,15 +24,18 @@
     "collection": {
       "command": "uv run --extra dev python -m pytest --collect-only -q",
       "status": "pass",
-      "collected": 1022
+      "collected": 1024
     },
     "default_hermetic_suite": {
-      "command": "uv run --extra dev python -m coverage run --data-file=docs/runs/2026-08-13-issue-165-risk-weighted-white-box-coverage-audit/artifacts/coverage.data -m pytest -rs",
+      "command": "/usr/bin/time -p uv run --extra dev python -m coverage run --data-file=docs/runs/2026-08-13-issue-165-risk-weighted-white-box-coverage-audit/artifacts/coverage.data -m pytest -rs",
       "status": "pass",
-      "passed": 1021,
+      "passed": 1023,
       "failed": 0,
       "skipped": 1,
-      "pytest_seconds": 121.1,
+      "pytest_seconds": 93.24,
+      "wall_seconds": 93.52,
+      "user_seconds": 70.74,
+      "sys_seconds": 18.68,
       "skip_reason": "repository-external fixture tests require explicit admission"
     },
     "json_report": {
@@ -42,36 +45,28 @@
     "report": {
       "command": "uv run --extra dev python -m coverage report --data-file=docs/runs/2026-08-13-issue-165-risk-weighted-white-box-coverage-audit/artifacts/coverage.data --sort=Cover",
       "status": "pass",
-      "covered_lines": 15291,
+      "covered_lines": 15286,
       "num_statements": 19897,
-      "missing_lines": 4606,
-      "covered_branches": 4858,
+      "missing_lines": 4611,
+      "covered_branches": 4857,
       "num_branches": 7658,
-      "missing_branches": 2800,
-      "partial_branches": 2074,
-      "percent_total": 73.12284521865361,
-      "percent_statements": 76.85078152485299,
-      "percent_branches": 63.43692870201097
+      "missing_branches": 2801,
+      "partial_branches": 2075,
+      "percent_total": 73.10107058610052,
+      "percent_statements": 76.82565210835804,
+      "percent_branches": 63.42387046226169
     }
   },
-  "risk_weighted_map": [
-    {"id": "WB-P0-01", "priority": "P0", "surface": "runner/admission.py", "covered_branches": 44, "num_branches": 76, "next_action": "table-drive every failing admission check and assert no record, device, model, or formal-root callback"},
-    {"id": "WB-P0-02", "priority": "P0", "surface": "runner/execution_record.py", "covered_branches": 55, "num_branches": 80, "next_action": "fault-inject terminal reasons and persistence failures; assert one terminal non-accountable record"},
-    {"id": "WB-P0-03", "priority": "P0", "surface": "runner/execution_identity.py", "covered_branches": 227, "num_branches": 388, "next_action": "inject tool, device, APK, and role-receipt drift; assert no accountable evidence"},
-    {"id": "WB-P0-04", "priority": "P0", "surface": "runner/package_reset.py", "covered_branches": 24, "num_branches": 28, "next_action": "cover malformed paths and terminal command failures; assert no false clean/reset receipt"},
-    {"id": "WB-P0-05", "priority": "P0", "surface": "discovery/acquisition.py", "covered_branches": 172, "num_branches": 246, "next_action": "exercise final identity re-check and adapter failures with a generated Git fixture"},
-    {"id": "WB-P0-06", "priority": "P0", "surface": "discovery/campaign.py", "covered_branches": 173, "num_branches": 290, "next_action": "mutate reducer inputs and assert no Finding/Local Conclusion survives invalid evidence"},
-    {"id": "WB-P0-07", "priority": "P0", "surface": "discovery/attack_planning.py", "covered_branches": 141, "num_branches": 238, "next_action": "table-drive malformed payloads, preflight references, and leakage terms before backend invocation"},
-    {"id": "WB-P0-08", "priority": "P0", "surface": "bench/m9_recovery_formal.py", "covered_branches": 76, "num_branches": 226, "next_action": "introduce an isolated namespace/command seam before testing remaining claim and terminal-absence branches"},
-    {"id": "WB-P0-09", "priority": "P0", "surface": "bench/m9_recovery_qualification.py", "covered_branches": 326, "num_branches": 474, "next_action": "use synthetic six-lane packets for each terminal-absence and reconciliation failure"},
-    {"id": "WB-P1-01", "priority": "P1", "surface": "runner/system_events.py", "covered_branches": 132, "num_branches": 176, "next_action": "inject missing, reordered, and conflicting events before evidence promotion"},
-    {"id": "WB-P1-02", "priority": "P1", "surface": "bench/m8_formal.py and bench/m9_formal.py", "covered_branches": 37, "num_branches": 354, "next_action": "specify an immutable disposable-packet seam; do not replay frozen history"},
-    {"id": "WB-P1-03", "priority": "P1", "surface": "discovery/hypothesis_portfolio.py and discovery/contracts.py", "covered_branches": 336, "num_branches": 512, "next_action": "cover unsupported prior/operator combinations and serialization contradictions"},
-    {"id": "WB-P2-01", "priority": "P2", "surface": "CLI, providers, Android harness, and oracle wrappers", "next_action": "add focused coverage only when a concrete defect or P0/P1 trace identifies a wrapper branch"}
-  ],
+  "risk_weighted_map": {
+    "artifact": "risk-map.json",
+    "primary_quality_contract": "fail-closed accountability",
+    "p0_p1_branch_inventory": "For each P0/P1 source path, every coverage.json missing_branches [from_line, to_line] arc is assigned that surface's concrete next_action.",
+    "integrity_contract": "tests/bench/test_coverage_audit_contract.py"
+  },
   "artifacts": [
-    {"path": "artifacts/coverage.data", "kind": "raw coverage.py data", "sha256": "18a5acb46486107fdc790222462dee5cad5913652c9cc6b9af6fc07178438f23"},
-    {"path": "artifacts/coverage.json", "kind": "machine-readable line and branch report", "sha256": "7f4c86de8fe360a8597f04e566d0deb2d8594b973f94e3d18cc2b035ec83a9c3"}
+    {"path": "artifacts/coverage.data", "kind": "raw coverage.py data", "sha256": "19a5b38616e0f6e6aa1086f20439d25701831bad013cfda484d65b0676c06551"},
+    {"path": "artifacts/coverage.json", "kind": "machine-readable line and branch report", "sha256": "74caabe53ee6165173a83ae3c9b8cd97604ecd0660a2498de748a01893c27d17"},
+    {"path": "risk-map.json", "kind": "checked Quality Contract/risk/action projection", "sha256": "9b7d276b2ba078e96d1631ca4208382de77ff2c92399f7b77169078d6884673c"}
   ],
   "side_effects": {
     "formal_invocations": 0,
@@ -86,7 +81,7 @@
     "manual_steps": 0
   },
   "known_gaps": [
-    "This one default-suite execution baseline does not establish behavior-layer effectiveness, causal validity, or oracle soundness.",
+    "This one default-suite execution baseline does not establish Verification Agent behavior-layer effectiveness, causal validity, or oracle soundness.",
     "The repository-external historical fixture remained skipped by default and frozen M8/M9 evidence was neither rerun nor changed.",
     "The P0/P1 backlog is an audit outcome, not coverage-fill authorization or a CI threshold."
   ]
