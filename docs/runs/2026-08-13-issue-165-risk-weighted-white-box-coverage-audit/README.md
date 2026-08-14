@@ -74,6 +74,20 @@ uv run --extra dev python -m coverage report \
 PASS: 19,897 statements; 15,286 covered; 4,611 missing. 7,658 branch
 opportunities; 4,857 covered; 2,801 missing; 2,075 partial branches. Total
 coverage: 73% (77% statements; 63% branches).
+
+/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs \
+  tests/bench/test_coverage_audit_contract.py \
+  tests/test_external_fixture_gate.py \
+  tests/bench/test_run_record_checksums.py \
+  tests/bench/test_current_claim_matrix.py
+PASS: 19 passed in 0.59s; real 0.88s, user 0.51s, sys 0.14s.
+
+/usr/bin/time -p uv run --extra dev python -m aiverify.bench.run_record_checksums \
+  docs/runs/2026-08-13-issue-165-risk-weighted-white-box-coverage-audit --verify
+PASS: checksum inventory verified; real 0.03s, user 0.02s, sys 0.00s.
+
+/usr/bin/time -p git diff --check
+PASS: exit 0; real 0.01s, user 0.00s, sys 0.05s.
 ```
 
 The 73% total is an execution-measurement baseline only. A branch can be taken

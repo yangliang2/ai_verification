@@ -55,6 +55,33 @@
       "percent_total": 73.10107058610052,
       "percent_statements": 76.82565210835804,
       "percent_branches": 63.42387046226169
+    },
+    "focused_contracts": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs tests/bench/test_coverage_audit_contract.py tests/test_external_fixture_gate.py tests/bench/test_run_record_checksums.py tests/bench/test_current_claim_matrix.py",
+      "status": "pass",
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.59,
+      "wall_seconds": 0.88,
+      "user_seconds": 0.51,
+      "sys_seconds": 0.14
+    },
+    "run_record_checksums": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m aiverify.bench.run_record_checksums docs/runs/2026-08-13-issue-165-risk-weighted-white-box-coverage-audit --verify",
+      "status": "pass",
+      "verified_artifacts": 5,
+      "wall_seconds": 0.03,
+      "user_seconds": 0.02,
+      "sys_seconds": 0.0
+    },
+    "diff_check": {
+      "command": "/usr/bin/time -p git diff --check",
+      "status": "pass",
+      "exit_code": 0,
+      "wall_seconds": 0.01,
+      "user_seconds": 0.0,
+      "sys_seconds": 0.05
     }
   },
   "risk_weighted_map": {
