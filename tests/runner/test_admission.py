@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess
 from dataclasses import replace
 from pathlib import Path
@@ -22,8 +23,26 @@ from aiverify.runner.execution_record import load_execution_record
 from aiverify.runner.run_spec import RunSpec, load_run_spec
 
 
+_READ_ONLY_GIT_IDENTITY_QUERIES = frozenset(
+    {
+        ("rev-parse", "--show-toplevel"),
+        ("remote", "get-url", "origin"),
+        ("rev-parse", "HEAD"),
+        ("status", "--porcelain=v1", "--untracked-files=all"),
+    }
+)
+
+
+def _is_read_only_git_identity_query(args: list[str]) -> bool:
+    return (
+        bool(args)
+        and Path(args[0]).name == "git"
+        and tuple(args[1:]) in _READ_ONLY_GIT_IDENTITY_QUERIES
+    )
+
+
 class GitOnlyRunner(CommandRunner):
-    """Allow read-only git identity queries and fail on device/tool calls."""
+    """Allow exactly the read-only Git identity queries used by admission."""
 
     def __init__(self) -> None:
         self.calls: list[list[str]] = []
@@ -36,8 +55,25 @@ class GitOnlyRunner(CommandRunner):
         timeout_seconds: int | None = None,
         input_text: str | None = None,
     ) -> CommandResult:
+        self._record_read_only_git_call(args)
+        return self._execute_recorded_git_call(
+            args,
+            cwd=cwd,
+            timeout_seconds=timeout_seconds,
+        )
+
+    def _record_read_only_git_call(self, args: list[str]) -> None:
+        if not _is_read_only_git_identity_query(args):
+            raise AssertionError(f"prohibited command during admission: {args}")
         self.calls.append(list(args))
-        assert Path(args[0]).name == "git", f"prohibited command during admission: {args}"
+
+    def _execute_recorded_git_call(
+        self,
+        args: list[str],
+        *,
+        cwd: Path | None,
+        timeout_seconds: int | None,
+    ) -> CommandResult:
         process = subprocess.run(
             args,
             cwd=cwd,
@@ -69,19 +105,18 @@ class FailingGitRunner(GitOnlyRunner):
         timeout_seconds: int | None = None,
         input_text: str | None = None,
     ) -> CommandResult:
+        self._record_read_only_git_call(args)
         if tuple(args[1:]) == self.failing_args:
-            self.calls.append(list(args))
             return CommandResult(
                 args=list(args),
                 stdout="",
                 stderr="controlled Git failure",
                 returncode=1,
             )
-        return super().run(
+        return self._execute_recorded_git_call(
             args,
             cwd=cwd,
             timeout_seconds=timeout_seconds,
-            input_text=input_text,
         )
 
 
@@ -100,20 +135,19 @@ class GitOutputOverrideRunner(GitOnlyRunner):
         timeout_seconds: int | None = None,
         input_text: str | None = None,
     ) -> CommandResult:
+        self._record_read_only_git_call(args)
         response = self.responses.get(tuple(args[1:]))
         if response is not None:
-            self.calls.append(list(args))
             return CommandResult(
                 args=list(args),
                 stdout=response,
                 stderr="",
                 returncode=0,
             )
-        return super().run(
+        return self._execute_recorded_git_call(
             args,
             cwd=cwd,
             timeout_seconds=timeout_seconds,
-            input_text=input_text,
         )
 
 
@@ -177,7 +211,7 @@ def _assert_rejected_without_external_work(
     assert result.admitted is False
     assert result.receipt["checks"][check]["status"] == "failed"
     assert any(reason in rejection_reason for rejection_reason in result.reasons)
-    assert all(Path(call[0]).name == "git" for call in runner.calls)
+    assert all(_is_read_only_git_identity_query(call) for call in runner.calls)
     assert not (options.artifact_dir.parent / "execution-record.json").exists()
 
 
@@ -185,6 +219,20 @@ HostRejectionMutation = Callable[
     [Path, Path, RunSpec, PlannedRunnerOptions],
     tuple[RunSpec, PlannedRunnerOptions],
 ]
+
+
+def test_git_identity_runners_reject_non_identity_commands() -> None:
+    """The hermetic seam fails before any destructive Git subcommand executes."""
+    runners = (
+        GitOnlyRunner(),
+        FailingGitRunner(("clean", "-fd")),
+        GitOutputOverrideRunner({("clean", "-fd"): ""}),
+    )
+
+    for runner in runners:
+        with pytest.raises(AssertionError, match="prohibited command during admission"):
+            runner.run(["git", "clean", "-fd"])
+        assert runner.calls == []
 
 
 def _missing_host_project(
@@ -827,6 +875,14 @@ def test_serialized_receipt_drift_blocks_public_runner_before_execution_record(
             android_bin=options.android_bin,
             adb_bin=options.adb_bin,
         ),
+    )
+    fake_codex_directory = str(Path(options.codex_bin).parent)
+    original_path = os.environ.get("PATH", "")
+    monkeypatch.setenv(
+        "PATH",
+        os.pathsep.join((fake_codex_directory, original_path))
+        if original_path
+        else fake_codex_directory,
     )
     options = replace(options, codex_bin="codex")
     runner = GitOnlyRunner()
