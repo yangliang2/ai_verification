@@ -11,8 +11,8 @@ first evidence commit is bound in a follow-up commit that refreshes this ledger.
 - Base tree: `9c756ee59e6d28b4097587a6429dd5110d67050a`.
 - Tested implementation revision: `938372a45ad1b1e79101e329a6120015c83da265`.
 - Tested implementation tree: `659ffb5664ef8295cb6c4bfbbade7d3ca5aed5d6`.
-- Tested evidence revision/tree: recorded by the binding follow-up after this
-  first evidence commit is created.
+- Tested evidence revision: `3d08eecf6165e0202fc0bb45d8e3720650dd3d9d`.
+- Tested evidence tree: `86b2b039d9a1bded917453f1dc674129b901a532`.
 - The tested evidence revision is the first commit containing the tested
   implementation and refreshed run record. The binding follow-up refreshes its
   ledger. The Issue #169 implementation-evidence comment records the pushed
