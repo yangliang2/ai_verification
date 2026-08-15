@@ -5,10 +5,10 @@
   "branch": "issue-167-production-seam-admission-contracts",
   "base_revision": "850144c75ac65aa8cf67117e9090bd471b78232c",
   "base_tree": "c86b3ec594c6944003d1744e8e8f50c4e3af88aa",
-  "tested_implementation_revision": "d315251e6592d4536530def72102e29b2cc881f2",
-  "tested_implementation_tree": "50ebd6947ff2f80eca0ded13fba595dcf51d7422",
-  "tested_evidence_revision": "322886f5005b1b10da105b5f1210e2e3672d3c9d",
-  "tested_evidence_tree": "7a6c430e060ff470c5f74dd9b27d11391a57b71e",
+  "tested_implementation_revision": "caacbdf5b33daab3d01718792569569644b7e693",
+  "tested_implementation_tree": "9d40ca60950b4c8121fbed42a3306bc0b9beccbe",
+  "tested_evidence_revision": null,
+  "tested_evidence_tree": null,
   "claim_boundary": "hermetic fail-closed accountability Quality Contract tests only; no Verification Agent behavior-layer capability, quality threshold, production, Android, or formal-run claim",
   "tool_versions": {
     "os": "macOS 26.3 (25D125), Darwin 25.3.0, arm64",
@@ -29,31 +29,31 @@
     "collection": {
       "command": "uv run --extra dev python -m pytest -o addopts='' --collect-only -q",
       "status": "pass",
-      "collected": 1064,
-      "pytest_seconds": 0.14
+      "collected": 1065,
+      "pytest_seconds": 0.17
     },
     "default_hermetic_suite": {
       "command": "/usr/bin/time -p uv run --extra dev python -m pytest -rs",
       "status": "pass",
-      "passed": 1063,
+      "passed": 1064,
       "failed": 0,
       "skipped": 1,
-      "pytest_seconds": 48.44,
-      "wall_seconds": 48.54,
-      "user_seconds": 31.64,
-      "sys_seconds": 14.64,
+      "pytest_seconds": 49.05,
+      "wall_seconds": 49.15,
+      "user_seconds": 32.07,
+      "sys_seconds": 15.05,
       "skip_reason": "repository-external fixture tests require explicit admission"
     },
     "targeted_admission_contracts": {
       "command": "/usr/bin/time -p uv run --extra dev python -m coverage run --source=aiverify.runner.admission --data-file=docs/runs/2026-08-15-issue-167-admission-rejection-contracts/artifacts/admission-coverage.data -m pytest -o addopts='' -q -rs tests/runner/test_admission.py tests/bench/test_admission_contract_matrix.py",
       "status": "pass",
-      "passed": 50,
+      "passed": 51,
       "failed": 0,
       "skipped": 0,
       "pytest_seconds": 5.69,
       "wall_seconds": 5.90,
-      "user_seconds": 2.82,
-      "sys_seconds": 2.59
+      "user_seconds": 2.74,
+      "sys_seconds": 2.70
     },
     "json_report": {
       "command": "uv run --extra dev python -m coverage json --data-file=docs/runs/2026-08-15-issue-167-admission-rejection-contracts/artifacts/admission-coverage.data -o docs/runs/2026-08-15-issue-167-admission-rejection-contracts/artifacts/admission-coverage.json",
@@ -77,13 +77,22 @@
     "focused_contracts": {
       "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs tests/runner/test_admission.py tests/bench/test_admission_contract_matrix.py tests/bench/test_coverage_audit_contract.py tests/test_external_fixture_gate.py tests/bench/test_run_record_checksums.py tests/bench/test_current_claim_matrix.py",
       "status": "pass",
-      "passed": 69,
+      "passed": 70,
       "failed": 0,
       "skipped": 0,
-      "pytest_seconds": 6.10,
-      "wall_seconds": 6.18,
-      "user_seconds": 3.02,
-      "sys_seconds": 2.63
+      "pytest_seconds": 6.39,
+      "wall_seconds": 6.48,
+      "user_seconds": 3.07,
+      "sys_seconds": 2.86
+    },
+    "hermetic_isolation_regressions": {
+      "command": "env PATH=/usr/bin:/bin /Users/peter/.local/bin/uv run --extra dev python -m pytest -o addopts='' -q tests/runner/test_admission.py::test_serialized_receipt_drift_blocks_public_runner_before_execution_record tests/runner/test_admission.py::test_git_identity_runners_reject_non_identity_commands",
+      "status": "pass",
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 1.56,
+      "scope": "host Codex CLI absent from PATH; destructive Git subcommands rejected before subprocess execution"
     },
     "run_record_checksums": {
       "command": "/usr/bin/time -p uv run --extra dev python -m aiverify.bench.run_record_checksums docs/runs/2026-08-15-issue-167-admission-rejection-contracts --verify",
@@ -105,7 +114,7 @@
   "artifacts": [
     {"path": "branch-map.json", "kind": "checked Issue #165 branch-arc disposition", "sha256": "0855f04af605c9a804a4e742fb5468fd7ae21ca4e5ebb281ea1681b377ab403a"},
     {"path": "artifacts/admission-coverage.data", "kind": "raw targeted coverage.py data", "sha256": "1e9252e3e91a0dbb2de054bb52b2a19c480a1fd56727c667d4b81335f1a0c279"},
-    {"path": "artifacts/admission-coverage.json", "kind": "machine-readable targeted line and branch report", "sha256": "7277f4a0afcb45412e1d6d997beb421a3b3f9c5bdbe7448a4b7949dc791139b5"}
+    {"path": "artifacts/admission-coverage.json", "kind": "machine-readable targeted line and branch report", "sha256": "ffed044b2a449a98769f894af8b375b2310a7cbed100ebad94da5eda60aeac98"}
   ],
   "side_effects": {
     "formal_invocations": 0,
