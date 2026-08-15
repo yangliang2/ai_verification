@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "issue": 169,
+  "primary_quality_contract": "fail-closed accountability",
+  "trust_boundary": "Runner CLI external-side-effect ordering",
+  "baseline": {
+    "issue": 165,
+    "coverage_artifact": "../2026-08-13-issue-165-risk-weighted-white-box-coverage-audit/artifacts/coverage.json",
+    "source_path": "src/aiverify/runner/cli.py",
+    "missing_branch_count": 18
+  },
+  "test_groups": [
+    {
+      "id": "runner-helper-classification",
+      "nodeids": [
+        "tests/runner/test_cli_phase_ordering.py::test_trigger_steps_records_the_system_event_boundary",
+        "tests/runner/test_cli_phase_ordering.py::test_l2_helper_rejects_invalid_or_incomplete_boundary_evidence",
+        "tests/runner/test_cli_phase_ordering.py::test_metric_context_marks_a_failed_baseline_control_as_false_positive",
+        "tests/runner/test_cli_phase_ordering.py::test_live_validation_gate_summary_preserves_the_app_surface",
+        "tests/runner/test_cli_phase_ordering.py::test_runner_setup_requires_an_adb_result"
+      ],
+      "baseline_missing_branch_arcs": [
+        [177, 178],
+        [225, 226],
+        [239, 240],
+        [277, 278],
+        [329, 330],
+        [384, 385]
+      ]
+    },
+    {
+      "id": "interrupted-journey-evidence",
+      "nodeids": [
+        "tests/runner/test_cli_phase_ordering.py::test_non_accountable_journey_without_runner_setup_omits_that_reference"
+      ],
+      "baseline_missing_branch_arcs": [
+        [956, 959]
+      ]
+    },
+    {
+      "id": "admission-before-execution-record",
+      "nodeids": [
+        "tests/runner/test_cli_phase_ordering.py::test_admission_contract_rejections_precede_execution_record[collector-and-factory]",
+        "tests/runner/test_cli_phase_ordering.py::test_admission_contract_rejections_precede_execution_record[missing-receipt-and-policy]",
+        "tests/runner/test_cli_phase_ordering.py::test_admitted_policy_is_revalidated_before_execution_record"
+      ],
+      "baseline_missing_branch_arcs": [
+        [1045, 1046],
+        [1050, 1051],
+        [1066, 1070]
+      ]
+    },
+    {
+      "id": "execution-record-and-identity-factory",
+      "nodeids": [
+        "tests/runner/test_cli_phase_ordering.py::test_identity_factory_receives_the_established_attempt_id",
+        "tests/runner/test_cli_phase_ordering.py::test_runner_failure_at_each_phase_blocks_later_external_work[pre-run-setup]"
+      ],
+      "baseline_missing_branch_arcs": [
+        [1084, 1085],
+        [1086, 1087]
+      ]
+    },
+    {
+      "id": "runner-setup-ordering",
+      "nodeids": [
+        "tests/runner/test_cli_phase_ordering.py::test_runner_failure_at_each_phase_blocks_later_external_work[journey-without-launch]",
+        "tests/runner/test_cli_phase_ordering.py::test_runner_failure_at_each_phase_blocks_later_external_work[runner-setup-output]"
+      ],
+      "baseline_missing_branch_arcs": [
+        [1223, 1260],
+        [1287, 1309]
+      ]
+    },
+    {
+      "id": "public-cli-terminal-routing",
+      "nodeids": [
+        "tests/runner/test_cli_phase_ordering.py::test_main_rejected_admission_stops_before_runner",
+        "tests/runner/test_cli_phase_ordering.py::test_main_admitted_receipt_reaches_runner_with_the_exact_policy",
+        "tests/runner/test_cli_phase_ordering.py::test_module_entrypoint_routes_help_without_runner_side_effects"
+      ],
+      "baseline_missing_branch_arcs": [
+        [1547, 1548],
+        [1568, 1569],
+        [1568, 1575],
+        [1620, 1621]
+      ]
+    }
+  ]
+}

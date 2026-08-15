@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "issue": 169,
+  "status": "runner_cli_strict_side_effect_ordering_contracts_verified",
+  "branch": "issue-169-runner-cli-phase-ordering",
+  "base_revision": "9d4defbbb8a4b6172c9cf7533929c35d74e21b07",
+  "base_tree": "9c756ee59e6d28b4097587a6429dd5110d67050a",
+  "tested_implementation_revision": "938372a45ad1b1e79101e329a6120015c83da265",
+  "tested_implementation_tree": "659ffb5664ef8295cb6c4bfbbade7d3ca5aed5d6",
+  "tested_evidence_revision": "3d08eecf6165e0202fc0bb45d8e3720650dd3d9d",
+  "tested_evidence_tree": "86b2b039d9a1bded917453f1dc674129b901a532",
+  "claim_boundary": "hermetic fail-closed accountability Quality Contract tests at the Runner CLI external-side-effect ordering boundary only; no Verification Agent behavior-layer capability, quality threshold, production, Android, or formal-run claim",
+  "tool_versions": {
+    "os": "macOS 26.3 (25D125), Darwin arm64",
+    "git": "2.50.1 (Apple Git-155)",
+    "uv": "0.11.7 (9d177269e 2026-04-15 aarch64-apple-darwin)",
+    "python": "3.11.15",
+    "pytest": "9.1.1",
+    "coverage": "7.15.4 with C extension"
+  },
+  "baseline": {
+    "issue": 165,
+    "source_path": "src/aiverify/runner/cli.py",
+    "missing_branch_arcs": 18,
+    "mapping_artifact": "branch-map.json",
+    "integrity_contract": "tests/bench/test_runner_cli_phase_ordering_matrix.py"
+  },
+  "measurement": {
+    "collection": {
+      "command": "uv run --extra dev python -m pytest -o addopts='' --collect-only -q",
+      "status": "pass",
+      "collected": 1093,
+      "pytest_seconds": 0.15
+    },
+    "default_hermetic_suite": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs",
+      "status": "pass",
+      "passed": 1092,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 80.2,
+      "wall_seconds": 80.31,
+      "user_seconds": 32.67,
+      "sys_seconds": 15.38,
+      "skip_reason": "repository-external fixture tests require explicit admission"
+    },
+    "targeted_runner_cli_contracts": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m coverage run --branch --source=aiverify.runner.cli --data-file=docs/runs/2026-08-15-issue-169-runner-cli-phase-ordering/artifacts/runner-cli-coverage.data -m pytest -o addopts='' -q -rs tests/runner/test_cli.py tests/runner/test_cli_phase_ordering.py tests/bench/test_runner_cli_phase_ordering_matrix.py",
+      "status": "pass",
+      "passed": 72,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.34,
+      "wall_seconds": 0.57,
+      "user_seconds": 0.42,
+      "sys_seconds": 0.14
+    },
+    "json_report": {
+      "command": "uv run --extra dev python -m coverage json --data-file=docs/runs/2026-08-15-issue-169-runner-cli-phase-ordering/artifacts/runner-cli-coverage.data -o docs/runs/2026-08-15-issue-169-runner-cli-phase-ordering/artifacts/runner-cli-coverage.json",
+      "status": "pass"
+    },
+    "report": {
+      "command": "uv run --extra dev python -m coverage report --data-file=docs/runs/2026-08-15-issue-169-runner-cli-phase-ordering/artifacts/runner-cli-coverage.data --sort=Cover",
+      "status": "pass",
+      "source_path": "src/aiverify/runner/cli.py",
+      "covered_lines": 398,
+      "num_statements": 411,
+      "missing_lines": 13,
+      "covered_branches": 80,
+      "num_branches": 80,
+      "missing_branches": 0,
+      "partial_branches": 0,
+      "percent_total": 97.35234215885947,
+      "percent_statements": 96.83698296836982,
+      "percent_branches": 100.0
+    },
+    "focused_contracts": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs tests/runner/test_cli.py tests/runner/test_cli_phase_ordering.py tests/bench/test_runner_cli_phase_ordering_matrix.py tests/bench/test_coverage_audit_contract.py tests/test_external_fixture_gate.py tests/bench/test_run_record_checksums.py tests/bench/test_current_claim_matrix.py",
+      "status": "pass",
+      "passed": 91,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.83,
+      "wall_seconds": 0.92,
+      "user_seconds": 0.69,
+      "sys_seconds": 0.22
+    },
+    "run_record_checksums": {
+      "command": "uv run --extra dev python -m aiverify.bench.run_record_checksums docs/runs/2026-08-15-issue-169-runner-cli-phase-ordering --verify",
+      "status": "pass",
+      "verified_artifacts": 5
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "status": "pass",
+      "exit_code": 0
+    }
+  },
+  "artifacts": [
+    {
+      "path": "branch-map.json",
+      "kind": "checked Issue #165 Runner CLI branch-arc disposition",
+      "sha256": "73b9707dfc12b0dca822c2c5424e50c884ecc7a3a3e093976da13a062047a4d6"
+    },
+    {
+      "path": "artifacts/runner-cli-coverage.data",
+      "kind": "raw targeted coverage.py data",
+      "sha256": "0bfb0b74033d5b4fd787a350eb1428c0ba23bf38eb22deea7b425f353e14cd1b"
+    },
+    {
+      "path": "artifacts/runner-cli-coverage.json",
+      "kind": "machine-readable targeted line and branch report",
+      "sha256": "c76d6b4222c25b78a8f69024cca9af39b68a054de4e9ec16ebc3895823e1b765"
+    }
+  ],
+  "side_effects": {
+    "formal_invocations": 0,
+    "namespace_claims": 0,
+    "mapping_releases": 0,
+    "android_builds": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "remote_oracle_service_calls": 0,
+    "verification_agent_backend_invocations": 0,
+    "external_fixture_admissions": 0,
+    "external_snapshot_mutations": 0,
+    "manual_steps": 0
+  },
+  "known_gaps": [
+    "Targeted branch execution does not establish Verification Agent behavior-layer effectiveness, causal validity, oracle soundness, Android/OEM coverage, or a quality threshold.",
+    "The checks use local replacements for Runner CLI external seams and do not perform a real Android, device, backend, model, oracle-service, or formal-run action.",
+    "The repository-external historical fixture remains skipped by default; frozen M8, M9, and M9-R evidence was neither rerun nor changed."
+  ]
+}
