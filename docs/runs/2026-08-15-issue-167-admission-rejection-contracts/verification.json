@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "issue": 167,
+  "status": "admission_rejection_contracts_verified",
+  "branch": "issue-167-production-seam-admission-contracts",
+  "base_revision": "850144c75ac65aa8cf67117e9090bd471b78232c",
+  "base_tree": "c86b3ec594c6944003d1744e8e8f50c4e3af88aa",
+  "tested_implementation_revision": "caacbdf5b33daab3d01718792569569644b7e693",
+  "tested_implementation_tree": "9d40ca60950b4c8121fbed42a3306bc0b9beccbe",
+  "tested_evidence_revision": "a1365fae0246bf0e89c8b0055c479637cb78a4a6",
+  "tested_evidence_tree": "2ac022c341203e383d4445a1565b6056c830ccde",
+  "claim_boundary": "hermetic fail-closed accountability Quality Contract tests only; no Verification Agent behavior-layer capability, quality threshold, production, Android, or formal-run claim",
+  "tool_versions": {
+    "os": "macOS 26.3 (25D125), Darwin 25.3.0, arm64",
+    "git": "2.50.1 (Apple Git-155)",
+    "uv": "0.11.7 (9d177269e 2026-04-15 aarch64-apple-darwin)",
+    "python": "3.11.15",
+    "pytest": "9.1.1",
+    "coverage": "7.15.4 with C extension"
+  },
+  "baseline": {
+    "issue": 165,
+    "source_path": "src/aiverify/runner/admission.py",
+    "missing_branch_arcs": 32,
+    "mapping_artifact": "branch-map.json",
+    "integrity_contract": "tests/bench/test_admission_contract_matrix.py"
+  },
+  "measurement": {
+    "collection": {
+      "command": "uv run --extra dev python -m pytest -o addopts='' --collect-only -q",
+      "status": "pass",
+      "collected": 1065,
+      "pytest_seconds": 0.17
+    },
+    "default_hermetic_suite": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -rs",
+      "status": "pass",
+      "passed": 1064,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 49.05,
+      "wall_seconds": 49.15,
+      "user_seconds": 32.07,
+      "sys_seconds": 15.05,
+      "skip_reason": "repository-external fixture tests require explicit admission"
+    },
+    "targeted_admission_contracts": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m coverage run --source=aiverify.runner.admission --data-file=docs/runs/2026-08-15-issue-167-admission-rejection-contracts/artifacts/admission-coverage.data -m pytest -o addopts='' -q -rs tests/runner/test_admission.py tests/bench/test_admission_contract_matrix.py",
+      "status": "pass",
+      "passed": 51,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 5.69,
+      "wall_seconds": 5.90,
+      "user_seconds": 2.74,
+      "sys_seconds": 2.70
+    },
+    "json_report": {
+      "command": "uv run --extra dev python -m coverage json --data-file=docs/runs/2026-08-15-issue-167-admission-rejection-contracts/artifacts/admission-coverage.data -o docs/runs/2026-08-15-issue-167-admission-rejection-contracts/artifacts/admission-coverage.json",
+      "status": "pass"
+    },
+    "report": {
+      "command": "uv run --extra dev python -m coverage report --data-file=docs/runs/2026-08-15-issue-167-admission-rejection-contracts/artifacts/admission-coverage.data --sort=Cover",
+      "status": "pass",
+      "source_path": "src/aiverify/runner/admission.py",
+      "covered_lines": 235,
+      "num_statements": 235,
+      "missing_lines": 0,
+      "covered_branches": 76,
+      "num_branches": 76,
+      "missing_branches": 0,
+      "partial_branches": 0,
+      "percent_total": 100.0,
+      "percent_statements": 100.0,
+      "percent_branches": 100.0
+    },
+    "focused_contracts": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs tests/runner/test_admission.py tests/bench/test_admission_contract_matrix.py tests/bench/test_coverage_audit_contract.py tests/test_external_fixture_gate.py tests/bench/test_run_record_checksums.py tests/bench/test_current_claim_matrix.py",
+      "status": "pass",
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 6.39,
+      "wall_seconds": 6.48,
+      "user_seconds": 3.07,
+      "sys_seconds": 2.86
+    },
+    "hermetic_isolation_regressions": {
+      "command": "env PATH=/usr/bin:/bin /Users/peter/.local/bin/uv run --extra dev python -m pytest -o addopts='' -q tests/runner/test_admission.py::test_serialized_receipt_drift_blocks_public_runner_before_execution_record tests/runner/test_admission.py::test_git_identity_runners_reject_non_identity_commands",
+      "status": "pass",
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 1.56,
+      "scope": "host Codex CLI absent from PATH; destructive Git subcommands rejected before subprocess execution"
+    },
+    "run_record_checksums": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m aiverify.bench.run_record_checksums docs/runs/2026-08-15-issue-167-admission-rejection-contracts --verify",
+      "status": "pass",
+      "verified_artifacts": 5,
+      "wall_seconds": 0.02,
+      "user_seconds": 0.01,
+      "sys_seconds": 0.0
+    },
+    "diff_check": {
+      "command": "/usr/bin/time -p git diff --check",
+      "status": "pass",
+      "exit_code": 0,
+      "wall_seconds": 0.01,
+      "user_seconds": 0.0,
+      "sys_seconds": 0.05
+    }
+  },
+  "artifacts": [
+    {"path": "branch-map.json", "kind": "checked Issue #165 branch-arc disposition", "sha256": "0855f04af605c9a804a4e742fb5468fd7ae21ca4e5ebb281ea1681b377ab403a"},
+    {"path": "artifacts/admission-coverage.data", "kind": "raw targeted coverage.py data", "sha256": "1e9252e3e91a0dbb2de054bb52b2a19c480a1fd56727c667d4b81335f1a0c279"},
+    {"path": "artifacts/admission-coverage.json", "kind": "machine-readable targeted line and branch report", "sha256": "ffed044b2a449a98769f894af8b375b2310a7cbed100ebad94da5eda60aeac98"}
+  ],
+  "side_effects": {
+    "formal_invocations": 0,
+    "namespace_claims": 0,
+    "mapping_releases": 0,
+    "android_builds": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "oracle_calls": 0,
+    "verification_agent_backend_calls": 0,
+    "external_fixture_admissions": 0,
+    "external_snapshot_mutations": 0,
+    "manual_steps": 0
+  },
+  "known_gaps": [
+    "Targeted full admission line and branch execution does not establish Verification Agent behavior-layer effectiveness, causal validity, oracle soundness, Android/OEM coverage, or a quality threshold.",
+    "Runner CLI phase ordering, ExecutionRecord terminal accounting, and Effective Execution Identity remain separate P0 work.",
+    "The repository-external historical fixture remains skipped by default; frozen M8, M9, and M9-R evidence was neither rerun nor changed."
+  ]
+}
