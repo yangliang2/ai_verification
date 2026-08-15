@@ -32,16 +32,27 @@ from aiverify.runner.run_spec import (
 )
 
 
-_PHASE_ORDER = {
-    "pre-run-setup": 0,
-    "static-identity": 1,
-    "preflight": 2,
-    "deployment": 3,
-    "runner-setup": 4,
-    "journey": 5,
-    "oracle": 6,
-    "identity-finalize": 7,
-}
+_SIDE_EFFECT_ORDER = (
+    "pre-run-setup",
+    "static-identity-capture",
+    "live-validation-preflight",
+    "identity-deployment",
+    "identity-readiness",
+    "device-controller",
+    "device-logcat-clear",
+    "device-launch",
+    "checkpoint-collector",
+    "verification-agent-backend",
+    "system-event-injector",
+    "journey-runner",
+    "runner-setup-output",
+    "journey-execution",
+    "oracle-l1",
+    "oracle-l2",
+    "oracle-l3-model",
+    "identity-finalization",
+    "verdict-output",
+)
 
 
 @dataclass
@@ -53,106 +64,111 @@ class PhaseTrace:
     def record(self, phase: str) -> None:
         self.calls.append(phase)
 
-    def later_than(self, phase: str) -> list[str]:
-        return [
-            call
-            for call in self.calls
-            if call in _PHASE_ORDER and _PHASE_ORDER[call] > _PHASE_ORDER[phase]
-        ]
-
 
 @dataclass(frozen=True)
 class FailureCase:
     """One earliest injected failure and its expected terminal state."""
 
     id: str
-    injected_at: str
-    cutoff: str
+    failure_action: str | None
+    terminal_action: str
     reason: str
+    preflight_rejected: bool = False
     launch: bool = True
 
 
 _FAILURE_CASES = (
     FailureCase(
         id="pre-run-setup",
-        injected_at="pre-run-setup",
-        cutoff="pre-run-setup",
+        failure_action="pre-run-setup",
+        terminal_action="pre-run-setup",
         reason="pre_run_setup_error",
     ),
     FailureCase(
         id="static-identity",
-        injected_at="static-identity",
-        cutoff="static-identity",
+        failure_action="static-identity-capture",
+        terminal_action="static-identity-capture",
         reason="execution_identity_error",
     ),
     FailureCase(
         id="preflight-exception",
-        injected_at="preflight-exception",
-        cutoff="preflight",
+        failure_action="live-validation-preflight",
+        terminal_action="live-validation-preflight",
         reason="live_validation_preflight_failed",
     ),
     FailureCase(
         id="preflight-rejection",
-        injected_at="preflight-rejection",
-        cutoff="preflight",
+        failure_action=None,
+        terminal_action="live-validation-preflight",
         reason="live_validation_preflight_failed",
+        preflight_rejected=True,
     ),
     FailureCase(
         id="deployment",
-        injected_at="deployment",
-        cutoff="deployment",
+        failure_action="identity-deployment",
+        terminal_action="identity-deployment",
         reason="execution_identity_error",
     ),
     FailureCase(
         id="readiness",
-        injected_at="readiness",
-        cutoff="deployment",
+        failure_action="identity-readiness",
+        terminal_action="identity-readiness",
         reason="execution_identity_error",
     ),
     FailureCase(
         id="runner-setup",
-        injected_at="runner-setup",
-        cutoff="runner-setup",
+        failure_action="device-logcat-clear",
+        terminal_action="device-logcat-clear",
         reason="runner_setup_error",
     ),
     FailureCase(
         id="runner-setup-output",
-        injected_at="runner-setup-output",
-        cutoff="runner-setup",
+        failure_action="runner-setup-output",
+        terminal_action="runner-setup-output",
         reason="runner_setup_error",
     ),
     FailureCase(
         id="journey",
-        injected_at="journey",
-        cutoff="journey",
+        failure_action="journey-execution",
+        terminal_action="journey-execution",
         reason="journey_execution_error",
     ),
     FailureCase(
         id="journey-without-launch",
-        injected_at="journey",
-        cutoff="journey",
+        failure_action="journey-execution",
+        terminal_action="journey-execution",
         reason="journey_execution_error",
         launch=False,
     ),
     FailureCase(
         id="oracle",
-        injected_at="oracle",
-        cutoff="oracle",
+        failure_action="oracle-l1",
+        terminal_action="oracle-l1",
         reason="oracle_execution_error",
     ),
     FailureCase(
         id="identity-finalize",
-        injected_at="identity-finalize",
-        cutoff="identity-finalize",
+        failure_action="identity-finalization",
+        terminal_action="identity-finalization",
         reason="execution_identity_error",
     ),
     FailureCase(
         id="verdict-output",
-        injected_at="verdict-output",
-        cutoff="identity-finalize",
+        failure_action="verdict-output",
+        terminal_action="verdict-output",
         reason="output_finalization_error",
     ),
 )
+
+
+def _expected_side_effect_prefix(case: FailureCase) -> tuple[str, ...]:
+    """Return the exact side-effect prefix permitted before one failure."""
+    terminal_index = _SIDE_EFFECT_ORDER.index(case.terminal_action)
+    return tuple(
+        action
+        for action in _SIDE_EFFECT_ORDER[: terminal_index + 1]
+        if case.launch or action != "device-launch"
+    )
 
 
 def _spec(
@@ -160,6 +176,7 @@ def _spec(
     *,
     source_path: Path | None = None,
     metric_context: MetricContextSpec | None = None,
+    l3_spec: str = "",
 ) -> RunSpec:
     return RunSpec(
         host_project=tmp_path,
@@ -172,6 +189,7 @@ def _spec(
             id="runner-cli-phase-ordering",
             user_actions=["observe the initial screen"],
             metric_context=metric_context or MetricContextSpec(),
+            l3_spec=l3_spec,
         ),
         source_path=source_path,
         source_sha256="0" * 64 if source_path is not None else None,
@@ -211,10 +229,10 @@ def _flow(tmp_path: Path) -> JourneySegmentFlow:
     return JourneySegmentFlow(journey_results=[result], checkpoints=[checkpoint])
 
 
-def _oracle_verdict() -> dict[str, object]:
+def _oracle_verdict(level: str = "L1") -> dict[str, object]:
     return {
-        "verdict_id": "L1-hermetic",
-        "level": "L1",
+        "verdict_id": f"{level}-hermetic",
+        "level": level,
         "outcome": "pass",
         "defect_class_hypothesis": None,
         "trigger_steps": [],
@@ -223,18 +241,23 @@ def _oracle_verdict() -> dict[str, object]:
     }
 
 
+def _record_side_effect(
+    trace: PhaseTrace, case: FailureCase, action: str
+) -> None:
+    """Record one sealed seam and raise only for this case's earliest failure."""
+    trace.record(action)
+    if case.failure_action == action:
+        raise RuntimeError(f"controlled {action} failure")
+
+
 def _install_phase_fences(
     monkeypatch: pytest.MonkeyPatch,
     *,
     tmp_path: Path,
     trace: PhaseTrace,
-    injected_at: str,
+    case: FailureCase,
 ) -> None:
     """Replace every external seam with traceable, local-only stand-ins."""
-
-    def fail_here(phase: str) -> None:
-        if injected_at == phase:
-            raise RuntimeError(f"controlled {phase} failure")
 
     def preflight(
         spec: RunSpec,
@@ -244,9 +267,8 @@ def _install_phase_fences(
         runner: object,
     ) -> tuple[GateResult, Path, dict, dict]:
         del spec, runner
-        trace.record("preflight")
-        fail_here("preflight-exception")
-        status = "failed" if injected_at == "preflight-rejection" else "passed"
+        _record_side_effect(trace, case, "live-validation-preflight")
+        status = "failed" if case.preflight_rejected else "passed"
         result = GateResult(device=device, status=status, checks=())
         path = artifact_dir.parent / "live-validation-gate.json"
         cli.write_json_artifact(path, result.to_dict())
@@ -264,61 +286,74 @@ def _install_phase_fences(
     class TraceController:
         def __init__(self, serial: str) -> None:
             self.serial = serial
-            trace.record("runner-setup")
+            _record_side_effect(trace, case, "device-controller")
 
         def logcat_clear(self) -> AdbResult:
-            trace.record("runner-setup")
-            fail_here("runner-setup")
+            _record_side_effect(trace, case, "device-logcat-clear")
             return AdbResult(stdout="", stderr="", returncode=0)
 
         def launch(self, package: str, activity: str | None) -> AdbResult:
             del package, activity
-            trace.record("runner-setup-launch")
+            _record_side_effect(trace, case, "device-launch")
             return AdbResult(stdout="", stderr="", returncode=0)
 
     class TraceCheckpointCollector:
         def __init__(self, **kwargs: object) -> None:
             del kwargs
-            trace.record("runner-setup")
+            _record_side_effect(trace, case, "checkpoint-collector")
 
     class TraceBackend:
         def __init__(self) -> None:
-            trace.record("runner-setup")
+            _record_side_effect(trace, case, "verification-agent-backend")
 
     class TraceSystemEventInjector:
         def __init__(self, **kwargs: object) -> None:
             del kwargs
-            trace.record("runner-setup")
+            _record_side_effect(trace, case, "system-event-injector")
 
     class TraceJourneyRunner:
         def __init__(self, **kwargs: object) -> None:
             del kwargs
-            trace.record("runner-setup")
+            _record_side_effect(trace, case, "journey-runner")
 
         def run(self, **kwargs: object) -> JourneySegmentFlow:
             del kwargs
-            trace.record("journey")
-            fail_here("journey")
+            _record_side_effect(trace, case, "journey-execution")
             return _flow(tmp_path)
 
     class TraceL1Oracle:
         def judge(self, *args: object, **kwargs: object) -> dict[str, object]:
             del args, kwargs
-            trace.record("oracle")
-            fail_here("oracle")
+            _record_side_effect(trace, case, "oracle-l1")
             return _oracle_verdict()
+
+    def judge_l2(*args: object, **kwargs: object) -> dict[str, object]:
+        del args, kwargs
+        _record_side_effect(trace, case, "oracle-l2")
+        return _oracle_verdict("L2")
+
+    def judge_l3(*args: object, **kwargs: object) -> dict[str, object]:
+        del args, kwargs
+        _record_side_effect(trace, case, "oracle-l3-model")
+        return _oracle_verdict("L3")
 
     original_write_json = cli.write_json_artifact
 
     def write_json(path: Path, payload: object) -> None:
         if (
             Path(path).name == "runner-setup.json"
-            and injected_at == "runner-setup-output"
+            and isinstance(payload, dict)
+            and payload.get("status") == "passed"
         ):
-            original_write_json(path, payload)
-            raise RuntimeError("controlled runner setup output failure")
-        if Path(path).name == "verdict.json" and injected_at == "verdict-output":
-            raise RuntimeError("controlled verdict output failure")
+            trace.record("runner-setup-output")
+            if case.failure_action == "runner-setup-output":
+                original_write_json(path, payload)
+                raise RuntimeError("controlled runner setup output failure")
+        if (
+            Path(path).name == "verdict.json"
+            and case.failure_action == "verdict-output"
+        ):
+            _record_side_effect(trace, case, "verdict-output")
         original_write_json(path, payload)
 
     monkeypatch.setattr(cli, "_run_live_validation_preflight", preflight)
@@ -328,6 +363,8 @@ def _install_phase_fences(
     monkeypatch.setattr(cli, "DeviceSystemEventInjector", TraceSystemEventInjector)
     monkeypatch.setattr(cli, "JourneySegmentRunner", TraceJourneyRunner)
     monkeypatch.setattr(cli, "L1Oracle", TraceL1Oracle)
+    monkeypatch.setattr(cli, "_judge_l2_from_checkpoints", judge_l2)
+    monkeypatch.setattr(cli, "_judge_l3", judge_l3)
     monkeypatch.setattr(cli, "write_json_artifact", write_json)
 
 
@@ -391,24 +428,22 @@ def test_runner_failure_at_each_phase_blocks_later_external_work(
         monkeypatch,
         tmp_path=tmp_path,
         trace=trace,
-        injected_at=case.injected_at,
+        case=case,
     )
     established, finalized = _record_terminalization(monkeypatch)
     artifact_dir = tmp_path / "run" / "artifacts"
 
     def pre_run_setup() -> None:
-        trace.record("pre-run-setup")
-        if case.injected_at == "pre-run-setup":
-            raise RuntimeError("controlled pre-run setup failure")
+        _record_side_effect(trace, case, "pre-run-setup")
 
     verdict = cli.run(
-        _spec(tmp_path),
+        _spec(tmp_path, l3_spec="the screen remains usable"),
         device="hermetic-device",
         artifact_dir=artifact_dir,
         workdir=tmp_path,
         launch=case.launch,
         pre_run_setup=pre_run_setup,
-        identity_collector=_identity_from_fences(trace, case.injected_at, tmp_path),
+        identity_collector=_traced_identity_collector(trace, case, tmp_path),
     )
 
     _assert_terminal_non_accountable(
@@ -418,40 +453,31 @@ def test_runner_failure_at_each_phase_blocks_later_external_work(
         established=established,
         finalized=finalized,
     )
-    assert trace.later_than(case.cutoff) == []
-    assert case.cutoff in trace.calls
+    assert tuple(trace.calls) == _expected_side_effect_prefix(case)
     if not case.launch:
-        assert "runner-setup-launch" not in trace.calls
+        assert "device-launch" not in trace.calls
 
 
-def _identity_from_fences(
+def _traced_identity_collector(
     trace: PhaseTrace,
-    injected_at: str,
+    case: FailureCase,
     tmp_path: Path,
 ) -> object:
-    """Mirror the identity fence so the public function receives one object."""
-
-    def fail_here(phase: str) -> None:
-        if injected_at == phase:
-            raise RuntimeError(f"controlled {phase} failure")
+    """Return the identity seam for one strict side-effect trace."""
 
     class Identity:
         def capture_static(self) -> None:
-            trace.record("static-identity")
-            fail_here("static-identity")
+            _record_side_effect(trace, case, "static-identity-capture")
 
         def deploy(self) -> None:
-            trace.record("deployment")
-            fail_here("deployment")
+            _record_side_effect(trace, case, "identity-deployment")
 
         def verify_ready_for_agent(self) -> None:
-            trace.record("deployment")
-            fail_here("readiness")
+            _record_side_effect(trace, case, "identity-readiness")
 
         def finalize(self, **kwargs: object) -> dict[str, str]:
             del kwargs
-            trace.record("identity-finalize")
-            fail_here("identity-finalize")
+            _record_side_effect(trace, case, "identity-finalization")
             provenance = tmp_path / "run" / "execution-provenance.json"
             provenance.write_bytes(b'{"schema_version":1,"hermetic":true}\n')
             return {
@@ -650,10 +676,8 @@ def test_non_accountable_journey_without_runner_setup_omits_that_reference(
     assert "runner_setup" not in persisted["evidence_refs"]
 
 
-def test_private_branch_helpers_preserve_fail_closed_classification(
-    tmp_path: Path,
-) -> None:
-    """Exercise the helper arcs that classify a Runner CLI result."""
+def test_trigger_steps_records_the_system_event_boundary(tmp_path: Path) -> None:
+    """A system event remains visible in the L1/L2 trigger sequence."""
     event_spec = replace(
         _spec(tmp_path),
         scenario=ScenarioSpec(
@@ -667,6 +691,9 @@ def test_private_branch_helpers_preserve_fail_closed_classification(
         "[boundary] inject rotate {}",
     ]
 
+
+def test_l2_helper_rejects_invalid_or_incomplete_boundary_evidence() -> None:
+    """L2 stays inconclusive when a selected Journey Segment Boundary is unusable."""
     invalid_boundary = ScenarioSpec(
         id="invalid-boundary",
         system_events=[
@@ -686,6 +713,11 @@ def test_private_branch_helpers_preserve_fail_closed_classification(
         missing_checkpoints, {}, steps=[]
     )["evidence"][0]["ref"] == "missing selected L2 checkpoints"
 
+
+def test_metric_context_marks_a_failed_baseline_control_as_false_positive(
+    tmp_path: Path,
+) -> None:
+    """Metric classification keeps a baseline-control oracle failure explicit."""
     baseline_control = _spec(
         tmp_path,
         metric_context=MetricContextSpec(seed_kind="baseline_control"),
@@ -698,6 +730,9 @@ def test_private_branch_helpers_preserve_fail_closed_classification(
     )
     assert metric["seed_outcome"] == "false_positive"
 
+
+def test_live_validation_gate_summary_preserves_the_app_surface(tmp_path: Path) -> None:
+    """An app-specific preflight receipt remains available to terminal evidence."""
     result = GateResult(
         device="hermetic-device",
         status="passed",
@@ -711,6 +746,9 @@ def test_private_branch_helpers_preserve_fail_closed_classification(
     )
     assert summary["app"] == result.to_dict()["app"]
 
+
+def test_runner_setup_requires_an_adb_result() -> None:
+    """A malformed runner-setup result fails closed before a Journey can start."""
     with pytest.raises(RuntimeError, match="did not return an AdbResult"):
         cli._require_runner_setup_success("logcat_clear", object())  # type: ignore[arg-type]
 
