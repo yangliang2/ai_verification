@@ -15,6 +15,7 @@ from aiverify.runner.admission import (
     admit_production_seam,
     establish_and_abandon_temporary_record,
     verify_admitted_receipt,
+    write_admission_receipt,
 )
 from aiverify.runner.command import CommandResult, CommandRunner
 from aiverify.runner.execution_record import load_execution_record
@@ -383,6 +384,48 @@ def test_missing_serialized_run_spec_identity_is_rejected_before_external_work(
         reason="exact serialized Run Spec source is unavailable",
         options=options,
     )
+
+
+def test_unreadable_serialized_run_spec_is_rejected_before_external_work(
+    tmp_path: Path,
+) -> None:
+    """A source read failure is rejection evidence, not an admitted input."""
+    _, _, spec, options = _fixture(tmp_path)
+    unreadable_source = tmp_path / "run-spec-directory"
+    unreadable_source.mkdir()
+    runner = GitOnlyRunner()
+
+    result = admit_production_seam(
+        replace(spec, source_path=unreadable_source),
+        options,
+        command_runner=runner,
+    )
+
+    _assert_rejected_without_external_work(
+        result,
+        runner,
+        check="run_spec_bytes",
+        reason="exact serialized Run Spec source cannot be read",
+        options=options,
+    )
+
+
+def test_rejected_admission_receipt_is_persisted_exactly_once(tmp_path: Path) -> None:
+    """The local receipt preserves a rejected admission without an external call."""
+    _, _, spec, options = _fixture(tmp_path)
+    runner = GitOnlyRunner()
+    rejected = admit_production_seam(
+        spec,
+        replace(options, requested_driver_model=" "),
+        command_runner=runner,
+    )
+    receipt_path = tmp_path / "admission-rejected.json"
+
+    write_admission_receipt(rejected, receipt_path)
+
+    assert rejected.admitted is False
+    assert receipt_path.read_bytes() == rejected.receipt_bytes
+    assert all(Path(call[0]).name == "git" for call in runner.calls)
 
 
 def test_incomplete_serialized_receipt_is_rejected_before_external_work(
