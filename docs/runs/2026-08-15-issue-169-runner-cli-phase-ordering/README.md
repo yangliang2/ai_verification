@@ -1,23 +1,22 @@
 # Issue #169 — Runner CLI external-side-effect ordering
 
 Status: the hermetic Runner CLI phase-ordering contracts and their measured
-evidence are complete on `issue-169-runner-cli-phase-ordering`. The record
-becomes durable with the commits containing this directory; a follow-up binding
-commit records the first evidence revision and refreshes this ledger.
+evidence are complete on `issue-169-runner-cli-phase-ordering`. This record's
+first evidence commit is bound in a follow-up commit that refreshes this ledger.
 
 ## Objective and source identity
 
 - Issue: `#169` (`enhancement`, `ready-for-agent`).
 - Base revision: `9d4defbbb8a4b6172c9cf7533929c35d74e21b07`.
 - Base tree: `9c756ee59e6d28b4097587a6429dd5110d67050a`.
-- Tested implementation revision: `2d4030311aea050a25c8372c6325d5d5420f3096`.
-- Tested implementation tree: `1565e65734bf4930a5c5845e0db65d9035908573`.
-- Tested evidence revision: `8a26f284d262e0c8659041c694b5128166fc9ff0`.
-- Tested evidence tree: `8a94d4614656dec8370213f86c47ff222c61c518`.
+- Tested implementation revision: `938372a45ad1b1e79101e329a6120015c83da265`.
+- Tested implementation tree: `659ffb5664ef8295cb6c4bfbbade7d3ca5aed5d6`.
+- Tested evidence revision/tree: recorded by the binding follow-up after this
+  first evidence commit is created.
 - The tested evidence revision is the first commit containing the tested
-  implementation and complete run record. This binding follow-up refreshes its
-  ledger; the exact pushed and merged identities are recorded in the Issue #169
-  completion comment.
+  implementation and refreshed run record. The binding follow-up refreshes its
+  ledger. The Issue #169 implementation-evidence comment records the pushed
+  head; the final completion comment will add the merged SHA.
 - Claim boundary: this is hermetic test-contract evidence for the
   **fail-closed accountability Quality Contract** at the Runner CLI
   external-side-effect ordering boundary. It does not establish Verification
@@ -45,11 +44,18 @@ The contract suite injects its earliest failure at these Runner CLI boundaries:
 
 For each established attempt, the suite asserts exactly one terminal,
 non-accountable ExecutionRecord with an ordered failure reason and no
-accountable execution provenance. Every later represented external action is
-blocked. The test replacements fence `DeviceController`,
-`AndroidEvidenceCollector`, `CodexCliBackend`, `DeviceSystemEventInjector`,
-`JourneySegmentRunner`, and `L1Oracle`; they record local calls only and do not
-invoke Android, a Verification Agent Backend, a model, or an oracle service.
+accountable execution provenance. It asserts the exact permitted prefix of
+all sealed side effects—not merely a coarse phase: pre-run setup, static
+Effective Execution Identity capture/deployment/readiness, live-validation
+preflight, device controller/logcat/launch, checkpoint collection, Verification
+Agent Backend, system-event injection, Journey runner/execution, successful
+runner-setup output, L1/L2/L3 model oracles, identity finalization, and verdict
+output. Thus a call at any later represented seam, including a second
+runner-setup action, fails the contract. The test replacements fence
+`DeviceController`, `AndroidEvidenceCollector`, `CodexCliBackend`,
+`DeviceSystemEventInjector`, `JourneySegmentRunner`, and `L1Oracle`; they
+record local calls only and do not invoke Android, a Verification Agent Backend,
+a model, or an oracle service.
 
 The targeted execution below reaches all 80 Runner CLI branch opportunities,
 including the historical 18 arcs. Its 398/411 statement observation and
@@ -69,11 +75,11 @@ Commands and results on the tested implementation revision:
 
 ```text
 uv run --extra dev python -m pytest -o addopts='' --collect-only -q
-PASS: 1089 tests collected in 0.72s.
+PASS: 1093 tests collected in 0.15s.
 
 /usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs
-PASS: 1088 passed, 1 skipped in 50.39s; real 50.50s, user 31.44s,
-sys 15.76s.
+PASS: 1092 passed, 1 skipped in 80.20s; real 80.31s, user 32.67s,
+sys 15.38s.
 Skip: tests/bench/test_m9_recovery_formal.py:195 requires explicit admission
 of a repository-external fixture.
 
@@ -84,7 +90,7 @@ of a repository-external fixture.
   tests/runner/test_cli.py \
   tests/runner/test_cli_phase_ordering.py \
   tests/bench/test_runner_cli_phase_ordering_matrix.py
-PASS: 68 passed in 0.33s; real 0.56s, user 0.42s, sys 0.14s.
+PASS: 72 passed in 0.34s; real 0.57s, user 0.42s, sys 0.14s.
 
 uv run --extra dev python -m coverage json \
   --data-file=docs/runs/2026-08-15-issue-169-runner-cli-phase-ordering/artifacts/runner-cli-coverage.data \
@@ -105,7 +111,7 @@ and 0 partial branches in this targeted execution.
   tests/test_external_fixture_gate.py \
   tests/bench/test_run_record_checksums.py \
   tests/bench/test_current_claim_matrix.py
-PASS: 87 passed in 1.95s; real 2.03s, user 0.70s, sys 1.30s.
+PASS: 91 passed in 0.83s; real 0.92s, user 0.69s, sys 0.22s.
 
 uv run --extra dev python -m aiverify.bench.run_record_checksums \
   docs/runs/2026-08-15-issue-169-runner-cli-phase-ordering --verify
@@ -122,13 +128,13 @@ The first evidence commit and binding follow-up record exact identities in
 
 - `branch-map.json` — canonical checked disposition of the 18 Issue #165
   Runner CLI missing branch arcs, SHA-256
-  `9eaf89fb482fe60ec46e2b9e9746e4a61af5abbbb8ccbef290a772b958de3db8`.
+  `73b9707dfc12b0dca822c2c5424e50c884ecc7a3a3e093976da13a062047a4d6`.
 - `artifacts/runner-cli-coverage.data` — raw targeted coverage.py data,
   SHA-256
   `0bfb0b74033d5b4fd787a350eb1428c0ba23bf38eb22deea7b425f353e14cd1b`.
 - `artifacts/runner-cli-coverage.json` — machine-readable targeted line and
   branch report, SHA-256
-  `28e41d6b0e0223678a2a4ab45ba3f1cc786ee9992a520b735145a4b53b494f36`.
+  `c76d6b4222c25b78a8f69024cca9af39b68a054de4e9ec16ebc3895823e1b765`.
 - `verification.json` — machine-readable source identity, commands, results,
   scope, and claim boundary; it is listed in `checksums.sha256`.
 
