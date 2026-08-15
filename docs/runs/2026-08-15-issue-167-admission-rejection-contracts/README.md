@@ -13,7 +13,12 @@ final follow-up commit and recorded on Issue #167.
 - Base tree: `c86b3ec594c6944003d1744e8e8f50c4e3af88aa`.
 - Tested implementation revision: `caacbdf5b33daab3d01718792569569644b7e693`.
 - Tested implementation tree: `9d40ca60950b4c8121fbed42a3306bc0b9beccbe`.
-- Tested evidence revision and tree: pending refreshed evidence binding.
+- Tested evidence revision: `a1365fae0246bf0e89c8b0055c479637cb78a4a6`.
+- Tested evidence tree: `2ac022c341203e383d4445a1565b6056c830ccde`.
+- The tested evidence revision is the first commit containing the repaired
+  implementation and refreshed run record. This binding follow-up refreshes its
+  ledger; the exact pushed and merged identities are recorded in the Issue #167
+  completion comment.
 - Claim boundary: this is hermetic test-contract evidence for the
   **fail-closed accountability Quality Contract**. It does not establish
   Verification Agent behavior-layer capability, Android/OEM coverage, a
