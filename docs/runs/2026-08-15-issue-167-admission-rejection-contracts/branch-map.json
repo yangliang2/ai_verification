@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "issue": 167,
+  "primary_quality_contract": "fail-closed accountability",
+  "baseline": {
+    "issue": 165,
+    "coverage_artifact": "../2026-08-13-issue-165-risk-weighted-white-box-coverage-audit/artifacts/coverage.json",
+    "source_path": "src/aiverify/runner/admission.py",
+    "missing_branch_count": 32
+  },
+  "test_groups": [
+    {
+      "id": "receipt-revalidation",
+      "nodeids": [
+        "tests/runner/test_admission.py::test_incomplete_serialized_receipt_is_rejected_before_external_work",
+        "tests/runner/test_admission.py::test_serialized_admitted_receipt_revalidates_without_external_work",
+        "tests/runner/test_admission.py::test_serialized_receipt_identity_drift_is_rejected_before_external_work"
+      ],
+      "baseline_missing_branch_arcs": [
+        [220, 223],
+        [241, 242],
+        [243, 245],
+        [245, 246],
+        [245, 247],
+        [247, 248],
+        [247, 249],
+        [249, -212],
+        [249, 252]
+      ]
+    },
+    {
+      "id": "run-spec-identity",
+      "nodeids": [
+        "tests/runner/test_admission.py::test_missing_serialized_run_spec_identity_is_rejected_before_external_work",
+        "tests/runner/test_admission.py::test_serialized_run_spec_drift_is_rejected_before_external_work"
+      ],
+      "baseline_missing_branch_arcs": [
+        [305, 306],
+        [316, 317]
+      ]
+    },
+    {
+      "id": "host-identity",
+      "nodeids": [
+        "tests/runner/test_admission.py::test_host_identity_rejections_are_side_effect_free",
+        "tests/runner/test_admission.py::test_failed_git_identity_query_is_rejected_before_external_work",
+        "tests/runner/test_admission.py::test_unavailable_host_identity_is_rejected_before_external_work"
+      ],
+      "baseline_missing_branch_arcs": [
+        [328, 329],
+        [332, 333],
+        [355, 356],
+        [357, 358],
+        [360, 361],
+        [362, 363],
+        [365, 366],
+        [369, 370]
+      ]
+    },
+    {
+      "id": "target-declaration",
+      "nodeids": [
+        "tests/runner/test_admission.py::test_target_identity_rejections_are_side_effect_free"
+      ],
+      "baseline_missing_branch_arcs": [
+        [385, 386],
+        [387, 388],
+        [391, 392],
+        [393, 394],
+        [395, 396]
+      ]
+    },
+    {
+      "id": "runner-policy-and-tool-resolution",
+      "nodeids": [
+        "tests/runner/test_admission.py::test_runner_policy_rejections_are_side_effect_free"
+      ],
+      "baseline_missing_branch_arcs": [
+        [412, 413],
+        [416, 417],
+        [425, 426],
+        [504, 505],
+        [507, 508]
+      ]
+    },
+    {
+      "id": "artifact-namespace",
+      "nodeids": [
+        "tests/runner/test_admission.py::test_invalid_artifact_namespace_is_rejected_before_external_work"
+      ],
+      "baseline_missing_branch_arcs": [
+        [463, 464],
+        [465, 466]
+      ]
+    },
+    {
+      "id": "git-command-failure",
+      "nodeids": [
+        "tests/runner/test_admission.py::test_failed_git_identity_query_is_rejected_before_external_work"
+      ],
+      "baseline_missing_branch_arcs": [
+        [493, 494]
+      ]
+    }
+  ]
+}
