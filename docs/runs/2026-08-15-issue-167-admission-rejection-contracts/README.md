@@ -12,7 +12,12 @@ completed in the final follow-up commit and recorded on Issue #167.
 - Base tree: `c86b3ec594c6944003d1744e8e8f50c4e3af88aa`.
 - Tested implementation revision: `d315251e6592d4536530def72102e29b2cc881f2`.
 - Tested implementation tree: `50ebd6947ff2f80eca0ded13fba595dcf51d7422`.
-- Tested evidence revision and tree: pending final evidence binding.
+- Tested evidence revision: `322886f5005b1b10da105b5f1210e2e3672d3c9d`.
+- Tested evidence tree: `7a6c430e060ff470c5f74dd9b27d11391a57b71e`.
+- The tested evidence revision is the first commit containing the tested
+  implementation and complete run record. This binding follow-up refreshes its
+  ledger; the exact pushed and merged identities are recorded in the Issue #167
+  completion comment.
 - Claim boundary: this is hermetic test-contract evidence for the
   **fail-closed accountability Quality Contract**. It does not establish
   Verification Agent behavior-layer capability, Android/OEM coverage, a
@@ -89,7 +94,7 @@ PASS: 69 passed in 6.10s; real 6.18s, user 3.02s, sys 2.63s.
 
 /usr/bin/time -p uv run --extra dev python -m aiverify.bench.run_record_checksums \
   docs/runs/2026-08-15-issue-167-admission-rejection-contracts --verify
-PASS: checksum inventory verified for 5 artifacts; real 0.03s, user 0.02s,
+PASS: checksum inventory verified for 5 artifacts; real 0.02s, user 0.01s,
 sys 0.00s.
 
 /usr/bin/time -p git diff --check
