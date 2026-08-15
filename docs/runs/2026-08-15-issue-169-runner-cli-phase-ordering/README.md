@@ -12,7 +12,12 @@ commit records the first evidence revision and refreshes this ledger.
 - Base tree: `9c756ee59e6d28b4097587a6429dd5110d67050a`.
 - Tested implementation revision: `2d4030311aea050a25c8372c6325d5d5420f3096`.
 - Tested implementation tree: `1565e65734bf4930a5c5845e0db65d9035908573`.
-- Tested evidence revision and tree: pending evidence binding.
+- Tested evidence revision: `8a26f284d262e0c8659041c694b5128166fc9ff0`.
+- Tested evidence tree: `8a94d4614656dec8370213f86c47ff222c61c518`.
+- The tested evidence revision is the first commit containing the tested
+  implementation and complete run record. This binding follow-up refreshes its
+  ledger; the exact pushed and merged identities are recorded in the Issue #169
+  completion comment.
 - Claim boundary: this is hermetic test-contract evidence for the
   **fail-closed accountability Quality Contract** at the Runner CLI
   external-side-effect ordering boundary. It does not establish Verification
