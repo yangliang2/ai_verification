@@ -12,8 +12,8 @@ commit is bound in a follow-up commit that refreshes its checksum ledger.
 - Base tree: `ddd920c5c1a40824520d698355d6a4f4c8452e53`.
 - Tested implementation revision: `ce10b832cc8492279976bc7a13743936e16dd2ba`.
 - Tested implementation tree: `750e16779b0d5e46d2fb3f27dfffb55f84d83d85`.
-- Tested evidence revision/tree: recorded by the binding follow-up after this
-  first evidence commit is created.
+- Tested evidence revision: `7debf4e6f510e4487d94b7bb326b9cca98a57c9b`.
+- Tested evidence tree: `e904d342f10842c21363c41e7fff6898f72aa18d`.
 - The tested evidence revision is the first commit containing the tested
   implementation and complete run record. The binding follow-up refreshes its
   ledger. The Issue #171 implementation-evidence comment records the pushed
