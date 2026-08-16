@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "issue": 171,
+  "status": "execution_record_terminal_accounting_contracts_verified",
+  "branch": "issue-171-execution-record-terminal-accounting",
+  "base_revision": "d12ae239ded2450aae3ae7d4b0dc9d26bd851fae",
+  "base_tree": "ddd920c5c1a40824520d698355d6a4f4c8452e53",
+  "tested_implementation_revision": "ce10b832cc8492279976bc7a13743936e16dd2ba",
+  "tested_implementation_tree": "750e16779b0d5e46d2fb3f27dfffb55f84d83d85",
+  "tested_evidence_revision": null,
+  "tested_evidence_tree": null,
+  "claim_boundary": "hermetic fail-closed accountability Quality Contract tests at the ExecutionRecord terminal-accounting boundary only; no Verification Agent behavior-layer capability, quality threshold, production, Android, or formal-run claim",
+  "tool_versions": {
+    "os": "macOS 26.3 (25D125), Darwin arm64",
+    "git": "2.50.1 (Apple Git-155)",
+    "uv": "0.11.7 (9d177269e 2026-04-15 aarch64-apple-darwin)",
+    "python": "3.11.15",
+    "pytest": "9.1.1",
+    "coverage": "7.15.4 with C extension"
+  },
+  "historical_audit": {
+    "issue": 165,
+    "source_path": "src/aiverify/runner/execution_record.py",
+    "risk_map": "../2026-08-13-issue-165-risk-weighted-white-box-coverage-audit/risk-map.json",
+    "trust_boundary": "ExecutionRecord terminal accounting"
+  },
+  "measurement": {
+    "baseline": {
+      "revision": "d12ae239ded2450aae3ae7d4b0dc9d26bd851fae",
+      "command": "/usr/bin/time -p uv run --extra dev python -m coverage run --branch --source=aiverify.runner.execution_record --data-file=docs/runs/2026-08-16-issue-171-execution-record-terminal-accounting/artifacts/execution-record-baseline.data -m pytest -o addopts='' -q -rs",
+      "status": "pass",
+      "passed": 1092,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 124.98,
+      "wall_seconds": 135.96,
+      "user_seconds": 67.05,
+      "sys_seconds": 17.31,
+      "covered_lines": 161,
+      "num_statements": 194,
+      "missing_lines": 33,
+      "covered_branches": 55,
+      "num_branches": 80,
+      "missing_branches": 25,
+      "partial_branches": 25,
+      "skip_reason": "repository-external fixture tests require explicit admission"
+    },
+    "collection": {
+      "command": "uv run --extra dev python -m pytest -o addopts='' --collect-only -q",
+      "status": "pass",
+      "collected": 1140,
+      "pytest_seconds": 0.17
+    },
+    "default_hermetic_suite": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs",
+      "status": "pass",
+      "passed": 1139,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 50.13,
+      "wall_seconds": 50.24,
+      "user_seconds": 31.0,
+      "sys_seconds": 15.25,
+      "skip_reason": "repository-external fixture tests require explicit admission"
+    },
+    "targeted_execution_record_contracts": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m coverage run --branch --source=aiverify.runner.execution_record --data-file=docs/runs/2026-08-16-issue-171-execution-record-terminal-accounting/artifacts/execution-record-contracts.data -m pytest -o addopts='' -q -rs tests/runner/test_execution_record.py tests/runner/test_execution_record_terminal_accounting.py tests/bench/test_execution_record_terminal_accounting_matrix.py",
+      "status": "pass",
+      "passed": 54,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.2,
+      "wall_seconds": 0.41,
+      "user_seconds": 0.34,
+      "sys_seconds": 0.07,
+      "covered_lines": 194,
+      "num_statements": 194,
+      "missing_lines": 0,
+      "covered_branches": 80,
+      "num_branches": 80,
+      "missing_branches": 0,
+      "partial_branches": 0,
+      "percent_total": 100.0,
+      "percent_statements": 100.0,
+      "percent_branches": 100.0
+    },
+    "focused_contracts": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs tests/runner/test_execution_record.py tests/runner/test_execution_record_terminal_accounting.py tests/bench/test_execution_record_terminal_accounting_matrix.py tests/bench/test_coverage_audit_contract.py tests/test_external_fixture_gate.py tests/bench/test_run_record_checksums.py tests/bench/test_current_claim_matrix.py",
+      "status": "pass",
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.7,
+      "wall_seconds": 0.82,
+      "user_seconds": 0.62,
+      "sys_seconds": 0.14
+    },
+    "run_record_checksums": {
+      "command": "uv run --extra dev python -m aiverify.bench.run_record_checksums docs/runs/2026-08-16-issue-171-execution-record-terminal-accounting --verify",
+      "status": "pass",
+      "verified_artifacts": 7
+    },
+    "diff_check": {
+      "command": "git diff --check origin/main...HEAD",
+      "status": "pass",
+      "exit_code": 0
+    }
+  },
+  "artifacts": [
+    {
+      "path": "branch-map.json",
+      "kind": "checked one-to-one baseline branch-arc disposition",
+      "sha256": "29757091ef5a4e77ecf9a2493c3702da8b41c29b9a2cb10a41639da0af5f9b5e"
+    },
+    {
+      "path": "artifacts/execution-record-baseline.data",
+      "kind": "raw ordinary-suite baseline coverage.py data",
+      "sha256": "aa6312cb9045825fc1f78213f58a603135d8eefceb24f0606a93e6dbc607a1fa"
+    },
+    {
+      "path": "artifacts/execution-record-baseline.json",
+      "kind": "machine-readable ordinary-suite baseline coverage report",
+      "sha256": "ec262e0aa191f3cb5c938bc97b8faea315f8905d69ed0b2304702faf0d9b4078"
+    },
+    {
+      "path": "artifacts/execution-record-contracts.data",
+      "kind": "raw targeted terminal-accounting coverage.py data",
+      "sha256": "cb73214f02205341f2d59b994547646bf7f5e6da879040de2a14871a7e99c781"
+    },
+    {
+      "path": "artifacts/execution-record-contracts.json",
+      "kind": "machine-readable targeted terminal-accounting coverage report",
+      "sha256": "3dd108ae729701eedf98985c2016216df82dfea836a65a4b15b4293166113935"
+    }
+  ],
+  "side_effects": {
+    "formal_invocations": 0,
+    "namespace_claims": 0,
+    "mapping_releases": 0,
+    "android_builds": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "remote_oracle_service_calls": 0,
+    "verification_agent_backend_invocations": 0,
+    "external_fixture_admissions": 0,
+    "external_snapshot_mutations": 0,
+    "manual_steps": 0
+  },
+  "known_gaps": [
+    "Targeted branch execution does not establish Verification Agent behavior-layer effectiveness, causal validity, oracle soundness, Android/OEM coverage, or a quality threshold.",
+    "The checks use local temporary files and controlled persistence seams; they do not perform a real Android, device, backend, model, oracle-service, or formal-run action.",
+    "The repository-external historical fixture remains skipped by default; frozen M8, M9, and M9-R evidence was neither rerun nor changed."
+  ]
+}
