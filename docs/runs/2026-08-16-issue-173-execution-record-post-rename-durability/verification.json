@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "issue": 173,
+  "status": "execution_record_post_rename_durability_verified",
+  "branch": "issue-173-execution-record-post-rename-durability",
+  "base_revision": "d12ae239ded2450aae3ae7d4b0dc9d26bd851fae",
+  "base_tree": "ddd920c5c1a40824520d698355d6a4f4c8452e53",
+  "tested_implementation_revision": "37ef02023392e229e67721780cda9ece39a7cf30",
+  "tested_implementation_tree": "f231368632569ab5e6dfe26fb9e48153465b14fd",
+  "claim_boundary": "local hermetic ExecutionRecord persistence-contract evidence only; no Verification Agent behavior-layer capability, Android/OEM, production-outcome, sudden-host-loss durability, formal-run, or quality-threshold claim",
+  "historical_context": {
+    "issue": 171,
+    "relationship": "#171 exposed this separate Behavior-Layer Defect during review; this repair does not rewrite its historical audit or frozen evidence."
+  },
+  "quality_contract": {
+    "name": "fail-closed accountability",
+    "pre_publication": "A storage error before os.replace preserves the in-progress ExecutionRecord and raises ExecutionRecordStorageError.",
+    "post_publication": "A directory fsync error after os.replace returns the published terminal record and logs durability uncertainty rather than reporting an uncommitted storage failure."
+  },
+  "tool_versions": {
+    "os": "macOS 26.3 (25D125), Darwin arm64",
+    "git": "2.50.1 (Apple Git-155)",
+    "uv": "0.11.7 (9d177269e 2026-04-15 aarch64-apple-darwin)",
+    "python": "3.11.15",
+    "pytest": "9.1.1",
+    "coverage": "7.15.4 with C extension"
+  },
+  "verification": {
+    "pre_fix_reproduction": {
+      "command": "uv run --extra dev python -m pytest -o addopts='' -q tests/runner/test_execution_record.py",
+      "status": "expected_fail",
+      "passed": 8,
+      "failed": 2,
+      "symptom": "post-replace directory-fsync failures raised ExecutionRecordStorageError after terminal publication"
+    },
+    "focused_runner_regression": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs tests/runner/test_execution_record.py tests/runner/test_cli.py tests/runner/test_execution_identity.py",
+      "status": "pass",
+      "passed": 56,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 2.1,
+      "wall_seconds": 2.22,
+      "user_seconds": 0.41,
+      "sys_seconds": 1.45
+    },
+    "default_hermetic_suite": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs",
+      "status": "pass",
+      "passed": 1095,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 85.84,
+      "wall_seconds": 86.04,
+      "user_seconds": 34.93,
+      "sys_seconds": 17.95,
+      "skip_reason": "repository-external fixture tests require explicit admission"
+    },
+    "compile": {
+      "command": "uv run --extra dev python -m compileall -q src",
+      "status": "pass",
+      "exit_code": 0
+    },
+    "diff_check": {
+      "command": "git diff --check origin/main...HEAD",
+      "status": "pass",
+      "exit_code": 0
+    }
+  },
+  "artifacts": [
+    {
+      "path": "README.md",
+      "kind": "human-readable durable run record"
+    },
+    {
+      "path": "verification.json",
+      "kind": "machine-readable verification metadata"
+    }
+  ],
+  "side_effects": {
+    "formal_invocations": 0,
+    "namespace_claims": 0,
+    "mapping_releases": 0,
+    "android_builds": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "remote_oracle_service_calls": 0,
+    "verification_agent_backend_invocations": 0,
+    "external_fixture_admissions": 0,
+    "external_snapshot_mutations": 0,
+    "manual_steps": 0
+  },
+  "known_gaps": [
+    "A directory fsync error after terminal publication remains a local durability uncertainty; this repair does not prove survival across sudden host or filesystem loss.",
+    "The checks use temporary local files and controlled persistence seams; they do not perform Android, device, backend, model, oracle-service, or formal-run actions.",
+    "The repository-external historical fixture remains skipped by default; frozen M8, M9, and M9-R evidence was neither replayed nor changed."
+  ]
+}
