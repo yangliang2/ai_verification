@@ -15,9 +15,14 @@ ledger.
   `37ef02023392e229e67721780cda9ece39a7cf30`.
 - Tested implementation tree:
   `f231368632569ab5e6dfe26fb9e48153465b14fd`.
-- The tested implementation contains the production repair and regression
-  tests. The implementation-evidence comment and the binding follow-up record
-  the pushed evidence head; a final completion comment will add the merged SHA.
+- Tested evidence revision:
+  `d3c454e0c88aacb8677c6ab15f0e2416c03db534`.
+- Tested evidence tree:
+  `f9e37bdfdcbf6df537021ee93e7b282eb6ca772b`.
+- The tested evidence revision is the first commit containing the tested
+  implementation and complete run record. This binding follow-up refreshes its
+  ledger; the implementation-evidence comment records the pushed head, and a
+  final completion comment will add the merged SHA.
 - Claim boundary: this is local, hermetic ExecutionRecord persistence-contract
   evidence. It does not establish Verification Agent behavior-layer capability,
   Android/OEM coverage, production outcome, durability across sudden host loss,
