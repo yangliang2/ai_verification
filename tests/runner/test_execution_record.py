@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from pathlib import Path
 
 import pytest
 
@@ -70,6 +71,19 @@ def test_schema_v2_completed_record_requires_provenance_binding(tmp_path) -> Non
 
 
 @pytest.mark.parametrize(
+    ("post_publication_fault", "expected_log"),
+    (
+        (
+            "directory-sync",
+            "published ExecutionRecord could not confirm directory durability",
+        ),
+        (
+            "temporary-cleanup",
+            "published ExecutionRecord could not clean already-published temporary path",
+        ),
+    ),
+)
+@pytest.mark.parametrize(
     (
         "lifecycle_state",
         "execution",
@@ -124,6 +138,8 @@ def test_finalize_after_published_replace_reports_durability_uncertainty_not_fai
     tmp_path,
     monkeypatch,
     caplog,
+    post_publication_fault,
+    expected_log,
     lifecycle_state,
     execution,
     process_exit_code,
@@ -131,7 +147,7 @@ def test_finalize_after_published_replace_reports_durability_uncertainty_not_fai
     evidence_refs,
     accountable,
 ) -> None:
-    """A post-replace directory-sync error cannot mean an uncommitted record."""
+    """A post-replace error cannot mean an uncommitted terminal record."""
     started_at = "2026-08-16T00:00:00+00:00"
     store = ExecutionRecordStore.establish(
         tmp_path,
@@ -139,10 +155,28 @@ def test_finalize_after_published_replace_reports_durability_uncertainty_not_fai
         started_at=started_at,
     )
 
-    def fail_directory_sync(_path) -> None:
-        raise OSError("controlled directory fsync failure after replace")
+    if post_publication_fault == "directory-sync":
+        def fail_directory_sync(_path) -> None:
+            raise OSError("controlled directory fsync failure after replace")
 
-    monkeypatch.setattr(execution_record, "_fsync_directory", fail_directory_sync)
+        monkeypatch.setattr(
+            execution_record,
+            "_fsync_directory",
+            fail_directory_sync,
+        )
+    else:
+        original_unlink = Path.unlink
+
+        def fail_published_temporary_cleanup(path: Path, *args, **kwargs) -> None:
+            if (
+                path.parent == store.path.parent
+                and path.name.startswith(f".{store.path.name}.")
+                and path.name.endswith(".tmp")
+            ):
+                raise OSError("controlled temporary cleanup failure after replace")
+            original_unlink(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "unlink", fail_published_temporary_cleanup)
 
     with caplog.at_level(logging.WARNING, logger=execution_record.__name__):
         record = store.finalize(
@@ -161,7 +195,7 @@ def test_finalize_after_published_replace_reports_durability_uncertainty_not_fai
 
     assert load_execution_record(store.path) == record
     assert is_execution_record_accountable(record) is accountable
-    assert "published ExecutionRecord could not confirm directory durability" in caplog.text
+    assert expected_log in caplog.text
     assert not list(store.path.parent.glob(f".{store.path.name}.*.tmp"))
 
 
