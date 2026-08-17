@@ -4,112 +4,116 @@
   "primary_quality_contract": "fail-closed accountability",
   "trust_boundary": "ExecutionRecord terminal accounting",
   "baseline": {
-    "revision": "d12ae239ded2450aae3ae7d4b0dc9d26bd851fae",
-    "tree": "ddd920c5c1a40824520d698355d6a4f4c8452e53",
+    "revision": "a59e0e50b63ae8df1dc67df15ccaefacd95721d9",
+    "tree": "536dc46b9952dfd89f936f338c0ea19508a1d25d",
     "coverage_artifact": "artifacts/execution-record-baseline.json",
     "source_path": "src/aiverify/runner/execution_record.py",
-    "missing_branch_count": 25
+    "missing_branch_count": 26
   },
   "contract_cases": [
     {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_finalize_rejects_changed_identity_or_a_second_terminalization[attempt-identity]",
-      "baseline_missing_branch_arcs": [[111, 112]]
-    },
-    {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_finalize_rejects_changed_identity_or_a_second_terminalization[already-terminal]",
       "baseline_missing_branch_arcs": [[115, 116]]
     },
     {
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_finalize_rejects_changed_identity_or_a_second_terminalization[already-terminal]",
+      "baseline_missing_branch_arcs": [[119, 120]]
+    },
+    {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[unsupported-lifecycle]",
-      "baseline_missing_branch_arcs": [[171, 178]]
+      "baseline_missing_branch_arcs": [[175, 182]]
     },
     {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[execution-not-object]",
-      "baseline_missing_branch_arcs": [[182, 183]]
+      "baseline_missing_branch_arcs": [[186, 187]]
     },
     {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[timing-not-object]",
-      "baseline_missing_branch_arcs": [[187, 188]]
+      "baseline_missing_branch_arcs": [[191, 192]]
     },
     {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[timing-start-mismatch]",
-      "baseline_missing_branch_arcs": [[190, 191]]
-    },
-    {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[timing-phases-not-list]",
       "baseline_missing_branch_arcs": [[194, 195]]
     },
     {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[phase-errors-not-list]",
-      "baseline_missing_branch_arcs": [[196, 197]]
-    },
-    {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[references-not-object]",
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[timing-phases-not-list]",
       "baseline_missing_branch_arcs": [[198, 199]]
     },
     {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[terminal-reason]",
-      "baseline_missing_branch_arcs": [[206, 207]]
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[phase-errors-not-list]",
+      "baseline_missing_branch_arcs": [[200, 201]]
     },
     {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[terminal-outcome]",
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[references-not-object]",
+      "baseline_missing_branch_arcs": [[202, 203]]
+    },
+    {
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[terminal-reason]",
       "baseline_missing_branch_arcs": [[210, 211]]
     },
     {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[terminal-timing]",
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[terminal-outcome]",
       "baseline_missing_branch_arcs": [[214, 215]]
     },
     {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[terminal-phase-errors]",
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[terminal-timing]",
       "baseline_missing_branch_arcs": [[218, 219]]
     },
     {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[missing-finished-at]",
-      "baseline_missing_branch_arcs": [[225, 226]]
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_in_progress_contradiction[terminal-phase-errors]",
+      "baseline_missing_branch_arcs": [[222, 223]]
     },
     {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[timing-finished-at-mismatch]",
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[missing-finished-at]",
       "baseline_missing_branch_arcs": [[229, 230]]
     },
     {
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[timing-finished-at-mismatch]",
+      "baseline_missing_branch_arcs": [[233, 234]]
+    },
+    {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[invalid-total-seconds]",
-      "baseline_missing_branch_arcs": [[234, 239]]
+      "baseline_missing_branch_arcs": [[238, 243]]
     },
     {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[completed-reason]",
-      "baseline_missing_branch_arcs": [[250, 251]]
-    },
-    {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[completed-phase-errors]",
       "baseline_missing_branch_arcs": [[254, 255]]
     },
     {
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[completed-phase-errors]",
+      "baseline_missing_branch_arcs": [[258, 259]]
+    },
+    {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[completed-missing-provenance]",
-      "baseline_missing_branch_arcs": [[260, 261]]
+      "baseline_missing_branch_arcs": [[264, 265]]
     },
     {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[completed-invalid-provenance]",
-      "baseline_missing_branch_arcs": [[266, 273]]
+      "baseline_missing_branch_arcs": [[270, 277]]
     },
     {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[missing-canonical-reason]",
-      "baseline_missing_branch_arcs": [[282, 283]]
-    },
-    {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[non-accountable-exit-code]",
       "baseline_missing_branch_arcs": [[286, 287]]
     },
     {
-      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[missing-phase-errors]",
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[non-accountable-exit-code]",
       "baseline_missing_branch_arcs": [[290, 291]]
     },
     {
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[missing-phase-errors]",
+      "baseline_missing_branch_arcs": [[294, 295]]
+    },
+    {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[phase-error-not-object]",
-      "baseline_missing_branch_arcs": [[295, 296]]
+      "baseline_missing_branch_arcs": [[299, 300]]
     },
     {
       "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_validate_rejects_each_terminal_contradiction[phase-error-missing-message]",
-      "baseline_missing_branch_arcs": [[301, 302]]
+      "baseline_missing_branch_arcs": [[305, 306]]
+    },
+    {
+      "nodeid": "tests/runner/test_execution_record_terminal_accounting.py::test_atomic_replace_failure_preserves_the_original_record_and_cleans_up[cleanup-error]",
+      "baseline_missing_branch_arcs": [[396, 397]]
     }
   ]
 }

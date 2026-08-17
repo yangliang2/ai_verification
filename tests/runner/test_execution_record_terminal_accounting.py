@@ -514,8 +514,11 @@ def test_exclusive_artifact_writes_preserve_existing_evidence(
     assert not list(tmp_path.glob(f".{path.name}.*.tmp"))
 
 
+@pytest.mark.parametrize(
+    "cleanup_failure", (False, True), ids=("cleanup", "cleanup-error")
+)
 def test_atomic_replace_failure_preserves_the_original_record_and_cleans_up(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, cleanup_failure: bool
 ) -> None:
     """The internal atomic replacement leaves no partial terminal artifact."""
     path = tmp_path / "execution-record.json"
@@ -526,8 +529,23 @@ def test_atomic_replace_failure_preserves_the_original_record_and_cleans_up(
         "replace",
         lambda *args, **kwargs: (_ for _ in ()).throw(OSError("blocked replace")),
     )
+    if cleanup_failure:
+        original_unlink = Path.unlink
 
-    with pytest.raises(OSError, match="blocked replace"):
+        def fail_cleanup_after_removal(candidate: Path, *args, **kwargs) -> None:
+            if (
+                candidate.parent == path.parent
+                and candidate.name.startswith(f".{path.name}.")
+                and candidate.name.endswith(".tmp")
+            ):
+                original_unlink(candidate, *args, **kwargs)
+                raise OSError("blocked temporary cleanup")
+            original_unlink(candidate, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "unlink", fail_cleanup_after_removal)
+
+    expected_error = "blocked temporary cleanup" if cleanup_failure else "blocked replace"
+    with pytest.raises(OSError, match=expected_error):
         execution_record._replace_json(path, {"state": "replacement"})
 
     assert path.read_text(encoding="utf-8") == '{"state":"original"}\n'
