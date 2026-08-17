@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class ExecutionRecordStorageError(RuntimeError):
@@ -368,16 +372,33 @@ def _create_exclusive_bytes(path: Path, payload: bytes) -> None:
 
 
 def _replace_json(path: Path, payload: dict) -> None:
+    """Publish one terminal record, logging post-publication uncertainty."""
     temp_path = path.parent / f".{path.name}.{uuid.uuid4()}.tmp"
+    published = False
     try:
         with temp_path.open("xb") as stream:
             stream.write(_encoded_json(payload))
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temp_path, path)
-        _fsync_directory(path.parent)
+        published = True
+        try:
+            _fsync_directory(path.parent)
+        except OSError as error:
+            _LOGGER.warning(
+                "published ExecutionRecord could not confirm directory durability: "
+                f"{type(error).__name__}: {error}",
+            )
     finally:
-        temp_path.unlink(missing_ok=True)
+        try:
+            temp_path.unlink(missing_ok=True)
+        except OSError as error:
+            if not published:
+                raise
+            _LOGGER.warning(
+                "published ExecutionRecord could not clean already-published temporary "
+                f"path: {type(error).__name__}: {error}",
+            )
 
 
 def _fsync_directory(path: Path) -> None:

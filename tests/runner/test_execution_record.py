@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import json
+import logging
+from pathlib import Path
 
 import pytest
 
+import aiverify.runner.execution_record as execution_record
 from aiverify.runner.execution_record import (
     ArtifactStorageError,
+    ExecutionRecordStorageError,
     ExecutionRecordStore,
     ExecutionRecordValidationError,
     execution_record_reason,
@@ -64,6 +68,179 @@ def test_schema_v2_completed_record_requires_provenance_binding(tmp_path) -> Non
     )
 
     assert record["evidence_refs"]["execution_provenance"]["sha256"] == "a" * 64
+
+
+@pytest.mark.parametrize(
+    ("post_publication_fault", "expected_log"),
+    (
+        (
+            "directory-sync",
+            "published ExecutionRecord could not confirm directory durability",
+        ),
+        (
+            "temporary-cleanup",
+            "published ExecutionRecord could not clean already-published temporary path",
+        ),
+    ),
+)
+@pytest.mark.parametrize(
+    (
+        "lifecycle_state",
+        "execution",
+        "process_exit_code",
+        "phase_errors",
+        "evidence_refs",
+        "accountable",
+    ),
+    [
+        (
+            "completed",
+            {
+                "status": "completed",
+                "accounting_eligible": True,
+                "reason": None,
+                "message": None,
+            },
+            0,
+            [],
+            {
+                "execution_provenance": {
+                    "path": "execution-provenance.json",
+                    "sha256": "a" * 64,
+                }
+            },
+            True,
+        ),
+        (
+            "failed",
+            {
+                "status": "non_accountable",
+                "accounting_eligible": False,
+                "reason": "controlled_failure",
+                "message": "controlled failure",
+            },
+            2,
+            [
+                {
+                    "phase": "controlled-phase",
+                    "kind": "controlled-kind",
+                    "reason": "controlled_failure",
+                    "message": "controlled failure",
+                }
+            ],
+            {},
+            False,
+        ),
+    ],
+    ids=("accountable-completed", "non-accountable-failed"),
+)
+def test_finalize_after_published_replace_reports_durability_uncertainty_not_failure(
+    tmp_path,
+    monkeypatch,
+    caplog,
+    post_publication_fault,
+    expected_log,
+    lifecycle_state,
+    execution,
+    process_exit_code,
+    phase_errors,
+    evidence_refs,
+    accountable,
+) -> None:
+    """A post-replace error cannot mean an uncommitted terminal record."""
+    started_at = "2026-08-16T00:00:00+00:00"
+    store = ExecutionRecordStore.establish(
+        tmp_path,
+        scenario="post-replace-durability",
+        started_at=started_at,
+    )
+
+    if post_publication_fault == "directory-sync":
+        def fail_directory_sync(_path) -> None:
+            raise OSError("controlled directory fsync failure after replace")
+
+        monkeypatch.setattr(
+            execution_record,
+            "_fsync_directory",
+            fail_directory_sync,
+        )
+    else:
+        original_unlink = Path.unlink
+
+        def fail_published_temporary_cleanup(path: Path, *args, **kwargs) -> None:
+            if (
+                path.parent == store.path.parent
+                and path.name.startswith(f".{store.path.name}.")
+                and path.name.endswith(".tmp")
+            ):
+                raise OSError("controlled temporary cleanup failure after replace")
+            original_unlink(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "unlink", fail_published_temporary_cleanup)
+
+    with caplog.at_level(logging.WARNING, logger=execution_record.__name__):
+        record = store.finalize(
+            lifecycle_state=lifecycle_state,
+            execution=execution,
+            process_exit_code=process_exit_code,
+            timing={
+                "started_at": started_at,
+                "finished_at": "2026-08-16T00:00:01+00:00",
+                "total_seconds": 1.0,
+                "phases": [],
+            },
+            phase_errors=phase_errors,
+            evidence_refs=evidence_refs,
+        )
+
+    assert load_execution_record(store.path) == record
+    assert is_execution_record_accountable(record) is accountable
+    assert expected_log in caplog.text
+    assert not list(store.path.parent.glob(f".{store.path.name}.*.tmp"))
+
+
+def test_finalize_before_published_replace_remains_fail_closed(tmp_path, monkeypatch) -> None:
+    """A replace error still preserves the original non-terminal record."""
+    started_at = "2026-08-16T00:00:00+00:00"
+    store = ExecutionRecordStore.establish(
+        tmp_path,
+        scenario="pre-replace-storage-failure",
+        started_at=started_at,
+    )
+    before = store.path.read_bytes()
+
+    def fail_replace(_source, _target) -> None:
+        raise OSError("controlled replace failure")
+
+    monkeypatch.setattr(execution_record.os, "replace", fail_replace)
+
+    with pytest.raises(ExecutionRecordStorageError, match="controlled replace failure"):
+        store.finalize(
+            lifecycle_state="completed",
+            execution={
+                "status": "completed",
+                "accounting_eligible": True,
+                "reason": None,
+                "message": None,
+            },
+            process_exit_code=0,
+            timing={
+                "started_at": started_at,
+                "finished_at": "2026-08-16T00:00:01+00:00",
+                "total_seconds": 1.0,
+                "phases": [],
+            },
+            phase_errors=[],
+            evidence_refs={
+                "execution_provenance": {
+                    "path": "execution-provenance.json",
+                    "sha256": "a" * 64,
+                }
+            },
+        )
+
+    assert store.path.read_bytes() == before
+    assert not list(store.path.parent.glob(f".{store.path.name}.*.tmp"))
 
 
 def test_execution_record_loader_rejects_accountable_nonterminal_contradiction(
