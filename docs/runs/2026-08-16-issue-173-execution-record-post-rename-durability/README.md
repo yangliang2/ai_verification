@@ -14,8 +14,14 @@ withdraws an earlier result that was not bound to a committed source identity.
   `916d3b21e5f02a0018aa84338457d58aeafcbe36`.
 - Tested implementation tree:
   `3ae60474397e99c463ac712c330bbed47cc67a65`.
-- Tested evidence revision and tree: bound by the checksum-binding follow-up
-  commit after this corrected record is committed.
+- Tested evidence revision:
+  `91c4c21ac6a0b18d27a38c029c048dff24d32ee7`.
+- Tested evidence tree:
+  `3ab24bba0d18d348d80c2bf59ae067733fca5a6e`.
+- The tested evidence revision is the first commit containing the corrected
+  implementation evidence. This checksum-binding follow-up records that identity;
+  the implementation-evidence comment records the pushed head, and a final
+  completion comment will add the merged SHA.
 - Evidence correction: a prior record revision stated an expected-fail result
   from a mixed working tree without a committed source identity. That result is
   withdrawn. Every command-result claim below was run against the tested
