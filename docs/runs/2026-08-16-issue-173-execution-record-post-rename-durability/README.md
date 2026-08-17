@@ -1,9 +1,8 @@
 # Issue #173 — ExecutionRecord post-rename durability consistency
 
 Status: the production repair and its hermetic regression contracts are complete
-on `issue-173-execution-record-post-rename-durability`. The first evidence
-commit is bound by a follow-up commit that refreshes this record's checksum
-ledger.
+on `issue-173-execution-record-post-rename-durability`. This corrected record
+withdraws an earlier result that was not bound to a committed source identity.
 
 ## Objective and source identity
 
@@ -12,17 +11,15 @@ ledger.
 - Base revision: `d12ae239ded2450aae3ae7d4b0dc9d26bd851fae`.
 - Base tree: `ddd920c5c1a40824520d698355d6a4f4c8452e53`.
 - Tested implementation revision:
-  `37ef02023392e229e67721780cda9ece39a7cf30`.
+  `916d3b21e5f02a0018aa84338457d58aeafcbe36`.
 - Tested implementation tree:
-  `f231368632569ab5e6dfe26fb9e48153465b14fd`.
-- Tested evidence revision:
-  `d3c454e0c88aacb8677c6ab15f0e2416c03db534`.
-- Tested evidence tree:
-  `f9e37bdfdcbf6df537021ee93e7b282eb6ca772b`.
-- The tested evidence revision is the first commit containing the tested
-  implementation and complete run record. This binding follow-up refreshes its
-  ledger; the implementation-evidence comment records the pushed head, and a
-  final completion comment will add the merged SHA.
+  `3ae60474397e99c463ac712c330bbed47cc67a65`.
+- Tested evidence revision and tree: bound by the checksum-binding follow-up
+  commit after this corrected record is committed.
+- Evidence correction: a prior record revision stated an expected-fail result
+  from a mixed working tree without a committed source identity. That result is
+  withdrawn. Every command-result claim below was run against the tested
+  implementation revision above.
 - Claim boundary: this is local, hermetic ExecutionRecord persistence-contract
   evidence. It does not establish Verification Agent behavior-layer capability,
   Android/OEM coverage, production outcome, durability across sudden host loss,
@@ -36,21 +33,23 @@ publication point from a later durability-confirmation attempt:
 - Before `os.replace()` publishes the terminal record, a storage error remains
   an `ExecutionRecordStorageError`; the original in-progress ExecutionRecord is
   preserved and no temporary file remains.
-- After `os.replace()` has published a terminal record, a directory fsync error
-  cannot truthfully be reported as an uncommitted finalization. The store returns
-  that exact terminal record and emits a warning-level log identifying
-  the unconfirmed directory durability.
+- After `os.replace()` has published a terminal record, a directory fsync or
+  temporary-path cleanup error cannot truthfully be reported as an uncommitted
+  finalization. The store returns that exact terminal record and emits a
+  warning-level log identifying the unconfirmed directory durability or failed
+  post-publication cleanup.
 
 This removes the former contradiction where a caller saw terminal storage
 failure while a later `load_execution_record()` could load an accountable
 `completed` record. It makes no stronger claim that a failed post-publication
 directory fsync survives a sudden host or filesystem loss.
 
-The contract uses only temporary local files and controlled `os.replace` /
-directory-fsync seams. It exercises both an accountable `completed` terminal
-record and a non-accountable `failed` terminal record, then checks that the
-returned and loaded values agree. The companion pre-publication case preserves
-the original in-progress record under a controlled replace failure.
+The contract uses only temporary local files and controlled `os.replace`,
+directory-fsync, and temporary-cleanup seams. It exercises both an accountable
+`completed` terminal record and a non-accountable `failed` terminal record,
+then checks that the returned and loaded values agree. The companion
+pre-publication case preserves the original in-progress record under a
+controlled replace failure.
 
 Issue [#171](https://github.com/yangliang2/ai_verification/issues/171) exposed
 this Behavior-Layer Defect during its white-box test-contract review; #173 is
@@ -69,23 +68,22 @@ Tools:
 Commands and results:
 
 ```text
-# Red regression before the repair on the same temporary-filesystem seam.
-uv run --extra dev python -m pytest -o addopts='' -q \
+# Post-publication directory-sync and temporary-cleanup regression contracts.
+/usr/bin/time -p uv run --extra dev python -W error -m pytest -o addopts='' -q -rs \
   tests/runner/test_execution_record.py
-EXPECTED FAIL: 2 failed, 8 passed. Both post-replace directory-fsync cases
-raised ExecutionRecordStorageError after the terminal record had been published.
+PASS: 12 passed in 0.08s; real 0.18s, user 0.11s, sys 0.05s.
 
 # Focused runner and ExecutionRecord regression suite on tested implementation.
 /usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs \
   tests/runner/test_execution_record.py \
   tests/runner/test_cli.py \
   tests/runner/test_execution_identity.py
-PASS: 56 passed in 2.10s; real 2.22s, user 0.41s, sys 1.45s.
+PASS: 58 passed in 0.55s; real 0.64s, user 0.33s, sys 0.26s.
 
 # Ordinary hermetic repository suite on tested implementation.
 /usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs
-PASS: 1095 passed, 1 skipped in 85.84s; real 86.04s, user 34.93s,
-sys 17.95s.
+PASS: 1097 passed, 1 skipped in 53.11s; real 53.22s, user 32.06s,
+sys 17.28s.
 Skip: tests/bench/test_m9_recovery_formal.py:195 requires explicit admission
 of a repository-external fixture.
 
@@ -117,6 +115,9 @@ Known gaps:
 - A failed directory fsync after publication is observable as local durability
   uncertainty; this repair does not prove survival across sudden host or
   filesystem loss.
+- A failed post-publication temporary-path cleanup is logged rather than
+  misreported as an uncommitted terminal record; this repair does not claim
+  recovery from arbitrary filesystem corruption.
 - The evidence is limited to the ExecutionRecord terminal-accounting boundary;
   it does not establish Verification Agent behavior, Android runtime behavior,
   detection rate, causal validity, oracle soundness, or a quality threshold.

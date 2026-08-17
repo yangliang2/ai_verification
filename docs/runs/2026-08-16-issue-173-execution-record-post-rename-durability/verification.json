@@ -5,10 +5,11 @@
   "branch": "issue-173-execution-record-post-rename-durability",
   "base_revision": "d12ae239ded2450aae3ae7d4b0dc9d26bd851fae",
   "base_tree": "ddd920c5c1a40824520d698355d6a4f4c8452e53",
-  "tested_implementation_revision": "37ef02023392e229e67721780cda9ece39a7cf30",
-  "tested_implementation_tree": "f231368632569ab5e6dfe26fb9e48153465b14fd",
-  "tested_evidence_revision": "d3c454e0c88aacb8677c6ab15f0e2416c03db534",
-  "tested_evidence_tree": "f9e37bdfdcbf6df537021ee93e7b282eb6ca772b",
+  "tested_implementation_revision": "916d3b21e5f02a0018aa84338457d58aeafcbe36",
+  "tested_implementation_tree": "3ae60474397e99c463ac712c330bbed47cc67a65",
+  "tested_evidence_revision": null,
+  "tested_evidence_tree": null,
+  "evidence_correction": "A prior record revision stated an expected-fail result from a mixed working tree without a committed source identity. That result is withdrawn. Only command results bound to the tested implementation are verification facts.",
   "claim_boundary": "local hermetic ExecutionRecord persistence-contract evidence only; no Verification Agent behavior-layer capability, Android/OEM, production-outcome, sudden-host-loss durability, formal-run, or quality-threshold claim",
   "historical_context": {
     "issue": 171,
@@ -17,7 +18,7 @@
   "quality_contract": {
     "name": "fail-closed accountability",
     "pre_publication": "A storage error before os.replace preserves the in-progress ExecutionRecord and raises ExecutionRecordStorageError.",
-    "post_publication": "A directory fsync error after os.replace returns the published terminal record and logs durability uncertainty rather than reporting an uncommitted storage failure."
+    "post_publication": "A directory fsync or temporary-path cleanup error after os.replace returns the published terminal record and logs local uncertainty rather than reporting an uncommitted storage failure."
   },
   "tool_versions": {
     "os": "macOS 26.3 (25D125), Darwin arm64",
@@ -28,34 +29,38 @@
     "coverage": "7.15.4 with C extension"
   },
   "verification": {
-    "pre_fix_reproduction": {
-      "command": "uv run --extra dev python -m pytest -o addopts='' -q tests/runner/test_execution_record.py",
-      "status": "expected_fail",
-      "passed": 8,
-      "failed": 2,
-      "symptom": "post-replace directory-fsync failures raised ExecutionRecordStorageError after terminal publication"
+    "post_publication_regression_contract": {
+      "command": "/usr/bin/time -p uv run --extra dev python -W error -m pytest -o addopts='' -q -rs tests/runner/test_execution_record.py",
+      "status": "pass",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.08,
+      "wall_seconds": 0.18,
+      "user_seconds": 0.11,
+      "sys_seconds": 0.05
     },
     "focused_runner_regression": {
       "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs tests/runner/test_execution_record.py tests/runner/test_cli.py tests/runner/test_execution_identity.py",
       "status": "pass",
-      "passed": 56,
+      "passed": 58,
       "failed": 0,
       "skipped": 0,
-      "pytest_seconds": 2.1,
-      "wall_seconds": 2.22,
-      "user_seconds": 0.41,
-      "sys_seconds": 1.45
+      "pytest_seconds": 0.55,
+      "wall_seconds": 0.64,
+      "user_seconds": 0.33,
+      "sys_seconds": 0.26
     },
     "default_hermetic_suite": {
       "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs",
       "status": "pass",
-      "passed": 1095,
+      "passed": 1097,
       "failed": 0,
       "skipped": 1,
-      "pytest_seconds": 85.84,
-      "wall_seconds": 86.04,
-      "user_seconds": 34.93,
-      "sys_seconds": 17.95,
+      "pytest_seconds": 53.11,
+      "wall_seconds": 53.22,
+      "user_seconds": 32.06,
+      "sys_seconds": 17.28,
       "skip_reason": "repository-external fixture tests require explicit admission"
     },
     "compile": {
@@ -94,6 +99,7 @@
   },
   "known_gaps": [
     "A directory fsync error after terminal publication remains a local durability uncertainty; this repair does not prove survival across sudden host or filesystem loss.",
+    "A post-publication temporary-path cleanup error is logged rather than misreported as an uncommitted terminal record; this repair does not claim recovery from arbitrary filesystem corruption.",
     "The checks use temporary local files and controlled persistence seams; they do not perform Android, device, backend, model, oracle-service, or formal-run actions.",
     "The repository-external historical fixture remains skipped by default; frozen M8, M9, and M9-R evidence was neither replayed nor changed."
   ]
