@@ -1,8 +1,9 @@
 # Issue #175 — Reject uncommitted ExecutionRecord temporary authority
 
 Status: implementation and hermetic persistence-contract verification are
-complete on `issue-175-execution-record-temp-authority`. This checksum-binding
-follow-up records the first complete evidence commit identity.
+complete on `issue-175-execution-record-temp-authority`. This corrected record
+supersedes the earlier evidence after the temporary-path policy was centralized
+and its domain vocabulary was reconciled with `CONTEXT.md`.
 
 ## Objective and source identity
 
@@ -11,17 +12,14 @@ follow-up records the first complete evidence commit identity.
 - Base revision: `a59e0e50b63ae8df1dc67df15ccaefacd95721d9`.
 - Base tree: `536dc46b9952dfd89f936f338c0ea19508a1d25d`.
 - Tested implementation revision:
-  `72fcd291cc2c8476aaeffee400fa465830d61d3e`.
+  `4d8308880c38c55757edfc9d63d7b8dd3b93e366`.
 - Tested implementation tree:
-  `d06a0591409bf99fb214b7cb9d01ff8f066c1ffd`.
-- Tested evidence revision:
-  `6f650102c903583fd277f375b8ca6a10c8b51cd1`.
-- Tested evidence tree:
-  `98c392a4f80ced1736b7fa141cc4db2cebefa04f`.
-- The tested evidence revision is the first commit containing this complete run
-  record. This checksum-binding follow-up records that identity; the
-  implementation-evidence issue comment records the pushed head, and a final
-  completion comment will add the merged SHA.
+  `16703bd1be61bd330567794740805fc713752a86`.
+- Tested evidence revision and tree: bound by the checksum-binding follow-up
+  commit after this corrected record is committed.
+- Evidence correction: the earlier record used a duplicated temporary-path
+  convention and stale domain wording. Every command-result claim below was
+  rerun against the tested implementation revision above.
 - Claim boundary: this is local, hermetic ExecutionRecord persistence-contract
   evidence. It does not establish Verification Agent behavior-layer capability,
   Android or OEM coverage, production outcome, sudden-host-loss durability,
@@ -29,10 +27,11 @@ follow-up records the first complete evidence commit identity.
 
 ## Repaired Quality Contract
 
-An **ExecutionRecord** is authoritative only after its terminal JSON has passed
-the `os.replace()` publication point and is loaded through the canonical public
-record boundary. The repair enforces the following fail-closed accountability
-**Quality Contract**:
+The initially established non-terminal **ExecutionRecord** remains the canonical,
+non-accountable durable attempt envelope. Its terminal replacement becomes
+authoritative only after the terminal JSON has passed the `os.replace()`
+publication point and is loaded through the canonical public record boundary.
+The repair enforces the following fail-closed accountability **Quality Contract**:
 
 - If replacement fails before publication, `finalize()` raises
   `ExecutionRecordStorageError` and preserves the canonical in-progress,
@@ -50,8 +49,8 @@ record boundary. The repair enforces the following fail-closed accountability
 The regression injects replacement failure and a `Path.unlink()` failure before
 deletion. It verifies the original canonical bytes remain, exactly one temporary
 file remains, that raw temporary JSON is terminal-looking, and the public loader
-rejects the temporary path. This is the Behavior-Layer Defect found while
-independently reviewing [#172](https://github.com/yangliang2/ai_verification/pull/172).
+rejects the temporary path. This is the fail-closed accountability persistence
+defect found while independently reviewing [#172](https://github.com/yangliang2/ai_verification/pull/172).
 The repair is separate from #171 coverage evidence, as its issue scope requires.
 
 ## Verification
@@ -69,19 +68,19 @@ Commands and results, all against the tested implementation revision above:
 # Exact regression plus published-record durability contracts; warnings fail.
 /usr/bin/time -p uv run --extra dev python -W error -m pytest -o addopts='' -q -rs \
   tests/runner/test_execution_record.py
-PASS: 13 passed in 1.25s; real 1.34s, user 0.15s, sys 1.16s.
+PASS: 13 passed in 0.06s; real 0.15s, user 0.10s, sys 0.04s.
 
 # Focused ExecutionRecord, runner CLI, and execution-identity regression suite.
 /usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs \
   tests/runner/test_execution_record.py \
   tests/runner/test_cli.py \
   tests/runner/test_execution_identity.py
-PASS: 59 passed in 1.86s; real 1.96s, user 0.37s, sys 1.39s.
+PASS: 59 passed in 0.52s; real 0.61s, user 0.31s, sys 0.25s.
 
 # Ordinary hermetic repository suite.
 /usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs
-PASS: 1098 passed, 1 skipped in 50.59s; real 50.71s, user 32.81s,
-sys 15.66s.
+PASS: 1098 passed, 1 skipped in 50.76s; real 50.89s, user 31.23s,
+sys 15.69s.
 Skip: tests/bench/test_m9_recovery_formal.py:195 requires explicit admission
 of a repository-external fixture.
 
