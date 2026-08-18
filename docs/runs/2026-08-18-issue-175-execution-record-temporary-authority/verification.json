@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "issue": 175,
+  "status": "execution_record_temporary_authority_verified",
+  "branch": "issue-175-execution-record-temp-authority",
+  "base_revision": "a59e0e50b63ae8df1dc67df15ccaefacd95721d9",
+  "base_tree": "536dc46b9952dfd89f936f338c0ea19508a1d25d",
+  "tested_implementation_revision": "72fcd291cc2c8476aaeffee400fa465830d61d3e",
+  "tested_implementation_tree": "d06a0591409bf99fb214b7cb9d01ff8f066c1ffd",
+  "tested_evidence_binding": "The first evidence commit and its tree are bound by a checksum follow-up commit after this record is committed.",
+  "claim_boundary": "local hermetic ExecutionRecord persistence-contract evidence only; no Verification Agent behavior-layer capability, Android or OEM coverage, production-outcome, sudden-host-loss durability, formal-run, or quality-threshold claim",
+  "historical_context": {
+    "issue": 171,
+    "relationship": "#171 exposed this separate Behavior-Layer Defect during independent review; this repair leaves its historical coverage evidence unchanged until a later rebase and reverification."
+  },
+  "quality_contract": {
+    "name": "fail-closed accountability",
+    "pre_publication": "Replacement failure raises ExecutionRecordStorageError and preserves the canonical in-progress non-accountable ExecutionRecord.",
+    "unpublished_temporary": "If cleanup cannot remove a retained module-owned .execution-record.json.*.tmp file after replacement failure, load_execution_record rejects that temporary path as non-authoritative.",
+    "post_publication": "The #173 directory-fsync and temporary-cleanup warning behavior after os.replace remains unchanged."
+  },
+  "tool_versions": {
+    "os": "macOS 26.3 (25D125), Darwin arm64",
+    "git": "2.50.1 (Apple Git-155)",
+    "uv": "0.11.7 (9d177269e 2026-04-15 aarch64-apple-darwin)",
+    "python": "3.11.15",
+    "pytest": "9.1.1",
+    "coverage": "7.15.4 with C extension"
+  },
+  "verification": {
+    "execution_record_regression_contract": {
+      "command": "/usr/bin/time -p uv run --extra dev python -W error -m pytest -o addopts='' -q -rs tests/runner/test_execution_record.py",
+      "status": "pass",
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 1.25,
+      "wall_seconds": 1.34,
+      "user_seconds": 0.15,
+      "sys_seconds": 1.16
+    },
+    "focused_runner_regression": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs tests/runner/test_execution_record.py tests/runner/test_cli.py tests/runner/test_execution_identity.py",
+      "status": "pass",
+      "passed": 59,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 1.86,
+      "wall_seconds": 1.96,
+      "user_seconds": 0.37,
+      "sys_seconds": 1.39
+    },
+    "default_hermetic_suite": {
+      "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs",
+      "status": "pass",
+      "passed": 1098,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 50.59,
+      "wall_seconds": 50.71,
+      "user_seconds": 32.81,
+      "sys_seconds": 15.66,
+      "skip_reason": "repository-external fixture tests require explicit admission"
+    },
+    "compile": {
+      "command": "uv run --extra dev python -m compileall -q src",
+      "status": "pass",
+      "exit_code": 0
+    },
+    "diff_check": {
+      "command": "git diff --check origin/main...HEAD",
+      "status": "pass",
+      "exit_code": 0
+    }
+  },
+  "artifacts": [
+    {
+      "path": "README.md",
+      "kind": "human-readable durable run record"
+    },
+    {
+      "path": "verification.json",
+      "kind": "machine-readable verification metadata"
+    }
+  ],
+  "side_effects": {
+    "formal_invocations": 0,
+    "namespace_claims": 0,
+    "mapping_releases": 0,
+    "android_builds": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "remote_oracle_service_calls": 0,
+    "verification_agent_backend_invocations": 0,
+    "external_fixture_admissions": 0,
+    "external_snapshot_mutations": 0,
+    "manual_steps": 0
+  },
+  "known_gaps": [
+    "A failed unlink cannot guarantee physical removal of a local temporary file; the public loader rejects only the module-owned unpublished temporary namespace.",
+    "The repair does not claim to protect callers that deliberately parse retained temporary JSON outside the public loader or against arbitrary external filesystem tampering.",
+    "A directory fsync error after terminal publication remains a local durability uncertainty and does not prove survival across sudden host or filesystem loss.",
+    "The checks use temporary local files and controlled persistence seams; they do not perform Android, device, backend, model, oracle-service, or formal-run actions.",
+    "The repository-external historical fixture remains skipped by default; frozen M8, M9, and M9-R evidence was neither replayed nor changed."
+  ]
+}
