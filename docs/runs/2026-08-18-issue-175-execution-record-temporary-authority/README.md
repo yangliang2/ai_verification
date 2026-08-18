@@ -1,8 +1,8 @@
 # Issue #175 — Reject uncommitted ExecutionRecord temporary authority
 
 Status: implementation and hermetic persistence-contract verification are
-complete on `issue-175-execution-record-temp-authority`. The first evidence
-commit is bound by a checksum follow-up after this record is committed.
+complete on `issue-175-execution-record-temp-authority`. This checksum-binding
+follow-up records the first complete evidence commit identity.
 
 ## Objective and source identity
 
@@ -14,8 +14,14 @@ commit is bound by a checksum follow-up after this record is committed.
   `72fcd291cc2c8476aaeffee400fa465830d61d3e`.
 - Tested implementation tree:
   `d06a0591409bf99fb214b7cb9d01ff8f066c1ffd`.
-- Tested evidence revision and tree: bound by the checksum-binding follow-up
-  commit after this initial evidence record is committed.
+- Tested evidence revision:
+  `6f650102c903583fd277f375b8ca6a10c8b51cd1`.
+- Tested evidence tree:
+  `98c392a4f80ced1736b7fa141cc4db2cebefa04f`.
+- The tested evidence revision is the first commit containing this complete run
+  record. This checksum-binding follow-up records that identity; the
+  implementation-evidence issue comment records the pushed head, and a final
+  completion comment will add the merged SHA.
 - Claim boundary: this is local, hermetic ExecutionRecord persistence-contract
   evidence. It does not establish Verification Agent behavior-layer capability,
   Android or OEM coverage, production outcome, sudden-host-loss durability,
