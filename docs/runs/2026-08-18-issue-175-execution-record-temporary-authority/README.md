@@ -15,8 +15,14 @@ and its domain vocabulary was reconciled with `CONTEXT.md`.
   `4d8308880c38c55757edfc9d63d7b8dd3b93e366`.
 - Tested implementation tree:
   `16703bd1be61bd330567794740805fc713752a86`.
-- Tested evidence revision and tree: bound by the checksum-binding follow-up
-  commit after this corrected record is committed.
+- Tested evidence revision:
+  `0a21c7fe44f15fc8282cc7297e6d1eed35f3a826`.
+- Tested evidence tree:
+  `8f81b0166d48100933fd15036be8db6603d66f70`.
+- The tested evidence revision is the first commit containing this corrected run
+  record. This checksum-binding follow-up records that identity; the
+  implementation-evidence issue comment records the pushed head, and a final
+  completion comment will add the merged SHA.
 - Evidence correction: the earlier record used a duplicated temporary-path
   convention and stale domain wording. Every command-result claim below was
   rerun against the tested implementation revision above.
