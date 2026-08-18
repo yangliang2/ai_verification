@@ -147,8 +147,16 @@ class ExecutionRecordStore:
 
 def load_execution_record(path: Path) -> dict:
     """Load and validate one authoritative ExecutionRecord."""
+    path = Path(path)
+    if (
+        path.name.startswith(".execution-record.json.")
+        and path.name.endswith(".tmp")
+    ):
+        raise ExecutionRecordValidationError(
+            "temporary ExecutionRecord paths cannot be authoritative"
+        )
     try:
-        record = json.loads(Path(path).read_text(encoding="utf-8"))
+        record = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         raise ExecutionRecordValidationError(
             f"invalid ExecutionRecord at {path}: {error}"
