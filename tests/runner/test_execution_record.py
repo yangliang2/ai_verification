@@ -243,6 +243,74 @@ def test_finalize_before_published_replace_remains_fail_closed(tmp_path, monkeyp
     assert not list(store.path.parent.glob(f".{store.path.name}.*.tmp"))
 
 
+def test_failed_prepublication_cleanup_cannot_make_temporary_record_authoritative(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    """A retained pre-publication record must never become accountable evidence."""
+    started_at = "2026-08-18T00:00:00+00:00"
+    store = ExecutionRecordStore.establish(
+        tmp_path,
+        scenario="pre-publication-cleanup-failure",
+        started_at=started_at,
+    )
+    before = store.path.read_bytes()
+
+    def fail_replace(_source, _target) -> None:
+        raise OSError("controlled replace failure")
+
+    original_unlink = Path.unlink
+
+    def fail_cleanup_before_deletion(path: Path, *args, **kwargs) -> None:
+        if (
+            path.parent == store.path.parent
+            and execution_record._is_unpublished_execution_record_path(path)
+        ):
+            raise OSError("controlled temporary cleanup failure before publication")
+        original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(execution_record.os, "replace", fail_replace)
+    monkeypatch.setattr(Path, "unlink", fail_cleanup_before_deletion)
+
+    with pytest.raises(ExecutionRecordStorageError):
+        store.finalize(
+            lifecycle_state="completed",
+            execution={
+                "status": "completed",
+                "accounting_eligible": True,
+                "reason": None,
+                "message": None,
+            },
+            process_exit_code=0,
+            timing={
+                "started_at": started_at,
+                "finished_at": "2026-08-18T00:00:01+00:00",
+                "total_seconds": 1.0,
+                "phases": [],
+            },
+            phase_errors=[],
+            evidence_refs={
+                "execution_provenance": {
+                    "path": "execution-provenance.json",
+                    "sha256": "a" * 64,
+                }
+            },
+        )
+
+    temporary_paths = [
+        path
+        for path in store.path.parent.iterdir()
+        if execution_record._is_unpublished_execution_record_path(path)
+    ]
+    assert store.path.read_bytes() == before
+    assert len(temporary_paths) == 1
+    assert json.loads(temporary_paths[0].read_text(encoding="utf-8"))["execution"][
+        "accounting_eligible"
+    ] is True
+    with pytest.raises(ExecutionRecordValidationError, match="temporary"):
+        load_execution_record(temporary_paths[0])
+
+
 def test_execution_record_loader_rejects_accountable_nonterminal_contradiction(
     tmp_path,
 ) -> None:
