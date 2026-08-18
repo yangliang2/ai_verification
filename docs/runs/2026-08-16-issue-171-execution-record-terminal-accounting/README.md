@@ -13,8 +13,12 @@ commit is bound in a follow-up checksum commit.
 - Base tree: `536dc46b9952dfd89f936f338c0ea19508a1d25d`.
 - Tested implementation revision: `26a2d35166fbe25cf8fa70392991e764401e378b`.
 - Tested implementation tree: `a0a540e9a3d8d33000904b7e50b994dc0db04804`.
-- Tested evidence revision and tree: bound by the checksum-binding follow-up
-  after this reconciled record is committed.
+- Tested evidence revision: `67bf1a4ecad06f40bca1212973df6ee6a6a34b45`.
+- Tested evidence tree: `bd12fe0c27e8a3084b63198872a0e729eb53f2f1`.
+- The tested evidence revision is the first commit containing the reconciled
+  implementation evidence. This checksum-binding follow-up records that
+  identity; the Issue #171 implementation-evidence comment records the pushed
+  head, and a final completion comment will add the merged SHA.
 - Reconciliation: the prior issue-local measurement used `d12ae23` before
   #173 changed the same boundary. It is superseded for this PR by the exact
   current-base measurement below; the historical #165 audit remains immutable.
