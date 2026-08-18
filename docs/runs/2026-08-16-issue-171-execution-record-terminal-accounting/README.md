@@ -132,7 +132,7 @@ PASS: execution_record.py has 206/206 statements, 82/82 branches,
   tests/test_external_fixture_gate.py \
   tests/bench/test_run_record_checksums.py \
   tests/bench/test_current_claim_matrix.py
-PASS: 79 passed in 2.34s; real 2.43s, user 0.74s, sys 1.38s.
+PASS: 79 passed in 0.75s; real 0.85s, user 0.66s, sys 0.16s.
 
 uv run --extra dev python -m compileall -q src
 PASS: exit 0.
