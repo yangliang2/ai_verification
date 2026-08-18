@@ -11,6 +11,8 @@ from pathlib import Path
 
 
 _LOGGER = logging.getLogger(__name__)
+_EXECUTION_RECORD_FILENAME = "execution-record.json"
+_TEMPORARY_FILE_SUFFIX = ".tmp"
 
 
 class ExecutionRecordStorageError(RuntimeError):
@@ -47,9 +49,9 @@ class ExecutionRecordStore:
             Path(artifact_dir) if artifact_dir is not None else run_dir / "artifacts"
         )
         attempt_id = str(uuid.uuid4())
-        path = run_dir / "execution-record.json"
+        path = run_dir / _EXECUTION_RECORD_FILENAME
         owned_outputs = [
-            run_dir / "execution-record.json",
+            run_dir / _EXECUTION_RECORD_FILENAME,
             run_dir / "verdict.json",
             run_dir / "live-validation-gate.json",
             run_dir / "runner-setup.json",
@@ -148,10 +150,7 @@ class ExecutionRecordStore:
 def load_execution_record(path: Path) -> dict:
     """Load and validate one authoritative ExecutionRecord."""
     path = Path(path)
-    if (
-        path.name.startswith(".execution-record.json.")
-        and path.name.endswith(".tmp")
-    ):
+    if _is_unpublished_execution_record_path(path):
         raise ExecutionRecordValidationError(
             "temporary ExecutionRecord paths cannot be authoritative"
         )
@@ -362,12 +361,23 @@ def _encoded_json(payload: dict) -> bytes:
     return (json.dumps(payload, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
 
 
+def _new_temporary_path(path: Path) -> Path:
+    return path.parent / f".{path.name}.{uuid.uuid4()}{_TEMPORARY_FILE_SUFFIX}"
+
+
+def _is_unpublished_execution_record_path(path: Path) -> bool:
+    return (
+        path.name.startswith(f".{_EXECUTION_RECORD_FILENAME}.")
+        and path.name.endswith(_TEMPORARY_FILE_SUFFIX)
+    )
+
+
 def _create_exclusive_json(path: Path, payload: dict) -> None:
     _create_exclusive_bytes(path, _encoded_json(payload))
 
 
 def _create_exclusive_bytes(path: Path, payload: bytes) -> None:
-    temp_path = path.parent / f".{path.name}.{uuid.uuid4()}.tmp"
+    temp_path = _new_temporary_path(path)
     try:
         with temp_path.open("xb") as stream:
             stream.write(payload)
@@ -381,7 +391,7 @@ def _create_exclusive_bytes(path: Path, payload: bytes) -> None:
 
 def _replace_json(path: Path, payload: dict) -> None:
     """Publish one terminal record, logging post-publication uncertainty."""
-    temp_path = path.parent / f".{path.name}.{uuid.uuid4()}.tmp"
+    temp_path = _new_temporary_path(path)
     published = False
     try:
         with temp_path.open("xb") as stream:

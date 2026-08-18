@@ -264,8 +264,7 @@ def test_failed_prepublication_cleanup_cannot_make_temporary_record_authoritativ
     def fail_cleanup_before_deletion(path: Path, *args, **kwargs) -> None:
         if (
             path.parent == store.path.parent
-            and path.name.startswith(f".{store.path.name}.")
-            and path.name.endswith(".tmp")
+            and execution_record._is_unpublished_execution_record_path(path)
         ):
             raise OSError("controlled temporary cleanup failure before publication")
         original_unlink(path, *args, **kwargs)
@@ -298,7 +297,11 @@ def test_failed_prepublication_cleanup_cannot_make_temporary_record_authoritativ
             },
         )
 
-    temporary_paths = list(store.path.parent.glob(f".{store.path.name}.*.tmp"))
+    temporary_paths = [
+        path
+        for path in store.path.parent.iterdir()
+        if execution_record._is_unpublished_execution_record_path(path)
+    ]
     assert store.path.read_bytes() == before
     assert len(temporary_paths) == 1
     assert json.loads(temporary_paths[0].read_text(encoding="utf-8"))["execution"][
