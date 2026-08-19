@@ -7,9 +7,9 @@
   "base_tree": "26f4493c9d7c215a569775c6c844d6d9a05cb2e5",
   "tested_implementation_revision": "e766da3151a0c7ae5246933e2666c22a85bd0eb7",
   "tested_implementation_tree": "c00d72e8cc0360813ebe3f5fd2cace068acea864",
-  "tested_evidence_revision": null,
-  "tested_evidence_tree": null,
-  "evidence_binding_state": "The immediately following checksum-binding commit records the exact initial evidence revision, tree, and binding head.",
+  "tested_evidence_revision": "71383e17a738aa995086c263d3e18414f789c698",
+  "tested_evidence_tree": "74296419b44fcfcce4ef01215e7404e81b9eed27",
+  "evidence_binding_state": "This checksum-binding follow-up records the exact initial evidence revision and tree. The Issue #171 implementation-evidence comment records the pushed binding head, and a completion comment will add the merged SHA.",
   "reconciliation": "The prior d12 issue-local measurement predates merged #173 and the a59e0e5 reconciliation predates merged #175's temporary-file authority repair. This record replaces both with a current-main measurement while retaining #165 as immutable historical context.",
   "claim_boundary": "hermetic fail-closed accountability Quality Contract tests at the ExecutionRecord terminal-accounting boundary only; no Verification Agent behavior-layer capability, quality threshold, production, Android, or formal-run claim",
   "tool_versions": {
@@ -106,13 +106,13 @@
     },
     "run_record_checksums": {
       "command": "uv run --extra dev python -m aiverify.bench.run_record_checksums docs/runs/2026-08-16-issue-171-execution-record-terminal-accounting --verify",
-      "status": "pending_evidence_binding",
+      "status": "pass",
       "verified_artifacts": 7
     },
     "diff_check": {
-      "command": "git diff --check origin/main...HEAD",
-      "status": "pending_evidence_binding",
-      "exit_code": null
+      "command": "git diff --check",
+      "status": "pass",
+      "exit_code": 0
     }
   },
   "artifacts": [

@@ -2,8 +2,8 @@
 
 Status: reconciled after merged #173 and #175 on
 issue-171-execution-record-terminal-accounting. This is a fresh, scoped
-measurement from current main. The initial evidence commit is followed by a
-checksum-binding commit that records its exact identity.
+measurement from current main. The following checksum-binding commit records
+the exact identity of the first committed evidence.
 
 ## Objective and source identity
 
@@ -12,8 +12,12 @@ checksum-binding commit that records its exact identity.
 - Base tree: 26f4493c9d7c215a569775c6c844d6d9a05cb2e5.
 - Tested implementation revision: e766da3151a0c7ae5246933e2666c22a85bd0eb7.
 - Tested implementation tree: c00d72e8cc0360813ebe3f5fd2cace068acea864.
-- Tested evidence revision and tree: pending the immediately following
-  checksum-binding commit.
+- Tested evidence revision: 71383e17a738aa995086c263d3e18414f789c698.
+- Tested evidence tree: 74296419b44fcfcce4ef01215e7404e81b9eed27.
+- This checksum-binding follow-up contains the final record and binds the
+  first committed evidence identity above. The Issue #171 implementation
+  evidence comment records the pushed binding head; its completion comment
+  will add the merged SHA.
 - Reconciliation: the earlier d12 measurement predates #173, and the later
   a59e0e5 measurement predates #175's temporary-file authority repair. Both
   are superseded for this PR by the exact current-main measurement below. The
@@ -139,9 +143,15 @@ Commands and results:
     uv run --extra dev python -m compileall -q src
     PASS: exit 0.
 
-The final binding commit records exact source identity in verification.json,
-regenerates checksums.sha256, verifies its 7-artifact inventory, and runs
-git diff --check origin/main...HEAD.
+    uv run --extra dev python -m aiverify.bench.run_record_checksums \
+      docs/runs/2026-08-16-issue-171-execution-record-terminal-accounting --verify
+    PASS: checksum inventory verified for 7 artifacts.
+
+    git diff --check
+    PASS: exit 0.
+
+The checksum-binding commit records exact source identity in verification.json
+and regenerates checksums.sha256 for the 7-artifact inventory.
 
 ## Artifact inventory, side effects, and known gaps
 
