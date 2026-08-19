@@ -517,10 +517,10 @@ def test_exclusive_artifact_writes_preserve_existing_evidence(
 @pytest.mark.parametrize(
     "cleanup_failure", (False, True), ids=("cleanup", "cleanup-error")
 )
-def test_atomic_replace_failure_preserves_the_original_record_and_cleans_up(
+def test_atomic_replace_failure_preserves_the_original_record_and_handles_cleanup(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, cleanup_failure: bool
 ) -> None:
-    """The internal atomic replacement leaves no partial terminal artifact."""
+    """A pre-publication failure preserves the original authoritative record."""
     path = tmp_path / "execution-record.json"
     path.write_text('{"state":"original"}\n', encoding="utf-8")
 
@@ -532,21 +532,29 @@ def test_atomic_replace_failure_preserves_the_original_record_and_cleans_up(
     if cleanup_failure:
         original_unlink = Path.unlink
 
-        def fail_cleanup_after_removal(candidate: Path, *args, **kwargs) -> None:
+        def fail_cleanup_before_removal(candidate: Path, *args, **kwargs) -> None:
             if (
                 candidate.parent == path.parent
-                and candidate.name.startswith(f".{path.name}.")
-                and candidate.name.endswith(".tmp")
+                and execution_record._is_unpublished_execution_record_path(candidate)
             ):
-                original_unlink(candidate, *args, **kwargs)
                 raise OSError("blocked temporary cleanup")
             original_unlink(candidate, *args, **kwargs)
 
-        monkeypatch.setattr(Path, "unlink", fail_cleanup_after_removal)
+        monkeypatch.setattr(Path, "unlink", fail_cleanup_before_removal)
 
     expected_error = "blocked temporary cleanup" if cleanup_failure else "blocked replace"
     with pytest.raises(OSError, match=expected_error):
         execution_record._replace_json(path, {"state": "replacement"})
 
     assert path.read_text(encoding="utf-8") == '{"state":"original"}\n'
-    assert not list(tmp_path.glob(f".{path.name}.*.tmp"))
+    temporary_paths = [
+        candidate
+        for candidate in tmp_path.iterdir()
+        if execution_record._is_unpublished_execution_record_path(candidate)
+    ]
+    if cleanup_failure:
+        assert len(temporary_paths) == 1
+        with pytest.raises(ExecutionRecordValidationError, match="temporary"):
+            load_execution_record(temporary_paths[0])
+    else:
+        assert temporary_paths == []
