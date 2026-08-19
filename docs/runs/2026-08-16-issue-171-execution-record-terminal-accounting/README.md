@@ -39,10 +39,10 @@ current-base artifact does not rewrite the historical #165 audit.
 
 branch-map.json is a checked one-to-one disposition of all 25 fresh baseline
 arcs. It names the exact collected hermetic case for every arc and rejects a
-duplicate, omitted, or stale nodeid. The targeted execution observes 215/215
-statements and 84/84 branches with no missing or partial branches. These are
-scoped execution facts, not a numeric quality gate or a Verification Agent
-capability claim.
+duplicate or omitted baseline arc and a nodeid absent from current collection.
+The targeted execution observes 215/215 statements and 84/84 branches with no
+missing or partial branches. These are scoped execution facts, not a numeric
+quality gate or a Verification Agent capability claim.
 
 The contracts use temporary local files and controlled persistence seams only.
 They cover:
