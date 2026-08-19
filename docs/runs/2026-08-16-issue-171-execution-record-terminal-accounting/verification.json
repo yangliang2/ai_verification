@@ -1,15 +1,16 @@
 {
   "schema_version": 1,
   "issue": 171,
-  "status": "execution_record_terminal_accounting_contracts_verified",
+  "status": "execution_record_terminal_accounting_contracts_reconciled_with_main",
   "branch": "issue-171-execution-record-terminal-accounting",
-  "base_revision": "a59e0e50b63ae8df1dc67df15ccaefacd95721d9",
-  "base_tree": "536dc46b9952dfd89f936f338c0ea19508a1d25d",
-  "tested_implementation_revision": "26a2d35166fbe25cf8fa70392991e764401e378b",
-  "tested_implementation_tree": "a0a540e9a3d8d33000904b7e50b994dc0db04804",
-  "tested_evidence_revision": "67bf1a4ecad06f40bca1212973df6ee6a6a34b45",
-  "tested_evidence_tree": "bd12fe0c27e8a3084b63198872a0e729eb53f2f1",
-  "reconciliation": "The prior issue-local d12 measurement predates merged #173, which changed this boundary. This record replaces it with a current-main measurement while retaining #165 as immutable historical context.",
+  "base_revision": "5b19bdde0b42bf7497334b5f9039c1fc076d769d",
+  "base_tree": "26f4493c9d7c215a569775c6c844d6d9a05cb2e5",
+  "tested_implementation_revision": "e766da3151a0c7ae5246933e2666c22a85bd0eb7",
+  "tested_implementation_tree": "c00d72e8cc0360813ebe3f5fd2cace068acea864",
+  "tested_evidence_revision": null,
+  "tested_evidence_tree": null,
+  "evidence_binding_state": "The immediately following checksum-binding commit records the exact initial evidence revision, tree, and binding head.",
+  "reconciliation": "The prior d12 issue-local measurement predates merged #173 and the a59e0e5 reconciliation predates merged #175's temporary-file authority repair. This record replaces both with a current-main measurement while retaining #165 as immutable historical context.",
   "claim_boundary": "hermetic fail-closed accountability Quality Contract tests at the ExecutionRecord terminal-accounting boundary only; no Verification Agent behavior-layer capability, quality threshold, production, Android, or formal-run claim",
   "tool_versions": {
     "os": "macOS 26.3 (25D125), Darwin arm64",
@@ -27,59 +28,60 @@
   },
   "measurement": {
     "baseline": {
-      "revision": "a59e0e50b63ae8df1dc67df15ccaefacd95721d9",
-      "worktree": "/tmp/ai-verification-issue-171-base-a59e0e5",
+      "revision": "5b19bdde0b42bf7497334b5f9039c1fc076d769d",
+      "tree": "26f4493c9d7c215a569775c6c844d6d9a05cb2e5",
+      "worktree": "/tmp/ai-verification-issue-171-main-kaSlME",
       "command": "/usr/bin/time -p uv run --extra dev python -m coverage run --branch --source=aiverify.runner.execution_record --data-file=/Users/peter/projects/ai_verification-issue-171/docs/runs/2026-08-16-issue-171-execution-record-terminal-accounting/artifacts/execution-record-baseline.data -m pytest -o addopts='' -q -rs",
       "status": "pass",
-      "passed": 1097,
+      "passed": 1098,
       "failed": 0,
       "skipped": 1,
-      "pytest_seconds": 122.08,
-      "wall_seconds": 143.58,
-      "user_seconds": 66.7,
-      "sys_seconds": 17.1,
-      "covered_lines": 172,
-      "num_statements": 206,
-      "missing_lines": 34,
-      "covered_branches": 56,
-      "num_branches": 82,
-      "missing_branches": 26,
-      "partial_branches": 26,
+      "pytest_seconds": 116.17,
+      "wall_seconds": 128.97,
+      "user_seconds": 66.01,
+      "sys_seconds": 16.39,
+      "covered_lines": 182,
+      "num_statements": 215,
+      "missing_lines": 33,
+      "covered_branches": 59,
+      "num_branches": 84,
+      "missing_branches": 25,
+      "partial_branches": 25,
       "skip_reason": "repository-external fixture tests require explicit admission"
     },
     "collection": {
       "command": "uv run --extra dev python -m pytest -o addopts='' --collect-only -q",
       "status": "pass",
-      "collected": 1146,
-      "pytest_seconds": 0.18
+      "collected": 1147,
+      "pytest_seconds": 0.38
     },
     "default_hermetic_suite": {
       "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs",
       "status": "pass",
-      "passed": 1145,
+      "passed": 1146,
       "failed": 0,
       "skipped": 1,
-      "pytest_seconds": 85.7,
-      "wall_seconds": 85.99,
-      "user_seconds": 31.8,
-      "sys_seconds": 15.8,
+      "pytest_seconds": 152.44,
+      "wall_seconds": 152.7,
+      "user_seconds": 56.17,
+      "sys_seconds": 32.25,
       "skip_reason": "repository-external fixture tests require explicit admission"
     },
     "targeted_execution_record_contracts": {
       "command": "/usr/bin/time -p uv run --extra dev python -m coverage run --branch --source=aiverify.runner.execution_record --data-file=docs/runs/2026-08-16-issue-171-execution-record-terminal-accounting/artifacts/execution-record-contracts.data -m pytest -o addopts='' -q -rs tests/runner/test_execution_record.py tests/runner/test_execution_record_terminal_accounting.py tests/bench/test_execution_record_terminal_accounting_matrix.py",
       "status": "pass",
-      "passed": 60,
+      "passed": 61,
       "failed": 0,
       "skipped": 0,
-      "pytest_seconds": 0.22,
-      "wall_seconds": 0.47,
-      "user_seconds": 0.36,
-      "sys_seconds": 0.07,
-      "covered_lines": 206,
-      "num_statements": 206,
+      "pytest_seconds": 0.47,
+      "wall_seconds": 1.01,
+      "user_seconds": 0.68,
+      "sys_seconds": 0.16,
+      "covered_lines": 215,
+      "num_statements": 215,
       "missing_lines": 0,
-      "covered_branches": 82,
-      "num_branches": 82,
+      "covered_branches": 84,
+      "num_branches": 84,
       "missing_branches": 0,
       "partial_branches": 0,
       "percent_total": 100.0,
@@ -89,13 +91,13 @@
     "focused_contracts": {
       "command": "/usr/bin/time -p uv run --extra dev python -m pytest -o addopts='' -q -rs tests/runner/test_execution_record.py tests/runner/test_execution_record_terminal_accounting.py tests/bench/test_execution_record_terminal_accounting_matrix.py tests/bench/test_coverage_audit_contract.py tests/test_external_fixture_gate.py tests/bench/test_run_record_checksums.py tests/bench/test_current_claim_matrix.py",
       "status": "pass",
-      "passed": 79,
+      "passed": 80,
       "failed": 0,
       "skipped": 0,
-      "pytest_seconds": 0.75,
-      "wall_seconds": 0.85,
-      "user_seconds": 0.66,
-      "sys_seconds": 0.16
+      "pytest_seconds": 3.95,
+      "wall_seconds": 4.18,
+      "user_seconds": 1.39,
+      "sys_seconds": 1.92
     },
     "compile": {
       "command": "uv run --extra dev python -m compileall -q src",
@@ -104,40 +106,40 @@
     },
     "run_record_checksums": {
       "command": "uv run --extra dev python -m aiverify.bench.run_record_checksums docs/runs/2026-08-16-issue-171-execution-record-terminal-accounting --verify",
-      "status": "pass",
+      "status": "pending_evidence_binding",
       "verified_artifacts": 7
     },
     "diff_check": {
       "command": "git diff --check origin/main...HEAD",
-      "status": "pass",
-      "exit_code": 0
+      "status": "pending_evidence_binding",
+      "exit_code": null
     }
   },
   "artifacts": [
     {
       "path": "branch-map.json",
       "kind": "checked one-to-one baseline branch-arc disposition",
-      "sha256": "0282e6c0f732583594d2c849e865ed30a15a2977da43fc160c941abd4d1c5431"
+      "sha256": "fded41504cc1c1ba68a9325509947c38e6f24c69008323e1ff99c46558e94d8b"
     },
     {
       "path": "artifacts/execution-record-baseline.data",
       "kind": "raw ordinary-suite baseline coverage.py data",
-      "sha256": "9a2344e31877a64141d7aeae7ac3e93dab959181c133e1fd4781f5f7ec37ab98"
+      "sha256": "c641aa37f4c12eedeb7b935cf88a9a1aebccc8f8c88106aa04619295786f4846"
     },
     {
       "path": "artifacts/execution-record-baseline.json",
       "kind": "machine-readable ordinary-suite baseline coverage report",
-      "sha256": "af688c9a12a5ec11f12a5145ce8f36caed011213c3d6473e1bff73ce5cdab442"
+      "sha256": "a67da15cf4d4159708084a676709e65bdc434d7cd7f3e914876879a2591e4aa6"
     },
     {
       "path": "artifacts/execution-record-contracts.data",
       "kind": "raw targeted terminal-accounting coverage.py data",
-      "sha256": "c042c912a256fc1b8f3ad71ef713a972712c96cf1fd2039caef5f2681a2a44fa"
+      "sha256": "f378c2ab103a4ecf6a24f32fe8b125d1a2164d1eab1f1ff773f6128c2ea4b55a"
     },
     {
       "path": "artifacts/execution-record-contracts.json",
       "kind": "machine-readable targeted terminal-accounting coverage report",
-      "sha256": "2ccf8f8a28fa53178491ba999ca1fd05a55f1b698fcfdeafc60b13cbe33248f9"
+      "sha256": "3f8083fdd14b66ccc99348212b54de89375175b4e68d09ac746233cb3161c760"
     }
   ],
   "side_effects": {
@@ -156,6 +158,7 @@
   "known_gaps": [
     "Targeted branch execution does not establish Verification Agent behavior-layer effectiveness, causal validity, oracle soundness, Android/OEM coverage, or a quality threshold.",
     "The checks use local temporary files and controlled persistence seams; they do not perform a real Android, device, backend, model, oracle-service, or formal-run action.",
+    "The public loader rejects an unpublished retained temporary record; direct raw JSON access or external path tampering is outside that loader-authority contract.",
     "The repository-external historical fixture remains skipped by default; frozen M8, M9, and M9-R evidence was neither rerun nor changed."
   ]
 }
