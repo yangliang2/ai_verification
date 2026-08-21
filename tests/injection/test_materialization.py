@@ -471,6 +471,36 @@ def test_materialization_refuses_a_worktree_replaced_before_fresh_registration(
     _git(repository, "worktree", "remove", "--force", str(worktree))
 
 
+def test_materialization_releases_its_reservation_when_worktree_creation_errors(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(repository)
+    root = tmp_path / "owned-worktrees"
+    materializer = InjectionMaterializer(repository, root)
+    original_run_git = materialization_module._run_git
+
+    def fail_worktree_creation(
+        worktree: Path,
+        arguments: list[str],
+        *,
+        input_bytes: bytes | None = None,
+    ) -> subprocess.CompletedProcess[bytes]:
+        if arguments[:2] == ["worktree", "add"]:
+            raise OSError("injected Git execution failure")
+        return original_run_git(worktree, arguments, input_bytes=input_bytes)
+
+    monkeypatch.setattr(materialization_module, "_run_git", fail_worktree_creation)
+
+    receipt = materializer.materialize(candidate)
+
+    assert receipt.outcome == "rejected"
+    assert receipt.rejection_code == "caller_checkout_unavailable"
+    assert root.is_dir()
+    assert not any(root.iterdir())
+
+
 def test_materializes_added_source_files_in_the_canonical_result_diff(
     tmp_path: Path,
 ) -> None:

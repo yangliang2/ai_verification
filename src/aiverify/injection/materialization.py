@@ -505,7 +505,22 @@ def _remove_authorized_directory(authority: _DirectoryAuthority) -> bool:
 def _reserve_worktree_directory(path: Path) -> _DirectoryAuthority:
     """Create and bind the disposable directory before Git can populate it."""
     path.mkdir(mode=0o700)
-    return _open_directory_authority(path)
+    try:
+        return _open_directory_authority(path)
+    except (OSError, InjectionMaterializerError):
+        try:
+            path.rmdir()
+        except OSError:
+            pass
+        raise
+
+
+def _release_reserved_directory(authority: _DirectoryAuthority) -> bool:
+    """Close and remove an unpopulated reservation if it remains ours."""
+    try:
+        return _remove_authorized_directory(authority)
+    finally:
+        _close_directory_authority(authority)
 
 
 class InjectionMaterializer:
@@ -595,22 +610,32 @@ class InjectionMaterializer:
         worktree_path = self._fresh_worktree_path(candidate)
         try:
             reserved_directory = _reserve_worktree_directory(worktree_path)
-        except (OSError, InjectionMaterializerError):
+        except OSError:
             return InjectionReceipt.rejected(candidate, "worktree_creation_failed")
-        created = _run_git(
-            self._caller_checkout,
-            [
-                "worktree",
-                "add",
-                "--detach",
-                "--no-checkout",
-                os.fspath(worktree_path),
-                resolved_commit,
-            ],
-        )
+        except InjectionMaterializerError:
+            return InjectionReceipt.rejected(candidate, "worktree_cleanup_failed")
+        try:
+            created = _run_git(
+                self._caller_checkout,
+                [
+                    "worktree",
+                    "add",
+                    "--detach",
+                    "--no-checkout",
+                    os.fspath(worktree_path),
+                    resolved_commit,
+                ],
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            released_reservation = _release_reserved_directory(reserved_directory)
+            return InjectionReceipt.rejected(
+                candidate,
+                "caller_checkout_unavailable"
+                if released_reservation
+                else "worktree_cleanup_failed",
+            )
         if created.returncode != 0:
-            removed_reservation = _remove_authorized_directory(reserved_directory)
-            _close_directory_authority(reserved_directory)
+            removed_reservation = _release_reserved_directory(reserved_directory)
             return InjectionReceipt.rejected(
                 candidate,
                 "worktree_creation_failed"
