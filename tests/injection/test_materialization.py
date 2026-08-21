@@ -103,6 +103,10 @@ def _caller_snapshot(repository: Path) -> dict[str, str]:
     }
 
 
+def _is_cleared_directory(path: Path) -> bool:
+    return path.is_dir() and all(child.is_dir() for child in path.rglob("*"))
+
+
 def test_materializes_one_delta_in_a_detached_owned_worktree_without_touching_caller(
     tmp_path: Path,
 ) -> None:
@@ -131,7 +135,7 @@ def test_materializes_one_delta_in_a_detached_owned_worktree_without_touching_ca
 
     materializer.cleanup(receipt)
 
-    assert not worktree.exists()
+    assert _is_cleared_directory(worktree)
     assert str(worktree) not in _git(repository, "worktree", "list", "--porcelain").stdout
     assert _caller_snapshot(repository) == before
 
@@ -203,6 +207,34 @@ def test_materialization_disables_caller_checkout_hooks(tmp_path: Path) -> None:
     assert _caller_snapshot(repository) == before
 
 
+def test_materialization_disables_caller_fsmonitor(tmp_path: Path) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(repository)
+    _dirty_caller(repository)
+    caller_source = (repository / "source.txt").read_bytes()
+    caller_untracked = (repository / "caller-untracked.txt").read_bytes()
+    monitor_output = repository / "fsmonitor-output.txt"
+    monitor = tmp_path / "fsmonitor"
+    monitor.write_text(
+        "#!/bin/sh\n"
+        f"printf fsmonitor > {shlex.quote(str(monitor_output))}\n"
+        "printf '%s\\n\\n' token\n",
+        encoding="utf-8",
+    )
+    monitor.chmod(0o755)
+    _git(repository, "config", "core.fsmonitor", str(monitor))
+    materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
+
+    receipt = materializer.materialize(candidate)
+
+    assert receipt.outcome == "materialized"
+    assert not monitor_output.exists()
+    assert (repository / "source.txt").read_bytes() == caller_source
+    assert (repository / "caller-untracked.txt").read_bytes() == caller_untracked
+    materializer.cleanup(receipt)
+    assert not monitor_output.exists()
+
+
 def test_materialization_ignores_an_ambient_git_index_file(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -254,6 +286,76 @@ def test_materialization_avoids_caller_side_effects_from_checkout_filters(
     assert _caller_snapshot(repository) == before
 
 
+def test_materialization_does_not_follow_a_replaced_source_parent(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(
+        repository,
+        patch_text=(
+            "--- /dev/null\n"
+            "+++ b/newdir/new.txt\n"
+            "@@ -0,0 +1 @@\n"
+            "+materialized source\n"
+        ),
+    )
+    _dirty_caller(repository)
+    before = _caller_snapshot(repository)
+    root = tmp_path / "owned-worktrees"
+    original_open = materialization_module.os.open
+    replaced = False
+
+    def replace_source_parent_before_write(path, flags, mode=0o777, *, dir_fd=None):
+        nonlocal replaced
+        if (
+            not replaced
+            and flags & os.O_CREAT
+            and Path(os.fspath(path)).name == "new.txt"
+        ):
+            worktree = next(root.iterdir())
+            source_parent = worktree / "newdir"
+            source_parent.rmdir()
+            os.symlink(repository, source_parent)
+            replaced = True
+        return original_open(path, flags, mode, dir_fd=dir_fd)
+
+    monkeypatch.setattr(materialization_module.os, "open", replace_source_parent_before_write)
+
+    receipt = InjectionMaterializer(repository, root).materialize(candidate)
+
+    assert replaced
+    assert receipt.outcome == "rejected"
+    assert _caller_snapshot(repository) == before
+
+
+def test_materialization_rejects_source_changed_before_receipt_promotion(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(repository)
+    _dirty_caller(repository)
+    before = _caller_snapshot(repository)
+    materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
+    original_promote = materializer._promote_fresh_worktree
+
+    def change_source_before_promotion(worktree, result_source_tree_sha256):
+        (Path(worktree.path) / "source.txt").write_text(
+            "changed before promotion\n",
+            encoding="utf-8",
+        )
+        original_promote(worktree, result_source_tree_sha256)
+
+    monkeypatch.setattr(materializer, "_promote_fresh_worktree", change_source_before_promotion)
+
+    receipt = materializer.materialize(candidate)
+
+    assert receipt.outcome == "rejected"
+    assert receipt.rejection_code == "result_identity_failed"
+    assert _caller_snapshot(repository) == before
+
+
 def test_materialization_preserves_executable_and_symlink_source_entries(
     tmp_path: Path,
 ) -> None:
@@ -283,14 +385,18 @@ def test_materialization_identities_ignore_caller_diff_configuration(
     tmp_path: Path,
 ) -> None:
     repository = _init_repository(tmp_path)
+    (repository / ".gitattributes").write_text("source.txt diff=caller\n", encoding="utf-8")
+    _git(repository, "add", ".gitattributes")
+    _git(repository, "commit", "-m", "configure caller diff driver")
     candidate = _candidate(
         repository,
         patch_text=(
             "--- a/source.txt\n"
             "+++ b/source.txt\n"
-            "@@ -1 +1 @@\n"
+            "@@ -1 +1,2 @@\n"
             "-baseline\n"
             "+candidate\n"
+            "+\n"
             "--- /dev/null\n"
             "+++ b/added.txt\n"
             "@@ -0,0 +1 @@\n"
@@ -307,10 +413,16 @@ def test_materialization_identities_ignore_caller_diff_configuration(
     _git(repository, "config", "diff.mnemonicPrefix", "true")
     _git(repository, "config", "diff.renames", "true")
     _git(repository, "config", "diff.algorithm", "patience")
+    _git(repository, "config", "diff.suppressBlankEmpty", "true")
     _git(repository, "config", "color.ui", "always")
     order_file = tmp_path / "reverse-diff-order"
     order_file.write_text("source.txt\nadded.txt\n", encoding="utf-8")
     _git(repository, "config", "diff.orderFile", str(order_file))
+    attributes_file = tmp_path / "caller-attributes"
+    attributes_file.write_text("source.txt diff=caller\n", encoding="utf-8")
+    _git(repository, "config", "core.attributesFile", str(attributes_file))
+    _git(repository, "config", "diff.caller.binary", "true")
+    _git(repository, "config", "diff.caller.xfuncname", "^baseline$")
     second_materializer = InjectionMaterializer(repository, tmp_path / "second-worktrees")
 
     second = second_materializer.materialize(candidate)
@@ -322,7 +434,7 @@ def test_materialization_identities_ignore_caller_diff_configuration(
     second_materializer.cleanup(second)
 
 
-def test_non_applicable_patch_returns_a_stable_rejection_and_leaves_no_worktree(
+def test_non_applicable_patch_returns_a_stable_rejection_and_leaves_no_registered_worktree(
     tmp_path: Path,
 ) -> None:
     repository = _init_repository(tmp_path)
@@ -348,7 +460,39 @@ def test_non_applicable_patch_returns_a_stable_rejection_and_leaves_no_worktree(
     assert first.rejection_code == "patch_not_applicable"
     assert first.worktree is None
     assert first.to_dict() == second.to_dict()
-    assert not any(root.iterdir())
+    assert root.is_dir()
+    assert all(_is_cleared_directory(path) for path in root.iterdir())
+    assert str(root) not in _git(repository, "worktree", "list", "--porcelain").stdout
+    assert _caller_snapshot(repository) == before
+
+
+def test_materialization_rejects_whitespace_relaxed_patch(
+    tmp_path: Path,
+) -> None:
+    repository = _init_repository(tmp_path)
+    (repository / "source.txt").write_text("baseline  spaced\n", encoding="utf-8")
+    _git(repository, "add", "source.txt")
+    _git(repository, "commit", "-m", "add space-sensitive baseline")
+    candidate = _candidate(
+        repository,
+        patch_text=(
+            "--- a/source.txt\n"
+            "+++ b/source.txt\n"
+            "@@ -1 +1 @@\n"
+            "-baseline spaced\n"
+            "+candidate\n"
+        ),
+    )
+    _git(repository, "config", "apply.ignoreWhitespace", "change")
+    _dirty_caller(repository)
+    before = _caller_snapshot(repository)
+    root = tmp_path / "owned-worktrees"
+
+    receipt = InjectionMaterializer(repository, root).materialize(candidate)
+
+    assert receipt.outcome == "rejected"
+    assert receipt.rejection_code == "patch_not_applicable"
+    assert str(root) not in _git(repository, "worktree", "list", "--porcelain").stdout
     assert _caller_snapshot(repository) == before
 
 
@@ -498,7 +642,81 @@ def test_materialization_releases_its_reservation_when_worktree_creation_errors(
     assert receipt.outcome == "rejected"
     assert receipt.rejection_code == "caller_checkout_unavailable"
     assert root.is_dir()
-    assert not any(root.iterdir())
+    assert all(_is_cleared_directory(path) for path in root.iterdir())
+
+
+def test_materialization_recovers_a_worktree_created_before_timeout(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(repository)
+    _dirty_caller(repository)
+    before = _caller_snapshot(repository)
+    root = tmp_path / "owned-worktrees"
+    materializer = InjectionMaterializer(repository, root)
+    original_run_git = materialization_module._run_git
+    timed_out = False
+
+    def timeout_after_worktree_creation(
+        worktree: Path,
+        arguments: list[str],
+        *,
+        input_bytes: bytes | None = None,
+    ) -> subprocess.CompletedProcess[bytes]:
+        nonlocal timed_out
+        result = original_run_git(worktree, arguments, input_bytes=input_bytes)
+        if (
+            not timed_out
+            and arguments[:2] == ["worktree", "add"]
+            and result.returncode == 0
+        ):
+            timed_out = True
+            raise subprocess.TimeoutExpired(arguments, 30)
+        return result
+
+    monkeypatch.setattr(materialization_module, "_run_git", timeout_after_worktree_creation)
+
+    receipt = materializer.materialize(candidate)
+
+    assert timed_out
+    assert receipt.outcome == "rejected"
+    assert receipt.rejection_code == "caller_checkout_unavailable"
+    assert root.is_dir()
+    assert all(_is_cleared_directory(path) for path in root.iterdir())
+    assert str(root) not in _git(repository, "worktree", "list", "--porcelain").stdout
+    assert _caller_snapshot(repository) == before
+
+
+def test_materialization_preserves_a_directory_replaced_before_reservation_binding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(repository)
+    root = tmp_path / "owned-worktrees"
+    materializer = InjectionMaterializer(repository, root)
+    replacement_path: Path | None = None
+
+    def replace_directory_before_binding(path: Path):
+        nonlocal replacement_path
+        path.rmdir()
+        path.mkdir()
+        replacement_path = path
+        raise InjectionMaterializerError("injected authority-binding failure")
+
+    monkeypatch.setattr(
+        materialization_module,
+        "_open_directory_authority",
+        replace_directory_before_binding,
+    )
+
+    receipt = materializer.materialize(candidate)
+
+    assert receipt.outcome == "rejected"
+    assert receipt.rejection_code == "worktree_cleanup_failed"
+    assert replacement_path is not None
+    assert replacement_path.is_dir()
 
 
 def test_materializes_added_source_files_in_the_canonical_result_diff(
@@ -728,6 +946,62 @@ def test_cleanup_refuses_a_worktree_replaced_after_its_final_verification(
     assert worktree.is_dir()
     assert _git(worktree, "rev-parse", "HEAD").stdout.strip() == candidate.baseline.commit
     _git(repository, "worktree", "remove", "--force", str(worktree))
+
+
+def test_cleanup_preserves_a_directory_replaced_after_final_directory_check(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _init_repository(tmp_path)
+    (repository / "nested" / "keep.txt").unlink()
+    (repository / "nested").rmdir()
+    _git(repository, "add", "-A")
+    _git(repository, "commit", "-m", "remove nested fixture")
+    materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
+    receipt = materializer.materialize(_candidate(repository))
+    assert receipt.worktree is not None
+    worktree = Path(receipt.worktree.path)
+    worktree_inode = worktree.stat().st_ino
+    original_remove_contents = materialization_module._remove_directory_contents
+    original_authority_matches = materialization_module._authority_matches_path
+    contents_removed = False
+    replaced = False
+
+    def mark_source_contents_removed(descriptor: int) -> None:
+        nonlocal contents_removed
+        original_remove_contents(descriptor)
+        if os.fstat(descriptor).st_ino == worktree_inode:
+            contents_removed = True
+
+    def replace_after_final_directory_check(authority) -> bool:
+        nonlocal replaced
+        matches = original_authority_matches(authority)
+        if (
+            contents_removed
+            and not replaced
+            and authority.path == worktree
+            and matches
+        ):
+            worktree.rmdir()
+            worktree.mkdir()
+            replaced = True
+        return matches
+
+    monkeypatch.setattr(
+        materialization_module,
+        "_remove_directory_contents",
+        mark_source_contents_removed,
+    )
+    monkeypatch.setattr(
+        materialization_module,
+        "_authority_matches_path",
+        replace_after_final_directory_check,
+    )
+
+    materializer.cleanup(receipt)
+
+    assert replaced
+    assert worktree.is_dir()
 
 
 def test_materializer_refuses_to_place_disposable_worktrees_inside_the_caller_checkout(
