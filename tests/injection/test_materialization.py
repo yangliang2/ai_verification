@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 import difflib
+import json
 from pathlib import Path
 import subprocess
 
@@ -220,6 +221,53 @@ def test_cleanup_refuses_a_tampered_receipt_pointing_at_an_existing_checkout(
     assert foreign.is_dir()
     assert _git(foreign, "rev-parse", "HEAD").stdout == foreign_head
     materializer.cleanup(receipt)
+
+
+def test_cleanup_refuses_a_forged_receipt_for_an_existing_linked_worktree(
+    tmp_path: Path,
+) -> None:
+    repository = _init_repository(tmp_path)
+    root = tmp_path / "owned-worktrees"
+    materializer = InjectionMaterializer(repository, root)
+    candidate = _candidate(repository)
+    receipt = materializer.materialize(candidate)
+    assert receipt.worktree is not None
+
+    foreign = root / "existing-linked-worktree"
+    _git(repository, "worktree", "add", "--detach", str(foreign), candidate.baseline.commit)
+    _git(
+        foreign,
+        "apply",
+        "--whitespace=nowarn",
+        "-",
+        input_text=candidate.source_delta.patch_text,
+    )
+    forged_worktree = replace(receipt.worktree, path=str(foreign.resolve()))
+    forged_receipt = replace(receipt, worktree=forged_worktree)
+    (foreign / ".aiverify-injection-ownership.json").write_bytes(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "kind": "aiverify-injection-owned-worktree",
+                "ownership_token": forged_worktree.ownership_token,
+                "candidate_identity_sha256": forged_worktree.candidate_identity_sha256,
+                "baseline_commit": forged_worktree.baseline_commit,
+                "result_identity_sha256": forged_worktree.result_identity_sha256,
+            },
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+        + b"\n"
+    )
+
+    with pytest.raises(InjectionCleanupError, match="created by this materializer"):
+        materializer.cleanup(forged_receipt)
+
+    assert foreign.is_dir()
+    assert (foreign / "source.txt").read_text(encoding="utf-8") == "candidate\n"
+    materializer.cleanup(receipt)
+    _git(repository, "worktree", "remove", "--force", str(foreign))
 
 
 def test_cleanup_refuses_a_materialized_worktree_whose_source_has_changed(

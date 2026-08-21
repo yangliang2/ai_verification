@@ -273,7 +273,13 @@ class SourceDelta:
 
 @dataclass(frozen=True)
 class FaultOperator:
-    """Versioned metadata for the one source transformation a candidate uses."""
+    """Versioned declaration for the one source transformation a candidate uses.
+
+    M0.1 keeps ``applicability`` and ``safety_boundary`` as immutable audit
+    context. Its executable non-applicability boundary is whether the declared
+    :class:`SourceDelta` applies to the declared immutable baseline; a later
+    milestone may introduce an operator-specific interpreter.
+    """
 
     operator_id: str
     version: str

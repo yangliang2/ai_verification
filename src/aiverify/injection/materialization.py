@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from hashlib import sha256
 import json
 import os
@@ -33,6 +34,15 @@ class InjectionMaterializerError(RuntimeError):
 
 class InjectionCleanupError(RuntimeError):
     """Raised when an alleged owned worktree cannot be safely removed."""
+
+
+@dataclass(frozen=True)
+class _OwnedWorktreeRegistration:
+    """Non-serializable authority retained only by the creating materializer."""
+
+    worktree: MaterializedWorktree
+    device: int
+    inode: int
 
 
 def _run_git(
@@ -251,6 +261,7 @@ class InjectionMaterializer:
     def __init__(self, caller_checkout: str | Path, worktree_root: str | Path) -> None:
         self._caller_checkout = _repository_root(caller_checkout)
         self._worktree_root = Path(worktree_root).expanduser().resolve()
+        self._owned_worktrees: dict[Path, _OwnedWorktreeRegistration] = {}
         if _path_is_within(self._worktree_root, self._caller_checkout):
             raise InjectionMaterializerError(
                 "worktree_root must be outside the caller checkout"
@@ -366,6 +377,8 @@ class InjectionMaterializer:
             return self._reject_and_discard(candidate, worktree_path, "worktree_provenance_mismatch")
 
         patch_bytes = candidate.source_delta.patch_text.encode("utf-8")
+        # M0.1's executable applicability boundary is one delta against the
+        # declared immutable baseline, not interpretation of operator metadata.
         check = _run_git(
             worktree_path,
             ["apply", "--check", "--whitespace=nowarn", "-"],
@@ -412,7 +425,7 @@ class InjectionMaterializer:
             result_identity_sha256=result_sha256,
         )
         marker_path.write_bytes(self._marker_bytes(owned_worktree))
-        return InjectionReceipt(
+        receipt = InjectionReceipt(
             outcome="materialized",
             candidate_identity_sha256=candidate.identity_sha256,
             baseline_identity_sha256=candidate.baseline.identity_sha256,
@@ -422,6 +435,11 @@ class InjectionMaterializer:
             result_identity_sha256=result_sha256,
             worktree=owned_worktree,
         )
+        try:
+            self._register_owned_worktree(owned_worktree)
+        except (OSError, InjectionMaterializerError):
+            return self._reject_and_discard(candidate, worktree_path, "result_identity_failed")
+        return receipt
 
     def _reject_and_discard(
         self,
@@ -456,6 +474,25 @@ class InjectionMaterializer:
     def _marker_bytes(self, worktree: MaterializedWorktree) -> bytes:
         return canonical_json_bytes(self._marker_document(worktree)) + b"\n"
 
+    def _register_owned_worktree(self, worktree: MaterializedWorktree) -> None:
+        """Retain the exact directory identity created by this instance.
+
+        Receipts and markers are intentionally serializable for audit, so neither
+        can alone prove that a path was created by this materializer.  The
+        in-memory registration is the authority boundary: a new materializer
+        safely refuses cleanup rather than risking removal of an existing linked
+        worktree.
+        """
+        path = Path(worktree.path).resolve()
+        details = path.lstat()
+        if path.is_symlink() or not stat.S_ISDIR(details.st_mode):
+            raise InjectionMaterializerError("owned worktree directory is unavailable")
+        self._owned_worktrees[path] = _OwnedWorktreeRegistration(
+            worktree=worktree,
+            device=details.st_dev,
+            inode=details.st_ino,
+        )
+
     def cleanup(self, receipt: InjectionReceipt) -> None:
         """Remove only the exact, verified worktree created by this materializer."""
         if not isinstance(receipt, InjectionReceipt) or receipt.outcome != "materialized":
@@ -477,6 +514,17 @@ class InjectionMaterializer:
             raise InjectionCleanupError("owned worktree candidate identity does not match")
         if worktree.result_identity_sha256 != receipt.result_identity_sha256:
             raise InjectionCleanupError("owned worktree result identity does not match")
+        registration = self._owned_worktrees.get(path)
+        if registration is None or registration.worktree != worktree:
+            raise InjectionCleanupError(
+                "cleanup worktree was not created by this materializer"
+            )
+        try:
+            details = path.lstat()
+        except OSError as error:
+            raise InjectionCleanupError("owned worktree directory is unavailable") from error
+        if (details.st_dev, details.st_ino) != (registration.device, registration.inode):
+            raise InjectionCleanupError("owned worktree directory identity has changed")
         if _git_common_dir(path) != _git_common_dir(self._caller_checkout):
             raise InjectionCleanupError("owned worktree belongs to a different repository")
         registered_paths = self._registered_worktree_paths()
@@ -500,6 +548,7 @@ class InjectionMaterializer:
         )
         if removed.returncode != 0 or path.exists():
             raise InjectionCleanupError("owned worktree removal failed")
+        self._owned_worktrees.pop(path, None)
 
     def _registered_worktree_paths(self) -> set[Path]:
         listing = _git_stdout(self._caller_checkout, ["worktree", "list", "--porcelain"])
