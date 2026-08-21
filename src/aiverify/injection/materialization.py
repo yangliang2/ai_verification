@@ -293,6 +293,9 @@ class InjectionMaterializer:
                 if isinstance(candidate_input, InjectionCandidate)
                 else InjectionCandidate.from_dict(candidate_input)
             )
+            # Direct dataclass input must be just as canonicalizable as a
+            # mapping that passed the serialized contract parser.
+            candidate.identity_sha256
         except (InjectionContractError, TypeError, ValueError):
             return InjectionReceipt.rejected(None, "invalid_candidate")
 
@@ -381,14 +384,14 @@ class InjectionMaterializer:
         # declared immutable baseline, not interpretation of operator metadata.
         check = _run_git(
             worktree_path,
-            ["apply", "--check", "--whitespace=nowarn", "-"],
+            ["apply", "--check", "--index", "--whitespace=nowarn", "-"],
             input_bytes=patch_bytes,
         )
         if check.returncode != 0:
             return self._reject_and_discard(candidate, worktree_path, "patch_not_applicable")
         applied = _run_git(
             worktree_path,
-            ["apply", "--whitespace=nowarn", "-"],
+            ["apply", "--index", "--whitespace=nowarn", "-"],
             input_bytes=patch_bytes,
         )
         if applied.returncode != 0:
@@ -399,7 +402,14 @@ class InjectionMaterializer:
             return self._reject_and_discard(candidate, worktree_path, "reserved_ownership_path")
         diff = _run_git(
             worktree_path,
-            ["diff", "--binary", "--full-index", "--no-ext-diff", resolved_commit],
+            [
+                "diff",
+                "--cached",
+                "--binary",
+                "--full-index",
+                "--no-ext-diff",
+                resolved_commit,
+            ],
         )
         if diff.returncode != 0:
             return self._reject_and_discard(candidate, worktree_path, "result_identity_failed")

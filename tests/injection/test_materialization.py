@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 import difflib
+from hashlib import sha256
 import json
 from pathlib import Path
 import subprocess
@@ -168,6 +169,48 @@ def test_non_applicable_patch_returns_a_stable_rejection_and_leaves_no_worktree(
     assert _caller_snapshot(repository) == before
 
 
+def test_materializes_added_source_files_in_the_canonical_result_diff(
+    tmp_path: Path,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(
+        repository,
+        patch_text=(
+            "--- a/source.txt\n"
+            "+++ b/source.txt\n"
+            "@@ -1 +1 @@\n"
+            "-baseline\n"
+            "+candidate\n"
+            "--- /dev/null\n"
+            "+++ b/added.txt\n"
+            "@@ -0,0 +1 @@\n"
+            "+added source\n"
+        ),
+    )
+    materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
+
+    receipt = materializer.materialize(candidate)
+
+    assert receipt.outcome == "materialized"
+    assert receipt.worktree is not None
+    worktree = Path(receipt.worktree.path)
+    assert (worktree / "added.txt").read_text(encoding="utf-8") == "added source\n"
+    _git(worktree, "add", "source.txt", "added.txt")
+    canonical_result_diff = _git(
+        worktree,
+        "diff",
+        "--cached",
+        "--binary",
+        "--full-index",
+        "--no-ext-diff",
+        candidate.baseline.commit,
+    ).stdout.encode("utf-8")
+    assert b"added.txt" in canonical_result_diff
+    assert receipt.result_diff_sha256 == sha256(canonical_result_diff).hexdigest()
+
+    materializer.cleanup(receipt)
+
+
 def test_provenance_mismatch_rejects_before_creating_a_worktree(tmp_path: Path) -> None:
     repository = _init_repository(tmp_path)
     candidate = _candidate(repository)
@@ -199,6 +242,32 @@ def test_malformed_candidate_mapping_returns_a_stable_rejection(tmp_path: Path) 
     assert first.rejection_code == "invalid_candidate"
     assert first.candidate_identity_sha256 is None
     assert first.to_dict() == second.to_dict()
+
+
+def test_direct_candidate_with_an_unencodable_identity_returns_stable_rejection(
+    tmp_path: Path,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(repository)
+    malformed = replace(
+        candidate,
+        candidate_id="\ud800",
+        baseline=replace(
+            candidate.baseline,
+            source_origin="https://example.invalid/other-fixture.git",
+        ),
+    )
+    root = tmp_path / "owned-worktrees"
+    materializer = InjectionMaterializer(repository, root)
+
+    first = materializer.materialize(malformed)
+    second = materializer.materialize(malformed)
+
+    assert first.outcome == "rejected"
+    assert first.rejection_code == "invalid_candidate"
+    assert first.candidate_identity_sha256 is None
+    assert first.to_dict() == second.to_dict()
+    assert not root.exists()
 
 
 def test_cleanup_refuses_a_tampered_receipt_pointing_at_an_existing_checkout(
