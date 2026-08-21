@@ -26,6 +26,49 @@ from aiverify.injection.models import (
 
 _OWNERSHIP_MARKER = ".aiverify-injection-ownership.json"
 _GIT_TIMEOUT_SECONDS = 30
+_GIT_IDENTITY_CONFIG = (
+    "-c",
+    "core.autocrlf=false",
+    "-c",
+    "core.eol=lf",
+    "-c",
+    "core.quotePath=true",
+    "-c",
+    "color.ui=false",
+    "-c",
+    "diff.renames=false",
+    "-c",
+    "diff.mnemonicPrefix=false",
+    "-c",
+    "diff.noprefix=false",
+    "-c",
+    "diff.algorithm=myers",
+    "-c",
+    "diff.indentHeuristic=false",
+    "-c",
+    "diff.compactionHeuristic=false",
+    "-c",
+    "diff.context=3",
+    "-c",
+    "diff.interHunkContext=0",
+)
+_CANONICAL_STAGED_DIFF_OPTIONS = (
+    "--cached",
+    "--binary",
+    "--full-index",
+    "--no-ext-diff",
+    "--no-textconv",
+    "--no-color",
+    "--no-renames",
+    "--src-prefix=a/",
+    "--dst-prefix=b/",
+    "--diff-algorithm=myers",
+    "--no-indent-heuristic",
+    "--inter-hunk-context=0",
+    "-U3",
+    "--no-relative",
+    f"-O{os.devnull}",
+)
 
 
 class InjectionMaterializerError(RuntimeError):
@@ -55,7 +98,7 @@ def _run_git(
     environment = os.environ.copy()
     environment["GIT_TERMINAL_PROMPT"] = "0"
     return subprocess.run(
-        ["git", "-C", os.fspath(repository), *arguments],
+        ["git", *_GIT_IDENTITY_CONFIG, "-C", os.fspath(repository), *arguments],
         input=input_bytes,
         capture_output=True,
         check=False,
@@ -404,11 +447,9 @@ class InjectionMaterializer:
             worktree_path,
             [
                 "diff",
-                "--cached",
-                "--binary",
-                "--full-index",
-                "--no-ext-diff",
+                *_CANONICAL_STAGED_DIFF_OPTIONS,
                 resolved_commit,
+                "--",
             ],
         )
         if diff.returncode != 0:

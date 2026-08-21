@@ -139,6 +139,65 @@ def test_materializes_one_delta_in_a_detached_owned_worktree_without_touching_ca
     materializer.cleanup(regenerated)
 
 
+def test_materializes_when_caller_configures_autocrlf(tmp_path: Path) -> None:
+    repository = _init_repository(tmp_path)
+    _git(repository, "config", "core.autocrlf", "true")
+    candidate = _candidate(repository)
+    materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
+
+    receipt = materializer.materialize(candidate)
+
+    assert receipt.outcome == "materialized"
+    assert receipt.worktree is not None
+    worktree = Path(receipt.worktree.path)
+    assert (worktree / "source.txt").read_text(encoding="utf-8") == "candidate\n"
+    assert source_tree_sha256_from_worktree(worktree) == receipt.result_source_tree_sha256
+    materializer.cleanup(receipt)
+
+
+def test_materialization_identities_ignore_caller_diff_configuration(
+    tmp_path: Path,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(
+        repository,
+        patch_text=(
+            "--- a/source.txt\n"
+            "+++ b/source.txt\n"
+            "@@ -1 +1 @@\n"
+            "-baseline\n"
+            "+candidate\n"
+            "--- /dev/null\n"
+            "+++ b/added.txt\n"
+            "@@ -0,0 +1 @@\n"
+            "+added source\n"
+        ),
+    )
+    first_materializer = InjectionMaterializer(repository, tmp_path / "first-worktrees")
+
+    first = first_materializer.materialize(candidate)
+
+    assert first.outcome == "materialized"
+    first_materializer.cleanup(first)
+    _git(repository, "config", "diff.noprefix", "true")
+    _git(repository, "config", "diff.mnemonicPrefix", "true")
+    _git(repository, "config", "diff.renames", "true")
+    _git(repository, "config", "diff.algorithm", "patience")
+    _git(repository, "config", "color.ui", "always")
+    order_file = tmp_path / "reverse-diff-order"
+    order_file.write_text("source.txt\nadded.txt\n", encoding="utf-8")
+    _git(repository, "config", "diff.orderFile", str(order_file))
+    second_materializer = InjectionMaterializer(repository, tmp_path / "second-worktrees")
+
+    second = second_materializer.materialize(candidate)
+
+    assert second.outcome == "materialized"
+    assert second.result_diff_sha256 == first.result_diff_sha256
+    assert second.result_identity_sha256 == first.result_identity_sha256
+    assert second.receipt_identity_sha256 == first.receipt_identity_sha256
+    second_materializer.cleanup(second)
+
+
 def test_non_applicable_patch_returns_a_stable_rejection_and_leaves_no_worktree(
     tmp_path: Path,
 ) -> None:
