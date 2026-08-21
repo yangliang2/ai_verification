@@ -82,12 +82,23 @@ class InjectionCleanupError(RuntimeError):
 
 
 @dataclass(frozen=True)
+class _DirectoryAuthority:
+    """An opened directory plus its immutable filesystem identity."""
+
+    path: Path
+    device: int
+    inode: int
+    descriptor: int
+    parent_descriptor: int
+
+
+@dataclass(frozen=True)
 class _OwnedWorktreeRegistration:
     """Non-serializable authority retained only by the creating materializer."""
 
     worktree: MaterializedWorktree
-    device: int
-    inode: int
+    directory: _DirectoryAuthority
+    administrative_directory: _DirectoryAuthority
 
 
 @dataclass(frozen=True)
@@ -95,8 +106,8 @@ class _FreshWorktreeRegistration:
     """Non-serializable authority for a worktree before materialization succeeds."""
 
     baseline_commit: str
-    device: int
-    inode: int
+    directory: _DirectoryAuthority
+    administrative_directory: _DirectoryAuthority
 
 
 def _run_git(
@@ -199,6 +210,14 @@ def source_tree_sha256_for_commit(repository: str | Path, commit: str) -> str:
 
 def _source_tree_sha256_for_tree(repository: Path, treeish: str) -> str:
     """Hash tracked Git blobs from a commit or tree object."""
+    return _hash_source_entries(_source_tree_entries_for_tree(repository, treeish))
+
+
+def _source_tree_entries_for_tree(
+    repository: Path,
+    treeish: str,
+) -> list[tuple[bytes, bytes, bool, bytes]]:
+    """Read supported source entries from a Git commit or tree object."""
     try:
         listing = _git_stdout(repository, ["ls-tree", "-r", "-z", "--full-tree", treeish])
     except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError) as error:
@@ -226,50 +245,81 @@ def _source_tree_sha256_for_tree(repository: Path, treeish: str) -> str:
             raise InjectionMaterializerError("baseline tree has unsupported gitlink")
         else:
             raise InjectionMaterializerError("baseline tree has unsupported entry")
-    return _hash_source_entries(entries)
+    return entries
 
 
-def _source_tree_sha256_from_index(worktree: Path) -> str:
-    """Hash the exact tracked source tree staged in a worktree index."""
+def _index_treeish(worktree: Path) -> str:
     try:
         tree = _git_stdout(worktree, ["write-tree"])
     except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError) as error:
         raise InjectionMaterializerError("worktree index cannot be read") from error
     if not tree:
         raise InjectionMaterializerError("worktree index cannot be read")
-    return _source_tree_sha256_for_tree(worktree, os.fsdecode(tree))
+    return os.fsdecode(tree)
 
 
-def _worktree_matches_index(
-    worktree: Path,
-    *,
-    allowed_untracked: frozenset[bytes] = frozenset(),
-) -> bool:
-    """Return whether tracked and untracked source matches the staged tree."""
-    unstaged = _run_git(
+def _source_tree_sha256_from_index(worktree: Path) -> str:
+    """Hash the exact tracked source tree staged in a worktree index."""
+    return _source_tree_sha256_for_tree(worktree, _index_treeish(worktree))
+
+
+def _populate_worktree_from_index(worktree: Path) -> None:
+    """Write exact staged Git blobs without invoking checkout filters or hooks."""
+    if any(child.name != ".git" for child in worktree.iterdir()):
+        raise InjectionMaterializerError("fresh worktree contains unexpected source")
+
+    for path, kind, executable, payload in _source_tree_entries_for_tree(
         worktree,
-        [
-            "diff",
-            "--quiet",
-            "--no-ext-diff",
-            "--no-textconv",
-            "--ignore-submodules=none",
-            "--",
-        ],
-    )
-    if unstaged.returncode == 1:
-        return False
-    if unstaged.returncode != 0:
-        raise InjectionMaterializerError("worktree source cannot be inspected")
-
-    for arguments in (
-        ["ls-files", "--others", "--exclude-standard", "-z"],
-        ["ls-files", "--others", "--ignored", "--exclude-standard", "-z"],
+        _index_treeish(worktree),
     ):
-        paths = _git_stdout(worktree, arguments)
-        if any(path and path not in allowed_untracked for path in paths.split(b"\0")):
-            return False
-    return True
+        target = _source_entry_target(worktree, path)
+        _create_source_parent_directories(worktree, target)
+        try:
+            target.lstat()
+        except FileNotFoundError:
+            pass
+        else:
+            raise InjectionMaterializerError("source tree contains colliding paths")
+        if kind == b"file":
+            descriptor = os.open(
+                target,
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+                0o755 if executable else 0o644,
+            )
+            with os.fdopen(descriptor, "wb") as destination:
+                destination.write(payload)
+        elif kind == b"symlink":
+            try:
+                os.symlink(os.fsdecode(payload), target)
+            except (OSError, ValueError) as error:
+                raise InjectionMaterializerError("source tree has invalid symlink") from error
+        else:
+            raise InjectionMaterializerError("source tree has unsupported entry")
+
+
+def _source_entry_target(worktree: Path, source_path: bytes) -> Path:
+    components = source_path.split(b"/")
+    if not components or any(
+        component in {b"", b".", b".."} for component in components
+    ):
+        raise InjectionMaterializerError("source tree has unsafe path")
+    if components[0] == b".git":
+        raise InjectionMaterializerError("source tree reserves Git control path")
+    return worktree.joinpath(*(os.fsdecode(component) for component in components))
+
+
+def _create_source_parent_directories(worktree: Path, target: Path) -> None:
+    relative_parent = target.parent.relative_to(worktree)
+    directory = worktree
+    for component in relative_parent.parts:
+        directory /= component
+        try:
+            details = directory.lstat()
+        except FileNotFoundError:
+            directory.mkdir()
+            continue
+        if directory.is_symlink() or not stat.S_ISDIR(details.st_mode):
+            raise InjectionMaterializerError("source tree has colliding paths")
 
 
 def _relative_bytes(root: Path, path: Path) -> bytes:
@@ -369,6 +419,89 @@ def _path_is_within(path: Path, ancestor: Path) -> bool:
     return True
 
 
+def _open_directory_authority(path: Path) -> _DirectoryAuthority:
+    """Open one non-symlink directory and bind it to its parent descriptor."""
+    try:
+        details = path.lstat()
+    except OSError as error:
+        raise InjectionMaterializerError("worktree directory is unavailable") from error
+    if path.is_symlink() or not stat.S_ISDIR(details.st_mode):
+        raise InjectionMaterializerError("worktree directory is unavailable")
+
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    parent_descriptor = os.open(path.parent, flags)
+    try:
+        descriptor = os.open(path.name, flags, dir_fd=parent_descriptor)
+    except OSError:
+        os.close(parent_descriptor)
+        raise
+    observed = os.fstat(descriptor)
+    if (observed.st_dev, observed.st_ino) != (details.st_dev, details.st_ino):
+        os.close(descriptor)
+        os.close(parent_descriptor)
+        raise InjectionMaterializerError("worktree directory identity has changed")
+    return _DirectoryAuthority(
+        path=path,
+        device=details.st_dev,
+        inode=details.st_ino,
+        descriptor=descriptor,
+        parent_descriptor=parent_descriptor,
+    )
+
+
+def _authority_matches_path(authority: _DirectoryAuthority) -> bool:
+    """Check that a retained descriptor still names the original directory."""
+    try:
+        details = authority.path.lstat()
+        observed = os.fstat(authority.descriptor)
+    except OSError:
+        return False
+    return (
+        not authority.path.is_symlink()
+        and stat.S_ISDIR(details.st_mode)
+        and stat.S_ISDIR(observed.st_mode)
+        and (details.st_dev, details.st_ino) == (authority.device, authority.inode)
+        and (observed.st_dev, observed.st_ino) == (authority.device, authority.inode)
+    )
+
+
+def _close_directory_authority(authority: _DirectoryAuthority) -> None:
+    for descriptor in (authority.descriptor, authority.parent_descriptor):
+        try:
+            os.close(descriptor)
+        except OSError:
+            pass
+
+
+def _remove_directory_contents(descriptor: int) -> None:
+    """Remove children through an opened directory without following symlinks."""
+    with os.scandir(descriptor) as entries:
+        children = [(entry.name, entry.is_dir(follow_symlinks=False)) for entry in entries]
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    for name, is_directory in children:
+        if not is_directory:
+            os.unlink(name, dir_fd=descriptor)
+            continue
+        child_descriptor = os.open(name, flags, dir_fd=descriptor)
+        try:
+            _remove_directory_contents(child_descriptor)
+        finally:
+            os.close(child_descriptor)
+        os.rmdir(name, dir_fd=descriptor)
+
+
+def _remove_authorized_directory(authority: _DirectoryAuthority) -> bool:
+    """Delete only the opened directory; a replacement must remain untouched."""
+    try:
+        _remove_directory_contents(authority.descriptor)
+        if not _authority_matches_path(authority):
+            return False
+        os.rmdir(authority.path.name, dir_fd=authority.parent_descriptor)
+    except OSError:
+        return False
+    return True
+
+
 class InjectionMaterializer:
     """Create and clean only fresh, detached, materializer-owned worktrees."""
 
@@ -456,7 +589,14 @@ class InjectionMaterializer:
         worktree_path = self._fresh_worktree_path(candidate)
         created = _run_git(
             self._caller_checkout,
-            ["worktree", "add", "--detach", os.fspath(worktree_path), resolved_commit],
+            [
+                "worktree",
+                "add",
+                "--detach",
+                "--no-checkout",
+                os.fspath(worktree_path),
+                resolved_commit,
+            ],
         )
         if created.returncode != 0:
             return InjectionReceipt.rejected(candidate, "worktree_creation_failed")
@@ -495,10 +635,13 @@ class InjectionMaterializer:
         detached = _run_git(worktree_path, ["symbolic-ref", "-q", "HEAD"])
         if detached.returncode == 0:
             return self._reject_and_discard(candidate, worktree_path, "worktree_provenance_mismatch")
+        initialized = _run_git(worktree_path, ["read-tree", resolved_commit])
+        if initialized.returncode != 0:
+            return self._reject_and_discard(candidate, worktree_path, "worktree_provenance_mismatch")
         current_tree = _source_tree_sha256_from_index(worktree_path)
         if current_tree != candidate.baseline.source_tree_sha256:
             return self._reject_and_discard(candidate, worktree_path, "worktree_provenance_mismatch")
-        if not _worktree_matches_index(worktree_path):
+        if any(child.name != ".git" for child in worktree_path.iterdir()):
             return self._reject_and_discard(candidate, worktree_path, "worktree_provenance_mismatch")
 
         patch_bytes = candidate.source_delta.patch_text.encode("utf-8")
@@ -506,22 +649,19 @@ class InjectionMaterializer:
         # declared immutable baseline, not interpretation of operator metadata.
         check = _run_git(
             worktree_path,
-            ["apply", "--check", "--index", "--whitespace=nowarn", "-"],
+            ["apply", "--cached", "--check", "--whitespace=nowarn", "-"],
             input_bytes=patch_bytes,
         )
         if check.returncode != 0:
             return self._reject_and_discard(candidate, worktree_path, "patch_not_applicable")
         applied = _run_git(
             worktree_path,
-            ["apply", "--index", "--whitespace=nowarn", "-"],
+            ["apply", "--cached", "--whitespace=nowarn", "-"],
             input_bytes=patch_bytes,
         )
         if applied.returncode != 0:
             return self._reject_and_discard(candidate, worktree_path, "patch_apply_failed")
 
-        marker_path = worktree_path / _OWNERSHIP_MARKER
-        if marker_path.exists() or marker_path.is_symlink():
-            return self._reject_and_discard(candidate, worktree_path, "reserved_ownership_path")
         diff = _run_git(
             worktree_path,
             [
@@ -538,6 +678,18 @@ class InjectionMaterializer:
         result_tree_sha256 = _source_tree_sha256_from_index(worktree_path)
         if result_tree_sha256 == candidate.baseline.source_tree_sha256:
             return self._reject_and_discard(candidate, worktree_path, "patch_did_not_change_source")
+        _populate_worktree_from_index(worktree_path)
+        marker_path = worktree_path / _OWNERSHIP_MARKER
+        if marker_path.exists() or marker_path.is_symlink():
+            return self._reject_and_discard(candidate, worktree_path, "reserved_ownership_path")
+        if (
+            source_tree_sha256_from_worktree(
+                worktree_path,
+                ignore_ownership_marker=False,
+            )
+            != result_tree_sha256
+        ):
+            return self._reject_and_discard(candidate, worktree_path, "result_identity_failed")
         diff_sha256 = sha256(diff.stdout).hexdigest()
         result_sha256 = result_identity_sha256(
             baseline_identity_sha256=candidate.baseline.identity_sha256,
@@ -585,33 +737,20 @@ class InjectionMaterializer:
         registration = self._fresh_worktrees.get(path)
         if registration is None:
             return False
-        try:
-            details = path.lstat()
-            if path.is_symlink() or not stat.S_ISDIR(details.st_mode):
-                return False
-            if (details.st_dev, details.st_ino) != (
-                registration.device,
-                registration.inode,
-            ):
-                return False
-            if _git_common_dir(path) != _git_common_dir(self._caller_checkout):
-                return False
-            if path not in self._registered_worktree_paths():
-                return False
-            head = _git_stdout(path, ["rev-parse", "HEAD"])
-            if os.fsdecode(head) != registration.baseline_commit:
-                return False
-            if _run_git(path, ["symbolic-ref", "-q", "HEAD"]).returncode == 0:
-                return False
-        except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError):
+        if not self._is_verified_linked_worktree(
+            path,
+            registration.directory,
+            registration.baseline_commit,
+        ):
             return False
-        result = _run_git(
-            self._caller_checkout,
-            ["worktree", "remove", "--force", os.fspath(path)],
-        )
-        if result.returncode != 0 or path.exists():
+        if not self._dispose_owned_directories(
+            registration.directory,
+            registration.administrative_directory,
+        ):
             return False
         self._fresh_worktrees.pop(path, None)
+        _close_directory_authority(registration.directory)
+        _close_directory_authority(registration.administrative_directory)
         return True
 
     def _marker_document(self, worktree: MaterializedWorktree) -> dict[str, Any]:
@@ -627,46 +766,29 @@ class InjectionMaterializer:
     def _marker_bytes(self, worktree: MaterializedWorktree) -> bytes:
         return canonical_json_bytes(self._marker_document(worktree)) + b"\n"
 
-    def _register_owned_worktree(self, worktree: MaterializedWorktree) -> None:
-        """Retain the exact directory identity created by this instance.
-
-        Receipts and markers are intentionally serializable for audit, so neither
-        can alone prove that a path was created by this materializer.  The
-        in-memory registration is the authority boundary: a new materializer
-        safely refuses cleanup rather than risking removal of an existing linked
-        worktree.
-        """
-        path = Path(worktree.path).resolve()
-        details = path.lstat()
-        if path.is_symlink() or not stat.S_ISDIR(details.st_mode):
-            raise InjectionMaterializerError("owned worktree directory is unavailable")
-        self._owned_worktrees[path] = _OwnedWorktreeRegistration(
-            worktree=worktree,
-            device=details.st_dev,
-            inode=details.st_ino,
-        )
-
     def _register_fresh_worktree(self, worktree_path: Path, baseline_commit: str) -> None:
         """Record the exact fresh linked worktree before any failure cleanup."""
         path = Path(worktree_path)
         if path.parent != self._worktree_root:
             raise InjectionMaterializerError("fresh worktree is outside materializer root")
-        details = path.lstat()
-        if path.is_symlink() or not stat.S_ISDIR(details.st_mode):
-            raise InjectionMaterializerError("fresh worktree directory is unavailable")
-        if _git_common_dir(path) != _git_common_dir(self._caller_checkout):
-            raise InjectionMaterializerError("fresh worktree belongs to a different repository")
-        if path not in self._registered_worktree_paths():
-            raise InjectionMaterializerError("fresh worktree is not registered with caller repository")
-        head = _git_stdout(path, ["rev-parse", "HEAD"])
-        if os.fsdecode(head) != baseline_commit:
-            raise InjectionMaterializerError("fresh worktree baseline commit has changed")
-        if _run_git(path, ["symbolic-ref", "-q", "HEAD"]).returncode == 0:
-            raise InjectionMaterializerError("fresh worktree is no longer detached")
+        directory = _open_directory_authority(path)
+        administrative_directory: _DirectoryAuthority | None = None
+        try:
+            administrative_path = _git_directory(path)
+            if administrative_path.parent != _git_common_dir(path) / "worktrees":
+                raise InjectionMaterializerError("fresh worktree administrative path is unsafe")
+            administrative_directory = _open_directory_authority(administrative_path)
+            if not self._is_verified_linked_worktree(path, directory, baseline_commit):
+                raise InjectionMaterializerError("fresh worktree provenance cannot be verified")
+        except Exception:
+            _close_directory_authority(directory)
+            if administrative_directory is not None:
+                _close_directory_authority(administrative_directory)
+            raise
         self._fresh_worktrees[path] = _FreshWorktreeRegistration(
             baseline_commit=baseline_commit,
-            device=details.st_dev,
-            inode=details.st_ino,
+            directory=directory,
+            administrative_directory=administrative_directory,
         )
 
     def _promote_fresh_worktree(self, worktree: MaterializedWorktree) -> None:
@@ -677,16 +799,48 @@ class InjectionMaterializer:
             raise InjectionMaterializerError("fresh worktree was not created by this materializer")
         if registration.baseline_commit != worktree.baseline_commit:
             raise InjectionMaterializerError("fresh worktree baseline commit has changed")
-        try:
-            details = path.lstat()
-        except OSError as error:
-            raise InjectionMaterializerError("fresh worktree directory is unavailable") from error
-        if path.is_symlink() or not stat.S_ISDIR(details.st_mode):
-            raise InjectionMaterializerError("fresh worktree directory is unavailable")
-        if (details.st_dev, details.st_ino) != (registration.device, registration.inode):
-            raise InjectionMaterializerError("fresh worktree directory identity has changed")
-        self._register_owned_worktree(worktree)
+        if not self._is_verified_linked_worktree(
+            path,
+            registration.directory,
+            worktree.baseline_commit,
+        ):
+            raise InjectionMaterializerError("fresh worktree provenance cannot be verified")
+        self._owned_worktrees[path] = _OwnedWorktreeRegistration(
+            worktree=worktree,
+            directory=registration.directory,
+            administrative_directory=registration.administrative_directory,
+        )
         self._fresh_worktrees.pop(path, None)
+
+    def _is_verified_linked_worktree(
+        self,
+        path: Path,
+        directory: _DirectoryAuthority,
+        baseline_commit: str,
+    ) -> bool:
+        if not _authority_matches_path(directory):
+            return False
+        try:
+            if _git_common_dir(path) != _git_common_dir(self._caller_checkout):
+                return False
+            if path not in self._registered_worktree_paths():
+                return False
+            head = _git_stdout(path, ["rev-parse", "HEAD"])
+            if os.fsdecode(head) != baseline_commit:
+                return False
+            return _run_git(path, ["symbolic-ref", "-q", "HEAD"]).returncode != 0
+        except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError):
+            return False
+
+    def _dispose_owned_directories(
+        self,
+        directory: _DirectoryAuthority,
+        administrative_directory: _DirectoryAuthority,
+    ) -> bool:
+        """Remove retained source and Git administrative directories by descriptor."""
+        return _remove_authorized_directory(directory) and _remove_authorized_directory(
+            administrative_directory
+        )
 
     def cleanup(self, receipt: InjectionReceipt) -> None:
         """Remove only the exact, verified worktree created by this materializer."""
@@ -695,7 +849,7 @@ class InjectionMaterializer:
         worktree = receipt.worktree
         if worktree is None:
             raise InjectionCleanupError("cleanup requires an owned worktree")
-        path = Path(worktree.path).resolve()
+        path = Path(worktree.path)
         if path.parent != self._worktree_root or not path.is_dir() or path.is_symlink():
             raise InjectionCleanupError("cleanup path is not a materializer-owned child")
         marker_path = path / _OWNERSHIP_MARKER
@@ -714,22 +868,14 @@ class InjectionMaterializer:
             raise InjectionCleanupError(
                 "cleanup worktree was not created by this materializer"
             )
-        try:
-            details = path.lstat()
-        except OSError as error:
-            raise InjectionCleanupError("owned worktree directory is unavailable") from error
-        if (details.st_dev, details.st_ino) != (registration.device, registration.inode):
+        if not _authority_matches_path(registration.directory):
             raise InjectionCleanupError("owned worktree directory identity has changed")
-        if _git_common_dir(path) != _git_common_dir(self._caller_checkout):
-            raise InjectionCleanupError("owned worktree belongs to a different repository")
-        registered_paths = self._registered_worktree_paths()
-        if path not in registered_paths:
-            raise InjectionCleanupError("owned worktree is not registered with caller repository")
-        head = _git_stdout(path, ["rev-parse", "HEAD"])
-        if os.fsdecode(head) != worktree.baseline_commit:
-            raise InjectionCleanupError("owned worktree baseline commit has changed")
-        if _run_git(path, ["symbolic-ref", "-q", "HEAD"]).returncode == 0:
-            raise InjectionCleanupError("owned worktree is no longer detached")
+        if not self._is_verified_linked_worktree(
+            path,
+            registration.directory,
+            worktree.baseline_commit,
+        ):
+            raise InjectionCleanupError("owned worktree provenance has changed")
         try:
             current_result_tree = _source_tree_sha256_from_index(path)
         except InjectionMaterializerError as error:
@@ -737,22 +883,20 @@ class InjectionMaterializer:
         if current_result_tree != receipt.result_source_tree_sha256:
             raise InjectionCleanupError("owned worktree source identity has changed")
         try:
-            source_matches_index = _worktree_matches_index(
-                path,
-                allowed_untracked=frozenset({os.fsencode(_OWNERSHIP_MARKER)}),
-            )
+            current_worktree_tree = source_tree_sha256_from_worktree(path)
         except InjectionMaterializerError as error:
             raise InjectionCleanupError("owned worktree source cannot be verified") from error
-        if not source_matches_index:
+        if current_worktree_tree != receipt.result_source_tree_sha256:
             raise InjectionCleanupError("owned worktree source identity has changed")
 
-        removed = _run_git(
-            self._caller_checkout,
-            ["worktree", "remove", "--force", os.fspath(path)],
-        )
-        if removed.returncode != 0 or path.exists():
+        if not self._dispose_owned_directories(
+            registration.directory,
+            registration.administrative_directory,
+        ):
             raise InjectionCleanupError("owned worktree removal failed")
         self._owned_worktrees.pop(path, None)
+        _close_directory_authority(registration.directory)
+        _close_directory_authority(registration.administrative_directory)
 
     def _registered_worktree_paths(self) -> set[Path]:
         listing = _git_stdout(self._caller_checkout, ["worktree", "list", "--porcelain"])
@@ -765,6 +909,12 @@ class InjectionMaterializer:
 
 def _git_common_dir(repository: Path) -> Path:
     raw = _git_stdout(repository, ["rev-parse", "--git-common-dir"])
+    path = Path(os.fsdecode(raw))
+    return path.resolve() if path.is_absolute() else (repository / path).resolve()
+
+
+def _git_directory(repository: Path) -> Path:
+    raw = _git_stdout(repository, ["rev-parse", "--git-dir"])
     path = Path(os.fsdecode(raw))
     return path.resolve() if path.is_absolute() else (repository / path).resolve()
 
