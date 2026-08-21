@@ -32,6 +32,8 @@ _GIT_IDENTITY_CONFIG = (
     "-c",
     "core.eol=lf",
     "-c",
+    f"core.hooksPath={os.devnull}",
+    "-c",
     "core.quotePath=true",
     "-c",
     "color.ui=false",
@@ -88,6 +90,15 @@ class _OwnedWorktreeRegistration:
     inode: int
 
 
+@dataclass(frozen=True)
+class _FreshWorktreeRegistration:
+    """Non-serializable authority for a worktree before materialization succeeds."""
+
+    baseline_commit: str
+    device: int
+    inode: int
+
+
 def _run_git(
     repository: Path,
     arguments: list[str],
@@ -95,8 +106,20 @@ def _run_git(
     input_bytes: bytes | None = None,
 ) -> subprocess.CompletedProcess[bytes]:
     """Run Git without a shell or an interactive credential prompt."""
-    environment = os.environ.copy()
-    environment["GIT_TERMINAL_PROMPT"] = "0"
+    # Ambient GIT_* variables can redirect an otherwise scoped command to the
+    # caller's index, object database, or worktree.  Start with normal process
+    # environment needed to locate Git, but replace all Git execution state.
+    environment = {
+        key: value for key, value in os.environ.items() if not key.startswith("GIT_")
+    }
+    environment.update(
+        {
+            "GIT_ATTR_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_TERMINAL_PROMPT": "0",
+        }
+    )
     return subprocess.run(
         ["git", *_GIT_IDENTITY_CONFIG, "-C", os.fspath(repository), *arguments],
         input=input_bytes,
@@ -166,15 +189,20 @@ def _hash_source_entries(
 def source_tree_sha256_for_commit(repository: str | Path, commit: str) -> str:
     """Hash tracked source content at one immutable commit.
 
-    The digest is independent of Git's SHA-1/SHA-256 object format and aligns
-    with :func:`source_tree_sha256_from_worktree` for a clean checkout.
+    The digest is independent of Git's SHA-1/SHA-256 object format.  It uses
+    Git blobs, so checkout filters cannot change the declared source identity.
     """
     root = _repository_root(repository)
     resolved = _resolved_commit(root, commit)
+    return _source_tree_sha256_for_tree(root, resolved)
+
+
+def _source_tree_sha256_for_tree(repository: Path, treeish: str) -> str:
+    """Hash tracked Git blobs from a commit or tree object."""
     try:
-        listing = _git_stdout(root, ["ls-tree", "-r", "-z", "--full-tree", resolved])
+        listing = _git_stdout(repository, ["ls-tree", "-r", "-z", "--full-tree", treeish])
     except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError) as error:
-        raise InjectionMaterializerError("baseline tree cannot be read") from error
+        raise InjectionMaterializerError("source tree cannot be read") from error
 
     entries: list[tuple[bytes, bytes, bool, bytes]] = []
     for record in (item for item in listing.split(b"\0") if item):
@@ -184,9 +212,9 @@ def source_tree_sha256_for_commit(repository: str | Path, commit: str) -> str:
         except ValueError as error:
             raise InjectionMaterializerError("Git tree output is malformed") from error
         if object_type == b"blob":
-            blob = _run_git(root, ["cat-file", "blob", os.fsdecode(object_id)])
+            blob = _run_git(repository, ["cat-file", "blob", os.fsdecode(object_id)])
             if blob.returncode != 0:
-                raise InjectionMaterializerError("baseline blob cannot be read")
+                raise InjectionMaterializerError("source blob cannot be read")
             if mode == b"120000":
                 entries.append((path, b"symlink", False, blob.stdout))
             elif mode in {b"100644", b"100755"}:
@@ -199,6 +227,49 @@ def source_tree_sha256_for_commit(repository: str | Path, commit: str) -> str:
         else:
             raise InjectionMaterializerError("baseline tree has unsupported entry")
     return _hash_source_entries(entries)
+
+
+def _source_tree_sha256_from_index(worktree: Path) -> str:
+    """Hash the exact tracked source tree staged in a worktree index."""
+    try:
+        tree = _git_stdout(worktree, ["write-tree"])
+    except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError) as error:
+        raise InjectionMaterializerError("worktree index cannot be read") from error
+    if not tree:
+        raise InjectionMaterializerError("worktree index cannot be read")
+    return _source_tree_sha256_for_tree(worktree, os.fsdecode(tree))
+
+
+def _worktree_matches_index(
+    worktree: Path,
+    *,
+    allowed_untracked: frozenset[bytes] = frozenset(),
+) -> bool:
+    """Return whether tracked and untracked source matches the staged tree."""
+    unstaged = _run_git(
+        worktree,
+        [
+            "diff",
+            "--quiet",
+            "--no-ext-diff",
+            "--no-textconv",
+            "--ignore-submodules=none",
+            "--",
+        ],
+    )
+    if unstaged.returncode == 1:
+        return False
+    if unstaged.returncode != 0:
+        raise InjectionMaterializerError("worktree source cannot be inspected")
+
+    for arguments in (
+        ["ls-files", "--others", "--exclude-standard", "-z"],
+        ["ls-files", "--others", "--ignored", "--exclude-standard", "-z"],
+    ):
+        paths = _git_stdout(worktree, arguments)
+        if any(path and path not in allowed_untracked for path in paths.split(b"\0")):
+            return False
+    return True
 
 
 def _relative_bytes(root: Path, path: Path) -> bytes:
@@ -304,6 +375,7 @@ class InjectionMaterializer:
     def __init__(self, caller_checkout: str | Path, worktree_root: str | Path) -> None:
         self._caller_checkout = _repository_root(caller_checkout)
         self._worktree_root = Path(worktree_root).expanduser().resolve()
+        self._fresh_worktrees: dict[Path, _FreshWorktreeRegistration] = {}
         self._owned_worktrees: dict[Path, _OwnedWorktreeRegistration] = {}
         if _path_is_within(self._worktree_root, self._caller_checkout):
             raise InjectionMaterializerError(
@@ -390,6 +462,13 @@ class InjectionMaterializer:
             return InjectionReceipt.rejected(candidate, "worktree_creation_failed")
 
         try:
+            self._register_fresh_worktree(worktree_path, resolved_commit)
+        except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError):
+            # Creation succeeded but ownership could not be established.  Do
+            # not guess at cleanup authority for a linked worktree.
+            return InjectionReceipt.rejected(candidate, "worktree_cleanup_failed")
+
+        try:
             return self._apply_in_fresh_worktree(candidate, worktree_path, resolved_commit)
         except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError):
             if not self._discard_fresh_worktree(worktree_path):
@@ -416,10 +495,10 @@ class InjectionMaterializer:
         detached = _run_git(worktree_path, ["symbolic-ref", "-q", "HEAD"])
         if detached.returncode == 0:
             return self._reject_and_discard(candidate, worktree_path, "worktree_provenance_mismatch")
-        current_tree = source_tree_sha256_from_worktree(
-            worktree_path, ignore_ownership_marker=False
-        )
+        current_tree = _source_tree_sha256_from_index(worktree_path)
         if current_tree != candidate.baseline.source_tree_sha256:
+            return self._reject_and_discard(candidate, worktree_path, "worktree_provenance_mismatch")
+        if not _worktree_matches_index(worktree_path):
             return self._reject_and_discard(candidate, worktree_path, "worktree_provenance_mismatch")
 
         patch_bytes = candidate.source_delta.patch_text.encode("utf-8")
@@ -456,9 +535,7 @@ class InjectionMaterializer:
             return self._reject_and_discard(candidate, worktree_path, "result_identity_failed")
         if not diff.stdout:
             return self._reject_and_discard(candidate, worktree_path, "patch_did_not_change_source")
-        result_tree_sha256 = source_tree_sha256_from_worktree(
-            worktree_path, ignore_ownership_marker=False
-        )
+        result_tree_sha256 = _source_tree_sha256_from_index(worktree_path)
         if result_tree_sha256 == candidate.baseline.source_tree_sha256:
             return self._reject_and_discard(candidate, worktree_path, "patch_did_not_change_source")
         diff_sha256 = sha256(diff.stdout).hexdigest()
@@ -487,7 +564,7 @@ class InjectionMaterializer:
             worktree=owned_worktree,
         )
         try:
-            self._register_owned_worktree(owned_worktree)
+            self._promote_fresh_worktree(owned_worktree)
         except (OSError, InjectionMaterializerError):
             return self._reject_and_discard(candidate, worktree_path, "result_identity_failed")
         return receipt
@@ -504,13 +581,38 @@ class InjectionMaterializer:
 
     def _discard_fresh_worktree(self, worktree_path: Path) -> bool:
         """Discard only the path just created by this materializer invocation."""
-        if not _path_is_within(worktree_path.resolve(), self._worktree_root):
+        path = Path(worktree_path)
+        registration = self._fresh_worktrees.get(path)
+        if registration is None:
+            return False
+        try:
+            details = path.lstat()
+            if path.is_symlink() or not stat.S_ISDIR(details.st_mode):
+                return False
+            if (details.st_dev, details.st_ino) != (
+                registration.device,
+                registration.inode,
+            ):
+                return False
+            if _git_common_dir(path) != _git_common_dir(self._caller_checkout):
+                return False
+            if path not in self._registered_worktree_paths():
+                return False
+            head = _git_stdout(path, ["rev-parse", "HEAD"])
+            if os.fsdecode(head) != registration.baseline_commit:
+                return False
+            if _run_git(path, ["symbolic-ref", "-q", "HEAD"]).returncode == 0:
+                return False
+        except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError):
             return False
         result = _run_git(
             self._caller_checkout,
-            ["worktree", "remove", "--force", os.fspath(worktree_path)],
+            ["worktree", "remove", "--force", os.fspath(path)],
         )
-        return result.returncode == 0 and not worktree_path.exists()
+        if result.returncode != 0 or path.exists():
+            return False
+        self._fresh_worktrees.pop(path, None)
+        return True
 
     def _marker_document(self, worktree: MaterializedWorktree) -> dict[str, Any]:
         return {
@@ -543,6 +645,48 @@ class InjectionMaterializer:
             device=details.st_dev,
             inode=details.st_ino,
         )
+
+    def _register_fresh_worktree(self, worktree_path: Path, baseline_commit: str) -> None:
+        """Record the exact fresh linked worktree before any failure cleanup."""
+        path = Path(worktree_path)
+        if path.parent != self._worktree_root:
+            raise InjectionMaterializerError("fresh worktree is outside materializer root")
+        details = path.lstat()
+        if path.is_symlink() or not stat.S_ISDIR(details.st_mode):
+            raise InjectionMaterializerError("fresh worktree directory is unavailable")
+        if _git_common_dir(path) != _git_common_dir(self._caller_checkout):
+            raise InjectionMaterializerError("fresh worktree belongs to a different repository")
+        if path not in self._registered_worktree_paths():
+            raise InjectionMaterializerError("fresh worktree is not registered with caller repository")
+        head = _git_stdout(path, ["rev-parse", "HEAD"])
+        if os.fsdecode(head) != baseline_commit:
+            raise InjectionMaterializerError("fresh worktree baseline commit has changed")
+        if _run_git(path, ["symbolic-ref", "-q", "HEAD"]).returncode == 0:
+            raise InjectionMaterializerError("fresh worktree is no longer detached")
+        self._fresh_worktrees[path] = _FreshWorktreeRegistration(
+            baseline_commit=baseline_commit,
+            device=details.st_dev,
+            inode=details.st_ino,
+        )
+
+    def _promote_fresh_worktree(self, worktree: MaterializedWorktree) -> None:
+        """Transfer verified fresh-worktree authority to the owned receipt."""
+        path = Path(worktree.path)
+        registration = self._fresh_worktrees.get(path)
+        if registration is None:
+            raise InjectionMaterializerError("fresh worktree was not created by this materializer")
+        if registration.baseline_commit != worktree.baseline_commit:
+            raise InjectionMaterializerError("fresh worktree baseline commit has changed")
+        try:
+            details = path.lstat()
+        except OSError as error:
+            raise InjectionMaterializerError("fresh worktree directory is unavailable") from error
+        if path.is_symlink() or not stat.S_ISDIR(details.st_mode):
+            raise InjectionMaterializerError("fresh worktree directory is unavailable")
+        if (details.st_dev, details.st_ino) != (registration.device, registration.inode):
+            raise InjectionMaterializerError("fresh worktree directory identity has changed")
+        self._register_owned_worktree(worktree)
+        self._fresh_worktrees.pop(path, None)
 
     def cleanup(self, receipt: InjectionReceipt) -> None:
         """Remove only the exact, verified worktree created by this materializer."""
@@ -587,10 +731,19 @@ class InjectionMaterializer:
         if _run_git(path, ["symbolic-ref", "-q", "HEAD"]).returncode == 0:
             raise InjectionCleanupError("owned worktree is no longer detached")
         try:
-            current_result_tree = source_tree_sha256_from_worktree(path)
+            current_result_tree = _source_tree_sha256_from_index(path)
         except InjectionMaterializerError as error:
             raise InjectionCleanupError("owned worktree source cannot be verified") from error
         if current_result_tree != receipt.result_source_tree_sha256:
+            raise InjectionCleanupError("owned worktree source identity has changed")
+        try:
+            source_matches_index = _worktree_matches_index(
+                path,
+                allowed_untracked=frozenset({os.fsencode(_OWNERSHIP_MARKER)}),
+            )
+        except InjectionMaterializerError as error:
+            raise InjectionCleanupError("owned worktree source cannot be verified") from error
+        if not source_matches_index:
             raise InjectionCleanupError("owned worktree source identity has changed")
 
         removed = _run_git(
