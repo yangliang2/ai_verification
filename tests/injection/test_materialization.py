@@ -416,6 +416,61 @@ def test_rejection_refuses_to_remove_a_worktree_replaced_after_creation(
     _git(repository, "worktree", "remove", "--force", str(worktree))
 
 
+def test_materialization_refuses_a_worktree_replaced_before_fresh_registration(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(repository)
+    materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
+    original_run_git = materialization_module._run_git
+    replaced = False
+
+    def replace_created_worktree(
+        worktree: Path,
+        arguments: list[str],
+        *,
+        input_bytes: bytes | None = None,
+    ) -> subprocess.CompletedProcess[bytes]:
+        nonlocal replaced
+        result = original_run_git(worktree, arguments, input_bytes=input_bytes)
+        if (
+            not replaced
+            and arguments[:4] == ["worktree", "add", "--detach", "--no-checkout"]
+            and result.returncode == 0
+        ):
+            created_path = Path(arguments[4])
+            removed = original_run_git(
+                repository,
+                ["worktree", "remove", "--force", str(created_path)],
+            )
+            assert removed.returncode == 0
+            replacement = original_run_git(
+                repository,
+                [
+                    "worktree",
+                    "add",
+                    "--detach",
+                    str(created_path),
+                    candidate.baseline.commit,
+                ],
+            )
+            assert replacement.returncode == 0
+            replaced = True
+        return result
+
+    monkeypatch.setattr(materialization_module, "_run_git", replace_created_worktree)
+
+    receipt = materializer.materialize(candidate)
+
+    assert replaced
+    assert receipt.outcome == "rejected"
+    assert receipt.rejection_code == "worktree_cleanup_failed"
+    worktree = next((tmp_path / "owned-worktrees").iterdir())
+    assert (worktree / "source.txt").read_text(encoding="utf-8") == "baseline\n"
+    _git(repository, "worktree", "remove", "--force", str(worktree))
+
+
 def test_materializes_added_source_files_in_the_canonical_result_diff(
     tmp_path: Path,
 ) -> None:

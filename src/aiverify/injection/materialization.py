@@ -502,6 +502,12 @@ def _remove_authorized_directory(authority: _DirectoryAuthority) -> bool:
     return True
 
 
+def _reserve_worktree_directory(path: Path) -> _DirectoryAuthority:
+    """Create and bind the disposable directory before Git can populate it."""
+    path.mkdir(mode=0o700)
+    return _open_directory_authority(path)
+
+
 class InjectionMaterializer:
     """Create and clean only fresh, detached, materializer-owned worktrees."""
 
@@ -587,6 +593,10 @@ class InjectionMaterializer:
             return InjectionReceipt.rejected(candidate, "worktree_root_unavailable")
 
         worktree_path = self._fresh_worktree_path(candidate)
+        try:
+            reserved_directory = _reserve_worktree_directory(worktree_path)
+        except (OSError, InjectionMaterializerError):
+            return InjectionReceipt.rejected(candidate, "worktree_creation_failed")
         created = _run_git(
             self._caller_checkout,
             [
@@ -599,10 +609,21 @@ class InjectionMaterializer:
             ],
         )
         if created.returncode != 0:
-            return InjectionReceipt.rejected(candidate, "worktree_creation_failed")
+            removed_reservation = _remove_authorized_directory(reserved_directory)
+            _close_directory_authority(reserved_directory)
+            return InjectionReceipt.rejected(
+                candidate,
+                "worktree_creation_failed"
+                if removed_reservation
+                else "worktree_cleanup_failed",
+            )
 
         try:
-            self._register_fresh_worktree(worktree_path, resolved_commit)
+            self._register_fresh_worktree(
+                worktree_path,
+                resolved_commit,
+                reserved_directory,
+            )
         except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError):
             # Creation succeeded but ownership could not be established.  Do
             # not guess at cleanup authority for a linked worktree.
@@ -766,14 +787,20 @@ class InjectionMaterializer:
     def _marker_bytes(self, worktree: MaterializedWorktree) -> bytes:
         return canonical_json_bytes(self._marker_document(worktree)) + b"\n"
 
-    def _register_fresh_worktree(self, worktree_path: Path, baseline_commit: str) -> None:
+    def _register_fresh_worktree(
+        self,
+        worktree_path: Path,
+        baseline_commit: str,
+        directory: _DirectoryAuthority,
+    ) -> None:
         """Record the exact fresh linked worktree before any failure cleanup."""
         path = Path(worktree_path)
         if path.parent != self._worktree_root:
             raise InjectionMaterializerError("fresh worktree is outside materializer root")
-        directory = _open_directory_authority(path)
         administrative_directory: _DirectoryAuthority | None = None
         try:
+            if not _authority_matches_path(directory):
+                raise InjectionMaterializerError("fresh worktree directory identity has changed")
             administrative_path = _git_directory(path)
             if administrative_path.parent != _git_common_dir(path) / "worktrees":
                 raise InjectionMaterializerError("fresh worktree administrative path is unsafe")
