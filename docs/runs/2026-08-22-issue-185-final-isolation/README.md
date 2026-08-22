@@ -3,9 +3,11 @@
 This is the final local verification record for the M0.1 curated-candidate
 materialization change at implementation commits
 `472c73bdbb05adf32087a7f72aa57d860afbda0e` and
-`02c4f7f030c66d22e777b7333ff26106a41f58c4`
-(`fix(injection): bind materialization Git state` and
-`fix(injection): synchronize materialized index`). It is a hermetic
+`02c4f7f030c66d22e777b7333ff26106a41f58c4`, and
+`3f11bb03571155e8a14fc05b63741e740c75562e`
+(`fix(injection): bind materialization Git state`,
+`fix(injection): synchronize materialized index`, and
+`fix(injection): bind administrative Git directory`). It is a hermetic
 temporary-Git-repository validation; it does not build, install, or run an
 Android application.
 
@@ -29,6 +31,11 @@ Android application.
   control-file identity, and makes subsequent Git calls use that explicit
   administrative directory. A replacement `.git` file therefore cannot point
   materialization or cleanup at another linked worktree or the caller index.
+- Bound Git commands enter the retained administrative-directory descriptor in
+  their child process and use only relative `--git-dir=.`, `--work-tree=.`, and
+  private-index paths. Replacing the administrative directory pathname after
+  authority validation therefore cannot redirect a later Git command to the
+  caller's `.git` directory.
 - Cleanup clears retained administrative state before source state and records
   each completed phase in memory. If the second descriptor-only clear fails,
   the same receipt can retry the remaining phase without relying on an already
@@ -36,7 +43,8 @@ Android application.
 - `tests/injection/test_materialization.py` adds deterministic temporary-repo
   regression coverage for caller `core.worktree`, default-index injection both
   before patch application and after diff generation, `.git` swaps before and
-  after registration, redirected cleanup, and retry after a second clear fails.
+  after registration, administrative-directory replacement before normal-index
+  synchronization, redirected cleanup, and retry after a second clear fails.
 
 ## Verification commands and results
 
@@ -55,14 +63,14 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -p no:cacheprovider -o addopts='' -q 
   --junitxml=docs/runs/2026-08-22-issue-185-final-isolation/verification/focused-pytest.xml
 ```
 
-Result: `35 passed in 21.62s` (JUnit test time: 19.984s).
+Result: `36 passed in 21.16s` (JUnit test time: 21.069s).
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -p no:cacheprovider -o addopts='' -q \
   --junitxml=docs/runs/2026-08-22-issue-185-final-isolation/verification/full-pytest.xml
 ```
 
-Result: `1182 passed, 1 skipped in 69.422s` (the single skipped test is recorded
+Result: `1182 passed, 1 skipped in 71.693s` (the single skipped test is recorded
 in the JUnit report; there were zero failures and zero errors).
 
 ```sh
@@ -82,8 +90,8 @@ Both JUnit artifacts verified.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| `verification/focused-pytest.xml` | Materialization-focused JUnit result, 35 tests | `96687d33d6dbc73398f9250e883a3a2845ffe5c793aa7b0c313e96cbd331d147` |
-| `verification/full-pytest.xml` | Full repository JUnit result, 1,182 tests | `448e7edfcf3f3a46224bd873eeea1d1aed42ce37cf5455276826e59e78225317` |
+| `verification/focused-pytest.xml` | Materialization-focused JUnit result, 36 tests | `a7c5c8c57ce92ccd31e1fd11c628668ab6b51be84cc8940eca2897458317a005` |
+| `verification/full-pytest.xml` | Full repository JUnit result, 1,183 tests | `2f11b25c72c0b830d5837921e27b8ae248e8f28fdb117941a3d8ef5be7e9670b` |
 | `SHA256SUMS` | Machine-readable checksum inventory | See file |
 
 No screenshots, Android builds, emulators, devices, providers, formal admission,
