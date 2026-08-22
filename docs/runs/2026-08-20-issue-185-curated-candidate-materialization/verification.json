@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "issue": {
+    "number": 185,
+    "title": "DIL-M0.1: Materialize one provenance-bound curated candidate safely"
+  },
+  "source": {
+    "base_commit": "aa55648c7a5f5b0da3599792273e62218b571583",
+    "base_tree": "0df050a3327d4126c5bca8438d2e85b11fb26233",
+    "implementation_commit": "fc66675687c83fefb6762f2dac85aca6ed7b63b8",
+    "implementation_tree": "72b3d88c0cfd5681ef1a9638f285d587d4f673e3"
+  },
+  "environment": {
+    "git": "2.50.1 (Apple Git-155)",
+    "python": "3.11.15",
+    "pytest": "9.1.1"
+  },
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -q tests/injection tests/discovery tests/runner --junitxml=docs/runs/2026-08-20-issue-185-curated-candidate-materialization/verification/focused-pytest.xml",
+      "exit_code": 0,
+      "tests": 427,
+      "passed": 427,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_seconds": 13.87,
+      "real_seconds": 14.5,
+      "user_seconds": 7.47,
+      "system_seconds": 5.81
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -qq --junitxml=docs/runs/2026-08-20-issue-185-curated-candidate-materialization/verification/full-pytest.xml",
+      "exit_code": 0,
+      "tests": 1154,
+      "passed": 1153,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 1,
+      "skip_reason": "repository-external fixture tests require explicit admission",
+      "junit_seconds": 59.374,
+      "real_seconds": 59.56,
+      "user_seconds": 36.14,
+      "system_seconds": 19.41
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m compileall -q src",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check origin/main...HEAD",
+      "exit_code": 0
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "verification/focused-pytest.xml",
+      "sha256": "1fa64115fd58359cbb1615d1bab6cad93512c241076357144eefa7e51a3cf3d6"
+    },
+    {
+      "path": "verification/full-pytest.xml",
+      "sha256": "7e37850afd6c2bd5b4d3249ddf5293d2226f251b221897ccc33432863ef79606"
+    }
+  ],
+  "manual_or_runtime_steps": {
+    "performed": false,
+    "reason": "M0.1 is a hermetic source-materialization slice; it must not build, install, launch, or drive Android."
+  },
+  "claim_boundary": {
+    "local_structural_materialization_only": true,
+    "not_claimed": [
+      "android_build",
+      "apk_installation",
+      "device_execution",
+      "verification_agent_invocation",
+      "formal_admission",
+      "benchmark_metric",
+      "semantic_leak_detection",
+      "behavioral_defect_validity"
+    ]
+  }
+}
