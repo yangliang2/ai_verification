@@ -300,7 +300,8 @@ def test_materialization_isolates_its_index_from_concurrent_default_index_update
         *,
         input_bytes: bytes | None = None,
         git_directory: Path | None = None,
-        index_file: Path | None = None,
+        index_file: Path | str | None = None,
+        working_directory_descriptor: int | None = None,
     ) -> subprocess.CompletedProcess[bytes]:
         nonlocal injected
         result = original_run_git(
@@ -309,6 +310,7 @@ def test_materialization_isolates_its_index_from_concurrent_default_index_update
             input_bytes=input_bytes,
             git_directory=git_directory,
             index_file=index_file,
+            working_directory_descriptor=working_directory_descriptor,
         )
         should_inject = (
             injection_point == "baseline" and arguments == ["write-tree"]
@@ -387,6 +389,63 @@ def test_materialization_avoids_caller_side_effects_from_checkout_filters(
     assert not filter_output.exists()
     assert _caller_snapshot(repository) == before
     materializer.cleanup(receipt)
+    assert _caller_snapshot(repository) == before
+
+
+def test_materialization_does_not_follow_a_replaced_administrative_directory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _init_repository(tmp_path)
+    candidate = _candidate(repository)
+    _dirty_caller(repository)
+    before = _caller_snapshot(repository)
+    materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
+    original_run_git = materialization_module._run_git
+    replaced = False
+
+    def replace_administrative_directory_before_index_sync(
+        worktree: Path,
+        arguments: list[str],
+        *,
+        input_bytes: bytes | None = None,
+        git_directory: Path | None = None,
+        index_file: Path | str | None = None,
+        **kwargs: object,
+    ) -> subprocess.CompletedProcess[bytes]:
+        nonlocal replaced
+        if (
+            not replaced
+            and arguments[:1] == ["read-tree"]
+            and index_file is None
+            and git_directory is not None
+        ):
+            registration = next(iter(materializer._fresh_worktrees.values()))
+            administrative_path = registration.administrative_directory.path
+            administrative_path.rename(
+                administrative_path.with_name(f"{administrative_path.name}-replaced")
+            )
+            os.symlink(repository / ".git", administrative_path)
+            replaced = True
+        return original_run_git(
+            worktree,
+            arguments,
+            input_bytes=input_bytes,
+            git_directory=git_directory,
+            index_file=index_file,
+            **kwargs,
+        )
+
+    monkeypatch.setattr(
+        materialization_module,
+        "_run_git",
+        replace_administrative_directory_before_index_sync,
+    )
+
+    receipt = materializer.materialize(candidate)
+
+    assert replaced
+    assert receipt.outcome == "rejected"
     assert _caller_snapshot(repository) == before
 
 
@@ -629,7 +688,8 @@ def test_rejection_refuses_to_remove_a_worktree_replaced_after_creation(
         *,
         input_bytes: bytes | None = None,
         git_directory: Path | None = None,
-        index_file: Path | None = None,
+        index_file: Path | str | None = None,
+        working_directory_descriptor: int | None = None,
     ) -> subprocess.CompletedProcess[bytes]:
         nonlocal replaced
         result = original_run_git(
@@ -638,6 +698,7 @@ def test_rejection_refuses_to_remove_a_worktree_replaced_after_creation(
             input_bytes=input_bytes,
             git_directory=git_directory,
             index_file=index_file,
+            working_directory_descriptor=working_directory_descriptor,
         )
         if (
             not replaced
@@ -894,7 +955,8 @@ def test_materialization_recovers_a_worktree_created_before_timeout(
         *,
         input_bytes: bytes | None = None,
         git_directory: Path | None = None,
-        index_file: Path | None = None,
+        index_file: Path | str | None = None,
+        working_directory_descriptor: int | None = None,
     ) -> subprocess.CompletedProcess[bytes]:
         nonlocal timed_out
         result = original_run_git(
@@ -903,6 +965,7 @@ def test_materialization_recovers_a_worktree_created_before_timeout(
             input_bytes=input_bytes,
             git_directory=git_directory,
             index_file=index_file,
+            working_directory_descriptor=working_directory_descriptor,
         )
         if (
             not timed_out

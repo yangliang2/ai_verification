@@ -114,7 +114,7 @@ class _OwnedWorktreeRegistration:
     directory: _DirectoryAuthority
     administrative_directory: _DirectoryAuthority
     git_control_file: _GitControlFileAuthority
-    private_index: Path
+    private_index: str
     administrative_cleared: bool = False
     source_cleared: bool = False
 
@@ -127,7 +127,7 @@ class _FreshWorktreeRegistration:
     directory: _DirectoryAuthority
     administrative_directory: _DirectoryAuthority
     git_control_file: _GitControlFileAuthority
-    private_index: Path
+    private_index: str
 
 
 def _run_git(
@@ -136,9 +136,17 @@ def _run_git(
     *,
     input_bytes: bytes | None = None,
     git_directory: Path | None = None,
-    index_file: Path | None = None,
+    index_file: Path | str | None = None,
+    working_directory_descriptor: int | None = None,
 ) -> subprocess.CompletedProcess[bytes]:
-    """Run Git without a shell or an interactive credential prompt."""
+    """Run Git without a shell or an interactive credential prompt.
+
+    A bound linked worktree runs with the retained administrative directory as
+    its process working directory.  macOS cannot safely use an open directory
+    through `/dev/fd/<n>` as a pathname, so the child changes directory through
+    that descriptor immediately before exec.  Git then sees only relative
+    `--git-dir=.` and `--work-tree=.` paths rooted at the held directory.
+    """
     # Ambient GIT_* variables can redirect an otherwise scoped command to the
     # caller's index, object database, or worktree.  Start with normal process
     # environment needed to locate Git, but replace all Git execution state.
@@ -163,14 +171,32 @@ def _run_git(
         *_GIT_IDENTITY_CONFIG,
         "-c",
         "core.bare=false",
-        "-C",
-        os.fspath(repository),
-        f"--work-tree={os.fspath(repository)}",
     ]
+    if working_directory_descriptor is None:
+        command.extend(["-C", os.fspath(repository)])
+        command.append(f"--work-tree={os.fspath(repository)}")
+    else:
+        # Do not pass a caller-controlled worktree pathname after binding its
+        # administrative directory.  The commands issued here are index/tree
+        # operations; source population stays descriptor-relative below.
+        command.append("--work-tree=.")
     if git_directory is not None:
         # Never discover a fresh worktree's Git directory through its mutable
         # `.git` control file after registration.
         command.append(f"--git-dir={os.fspath(git_directory)}")
+    run_options: dict[str, Any] = {}
+    if working_directory_descriptor is not None:
+        descriptor = working_directory_descriptor
+
+        def enter_bound_directory() -> None:
+            os.fchdir(descriptor)
+
+        # Keep the descriptor open across fork/exec.  `enter_bound_directory`
+        # runs before Git can resolve either relative control path.
+        run_options = {
+            "preexec_fn": enter_bound_directory,
+            "pass_fds": (descriptor,),
+        }
     return subprocess.run(
         [*command, *arguments],
         input=input_bytes,
@@ -178,6 +204,7 @@ def _run_git(
         check=False,
         env=environment,
         timeout=_GIT_TIMEOUT_SECONDS,
+        **run_options,
     )
 
 
@@ -186,13 +213,19 @@ def _git_stdout(
     arguments: list[str],
     *,
     git_directory: Path | None = None,
-    index_file: Path | None = None,
+    index_file: Path | str | None = None,
+    working_directory_descriptor: int | None = None,
 ) -> bytes:
+    run_options: dict[str, Any] = {
+        "git_directory": git_directory,
+        "index_file": index_file,
+    }
+    if working_directory_descriptor is not None:
+        run_options["working_directory_descriptor"] = working_directory_descriptor
     result = _run_git(
         repository,
         arguments,
-        git_directory=git_directory,
-        index_file=index_file,
+        **run_options,
     )
     if result.returncode != 0:
         raise InjectionMaterializerError("Git inspection failed")
@@ -264,6 +297,7 @@ def _source_tree_sha256_for_tree(
     treeish: str,
     *,
     git_directory: Path | None = None,
+    working_directory_descriptor: int | None = None,
 ) -> str:
     """Hash tracked Git blobs from a commit or tree object."""
     return _hash_source_entries(
@@ -271,6 +305,7 @@ def _source_tree_sha256_for_tree(
             repository,
             treeish,
             git_directory=git_directory,
+            working_directory_descriptor=working_directory_descriptor,
         )
     )
 
@@ -280,6 +315,7 @@ def _source_tree_entries_for_tree(
     treeish: str,
     *,
     git_directory: Path | None = None,
+    working_directory_descriptor: int | None = None,
 ) -> list[tuple[bytes, bytes, bool, bytes]]:
     """Read supported source entries from a Git commit or tree object."""
     try:
@@ -287,6 +323,7 @@ def _source_tree_entries_for_tree(
             repository,
             ["ls-tree", "-r", "-z", "--full-tree", treeish],
             git_directory=git_directory,
+            working_directory_descriptor=working_directory_descriptor,
         )
     except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError) as error:
         raise InjectionMaterializerError("source tree cannot be read") from error
@@ -299,10 +336,13 @@ def _source_tree_entries_for_tree(
         except ValueError as error:
             raise InjectionMaterializerError("Git tree output is malformed") from error
         if object_type == b"blob":
+            run_options: dict[str, Any] = {"git_directory": git_directory}
+            if working_directory_descriptor is not None:
+                run_options["working_directory_descriptor"] = working_directory_descriptor
             blob = _run_git(
                 repository,
                 ["cat-file", "blob", os.fsdecode(object_id)],
-                git_directory=git_directory,
+                **run_options,
             )
             if blob.returncode != 0:
                 raise InjectionMaterializerError("source blob cannot be read")
@@ -324,7 +364,8 @@ def _index_treeish(
     worktree: Path,
     *,
     git_directory: Path | None = None,
-    index_file: Path | None = None,
+    index_file: Path | str | None = None,
+    working_directory_descriptor: int | None = None,
 ) -> str:
     try:
         tree = _git_stdout(
@@ -332,6 +373,7 @@ def _index_treeish(
             ["write-tree"],
             git_directory=git_directory,
             index_file=index_file,
+            working_directory_descriptor=working_directory_descriptor,
         )
     except (OSError, subprocess.TimeoutExpired, InjectionMaterializerError) as error:
         raise InjectionMaterializerError("worktree index cannot be read") from error
@@ -344,7 +386,8 @@ def _source_tree_sha256_from_index(
     worktree: Path,
     *,
     git_directory: Path | None = None,
-    index_file: Path | None = None,
+    index_file: Path | str | None = None,
+    working_directory_descriptor: int | None = None,
 ) -> str:
     """Hash the exact tracked source tree staged in a worktree index."""
     return _source_tree_sha256_for_tree(
@@ -353,8 +396,10 @@ def _source_tree_sha256_from_index(
             worktree,
             git_directory=git_directory,
             index_file=index_file,
+            working_directory_descriptor=working_directory_descriptor,
         ),
         git_directory=git_directory,
+        working_directory_descriptor=working_directory_descriptor,
     )
 
 
@@ -364,6 +409,7 @@ def _populate_worktree_from_tree(
     treeish: str,
     *,
     git_directory: Path,
+    working_directory_descriptor: int | None = None,
 ) -> None:
     """Write an exact Git tree without checkout filters or path traversal."""
     if any(entry.name != ".git" for entry in os.scandir(worktree_descriptor)):
@@ -373,6 +419,7 @@ def _populate_worktree_from_tree(
         worktree,
         treeish,
         git_directory=git_directory,
+        working_directory_descriptor=working_directory_descriptor,
     ):
         components = _source_entry_components(path)
         parent_descriptor = _open_source_parent_directory(
@@ -870,8 +917,8 @@ def _release_reserved_directory(authority: _DirectoryAuthority) -> bool:
         _close_directory_authority(authority)
 
 
-def _new_private_index_path(administrative_directory: _DirectoryAuthority) -> Path:
-    """Choose an unallocated index name inside the retained admin directory."""
+def _new_private_index_name(administrative_directory: _DirectoryAuthority) -> str:
+    """Choose an unallocated relative index name in the retained admin directory."""
     if not _authority_matches_path(administrative_directory):
         raise InjectionMaterializerError("linked worktree administrative directory changed")
     for _ in range(8):
@@ -879,7 +926,10 @@ def _new_private_index_path(administrative_directory: _DirectoryAuthority) -> Pa
         try:
             os.stat(name, dir_fd=administrative_directory.descriptor, follow_symlinks=False)
         except FileNotFoundError:
-            return administrative_directory.path / name
+            # A relative name is resolved only after Git enters the retained
+            # admin-directory descriptor; retaining an absolute pathname here
+            # would reopen a replaceable path later.
+            return name
         except OSError as error:
             raise InjectionMaterializerError(
                 "linked worktree administrative directory is unavailable"
@@ -1069,9 +1119,9 @@ class InjectionMaterializer:
         arguments: list[str],
         *,
         input_bytes: bytes | None = None,
-        private_index: Path | None = None,
+        private_index: str | None = None,
     ) -> subprocess.CompletedProcess[bytes]:
-        """Run Git against the retained admin directory, never `.git` discovery."""
+        """Run Git from the retained admin directory, never path discovery."""
         if not self._has_bound_worktree_controls(
             path,
             directory,
@@ -1083,8 +1133,9 @@ class InjectionMaterializer:
             path,
             arguments,
             input_bytes=input_bytes,
-            git_directory=administrative_directory.path,
+            git_directory=Path("."),
             index_file=private_index,
+            working_directory_descriptor=administrative_directory.descriptor,
         )
 
     def _bound_worktree_git_stdout(
@@ -1095,7 +1146,7 @@ class InjectionMaterializer:
         control_file: _GitControlFileAuthority,
         arguments: list[str],
         *,
-        private_index: Path | None = None,
+        private_index: str | None = None,
     ) -> bytes:
         result = self._run_bound_worktree_git(
             path,
@@ -1144,8 +1195,9 @@ class InjectionMaterializer:
             )
         current_tree = _source_tree_sha256_from_index(
             worktree_path,
-            git_directory=registration.administrative_directory.path,
+            git_directory=Path("."),
             index_file=registration.private_index,
+            working_directory_descriptor=registration.administrative_directory.descriptor,
         )
         if current_tree != candidate.baseline.source_tree_sha256:
             return self._reject_and_discard(
@@ -1203,13 +1255,15 @@ class InjectionMaterializer:
 
         result_tree = _index_treeish(
             worktree_path,
-            git_directory=registration.administrative_directory.path,
+            git_directory=Path("."),
             index_file=registration.private_index,
+            working_directory_descriptor=registration.administrative_directory.descriptor,
         )
         result_tree_sha256 = _source_tree_sha256_for_tree(
             worktree_path,
             result_tree,
-            git_directory=registration.administrative_directory.path,
+            git_directory=Path("."),
+            working_directory_descriptor=registration.administrative_directory.descriptor,
         )
         if result_tree_sha256 == candidate.baseline.source_tree_sha256:
             return self._reject_and_discard(candidate, worktree_path, "patch_did_not_change_source")
@@ -1233,8 +1287,9 @@ class InjectionMaterializer:
         if (
             _index_treeish(
                 worktree_path,
-                git_directory=registration.administrative_directory.path,
+                git_directory=Path("."),
                 index_file=registration.private_index,
+                working_directory_descriptor=registration.administrative_directory.descriptor,
             )
             != result_tree
         ):
@@ -1243,7 +1298,8 @@ class InjectionMaterializer:
             worktree_path,
             registration.directory.descriptor,
             result_tree,
-            git_directory=registration.administrative_directory.path,
+            git_directory=Path("."),
+            working_directory_descriptor=registration.administrative_directory.descriptor,
         )
         if (
             source_tree_sha256_from_worktree(
@@ -1267,7 +1323,8 @@ class InjectionMaterializer:
         if synchronized.returncode != 0 or (
             _index_treeish(
                 worktree_path,
-                git_directory=registration.administrative_directory.path,
+                git_directory=Path("."),
+                working_directory_descriptor=registration.administrative_directory.descriptor,
             )
             != result_tree
         ):
@@ -1389,7 +1446,7 @@ class InjectionMaterializer:
                 directory,
                 administrative_directory,
             )
-            private_index = _new_private_index_path(administrative_directory)
+            private_index = _new_private_index_name(administrative_directory)
             if not self._is_verified_linked_worktree(
                 path,
                 directory,
@@ -1455,8 +1512,9 @@ class InjectionMaterializer:
         if (
             _index_treeish(
                 path,
-                git_directory=registration.administrative_directory.path,
+                git_directory=Path("."),
                 index_file=registration.private_index,
+                working_directory_descriptor=registration.administrative_directory.descriptor,
             )
             != result_tree
         ):
@@ -1465,7 +1523,8 @@ class InjectionMaterializer:
             _source_tree_sha256_for_tree(
                 path,
                 result_tree,
-                git_directory=registration.administrative_directory.path,
+                git_directory=Path("."),
+                working_directory_descriptor=registration.administrative_directory.descriptor,
             )
             != result_source_tree_sha256
         ):
@@ -1519,7 +1578,9 @@ class InjectionMaterializer:
             if (
                 _git_common_dir(
                     path,
-                    git_directory=administrative_directory.path,
+                    git_directory=Path("."),
+                    working_directory_descriptor=administrative_directory.descriptor,
+                    require_absolute=True,
                 )
                 != self._caller_common_directory
             ):
@@ -1595,8 +1656,9 @@ class InjectionMaterializer:
         try:
             current_result_tree = _source_tree_sha256_from_index(
                 path,
-                git_directory=registration.administrative_directory.path,
+                git_directory=Path("."),
                 index_file=registration.private_index,
+                working_directory_descriptor=registration.administrative_directory.descriptor,
             )
         except InjectionMaterializerError as error:
             raise InjectionCleanupError("owned worktree source cannot be verified") from error
@@ -1670,13 +1732,18 @@ def _git_common_dir(
     repository: Path,
     *,
     git_directory: Path | None = None,
+    working_directory_descriptor: int | None = None,
+    require_absolute: bool = False,
 ) -> Path:
     raw = _git_stdout(
         repository,
         ["rev-parse", "--git-common-dir"],
         git_directory=git_directory,
+        working_directory_descriptor=working_directory_descriptor,
     )
     path = Path(os.fsdecode(raw))
+    if require_absolute and not path.is_absolute():
+        raise InjectionMaterializerError("bound Git common directory is unavailable")
     return path.resolve() if path.is_absolute() else (repository / path).resolve()
 
 
