@@ -1,0 +1,53 @@
+{
+  "entries": [
+    {
+      "candidate": {
+        "baseline": {
+          "commit": "0c4c398ceee3d046dc1f6a2c55e8ad516935598c",
+          "identity_sha256": "e3acf54b0735fbb882e414bb36b8d5f2e590b34881c8b8e6844ba6b4538fc8e8",
+          "schema_version": 1,
+          "source_origin": "https://github.com/yangliang2/ai_verification.git",
+          "source_tree_sha256": "140f77a277a9c3d1aa992e64395b042ec8dea102fe7f456faef2159df03b3d54"
+        },
+        "candidate_id": "curated-deterministic-concurrency-apply-stale-result-v1",
+        "identity_sha256": "3040e0e5814b01b5b9030ba3a9e6a130b91ebcf919756134d92173eeddf4d7fe",
+        "operator": {
+          "applicability": "declared checked-in fixture source only",
+          "identity_sha256": "411cec4a17f0da421c50f3b3cead130bfa58115b889c6e7d7b0faf0ce2fdcc35",
+          "operator_id": "curated-unified-diff",
+          "safety_boundary": "one detached disposable worktree",
+          "schema_version": 1,
+          "version": "v1"
+        },
+        "population": "curated",
+        "schema_version": 1,
+        "source_delta": {
+          "delta_id": "curated-deterministic-concurrency-apply-stale-result-v1",
+          "format": "unified_diff",
+          "identity_sha256": "e534cb985402a6d2a4fcecf2238dbde31fefac286f49faeba0b4bff4bdd8c259",
+          "patch_sha256": "1076db34c0aa8e445fce21ce833d3d44db7734afe558784ec7022049b7cb5975",
+          "patch_text": "diff --git a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java\n--- a/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java\n+++ b/bench/fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java\n@@ -82,3 +82,4 @@ public final class ConcurrencyActivity extends Activity {\n                     } else if (generation != latestGeneration) {\n-                        event(\"REJECT_STALE\");\n+                        finalState = operation.toLowerCase(Locale.ROOT);\n+                        event(\"APPLY_STALE\");\n                     } else {\n",
+          "schema_version": 1,
+          "source_ref": "capability-slices/deterministic-concurrency/patches/apply-stale-result.patch"
+        },
+        "variant": "defect"
+      },
+      "fixture_anchor": {
+        "path": "fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java",
+        "sha256": "849c7f3057117507feb59ad2ffb5bdc5156a92fb377abefec14fce0f39b44c76"
+      },
+      "identity_sha256": "b2ece61839122a0f6b3628482c91298be18547305e914d25466ef8e493d5982d",
+      "patch_path": "capability-slices/deterministic-concurrency/patches/apply-stale-result.patch",
+      "patch_sha256": "1076db34c0aa8e445fce21ce833d3d44db7734afe558784ec7022049b7cb5975",
+      "population_classification": "curated_controlled_injection",
+      "schema_version": 1,
+      "source_id": "curated-deterministic-concurrency-apply-stale-result-v1",
+      "taxonomy_relationship": {
+        "status": "known",
+        "taxonomy_id": "coroutine-concurrency-05"
+      }
+    }
+  ],
+  "identity_sha256": "92dcdf6b3b30ee40cd8a7721eb7e50b482bf787badc32b6c2ac02799f47a0d95",
+  "schema_version": 1
+}
