@@ -12,6 +12,7 @@ import subprocess
 import pytest
 
 from aiverify.injection import (
+    CheckedInCuratedSourceCatalog,
     CuratedCatalogError,
     CuratedSourceCatalog,
     CuratedSourceEntry,
@@ -20,6 +21,7 @@ from aiverify.injection import (
     InjectionAdmission,
     InjectionCandidate,
     InjectionMaterializer,
+    InjectionReceipt,
     SourceDelta,
     TaxonomyRelationship,
     admit_catalogued_candidate,
@@ -45,7 +47,8 @@ def _repository(tmp_path: Path) -> Path:
     _git(repository, "config", "user.name", "Injection Lab Test")
     _git(repository, "remote", "add", "origin", "https://example.invalid/catalog.git")
     (repository / "source.txt").write_text("baseline\n", encoding="utf-8")
-    _git(repository, "add", "source.txt")
+    (repository / "fixture-anchor.txt").write_text("fixture baseline\n", encoding="utf-8")
+    _git(repository, "add", "source.txt", "fixture-anchor.txt")
     _git(repository, "commit", "-m", "baseline")
     return repository
 
@@ -82,8 +85,10 @@ def _catalog(repository: Path) -> CuratedSourceCatalog:
                 candidate=candidate,
                 patch_path="patches/catalogued.patch",
                 fixture_anchor=FixtureAnchor(
-                    path="source.txt",
-                    sha256=sha256((repository / "source.txt").read_bytes()).hexdigest(),
+                    path="fixture-anchor.txt",
+                    sha256=sha256(
+                        (repository / "fixture-anchor.txt").read_bytes()
+                    ).hexdigest(),
                 ),
                 population_classification="curated_controlled_injection",
                 taxonomy_relationship=TaxonomyRelationship.known("concurrency"),
@@ -96,10 +101,12 @@ def test_catalogued_source_admits_to_a_structurally_sealed_non_formal_package(
     tmp_path: Path,
 ) -> None:
     repository = _repository(tmp_path)
+    catalog_path = _checked_in_catalog_path(repository)
+    catalog = load_curated_source_catalog(catalog_path)
     materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
 
     admission = admit_catalogued_candidate(
-        _catalog(repository),
+        catalog_path,
         "catalogued-source",
         materializer,
     )
@@ -118,6 +125,8 @@ def test_catalogued_source_admits_to_a_structurally_sealed_non_formal_package(
     assert admission.package.formal_status == "non_formal"
     assert admission.package.cohort_membership == "not_a_cohort_member"
     assert admission.package.claim_boundary == "m0_structural_audit_only"
+    assert admission.package.catalog_identity_sha256 == catalog.identity_sha256
+    assert admission.package.catalog_source_sha256 == catalog.catalog_source_sha256
     assert admission.package.not_claimed_evidence == {
         "build": "not_claimed",
         "installation": "not_claimed",
@@ -138,8 +147,27 @@ def test_checked_in_catalog_binds_declared_patch_and_fixture_bytes(tmp_path: Pat
 
     loaded = load_curated_source_catalog(catalog_path)
 
-    assert loaded.to_dict() == catalog.to_dict()
+    assert loaded.catalog.to_dict() == catalog.to_dict()
     assert loaded.identity_sha256 == catalog.identity_sha256
+    assert loaded.catalog_source_sha256 == sha256(catalog_path.read_bytes()).hexdigest()
+
+
+def test_catalog_loader_requires_all_declared_files_to_be_checked_in(
+    tmp_path: Path,
+) -> None:
+    repository = _repository(tmp_path)
+    catalog = _catalog(repository)
+    entry = catalog.select("catalogued-source")
+    patch = repository / entry.patch_path
+    patch.parent.mkdir()
+    patch.write_text(entry.candidate.source_delta.patch_text, encoding="utf-8")
+    catalog_path = repository / "curated-source-catalog.json"
+    catalog_path.write_text(json.dumps(catalog.to_dict(), sort_keys=True), encoding="utf-8")
+
+    with pytest.raises(CuratedCatalogError) as raised:
+        load_curated_source_catalog(catalog_path)
+
+    assert raised.value.code == "catalog_not_checked_in"
 
 
 def _write_checked_in_catalog(repository: Path, catalog: CuratedSourceCatalog) -> Path:
@@ -152,7 +180,13 @@ def _write_checked_in_catalog(repository: Path, catalog: CuratedSourceCatalog) -
         json.dumps(catalog.to_dict(), sort_keys=True),
         encoding="utf-8",
     )
+    _git(repository, "add", "curated-source-catalog.json", entry.patch_path)
+    _git(repository, "commit", "-m", "add curated catalog")
     return catalog_path
+
+
+def _checked_in_catalog_path(repository: Path) -> Path:
+    return _write_checked_in_catalog(repository, _catalog(repository))
 
 
 def test_catalog_patch_drift_is_a_stable_fail_closed_rejection(tmp_path: Path) -> None:
@@ -172,7 +206,7 @@ def test_catalog_fixture_anchor_drift_is_a_stable_fail_closed_rejection(
 ) -> None:
     repository = _repository(tmp_path)
     catalog_path = _write_checked_in_catalog(repository, _catalog(repository))
-    (repository / "source.txt").write_text("fixture drift\n", encoding="utf-8")
+    (repository / "fixture-anchor.txt").write_text("fixture drift\n", encoding="utf-8")
 
     with pytest.raises(CuratedCatalogError) as raised:
         load_curated_source_catalog(catalog_path)
@@ -217,14 +251,28 @@ def test_checked_in_stale_result_source_has_a_byte_bound_catalog_entry() -> None
     )
 
 
+def test_catalog_loader_ignores_ambient_git_directory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _repository(tmp_path)
+    catalog_path = _checked_in_catalog_path(repository)
+    monkeypatch.setenv("GIT_DIR", str(tmp_path / "not-the-catalog-repository"))
+
+    catalog = load_curated_source_catalog(catalog_path)
+
+    assert catalog.select("catalogued-source").source_id == "catalogued-source"
+
+
 def test_missing_catalog_selection_has_a_terminal_inspectable_rejection(
     tmp_path: Path,
 ) -> None:
     repository = _repository(tmp_path)
+    catalog_path = _checked_in_catalog_path(repository)
     materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
 
     admission = admit_catalogued_candidate(
-        _catalog(repository),
+        catalog_path,
         "not-declared",
         materializer,
     )
@@ -235,8 +283,33 @@ def test_missing_catalog_selection_has_a_terminal_inspectable_rejection(
     assert admission.receipt is None
 
 
+def test_admission_revalidates_catalog_path_before_materialization(
+    tmp_path: Path,
+) -> None:
+    repository = _repository(tmp_path)
+    catalog_path = _checked_in_catalog_path(repository)
+    load_curated_source_catalog(catalog_path)
+    (repository / "patches/catalogued.patch").write_text("drift\n", encoding="utf-8")
+
+    class MaterializationMustNotRun:
+        def materialize(self, candidate: InjectionCandidate) -> InjectionReceipt:
+            raise AssertionError("catalog drift must reject before materialization")
+
+    admission = admit_catalogued_candidate(
+        catalog_path,
+        "catalogued-source",
+        MaterializationMustNotRun(),
+    )
+
+    assert admission.status == "rejected"
+    assert admission.rejection_code == "catalog_patch_drift"
+    assert admission.ledger.states == ("draft", "rejected")
+    assert admission.receipt is None
+
+
 def test_catalog_admission_preserves_a_dirty_caller_checkout(tmp_path: Path) -> None:
     repository = _repository(tmp_path)
+    catalog_path = _checked_in_catalog_path(repository)
     (repository / "source.txt").write_text("staged caller\n", encoding="utf-8")
     _git(repository, "add", "source.txt")
     (repository / "source.txt").write_text("unstaged caller\n", encoding="utf-8")
@@ -250,7 +323,7 @@ def test_catalog_admission_preserves_a_dirty_caller_checkout(tmp_path: Path) -> 
     materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
 
     admission = admit_catalogued_candidate(
-        _catalog(repository),
+        catalog_path,
         "catalogued-source",
         materializer,
     )
@@ -274,9 +347,10 @@ def test_catalog_admission_preserves_a_dirty_caller_checkout(tmp_path: Path) -> 
 
 def test_sealed_admission_has_a_hash_chained_immutable_ledger(tmp_path: Path) -> None:
     repository = _repository(tmp_path)
+    catalog_path = _checked_in_catalog_path(repository)
     materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
     admission = admit_catalogued_candidate(
-        _catalog(repository),
+        catalog_path,
         "catalogued-source",
         materializer,
     )
@@ -298,7 +372,8 @@ def test_admission_rejects_a_materialized_receipt_for_another_candidate(
     tmp_path: Path,
 ) -> None:
     repository = _repository(tmp_path)
-    catalog = _catalog(repository)
+    catalog_path = _checked_in_catalog_path(repository)
+    catalog = load_curated_source_catalog(catalog_path)
     entry = catalog.select("catalogued-source")
     contradictory_patch = "".join(
         difflib.unified_diff(
@@ -324,7 +399,7 @@ def test_admission_rejects_a_materialized_receipt_for_another_candidate(
             return materializer.materialize(contradictory_candidate)
 
     admission = admit_catalogued_candidate(
-        catalog,
+        catalog_path,
         "catalogued-source",
         ContradictoryReceiptMaterializer(),
     )
@@ -335,3 +410,55 @@ def test_admission_rejects_a_materialized_receipt_for_another_candidate(
     assert admission.package is None
     assert admission.receipt is not None
     materializer.cleanup(admission.receipt)
+
+
+def test_admission_rejects_an_unverified_catalog_value(tmp_path: Path) -> None:
+    repository = _repository(tmp_path)
+    materializer = InjectionMaterializer(repository, tmp_path / "owned-worktrees")
+
+    for catalog in (
+        _catalog(repository),
+        CheckedInCuratedSourceCatalog(_catalog(repository), "0" * 64),
+    ):
+        admission = admit_catalogued_candidate(
+            catalog,
+            "catalogued-source",
+            materializer,
+        )
+
+        assert admission.status == "rejected"
+        assert admission.rejection_code == "catalog_not_verified"
+        assert admission.ledger.states == ("draft", "rejected")
+        assert admission.receipt is None
+
+
+def test_admission_rejects_a_rejected_receipt_for_another_candidate(
+    tmp_path: Path,
+) -> None:
+    repository = _repository(tmp_path)
+    catalog_path = _checked_in_catalog_path(repository)
+    catalog = load_curated_source_catalog(catalog_path)
+    entry = catalog.select("catalogued-source")
+    contradictory_candidate = replace(
+        entry.candidate,
+        candidate_id="contradictory-candidate",
+    )
+
+    class ContradictoryRejectedReceiptMaterializer:
+        def materialize(self, candidate: InjectionCandidate) -> InjectionReceipt:
+            return InjectionReceipt.rejected(
+                contradictory_candidate,
+                "patch_not_applicable",
+            )
+
+    admission = admit_catalogued_candidate(
+        catalog_path,
+        "catalogued-source",
+        ContradictoryRejectedReceiptMaterializer(),
+    )
+
+    assert admission.status == "rejected"
+    assert admission.rejection_code == "receipt_identity_mismatch"
+    assert admission.ledger.states == ("draft", "rejected")
+    assert admission.package is None
+    assert admission.receipt is not None

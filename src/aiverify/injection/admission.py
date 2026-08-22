@@ -8,9 +8,14 @@ or runtime evidence as a pass and never creates a Qualification Case Package.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Mapping
 
-from aiverify.injection.catalog import CuratedSourceCatalog, CuratedSourceEntry
+from aiverify.injection.catalog import (
+    CuratedCatalogError,
+    CuratedSourceEntry,
+    load_curated_source_catalog,
+)
 from aiverify.injection.materialization import (
     InjectionMaterializer,
     InjectionMaterializerError,
@@ -248,6 +253,8 @@ class InjectedCasePackage:
     """A sealed M0 audit package, never a formal qualification artifact."""
 
     source_id: str
+    catalog_identity_sha256: str
+    catalog_source_sha256: str
     catalog_entry_identity_sha256: str
     candidate_identity_sha256: str
     baseline_identity_sha256: str
@@ -263,6 +270,8 @@ class InjectedCasePackage:
     def __post_init__(self) -> None:
         _required_text(self.source_id, "package source_id")
         for field in (
+            "catalog_identity_sha256",
+            "catalog_source_sha256",
             "catalog_entry_identity_sha256",
             "candidate_identity_sha256",
             "baseline_identity_sha256",
@@ -297,6 +306,8 @@ class InjectedCasePackage:
             {
                 "schema_version": self.schema_version,
                 "source_id": self.source_id,
+                "catalog_identity_sha256": self.catalog_identity_sha256,
+                "catalog_source_sha256": self.catalog_source_sha256,
                 "catalog_entry_identity_sha256": self.catalog_entry_identity_sha256,
                 "candidate_identity_sha256": self.candidate_identity_sha256,
                 "baseline_identity_sha256": self.baseline_identity_sha256,
@@ -314,6 +325,8 @@ class InjectedCasePackage:
         return {
             "schema_version": self.schema_version,
             "source_id": self.source_id,
+            "catalog_identity_sha256": self.catalog_identity_sha256,
+            "catalog_source_sha256": self.catalog_source_sha256,
             "catalog_entry_identity_sha256": self.catalog_entry_identity_sha256,
             "candidate_identity_sha256": self.candidate_identity_sha256,
             "baseline_identity_sha256": self.baseline_identity_sha256,
@@ -336,6 +349,8 @@ class InjectedCasePackage:
             {
                 "schema_version",
                 "source_id",
+                "catalog_identity_sha256",
+                "catalog_source_sha256",
                 "catalog_entry_identity_sha256",
                 "candidate_identity_sha256",
                 "baseline_identity_sha256",
@@ -357,6 +372,8 @@ class InjectedCasePackage:
             value = cls(
                 schema_version=data["schema_version"],
                 source_id=data["source_id"],
+                catalog_identity_sha256=data["catalog_identity_sha256"],
+                catalog_source_sha256=data["catalog_source_sha256"],
                 catalog_entry_identity_sha256=data["catalog_entry_identity_sha256"],
                 candidate_identity_sha256=data["candidate_identity_sha256"],
                 baseline_identity_sha256=data["baseline_identity_sha256"],
@@ -566,13 +583,17 @@ def _receipt_binds_candidate(receipt: InjectionReceipt, entry: CuratedSourceEntr
 
 
 def admit_catalogued_candidate(
-    catalog: CuratedSourceCatalog,
+    catalog_path: str | Path,
     source_id: str,
     materializer: InjectionMaterializer,
 ) -> InjectionAdmission:
-    """Materialize one declared source and seal only M0 structural evidence."""
-    if not isinstance(catalog, CuratedSourceCatalog):
-        return _rejected_admission("catalog_invalid")
+    """Reload, materialize, and structurally admit one declared source."""
+    if not isinstance(catalog_path, (str, Path)):
+        return _rejected_admission("catalog_not_verified")
+    try:
+        catalog = load_curated_source_catalog(catalog_path)
+    except CuratedCatalogError as error:
+        return _rejected_admission(error.code)
     try:
         entry = catalog.select(source_id)
     except InjectionContractError:
@@ -591,22 +612,28 @@ def admit_catalogued_candidate(
             "receipt_invalid",
             candidate_identity_sha256=candidate_identity,
         )
+    if not _receipt_binds_candidate(receipt, entry):
+        return _rejected_admission(
+            "receipt_identity_mismatch",
+            receipt=receipt,
+            candidate_identity_sha256=candidate_identity,
+            states_before_rejection=(
+                ("draft", "materialized")
+                if receipt.outcome == "materialized"
+                else ("draft",)
+            ),
+        )
     if receipt.outcome != "materialized":
         return _rejected_admission(
             "materialization_rejected",
             receipt=receipt,
             candidate_identity_sha256=candidate_identity,
         )
-    if not _receipt_binds_candidate(receipt, entry):
-        return _rejected_admission(
-            "receipt_identity_mismatch",
-            receipt=receipt,
-            candidate_identity_sha256=candidate_identity,
-            states_before_rejection=("draft", "materialized"),
-        )
 
     package = InjectedCasePackage(
         source_id=entry.source_id,
+        catalog_identity_sha256=catalog.identity_sha256,
+        catalog_source_sha256=catalog.catalog_source_sha256,
         catalog_entry_identity_sha256=entry.identity_sha256,
         candidate_identity_sha256=candidate_identity,
         baseline_identity_sha256=entry.candidate.baseline.identity_sha256,

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+import os
+import subprocess
 from pathlib import Path, PurePosixPath
 from typing import Any, Mapping
 
@@ -48,6 +50,15 @@ def _relative_path(value: object, field: str) -> str:
 
 def _identity(value: Mapping[str, Any]) -> str:
     return sha256_hex(canonical_json_bytes(value))
+
+
+def _sha256_digest(value: object, field: str) -> str:
+    digest = _required_text(value, field)
+    if len(digest) != 64 or any(
+        character not in "0123456789abcdef" for character in digest
+    ):
+        raise InjectionContractError(f"{field} must be a lowercase SHA-256 digest")
+    return digest
 
 
 @dataclass(frozen=True)
@@ -102,12 +113,7 @@ class FixtureAnchor:
 
     def __post_init__(self) -> None:
         _relative_path(self.path, "fixture_anchor.path")
-        if not isinstance(self.sha256, str) or len(self.sha256) != 64 or any(
-            character not in "0123456789abcdef" for character in self.sha256
-        ):
-            raise InjectionContractError(
-                "fixture_anchor.sha256 must be a lowercase SHA-256 digest"
-            )
+        _sha256_digest(self.sha256, "fixture_anchor.sha256")
 
     def to_dict(self) -> dict[str, str]:
         return {"path": self.path, "sha256": self.sha256}
@@ -308,6 +314,38 @@ class CuratedSourceCatalog:
         raise InjectionContractError("catalog source_id is not declared")
 
 
+@dataclass(frozen=True)
+class CheckedInCuratedSourceCatalog:
+    """The result of loading a byte-verified, Git-tracked catalog.
+
+    ``CuratedSourceCatalog`` describes a catalog's stable semantic content.
+    This wrapper additionally proves which checked-in catalog bytes were read
+    without making a transient file path part of the audit identity. Admission
+    independently reloads a catalog path; this value is an inspectable load
+    result, not an admission capability.
+    """
+
+    catalog: CuratedSourceCatalog
+    catalog_source_sha256: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.catalog, CuratedSourceCatalog):
+            raise InjectionContractError(
+                "checked-in catalog must contain CuratedSourceCatalog"
+            )
+        _sha256_digest(
+            self.catalog_source_sha256,
+            "checked-in catalog catalog_source_sha256",
+        )
+
+    @property
+    def identity_sha256(self) -> str:
+        return self.catalog.identity_sha256
+
+    def select(self, source_id: str) -> CuratedSourceEntry:
+        return self.catalog.select(source_id)
+
+
 def _reject_duplicate_json_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -342,12 +380,93 @@ def _declared_file(root: Path, relative_path: str, missing_code: str) -> Path:
     return resolved
 
 
-def load_curated_source_catalog(path: str | Path) -> CuratedSourceCatalog:
+_GIT_READ_CONFIG = (
+    "-c",
+    "core.autocrlf=false",
+    "-c",
+    "core.eol=lf",
+    "-c",
+    f"core.attributesFile={os.devnull}",
+    "-c",
+    f"core.hooksPath={os.devnull}",
+    "-c",
+    "core.fsmonitor=false",
+    "-c",
+    "core.quotePath=true",
+    "-c",
+    "color.ui=false",
+)
+
+
+def _catalog_git(
+    repository: Path,
+    arguments: list[str],
+) -> subprocess.CompletedProcess[bytes]:
+    environment = {
+        key: value for key, value in os.environ.items() if not key.startswith("GIT_")
+    }
+    environment.update(
+        {
+            "GIT_ATTR_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_TERMINAL_PROMPT": "0",
+        }
+    )
+    return subprocess.run(
+        ["git", *_GIT_READ_CONFIG, "-C", str(repository), *arguments],
+        check=False,
+        capture_output=True,
+        env=environment,
+        timeout=10,
+    )
+
+
+def _checked_in_repository(path: Path) -> Path:
+    try:
+        result = _catalog_git(path, ["rev-parse", "--show-toplevel"])
+    except (OSError, subprocess.TimeoutExpired):
+        raise CuratedCatalogError("catalog_repository_unavailable") from None
+    root = os.fsdecode(result.stdout).strip()
+    if result.returncode != 0 or not root:
+        raise CuratedCatalogError("catalog_repository_unavailable")
+    return Path(root).resolve()
+
+
+def _require_checked_in_files(
+    repository: Path,
+    files: tuple[tuple[Path, bytes], ...],
+) -> None:
+    try:
+        relative_files = tuple(
+            (str(path.relative_to(repository)), expected_bytes)
+            for path, expected_bytes in files
+        )
+    except ValueError:
+        raise CuratedCatalogError("catalog_not_checked_in") from None
+    try:
+        for relative_path, expected_bytes in relative_files:
+            head_blob = _catalog_git(repository, ["show", f"HEAD:{relative_path}"])
+            if head_blob.returncode != 0 or head_blob.stdout != expected_bytes:
+                raise CuratedCatalogError("catalog_not_checked_in")
+    except (OSError, subprocess.TimeoutExpired):
+        raise CuratedCatalogError("catalog_repository_unavailable") from None
+
+
+def _declared_bytes(root: Path, relative_path: str, missing_code: str) -> tuple[Path, bytes]:
+    path = _declared_file(root, relative_path, missing_code)
+    try:
+        return path, path.read_bytes()
+    except OSError:
+        raise CuratedCatalogError(missing_code) from None
+
+
+def load_curated_source_catalog(path: str | Path) -> CheckedInCuratedSourceCatalog:
     """Load a checked-in catalog and bind each declared source to local bytes."""
     catalog_path = Path(path)
     try:
         raw_catalog = catalog_path.read_bytes()
-    except OSError:
+    except (OSError, ValueError):
         raise CuratedCatalogError("catalog_file_unavailable") from None
     try:
         parsed = json.loads(raw_catalog, object_pairs_hook=_reject_duplicate_json_keys)
@@ -360,16 +479,34 @@ def load_curated_source_catalog(path: str | Path) -> CuratedSourceCatalog:
     except InjectionContractError as error:
         raise CuratedCatalogError(_catalog_error_code(error)) from error
 
-    root = catalog_path.resolve().parent
+    try:
+        resolved_catalog_path = catalog_path.resolve()
+    except (OSError, ValueError):
+        raise CuratedCatalogError("catalog_file_unavailable") from None
+    root = resolved_catalog_path.parent
+    declared_files: list[tuple[Path, bytes]] = [(resolved_catalog_path, raw_catalog)]
     for entry in catalog.entries:
-        patch = _declared_file(root, entry.patch_path, "catalog_patch_missing")
-        if patch.read_bytes() != entry.candidate.source_delta.patch_text.encode("utf-8"):
+        patch, patch_bytes = _declared_bytes(
+            root,
+            entry.patch_path,
+            "catalog_patch_missing",
+        )
+        if patch_bytes != entry.candidate.source_delta.patch_text.encode("utf-8"):
             raise CuratedCatalogError("catalog_patch_drift")
-        fixture = _declared_file(
+        declared_files.append((patch, patch_bytes))
+        fixture, fixture_bytes = _declared_bytes(
             root,
             entry.fixture_anchor.path,
             "catalog_fixture_anchor_missing",
         )
-        if sha256_hex(fixture.read_bytes()) != entry.fixture_anchor.sha256:
+        if sha256_hex(fixture_bytes) != entry.fixture_anchor.sha256:
             raise CuratedCatalogError("catalog_fixture_anchor_drift")
-    return catalog
+        declared_files.append((fixture, fixture_bytes))
+    _require_checked_in_files(
+        _checked_in_repository(root),
+        tuple(declared_files),
+    )
+    return CheckedInCuratedSourceCatalog(
+        catalog=catalog,
+        catalog_source_sha256=sha256_hex(raw_catalog),
+    )

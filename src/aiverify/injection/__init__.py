@@ -21,6 +21,7 @@ from aiverify.injection.admission import (
     admit_catalogued_candidate,
 )
 from aiverify.injection.catalog import (
+    CheckedInCuratedSourceCatalog,
     CuratedCatalogError,
     CuratedSourceCatalog,
     CuratedSourceEntry,
@@ -42,6 +43,7 @@ __all__ = [
     "AdmissionLedger",
     "AdmissionLedgerEntry",
     "BaselineProvenance",
+    "CheckedInCuratedSourceCatalog",
     "CuratedCatalogError",
     "CuratedSourceCatalog",
     "CuratedSourceEntry",
