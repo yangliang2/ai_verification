@@ -345,6 +345,14 @@ def test_materialization_isolates_its_index_from_concurrent_default_index_update
     worktree = Path(receipt.worktree.path)
     assert not (worktree / "injected.txt").exists()
     assert source_tree_sha256_from_worktree(worktree) == receipt.result_source_tree_sha256
+    canonical_result_diff = _git(
+        worktree,
+        "diff",
+        *materialization_module._CANONICAL_STAGED_DIFF_OPTIONS,
+        candidate.baseline.commit,
+        "--",
+    ).stdout.encode("utf-8")
+    assert receipt.result_diff_sha256 == sha256(canonical_result_diff).hexdigest()
     assert _caller_snapshot(repository) == before
     materializer.cleanup(receipt)
     assert _caller_snapshot(repository) == before
@@ -975,7 +983,6 @@ def test_materializes_added_source_files_in_the_canonical_result_diff(
     assert receipt.worktree is not None
     worktree = Path(receipt.worktree.path)
     assert (worktree / "added.txt").read_text(encoding="utf-8") == "added source\n"
-    _git(worktree, "add", "source.txt", "nested/keep.txt", "added.txt")
     canonical_result_diff = _git(
         worktree,
         "diff",

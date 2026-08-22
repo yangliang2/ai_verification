@@ -1253,6 +1253,25 @@ class InjectionMaterializer:
             != result_tree_sha256
         ):
             return self._reject_and_discard(candidate, worktree_path, "result_identity_failed")
+        # The receipt trusts only the private index above, but a successful
+        # materialized Git worktree should still expose that exact verified
+        # tree through its normal Git index.  A concurrent later update to the
+        # normal index cannot affect the receipt or cleanup verification.
+        synchronized = self._run_bound_worktree_git(
+            worktree_path,
+            registration.directory,
+            registration.administrative_directory,
+            registration.git_control_file,
+            ["read-tree", result_tree],
+        )
+        if synchronized.returncode != 0 or (
+            _index_treeish(
+                worktree_path,
+                git_directory=registration.administrative_directory.path,
+            )
+            != result_tree
+        ):
+            return self._reject_and_discard(candidate, worktree_path, "result_identity_failed")
         diff_sha256 = sha256(diff.stdout).hexdigest()
         result_sha256 = result_identity_sha256(
             baseline_identity_sha256=candidate.baseline.identity_sha256,
