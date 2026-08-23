@@ -5,6 +5,8 @@ from __future__ import annotations
 from hashlib import sha256
 from pathlib import Path
 
+import pytest
+
 from aiverify.injection import (
     CataloguedDisclosureReview,
     DisclosurePolicy,
@@ -17,7 +19,7 @@ from aiverify.injection import (
     review_catalogued_admission,
     review_visible_packet_material,
 )
-from aiverify.injection.models import result_identity_sha256
+from aiverify.injection.models import InjectionContractError, result_identity_sha256
 
 
 def test_disclosure_policy_rejects_declared_tokens_in_every_visible_surface() -> None:
@@ -83,6 +85,22 @@ def test_disclosure_policy_marks_clean_nested_material_eligible() -> None:
     assert review.findings == ()
     assert DisclosurePolicy.from_dict(policy.to_dict()) == policy
     assert DisclosureReview.from_dict(review.to_dict()) == review
+
+
+def test_disclosure_policy_normalizes_tokens_explicitly_and_rejects_padded_digests() -> None:
+    policy = DisclosurePolicy(
+        policy_id="spacing-v1",
+        forbidden_tokens=(" APPLY_STALE ",),
+    )
+
+    assert policy.forbidden_tokens == ("APPLY_STALE",)
+    with pytest.raises(InjectionContractError, match="lowercase SHA-256 digest"):
+        DisclosureReview(
+            status="eligible",
+            policy_identity_sha256=f" {policy.identity_sha256}",
+            visible_material_identity_sha256=policy.identity_sha256,
+            findings=(),
+        )
 
 
 class _ReceiptMaterializer:

@@ -31,14 +31,15 @@ _REJECTION_CODE = "declared_disclosure_detected"
 _SHA256_CHARS = frozenset("0123456789abcdef")
 
 
-def _required_text(value: object, field: str) -> str:
+def _require_nonempty_text(value: object, field: str) -> str:
+    """Validate text without silently changing identity-bearing values."""
     if not isinstance(value, str) or not value.strip():
         raise InjectionContractError(f"{field} must be a non-empty string")
-    return value.strip()
+    return value
 
 
 def _sha256(value: object, field: str) -> str:
-    text = _required_text(value, field)
+    text = _require_nonempty_text(value, field)
     if len(text) != 64 or any(character not in _SHA256_CHARS for character in text):
         raise InjectionContractError(f"{field} must be a lowercase SHA-256 digest")
     return text
@@ -77,14 +78,16 @@ class DisclosurePolicy:
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
-        _required_text(self.policy_id, "disclosure policy policy_id")
+        _require_nonempty_text(self.policy_id, "disclosure policy policy_id")
         if not isinstance(self.forbidden_tokens, tuple) or not self.forbidden_tokens:
             raise InjectionContractError(
                 "disclosure policy forbidden_tokens must be a non-empty tuple"
             )
         normalized: dict[str, str] = {}
         for token in self.forbidden_tokens:
-            text = _required_text(token, "disclosure policy forbidden token")
+            text = _require_nonempty_text(
+                token, "disclosure policy forbidden token"
+            ).strip()
             normalized_token = _normalized_token(text)
             if normalized_token in normalized:
                 raise InjectionContractError(
@@ -170,8 +173,10 @@ class DisclosureFinding:
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
-        _required_text(self.forbidden_token, "disclosure finding forbidden_token")
-        _required_text(self.visible_path, "disclosure finding visible_path")
+        _require_nonempty_text(
+            self.forbidden_token, "disclosure finding forbidden_token"
+        )
+        _require_nonempty_text(self.visible_path, "disclosure finding visible_path")
         _sha256(self.value_sha256, "disclosure finding value_sha256")
         if (
             not isinstance(self.schema_version, int)
@@ -384,7 +389,9 @@ class CataloguedDisclosureReview:
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
-        _required_text(self.source_id, "catalogued disclosure review source_id")
+        _require_nonempty_text(
+            self.source_id, "catalogued disclosure review source_id"
+        )
         for field in (
             "catalog_identity_sha256",
             "catalog_source_sha256",
