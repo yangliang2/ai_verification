@@ -653,17 +653,17 @@ class VerifierPacketFamily:
                     raise InjectionContractError(
                         "verifier packet family contains an unsupported packet"
                     )
-            value = cls(
+            packet_family = cls(
                 schema_version=data["schema_version"],
                 family_id=data["family_id"],
                 claim_boundary=data["claim_boundary"],
                 packets=tuple(packets),
             )
-            if data["identity_sha256"] != value.identity_sha256:
+            if data["identity_sha256"] != packet_family.identity_sha256:
                 raise InjectionContractError(
                     "verifier packet family identity digest does not match"
                 )
-            return value
+            return packet_family
         except KeyError as error:
             raise InjectionContractError(
                 f"verifier packet family requires {error.args[0]}"
@@ -826,7 +826,7 @@ class AuditorMapping:
             raw_entries = data["entries"]
             if not isinstance(raw_entries, list):
                 raise InjectionContractError("auditor mapping entries must be an array")
-            value = cls(
+            auditor_mapping = cls(
                 schema_version=data["schema_version"],
                 family_id=data["family_id"],
                 claim_boundary=data["claim_boundary"],
@@ -834,9 +834,9 @@ class AuditorMapping:
                     AuditorMappingEntry.from_dict(entry) for entry in raw_entries
                 ),
             )
-            if data["identity_sha256"] != value.identity_sha256:
+            if data["identity_sha256"] != auditor_mapping.identity_sha256:
                 raise InjectionContractError("auditor mapping identity digest does not match")
-            return value
+            return auditor_mapping
         except KeyError as error:
             raise InjectionContractError(f"auditor mapping requires {error.args[0]}") from error
 
@@ -882,6 +882,10 @@ class AuditorCaseFamily:
             packet.packet_id: packet.target_kind
             for packet in self.verifier_packet_family.packets
         }
+        public_packet_receipts = {
+            packet.packet_id: packet.receipt_identity_sha256
+            for packet in self.verifier_packet_family.packets
+        }
         mapped_packet_ids = {entry.packet_id for entry in self.auditor_mapping.entries}
         if mapped_packet_ids != public_packet_ids:
             raise InjectionContractError(
@@ -895,6 +899,7 @@ class AuditorCaseFamily:
                 "auditor case family mapping does not bind its packets"
             )
         package_identity_by_variant: dict[str, str] = {}
+        receipt_identity_by_variant: dict[str, str] = {}
         for variant, case in (
             ("defect", self.pair.defect),
             ("control", self.pair.control),
@@ -905,9 +910,20 @@ class AuditorCaseFamily:
                     "auditor case family requires sealed audit packages"
                 )
             package_identity_by_variant[variant] = admission.package.identity_sha256
+            receipt_identity_by_variant[variant] = (
+                admission.package.receipt_identity_sha256
+            )
         if any(
             entry.audit_package_identity_sha256
             != package_identity_by_variant[entry.hidden_variant]
+            for entry in self.auditor_mapping.entries
+        ):
+            raise InjectionContractError(
+                "auditor case family mapping does not bind its packets"
+            )
+        if any(
+            public_packet_receipts[entry.packet_id]
+            != receipt_identity_by_variant[entry.hidden_variant]
             for entry in self.auditor_mapping.entries
         ):
             raise InjectionContractError(

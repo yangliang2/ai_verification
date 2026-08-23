@@ -1076,6 +1076,40 @@ def test_four_cell_family_rejects_incomplete_or_inconsistent_private_bindings(
             "auditor case family mapping does not bind its packets"
         )
 
+        entries_by_cell = {
+            (entry.target_kind, entry.hidden_variant): entry
+            for entry in mapping.entries
+        }
+        swapped_mapping = AuditorMapping(
+            family_id=mapping.family_id,
+            entries=tuple(
+                AuditorMappingEntry(
+                    packet_id=entries_by_cell[
+                        (
+                            entry.target_kind,
+                            "control"
+                            if entry.hidden_variant == "defect"
+                            else "defect",
+                        )
+                    ].packet_id,
+                    target_kind=entry.target_kind,
+                    hidden_variant=entry.hidden_variant,
+                    audit_package_identity_sha256=entry.audit_package_identity_sha256,
+                )
+                for entry in mapping.entries
+            ),
+        )
+        with pytest.raises(InjectionContractError) as swapped_binding:
+            AuditorCaseFamily(
+                verifier_packet_family=public_family,
+                auditor_mapping=swapped_mapping,
+                pair=fixture.pair,
+            )
+
+        assert str(swapped_binding.value) == (
+            "auditor case family mapping does not bind its packets"
+        )
+
 
 @pytest.mark.parametrize(
     ("fixture_kwargs", "expected_code"),
