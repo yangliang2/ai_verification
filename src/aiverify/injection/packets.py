@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Mapping
 
-from aiverify.discovery.models import ChangeTarget
 from aiverify.injection.admission import InjectionAdmission
 from aiverify.injection.catalog import (
     CheckedInCuratedSourceCatalog,
@@ -47,7 +46,12 @@ _VARIANTS = frozenset({"defect", "control"})
 
 
 class PacketCompilationError(InjectionContractError):
-    """A deterministic, non-disclosing rejection at the packet boundary."""
+    """A deterministic, non-disclosing rejection at the packet boundary.
+
+    Lower-level exceptions are deliberately suppressed when this error crosses
+    the public boundary because filesystem and catalog messages can name
+    auditor-private paths or values.
+    """
 
     def __init__(self, code: str) -> None:
         self.code = code
@@ -281,24 +285,6 @@ class VerifierPacket:
         """Return the exact deterministic verifier-visible packet bytes."""
         return canonical_json_bytes(self.to_dict())
 
-    @property
-    def change_target(self) -> ChangeTarget:
-        """Expose the complete, already-bound Discovery ChangeTarget shape.
-
-        Constructing this data value does not start a Discovery Campaign.  The
-        packet retains the raw patch bytes too, so ``diff_ref`` is a real,
-        checked-in file rather than an invented placeholder.
-        """
-        return ChangeTarget(
-            target_id=self.packet_id,
-            source_origin=self.source_origin,
-            source_commit=self.source_commit,
-            worktree=self.worktree_path,
-            diff_ref=self.patch_path,
-            diff_sha256=self.patch_sha256,
-        )
-
-
 def _packet_id(
     *,
     source_origin: str,
@@ -332,8 +318,8 @@ def _entry_for_case(
 ) -> CuratedSourceEntry:
     try:
         return catalog.select(case.disclosure_review.source_id)
-    except InjectionContractError as error:
-        raise PacketCompilationError("pair_source_missing") from error
+    except InjectionContractError:
+        raise PacketCompilationError("pair_source_missing") from None
 
 
 def _require_sealed_case(
@@ -377,8 +363,15 @@ def _require_sealed_case(
             admission,
             policy,
         )
-    except (CuratedCatalogError, InjectionContractError) as error:
-        raise PacketCompilationError("disclosure_review_unavailable") from error
+    except (
+        CuratedCatalogError,
+        InjectionContractError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ):
+        raise PacketCompilationError("disclosure_review_unavailable") from None
     if case.disclosure_review != expected_review:
         raise PacketCompilationError("disclosure_review_mismatch")
     if expected_review.status != "eligible":
@@ -405,6 +398,8 @@ def _require_compatible_pair(
         raise PacketCompilationError("pair_population_mismatch")
     if defect_entry.taxonomy_relationship != control_entry.taxonomy_relationship:
         raise PacketCompilationError("pair_taxonomy_mismatch")
+    if defect_entry.fixture_anchor != control_entry.fixture_anchor:
+        raise PacketCompilationError("pair_fixture_anchor_mismatch")
 
 
 def _require_materialized_source(receipt: InjectionReceipt) -> None:
@@ -413,8 +408,14 @@ def _require_materialized_source(receipt: InjectionReceipt) -> None:
         raise PacketCompilationError("materialized_source_unavailable")
     try:
         observed = source_tree_sha256_from_worktree(receipt.worktree.path)
-    except (InjectionMaterializerError, OSError, ValueError) as error:
-        raise PacketCompilationError("materialized_source_unavailable") from error
+    except (
+        InjectionMaterializerError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ):
+        raise PacketCompilationError("materialized_source_unavailable") from None
     if observed != receipt.result_source_tree_sha256:
         raise PacketCompilationError("materialized_source_identity_mismatch")
 
@@ -433,8 +434,8 @@ def _require_declared_patch_path(
             "utf-8"
         ):
             raise OSError
-    except (OSError, ValueError, TypeError) as error:
-        raise PacketCompilationError("packet_patch_unavailable") from error
+    except (OSError, RuntimeError, ValueError, TypeError):
+        raise PacketCompilationError("packet_patch_unavailable") from None
     return str(path)
 
 
@@ -459,7 +460,9 @@ def compile_change_target_packet(
     try:
         catalog = load_curated_source_catalog(catalog_path)
     except CuratedCatalogError as error:
-        raise PacketCompilationError(error.code) from error
+        raise PacketCompilationError(error.code) from None
+    except (OSError, RuntimeError, TypeError, ValueError):
+        raise PacketCompilationError("catalog_file_unavailable") from None
     defect_entry = _entry_for_case(catalog, pair.defect)
     control_entry = _entry_for_case(catalog, pair.control)
     defect_receipt = _require_sealed_case(
@@ -478,8 +481,11 @@ def compile_change_target_packet(
     )
     _require_compatible_pair(defect_entry, control_entry)
 
-    selected_entry = defect_entry if variant == "defect" else control_entry
-    selected_receipt = defect_receipt if variant == "defect" else control_receipt
+    selected_entry, selected_receipt = (
+        (defect_entry, defect_receipt)
+        if variant == "defect"
+        else (control_entry, control_receipt)
+    )
     _require_materialized_source(selected_receipt)
     patch_path = _require_declared_patch_path(catalog_path, selected_entry)
     if (

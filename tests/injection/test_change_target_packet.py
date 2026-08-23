@@ -8,16 +8,18 @@ outside the packet while proving that its source change is real and bounded.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 import difflib
 from hashlib import sha256
 import json
 from pathlib import Path
 import subprocess
+import traceback
 
 import pytest
 
-from aiverify.discovery import ChangeTarget
 from aiverify.injection import (
     AuditorCase,
     AuditorPair,
@@ -68,6 +70,7 @@ def _write_catalog(
     repository: Path,
     *,
     incompatible_provenance: bool = False,
+    incompatible_fixture_anchor: bool = False,
 ) -> Path:
     defect_baseline = capture_baseline_provenance(
         repository,
@@ -84,6 +87,11 @@ def _write_catalog(
             _git(repository, "rev-parse", "HEAD"),
         )
         control_baseline_text = "alternate baseline\n"
+    if incompatible_fixture_anchor:
+        (repository / "fixture-anchor-two.txt").write_text(
+            "second fixture\n",
+            encoding="utf-8",
+        )
     entries = []
     for number, variant, baseline, baseline_text, replacement in (
         ("one", "defect", defect_baseline, "baseline\n", "candidate one\n"),
@@ -123,15 +131,20 @@ def _write_catalog(
             ),
             variant=variant,
         )
+        fixture_anchor_path = (
+            "fixture-anchor-two.txt"
+            if incompatible_fixture_anchor and number == "two"
+            else "fixture-anchor.txt"
+        )
         entries.append(
             CuratedSourceEntry(
                 source_id=f"source-{number}",
                 candidate=candidate,
                 patch_path=source_delta.source_ref or "",
                 fixture_anchor=FixtureAnchor(
-                    path="fixture-anchor.txt",
+                    path=fixture_anchor_path,
                     sha256=sha256(
-                        (repository / "fixture-anchor.txt").read_bytes()
+                        (repository / fixture_anchor_path).read_bytes()
                     ).hexdigest(),
                 ),
                 population_classification="curated_controlled_injection",
@@ -184,6 +197,7 @@ def _safe_audited_pair(
     policy: DisclosurePolicy | None = None,
     worktree_root_name: str = "owned-worktrees",
     incompatible_provenance: bool = False,
+    incompatible_fixture_anchor: bool = False,
 ) -> _AuditedFixture:
     repository = tmp_path / "fixture"
     repository.mkdir()
@@ -198,8 +212,12 @@ def _safe_audited_pair(
     catalog_path = _write_catalog(
         repository,
         incompatible_provenance=incompatible_provenance,
+        incompatible_fixture_anchor=incompatible_fixture_anchor,
     )
-    _git(repository, "add", "curated-source-catalog.json", "patches")
+    tracked_catalog_inputs = ["curated-source-catalog.json", "patches"]
+    if incompatible_fixture_anchor:
+        tracked_catalog_inputs.append("fixture-anchor-two.txt")
+    _git(repository, "add", *tracked_catalog_inputs)
     _git(repository, "commit", "-m", "add safe pair catalog")
 
     actual_policy = policy or _policy()
@@ -254,12 +272,32 @@ def _safe_audited_pair(
     )
 
 
+@contextmanager
+def _prepared_audited_pair(
+    tmp_path: Path,
+    *,
+    policy: DisclosurePolicy | None = None,
+    worktree_root_name: str = "owned-worktrees",
+    incompatible_provenance: bool = False,
+    incompatible_fixture_anchor: bool = False,
+) -> Iterator[_AuditedFixture]:
+    fixture = _safe_audited_pair(
+        tmp_path,
+        policy=policy,
+        worktree_root_name=worktree_root_name,
+        incompatible_provenance=incompatible_provenance,
+        incompatible_fixture_anchor=incompatible_fixture_anchor,
+    )
+    try:
+        yield fixture
+    finally:
+        fixture.cleanup()
+
+
 def test_safe_audited_pair_compiles_a_deterministic_blind_change_target_packet(
     tmp_path: Path,
 ) -> None:
-    fixture = _safe_audited_pair(tmp_path)
-
-    try:
+    with _prepared_audited_pair(tmp_path) as fixture:
         packet = compile_change_target_packet(
             catalog_path=fixture.catalog_path,
             pair=fixture.pair,
@@ -315,14 +353,6 @@ def test_safe_audited_pair_compiles_a_deterministic_blind_change_target_packet(
         )
         assert Path(packet.patch_path).read_text(encoding="utf-8") == packet.patch_text
         assert packet.patch_sha256 == sha256(packet.patch_text.encode("utf-8")).hexdigest()
-        assert packet.change_target == ChangeTarget(
-            target_id=packet.packet_id,
-            source_origin=packet.source_origin,
-            source_commit=packet.source_commit,
-            worktree=packet.worktree_path,
-            diff_ref=packet.patch_path,
-            diff_sha256=packet.patch_sha256,
-        )
         assert control_packet.packet_id != packet.packet_id
         assert control_packet.patch_text == (
             fixture.repository / "patches/change-two.patch"
@@ -336,26 +366,23 @@ def test_safe_audited_pair_compiles_a_deterministic_blind_change_target_packet(
         ).status == "eligible"
         for token in fixture.policy.forbidden_tokens:
             assert token.encode("utf-8") not in packet.canonical_bytes
-    finally:
-        fixture.cleanup()
 
 
 def test_change_target_packet_rejects_an_unsealed_pair_member(tmp_path: Path) -> None:
-    fixture = _safe_audited_pair(tmp_path)
-    rejected_admission = admit_catalogued_candidate(
-        fixture.catalog_path,
-        "not-declared",
-        fixture.materializer,
-    )
-    unsealed_pair = replace(
-        fixture.pair,
-        defect=replace(
-            fixture.pair.defect,
-            admission=rejected_admission,
-        ),
-    )
+    with _prepared_audited_pair(tmp_path) as fixture:
+        rejected_admission = admit_catalogued_candidate(
+            fixture.catalog_path,
+            "not-declared",
+            fixture.materializer,
+        )
+        unsealed_pair = replace(
+            fixture.pair,
+            defect=replace(
+                fixture.pair.defect,
+                admission=rejected_admission,
+            ),
+        )
 
-    try:
         with pytest.raises(PacketCompilationError) as raised:
             compile_change_target_packet(
                 catalog_path=fixture.catalog_path,
@@ -365,33 +392,30 @@ def test_change_target_packet_rejects_an_unsealed_pair_member(tmp_path: Path) ->
             )
 
         assert raised.value.code == "admission_not_sealed"
-    finally:
-        fixture.cleanup()
 
 
 def test_change_target_packet_rejects_worktree_provenance_mismatch(
     tmp_path: Path,
 ) -> None:
-    fixture = _safe_audited_pair(tmp_path)
-    receipt = fixture.pair.defect.admission.receipt
-    assert receipt is not None
-    assert receipt.worktree is not None
-    contradictory_receipt = replace(
-        receipt,
-        worktree=replace(receipt.worktree, baseline_commit="f" * 40),
-    )
-    contradictory_pair = replace(
-        fixture.pair,
-        defect=replace(
-            fixture.pair.defect,
-            admission=replace(
-                fixture.pair.defect.admission,
-                receipt=contradictory_receipt,
+    with _prepared_audited_pair(tmp_path) as fixture:
+        receipt = fixture.pair.defect.admission.receipt
+        assert receipt is not None
+        assert receipt.worktree is not None
+        contradictory_receipt = replace(
+            receipt,
+            worktree=replace(receipt.worktree, baseline_commit="f" * 40),
+        )
+        contradictory_pair = replace(
+            fixture.pair,
+            defect=replace(
+                fixture.pair.defect,
+                admission=replace(
+                    fixture.pair.defect.admission,
+                    receipt=contradictory_receipt,
+                ),
             ),
-        ),
-    )
+        )
 
-    try:
         with pytest.raises(PacketCompilationError) as raised:
             compile_change_target_packet(
                 catalog_path=fixture.catalog_path,
@@ -401,16 +425,15 @@ def test_change_target_packet_rejects_worktree_provenance_mismatch(
             )
 
         assert raised.value.code == "admission_provenance_mismatch"
-    finally:
-        fixture.cleanup()
 
 
 def test_change_target_packet_rejects_incompatible_pair_provenance(
     tmp_path: Path,
 ) -> None:
-    fixture = _safe_audited_pair(tmp_path, incompatible_provenance=True)
-
-    try:
+    with _prepared_audited_pair(
+        tmp_path,
+        incompatible_provenance=True,
+    ) as fixture:
         with pytest.raises(PacketCompilationError) as raised:
             compile_change_target_packet(
                 catalog_path=fixture.catalog_path,
@@ -420,17 +443,32 @@ def test_change_target_packet_rejects_incompatible_pair_provenance(
             )
 
         assert raised.value.code == "pair_provenance_mismatch"
-    finally:
-        fixture.cleanup()
+
+
+def test_change_target_packet_rejects_a_pair_with_different_fixture_anchors(
+    tmp_path: Path,
+) -> None:
+    with _prepared_audited_pair(
+        tmp_path,
+        incompatible_fixture_anchor=True,
+    ) as fixture:
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_change_target_packet(
+                catalog_path=fixture.catalog_path,
+                pair=fixture.pair,
+                variant="defect",
+                policy=fixture.policy,
+            )
+
+        assert raised.value.code == "pair_fixture_anchor_mismatch"
 
 
 def test_change_target_packet_rejects_a_pair_that_fails_its_disclosure_policy(
     tmp_path: Path,
 ) -> None:
-    fixture = _safe_audited_pair(tmp_path, policy=_policy("candidate"))
-    assert fixture.pair.defect.disclosure_review.status == "rejected"
+    with _prepared_audited_pair(tmp_path, policy=_policy("candidate")) as fixture:
+        assert fixture.pair.defect.disclosure_review.status == "rejected"
 
-    try:
         with pytest.raises(PacketCompilationError) as raised:
             compile_change_target_packet(
                 catalog_path=fixture.catalog_path,
@@ -440,22 +478,19 @@ def test_change_target_packet_rejects_a_pair_that_fails_its_disclosure_policy(
             )
 
         assert raised.value.code == "disclosure_policy_rejected"
-    finally:
-        fixture.cleanup()
 
 
 def test_change_target_packet_rechecks_the_final_verifier_visible_path(
     tmp_path: Path,
 ) -> None:
     hidden_path = "HIDDEN_WORKTREE_PATH_8b1c4e"
-    fixture = _safe_audited_pair(
+    with _prepared_audited_pair(
         tmp_path,
         policy=_policy(hidden_path),
         worktree_root_name=hidden_path,
-    )
-    assert fixture.pair.defect.disclosure_review.status == "eligible"
+    ) as fixture:
+        assert fixture.pair.defect.disclosure_review.status == "eligible"
 
-    try:
         with pytest.raises(PacketCompilationError) as raised:
             compile_change_target_packet(
                 catalog_path=fixture.catalog_path,
@@ -465,5 +500,40 @@ def test_change_target_packet_rechecks_the_final_verifier_visible_path(
             )
 
         assert raised.value.code == "packet_disclosure_detected"
-    finally:
-        fixture.cleanup()
+
+
+def test_change_target_packet_sanitizes_a_worktree_resolution_error(
+    tmp_path: Path,
+) -> None:
+    hidden_path = "HIDDEN_ERROR_PATH_93a1f0"
+    with _prepared_audited_pair(tmp_path, policy=_policy(hidden_path)) as fixture:
+        symlink_loop = tmp_path / hidden_path
+        symlink_loop.symlink_to(symlink_loop.name)
+        receipt = fixture.pair.defect.admission.receipt
+        assert receipt is not None
+        assert receipt.worktree is not None
+        forged_pair = replace(
+            fixture.pair,
+            defect=replace(
+                fixture.pair.defect,
+                admission=replace(
+                    fixture.pair.defect.admission,
+                    receipt=replace(
+                        receipt,
+                        worktree=replace(receipt.worktree, path=str(symlink_loop)),
+                    ),
+                ),
+            ),
+        )
+
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_change_target_packet(
+                catalog_path=fixture.catalog_path,
+                pair=forged_pair,
+                variant="defect",
+                policy=fixture.policy,
+            )
+
+        assert raised.value.code == "materialized_source_unavailable"
+        assert hidden_path not in str(raised.value)
+        assert hidden_path not in "".join(traceback.format_exception(raised.value))
