@@ -16,6 +16,7 @@ from aiverify.injection import (
     CuratedCatalogError,
     CuratedSourceCatalog,
     CuratedSourceEntry,
+    DisclosureAuditArtifact,
     FaultOperator,
     FixtureAnchor,
     InjectionAdmission,
@@ -214,6 +215,38 @@ def test_catalog_fixture_anchor_drift_is_a_stable_fail_closed_rejection(
     assert raised.value.code == "catalog_fixture_anchor_drift"
 
 
+def test_catalog_disclosure_audit_artifact_drift_is_a_stable_fail_closed_rejection(
+    tmp_path: Path,
+) -> None:
+    repository = _repository(tmp_path)
+    artifact_path = "audit/disclosure-input.yaml"
+    artifact = repository / artifact_path
+    artifact.parent.mkdir()
+    artifact.write_text("expected_oracle: L2\n", encoding="utf-8")
+    _git(repository, "add", artifact_path)
+    source = _catalog(repository).select("catalogued-source")
+    catalog = CuratedSourceCatalog(
+        entries=(
+            replace(
+                source,
+                disclosure_audit_artifacts=(
+                    DisclosureAuditArtifact(
+                        path=artifact_path,
+                        sha256=sha256(artifact.read_bytes()).hexdigest(),
+                    ),
+                ),
+            ),
+        )
+    )
+    catalog_path = _write_checked_in_catalog(repository, catalog)
+    artifact.write_text("drift\n", encoding="utf-8")
+
+    with pytest.raises(CuratedCatalogError) as raised:
+        load_curated_source_catalog(catalog_path)
+
+    assert raised.value.code == "catalog_disclosure_artifact_drift"
+
+
 def test_catalog_rejects_duplicate_sources_and_invalid_provenance(tmp_path: Path) -> None:
     repository = _repository(tmp_path)
     catalog = _catalog(repository)
@@ -248,6 +281,12 @@ def test_checked_in_stale_result_source_has_a_byte_bound_catalog_entry() -> None
     )
     assert entry.candidate.source_delta.patch_sha256 == (
         "1076db34c0aa8e445fce21ce833d3d44db7734afe558784ec7022049b7cb5975"
+    )
+    assert entry.disclosure_audit_artifacts == (
+        DisclosureAuditArtifact(
+            path="capability-slices/deterministic-concurrency/run-specs/stale-candidate.yaml",
+            sha256="75eff8a104d54a8ea78e12b5082a54cc9daca0fb29d56b857eb959f038066fc2",
+        ),
     )
 
 

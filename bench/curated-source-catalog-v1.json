@@ -36,7 +36,13 @@
         "path": "fixtures/lifecycle-recovery-app/app/src/main/java/dev/aiverify/lifecyclefixture/ConcurrencyActivity.java",
         "sha256": "849c7f3057117507feb59ad2ffb5bdc5156a92fb377abefec14fce0f39b44c76"
       },
-      "identity_sha256": "b2ece61839122a0f6b3628482c91298be18547305e914d25466ef8e493d5982d",
+      "disclosure_audit_artifacts": [
+        {
+          "path": "capability-slices/deterministic-concurrency/run-specs/stale-candidate.yaml",
+          "sha256": "75eff8a104d54a8ea78e12b5082a54cc9daca0fb29d56b857eb959f038066fc2"
+        }
+      ],
+      "identity_sha256": "a520e20c44ae4f671945316e8bb635f21ecf455acde3a9848f580d7cf695bb9c",
       "patch_path": "capability-slices/deterministic-concurrency/patches/apply-stale-result.patch",
       "patch_sha256": "1076db34c0aa8e445fce21ce833d3d44db7734afe558784ec7022049b7cb5975",
       "population_classification": "curated_controlled_injection",
@@ -48,6 +54,6 @@
       }
     }
   ],
-  "identity_sha256": "92dcdf6b3b30ee40cd8a7721eb7e50b482bf787badc32b6c2ac02799f47a0d95",
+  "identity_sha256": "93b0b566c767cfaf25548825aea338b2644a8a1beddbbdb32cfd948f382684d5",
   "schema_version": 1
 }
