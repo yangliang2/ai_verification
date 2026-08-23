@@ -1,9 +1,9 @@
 """Provenance-bound, disposable Injection Lab source preparation.
 
 The Injection Lab intentionally sits before Discovery Campaign and Run Spec.
-Its M0.1 through M0.4 surfaces materialize, structurally admit, review, and
-compile source variants without building, installing, or executing an Android
-application.
+Its M0.1 through M0.6 surfaces materialize, structurally admit, review, and
+compile source variants plus a four-cell audit-side family without building,
+installing, or executing an Android application.
 """
 
 from aiverify.injection.admission import (
@@ -51,11 +51,16 @@ from aiverify.injection.models import (
 )
 from aiverify.injection.packets import (
     AuditorCase,
+    AuditorCaseFamily,
+    AuditorMapping,
+    AuditorMappingEntry,
     AuditorPair,
     PacketCompilationError,
     ProjectTargetPacket,
     VerifierPacket,
+    VerifierPacketFamily,
     compile_change_target_packet,
+    compile_four_cell_case_family,
     compile_project_target_packet,
 )
 
@@ -64,6 +69,9 @@ __all__ = [
     "AdmissionLedger",
     "AdmissionLedgerEntry",
     "AuditorCase",
+    "AuditorCaseFamily",
+    "AuditorMapping",
+    "AuditorMappingEntry",
     "AuditorPair",
     "BaselineProvenance",
     "CataloguedDisclosureReview",
@@ -91,9 +99,11 @@ __all__ = [
     "SourceDelta",
     "TaxonomyRelationship",
     "VerifierPacket",
+    "VerifierPacketFamily",
     "admit_catalogued_candidate",
     "capture_baseline_provenance",
     "compile_change_target_packet",
+    "compile_four_cell_case_family",
     "compile_project_target_packet",
     "load_curated_source_catalog",
     "review_catalogued_admission",

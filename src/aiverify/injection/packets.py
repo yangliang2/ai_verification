@@ -45,6 +45,8 @@ _CHANGE_TARGET_KIND = "change_target"
 _CHANGE_TARGET_CLAIM_BOUNDARY = "m0_structural_blind_change_target_packet_only"
 _PROJECT_TARGET_KIND = "project_target"
 _PROJECT_TARGET_CLAIM_BOUNDARY = "m0_structural_blind_project_target_packet_only"
+_FOUR_CELL_FAMILY_CLAIM_BOUNDARY = "m0_structural_four_cell_verifier_packet_only"
+_AUDITOR_MAPPING_CLAIM_BOUNDARY = "m0_structural_four_cell_auditor_mapping_only"
 _SHA256_CHARS = frozenset("0123456789abcdef")
 _VARIANTS = frozenset({"defect", "control"})
 _PROJECT_SCOPE_GLOB_CHARS = frozenset("*?[]{}")
@@ -491,6 +493,426 @@ class ProjectTargetPacket:
     def canonical_bytes(self) -> bytes:
         """Return the exact deterministic verifier-visible packet bytes."""
         return canonical_json_bytes(self.to_dict())
+
+
+def _canonical_family_packets(
+    packets: object,
+) -> tuple[VerifierPacket | ProjectTargetPacket, ...]:
+    """Require exactly two packets for each public target mode.
+
+    The public side intentionally has no variant field.  It can establish only
+    that the four bounded packet shapes are complete and uniquely identified;
+    the private mapping establishes which hidden variant produced each packet.
+    """
+    if not isinstance(packets, tuple) or len(packets) != 4:
+        raise InjectionContractError(
+            "verifier packet family must contain exactly four packets"
+        )
+    if not all(isinstance(packet, (VerifierPacket, ProjectTargetPacket)) for packet in packets):
+        raise InjectionContractError(
+            "verifier packet family packets must be public packet objects"
+        )
+    target_kinds = tuple(packet.target_kind for packet in packets)
+    if target_kinds.count(_CHANGE_TARGET_KIND) != 2 or target_kinds.count(
+        _PROJECT_TARGET_KIND
+    ) != 2:
+        raise InjectionContractError(
+            "verifier packet family must contain two packets for each target kind"
+        )
+    packet_ids = tuple(packet.packet_id for packet in packets)
+    if len(set(packet_ids)) != len(packet_ids):
+        raise InjectionContractError("verifier packet family packet IDs must be unique")
+    return tuple(
+        sorted(
+            packets,
+            key=lambda packet: (
+                packet.target_kind,
+                packet.packet_id,
+                packet.identity_sha256,
+            ),
+        )
+    )
+
+
+def _four_cell_family_id(
+    packets: tuple[VerifierPacket | ProjectTargetPacket, ...],
+) -> str:
+    """Derive an opaque stable family ID from public packet identities only."""
+    binding = _identity(
+        {
+            "schema_version": SCHEMA_VERSION,
+            "claim_boundary": _FOUR_CELL_FAMILY_CLAIM_BOUNDARY,
+            "packets": [
+                {
+                    "target_kind": packet.target_kind,
+                    "packet_id": packet.packet_id,
+                    "identity_sha256": packet.identity_sha256,
+                }
+                for packet in packets
+            ],
+        }
+    )
+    return f"four-cell-family-{binding[:24]}"
+
+
+@dataclass(frozen=True)
+class VerifierPacketFamily:
+    """The four public packet shapes, without audit-side mapping information.
+
+    This is the only family-shaped object that can be serialized for a future
+    Verification Agent.  Its parser rejects any attached auditor mapping and
+    it has no field through which private variant or audit-package data can
+    cross into verifier input.
+    """
+
+    packets: tuple[VerifierPacket | ProjectTargetPacket, ...]
+    family_id: str = ""
+    claim_boundary: str = _FOUR_CELL_FAMILY_CLAIM_BOUNDARY
+    schema_version: int = SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        canonical_packets = _canonical_family_packets(self.packets)
+        object.__setattr__(self, "packets", canonical_packets)
+        expected_family_id = _four_cell_family_id(canonical_packets)
+        if self.family_id == "":
+            object.__setattr__(self, "family_id", expected_family_id)
+        else:
+            _required_text(self.family_id, "verifier packet family family_id")
+        if self.family_id != expected_family_id:
+            raise InjectionContractError(
+                "verifier packet family ID does not match its packets"
+            )
+        if self.claim_boundary != _FOUR_CELL_FAMILY_CLAIM_BOUNDARY:
+            raise InjectionContractError(
+                "verifier packet family claim boundary must be four-cell structural only"
+            )
+        if (
+            not isinstance(self.schema_version, int)
+            or isinstance(self.schema_version, bool)
+            or self.schema_version != SCHEMA_VERSION
+        ):
+            raise InjectionContractError("unsupported verifier packet family schema_version")
+
+    def _identity_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "family_id": self.family_id,
+            "claim_boundary": self.claim_boundary,
+            "packets": [
+                {
+                    "packet_id": packet.packet_id,
+                    "identity_sha256": packet.identity_sha256,
+                }
+                for packet in self.packets
+            ],
+        }
+
+    @property
+    def identity_sha256(self) -> str:
+        return _identity(self._identity_dict())
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "family_id": self.family_id,
+            "claim_boundary": self.claim_boundary,
+            "packets": [packet.to_dict() for packet in self.packets],
+            "identity_sha256": self.identity_sha256,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> VerifierPacketFamily:
+        """Parse public family bytes while refusing any private attachment."""
+        if not isinstance(data, Mapping):
+            raise InjectionContractError("verifier packet family must be an object")
+        allowed = {
+            "schema_version",
+            "family_id",
+            "claim_boundary",
+            "packets",
+            "identity_sha256",
+        }
+        if set(data) - allowed:
+            raise InjectionContractError("verifier packet family contains unknown fields")
+        try:
+            raw_packets = data["packets"]
+            if not isinstance(raw_packets, list):
+                raise InjectionContractError("verifier packet family packets must be an array")
+            packets: list[VerifierPacket | ProjectTargetPacket] = []
+            for raw_packet in raw_packets:
+                if not isinstance(raw_packet, Mapping):
+                    raise InjectionContractError(
+                        "verifier packet family packets must be objects"
+                    )
+                target_kind = raw_packet.get("target_kind")
+                if target_kind == _CHANGE_TARGET_KIND:
+                    packets.append(VerifierPacket.from_dict(raw_packet))
+                elif target_kind == _PROJECT_TARGET_KIND:
+                    packets.append(ProjectTargetPacket.from_dict(raw_packet))
+                else:
+                    raise InjectionContractError(
+                        "verifier packet family contains an unsupported packet"
+                    )
+            value = cls(
+                schema_version=data["schema_version"],
+                family_id=data["family_id"],
+                claim_boundary=data["claim_boundary"],
+                packets=tuple(packets),
+            )
+            if data["identity_sha256"] != value.identity_sha256:
+                raise InjectionContractError(
+                    "verifier packet family identity digest does not match"
+                )
+            return value
+        except KeyError as error:
+            raise InjectionContractError(
+                f"verifier packet family requires {error.args[0]}"
+            ) from error
+
+    @property
+    def canonical_bytes(self) -> bytes:
+        """Return the deterministic public-family bytes without audit data."""
+        return canonical_json_bytes(self.to_dict())
+
+
+@dataclass(frozen=True)
+class AuditorMappingEntry:
+    """One private binding from a public packet to its audit-side package."""
+
+    packet_id: str
+    target_kind: str
+    hidden_variant: str
+    audit_package_identity_sha256: str
+
+    def __post_init__(self) -> None:
+        _required_text(self.packet_id, "auditor mapping entry packet_id")
+        if self.target_kind not in {_CHANGE_TARGET_KIND, _PROJECT_TARGET_KIND}:
+            raise InjectionContractError(
+                "auditor mapping entry target_kind must be a supported target kind"
+            )
+        if self.hidden_variant not in _VARIANTS:
+            raise InjectionContractError(
+                "auditor mapping entry hidden_variant must be defect or control"
+            )
+        _sha256(
+            self.audit_package_identity_sha256,
+            "auditor mapping entry audit_package_identity_sha256",
+        )
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "packet_id": self.packet_id,
+            "target_kind": self.target_kind,
+            "hidden_variant": self.hidden_variant,
+            "audit_package_identity_sha256": self.audit_package_identity_sha256,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> AuditorMappingEntry:
+        if not isinstance(data, Mapping):
+            raise InjectionContractError("auditor mapping entry must be an object")
+        allowed = {
+            "packet_id",
+            "target_kind",
+            "hidden_variant",
+            "audit_package_identity_sha256",
+        }
+        if set(data) - allowed:
+            raise InjectionContractError("auditor mapping entry contains unknown fields")
+        try:
+            return cls(
+                packet_id=data["packet_id"],
+                target_kind=data["target_kind"],
+                hidden_variant=data["hidden_variant"],
+                audit_package_identity_sha256=data["audit_package_identity_sha256"],
+            )
+        except KeyError as error:
+            raise InjectionContractError(
+                f"auditor mapping entry requires {error.args[0]}"
+            ) from error
+
+
+def _canonical_mapping_entries(
+    entries: object,
+) -> tuple[AuditorMappingEntry, ...]:
+    """Require the one complete private matrix in canonical audit order."""
+    if not isinstance(entries, tuple) or len(entries) != 4:
+        raise InjectionContractError("auditor mapping must contain exactly four entries")
+    if not all(isinstance(entry, AuditorMappingEntry) for entry in entries):
+        raise InjectionContractError("auditor mapping entries must be mapping entry objects")
+    cells = {(entry.target_kind, entry.hidden_variant) for entry in entries}
+    expected_cells = {
+        (target_kind, variant)
+        for target_kind in (_CHANGE_TARGET_KIND, _PROJECT_TARGET_KIND)
+        for variant in ("defect", "control")
+    }
+    if cells != expected_cells:
+        raise InjectionContractError("auditor mapping must bind all four target cells")
+    packet_ids = tuple(entry.packet_id for entry in entries)
+    if len(set(packet_ids)) != len(packet_ids):
+        raise InjectionContractError("auditor mapping packet IDs must be unique")
+    return tuple(
+        sorted(
+            entries,
+            key=lambda entry: (
+                entry.target_kind,
+                entry.hidden_variant,
+                entry.packet_id,
+            ),
+        )
+    )
+
+
+@dataclass(frozen=True)
+class AuditorMapping:
+    """A separately serializable, audit-only four-cell mapping.
+
+    Its bytes name the hidden variants and audit-package identities, so they are
+    intentionally not accepted by any verifier-facing packet parser.
+    """
+
+    family_id: str
+    entries: tuple[AuditorMappingEntry, ...]
+    claim_boundary: str = _AUDITOR_MAPPING_CLAIM_BOUNDARY
+    schema_version: int = SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        _required_text(self.family_id, "auditor mapping family_id")
+        canonical_entries = _canonical_mapping_entries(self.entries)
+        object.__setattr__(self, "entries", canonical_entries)
+        if self.claim_boundary != _AUDITOR_MAPPING_CLAIM_BOUNDARY:
+            raise InjectionContractError(
+                "auditor mapping claim boundary must be four-cell structural only"
+            )
+        if (
+            not isinstance(self.schema_version, int)
+            or isinstance(self.schema_version, bool)
+            or self.schema_version != SCHEMA_VERSION
+        ):
+            raise InjectionContractError("unsupported auditor mapping schema_version")
+
+    def _identity_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "family_id": self.family_id,
+            "claim_boundary": self.claim_boundary,
+            "entries": [entry.to_dict() for entry in self.entries],
+        }
+
+    @property
+    def identity_sha256(self) -> str:
+        return _identity(self._identity_dict())
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            **self._identity_dict(),
+            "identity_sha256": self.identity_sha256,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> AuditorMapping:
+        if not isinstance(data, Mapping):
+            raise InjectionContractError("auditor mapping must be an object")
+        allowed = {
+            "schema_version",
+            "family_id",
+            "claim_boundary",
+            "entries",
+            "identity_sha256",
+        }
+        if set(data) - allowed:
+            raise InjectionContractError("auditor mapping contains unknown fields")
+        try:
+            raw_entries = data["entries"]
+            if not isinstance(raw_entries, list):
+                raise InjectionContractError("auditor mapping entries must be an array")
+            value = cls(
+                schema_version=data["schema_version"],
+                family_id=data["family_id"],
+                claim_boundary=data["claim_boundary"],
+                entries=tuple(
+                    AuditorMappingEntry.from_dict(entry) for entry in raw_entries
+                ),
+            )
+            if data["identity_sha256"] != value.identity_sha256:
+                raise InjectionContractError("auditor mapping identity digest does not match")
+            return value
+        except KeyError as error:
+            raise InjectionContractError(f"auditor mapping requires {error.args[0]}") from error
+
+    @property
+    def canonical_bytes(self) -> bytes:
+        """Return private auditor bytes, separately from verifier-family bytes."""
+        return canonical_json_bytes(self.to_dict())
+
+
+@dataclass(frozen=True)
+class AuditorCaseFamily:
+    """The audit-side aggregate that binds the private pair, map, and public set.
+
+    Deliberately no ``to_dict`` or ``canonical_bytes`` is provided: serializing
+    this aggregate would combine the private mapping with verifier-facing input.
+    Callers serialize ``verifier_packet_family`` or ``auditor_mapping`` at their
+    respective boundaries instead.
+    """
+
+    verifier_packet_family: VerifierPacketFamily
+    auditor_mapping: AuditorMapping
+    pair: AuditorPair
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.verifier_packet_family, VerifierPacketFamily):
+            raise InjectionContractError(
+                "auditor case family verifier_packet_family must be VerifierPacketFamily"
+            )
+        if not isinstance(self.auditor_mapping, AuditorMapping):
+            raise InjectionContractError(
+                "auditor case family auditor_mapping must be AuditorMapping"
+            )
+        if not isinstance(self.pair, AuditorPair):
+            raise InjectionContractError("auditor case family pair must be AuditorPair")
+        if self.auditor_mapping.family_id != self.verifier_packet_family.family_id:
+            raise InjectionContractError(
+                "auditor case family mapping family ID does not match public packets"
+            )
+        public_packet_ids = {
+            packet.packet_id for packet in self.verifier_packet_family.packets
+        }
+        public_packet_kinds = {
+            packet.packet_id: packet.target_kind
+            for packet in self.verifier_packet_family.packets
+        }
+        mapped_packet_ids = {entry.packet_id for entry in self.auditor_mapping.entries}
+        if mapped_packet_ids != public_packet_ids:
+            raise InjectionContractError(
+                "auditor case family mapping does not bind its packets"
+            )
+        if any(
+            public_packet_kinds[entry.packet_id] != entry.target_kind
+            for entry in self.auditor_mapping.entries
+        ):
+            raise InjectionContractError(
+                "auditor case family mapping does not bind its packets"
+            )
+        package_identity_by_variant: dict[str, str] = {}
+        for variant, case in (
+            ("defect", self.pair.defect),
+            ("control", self.pair.control),
+        ):
+            admission = case.admission
+            if admission.status != "sealed" or admission.package is None:
+                raise InjectionContractError(
+                    "auditor case family requires sealed audit packages"
+                )
+            package_identity_by_variant[variant] = admission.package.identity_sha256
+        if any(
+            entry.audit_package_identity_sha256
+            != package_identity_by_variant[entry.hidden_variant]
+            for entry in self.auditor_mapping.entries
+        ):
+            raise InjectionContractError(
+                "auditor case family mapping does not bind its packets"
+            )
 
 
 def _packet_id(
@@ -973,12 +1395,125 @@ def compile_project_target_packet(
     return packet
 
 
+def compile_four_cell_case_family(
+    *,
+    catalog_path: str | Path,
+    pair: AuditorPair,
+    policy: DisclosurePolicy,
+    scope: tuple[str, ...],
+    discovery_budget: int,
+) -> AuditorCaseFamily:
+    """Compile the complete private/public four-cell structural family.
+
+    The paired sealed inputs are compiled through the already-established
+    ChangeTarget and ProjectTarget boundaries for both hidden variants.  No
+    partial public collection escapes: either all four packets and their
+    separately serializable private mapping are returned, or a fixed
+    :class:`PacketCompilationError` is raised.
+    """
+    if not isinstance(pair, AuditorPair):
+        raise PacketCompilationError("pair_missing")
+    if not isinstance(policy, DisclosurePolicy):
+        raise PacketCompilationError("disclosure_policy_invalid")
+    try:
+        canonical_scope = _canonical_project_scope(scope)
+    except InjectionContractError:
+        raise PacketCompilationError("project_scope_unbounded") from None
+    try:
+        bounded_budget = _bounded_discovery_budget(discovery_budget)
+    except InjectionContractError:
+        raise PacketCompilationError("discovery_budget_unbounded") from None
+
+    change_defect = compile_change_target_packet(
+        catalog_path=catalog_path,
+        pair=pair,
+        variant="defect",
+        policy=policy,
+    )
+    change_control = compile_change_target_packet(
+        catalog_path=catalog_path,
+        pair=pair,
+        variant="control",
+        policy=policy,
+    )
+    project_defect = compile_project_target_packet(
+        catalog_path=catalog_path,
+        pair=pair,
+        variant="defect",
+        policy=policy,
+        scope=canonical_scope,
+        discovery_budget=bounded_budget,
+    )
+    project_control = compile_project_target_packet(
+        catalog_path=catalog_path,
+        pair=pair,
+        variant="control",
+        policy=policy,
+        scope=canonical_scope,
+        discovery_budget=bounded_budget,
+    )
+    try:
+        public_family = VerifierPacketFamily(
+            packets=(
+                change_defect,
+                change_control,
+                project_defect,
+                project_control,
+            )
+        )
+        defect_package = pair.defect.admission.package
+        control_package = pair.control.admission.package
+        if defect_package is None or control_package is None:
+            raise InjectionContractError("sealed pair requires audit packages")
+        auditor_mapping = AuditorMapping(
+            family_id=public_family.family_id,
+            entries=(
+                AuditorMappingEntry(
+                    packet_id=change_defect.packet_id,
+                    target_kind=change_defect.target_kind,
+                    hidden_variant="defect",
+                    audit_package_identity_sha256=defect_package.identity_sha256,
+                ),
+                AuditorMappingEntry(
+                    packet_id=change_control.packet_id,
+                    target_kind=change_control.target_kind,
+                    hidden_variant="control",
+                    audit_package_identity_sha256=control_package.identity_sha256,
+                ),
+                AuditorMappingEntry(
+                    packet_id=project_defect.packet_id,
+                    target_kind=project_defect.target_kind,
+                    hidden_variant="defect",
+                    audit_package_identity_sha256=defect_package.identity_sha256,
+                ),
+                AuditorMappingEntry(
+                    packet_id=project_control.packet_id,
+                    target_kind=project_control.target_kind,
+                    hidden_variant="control",
+                    audit_package_identity_sha256=control_package.identity_sha256,
+                ),
+            ),
+        )
+        return AuditorCaseFamily(
+            verifier_packet_family=public_family,
+            auditor_mapping=auditor_mapping,
+            pair=pair,
+        )
+    except InjectionContractError:
+        raise PacketCompilationError("four_cell_family_invalid") from None
+
+
 __all__ = [
     "AuditorCase",
+    "AuditorCaseFamily",
+    "AuditorMapping",
+    "AuditorMappingEntry",
     "AuditorPair",
     "PacketCompilationError",
     "ProjectTargetPacket",
     "VerifierPacket",
+    "VerifierPacketFamily",
     "compile_change_target_packet",
+    "compile_four_cell_case_family",
     "compile_project_target_packet",
 ]

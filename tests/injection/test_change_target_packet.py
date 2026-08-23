@@ -1,4 +1,4 @@
-"""M0.4/M0.5 public source-target packet contract tests.
+"""M0.4--M0.6 public source-target packet contract tests.
 
 The accepted public seams are ``compile_change_target_packet`` and
 ``compile_project_target_packet``: an auditor-side paired, sealed input becomes
@@ -23,6 +23,9 @@ import pytest
 
 from aiverify.injection import (
     AuditorCase,
+    AuditorCaseFamily,
+    AuditorMapping,
+    AuditorMappingEntry,
     AuditorPair,
     CuratedSourceCatalog,
     CuratedSourceEntry,
@@ -37,9 +40,11 @@ from aiverify.injection import (
     SourceDelta,
     TaxonomyRelationship,
     VerifierPacket,
+    VerifierPacketFamily,
     admit_catalogued_candidate,
     capture_baseline_provenance,
     compile_change_target_packet,
+    compile_four_cell_case_family,
     compile_project_target_packet,
     review_catalogued_admission,
     review_visible_packet_material,
@@ -920,3 +925,178 @@ def test_project_target_packet_sanitizes_a_missing_scope_path(tmp_path: Path) ->
         assert raised.value.code == "project_scope_path_unavailable"
         assert missing_scope not in str(raised.value)
         assert missing_scope not in "".join(traceback.format_exception(raised.value))
+
+
+def test_four_cell_structural_walkthrough_seals_private_mapping_separately(
+    tmp_path: Path,
+) -> None:
+    """One safe pair yields four public packets and an auditor-only mapping."""
+    with _prepared_audited_pair(tmp_path) as fixture:
+        family = compile_four_cell_case_family(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            policy=fixture.policy,
+            scope=("source.txt",),
+            discovery_budget=3,
+        )
+        repeated = compile_four_cell_case_family(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            policy=fixture.policy,
+            scope=("source.txt",),
+            discovery_budget=3,
+        )
+
+        assert isinstance(family, AuditorCaseFamily)
+        public_family = family.verifier_packet_family
+        mapping = family.auditor_mapping
+        assert isinstance(public_family, VerifierPacketFamily)
+        assert isinstance(mapping, AuditorMapping)
+        assert public_family.canonical_bytes == repeated.verifier_packet_family.canonical_bytes
+        assert mapping.canonical_bytes == repeated.auditor_mapping.canonical_bytes
+        assert public_family.family_id == mapping.family_id
+        assert public_family.claim_boundary == "m0_structural_four_cell_verifier_packet_only"
+        assert set(public_family.to_dict()) == {
+            "schema_version",
+            "family_id",
+            "claim_boundary",
+            "packets",
+            "identity_sha256",
+        }
+        assert len(public_family.packets) == 4
+        assert len({packet.packet_id for packet in public_family.packets}) == 4
+        assert {packet.target_kind for packet in public_family.packets} == {
+            "change_target",
+            "project_target",
+        }
+        assert sum(
+            packet.target_kind == "change_target" for packet in public_family.packets
+        ) == 2
+        assert sum(
+            packet.target_kind == "project_target" for packet in public_family.packets
+        ) == 2
+        assert VerifierPacketFamily.from_dict(public_family.to_dict()) == public_family
+        assert not hasattr(public_family, "auditor_mapping")
+        assert "auditor_mapping" not in public_family.to_dict()
+        assert not hasattr(family, "to_dict")
+
+        defect_package = fixture.pair.defect.admission.package
+        control_package = fixture.pair.control.admission.package
+        assert defect_package is not None
+        assert control_package is not None
+        assert {
+            (entry.target_kind, entry.hidden_variant, entry.audit_package_identity_sha256)
+            for entry in mapping.entries
+        } == {
+            ("change_target", "defect", defect_package.identity_sha256),
+            ("project_target", "defect", defect_package.identity_sha256),
+            ("change_target", "control", control_package.identity_sha256),
+            ("project_target", "control", control_package.identity_sha256),
+        }
+        assert {entry.packet_id for entry in mapping.entries} == {
+            packet.packet_id for packet in public_family.packets
+        }
+        assert AuditorMapping.from_dict(mapping.to_dict()) == mapping
+        assert not isinstance(
+            mapping,
+            (VerifierPacket, ProjectTargetPacket, VerifierPacketFamily),
+        )
+
+        with pytest.raises(InjectionContractError) as attached:
+            VerifierPacketFamily.from_dict(
+                {
+                    **public_family.to_dict(),
+                    "auditor_mapping": mapping.to_dict(),
+                }
+            )
+
+        assert str(attached.value) == "verifier packet family contains unknown fields"
+        for public_parser in (
+            VerifierPacket.from_dict,
+            ProjectTargetPacket.from_dict,
+            VerifierPacketFamily.from_dict,
+        ):
+            with pytest.raises(InjectionContractError):
+                public_parser(mapping.to_dict())
+        for token in fixture.policy.forbidden_tokens:
+            assert token.encode("utf-8") not in public_family.canonical_bytes
+        assert b'"hidden_variant"' not in public_family.canonical_bytes
+        assert b'"audit_package_identity_sha256"' not in public_family.canonical_bytes
+
+
+def test_four_cell_family_rejects_incomplete_or_inconsistent_private_bindings(
+    tmp_path: Path,
+) -> None:
+    with _prepared_audited_pair(tmp_path) as fixture:
+        family = compile_four_cell_case_family(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            policy=fixture.policy,
+            scope=("source.txt",),
+            discovery_budget=3,
+        )
+        public_family = family.verifier_packet_family
+        mapping = family.auditor_mapping
+
+        with pytest.raises(InjectionContractError) as incomplete_public:
+            VerifierPacketFamily(packets=public_family.packets[:3])
+
+        assert str(incomplete_public.value) == (
+            "verifier packet family must contain exactly four packets"
+        )
+
+        with pytest.raises(InjectionContractError) as incomplete_mapping:
+            AuditorMapping(
+                family_id=mapping.family_id,
+                entries=mapping.entries[:3],
+            )
+
+        assert str(incomplete_mapping.value) == (
+            "auditor mapping must contain exactly four entries"
+        )
+
+        forged_entry = AuditorMappingEntry(
+            packet_id=mapping.entries[0].packet_id,
+            target_kind=mapping.entries[0].target_kind,
+            hidden_variant=mapping.entries[0].hidden_variant,
+            audit_package_identity_sha256="0" * 64,
+        )
+        forged_mapping = AuditorMapping(
+            family_id=mapping.family_id,
+            entries=(forged_entry, *mapping.entries[1:]),
+        )
+        with pytest.raises(InjectionContractError) as incompatible_binding:
+            AuditorCaseFamily(
+                verifier_packet_family=public_family,
+                auditor_mapping=forged_mapping,
+                pair=fixture.pair,
+            )
+
+        assert str(incompatible_binding.value) == (
+            "auditor case family mapping does not bind its packets"
+        )
+
+
+@pytest.mark.parametrize(
+    ("fixture_kwargs", "expected_code"),
+    [
+        ({"incompatible_provenance": True}, "pair_provenance_mismatch"),
+        ({"policy": _policy("candidate")}, "disclosure_policy_rejected"),
+    ],
+)
+def test_four_cell_family_fails_closed_before_returning_a_partial_packet_set(
+    tmp_path: Path,
+    fixture_kwargs: dict[str, object],
+    expected_code: str,
+) -> None:
+    with _prepared_audited_pair(tmp_path, **fixture_kwargs) as fixture:
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_four_cell_case_family(
+                catalog_path=fixture.catalog_path,
+                pair=fixture.pair,
+                policy=fixture.policy,
+                scope=("source.txt",),
+                discovery_budget=3,
+            )
+
+        assert raised.value.code == expected_code
