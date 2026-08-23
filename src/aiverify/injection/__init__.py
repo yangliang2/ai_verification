@@ -6,14 +6,6 @@ compile source variants without building, installing, or executing an Android
 application.
 """
 
-from aiverify.injection.materialization import (
-    InjectionCleanupError,
-    InjectionMaterializer,
-    InjectionMaterializerError,
-    capture_baseline_provenance,
-    source_tree_sha256_for_commit,
-    source_tree_sha256_from_worktree,
-)
 from aiverify.injection.admission import (
     AdmissionLedger,
     AdmissionLedgerEntry,
@@ -32,20 +24,21 @@ from aiverify.injection.catalog import (
     load_curated_source_catalog,
 )
 from aiverify.injection.disclosure import (
+    STALE_RESULT_DISCLOSURE_POLICY,
     CataloguedDisclosureReview,
     DisclosureFinding,
     DisclosurePolicy,
     DisclosureReview,
-    STALE_RESULT_DISCLOSURE_POLICY,
-    review_visible_packet_material,
     review_catalogued_admission,
+    review_visible_packet_material,
 )
-from aiverify.injection.packets import (
-    AuditorCase,
-    AuditorPair,
-    PacketCompilationError,
-    VerifierPacket,
-    compile_change_target_packet,
+from aiverify.injection.materialization import (
+    InjectionCleanupError,
+    InjectionMaterializer,
+    InjectionMaterializerError,
+    capture_baseline_provenance,
+    source_tree_sha256_for_commit,
+    source_tree_sha256_from_worktree,
 )
 from aiverify.injection.models import (
     BaselineProvenance,
@@ -56,8 +49,18 @@ from aiverify.injection.models import (
     MaterializedWorktree,
     SourceDelta,
 )
+from aiverify.injection.packets import (
+    AuditorCase,
+    AuditorPair,
+    PacketCompilationError,
+    ProjectTargetPacket,
+    VerifierPacket,
+    compile_change_target_packet,
+    compile_project_target_packet,
+)
 
 __all__ = [
+    "STALE_RESULT_DISCLOSURE_POLICY",
     "AdmissionLedger",
     "AdmissionLedgerEntry",
     "AuditorCase",
@@ -74,26 +77,27 @@ __all__ = [
     "DisclosureReview",
     "FaultOperator",
     "FixtureAnchor",
-    "InjectionCandidate",
+    "InjectedCasePackage",
     "InjectionAdmission",
+    "InjectionCandidate",
     "InjectionCleanupError",
     "InjectionContractError",
-    "InjectedCasePackage",
     "InjectionMaterializer",
     "InjectionMaterializerError",
     "InjectionReceipt",
     "MaterializedWorktree",
     "PacketCompilationError",
+    "ProjectTargetPacket",
     "SourceDelta",
-    "STALE_RESULT_DISCLOSURE_POLICY",
     "TaxonomyRelationship",
     "VerifierPacket",
     "admit_catalogued_candidate",
     "capture_baseline_provenance",
     "compile_change_target_packet",
+    "compile_project_target_packet",
     "load_curated_source_catalog",
-    "review_visible_packet_material",
     "review_catalogued_admission",
+    "review_visible_packet_material",
     "source_tree_sha256_for_commit",
     "source_tree_sha256_from_worktree",
 ]

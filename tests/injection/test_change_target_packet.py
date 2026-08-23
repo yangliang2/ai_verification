@@ -1,22 +1,23 @@
-"""M0.4 public ChangeTarget packet contract tests.
+"""M0.4/M0.5 public source-target packet contract tests.
 
-The accepted public seam is ``compile_change_target_packet``: an auditor-side
-paired, sealed input becomes one verifier-facing packet, or no packet at all.
-The test fixture deliberately keeps every outcome label and audit explanation
-outside the packet while proving that its source change is real and bounded.
+The accepted public seams are ``compile_change_target_packet`` and
+``compile_project_target_packet``: an auditor-side paired, sealed input becomes
+one verifier-facing packet, or no packet at all.  The test fixture deliberately
+keeps every outcome label and audit explanation outside the packet while proving
+that its source material is real and bounded.
 """
 
 from __future__ import annotations
 
+import difflib
+import json
+import subprocess
+import traceback
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
-import difflib
 from hashlib import sha256
-import json
 from pathlib import Path
-import subprocess
-import traceback
 
 import pytest
 
@@ -29,14 +30,17 @@ from aiverify.injection import (
     FaultOperator,
     FixtureAnchor,
     InjectionCandidate,
+    InjectionContractError,
     InjectionMaterializer,
     PacketCompilationError,
+    ProjectTargetPacket,
     SourceDelta,
     TaxonomyRelationship,
     VerifierPacket,
     admit_catalogued_candidate,
     capture_baseline_provenance,
     compile_change_target_packet,
+    compile_project_target_packet,
     review_catalogued_admission,
     review_visible_packet_material,
 )
@@ -198,6 +202,7 @@ def _safe_audited_pair(
     worktree_root_name: str = "owned-worktrees",
     incompatible_provenance: bool = False,
     incompatible_fixture_anchor: bool = False,
+    baseline_extra_files: tuple[tuple[str, str], ...] = (),
 ) -> _AuditedFixture:
     repository = tmp_path / "fixture"
     repository.mkdir()
@@ -207,7 +212,17 @@ def _safe_audited_pair(
     _git(repository, "remote", "add", "origin", "https://example.invalid/safe.git")
     (repository / "source.txt").write_text("baseline\n", encoding="utf-8")
     (repository / "fixture-anchor.txt").write_text("fixture\n", encoding="utf-8")
-    _git(repository, "add", "source.txt", "fixture-anchor.txt")
+    for relative_path, content in baseline_extra_files:
+        path = repository / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    _git(
+        repository,
+        "add",
+        "source.txt",
+        "fixture-anchor.txt",
+        *(path for path, _ in baseline_extra_files),
+    )
     _git(repository, "commit", "-m", "baseline")
     catalog_path = _write_catalog(
         repository,
@@ -280,6 +295,7 @@ def _prepared_audited_pair(
     worktree_root_name: str = "owned-worktrees",
     incompatible_provenance: bool = False,
     incompatible_fixture_anchor: bool = False,
+    baseline_extra_files: tuple[tuple[str, str], ...] = (),
 ) -> Iterator[_AuditedFixture]:
     fixture = _safe_audited_pair(
         tmp_path,
@@ -287,6 +303,7 @@ def _prepared_audited_pair(
         worktree_root_name=worktree_root_name,
         incompatible_provenance=incompatible_provenance,
         incompatible_fixture_anchor=incompatible_fixture_anchor,
+        baseline_extra_files=baseline_extra_files,
     )
     try:
         yield fixture
@@ -537,3 +554,369 @@ def test_change_target_packet_sanitizes_a_worktree_resolution_error(
         assert raised.value.code == "materialized_source_unavailable"
         assert hidden_path not in str(raised.value)
         assert hidden_path not in "".join(traceback.format_exception(raised.value))
+
+
+def test_safe_audited_pair_compiles_a_deterministic_blind_project_target_packet(
+    tmp_path: Path,
+) -> None:
+    with _prepared_audited_pair(tmp_path) as fixture:
+        packet = compile_project_target_packet(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            variant="defect",
+            policy=fixture.policy,
+            scope=("source.txt",),
+            discovery_budget=3,
+        )
+        repeated = compile_project_target_packet(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            variant="defect",
+            policy=fixture.policy,
+            scope=("source.txt",),
+            discovery_budget=3,
+        )
+        different_scope = compile_project_target_packet(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            variant="defect",
+            policy=fixture.policy,
+            scope=("fixture-anchor.txt",),
+            discovery_budget=3,
+        )
+        different_budget = compile_project_target_packet(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            variant="defect",
+            policy=fixture.policy,
+            scope=("source.txt",),
+            discovery_budget=4,
+        )
+        control_packet = compile_project_target_packet(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            variant="control",
+            policy=fixture.policy,
+            scope=("source.txt",),
+            discovery_budget=3,
+        )
+
+        assert packet.target_kind == "project_target"
+        assert set(packet.to_dict()) == {
+            "schema_version",
+            "target_kind",
+            "packet_id",
+            "source_origin",
+            "source_commit",
+            "baseline_source_tree_sha256",
+            "materialized_source_tree_sha256",
+            "worktree_path",
+            "scope",
+            "discovery_budget",
+            "receipt_identity_sha256",
+            "claim_boundary",
+            "identity_sha256",
+        }
+        assert packet.scope == ("source.txt",)
+        assert packet.discovery_budget == 3
+        assert packet.packet_id == repeated.packet_id
+        assert packet.identity_sha256 == repeated.identity_sha256
+        assert packet.canonical_bytes == repeated.canonical_bytes
+        assert different_scope.identity_sha256 != packet.identity_sha256
+        assert different_budget.identity_sha256 != packet.identity_sha256
+        assert control_packet.packet_id != packet.packet_id
+        assert control_packet.identity_sha256 != packet.identity_sha256
+        assert ProjectTargetPacket.from_dict(control_packet.to_dict()) == control_packet
+        assert ProjectTargetPacket.from_dict(packet.to_dict()) == packet
+        relocated = replace(
+            packet,
+            worktree_path="/private/tmp/independently-materialized-project",
+        )
+        assert relocated.identity_sha256 == packet.identity_sha256
+        assert relocated.canonical_bytes != packet.canonical_bytes
+        assert Path(packet.worktree_path, "source.txt").read_text(encoding="utf-8") == (
+            "candidate one\n"
+        )
+        assert Path(
+            control_packet.worktree_path,
+            "source.txt",
+        ).read_text(encoding="utf-8") == "candidate two\n"
+        assert review_visible_packet_material(
+            fixture.policy,
+            packet.to_dict(),
+        ).status == "eligible"
+        for token in fixture.policy.forbidden_tokens:
+            assert token.encode("utf-8") not in packet.canonical_bytes
+            assert token.encode("utf-8") not in control_packet.canonical_bytes
+
+
+@pytest.mark.parametrize(
+    ("extra_file", "hidden_sentinel"),
+    [
+        (
+            ("src/HIDDEN_PROJECT_FILENAME_1f8c2d.txt", "ordinary source\n"),
+            "HIDDEN_PROJECT_FILENAME_1f8c2d",
+        ),
+        (
+            ("src/ordinary-source.txt", "HIDDEN_PROJECT_CONTENT_4e9a7b\n"),
+            "HIDDEN_PROJECT_CONTENT_4e9a7b",
+        ),
+    ],
+)
+def test_project_target_packet_rejects_hidden_material_in_the_delivered_source_tree(
+    tmp_path: Path,
+    extra_file: tuple[str, str],
+    hidden_sentinel: str,
+) -> None:
+    with _prepared_audited_pair(
+        tmp_path,
+        policy=_policy(hidden_sentinel),
+        baseline_extra_files=(extra_file,),
+    ) as fixture:
+        assert fixture.pair.defect.disclosure_review.status == "eligible"
+        assert fixture.pair.control.disclosure_review.status == "eligible"
+
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_project_target_packet(
+                catalog_path=fixture.catalog_path,
+                pair=fixture.pair,
+                variant="defect",
+                policy=fixture.policy,
+                scope=("source.txt",),
+                discovery_budget=3,
+            )
+
+        assert raised.value.code == "packet_disclosure_detected"
+        assert hidden_sentinel not in str(raised.value)
+        assert hidden_sentinel not in "".join(traceback.format_exception(raised.value))
+
+
+def test_project_target_packet_sanitizes_an_invented_diff_field(tmp_path: Path) -> None:
+    with _prepared_audited_pair(tmp_path) as fixture:
+        packet = compile_project_target_packet(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            variant="defect",
+            policy=fixture.policy,
+            scope=("source.txt",),
+            discovery_budget=3,
+        )
+        invented_diff = packet.to_dict()
+        hidden_field = "HIDDEN_INVENTED_DIFF_FIELD_18b7d3"
+        invented_diff[hidden_field] = "not-a-project-target-field"
+
+        with pytest.raises(InjectionContractError) as raised:
+            ProjectTargetPacket.from_dict(invented_diff)
+
+        assert str(raised.value) == "project target packet contains unknown fields"
+        assert hidden_field not in str(raised.value)
+        assert hidden_field not in "".join(traceback.format_exception(raised.value))
+
+
+def test_project_target_packet_rejects_a_missing_pair_with_a_stable_reason() -> None:
+    with pytest.raises(PacketCompilationError) as raised:
+        compile_project_target_packet(
+            catalog_path="not-read-without-a-pair.json",
+            pair=None,
+            variant="defect",
+            policy=DisclosurePolicy(
+                policy_id="missing-pair-v1",
+                forbidden_tokens=("HIDDEN_PAIR_91d3e7",),
+            ),
+            scope=("source.txt",),
+            discovery_budget=3,
+        )
+
+    assert raised.value.code == "pair_missing"
+
+
+def test_project_target_packet_rejects_an_unsealed_pair_member(tmp_path: Path) -> None:
+    with _prepared_audited_pair(tmp_path) as fixture:
+        rejected_admission = admit_catalogued_candidate(
+            fixture.catalog_path,
+            "not-declared",
+            fixture.materializer,
+        )
+        unsealed_pair = replace(
+            fixture.pair,
+            defect=replace(
+                fixture.pair.defect,
+                admission=rejected_admission,
+            ),
+        )
+
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_project_target_packet(
+                catalog_path=fixture.catalog_path,
+                pair=unsealed_pair,
+                variant="defect",
+                policy=fixture.policy,
+                scope=("source.txt",),
+                discovery_budget=3,
+            )
+
+        assert raised.value.code == "admission_not_sealed"
+
+
+def test_project_target_packet_rejects_incompatible_pair_provenance(
+    tmp_path: Path,
+) -> None:
+    with _prepared_audited_pair(
+        tmp_path,
+        incompatible_provenance=True,
+    ) as fixture:
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_project_target_packet(
+                catalog_path=fixture.catalog_path,
+                pair=fixture.pair,
+                variant="defect",
+                policy=fixture.policy,
+                scope=("source.txt",),
+                discovery_budget=3,
+            )
+
+        assert raised.value.code == "pair_provenance_mismatch"
+
+
+def test_project_target_packet_rejects_a_drifted_materialized_project(
+    tmp_path: Path,
+) -> None:
+    with _prepared_audited_pair(tmp_path) as fixture:
+        receipt = fixture.pair.defect.admission.receipt
+        assert receipt is not None
+        assert receipt.worktree is not None
+        source_path = Path(receipt.worktree.path, "source.txt")
+        original_source = source_path.read_text(encoding="utf-8")
+        source_path.write_text(
+            "mutated after sealing\n",
+            encoding="utf-8",
+        )
+
+        try:
+            with pytest.raises(PacketCompilationError) as raised:
+                compile_project_target_packet(
+                    catalog_path=fixture.catalog_path,
+                    pair=fixture.pair,
+                    variant="defect",
+                    policy=fixture.policy,
+                    scope=("source.txt",),
+                    discovery_budget=3,
+                )
+
+            assert raised.value.code == "materialized_source_identity_mismatch"
+        finally:
+            source_path.write_text(original_source, encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    ("scope", "discovery_budget", "expected_code"),
+    [
+        ((), 3, "project_scope_unbounded"),
+        ((".",), 3, "project_scope_unbounded"),
+        (("source.txt", "source.txt"), 3, "project_scope_unbounded"),
+        (("source.txt",), 0, "discovery_budget_unbounded"),
+        (("source.txt",), True, "discovery_budget_unbounded"),
+    ],
+)
+def test_project_target_packet_requires_explicit_bounded_discovery_request(
+    tmp_path: Path,
+    scope: tuple[str, ...],
+    discovery_budget: int,
+    expected_code: str,
+) -> None:
+    with _prepared_audited_pair(tmp_path) as fixture, pytest.raises(
+        PacketCompilationError
+    ) as raised:
+        compile_project_target_packet(
+            catalog_path=fixture.catalog_path,
+            pair=fixture.pair,
+            variant="defect",
+            policy=fixture.policy,
+            scope=scope,
+            discovery_budget=discovery_budget,
+        )
+
+    assert raised.value.code == expected_code
+
+
+def test_project_target_packet_rejects_a_pair_that_fails_its_disclosure_policy(
+    tmp_path: Path,
+) -> None:
+    with _prepared_audited_pair(tmp_path, policy=_policy("candidate")) as fixture:
+        assert fixture.pair.defect.disclosure_review.status == "rejected"
+
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_project_target_packet(
+                catalog_path=fixture.catalog_path,
+                pair=fixture.pair,
+                variant="defect",
+                policy=fixture.policy,
+                scope=("source.txt",),
+                discovery_budget=3,
+            )
+
+        assert raised.value.code == "disclosure_policy_rejected"
+
+
+def test_project_target_packet_rechecks_the_final_public_scope(
+    tmp_path: Path,
+) -> None:
+    hidden_scope = "HIDDEN_SCOPE_PATH_d8c54e"
+    with _prepared_audited_pair(tmp_path, policy=_policy(hidden_scope)) as fixture:
+        assert fixture.pair.defect.disclosure_review.status == "eligible"
+
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_project_target_packet(
+                catalog_path=fixture.catalog_path,
+                pair=fixture.pair,
+                variant="defect",
+                policy=fixture.policy,
+                scope=(hidden_scope,),
+                discovery_budget=3,
+            )
+
+        assert raised.value.code == "packet_disclosure_detected"
+        assert hidden_scope not in str(raised.value)
+        assert hidden_scope not in "".join(traceback.format_exception(raised.value))
+
+
+def test_project_target_packet_rechecks_the_final_public_worktree_path(
+    tmp_path: Path,
+) -> None:
+    hidden_path = "HIDDEN_PROJECT_WORKTREE_PATH_8b1c4e"
+    with _prepared_audited_pair(
+        tmp_path,
+        policy=_policy(hidden_path),
+        worktree_root_name=hidden_path,
+    ) as fixture:
+        assert fixture.pair.defect.disclosure_review.status == "eligible"
+
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_project_target_packet(
+                catalog_path=fixture.catalog_path,
+                pair=fixture.pair,
+                variant="defect",
+                policy=fixture.policy,
+                scope=("source.txt",),
+                discovery_budget=3,
+            )
+
+        assert raised.value.code == "packet_disclosure_detected"
+
+
+def test_project_target_packet_sanitizes_a_missing_scope_path(tmp_path: Path) -> None:
+    missing_scope = "not-a-real-source-path"
+    with _prepared_audited_pair(tmp_path) as fixture:
+        with pytest.raises(PacketCompilationError) as raised:
+            compile_project_target_packet(
+                catalog_path=fixture.catalog_path,
+                pair=fixture.pair,
+                variant="defect",
+                policy=fixture.policy,
+                scope=(missing_scope,),
+                discovery_budget=3,
+            )
+
+        assert raised.value.code == "project_scope_path_unavailable"
+        assert missing_scope not in str(raised.value)
+        assert missing_scope not in "".join(traceback.format_exception(raised.value))
