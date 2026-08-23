@@ -25,9 +25,18 @@ from aiverify.injection.catalog import (
     CuratedCatalogError,
     CuratedSourceCatalog,
     CuratedSourceEntry,
+    DisclosureAuditArtifact,
     FixtureAnchor,
     TaxonomyRelationship,
     load_curated_source_catalog,
+)
+from aiverify.injection.disclosure import (
+    CataloguedDisclosureReview,
+    DisclosureFinding,
+    DisclosurePolicy,
+    DisclosureReview,
+    review_visible_packet_material,
+    review_catalogued_admission,
 )
 from aiverify.injection.models import (
     BaselineProvenance,
@@ -43,10 +52,15 @@ __all__ = [
     "AdmissionLedger",
     "AdmissionLedgerEntry",
     "BaselineProvenance",
+    "CataloguedDisclosureReview",
     "CheckedInCuratedSourceCatalog",
     "CuratedCatalogError",
     "CuratedSourceCatalog",
     "CuratedSourceEntry",
+    "DisclosureAuditArtifact",
+    "DisclosureFinding",
+    "DisclosurePolicy",
+    "DisclosureReview",
     "FaultOperator",
     "FixtureAnchor",
     "InjectionCandidate",
@@ -63,6 +77,8 @@ __all__ = [
     "admit_catalogued_candidate",
     "capture_baseline_provenance",
     "load_curated_source_catalog",
+    "review_visible_packet_material",
+    "review_catalogued_admission",
     "source_tree_sha256_for_commit",
     "source_tree_sha256_from_worktree",
 ]

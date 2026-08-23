@@ -132,6 +132,38 @@ class FixtureAnchor:
 
 
 @dataclass(frozen=True)
+class DisclosureAuditArtifact:
+    """A checked-in artifact whose bytes may enter an audit-side visibility review.
+
+    This is not verifier-facing packet data.  It makes the finite material
+    examined by a :class:`DisclosurePolicy` explicit and byte-bound before a
+    later packet compiler can decide whether the material is eligible.
+    """
+
+    path: str
+    sha256: str
+
+    def __post_init__(self) -> None:
+        _relative_path(self.path, "disclosure audit artifact.path")
+        _sha256_digest(self.sha256, "disclosure audit artifact.sha256")
+
+    def to_dict(self) -> dict[str, str]:
+        return {"path": self.path, "sha256": self.sha256}
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "DisclosureAuditArtifact":
+        if not isinstance(data, Mapping):
+            raise InjectionContractError("disclosure audit artifact must be an object")
+        _reject_unknown(data, {"path", "sha256"}, "disclosure audit artifact")
+        try:
+            return cls(path=data["path"], sha256=data["sha256"])
+        except KeyError as error:
+            raise InjectionContractError(
+                f"disclosure audit artifact requires {error.args[0]}"
+            ) from error
+
+
+@dataclass(frozen=True)
 class CuratedSourceEntry:
     """One explicitly declared curated source and its audit-side identity."""
 
@@ -141,6 +173,7 @@ class CuratedSourceEntry:
     fixture_anchor: FixtureAnchor
     population_classification: str
     taxonomy_relationship: TaxonomyRelationship
+    disclosure_audit_artifacts: tuple[DisclosureAuditArtifact, ...] = ()
 
     def __post_init__(self) -> None:
         _required_text(self.source_id, "catalog entry source_id")
@@ -161,6 +194,23 @@ class CuratedSourceEntry:
             raise InjectionContractError(
                 "catalog entry taxonomy_relationship must be TaxonomyRelationship"
             )
+        if not isinstance(self.disclosure_audit_artifacts, tuple) or not all(
+            isinstance(artifact, DisclosureAuditArtifact)
+            for artifact in self.disclosure_audit_artifacts
+        ):
+            raise InjectionContractError(
+                "catalog entry disclosure_audit_artifacts must be DisclosureAuditArtifact values"
+            )
+        artifact_paths = tuple(artifact.path for artifact in self.disclosure_audit_artifacts)
+        if len(set(artifact_paths)) != len(artifact_paths):
+            raise InjectionContractError(
+                "catalog entry contains duplicate disclosure audit artifact paths"
+            )
+        object.__setattr__(
+            self,
+            "disclosure_audit_artifacts",
+            tuple(sorted(self.disclosure_audit_artifacts, key=lambda artifact: artifact.path)),
+        )
 
     @property
     def patch_sha256(self) -> str:
@@ -171,7 +221,7 @@ class CuratedSourceEntry:
         return _identity(self._identity_dict())
 
     def _identity_dict(self) -> dict[str, Any]:
-        return {
+        identity = {
             "schema_version": SCHEMA_VERSION,
             "source_id": self.source_id,
             "candidate_identity_sha256": self.candidate.identity_sha256,
@@ -181,9 +231,14 @@ class CuratedSourceEntry:
             "population_classification": self.population_classification,
             "taxonomy_relationship": self.taxonomy_relationship.to_dict(),
         }
+        if self.disclosure_audit_artifacts:
+            identity["disclosure_audit_artifacts"] = [
+                artifact.to_dict() for artifact in self.disclosure_audit_artifacts
+            ]
+        return identity
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result = {
             "schema_version": SCHEMA_VERSION,
             "source_id": self.source_id,
             "candidate": self.candidate.to_dict(),
@@ -194,6 +249,11 @@ class CuratedSourceEntry:
             "taxonomy_relationship": self.taxonomy_relationship.to_dict(),
             "identity_sha256": self.identity_sha256,
         }
+        if self.disclosure_audit_artifacts:
+            result["disclosure_audit_artifacts"] = [
+                artifact.to_dict() for artifact in self.disclosure_audit_artifacts
+            ]
+        return result
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "CuratedSourceEntry":
@@ -210,6 +270,7 @@ class CuratedSourceEntry:
                 "fixture_anchor",
                 "population_classification",
                 "taxonomy_relationship",
+                "disclosure_audit_artifacts",
                 "identity_sha256",
             },
             "catalog entry",
@@ -222,6 +283,11 @@ class CuratedSourceEntry:
             ):
                 raise InjectionContractError("unsupported catalog entry schema_version")
             candidate = InjectionCandidate.from_dict(data["candidate"])
+            raw_artifacts = data.get("disclosure_audit_artifacts", [])
+            if not isinstance(raw_artifacts, list):
+                raise InjectionContractError(
+                    "catalog entry disclosure_audit_artifacts must be an array"
+                )
             value = cls(
                 source_id=data["source_id"],
                 candidate=candidate,
@@ -230,6 +296,10 @@ class CuratedSourceEntry:
                 population_classification=data["population_classification"],
                 taxonomy_relationship=TaxonomyRelationship.from_dict(
                     data["taxonomy_relationship"]
+                ),
+                disclosure_audit_artifacts=tuple(
+                    DisclosureAuditArtifact.from_dict(artifact)
+                    for artifact in raw_artifacts
                 ),
             )
             if data["patch_sha256"] != value.patch_sha256:
@@ -363,6 +433,8 @@ def _catalog_error_code(error: InjectionContractError) -> str:
         return "catalog_duplicate_candidate_id"
     if "duplicate patch_sha256" in message:
         return "catalog_duplicate_patch_sha256"
+    if "disclosure audit artifact" in message:
+        return "catalog_disclosure_artifact_invalid"
     if "baseline" in message or "candidate" in message:
         return "catalog_invalid_provenance"
     return "catalog_contract_invalid"
@@ -502,6 +574,15 @@ def load_curated_source_catalog(path: str | Path) -> CheckedInCuratedSourceCatal
         if sha256_hex(fixture_bytes) != entry.fixture_anchor.sha256:
             raise CuratedCatalogError("catalog_fixture_anchor_drift")
         declared_files.append((fixture, fixture_bytes))
+        for artifact in entry.disclosure_audit_artifacts:
+            artifact_path, artifact_bytes = _declared_bytes(
+                root,
+                artifact.path,
+                "catalog_disclosure_artifact_missing",
+            )
+            if sha256_hex(artifact_bytes) != artifact.sha256:
+                raise CuratedCatalogError("catalog_disclosure_artifact_drift")
+            declared_files.append((artifact_path, artifact_bytes))
     _require_checked_in_files(
         _checked_in_repository(root),
         tuple(declared_files),
