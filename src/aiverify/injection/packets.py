@@ -1,17 +1,20 @@
-"""Blind-safe, verifier-facing ChangeTarget packet compilation.
+"""Blind-safe, verifier-facing source-target packet compilation.
 
 This module is deliberately a packet-contract boundary.  It consumes a sealed
 auditor-side pair, rechecks its catalog and Disclosure Policy provenance, and
-returns a public packet that contains only the bounded source change needed by
-a future Verification Agent.  It neither invokes Discovery Campaign nor
-creates a Run Spec or an execution attempt.
+returns a public packet that contains only the bounded source target needed by
+a future Verification Agent.  It neither invokes Discovery Campaign nor creates
+a Run Spec or an execution attempt.
 """
 
 from __future__ import annotations
 
+import os
+import stat
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any, Mapping
+from typing import Any
 
 from aiverify.injection.admission import InjectionAdmission
 from aiverify.injection.catalog import (
@@ -31,18 +34,20 @@ from aiverify.injection.materialization import (
     source_tree_sha256_from_worktree,
 )
 from aiverify.injection.models import (
+    SCHEMA_VERSION,
     InjectionContractError,
     InjectionReceipt,
-    SCHEMA_VERSION,
     canonical_json_bytes,
     sha256_hex,
 )
 
-
 _CHANGE_TARGET_KIND = "change_target"
 _CHANGE_TARGET_CLAIM_BOUNDARY = "m0_structural_blind_change_target_packet_only"
+_PROJECT_TARGET_KIND = "project_target"
+_PROJECT_TARGET_CLAIM_BOUNDARY = "m0_structural_blind_project_target_packet_only"
 _SHA256_CHARS = frozenset("0123456789abcdef")
 _VARIANTS = frozenset({"defect", "control"})
+_PROJECT_SCOPE_GLOB_CHARS = frozenset("*?[]{}")
 
 
 class PacketCompilationError(InjectionContractError):
@@ -224,7 +229,7 @@ class VerifierPacket:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "VerifierPacket":
+    def from_dict(cls, data: Mapping[str, Any]) -> VerifierPacket:
         """Parse one complete public packet and revalidate its identity."""
         if not isinstance(data, Mapping):
             raise InjectionContractError("verifier packet must be an object")
@@ -285,6 +290,209 @@ class VerifierPacket:
         """Return the exact deterministic verifier-visible packet bytes."""
         return canonical_json_bytes(self.to_dict())
 
+
+def _canonical_project_scope(scope: object) -> tuple[str, ...]:
+    """Require a finite, canonical set of project-relative source paths."""
+    if not isinstance(scope, tuple) or not scope:
+        raise InjectionContractError(
+            "project target packet scope must be a non-empty tuple"
+        )
+    if any(not isinstance(item, str) or not item.strip() for item in scope):
+        raise InjectionContractError(
+            "project target packet scope must contain non-empty strings"
+        )
+    if scope != tuple(sorted(scope)) or len(set(scope)) != len(scope):
+        raise InjectionContractError(
+            "project target packet scope must be sorted and unique"
+        )
+    for item in scope:
+        path = PurePosixPath(item)
+        if (
+            item != path.as_posix()
+            or path.is_absolute()
+            or path == PurePosixPath(".")
+            or "\\" in item
+            or any(part in {".", "..", ".git"} for part in path.parts)
+            or any(character in _PROJECT_SCOPE_GLOB_CHARS for character in item)
+        ):
+            raise InjectionContractError(
+                "project target packet scope must contain canonical relative paths"
+            )
+    return scope
+
+
+def _bounded_discovery_budget(value: object) -> int:
+    """Require an explicit finite Discovery Campaign budget."""
+    if (
+        not isinstance(value, int)
+        or isinstance(value, bool)
+        or value <= 0
+    ):
+        raise InjectionContractError(
+            "project target packet discovery_budget must be a positive integer"
+        )
+    return value
+
+
+@dataclass(frozen=True)
+class ProjectTargetPacket:
+    """The public, bounded ProjectTarget packet for a future Verification Agent.
+
+    The packet binds the complete materialized project through its immutable
+    source-tree digest, then bounds any later discovery work by exact source
+    scope and an explicit finite budget.  It intentionally contains no diff,
+    patch, hidden variant, operator/taxonomy details, expected symptom, oracle,
+    or audit admission rationale.
+    """
+
+    packet_id: str
+    source_origin: str
+    source_commit: str
+    baseline_source_tree_sha256: str
+    materialized_source_tree_sha256: str
+    worktree_path: str
+    scope: tuple[str, ...]
+    discovery_budget: int
+    receipt_identity_sha256: str
+    target_kind: str = _PROJECT_TARGET_KIND
+    claim_boundary: str = _PROJECT_TARGET_CLAIM_BOUNDARY
+    schema_version: int = SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        _required_text(self.packet_id, "project target packet packet_id")
+        _required_text(self.source_origin, "project target packet source_origin")
+        _required_text(self.source_commit, "project target packet source_commit")
+        _sha256(
+            self.baseline_source_tree_sha256,
+            "project target packet baseline_source_tree_sha256",
+        )
+        _sha256(
+            self.materialized_source_tree_sha256,
+            "project target packet materialized_source_tree_sha256",
+        )
+        path = Path(self.worktree_path)
+        if not self.worktree_path or not path.is_absolute():
+            raise InjectionContractError(
+                "project target packet worktree_path must be absolute"
+            )
+        _canonical_project_scope(self.scope)
+        _bounded_discovery_budget(self.discovery_budget)
+        _sha256(
+            self.receipt_identity_sha256,
+            "project target packet receipt_identity_sha256",
+        )
+        if self.target_kind != _PROJECT_TARGET_KIND:
+            raise InjectionContractError(
+                "project target packet target_kind must be project_target"
+            )
+        if self.claim_boundary != _PROJECT_TARGET_CLAIM_BOUNDARY:
+            raise InjectionContractError(
+                "project target packet claim_boundary must be M0 blind ProjectTarget only"
+            )
+        if (
+            not isinstance(self.schema_version, int)
+            or isinstance(self.schema_version, bool)
+            or self.schema_version != SCHEMA_VERSION
+        ):
+            raise InjectionContractError(
+                "unsupported project target packet schema_version"
+            )
+
+    def _identity_dict(self) -> dict[str, Any]:
+        """Return immutable source and discovery bounds, excluding delivery path."""
+        return {
+            "schema_version": self.schema_version,
+            "target_kind": self.target_kind,
+            "packet_id": self.packet_id,
+            "source_origin": self.source_origin,
+            "source_commit": self.source_commit,
+            "baseline_source_tree_sha256": self.baseline_source_tree_sha256,
+            "materialized_source_tree_sha256": self.materialized_source_tree_sha256,
+            "scope": list(self.scope),
+            "discovery_budget": self.discovery_budget,
+            "receipt_identity_sha256": self.receipt_identity_sha256,
+            "claim_boundary": self.claim_boundary,
+        }
+
+    @property
+    def identity_sha256(self) -> str:
+        return _identity(self._identity_dict())
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            **self._identity_dict(),
+            # The owned worktree is verifier-visible delivery context, not
+            # immutable source identity: a fresh materialization has a new
+            # location while preserving the same source result.
+            "worktree_path": self.worktree_path,
+            "identity_sha256": self.identity_sha256,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> ProjectTargetPacket:
+        """Parse one complete public ProjectTarget packet and rebind its identity."""
+        if not isinstance(data, Mapping):
+            raise InjectionContractError("project target packet must be an object")
+        allowed = {
+            "schema_version",
+            "target_kind",
+            "packet_id",
+            "source_origin",
+            "source_commit",
+            "baseline_source_tree_sha256",
+            "materialized_source_tree_sha256",
+            "worktree_path",
+            "scope",
+            "discovery_budget",
+            "receipt_identity_sha256",
+            "claim_boundary",
+            "identity_sha256",
+        }
+        if set(data) - allowed:
+            # A malformed verifier-visible packet might itself carry a private
+            # sentinel in an unexpected field name.  Keep parser failures
+            # fixed rather than reflecting that name to a caller.
+            raise InjectionContractError(
+                "project target packet contains unknown fields"
+            )
+        try:
+            raw_scope = data["scope"]
+            if not isinstance(raw_scope, list):
+                raise InjectionContractError(
+                    "project target packet scope must be an array"
+                )
+            value = cls(
+                schema_version=data["schema_version"],
+                target_kind=data["target_kind"],
+                packet_id=data["packet_id"],
+                source_origin=data["source_origin"],
+                source_commit=data["source_commit"],
+                baseline_source_tree_sha256=data["baseline_source_tree_sha256"],
+                materialized_source_tree_sha256=data[
+                    "materialized_source_tree_sha256"
+                ],
+                worktree_path=data["worktree_path"],
+                scope=tuple(raw_scope),
+                discovery_budget=data["discovery_budget"],
+                receipt_identity_sha256=data["receipt_identity_sha256"],
+                claim_boundary=data["claim_boundary"],
+            )
+            if data["identity_sha256"] != value.identity_sha256:
+                raise InjectionContractError(
+                    "project target packet identity digest does not match"
+                )
+            return value
+        except KeyError as error:
+            raise InjectionContractError(
+                f"project target packet requires {error.args[0]}"
+            ) from error
+
+    @property
+    def canonical_bytes(self) -> bytes:
+        """Return the exact deterministic verifier-visible packet bytes."""
+        return canonical_json_bytes(self.to_dict())
+
+
 def _packet_id(
     *,
     source_origin: str,
@@ -310,6 +518,48 @@ def _packet_id(
         }
     )
     return f"change-target-{binding[:24]}"
+
+
+def _project_packet_id(
+    *,
+    source_origin: str,
+    source_commit: str,
+    baseline_source_tree_sha256: str,
+    materialized_source_tree_sha256: str,
+    scope: tuple[str, ...],
+    discovery_budget: int,
+    receipt_identity_sha256: str,
+) -> str:
+    """Derive an opaque ID bound to project source and discovery limits."""
+    binding = _identity(
+        {
+            "schema_version": SCHEMA_VERSION,
+            "target_kind": _PROJECT_TARGET_KIND,
+            "source_origin": source_origin,
+            "source_commit": source_commit,
+            "baseline_source_tree_sha256": baseline_source_tree_sha256,
+            "materialized_source_tree_sha256": materialized_source_tree_sha256,
+            "scope": list(scope),
+            "discovery_budget": discovery_budget,
+            "receipt_identity_sha256": receipt_identity_sha256,
+        }
+    )
+    return f"project-target-{binding[:24]}"
+
+
+def _require_packet_request(
+    pair: object,
+    variant: object,
+    policy: object,
+) -> tuple[AuditorPair, str, DisclosurePolicy]:
+    """Validate the shared private input boundary before catalog access."""
+    if not isinstance(pair, AuditorPair):
+        raise PacketCompilationError("pair_missing")
+    if not isinstance(variant, str) or variant not in _VARIANTS:
+        raise PacketCompilationError("variant_not_declared")
+    if not isinstance(policy, DisclosurePolicy):
+        raise PacketCompilationError("disclosure_policy_invalid")
+    return pair, variant, policy
 
 
 def _entry_for_case(
@@ -420,6 +670,173 @@ def _require_materialized_source(receipt: InjectionReceipt) -> None:
         raise PacketCompilationError("materialized_source_identity_mismatch")
 
 
+def _selected_sealed_packet_input(
+    *,
+    catalog_path: str | Path,
+    pair: AuditorPair,
+    variant: str,
+    policy: DisclosurePolicy,
+) -> tuple[CuratedSourceEntry, InjectionReceipt]:
+    """Rebind a pair and return the selected, unchanged materialized source."""
+    try:
+        catalog = load_curated_source_catalog(catalog_path)
+    except CuratedCatalogError as error:
+        raise PacketCompilationError(error.code) from None
+    except (OSError, RuntimeError, TypeError, ValueError):
+        raise PacketCompilationError("catalog_file_unavailable") from None
+    defect_entry = _entry_for_case(catalog, pair.defect)
+    control_entry = _entry_for_case(catalog, pair.control)
+    defect_receipt = _require_sealed_case(
+        catalog_path=catalog_path,
+        catalog=catalog,
+        entry=defect_entry,
+        case=pair.defect,
+        policy=policy,
+    )
+    control_receipt = _require_sealed_case(
+        catalog_path=catalog_path,
+        catalog=catalog,
+        entry=control_entry,
+        case=pair.control,
+        policy=policy,
+    )
+    _require_compatible_pair(defect_entry, control_entry)
+    selected_entry, selected_receipt = (
+        (defect_entry, defect_receipt)
+        if variant == "defect"
+        else (control_entry, control_receipt)
+    )
+    _require_materialized_source(selected_receipt)
+    return selected_entry, selected_receipt
+
+
+def _require_project_scope_in_worktree(
+    worktree_path: str,
+    scope: tuple[str, ...],
+) -> None:
+    """Bind each public scope path to the selected immutable project tree."""
+    try:
+        root = Path(worktree_path).resolve(strict=True)
+        if not root.is_dir():
+            raise OSError
+        for item in scope:
+            resolved = root.joinpath(*PurePosixPath(item).parts).resolve(strict=True)
+            resolved.relative_to(root)
+    except (OSError, RuntimeError, TypeError, ValueError):
+        raise PacketCompilationError("project_scope_path_unavailable") from None
+
+
+def _raise_walk_error(error: OSError) -> None:
+    """Make an unreadable delivered source tree fail closed."""
+    raise error
+
+
+def _require_internal_project_link(root: Path, path: Path) -> str:
+    """Return a symlink target only when it stays inside the delivered tree."""
+    target = path.resolve(strict=True)
+    target.relative_to(root)
+    return os.readlink(path)
+
+
+def _project_source_visibility_material(worktree_path: str) -> dict[str, Any]:
+    """Build finite audit-side material for every delivered project entry.
+
+    The verifier receives the worktree root, rather than only the requested
+    scope paths.  Therefore the whole source tree—not merely the scope—must be
+    checked for declared disclosures.  Regular-file bytes use UTF-8 replacement
+    decoding so ordinary textual sentinels remain detectable without claiming a
+    semantic analysis of binary material.
+    """
+    root = Path(worktree_path).resolve(strict=True)
+    if not root.is_dir():
+        raise OSError
+    entries: list[dict[str, str]] = []
+    for current, directory_names, file_names in os.walk(
+        root,
+        topdown=True,
+        followlinks=False,
+        onerror=_raise_walk_error,
+    ):
+        current_path = Path(current)
+        directory_names.sort(key=os.fsencode)
+        file_names.sort(key=os.fsencode)
+
+        retained_directories: list[str] = []
+        for name in directory_names:
+            path = current_path / name
+            relative_path = path.relative_to(root).as_posix()
+            mode = path.lstat().st_mode
+            if current_path == root and name == ".git":
+                # A materialized linked worktree has a .git control file.  A
+                # directory would expose unbounded repository metadata.
+                raise OSError
+            if stat.S_ISDIR(mode):
+                entries.append({"kind": "directory", "path": relative_path})
+                retained_directories.append(name)
+            elif stat.S_ISLNK(mode):
+                entries.append(
+                    {
+                        "kind": "symlink",
+                        "path": relative_path,
+                        "target": _require_internal_project_link(root, path),
+                    }
+                )
+            else:
+                raise OSError
+        directory_names[:] = retained_directories
+
+        for name in file_names:
+            path = current_path / name
+            relative_path = path.relative_to(root).as_posix()
+            mode = path.lstat().st_mode
+            if stat.S_ISREG(mode):
+                entries.append(
+                    {
+                        "kind": "file",
+                        "path": relative_path,
+                        "text": path.read_bytes().decode(
+                            "utf-8",
+                            errors="replace",
+                        ),
+                    }
+                )
+            elif stat.S_ISLNK(mode):
+                entries.append(
+                    {
+                        "kind": "symlink",
+                        "path": relative_path,
+                        "target": _require_internal_project_link(root, path),
+                    }
+                )
+            else:
+                raise OSError
+    return {"source_tree": entries}
+
+
+def _require_project_packet_disclosure_safe(
+    policy: DisclosurePolicy,
+    packet: ProjectTargetPacket,
+) -> None:
+    """Reject any declared sentinel in a public packet or delivered project."""
+    try:
+        material = {
+            "packet": packet.to_dict(),
+            **_project_source_visibility_material(packet.worktree_path),
+        }
+        review = review_visible_packet_material(policy, material)
+    except (
+        InjectionContractError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        UnicodeError,
+        ValueError,
+    ):
+        raise PacketCompilationError("project_source_visibility_unavailable") from None
+    if review.status != "eligible":
+        raise PacketCompilationError("packet_disclosure_detected")
+
+
 def _require_declared_patch_path(
     catalog_path: str | Path,
     entry: CuratedSourceEntry,
@@ -451,42 +868,13 @@ def compile_change_target_packet(
     The result never contains the hidden variant or any auditor-only labels.
     Rejections use fixed codes and return no partial verifier-facing packet.
     """
-    if not isinstance(pair, AuditorPair):
-        raise PacketCompilationError("pair_missing")
-    if variant not in _VARIANTS:
-        raise PacketCompilationError("variant_not_declared")
-    if not isinstance(policy, DisclosurePolicy):
-        raise PacketCompilationError("disclosure_policy_invalid")
-    try:
-        catalog = load_curated_source_catalog(catalog_path)
-    except CuratedCatalogError as error:
-        raise PacketCompilationError(error.code) from None
-    except (OSError, RuntimeError, TypeError, ValueError):
-        raise PacketCompilationError("catalog_file_unavailable") from None
-    defect_entry = _entry_for_case(catalog, pair.defect)
-    control_entry = _entry_for_case(catalog, pair.control)
-    defect_receipt = _require_sealed_case(
+    pair, variant, policy = _require_packet_request(pair, variant, policy)
+    selected_entry, selected_receipt = _selected_sealed_packet_input(
         catalog_path=catalog_path,
-        catalog=catalog,
-        entry=defect_entry,
-        case=pair.defect,
+        pair=pair,
+        variant=variant,
         policy=policy,
     )
-    control_receipt = _require_sealed_case(
-        catalog_path=catalog_path,
-        catalog=catalog,
-        entry=control_entry,
-        case=pair.control,
-        policy=policy,
-    )
-    _require_compatible_pair(defect_entry, control_entry)
-
-    selected_entry, selected_receipt = (
-        (defect_entry, defect_receipt)
-        if variant == "defect"
-        else (control_entry, control_receipt)
-    )
-    _require_materialized_source(selected_receipt)
     patch_path = _require_declared_patch_path(catalog_path, selected_entry)
     if (
         selected_receipt.result_source_tree_sha256 is None
@@ -522,10 +910,75 @@ def compile_change_target_packet(
     return packet
 
 
+def compile_project_target_packet(
+    *,
+    catalog_path: str | Path,
+    pair: AuditorPair,
+    variant: str,
+    policy: DisclosurePolicy,
+    scope: tuple[str, ...],
+    discovery_budget: int,
+) -> ProjectTargetPacket:
+    """Compile one blind-safe ProjectTarget packet from a sealed private pair.
+
+    The packet names a complete, materialized source project and bounds a future
+    discovery consumer to explicit source paths plus a finite budget.  It never
+    emits a diff or an auditor-side outcome label, and it has no runtime effects.
+    """
+    pair, variant, policy = _require_packet_request(pair, variant, policy)
+    try:
+        canonical_scope = _canonical_project_scope(scope)
+    except InjectionContractError:
+        raise PacketCompilationError("project_scope_unbounded") from None
+    try:
+        bounded_budget = _bounded_discovery_budget(discovery_budget)
+    except InjectionContractError:
+        raise PacketCompilationError("discovery_budget_unbounded") from None
+    selected_entry, selected_receipt = _selected_sealed_packet_input(
+        catalog_path=catalog_path,
+        pair=pair,
+        variant=variant,
+        policy=policy,
+    )
+    if (
+        selected_receipt.result_source_tree_sha256 is None
+        or selected_receipt.worktree is None
+    ):
+        raise PacketCompilationError("materialized_source_unavailable")
+    candidate = selected_entry.candidate
+    packet = ProjectTargetPacket(
+        packet_id=_project_packet_id(
+            source_origin=candidate.baseline.source_origin,
+            source_commit=candidate.baseline.commit,
+            baseline_source_tree_sha256=candidate.baseline.source_tree_sha256,
+            materialized_source_tree_sha256=selected_receipt.result_source_tree_sha256,
+            scope=canonical_scope,
+            discovery_budget=bounded_budget,
+            receipt_identity_sha256=selected_receipt.receipt_identity_sha256,
+        ),
+        source_origin=candidate.baseline.source_origin,
+        source_commit=candidate.baseline.commit,
+        baseline_source_tree_sha256=candidate.baseline.source_tree_sha256,
+        materialized_source_tree_sha256=selected_receipt.result_source_tree_sha256,
+        worktree_path=selected_receipt.worktree.path,
+        scope=canonical_scope,
+        discovery_budget=bounded_budget,
+        receipt_identity_sha256=selected_receipt.receipt_identity_sha256,
+    )
+    # The visibility review precedes scope path resolution so a sentinel in an
+    # otherwise invalid requested path cannot influence which error crosses the
+    # public boundary.
+    _require_project_packet_disclosure_safe(policy, packet)
+    _require_project_scope_in_worktree(packet.worktree_path, packet.scope)
+    return packet
+
+
 __all__ = [
     "AuditorCase",
     "AuditorPair",
     "PacketCompilationError",
+    "ProjectTargetPacket",
     "VerifierPacket",
     "compile_change_target_packet",
+    "compile_project_target_packet",
 ]
