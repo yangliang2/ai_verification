@@ -35,6 +35,7 @@ from aiverify.injection.disclosure import (
     DisclosureFinding,
     DisclosurePolicy,
     DisclosureReview,
+    STALE_RESULT_DISCLOSURE_POLICY,
     review_visible_packet_material,
     review_catalogued_admission,
 )
@@ -73,6 +74,7 @@ __all__ = [
     "InjectionReceipt",
     "MaterializedWorktree",
     "SourceDelta",
+    "STALE_RESULT_DISCLOSURE_POLICY",
     "TaxonomyRelationship",
     "admit_catalogued_candidate",
     "capture_baseline_provenance",

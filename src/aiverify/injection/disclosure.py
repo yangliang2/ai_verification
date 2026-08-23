@@ -152,6 +152,14 @@ class DisclosurePolicy:
             ) from error
 
 
+# The required M0.3 negative fixture keeps this policy auditor-side.  Its
+# declared tokens must never be added to verifier-facing packet material.
+STALE_RESULT_DISCLOSURE_POLICY = DisclosurePolicy(
+    policy_id="curated-deterministic-concurrency-stale-result-v1",
+    forbidden_tokens=("APPLY_STALE", "injected_defect", "expected_oracle"),
+)
+
+
 @dataclass(frozen=True)
 class DisclosureFinding:
     """An audit-side record of one declared token in visible material."""
@@ -367,6 +375,7 @@ class CataloguedDisclosureReview:
 
     source_id: str
     catalog_identity_sha256: str
+    catalog_source_sha256: str
     catalog_entry_identity_sha256: str
     admission_identity_sha256: str
     audit_package_identity_sha256: str
@@ -378,6 +387,7 @@ class CataloguedDisclosureReview:
         _required_text(self.source_id, "catalogued disclosure review source_id")
         for field in (
             "catalog_identity_sha256",
+            "catalog_source_sha256",
             "catalog_entry_identity_sha256",
             "admission_identity_sha256",
             "audit_package_identity_sha256",
@@ -419,6 +429,7 @@ class CataloguedDisclosureReview:
                 "schema_version": self.schema_version,
                 "source_id": self.source_id,
                 "catalog_identity_sha256": self.catalog_identity_sha256,
+                "catalog_source_sha256": self.catalog_source_sha256,
                 "catalog_entry_identity_sha256": self.catalog_entry_identity_sha256,
                 "admission_identity_sha256": self.admission_identity_sha256,
                 "audit_package_identity_sha256": self.audit_package_identity_sha256,
@@ -432,6 +443,7 @@ class CataloguedDisclosureReview:
             "schema_version": self.schema_version,
             "source_id": self.source_id,
             "catalog_identity_sha256": self.catalog_identity_sha256,
+            "catalog_source_sha256": self.catalog_source_sha256,
             "catalog_entry_identity_sha256": self.catalog_entry_identity_sha256,
             "admission_identity_sha256": self.admission_identity_sha256,
             "audit_package_identity_sha256": self.audit_package_identity_sha256,
@@ -450,6 +462,7 @@ class CataloguedDisclosureReview:
                 "schema_version",
                 "source_id",
                 "catalog_identity_sha256",
+                "catalog_source_sha256",
                 "catalog_entry_identity_sha256",
                 "admission_identity_sha256",
                 "audit_package_identity_sha256",
@@ -464,6 +477,7 @@ class CataloguedDisclosureReview:
                 schema_version=data["schema_version"],
                 source_id=data["source_id"],
                 catalog_identity_sha256=data["catalog_identity_sha256"],
+                catalog_source_sha256=data["catalog_source_sha256"],
                 catalog_entry_identity_sha256=data[
                     "catalog_entry_identity_sha256"
                 ],
@@ -670,6 +684,7 @@ def review_catalogued_admission(
     return CataloguedDisclosureReview(
         source_id=entry.source_id,
         catalog_identity_sha256=catalog.identity_sha256,
+        catalog_source_sha256=catalog.catalog_source_sha256,
         catalog_entry_identity_sha256=entry.identity_sha256,
         admission_identity_sha256=admission.identity_sha256,
         audit_package_identity_sha256=admission.package.identity_sha256,
@@ -682,6 +697,7 @@ __all__ = [
     "CataloguedDisclosureReview",
     "DisclosurePolicy",
     "DisclosureReview",
+    "STALE_RESULT_DISCLOSURE_POLICY",
     "review_visible_packet_material",
     "review_catalogued_admission",
 ]
