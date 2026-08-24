@@ -42,6 +42,7 @@ from aiverify.runner.admission import (
     AdmissionResult,
     PlannedRunnerOptions,
     ProductionSeamAdmissionError,
+    SourceAuthority,
     admit_production_seam,
     verify_admitted_receipt,
     write_admission_receipt,
@@ -60,6 +61,10 @@ from aiverify.runner.journey import (
 from aiverify.runner.run_spec import RunSpec, ScenarioSpec, load_run_spec
 from aiverify.runner.system_events import DeviceSystemEventInjector
 from aiverify.runner.verdict import judge_l2_from_android_layout
+from aiverify.runtime_preparation import (
+    RuntimePreparationHandoff,
+    verify_runtime_preparation_receipt,
+)
 
 _DRIVER_PREAMBLE = """\
 You are a Verification Agent Backend driving a real Android emulator (serial: {device}).
@@ -1039,6 +1044,8 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         admission_receipt: AdmissionResult | Mapping[str, object] | None = None,
         admission_options: PlannedRunnerOptions | None = None,
         admission_command_runner: CommandRunner | None = None,
+        admission_source_authority: SourceAuthority | None = None,
+        runtime_preparation_handoff: RuntimePreparationHandoff | None = None,
         formal_one_attempt: bool = False) -> dict:
     artifact_dir = Path(artifact_dir).resolve()
     workdir = Path(workdir).resolve()
@@ -1046,10 +1053,21 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         raise ProductionSeamAdmissionError(
             "provide either identity_collector or identity_collector_factory, not both"
         )
-    if admission_required:
-        if admission_receipt is None or admission_options is None:
+    preparation_required = runtime_preparation_handoff is not None
+    if preparation_required and (
+        admission_receipt is not None or admission_source_authority is not None
+    ):
+        raise ProductionSeamAdmissionError(
+            "admission and runtime preparation handoffs are mutually exclusive"
+        )
+    if admission_required or preparation_required:
+        if admission_options is None:
             raise ProductionSeamAdmissionError(
-                "formal runner requires a production-seam admission receipt and policy"
+                (
+                    "formal runner requires a production-seam admission receipt and policy"
+                    if admission_required and not preparation_required
+                    else "runtime preparation handoff requires an admitted runner policy"
+                )
             )
         actual_options = PlannedRunnerOptions(
             device=device,
@@ -1067,12 +1085,28 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             raise ProductionSeamAdmissionError(
                 "formal runner options differ from admitted policy"
             )
-        verify_admitted_receipt(
-            admission_receipt,
-            spec,
-            admission_options,
-            command_runner=admission_command_runner,
-        )
+        if preparation_required:
+            assert runtime_preparation_handoff is not None
+            verify_runtime_preparation_receipt(
+                runtime_preparation_handoff.receipt,
+                spec=spec,
+                options=admission_options,
+                source_authority=runtime_preparation_handoff.source_authority,
+                apk_inspector=runtime_preparation_handoff.apk_inspector,
+                command_runner=admission_command_runner,
+            )
+        else:
+            if admission_receipt is None:
+                raise ProductionSeamAdmissionError(
+                    "formal runner requires a production-seam admission receipt and policy"
+                )
+            verify_admitted_receipt(
+                admission_receipt,
+                spec,
+                admission_options,
+                command_runner=admission_command_runner,
+                source_authority=admission_source_authority,
+            )
     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     run_start = time.monotonic()
     execution_record = ExecutionRecordStore.establish(

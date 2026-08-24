@@ -158,6 +158,7 @@ def _run_git(
             "GIT_ATTR_NOSYSTEM": "1",
             "GIT_CONFIG_GLOBAL": os.devnull,
             "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_OPTIONAL_LOCKS": "0",
             "GIT_TERMINAL_PROMPT": "0",
         }
     )
@@ -590,6 +591,155 @@ def source_tree_sha256_from_worktree(
             else:
                 raise InjectionMaterializerError("worktree contains an unsupported file entry")
     return _hash_source_entries(entries)
+
+
+@dataclass(frozen=True)
+class MaterializedSourceInspection:
+    """Read-only identity of one still-valid materialized source worktree."""
+
+    repository_root: str
+    baseline_commit: str
+    source_tree_sha256: str
+    complete_tree_sha256: str
+    result_diff_sha256: str
+    status_sha256: str
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "repository_root": self.repository_root,
+            "baseline_commit": self.baseline_commit,
+            "source_tree_sha256": self.source_tree_sha256,
+            "complete_tree_sha256": self.complete_tree_sha256,
+            "result_diff_sha256": self.result_diff_sha256,
+            "status_sha256": self.status_sha256,
+        }
+
+
+def _tracked_worktree_source_sha256(worktree: Path) -> str:
+    """Hash index-declared paths from working bytes without writing Git objects."""
+    try:
+        listing = _run_git(worktree, ["ls-files", "--stage", "-z"])
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise InjectionMaterializerError("materialized source index is unavailable") from error
+    if listing.returncode != 0:
+        raise InjectionMaterializerError("materialized source index is unavailable")
+
+    entries: list[tuple[bytes, bytes, bool, bytes]] = []
+    for record in (item for item in listing.stdout.split(b"\0") if item):
+        try:
+            header, raw_path = record.split(b"\t", 1)
+            raw_mode, _object_id, raw_stage = header.split(b" ", 2)
+        except ValueError as error:
+            raise InjectionMaterializerError(
+                "materialized source index is malformed"
+            ) from error
+        if raw_stage != b"0" or raw_mode not in {b"100644", b"100755", b"120000"}:
+            raise InjectionMaterializerError("materialized source index is unsupported")
+        relative = Path(os.fsdecode(raw_path))
+        if relative.is_absolute() or not relative.parts or ".." in relative.parts:
+            raise InjectionMaterializerError("materialized source index path is unsafe")
+        path = worktree.joinpath(*relative.parts)
+        try:
+            details = path.lstat()
+        except OSError as error:
+            raise InjectionMaterializerError(
+                "materialized tracked source is unavailable"
+            ) from error
+        if raw_mode == b"120000":
+            if not stat.S_ISLNK(details.st_mode):
+                raise InjectionMaterializerError("materialized tracked source kind changed")
+            payload = os.fsencode(os.readlink(path))
+            entries.append((raw_path, b"symlink", False, payload))
+            continue
+        if not stat.S_ISREG(details.st_mode):
+            raise InjectionMaterializerError("materialized tracked source kind changed")
+        entries.append(
+            (
+                raw_path,
+                b"file",
+                bool(details.st_mode & stat.S_IXUSR),
+                path.read_bytes(),
+            )
+        )
+    return _hash_source_entries(entries)
+
+
+def _ownership_marker_bytes(worktree: MaterializedWorktree) -> bytes:
+    return canonical_json_bytes(
+        {
+            "schema_version": 1,
+            "kind": "aiverify-injection-owned-worktree",
+            "ownership_token": worktree.ownership_token,
+            "candidate_identity_sha256": worktree.candidate_identity_sha256,
+            "baseline_commit": worktree.baseline_commit,
+            "result_identity_sha256": worktree.result_identity_sha256,
+        }
+    ) + b"\n"
+
+
+def inspect_materialized_receipt_source(
+    receipt: InjectionReceipt,
+) -> MaterializedSourceInspection:
+    """Revalidate a sealed receipt against tracked source using read-only Git.
+
+    Every tracked byte, the complete build-visible tree (including ignored
+    paths), staged result diff, unexpected non-ignored path, detached baseline,
+    and ownership marker remains fail-closed and available to the caller.
+    """
+    if not isinstance(receipt, InjectionReceipt) or receipt.outcome != "materialized":
+        raise InjectionMaterializerError("materialized receipt is required")
+    worktree = receipt.worktree
+    if worktree is None:
+        raise InjectionMaterializerError("materialized worktree is required")
+    path = Path(worktree.path).resolve()
+    if _repository_root(path) != path:
+        raise InjectionMaterializerError("materialized worktree is not a repository root")
+    if _resolved_commit(path, "HEAD") != worktree.baseline_commit:
+        raise InjectionMaterializerError("materialized baseline commit changed")
+    detached = _run_git(path, ["symbolic-ref", "-q", "HEAD"])
+    if detached.returncode == 0:
+        raise InjectionMaterializerError("materialized worktree is no longer detached")
+    try:
+        marker = (path / _OWNERSHIP_MARKER).read_bytes()
+    except OSError as error:
+        raise InjectionMaterializerError("materialized ownership marker is unavailable") from error
+    if marker != _ownership_marker_bytes(worktree):
+        raise InjectionMaterializerError("materialized ownership marker changed")
+
+    source_tree_sha256 = _tracked_worktree_source_sha256(path)
+    if source_tree_sha256 != receipt.result_source_tree_sha256:
+        raise InjectionMaterializerError("materialized source identity changed")
+    diff = _run_git(
+        path,
+        ["diff", *_CANONICAL_STAGED_DIFF_OPTIONS, worktree.baseline_commit, "--"],
+    )
+    if diff.returncode != 0 or sha256(diff.stdout).hexdigest() != receipt.result_diff_sha256:
+        raise InjectionMaterializerError("materialized result diff changed")
+    untracked = _run_git(path, ["ls-files", "--others", "--exclude-standard", "-z"])
+    if untracked.returncode != 0:
+        raise InjectionMaterializerError("materialized untracked source is unavailable")
+    unexpected = {
+        item
+        for item in untracked.stdout.split(b"\0")
+        if item and item != os.fsencode(_OWNERSHIP_MARKER)
+    }
+    if unexpected:
+        raise InjectionMaterializerError("materialized worktree has undeclared source")
+    status = _run_git(
+        path,
+        ["status", "--porcelain=v1", "--untracked-files=all"],
+    )
+    if status.returncode != 0:
+        raise InjectionMaterializerError("materialized source status is unavailable")
+    complete_tree_sha256 = source_tree_sha256_from_worktree(path)
+    return MaterializedSourceInspection(
+        repository_root=os.fspath(path),
+        baseline_commit=worktree.baseline_commit,
+        source_tree_sha256=source_tree_sha256,
+        complete_tree_sha256=complete_tree_sha256,
+        result_diff_sha256=receipt.result_diff_sha256 or "",
+        status_sha256=sha256(status.stdout).hexdigest(),
+    )
 
 
 def capture_baseline_provenance(
@@ -1411,18 +1561,8 @@ class InjectionMaterializer:
             _close_directory_authority(registration.directory)
             _close_directory_authority(registration.administrative_directory)
 
-    def _marker_document(self, worktree: MaterializedWorktree) -> dict[str, Any]:
-        return {
-            "schema_version": 1,
-            "kind": "aiverify-injection-owned-worktree",
-            "ownership_token": worktree.ownership_token,
-            "candidate_identity_sha256": worktree.candidate_identity_sha256,
-            "baseline_commit": worktree.baseline_commit,
-            "result_identity_sha256": worktree.result_identity_sha256,
-        }
-
     def _marker_bytes(self, worktree: MaterializedWorktree) -> bytes:
-        return canonical_json_bytes(self._marker_document(worktree)) + b"\n"
+        return _ownership_marker_bytes(worktree)
 
     def _register_fresh_worktree(
         self,
@@ -1751,6 +1891,8 @@ __all__ = [
     "InjectionCleanupError",
     "InjectionMaterializer",
     "InjectionMaterializerError",
+    "MaterializedSourceInspection",
+    "inspect_materialized_receipt_source",
     "capture_baseline_provenance",
     "source_tree_sha256_for_commit",
     "source_tree_sha256_from_worktree",
