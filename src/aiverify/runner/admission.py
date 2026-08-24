@@ -13,6 +13,7 @@ import json
 import re
 import shutil
 import time
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -36,6 +37,31 @@ _GIT_SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
 
 class ProductionSeamAdmissionError(ValueError):
     """Raised when a formal runner consumes a missing or contradictory receipt."""
+
+
+class SourceAuthority(ABC):
+    """Read-only authority for one exact host source state."""
+
+    @abstractmethod
+    def resolve_host(
+        self,
+        spec: RunSpec,
+        options: "PlannedRunnerOptions",
+        runner: CommandRunner,
+    ) -> dict[str, object]:
+        """Return the canonical host receipt or reject the source state."""
+
+
+class CleanCheckoutSourceAuthority(SourceAuthority):
+    """Preserve the existing policy that admits only a clean checkout."""
+
+    def resolve_host(
+        self,
+        spec: RunSpec,
+        options: "PlannedRunnerOptions",
+        runner: CommandRunner,
+    ) -> dict[str, object]:
+        return _resolve_clean_host(spec, options, runner)
 
 
 @dataclass(frozen=True)
@@ -98,6 +124,7 @@ def admit_production_seam(
     *,
     serialized_run_spec: bytes | None = None,
     command_runner: CommandRunner | None = None,
+    source_authority: SourceAuthority | None = None,
 ) -> AdmissionResult:
     """Admit exact Run Spec bytes and runner options without external side effects.
 
@@ -106,6 +133,7 @@ def admit_production_seam(
     a device, or a Verification Agent Backend.
     """
     runner = command_runner or SubprocessCommandRunner()
+    authority = source_authority or CleanCheckoutSourceAuthority()
     checks: dict[str, object] = {}
     reasons: list[str] = []
     source_bytes: bytes | None = None
@@ -125,7 +153,7 @@ def admit_production_seam(
 
     host: dict[str, object] = {}
     try:
-        host = _resolve_host(spec, options, runner)
+        host = authority.resolve_host(spec, options, runner)
         checks["host_identity"] = {"status": "passed"}
     except ProductionSeamAdmissionError as error:
         reasons.append(str(error))
@@ -215,7 +243,8 @@ def verify_admitted_receipt(
     options: PlannedRunnerOptions,
     *,
     command_runner: CommandRunner | None = None,
-) -> None:
+    source_authority: SourceAuthority | None = None,
+) -> AdmissionResult:
     """Re-admit and compare a receipt before any formal runner side effect."""
     if isinstance(receipt, AdmissionResult):
         expected = receipt
@@ -236,6 +265,7 @@ def verify_admitted_receipt(
         spec,
         options,
         command_runner=command_runner,
+        source_authority=source_authority,
     )
     current.require_admitted()
     if current.receipt["run_spec"] != expected.receipt.get("run_spec"):
@@ -250,6 +280,7 @@ def verify_admitted_receipt(
         "artifact_namespace"
     ):
         raise ProductionSeamAdmissionError("admission receipt artifact namespace drift")
+    return current
 
 
 def establish_and_abandon_temporary_record(
@@ -318,7 +349,7 @@ def _read_exact_run_spec(spec: RunSpec, serialized: bytes | None) -> bytes:
     return source
 
 
-def _resolve_host(
+def _resolve_clean_host(
     spec: RunSpec,
     options: PlannedRunnerOptions,
     runner: CommandRunner,

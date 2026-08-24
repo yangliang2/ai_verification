@@ -2,8 +2,10 @@
 
 from aiverify.runner.admission import (
     AdmissionResult,
+    CleanCheckoutSourceAuthority,
     PlannedRunnerOptions,
     ProductionSeamAdmissionError,
+    SourceAuthority,
     admit_production_seam,
     establish_and_abandon_temporary_record,
     verify_admitted_receipt,
@@ -48,6 +50,7 @@ __all__ = [
     "CodexCliError",
     "CommandResult",
     "CommandRunner",
+    "CleanCheckoutSourceAuthority",
     "DryRunPlan",
     "DeviceSystemEventInjector",
     "EvidenceCheckpoint",
@@ -59,6 +62,7 @@ __all__ = [
     "JourneySegmentRunner",
     "PlannedRunnerOptions",
     "ProductionSeamAdmissionError",
+    "SourceAuthority",
     "RunSpec",
     "RunSpecError",
     "ScenarioSpec",

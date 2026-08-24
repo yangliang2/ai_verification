@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "date": "2026-08-23",
+  "issue": "https://github.com/yangliang2/ai_verification/issues/197",
+  "branch": "issue-197-runtime-source-preparation",
+  "fixed_point": "0719a05cee1370849a553b1f9a517b3fcf0fc422",
+  "claim_boundary": "local_source_build_preparation_only",
+  "commands": [
+    {
+      "name": "public_contract",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -q tests/test_runtime_preparation.py --junitxml=docs/runs/2026-08-23-issue-197-runtime-source-preparation/verification/contract-pytest.xml",
+      "exit_code": 0,
+      "tests": 47,
+      "passed": 47,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 15.400,
+      "wall_seconds": 15.49
+    },
+    {
+      "name": "focused_regression",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -q tests/injection tests/runner tests/test_runtime_preparation.py --junitxml=docs/runs/2026-08-23-issue-197-runtime-source-preparation/verification/focused-pytest.xml",
+      "exit_code": 0,
+      "tests": 462,
+      "passed": 462,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 95.188,
+      "wall_seconds": 95.28
+    },
+    {
+      "name": "full_regression",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -qq --junitxml=docs/runs/2026-08-23-issue-197-runtime-source-preparation/verification/full-pytest.xml",
+      "exit_code": 0,
+      "tests": 1280,
+      "passed": 1279,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 144.095,
+      "wall_seconds": 144.38,
+      "skip_reason": "repository-external fixture tests require explicit admission"
+    },
+    {
+      "name": "compileall",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/python -m compileall -q src tests/test_runtime_preparation.py",
+      "exit_code": 0,
+      "wall_seconds": 0.03
+    },
+    {
+      "name": "whitespace",
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "runtime": {
+    "real_android_build": false,
+    "install_or_launch": false,
+    "device_or_emulator": false,
+    "verification_agent": false,
+    "oracle": false,
+    "synthetic_package": "org.example.injected",
+    "synthetic_launcher": "org.example.injected.MainActivity"
+  },
+  "known_gaps": [
+    "aapt2 production adapter exercised only through a local command substitute",
+    "no public CLI flags for preparation handoff",
+    "no injected OpenCalc pair or Catima holdout action",
+    "one explicitly gated repository-external test skipped in the default full suite"
+  ]
+}
