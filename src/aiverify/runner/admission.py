@@ -19,6 +19,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Mapping
 
+from aiverify.injection.materialization import (
+    InjectionMaterializerError,
+    source_tree_sha256_for_commit,
+    source_tree_sha256_from_worktree,
+)
 from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
 from aiverify.runner.execution_record import (
     ExecutionRecordStore,
@@ -39,6 +44,126 @@ class ProductionSeamAdmissionError(ValueError):
     """Raised when a formal runner consumes a missing or contradictory receipt."""
 
 
+@dataclass(frozen=True)
+class SourceAuthorityBinding:
+    """Immutable authority-specific digest claims for one admitted source."""
+
+    kind: str
+    claims: tuple[tuple[str, str], ...]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.kind, str) or not self.kind.strip():
+            raise ValueError("source authority binding kind is required")
+        if (
+            not isinstance(self.claims, tuple)
+            or self.claims != tuple(sorted(self.claims))
+            or len({name for name, _ in self.claims}) != len(self.claims)
+        ):
+            raise ValueError("source authority binding claims must be unique and sorted")
+        for name, digest in self.claims:
+            if (
+                not isinstance(name, str)
+                or not name.strip()
+                or not isinstance(digest, str)
+                or not _SHA256_RE.fullmatch(digest)
+            ):
+                raise ValueError("source authority binding claim is invalid")
+
+    def to_dict(self) -> dict[str, str]:
+        body = {"kind": self.kind, **dict(self.claims)}
+        body["identity_sha256"] = _sha256_bytes(_encoded_json(body))
+        return body
+
+
+@dataclass(frozen=True)
+class HostWorktreeIdentity:
+    """Both declared source bytes and every build-visible worktree byte."""
+
+    clean: bool
+    status_sha256: str
+    source_tree_sha256: str
+    complete_tree_sha256: str
+    declared_injection: bool = False
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.clean, bool) or not isinstance(
+            self.declared_injection, bool
+        ):
+            raise ValueError("host worktree flags must be booleans")
+        for field in (
+            "status_sha256",
+            "source_tree_sha256",
+            "complete_tree_sha256",
+        ):
+            value = getattr(self, field)
+            if not isinstance(value, str) or not _SHA256_RE.fullmatch(value):
+                raise ValueError(f"host worktree {field} is invalid")
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "clean": self.clean,
+            "status_sha256": self.status_sha256,
+            "source_tree_sha256": self.source_tree_sha256,
+            "complete_tree_sha256": self.complete_tree_sha256,
+            "declared_injection": self.declared_injection,
+        }
+
+
+@dataclass(frozen=True)
+class HostAuthority:
+    """Validated immutable Effective Execution Identity for a local host."""
+
+    repository_root: str
+    host_project: str
+    origin: str
+    commit: str
+    worktree: HostWorktreeIdentity
+    host_project_within_repository: bool
+    source_authority: SourceAuthorityBinding | None = None
+
+    def __post_init__(self) -> None:
+        repository_root = Path(self.repository_root)
+        host_project = Path(self.host_project)
+        if not repository_root.is_absolute() or not host_project.is_absolute():
+            raise ValueError("host authority paths must be absolute")
+        if (
+            str(repository_root.resolve()) != self.repository_root
+            or str(host_project.resolve()) != self.host_project
+        ):
+            raise ValueError("host authority paths must be canonical")
+        try:
+            host_project.relative_to(repository_root)
+        except ValueError as error:
+            raise ValueError("host authority project is outside repository") from error
+        if self.host_project_within_repository != (host_project != repository_root):
+            raise ValueError("host authority project relationship is contradictory")
+        if not isinstance(self.origin, str) or not self.origin.strip():
+            raise ValueError("host authority origin is required")
+        if not _GIT_SHA1_RE.fullmatch(self.commit):
+            raise ValueError("host authority commit is invalid")
+        if not isinstance(self.worktree, HostWorktreeIdentity):
+            raise ValueError("host authority worktree identity is required")
+        if self.source_authority is not None and not isinstance(
+            self.source_authority, SourceAuthorityBinding
+        ):
+            raise ValueError("host source authority binding is invalid")
+        if self.worktree.declared_injection != (self.source_authority is not None):
+            raise ValueError("host source authority binding is contradictory")
+
+    def to_dict(self) -> dict[str, object]:
+        result: dict[str, object] = {
+            "repository_root": self.repository_root,
+            "host_project": self.host_project,
+            "origin": self.origin,
+            "commit": self.commit,
+            "worktree": self.worktree.to_dict(),
+            "host_project_within_repository": self.host_project_within_repository,
+        }
+        if self.source_authority is not None:
+            result["source_authority"] = self.source_authority.to_dict()
+        return result
+
+
 class SourceAuthority(ABC):
     """Read-only authority for one exact host source state."""
 
@@ -48,7 +173,7 @@ class SourceAuthority(ABC):
         spec: RunSpec,
         options: "PlannedRunnerOptions",
         runner: CommandRunner,
-    ) -> dict[str, object]:
+    ) -> HostAuthority:
         """Return the canonical host receipt or reject the source state."""
 
 
@@ -60,7 +185,7 @@ class CleanCheckoutSourceAuthority(SourceAuthority):
         spec: RunSpec,
         options: "PlannedRunnerOptions",
         runner: CommandRunner,
-    ) -> dict[str, object]:
+    ) -> HostAuthority:
         return _resolve_clean_host(spec, options, runner)
 
 
@@ -153,11 +278,21 @@ def admit_production_seam(
 
     host: dict[str, object] = {}
     try:
-        host = authority.resolve_host(spec, options, runner)
+        resolved_host = authority.resolve_host(spec, options, runner)
+        if not isinstance(resolved_host, HostAuthority):
+            raise ProductionSeamAdmissionError(
+                "source authority returned an invalid host identity"
+            )
+        _validate_host_authority(resolved_host, spec, options)
+        host = resolved_host.to_dict()
         checks["host_identity"] = {"status": "passed"}
     except ProductionSeamAdmissionError as error:
         reasons.append(str(error))
         checks["host_identity"] = {"status": "failed", "message": str(error)}
+    except (TypeError, ValueError):
+        message = "source authority returned an invalid host identity"
+        reasons.append(message)
+        checks["host_identity"] = {"status": "failed", "message": message}
 
     try:
         target = _validate_target(spec, options)
@@ -272,7 +407,10 @@ def verify_admitted_receipt(
         raise ProductionSeamAdmissionError("admission receipt Run Spec drift")
     if current.receipt["runner_policy"] != expected.receipt.get("runner_policy"):
         raise ProductionSeamAdmissionError("admission receipt runner-option drift")
-    if current.receipt["host"] != expected.receipt.get("host"):
+    if not _host_receipts_match(
+        current.receipt["host"],
+        expected.receipt.get("host"),
+    ):
         raise ProductionSeamAdmissionError("admission receipt source/worktree drift")
     if current.receipt["target"] != expected.receipt.get("target"):
         raise ProductionSeamAdmissionError("admission receipt target drift")
@@ -281,6 +419,42 @@ def verify_admitted_receipt(
     ):
         raise ProductionSeamAdmissionError("admission receipt artifact namespace drift")
     return current
+
+
+def _host_receipts_match(current: object, expected: object) -> bool:
+    """Compare host identity, admitting only a pristine legacy clean receipt."""
+    if current == expected:
+        return True
+    if not isinstance(current, Mapping) or not isinstance(expected, Mapping):
+        return False
+    current_host = dict(current)
+    expected_host = dict(expected)
+    if "source_authority" in current_host or "source_authority" in expected_host:
+        return False
+    current_worktree = current_host.get("worktree")
+    expected_worktree = expected_host.get("worktree")
+    if not isinstance(current_worktree, Mapping) or not isinstance(
+        expected_worktree, Mapping
+    ):
+        return False
+    legacy_worktree = dict(expected_worktree)
+    if set(legacy_worktree) != {"clean", "status_sha256"} or legacy_worktree.get(
+        "clean"
+    ) is not True:
+        return False
+    current_worktree = dict(current_worktree)
+    if current_worktree.get("source_tree_sha256") != current_worktree.get(
+        "complete_tree_sha256"
+    ):
+        return False
+    for field in (
+        "source_tree_sha256",
+        "complete_tree_sha256",
+        "declared_injection",
+    ):
+        current_worktree.pop(field, None)
+    current_host["worktree"] = current_worktree
+    return current_host == expected_host
 
 
 def establish_and_abandon_temporary_record(
@@ -349,11 +523,46 @@ def _read_exact_run_spec(spec: RunSpec, serialized: bytes | None) -> bytes:
     return source
 
 
+def _validate_host_authority(
+    host: HostAuthority,
+    spec: RunSpec,
+    options: PlannedRunnerOptions,
+) -> None:
+    repository_root = Path(host.repository_root)
+    host_project = Path(host.host_project)
+    if repository_root != Path(options.workdir).resolve():
+        raise ProductionSeamAdmissionError(
+            "source authority repository contradicts runner workdir"
+        )
+    if host_project != spec.host_project.resolve():
+        raise ProductionSeamAdmissionError(
+            "source authority project contradicts Run Spec"
+        )
+    if host_project != repository_root and not options.allow_host_project_subdir:
+        raise ProductionSeamAdmissionError(
+            "host project subdirectory is not admitted by runner policy"
+        )
+    locator = spec.host_locator
+    if locator is None:
+        raise ProductionSeamAdmissionError(
+            "portable host origin and commit locator is required"
+        )
+    if host.origin != locator.expected_origin:
+        raise ProductionSeamAdmissionError(
+            "source authority origin contradicts Run Spec locator"
+        )
+    expected_commit = options.expected_source_commit or locator.expected_commit
+    if not _GIT_SHA1_RE.fullmatch(expected_commit) or host.commit != expected_commit:
+        raise ProductionSeamAdmissionError(
+            "source authority commit contradicts Run Spec locator"
+        )
+
+
 def _resolve_clean_host(
     spec: RunSpec,
     options: PlannedRunnerOptions,
     runner: CommandRunner,
-) -> dict[str, object]:
+) -> HostAuthority:
     host_project = spec.host_project.resolve()
     workdir = Path(options.workdir).resolve()
     if not host_project.is_dir():
@@ -399,17 +608,29 @@ def _resolve_clean_host(
         )
     if commit != expected_commit:
         raise ProductionSeamAdmissionError("host commit contradicts Run Spec locator")
-    return {
-        "repository_root": str(repository_root),
-        "host_project": str(host_project),
-        "origin": origin,
-        "commit": commit,
-        "worktree": {
-            "clean": True,
-            "status_sha256": _sha256_bytes(status.encode("utf-8")),
-        },
-        "host_project_within_repository": host_project != repository_root,
-    }
+    try:
+        source_tree_sha256 = source_tree_sha256_for_commit(repository_root, commit)
+        complete_tree_sha256 = source_tree_sha256_from_worktree(
+            repository_root,
+            ignore_ownership_marker=False,
+        )
+    except (InjectionMaterializerError, OSError, RuntimeError, ValueError) as error:
+        raise ProductionSeamAdmissionError(
+            "host source tree identity is unavailable"
+        ) from error
+    return HostAuthority(
+        repository_root=str(repository_root),
+        host_project=str(host_project),
+        origin=origin,
+        commit=commit,
+        worktree=HostWorktreeIdentity(
+            clean=True,
+            status_sha256=_sha256_bytes(status.encode("utf-8")),
+            source_tree_sha256=source_tree_sha256,
+            complete_tree_sha256=complete_tree_sha256,
+        ),
+        host_project_within_repository=host_project != repository_root,
+    )
 
 
 def _validate_target(spec: RunSpec, options: PlannedRunnerOptions) -> dict[str, object]:

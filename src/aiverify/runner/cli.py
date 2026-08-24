@@ -62,8 +62,7 @@ from aiverify.runner.run_spec import RunSpec, ScenarioSpec, load_run_spec
 from aiverify.runner.system_events import DeviceSystemEventInjector
 from aiverify.runner.verdict import judge_l2_from_android_layout
 from aiverify.runtime_preparation import (
-    ApkInspector,
-    RuntimePreparationReceipt,
+    RuntimePreparationHandoff,
     verify_runtime_preparation_receipt,
 )
 
@@ -1046,11 +1045,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         admission_options: PlannedRunnerOptions | None = None,
         admission_command_runner: CommandRunner | None = None,
         admission_source_authority: SourceAuthority | None = None,
-        runtime_preparation_receipt: (
-            RuntimePreparationReceipt | Mapping[str, object] | None
-        ) = None,
-        runtime_source_authority: SourceAuthority | None = None,
-        runtime_apk_inspector: ApkInspector | None = None,
+        runtime_preparation_handoff: RuntimePreparationHandoff | None = None,
         formal_one_attempt: bool = False) -> dict:
     artifact_dir = Path(artifact_dir).resolve()
     workdir = Path(workdir).resolve()
@@ -1058,7 +1053,13 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         raise ProductionSeamAdmissionError(
             "provide either identity_collector or identity_collector_factory, not both"
         )
-    preparation_required = runtime_preparation_receipt is not None
+    preparation_required = runtime_preparation_handoff is not None
+    if preparation_required and (
+        admission_receipt is not None or admission_source_authority is not None
+    ):
+        raise ProductionSeamAdmissionError(
+            "admission and runtime preparation handoffs are mutually exclusive"
+        )
     if admission_required or preparation_required:
         if admission_options is None:
             raise ProductionSeamAdmissionError(
@@ -1085,16 +1086,13 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
                 "formal runner options differ from admitted policy"
             )
         if preparation_required:
-            if runtime_source_authority is None or runtime_apk_inspector is None:
-                raise ProductionSeamAdmissionError(
-                    "runtime preparation handoff requires source authority and APK inspector"
-                )
+            assert runtime_preparation_handoff is not None
             verify_runtime_preparation_receipt(
-                runtime_preparation_receipt,
+                runtime_preparation_handoff.receipt,
                 spec=spec,
                 options=admission_options,
-                source_authority=runtime_source_authority,
-                apk_inspector=runtime_apk_inspector,
+                source_authority=runtime_preparation_handoff.source_authority,
+                apk_inspector=runtime_preparation_handoff.apk_inspector,
                 command_runner=admission_command_runner,
             )
         else:

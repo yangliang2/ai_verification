@@ -600,6 +600,7 @@ class MaterializedSourceInspection:
     repository_root: str
     baseline_commit: str
     source_tree_sha256: str
+    complete_tree_sha256: str
     result_diff_sha256: str
     status_sha256: str
 
@@ -608,6 +609,7 @@ class MaterializedSourceInspection:
             "repository_root": self.repository_root,
             "baseline_commit": self.baseline_commit,
             "source_tree_sha256": self.source_tree_sha256,
+            "complete_tree_sha256": self.complete_tree_sha256,
             "result_diff_sha256": self.result_diff_sha256,
             "status_sha256": self.status_sha256,
         }
@@ -680,9 +682,9 @@ def inspect_materialized_receipt_source(
 ) -> MaterializedSourceInspection:
     """Revalidate a sealed receipt against tracked source using read-only Git.
 
-    Git-ignored build output is intentionally outside source identity.  Every
-    tracked byte, the staged result diff, unexpected untracked path, detached
-    baseline, and ownership marker remains fail-closed.
+    Every tracked byte, the complete build-visible tree (including ignored
+    paths), staged result diff, unexpected non-ignored path, detached baseline,
+    and ownership marker remains fail-closed and available to the caller.
     """
     if not isinstance(receipt, InjectionReceipt) or receipt.outcome != "materialized":
         raise InjectionMaterializerError("materialized receipt is required")
@@ -729,10 +731,12 @@ def inspect_materialized_receipt_source(
     )
     if status.returncode != 0:
         raise InjectionMaterializerError("materialized source status is unavailable")
+    complete_tree_sha256 = source_tree_sha256_from_worktree(path)
     return MaterializedSourceInspection(
         repository_root=os.fspath(path),
         baseline_commit=worktree.baseline_commit,
         source_tree_sha256=source_tree_sha256,
+        complete_tree_sha256=complete_tree_sha256,
         result_diff_sha256=receipt.result_diff_sha256 or "",
         status_sha256=sha256(status.stdout).hexdigest(),
     )

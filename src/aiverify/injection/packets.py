@@ -219,6 +219,19 @@ class VerifierPacket:
     def identity_sha256(self) -> str:
         return _identity(self._identity_dict())
 
+    @property
+    def canonical_packet_id(self) -> str:
+        """Re-derive the opaque ID from every immutable ChangeTarget binding."""
+        return change_target_packet_id(
+            source_origin=self.source_origin,
+            source_commit=self.source_commit,
+            baseline_source_tree_sha256=self.baseline_source_tree_sha256,
+            materialized_source_tree_sha256=self.materialized_source_tree_sha256,
+            patch_sha256=self.patch_sha256,
+            result_diff_sha256=self.result_diff_sha256,
+            receipt_identity_sha256=self.receipt_identity_sha256,
+        )
+
     def to_dict(self) -> dict[str, Any]:
         return {
             **self._identity_dict(),
@@ -931,7 +944,7 @@ class AuditorCaseFamily:
             )
 
 
-def _packet_id(
+def change_target_packet_id(
     *,
     source_origin: str,
     source_commit: str,
@@ -1322,7 +1335,7 @@ def compile_change_target_packet(
         raise PacketCompilationError("materialized_source_unavailable")
     candidate = selected_entry.candidate
     packet = VerifierPacket(
-        packet_id=_packet_id(
+        packet_id=change_target_packet_id(
             source_origin=candidate.baseline.source_origin,
             source_commit=candidate.baseline.commit,
             baseline_source_tree_sha256=candidate.baseline.source_tree_sha256,
@@ -1529,6 +1542,7 @@ __all__ = [
     "ProjectTargetPacket",
     "VerifierPacket",
     "VerifierPacketFamily",
+    "change_target_packet_id",
     "compile_change_target_packet",
     "compile_four_cell_case_family",
     "compile_project_target_packet",

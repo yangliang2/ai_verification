@@ -10,23 +10,28 @@ import shutil
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Mapping
 
 from aiverify.injection import (
+    CuratedCatalogError,
     InjectionAdmission,
+    InjectionContractError,
     InjectionMaterializerError,
     VerifierPacket,
     inspect_materialized_receipt_source,
+    load_curated_source_catalog,
     source_tree_sha256_for_commit,
 )
 from aiverify.runner.admission import (
     CleanCheckoutSourceAuthority,
+    HostAuthority,
+    HostWorktreeIdentity,
     PlannedRunnerOptions,
     ProductionSeamAdmissionError,
     SourceAuthority,
+    SourceAuthorityBinding,
     admit_production_seam,
-    verify_admitted_receipt,
 )
 from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
 from aiverify.runner.run_spec import RunSpec
@@ -48,6 +53,28 @@ _PROHIBITED_EXECUTABLES = frozenset(
         "sh",
         "zsh",
     }
+)
+_GRADLE_EXECUTABLES = frozenset({"gradle", "gradlew", "gradlew.bat"})
+_SAFE_GRADLE_FLAGS = frozenset(
+    {
+        "--build-cache",
+        "--continue",
+        "--no-build-cache",
+        "--no-configuration-cache",
+        "--no-daemon",
+        "--no-parallel",
+        "--no-scan",
+        "--offline",
+        "--parallel",
+        "--quiet",
+        "--rerun-tasks",
+        "--stacktrace",
+    }
+)
+_SAFE_GRADLE_FLAG_PREFIXES = (
+    "--console=",
+    "--max-workers=",
+    "--warning-mode=",
 )
 _PACKAGE_LINE = re.compile(r"^package: name='([^']+)'", re.MULTILINE)
 _ACTIVITY_LINE = re.compile(r"^launchable-activity: name='([^']+)'", re.MULTILINE)
@@ -164,6 +191,23 @@ class RuntimePreparationReceipt:
         return value
 
 
+@dataclass(frozen=True)
+class RuntimePreparationHandoff:
+    """One mutually exclusive prepared-source handoff consumed by the runner."""
+
+    receipt: RuntimePreparationReceipt
+    source_authority: SourceAuthority
+    apk_inspector: ApkInspector
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.receipt, RuntimePreparationReceipt):
+            raise ValueError("runtime handoff requires an immutable prepared receipt")
+        if not isinstance(self.source_authority, SourceAuthority):
+            raise ValueError("runtime handoff requires a source authority")
+        if not isinstance(self.apk_inspector, ApkInspector):
+            raise ValueError("runtime handoff requires an APK inspector")
+
+
 class RuntimePreparationVerificationError(ValueError):
     """Raised when a prepared handoff no longer matches live local state."""
 
@@ -175,16 +219,18 @@ class SealedInjectionSourceAuthority(SourceAuthority):
         self,
         admission: InjectionAdmission,
         packet: VerifierPacket,
+        catalog_path: str | Path,
     ) -> None:
         self._admission = admission
         self._packet = packet
+        self._catalog_path = Path(catalog_path)
 
     def resolve_host(
         self,
         spec: RunSpec,
         options: PlannedRunnerOptions,
         runner: CommandRunner,
-    ) -> dict[str, object]:
+    ) -> HostAuthority:
         admission = self._admission
         packet = self._packet
         if not isinstance(admission, InjectionAdmission) or admission.status != "sealed":
@@ -195,6 +241,51 @@ class SealedInjectionSourceAuthority(SourceAuthority):
         package = admission.package
         if receipt is None or receipt.worktree is None or package is None:
             raise ProductionSeamAdmissionError("sealed injection source is incomplete")
+        try:
+            catalog_path = self._catalog_path.resolve(strict=True)
+            catalog = load_curated_source_catalog(catalog_path)
+            entry = catalog.select(package.source_id)
+            declared_patch_path = catalog_path.parent.joinpath(
+                *PurePosixPath(entry.patch_path).parts
+            ).resolve(strict=True)
+            declared_patch_path.relative_to(catalog_path.parent)
+            packet_patch_path = Path(packet.patch_path).resolve(strict=True)
+        except (
+            CuratedCatalogError,
+            InjectionContractError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as error:
+            raise ProductionSeamAdmissionError(
+                "sealed injection catalog authority is unavailable"
+            ) from error
+        candidate = entry.candidate
+        if not all(
+            (
+                package.catalog_identity_sha256 == catalog.identity_sha256,
+                package.catalog_source_sha256 == catalog.catalog_source_sha256,
+                package.catalog_entry_identity_sha256 == entry.identity_sha256,
+                package.candidate_identity_sha256 == candidate.identity_sha256,
+                package.baseline_identity_sha256 == candidate.baseline.identity_sha256,
+                package.patch_identity_sha256 == candidate.source_delta.identity_sha256,
+                receipt.candidate_identity_sha256 == candidate.identity_sha256,
+                receipt.baseline_identity_sha256 == candidate.baseline.identity_sha256,
+                receipt.patch_identity_sha256 == candidate.source_delta.identity_sha256,
+                packet.source_origin == candidate.baseline.source_origin,
+                packet.source_commit == candidate.baseline.commit,
+                packet.baseline_source_tree_sha256
+                == candidate.baseline.source_tree_sha256,
+                packet.patch_format == candidate.source_delta.format,
+                packet.patch_text == candidate.source_delta.patch_text,
+                packet.patch_sha256 == candidate.source_delta.patch_sha256,
+                packet_patch_path == declared_patch_path,
+            )
+        ):
+            raise ProductionSeamAdmissionError(
+                "sealed injection catalog identity mismatch"
+            )
         try:
             receipt_path = Path(receipt.worktree.path).resolve(strict=True)
             packet_path = Path(packet.worktree_path).resolve(strict=True)
@@ -209,6 +300,7 @@ class SealedInjectionSourceAuthority(SourceAuthority):
         if (
             packet.receipt_identity_sha256 != receipt.receipt_identity_sha256
             or package.receipt_identity_sha256 != receipt.receipt_identity_sha256
+            or packet.packet_id != packet.canonical_packet_id
             or packet.materialized_source_tree_sha256
             != receipt.result_source_tree_sha256
             or packet.result_diff_sha256 != receipt.result_diff_sha256
@@ -217,17 +309,16 @@ class SealedInjectionSourceAuthority(SourceAuthority):
             != package.candidate_identity_sha256
         ):
             raise ProductionSeamAdmissionError("sealed injection identity mismatch")
-        if packet.patch_path:
-            try:
-                declared_patch = Path(packet.patch_path).resolve(strict=True).read_bytes()
-            except OSError as error:
-                raise ProductionSeamAdmissionError(
-                    "sealed injection packet material is unavailable"
-                ) from error
-            if declared_patch != packet.patch_text.encode("utf-8"):
-                raise ProductionSeamAdmissionError(
-                    "sealed injection packet material drifted"
-                )
+        try:
+            declared_patch = declared_patch_path.read_bytes()
+        except OSError as error:
+            raise ProductionSeamAdmissionError(
+                "sealed injection packet material is unavailable"
+            ) from error
+        if declared_patch != packet.patch_text.encode("utf-8"):
+            raise ProductionSeamAdmissionError(
+                "sealed injection packet material drifted"
+            )
         locator = spec.host_locator
         if locator is None:
             raise ProductionSeamAdmissionError(
@@ -261,29 +352,42 @@ class SealedInjectionSourceAuthority(SourceAuthority):
             raise ProductionSeamAdmissionError(
                 "sealed injection baseline source identity mismatch"
             )
-        authority = {
-            "kind": "sealed_injection",
-            "admission_identity_sha256": admission.identity_sha256,
-            "packet_identity_sha256": packet.identity_sha256,
-            "receipt_identity_sha256": receipt.receipt_identity_sha256,
-            "result_identity_sha256": receipt.result_identity_sha256,
-            "materialized_source_tree_sha256": inspection.source_tree_sha256,
-            "result_diff_sha256": inspection.result_diff_sha256,
-        }
-        authority["identity_sha256"] = _identity(authority)
-        return {
-            "repository_root": str(root),
-            "host_project": str(host_project),
-            "origin": origin,
-            "commit": commit,
-            "worktree": {
-                "clean": False,
-                "status_sha256": inspection.status_sha256,
-                "declared_injection": True,
-            },
-            "host_project_within_repository": False,
-            "source_authority": authority,
-        }
+        authority = SourceAuthorityBinding(
+            kind="sealed_injection",
+            claims=tuple(
+                sorted(
+                    {
+                        "admission_identity_sha256": admission.identity_sha256,
+                        "catalog_entry_identity_sha256": entry.identity_sha256,
+                        "catalog_identity_sha256": catalog.identity_sha256,
+                        "catalog_source_sha256": catalog.catalog_source_sha256,
+                        "candidate_identity_sha256": candidate.identity_sha256,
+                        "materialized_source_tree_sha256": inspection.source_tree_sha256,
+                        "patch_identity_sha256": candidate.source_delta.identity_sha256,
+                        "patch_sha256": candidate.source_delta.patch_sha256,
+                        "packet_identity_sha256": packet.identity_sha256,
+                        "receipt_identity_sha256": receipt.receipt_identity_sha256,
+                        "result_diff_sha256": inspection.result_diff_sha256,
+                        "result_identity_sha256": receipt.result_identity_sha256,
+                    }.items()
+                )
+            ),
+        )
+        return HostAuthority(
+            repository_root=str(root),
+            host_project=str(host_project),
+            origin=origin,
+            commit=commit,
+            worktree=HostWorktreeIdentity(
+                clean=False,
+                status_sha256=inspection.status_sha256,
+                source_tree_sha256=inspection.source_tree_sha256,
+                complete_tree_sha256=inspection.complete_tree_sha256,
+                declared_injection=True,
+            ),
+            host_project_within_repository=False,
+            source_authority=authority,
+        )
 
     @staticmethod
     def _git(runner: CommandRunner, workdir: Path, *arguments: str) -> str:
@@ -343,12 +447,19 @@ def _validate_recipe(recipe: RuntimeBuildRecipe, spec: RunSpec) -> str | None:
     argument_basenames = {Path(argument).name.lower() for argument in recipe.args}
     if argument_basenames & _PROHIBITED_EXECUTABLES:
         return "prohibited_build_command"
-    normalized_arguments = {argument.lower() for argument in recipe.args[1:]}
-    if any(
-        argument.startswith(("install", "connected", "device"))
-        or argument in {"adb", "android", "codex"}
-        for argument in normalized_arguments
-    ):
+    if Path(recipe.args[0]).name.lower() not in _GRADLE_EXECUTABLES:
+        return "prohibited_build_command"
+    for argument in recipe.args[1:]:
+        normalized = argument.lower()
+        if normalized.startswith("-"):
+            if normalized in _SAFE_GRADLE_FLAGS or normalized.startswith(
+                _SAFE_GRADLE_FLAG_PREFIXES
+            ):
+                continue
+            return "prohibited_build_command"
+        task_name = normalized.rsplit(":", 1)[-1]
+        if task_name == "clean" or task_name.startswith("assemble"):
+            continue
         return "prohibited_build_command"
     return None
 
@@ -394,6 +505,82 @@ def _locate_apk(host: Path, locator: str) -> tuple[Path | None, str | None]:
     if len(ordered) != 1:
         return None, "apk_ambiguous"
     return ordered[0], None
+
+
+def _host_receipt(receipt: Mapping[str, object]) -> dict[str, object] | None:
+    host = receipt.get("host")
+    return dict(host) if isinstance(host, Mapping) else None
+
+
+def _worktree_receipt(host: Mapping[str, object]) -> dict[str, object] | None:
+    worktree = host.get("worktree")
+    return dict(worktree) if isinstance(worktree, Mapping) else None
+
+
+def _pristine_build_source(host: Mapping[str, object]) -> bool:
+    worktree = _worktree_receipt(host)
+    return bool(
+        worktree
+        and worktree.get("source_tree_sha256")
+        == worktree.get("complete_tree_sha256")
+    )
+
+
+def _host_without_build_outputs(host: Mapping[str, object]) -> dict[str, object]:
+    stable = dict(host)
+    worktree = _worktree_receipt(host)
+    if worktree is not None:
+        worktree.pop("complete_tree_sha256", None)
+        stable["worktree"] = worktree
+    return stable
+
+
+def _re_admit_built_source(
+    initial: Mapping[str, object],
+    *,
+    spec: RunSpec,
+    options: PlannedRunnerOptions,
+    source_authority: SourceAuthority,
+    command_runner: CommandRunner | None,
+):
+    """Re-admit unchanged source while allowing newly bound build outputs."""
+    current = admit_production_seam(
+        spec,
+        options,
+        command_runner=command_runner,
+        source_authority=source_authority,
+    )
+    current.require_admitted()
+    initial_host = _host_receipt(initial)
+    current_host = _host_receipt(current.receipt)
+    if initial_host is None or current_host is None:
+        raise ProductionSeamAdmissionError("source host identity is unavailable")
+    initial_context = dict(initial)
+    current_context = dict(current.receipt)
+    initial_context.pop("host", None)
+    current_context.pop("host", None)
+    if initial_context != current_context or _host_without_build_outputs(
+        initial_host
+    ) != _host_without_build_outputs(current_host):
+        raise ProductionSeamAdmissionError("source identity changed during build")
+    return current
+
+
+def _apk_unchanged(
+    host: Path,
+    locator: str,
+    expected_path: Path,
+    expected_bytes: bytes,
+) -> bool:
+    try:
+        observed_path, rejection = _locate_apk(host, locator)
+        return (
+            rejection is None
+            and observed_path == expected_path
+            and observed_path.read_bytes() == expected_bytes
+        )
+    except (OSError, RuntimeError, ValueError):
+        return False
 
 
 def prepare_runtime_case(
@@ -442,6 +629,11 @@ def prepare_runtime_case(
             if isinstance(host_check, dict) and host_check.get("status") == "failed"
             else "production_admission_rejected"
         )
+    initial_host_receipt = _host_receipt(admission.receipt)
+    if initial_host_receipt is None or not _pristine_build_source(
+        initial_host_receipt
+    ):
+        return _rejected("source_worktree_not_pristine")
 
     host = Path(spec.host_project).resolve()
     try:
@@ -496,16 +688,30 @@ def prepare_runtime_case(
         return _rejected("apk_package_mismatch")
     if metadata.launcher_activity != spec.activity:
         return _rejected("apk_activity_mismatch")
+    if not _apk_unchanged(
+        host,
+        build_recipe.apk_glob,
+        apk_path,
+        apk_bytes,
+    ):
+        return _rejected("apk_drift_during_inspection")
     try:
-        post_build_admission = verify_admitted_receipt(
-            admission,
-            spec,
-            options,
-            command_runner=admission_command_runner,
+        post_build_admission = _re_admit_built_source(
+            admission.receipt,
+            spec=spec,
+            options=options,
             source_authority=source_authority,
+            command_runner=admission_command_runner,
         )
     except (OSError, ProductionSeamAdmissionError, RuntimeError, TypeError, ValueError):
         return _rejected("post_build_source_drift")
+    if not _apk_unchanged(
+        host,
+        build_recipe.apk_glob,
+        apk_path,
+        apk_bytes,
+    ):
+        return _rejected("apk_drift_during_inspection")
 
     assert spec.source_path is not None
     try:
@@ -529,16 +735,16 @@ def prepare_runtime_case(
         },
     }
     build_identity["identity_sha256"] = _identity(build_identity)
-    host_receipt = admission.receipt["host"]
-    post_build_host_receipt = post_build_admission.receipt["host"]
-    assert isinstance(host_receipt, dict)
-    assert isinstance(post_build_host_receipt, dict)
-    source_identity = {
+    host_receipt = _host_receipt(admission.receipt)
+    post_build_host_receipt = _host_receipt(post_build_admission.receipt)
+    assert host_receipt is not None
+    assert post_build_host_receipt is not None
+    source_identity: dict[str, object] = {
         "authority_kind": type(source_authority).__name__,
-        "identity_sha256": _identity(host_receipt),
         "before": host_receipt,
         "after": post_build_host_receipt,
     }
+    source_identity["identity_sha256"] = _identity(source_identity)
     document: dict[str, object] = {
         "schema_version": RUNTIME_PREPARATION_SCHEMA_VERSION,
         "status": "prepared",
@@ -674,12 +880,16 @@ def verify_runtime_preparation_receipt(
         )
     source = document.get("source")
     host = admission.get("host")
+    source_body = dict(source) if isinstance(source, dict) else {}
+    source_identity = source_body.pop("identity_sha256", None)
+    source_after = source_body.get("after")
     if (
         not isinstance(source, dict)
         or not isinstance(host, dict)
-        or source.get("before") != host
-        or source.get("after") != host
-        or source.get("identity_sha256") != _identity(host)
+        or source_body.get("authority_kind") != type(source_authority).__name__
+        or source_body.get("before") != host
+        or not isinstance(source_after, dict)
+        or source_identity != _identity(source_body)
     ):
         raise RuntimePreparationVerificationError(
             "runtime preparation source receipt drifted"
@@ -803,13 +1013,22 @@ def verify_runtime_preparation_receipt(
         raise RuntimePreparationVerificationError(
             "runtime preparation APK manifest drifted"
         )
+    if not _apk_unchanged(
+        host_path,
+        spec.apk_glob,
+        apk_path,
+        apk_bytes,
+    ):
+        raise RuntimePreparationVerificationError(
+            "runtime preparation APK bytes drifted"
+        )
     try:
-        verify_admitted_receipt(
+        current_admission = _re_admit_built_source(
             admission,
-            spec,
-            options,
-            command_runner=command_runner,
+            spec=spec,
+            options=options,
             source_authority=source_authority,
+            command_runner=command_runner,
         )
     except (
         OSError,
@@ -821,6 +1040,20 @@ def verify_runtime_preparation_receipt(
         raise RuntimePreparationVerificationError(
             "runtime preparation source or runner policy drifted"
         ) from error
+    current_host = _host_receipt(current_admission.receipt)
+    if current_host != source_after:
+        raise RuntimePreparationVerificationError(
+            "runtime preparation source or runner policy drifted"
+        )
+    if not _apk_unchanged(
+        host_path,
+        spec.apk_glob,
+        apk_path,
+        apk_bytes,
+    ):
+        raise RuntimePreparationVerificationError(
+            "runtime preparation APK bytes drifted"
+        )
 
 
 __all__ = [
@@ -830,6 +1063,7 @@ __all__ = [
     "ApkMetadata",
     "CleanCheckoutSourceAuthority",
     "RuntimeBuildRecipe",
+    "RuntimePreparationHandoff",
     "RuntimePreparationReceipt",
     "RuntimePreparationVerificationError",
     "SealedInjectionSourceAuthority",

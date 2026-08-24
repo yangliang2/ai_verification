@@ -13,8 +13,10 @@ implemented as a non-formal DIL-M1 vertical slice. One public preparation
 interface admits either a clean checkout or a sealed injected worktree, runs a
 shell-free build vector only after admission, verifies exactly one APK, and
 returns an immutable checksum-bound prepared/rejected receipt. The public runner
-re-verifies the source, Run Spec, runner options, receipt, build executable, APK
-set/bytes, and manifest before it establishes an `ExecutionRecord`.
+consumes one mutually exclusive `RuntimePreparationHandoff` and re-verifies the
+source, complete build-visible worktree, Run Spec, runner options, receipt,
+build executable, APK set/bytes, and manifest before it establishes an
+`ExecutionRecord`.
 
 This evidence proves local source/build preparation only. It does not prove a
 real Android build, install, launch, device behavior, defect/control pair,
@@ -31,15 +33,20 @@ performance.
 Acceptance criteria are implemented by:
 
 - `src/aiverify/runtime_preparation.py`: `RuntimeBuildRecipe`, both source
-  authority adapters, local APK inspection, immutable preparation receipts,
+  authority adapters, checked-in catalog rebinding, safe Gradle task admission,
+  local APK inspection, immutable preparation receipts and handoffs,
   `prepare_runtime_case()`, and pre-run receipt verification;
-- `src/aiverify/runner/admission.py`: the `SourceAuthority` seam and unchanged
-  default clean-checkout adapter;
+- `src/aiverify/runner/admission.py`: structured immutable host/source authority
+  values, the `SourceAuthority` seam, complete worktree identity, and a
+  pristine-only compatibility path for legacy clean receipts;
 - `src/aiverify/injection/materialization.py`: read-only reinspection of the
-  exact tracked materialized tree, canonical staged diff, ownership marker, and
-  untracked-source boundary while ignoring declared Git-ignored build output;
-- `src/aiverify/runner/cli.py`: optional prepared handoff verification before
-  `ExecutionRecordStore.establish()`;
+  exact tracked materialized tree, complete build-visible tree including
+  Git-ignored paths, canonical staged diff, ownership marker, and untracked
+  source boundary;
+- `src/aiverify/injection/packets.py`: public canonical ChangeTarget packet-ID
+  derivation used by the sealed authority;
+- `src/aiverify/runner/cli.py`: mutually exclusive prepared handoff verification
+  before `ExecutionRecordStore.establish()`;
 - `tests/test_runtime_preparation.py`: temporary-Git and local-substitute public
   contract matrix.
 
@@ -53,8 +60,8 @@ All commands ran from `/Users/peter/projects/ai_verfication`.
 PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -q tests/test_runtime_preparation.py --junitxml=docs/runs/2026-08-23-issue-197-runtime-source-preparation/verification/contract-pytest.xml
 ```
 
-Result: 47 passed, 0 failed, 0 skipped; pytest time 15.40s, wall time
-15.49s.
+Result: 60 passed, 0 failed, 0 skipped; pytest time 23.72s, wall time
+23.88s.
 
 ### Injection Lab and runner focused regression
 
@@ -62,8 +69,8 @@ Result: 47 passed, 0 failed, 0 skipped; pytest time 15.40s, wall time
 PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -q tests/injection tests/runner tests/test_runtime_preparation.py --junitxml=docs/runs/2026-08-23-issue-197-runtime-source-preparation/verification/focused-pytest.xml
 ```
 
-Result: 462 passed, 0 failed, 0 skipped; pytest time 95.19s, wall time
-95.28s.
+Result: 475 passed, 0 failed, 0 skipped; pytest time 122.53s, wall time
+122.66s.
 
 ### Full repository regression
 
@@ -71,8 +78,8 @@ Result: 462 passed, 0 failed, 0 skipped; pytest time 95.19s, wall time
 PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -qq --junitxml=docs/runs/2026-08-23-issue-197-runtime-source-preparation/verification/full-pytest.xml
 ```
 
-Result: 1,280 collected; 1,279 passed, 0 failed, 1 skipped; pytest time
-144.10s, wall time 144.38s. The sole skip is the pre-existing
+Result: 1,293 collected; 1,292 passed, 0 failed, 1 skipped; JUnit suite time
+304.162s, wall time 304.47s. The sole skip is the pre-existing
 `test_frozen_target_specific_mismatch_is_side_effect_free`, which requires the
 explicit `--run-external-fixtures` admission flag.
 
@@ -81,10 +88,11 @@ explicit `--run-external-fixtures` admission flag.
 ```sh
 PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/python -m compileall -q src tests/test_runtime_preparation.py
 git diff --check
-shasum -a 256 -c docs/runs/2026-08-23-issue-197-runtime-source-preparation/checksums.sha256
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m aiverify.bench.run_record_checksums docs/runs/2026-08-23-issue-197-runtime-source-preparation
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m aiverify.bench.run_record_checksums docs/runs/2026-08-23-issue-197-runtime-source-preparation --verify
 ```
 
-Results: all exited 0. `compileall` wall time was 0.03s. The checksum command is
+Results: all exited 0. `compileall` wall time was 0.09s. The checksum command is
 run after the final evidence inventory is generated.
 
 ## Contract coverage
@@ -93,18 +101,24 @@ The public test matrix covers:
 
 - clean and sealed-injection successful preparation;
 - path, origin, baseline commit, result tree, result diff, receipt identity,
-  tracked source, packet material, and ownership-marker drift;
-- unsealed and fabricated injection authorities plus ordinary dirty checkout;
+  tracked source, canonical packet identity, packet material, checked-in catalog,
+  and ownership-marker drift;
+- unsealed and fabricated injection authorities, self-consistent replacement
+  packets, ordinary dirty checkout, and pre-existing Git-ignored inputs;
 - admission-before-build ordering and admission runners restricted to read-only
   Git identity calls;
-- direct and `env`-nested shell, Android CLI, adb, emulator, install task,
-  connected-device task, and Codex command rejection;
+- explicit Gradle `assemble*`/`clean` plus safe-flag admission, and rejection of
+  direct or `env`-nested shell, Android CLI, adb, emulator, full or abbreviated
+  install/connected-device tasks, and Codex commands;
 - build executable absence, exact argv contradiction, failure, timeout, and
   post-build source drift;
 - missing, duplicate, aliased, outside-host, byte-drifted, package-mismatched,
   activity-mismatched, and uninspectable APKs;
-- Run Spec, runner option, source, receipt, APK set/bytes, and manifest drift at
-  runner handoff;
+- Run Spec, runner option, tracked or ignored source, receipt, APK set/bytes, and
+  manifest drift at runner handoff, including APK mutation inside the inspector
+  or final source-authority check;
+- pristine legacy clean-receipt compatibility, ignored-byte rejection, and
+  contradictory admission/preparation handoff rejection;
 - immutable receipt exposure and a shell-free production `aapt2 dump badging`
   adapter.
 
@@ -116,9 +130,11 @@ real APK/application identifier is claimed by this run.
 
 ## Artifact inventory
 
-- `verification/contract-pytest.xml`: 47-case public contract JUnit receipt.
+- `verification/contract-pytest.xml`: 60-case public contract JUnit receipt.
 - `verification/focused-pytest.xml`: Injection Lab/runner focused JUnit receipt.
 - `verification/full-pytest.xml`: full repository JUnit receipt.
+- `code-review.md`: Standards and Spec findings, remediations, and final clean
+  review results.
 - `verification.json`: machine-readable commands, counts, timings, and claim
   boundary.
 - `tool-versions.txt`: host and verification tool versions.
@@ -131,8 +147,6 @@ evidence exists because device/runtime work is explicitly outside this issue.
 
 - The production `AaptApkInspector` is contract-tested with a local command
   substitute; no real Android build-tools invocation occurs in this run.
-- Git-ignored build output is deliberately outside source identity, while every
-  tracked byte and non-ignored untracked path remains fail-closed.
 - Cleanup of a built Injection Lab worktree remains under auditor ownership;
   this slice does not add a cleanup orchestrator or delete build output.
 - The runner has an optional programmatic preparation handoff but no new public
