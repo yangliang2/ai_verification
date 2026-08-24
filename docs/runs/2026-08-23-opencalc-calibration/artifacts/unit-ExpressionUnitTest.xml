@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.darkempire78.opencalculator.ExpressionUnitTest" tests="14" skipped="0" failures="1" errors="0" timestamp="2026-08-23T17:24:19" hostname="Peters-Mac-mini.local" time="0.031">
+  <properties/>
+  <testcase name="log2_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.01"/>
+  <testcase name="pow_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.001"/>
+  <testcase name="factorial_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.001"/>
+  <testcase name="subtraction_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.0"/>
+  <testcase name="number_factorial_equal_decimal_factorial" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.001"/>
+  <testcase name="factorial_percent_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.002"/>
+  <testcase name="division_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.0"/>
+  <testcase name="percentage_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.001"/>
+  <testcase name="decimal_factorial_shows_correct_result" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.0"/>
+  <testcase name="factorial_square_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.005"/>
+  <testcase name="addition_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.001"/>
+  <testcase name="trigonometric_functions_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.006">
+    <failure message="java.lang.AssertionError: expected:&lt;0.8660254037844387&gt; but was:&lt;0.8660254037844388&gt;" type="java.lang.AssertionError">java.lang.AssertionError: expected:&lt;0.8660254037844387&gt; but was:&lt;0.8660254037844388&gt;
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:555)
+	at org.junit.Assert.assertEquals(Assert.java:685)
+	at com.darkempire78.opencalculator.ExpressionUnitTest.trigonometric_functions_isCorrect(ExpressionUnitTest.kt:256)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:112)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:40)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:54)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:53)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:92)
+	at jdk.proxy1/jdk.proxy1.$Proxy4.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:183)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:132)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:121)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:71)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+</failure>
+  </testcase>
+  <testcase name="sqrt_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.002"/>
+  <testcase name="nested_factorial_isCorrect" classname="com.darkempire78.opencalculator.ExpressionUnitTest" time="0.0"/>
+  <system-out><![CDATA[Equation BigDecimal : logtwo(8)
+8
+Equation BigDecimal : logtwo(5)+5*logten(5)
+5
+5
+Equation BigDecimal : 4^3
+Equation BigDecimal : 5^-5
+Equation BigDecimal : 2^3.5
+Equation BigDecimal : 2^-3.5
+Equation BigDecimal : 0^2
+Equation BigDecimal : 2^(2+1)
+Equation BigDecimal : factorial(0)
+0
+Equation BigDecimal : factorial(5)
+5
+Equation BigDecimal : factorial(10)
+10
+Equation BigDecimal : factorial(5)+factorial(5)
+5
+5
+Equation BigDecimal : factorial(factorial(3))+factorial(factorial(3))
+3
+6
+3
+6
+Equation BigDecimal : factorial(factorial(3))/factorial(factorial(3))
+3
+6
+3
+6
+Equation BigDecimal : 1-1
+Equation BigDecimal : 1-1-1
+Equation BigDecimal : factorial(59)
+59
+Equation BigDecimal : factorial(59.0)
+59.0
+Equation BigDecimal : factorial(100)
+100
+Equation BigDecimal : factorial(100.0)
+100.0
+Equation BigDecimal : factorial(3004)
+3004
+Equation BigDecimal : factorial(3004.0)
+3004.0
+Equation BigDecimal : ((factorial(5))/100)
+5
+Equation BigDecimal : (((factorial(5))/100))+(((factorial(5))/100))
+5
+5
+Equation BigDecimal : ((factorial(5))/100)+((factorial(5))/100)*((factorial(5))/100)
+5
+5
+5
+Equation BigDecimal : 0.5/0.01
+Equation BigDecimal : 7/2
+Equation BigDecimal : 100*(95/100)
+Equation BigDecimal : (10*10)*(95/100)
+Equation BigDecimal : 100*(100/100)
+Equation BigDecimal : 100*100/100*(100/100)
+Equation BigDecimal : (100/100)*10
+Equation BigDecimal : (10/100)*(10/100)
+Equation BigDecimal : 900/(10/100)
+Equation BigDecimal : (5+4)/100
+Equation BigDecimal : 5+5*(4/100)
+Equation BigDecimal : (5+4)/100
+Equation BigDecimal : (50+2)+(50+2)*(3/100)
+Equation BigDecimal : 52+52*((1+2)/100)
+Equation BigDecimal : (50+2)+(50+2)*((1+2)/100)
+Equation BigDecimal : 164+(265-265*(20/100))
+Equation BigDecimal : (265-265*(20/100))+164
+Equation BigDecimal : 164+164*((265-265*(20/100))/100)
+Equation BigDecimal : (164+164*((265-265*(20/100))/100))+(164+164*((265-265*(20/100))/100))*(345/100)
+Equation BigDecimal : (164/100)+(164/100)*((265-265*(20/100))/100)+(164/100)+(164/100)*((265-265*(20/100))/100)*(345/100)
+Equation BigDecimal : factorial(5.003)
+5.003
+Equation BigDecimal : factorial(3.01)
+3.01
+Equation BigDecimal : factorial(7.08)
+7.08
+Equation BigDecimal : factorial(sqrt(16))
+16
+4.000000000000000000000000000000000000000000000000000
+Equation BigDecimal : factorial(sqrt(16))+factorial(sqrt(16))
+16
+4.000000000000000000000000000000000000000000000000000
+16
+4.000000000000000000000000000000000000000000000000000
+Equation BigDecimal : factorial(sqrt(16))+factorial(sqrt(16))+factorial(sqrt(16))
+16
+4.000000000000000000000000000000000000000000000000000
+16
+4.000000000000000000000000000000000000000000000000000
+16
+4.000000000000000000000000000000000000000000000000000
+Equation BigDecimal : 1+1
+Equation BigDecimal : (1+1)+1
+Equation BigDecimal : cos(0)
+0
+Equation BigDecimal : 1*cos(0)
+0
+Equation BigDecimal : 1+cos(0)
+0
+Equation BigDecimal : 1-cos(0)
+0
+Equation BigDecimal : 2^cos(0)
+0
+Equation BigDecimal : (cos(0))
+0
+Equation BigDecimal : cos(2)
+2
+Equation BigDecimal : tan(π/2)
+1.5707963267948965579989817342720925807952880859375
+Equation BigDecimal : tan(45)
+45
+Equation BigDecimal : sin(220)
+220
+Equation BigDecimal : sin(factorial(5))
+5
+120
+Equation BigDecimal : sqrt(2)^2
+2
+Equation BigDecimal : sqrt(9)
+9
+Equation BigDecimal : sqrt(0.00)
+0.00
+Equation BigDecimal : sqrt(0.0)
+0.0
+Equation BigDecimal : factorial(factorial(3))
+3
+6
+Equation BigDecimal : factorial(factorial(2))
+2
+2
+Equation BigDecimal : factorial(factorial(1))
+1
+1
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
