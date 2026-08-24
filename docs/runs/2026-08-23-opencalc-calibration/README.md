@@ -2,11 +2,11 @@
 
 Date: 2026-08-23 (America/New_York)
 
-Status: **BRANCH EVIDENCE, NOT PUSHED**. This record and its artifacts are
-committed together in the containing branch change, but they are not durable
-GitHub evidence until that commit is pushed. No GitHub issue or PR was open for
-this exploratory calibration, and this run does not authorize a formal
-population, a holdout release, or a Verification Agent capability claim.
+Status: **DURABLE REPOSITORY EVIDENCE**. This record and its artifacts were
+committed in `0719a05` and published to the GitHub repository on 2026-08-24.
+No standalone issue was opened for this exploratory calibration; publishing it
+with the #197 branch does not authorize a formal population, a holdout release,
+or a Verification Agent capability claim.
 
 ## Outcome
 
@@ -157,10 +157,14 @@ three result layout JSON files are byte-identical to each other. Error-level
 logcat filtered to the app PID was empty in every controlled cycle.
 
 An earlier zero-delay pilot produced `15` because the final operand tap was not
-accepted before `=`. Its two screenshots remain in the artifact set as negative
-cadence evidence and are not counted in the 3/3 result. The controlled initial
-and result screenshots were visually inspected; the initial display was empty
-and the result display showed `46`.
+accepted before `=`. Its two screenshots remain in the artifact set as
+illustrative observations and are not counted in the 3/3 result. The screenshot
+capture commands were not retained in this record and cannot be reconstructed
+from the committed evidence. Because this run names `emulator-5554`, ADR-0001
+requires serial-scoped `screencap`, `pull`, and remote `rm` commands for device
+attribution. The five PNGs therefore are not accountable, device-attributed
+evidence, and no conclusion relies on them. The 3/3 result is supported by the
+device-selected layout JSON and serial-scoped reset/start/input observations.
 
 Final local/device APK lineage was checked with:
 
@@ -179,16 +183,25 @@ and the expected launcher resolved.
 
 - `artifacts/controlled-cycle-{1,2,3}-initial.json`: post-reset layout trees;
 - `artifacts/controlled-cycle-{1,2,3}-result.json`: result layout trees;
-- `artifacts/controlled-cycle-{1,2,3}-result.png`: visually inspected result
-  screenshots (cycle 1 inspected directly; cycles 2/3 retained for audit);
+- `artifacts/controlled-cycle-{1,2,3}-result.png`: illustrative screenshot
+  files excluded from accountable device-attributed evidence;
 - `artifacts/cycle-1-initial.png` and `artifacts/cycle-1-result.png`: the
-  zero-delay pilot's empty/incorrect-result screenshots;
+  zero-delay pilot's illustrative screenshot files, also excluded from
+  accountable device-attributed evidence;
 - `artifacts/unit-*.xml`: upstream unit-test receipts;
 - `artifacts/instrumentation-full-suite.{xml,textproto}`: the 4-test failing
   upstream instrumentation receipt;
 - `artifacts/instrumentation-main-activity.{xml,textproto}`: the filtered 3/3
   lifecycle receipt;
 - `artifacts/SHA256SUMS`: checksums for every other artifact.
+
+The two upstream instrumentation XML receipts are preserved byte-for-byte with
+their generated CRLF or mixed line endings and remain bound by `SHA256SUMS`.
+Consequently a branch-wide `git diff --check origin/main...HEAD` reports line-end
+whitespace for exactly those two raw artifacts. They are an explicit raw-evidence
+exception and must not be normalized without also changing their provenance and
+checksums; the same check excluding those exact files covers the rest of the
+branch.
 
 The reproducible APK is intentionally not copied into this exploratory repo
 record; its absolute local path, size, source recipe, and checksum are recorded
@@ -233,5 +246,5 @@ and ExecutionRecord lifecycle.
 - OpenCalc remains calibration-only and must not be promoted into the external
   holdout denominator. Catima was not cloned, built, or exposed to runtime
   debugging in this calibration.
-- Because the containing branch is not pushed, this committed record must not
-  yet be cited as durable GitHub evidence.
+- The five PNGs have no retained ADR-0001 serial-scoped capture-command receipt;
+  they are illustrative artifacts rather than accountable screenshot evidence.

@@ -183,7 +183,8 @@ Gallery 只作为权限和 MediaStore 成本更高的储备。
   才稳定；上游 unit suite 为 35/36，通过 debug suffix 修正语义后的 lifecycle
   instrumentation slice 为 3/3。证据当前位于
   [`docs/runs/2026-08-23-opencalc-calibration/`](../runs/2026-08-23-opencalc-calibration/README.md)，
-  但尚未 commit，只能称为本地校准证据。这不改变 OpenCalc 的 calibration-only 角色。
+  已在 `0719a05` 提交并发布到 GitHub；它仍只构成有界校准证据，不改变 OpenCalc 的
+  calibration-only 角色。
 
 ## 淘汰或延期摘要
 
