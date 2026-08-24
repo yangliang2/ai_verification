@@ -2,9 +2,9 @@
 
 Date: 2026-08-23 (America/New_York)
 
-Status: **branch evidence, not pushed**. This record is committed with the
-implementation it verifies, but it is not durable GitHub evidence until the
-branch commits are pushed.
+Status: **durable branch evidence**. This record and the implementation it
+verifies were published on 2026-08-24 to
+[`issue-197-runtime-source-preparation`](https://github.com/yangliang2/ai_verification/tree/issue-197-runtime-source-preparation).
 
 ## Outcome
 
