@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "document_kind": "runtime_calibration_contract_schema",
+  "contract_kind": "claim_boundary",
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "OpenCalc Runtime Calibration claim boundary",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "document_kind", "family_id", "family_version"],
+    "properties": {
+      "schema_version": {"const": 1},
+      "document_kind": {"const": "runtime_calibration_claim_boundary"},
+      "family_id": {"const": "opencalc-runtime-calibration-v1"},
+      "family_version": {"const": "v1"}
+    }
+  }
+}

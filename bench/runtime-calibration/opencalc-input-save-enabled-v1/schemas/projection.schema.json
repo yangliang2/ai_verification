@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "document_kind": "runtime_calibration_contract_schema",
+  "contract_kind": "projection",
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "OpenCalc blind runtime projection",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "document_kind", "family_id", "family_version"],
+    "properties": {
+      "schema_version": {"const": 1},
+      "document_kind": {"const": "blind_runtime_projection"},
+      "family_id": {"const": "opencalc-runtime-calibration-v1"},
+      "family_version": {"const": "v1"}
+    }
+  }
+}

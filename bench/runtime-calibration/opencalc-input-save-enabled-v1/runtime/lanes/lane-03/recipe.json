@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "document_kind": "runtime_build_recipe",
+  "family_id": "opencalc-runtime-calibration-v1",
+  "family_version": "v1",
+  "lane_id": "ocrc-v1-lane-03",
+  "recipe_id": "ocrc-v1-lane-03-build-recipe",
+  "command": ["./gradlew", "--offline", "--no-daemon", "--no-build-cache", "--no-configuration-cache", "--max-workers=1", "--console=plain", "clean", ":app:assembleDebug"],
+  "timeout_seconds": 900,
+  "output_relative_path": "build/app-debug.apk",
+  "environment_policy": {
+    "mode": "private_allowlist",
+    "dependency_resolution": "offline",
+    "network_claim": "none",
+    "retry": false
+  },
+  "claim_boundary_ref": "claim-boundary.json"
+}

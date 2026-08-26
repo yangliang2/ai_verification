@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "document_kind": "deterministic_driver_plan",
+  "family_id": "opencalc-runtime-calibration-v1",
+  "family_version": "v1",
+  "lane_id": "ocrc-v1-lane-01",
+  "plan_id": "ocrc-v1-lane-01-driver-plan",
+  "run_spec_path": "runtime/lanes/lane-01/run-spec.yaml",
+  "run_spec_sha256": "3b2d64fead2145062c746e1526f7da2f6d86aa18932322b6857173fd8b19600c",
+  "actions": [
+    {"action_id": "action-01", "kind": "wait_for_resource_id", "resource_id": "oneButton", "timeout_ms": 5000, "observation_interval_ms": 350, "settle_ms": 0},
+    {"action_id": "action-02", "kind": "tap_resource_id", "resource_id": "oneButton", "timeout_ms": 0, "observation_interval_ms": 0, "settle_ms": 350},
+    {"action_id": "action-03", "kind": "tap_resource_id", "resource_id": "twoButton", "timeout_ms": 0, "observation_interval_ms": 0, "settle_ms": 350},
+    {"action_id": "action-04", "kind": "tap_resource_id", "resource_id": "addButton", "timeout_ms": 0, "observation_interval_ms": 0, "settle_ms": 350},
+    {"action_id": "action-05", "kind": "tap_resource_id", "resource_id": "threeButton", "timeout_ms": 0, "observation_interval_ms": 0, "settle_ms": 350},
+    {"action_id": "action-06", "kind": "tap_resource_id", "resource_id": "fourButton", "timeout_ms": 0, "observation_interval_ms": 0, "settle_ms": 350}
+  ]
+}

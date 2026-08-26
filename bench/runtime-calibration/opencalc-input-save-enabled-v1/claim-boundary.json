@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "document_kind": "runtime_calibration_claim_boundary",
+  "family_id": "opencalc-runtime-calibration-v1",
+  "family_version": "v1",
+  "claim_boundary_id": "candidate_source_of_truth_only",
+  "family_kind": "Runtime Calibration Family",
+  "local_only": true,
+  "model_free": true,
+  "allowed_terminal_states": [
+    "expected_split_observed",
+    "unexpected_runtime_result",
+    "not_calibrated"
+  ],
+  "exclusions": [
+    "Qualification Cohort or benchmark denominator",
+    "Verification Agent capability or detection rate",
+    "L3, model adjudication, or Finding",
+    "upstream acceptance or general Android coverage"
+  ],
+  "scope": "Only the frozen OpenCalc source, four opaque lane commitments, and later production-seam evidence may be interpreted."
+}
