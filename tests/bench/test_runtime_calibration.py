@@ -161,6 +161,115 @@ def test_verify_candidate_rejects_rebound_schema_contract(tmp_path: Path) -> Non
     assert _terminal(output_root)["reason"] == "candidate_schema_contract_mismatch"
 
 
+def test_verify_candidate_rejects_rebound_nested_schema_contract(
+    tmp_path: Path,
+) -> None:
+    candidate = _copy_candidate(tmp_path)
+    path = candidate / "schemas" / "claim_boundary.schema.json"
+    document = json.loads(path.read_text())
+    document["json_schema"]["properties"]["scope"]["const"] = "different V1 scope"
+    path.write_text(json.dumps(document, indent=2) + "\n")
+    _rebind_manifest(candidate)
+
+    output_root = tmp_path / "verification"
+    result = _run_cli(output_root, candidate)
+
+    assert result.returncode == 1
+    assert _terminal(output_root)["reason"] == "candidate_schema_contract_mismatch"
+
+
+def test_verify_candidate_rejects_kind_path_rebinding_after_manifest_rebind(
+    tmp_path: Path,
+) -> None:
+    candidate = _copy_candidate(tmp_path)
+    path = candidate / "candidate-manifest.json"
+    document = json.loads(path.read_text())
+    document["artifacts"][0]["path"], document["artifacts"][1]["path"] = (
+        document["artifacts"][1]["path"],
+        document["artifacts"][0]["path"],
+    )
+    path.write_text(json.dumps(document, indent=2) + "\n")
+    _rebind_manifest(candidate)
+
+    output_root = tmp_path / "verification"
+    result = _run_cli(output_root, candidate)
+
+    assert result.returncode == 1
+    assert _terminal(output_root)["reason"] == "candidate_artifact_set_mismatch"
+
+
+def test_verify_candidate_rejects_unknown_source_pair_field_after_rebinding(
+    tmp_path: Path,
+) -> None:
+    candidate = _copy_candidate(tmp_path)
+    path = candidate / "source-pair.json"
+    document = json.loads(path.read_text())
+    document["unexpected"] = "not part of V1"
+    path.write_text(json.dumps(document, indent=2) + "\n")
+    _rebind_manifest(candidate)
+
+    output_root = tmp_path / "verification"
+    result = _run_cli(output_root, candidate)
+
+    assert result.returncode == 1
+    assert _terminal(output_root)["reason"] == "candidate_unknown_field"
+
+
+def test_verify_candidate_rejects_extra_matched_pair_hunk_after_rebinding(
+    tmp_path: Path,
+) -> None:
+    candidate = _copy_candidate(tmp_path)
+    path = candidate / "source-pair.json"
+    document = json.loads(path.read_text())
+    for variant in document["variants"]:
+        variant["patch_text"] += "diff --git a/extra b/extra\n"
+        variant["patch_sha256"] = hashlib.sha256(
+            variant["patch_text"].encode()
+        ).hexdigest()
+    path.write_text(json.dumps(document, indent=2) + "\n")
+    _rebind_manifest(candidate)
+
+    output_root = tmp_path / "verification"
+    result = _run_cli(output_root, candidate)
+
+    assert result.returncode == 1
+    assert _terminal(output_root)["reason"] == "candidate_patch_context_mismatch"
+
+
+def test_verify_candidate_rejects_rebound_claim_boundary_semantics(
+    tmp_path: Path,
+) -> None:
+    candidate = _copy_candidate(tmp_path)
+    path = candidate / "claim-boundary.json"
+    document = json.loads(path.read_text())
+    document["exclusions"][0] = "different V1 exclusion"
+    path.write_text(json.dumps(document, indent=2) + "\n")
+    _rebind_manifest(candidate)
+
+    output_root = tmp_path / "verification"
+    result = _run_cli(output_root, candidate)
+
+    assert result.returncode == 1
+    assert _terminal(output_root)["reason"] == "candidate_claim_boundary_mismatch"
+
+
+def test_verify_candidate_rejects_reused_v1_contract_id_after_rebinding(
+    tmp_path: Path,
+) -> None:
+    candidate = _copy_candidate(tmp_path)
+    path = candidate / "family-manifest.json"
+    document = json.loads(path.read_text())
+    document["preparation_contract_id"] = "different-preparation-v1"
+    path.write_text(json.dumps(document, indent=2) + "\n")
+    _rebind_manifest(candidate)
+
+    output_root = tmp_path / "verification"
+    result = _run_cli(output_root, candidate)
+
+    assert result.returncode == 1
+    assert _terminal(output_root)["reason"] == "candidate_input_version_mismatch"
+
+
 def test_verify_candidate_rejects_contradictory_family_state(tmp_path: Path) -> None:
     candidate = _copy_candidate(tmp_path)
     path = candidate / "candidate-manifest.json"
@@ -276,6 +385,26 @@ def test_terminal_receipt_rejects_semantically_rebound_tampering(tmp_path: Path)
     terminal_path = output_root / "stage-terminal.json"
     terminal = json.loads(terminal_path.read_text())
     terminal["artifact_count"] = 0
+    terminal["terminal_identity_sha256"] = runtime_calibration.canonical_sha256(
+        {key: value for key, value in terminal.items() if key != "terminal_identity_sha256"}
+    )
+    terminal_path.write_text(json.dumps(terminal, indent=2) + "\n")
+
+    assert runtime_calibration.stage_status(output_root) == "invalid"
+    assert not runtime_calibration.is_candidate_accepted(output_root)
+
+
+def test_terminal_receipt_rejects_kind_path_rebinding(tmp_path: Path) -> None:
+    output_root = tmp_path / "verification"
+    result = _run_cli(output_root)
+    assert result.returncode == 0
+
+    terminal_path = output_root / "stage-terminal.json"
+    terminal = json.loads(terminal_path.read_text())
+    terminal["artifacts"][0]["path"], terminal["artifacts"][1]["path"] = (
+        terminal["artifacts"][1]["path"],
+        terminal["artifacts"][0]["path"],
+    )
     terminal["terminal_identity_sha256"] = runtime_calibration.canonical_sha256(
         {key: value for key, value in terminal.items() if key != "terminal_identity_sha256"}
     )

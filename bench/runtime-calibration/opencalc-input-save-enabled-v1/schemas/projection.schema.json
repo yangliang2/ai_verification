@@ -7,12 +7,58 @@
     "title": "OpenCalc blind runtime projection",
     "type": "object",
     "additionalProperties": false,
-    "required": ["schema_version", "document_kind", "family_id", "family_version"],
+    "required": ["schema_version", "document_kind", "family_id", "family_version", "lane_id", "projection_id", "run_spec_path", "driver_plan_path", "recipe_path", "claim_boundary_ref", "quality_contract_id", "risk_hypothesis_id", "attack_plan_id", "setup_plan", "evidence_boundary", "model_policy"],
     "properties": {
       "schema_version": {"const": 1},
       "document_kind": {"const": "blind_runtime_projection"},
       "family_id": {"const": "opencalc-runtime-calibration-v1"},
-      "family_version": {"const": "v1"}
+      "family_version": {"const": "v1"},
+      "lane_id": {"type": "string", "pattern": "^ocrc-v1-lane-0[1-4]$"},
+      "projection_id": {"type": "string", "pattern": "^ocrc-v1-lane-0[1-4]-projection$"},
+      "run_spec_path": {"type": "string", "pattern": "^runtime/lanes/lane-0[1-4]/run-spec\\.yaml$"},
+      "driver_plan_path": {"type": "string", "pattern": "^runtime/lanes/lane-0[1-4]/driver-plan\\.json$"},
+      "recipe_path": {"type": "string", "pattern": "^runtime/lanes/lane-0[1-4]/recipe\\.json$"},
+      "claim_boundary_ref": {"const": "claim-boundary.json"},
+      "quality_contract_id": {"const": "opencalc-unfinished-expression-config-recreation-v1"},
+      "risk_hypothesis_id": {"const": "opencalc-input-preservation-v1"},
+      "attack_plan_id": {"const": "opencalc-orientation-preservation-v1"},
+      "setup_plan": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "operations"],
+        "properties": {
+          "id": {"const": "attempt-setup-plan-v1"},
+          "operations": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [
+              {"const": "clear_package_data"},
+              {"const": "force_portrait"}
+            ],
+            "items": false
+          }
+        }
+      },
+      "evidence_boundary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["normalized_result", "action_lineage", "raw_backend_evidence"],
+        "properties": {
+          "normalized_result": {"const": "runner_owned"},
+          "action_lineage": {"const": "runner_owned"},
+          "raw_backend_evidence": {"const": "backend_owned"}
+        }
+      },
+      "model_policy": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["model_calls", "l3"],
+        "properties": {
+          "model_calls": {"const": 0},
+          "l3": {"const": "forbidden"}
+        }
+      }
     }
   }
 }

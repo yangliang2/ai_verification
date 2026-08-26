@@ -7,12 +7,67 @@
     "title": "OpenCalc Runtime Calibration matched source pair",
     "type": "object",
     "additionalProperties": false,
-    "required": ["schema_version", "document_kind", "family_id", "family_version"],
+    "required": ["schema_version", "document_kind", "family_id", "family_version", "pair_id", "population_classification", "taxonomy_id", "mutation_operator_id", "baseline", "upstream_source_anchor", "variants"],
     "properties": {
       "schema_version": {"const": 1},
       "document_kind": {"const": "runtime_calibration_source_pair"},
       "family_id": {"const": "opencalc-runtime-calibration-v1"},
-      "family_version": {"const": "v1"}
+      "family_version": {"const": "v1"},
+      "pair_id": {"const": "opencalc-input-save-enabled-v1"},
+      "population_classification": {"const": "curated_controlled_injection"},
+      "taxonomy_id": {"const": "config-change-01"},
+      "mutation_operator_id": {"const": "toggle-input-save-enabled-v1"},
+      "baseline": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["origin", "commit", "tree_sha256", "archive_sha256"],
+        "properties": {
+          "origin": {"const": "https://github.com/clementwzk/OpenCalc.git"},
+          "commit": {"const": "0584d61189e916a62a3b402223b35e1d7a3093db"},
+          "tree_sha256": {"const": "8793c063c6a990ff3448fece38e62bc103952610"},
+          "archive_sha256": {"const": "58d686b47f4a97f8b1127ab3de98bdf34a1c9310a221e5d5a7b4b5adcde54f3c"}
+        }
+      },
+      "upstream_source_anchor": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["origin", "commit", "path", "target_file_sha256", "context", "context_sha256", "required_occurrences", "insertion_after"],
+        "properties": {
+          "origin": {"const": "https://github.com/clementwzk/OpenCalc.git"},
+          "commit": {"const": "0584d61189e916a62a3b402223b35e1d7a3093db"},
+          "path": {"const": "app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt"},
+          "target_file_sha256": {"const": "409e08157ce741bf77f7f00817a28eabee11cd1f6a5355bff7d1dd5a977eaac"},
+          "context": {"type": "string", "minLength": 1},
+          "context_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "required_occurrences": {"const": 1},
+          "insertion_after": {"const": "binding.input.showSoftInputOnFocus = false"}
+        }
+      },
+      "variants": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["variant_id", "source_id", "patch_text", "patch_sha256", "difference"],
+          "properties": {
+            "variant_id": {"enum": ["control", "defect"]},
+            "source_id": {"type": "string", "pattern": "^opencalc-input-save-enabled-v1-(control|defect)$"},
+            "patch_text": {"type": "string", "minLength": 1},
+            "patch_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "difference": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["field", "right_hand_side"],
+              "properties": {
+                "field": {"const": "binding.input.isSaveEnabled"},
+                "right_hand_side": {"enum": ["true", "false"]}
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

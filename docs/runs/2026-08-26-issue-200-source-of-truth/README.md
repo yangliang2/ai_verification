@@ -19,9 +19,9 @@ artifacts and binds each artifact's raw and canonical SHA-256 identity.
 The public command accepted the frozen candidate with:
 
 - family: `opencalc-runtime-calibration-v1` / `v1`;
-- candidate identity: `d8613a9af06f2d18eec3439da51426f4b837fe5b83b91449d1017aa7f302286e`;
+- candidate identity: `a4cf767f22bdb7ad94ad625773a988c6a4cfec163ce1c6d39aa287494adf86a3`;
 - artifact inventory: 28 entries,
-  `f55bbb0161d011102a3bbd823901d118da39a0319619e158d69984b368876492`;
+  `7dd7556397a7452962e2c99aa5127b292ecf1e656010661b477bb646af23ff85`;
 - package declaration: `com.darkempire78.opencalculator.debug`;
 - launcher declaration:
   `com.darkempire78.opencalculator.activities.MainActivity`.
@@ -56,12 +56,12 @@ All commands ran from `/Users/peter/projects/ai_verfication`.
 ### Candidate acceptance
 
 ```sh
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.runtime_calibration verify-candidate --candidate-root bench/runtime-calibration/opencalc-input-save-enabled-v1 --output-root /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-stage > /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-terminal.json
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.runtime_calibration verify-candidate --candidate-root bench/runtime-calibration/opencalc-input-save-enabled-v1 --output-root /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-stage-final > /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-terminal-final.json
 ```
 
 Result: exit 0; terminal status `accepted`; 28 artifacts; the serialized
-stdout receipt is `verification/candidate-terminal.json`, and the checksum-
-bound stage receipts are under `verification/candidate-stage/`.
+stdout receipt is `verification/candidate-terminal-final.json`, and the
+checksum-bound stage receipts are under `verification/candidate-stage-final/`.
 
 ### Public contract suite
 
@@ -69,7 +69,7 @@ bound stage receipts are under `verification/candidate-stage/`.
 PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -q tests/bench/test_runtime_calibration.py --junitxml=docs/runs/2026-08-26-issue-200-source-of-truth/verification/contract-pytest.xml
 ```
 
-Result: 14 passed, 0 failed, 0 skipped; pytest time 1.358s; wall time 1.50s.
+Result: 21 passed, 0 failed, 0 skipped; pytest time 1.547s; wall time 1.63s.
 
 ### Full repository regression
 
@@ -77,8 +77,8 @@ Result: 14 passed, 0 failed, 0 skipped; pytest time 1.358s; wall time 1.50s.
 PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -qq --junitxml=docs/runs/2026-08-26-issue-200-source-of-truth/verification/full-pytest.xml
 ```
 
-Result: 1,307 collected; 1,306 passed, 0 failed, 1 skipped; JUnit suite time
-449.819s; wall time 450.16s. The one skip is the pre-existing external-fixture
+Result: 1,314 collected; 1,313 passed, 0 failed, 1 skipped; JUnit suite time
+325.794s; wall time 326.03s. The one skip is the pre-existing external-fixture
 test that requires the explicit `--run-external-fixtures` admission flag.
 
 ### Static checks
@@ -96,12 +96,12 @@ All five static/checksum commands exited 0. Checksum generation wrote
 
 ## Artifact inventory
 
-- `verification/candidate-stage/stage-start.json`: start receipt, including
+- `verification/candidate-stage-final/stage-start.json`: start receipt, including
   candidate/output roots and start identity;
-- `verification/candidate-stage/stage-terminal.json`: accepted terminal with
+- `verification/candidate-stage-final/stage-terminal.json`: accepted terminal with
   all 28 raw/canonical artifact digests and terminal identity;
-- `verification/candidate-terminal.json`: exact public CLI JSON output;
-- `verification/contract-pytest.xml`: 14-case public contract JUnit receipt;
+- `verification/candidate-terminal-final.json`: exact public CLI JSON output;
+- `verification/contract-pytest.xml`: 17-case public contract JUnit receipt;
 - `verification/full-pytest.xml`: full repository JUnit receipt;
 - `tool-versions.txt`: host, Python, pytest, Ruff, uv, and Git versions;
 - `verification.json`: machine-readable commands, counts, identities, and

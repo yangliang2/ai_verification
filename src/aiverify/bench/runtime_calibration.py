@@ -51,6 +51,26 @@ ATTACK_OPERATOR_ID = "orientation-activity-recreation-v1"
 RISK_HYPOTHESIS_ID = "opencalc-input-preservation-v1"
 ATTACK_PLAN_ID = "opencalc-orientation-preservation-v1"
 EXPLORATION_POLICY_ID = "opencalc-context-nine-v1"
+PREPARATION_CONTRACT_ID = "opencalc-runtime-preparation-v1"
+TERMINAL_STATE_CONTRACT_ID = "opencalc-runtime-terminal-state-v1"
+REDUCER_CONTRACT_ID = "opencalc-runtime-reducer-v1"
+EVIDENCE_BOUNDARY_ID = "opencalc-journey-evidence-boundary-v1"
+CLAIM_BOUNDARY_FAMILY_KIND = "Runtime Calibration Family"
+CLAIM_BOUNDARY_ALLOWED_TERMINAL_STATES = (
+    "expected_split_observed",
+    "unexpected_runtime_result",
+    "not_calibrated",
+)
+CLAIM_BOUNDARY_EXCLUSIONS = (
+    "Qualification Cohort or benchmark denominator",
+    "Verification Agent capability or detection rate",
+    "L3, model adjudication, or Finding",
+    "upstream acceptance or general Android coverage",
+)
+CLAIM_BOUNDARY_SCOPE = (
+    "Only the frozen OpenCalc source, four opaque lane commitments, and later "
+    "production-seam evidence may be interpreted."
+)
 
 LANE_IDS = tuple(f"ocrc-v1-lane-{number:02d}" for number in range(1, 5))
 LANE_DIRECTORIES = tuple(f"lane-{number:02d}" for number in range(1, 5))
@@ -74,6 +94,23 @@ BUILD_COMMAND = (
     "clean",
     ":app:assembleDebug",
 )
+
+
+def _expected_patch_text(right_hand_side: str) -> str:
+    return (
+        "diff --git a/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt "
+        "b/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt\n"
+        "--- a/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt\n"
+        "+++ b/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt\n"
+        "@@ -120,6 +120,7 @@\n"
+        "        fixView()\n"
+        "\n"
+        "        setContentView(view)\n"
+        "\n"
+        "        // Disable the keyboard on display EditText\n"
+        "        binding.input.showSoftInputOnFocus = false\n"
+        f"+        binding.input.isSaveEnabled = {right_hand_side}\n"
+    )
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _COMMIT = re.compile(r"^[0-9a-f]{40}$")
@@ -110,6 +147,137 @@ _SCHEMA_TITLES = {
     "run_spec": "OpenCalc backend-neutral Run Spec",
     "recipe": "OpenCalc Runtime Build Recipe",
 }
+_SCHEMA_REQUIRED_FIELDS = {
+    "family_manifest": (
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "status",
+        "claim_boundary_ref",
+        "source_pair_ref",
+        "discovery_commitments_ref",
+        "schema_refs",
+        "backend_identity",
+        "lane_root",
+        "lane_ids",
+        "lane_files",
+        "quality_contract_id",
+        "risk_prior_id",
+        "attack_operator_id",
+        "risk_hypothesis_id",
+        "attack_plan_id",
+        "exploration_policy_id",
+        "preparation_contract_id",
+        "terminal_state_contract_id",
+        "reducer_contract_id",
+        "evidence_boundary_id",
+    ),
+    "source_pair": (
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "pair_id",
+        "population_classification",
+        "taxonomy_id",
+        "mutation_operator_id",
+        "baseline",
+        "upstream_source_anchor",
+        "variants",
+    ),
+    "discovery_commitments": (
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "commitment_id",
+        "context_acquisition",
+        "neutral_contracts",
+        "source_rich_package_commitments",
+        "no_model_calls",
+    ),
+    "claim_boundary": (
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "claim_boundary_id",
+        "family_kind",
+        "local_only",
+        "model_free",
+        "allowed_terminal_states",
+        "exclusions",
+        "scope",
+    ),
+    "projection": (
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "lane_id",
+        "projection_id",
+        "run_spec_path",
+        "driver_plan_path",
+        "recipe_path",
+        "claim_boundary_ref",
+        "quality_contract_id",
+        "risk_hypothesis_id",
+        "attack_plan_id",
+        "setup_plan",
+        "evidence_boundary",
+        "model_policy",
+    ),
+    "driver_plan": (
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "lane_id",
+        "plan_id",
+        "run_spec_path",
+        "run_spec_sha256",
+        "actions",
+    ),
+    "run_spec": (
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "lane_id",
+        "run_spec_id",
+        "host_project",
+        "apk_glob",
+        "package",
+        "activity",
+        "diff",
+        "spec",
+        "scenario",
+    ),
+    "recipe": (
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "lane_id",
+        "recipe_id",
+        "command",
+        "timeout_seconds",
+        "output_relative_path",
+        "environment_policy",
+        "claim_boundary_ref",
+    ),
+}
+_SCHEMA_CANONICAL_SHA256 = {
+    "claim_boundary": "4d69ecffdb556c8332bafbcc9b3e1e1e06143f9e3bf0dd26dc7c17e3e1b3069e",
+    "discovery_commitments": "11fef56b419bdf5db26858ae3bb437c7dcf51932600758a001bd221c0afb7391",
+    "driver_plan": "7f88e43db6906e0d94c3d77b4bc93de867adb5b4b54e268df8fd1653e40f346b",
+    "family_manifest": "3d2fe94e08f88ad986d8862e29be2c3159c126edcc84731f38451d46cb92a7b8",
+    "projection": "2e242d8ada565dd8e49dd15b57e5fcc01c1aa5b4853640e594b9a1fcf61a3670",
+    "recipe": "862166d2cbb3aa60e503cd639df76514b398b13f18f2d728cf602800bad2590c",
+    "run_spec": "e76a4f512a8908a28f3c4d1d578b5f45d17336777249716ede3b932f8e513fad",
+    "source_pair": "5ae2a46f51e266ea93fbfd4c28d7847bb5aaa7c7da46caeb0a2da7d97cc45daa",
+}
 
 
 def _expected_artifact_kinds() -> tuple[str, ...]:
@@ -128,6 +296,24 @@ def _expected_artifact_kinds() -> tuple[str, ...]:
 
 
 EXPECTED_ARTIFACT_KINDS = _expected_artifact_kinds()
+
+
+def _expected_artifact_paths() -> tuple[str, ...]:
+    paths = [
+        "family-manifest.json",
+        "source-pair.json",
+        "discovery-commitments.json",
+        "claim-boundary.json",
+    ]
+    paths.extend(f"schemas/{contract}.schema.json" for contract in _SCHEMA_CONTRACTS)
+    for directory in LANE_DIRECTORIES:
+        paths.extend(
+            f"runtime/lanes/{directory}/{file_name}" for file_name in LANE_FILE_NAMES
+        )
+    return tuple(paths)
+
+
+EXPECTED_ARTIFACT_PATHS = _expected_artifact_paths()
 
 
 class RuntimeCalibrationError(ValueError):
@@ -634,14 +820,14 @@ def _validate_family_manifest(document: Mapping[str, Any], paths: Mapping[str, A
         EXPLORATION_POLICY_ID,
     }:
         raise CandidateVerificationError("candidate_input_contradictory")
-    for field in (
-        "preparation_contract_id",
-        "terminal_state_contract_id",
-        "reducer_contract_id",
-        "evidence_boundary_id",
-    ):
-        if not isinstance(document[field], str) or not document[field].endswith("-v1"):
-            raise CandidateVerificationError("candidate_input_version_mismatch")
+    expected_contracts = {
+        "preparation_contract_id": PREPARATION_CONTRACT_ID,
+        "terminal_state_contract_id": TERMINAL_STATE_CONTRACT_ID,
+        "reducer_contract_id": REDUCER_CONTRACT_ID,
+        "evidence_boundary_id": EVIDENCE_BOUNDARY_ID,
+    }
+    if any(document[field] != value for field, value in expected_contracts.items()):
+        raise CandidateVerificationError("candidate_input_version_mismatch")
     lane_files = document["lane_files"]
     if not isinstance(lane_files, list) or len(lane_files) != 4:
         raise CandidateVerificationError("candidate_input_contradictory")
@@ -758,7 +944,7 @@ def _validate_source_pair(document: Mapping[str, Any]) -> None:
         expected_rhs = {"control": "true", "defect": "false"}[variant_id]
         if difference["right_hand_side"] != expected_rhs:
             raise CandidateVerificationError("candidate_input_contradictory")
-        if f"        binding.input.isSaveEnabled = {expected_rhs}\n" not in patch_text:
+        if patch_text != _expected_patch_text(expected_rhs):
             raise CandidateVerificationError("candidate_patch_context_mismatch")
         if variant["source_id"] != f"{PAIR_ID}-{variant_id}":
             raise CandidateVerificationError("candidate_input_contradictory")
@@ -867,16 +1053,20 @@ def _validate_claim_boundary(document: Mapping[str, Any]) -> None:
     if document["claim_boundary_id"] != CANDIDATE_CLAIM_BOUNDARY:
         raise CandidateVerificationError("candidate_claim_boundary_mismatch")
     if (
-        document["family_kind"] != "Runtime Calibration Family"
+        document["family_kind"] != CLAIM_BOUNDARY_FAMILY_KIND
         or document["local_only"] is not True
         or document["model_free"] is not True
+        or not isinstance(document["allowed_terminal_states"], list)
         or tuple(document["allowed_terminal_states"])
-        != ("expected_split_observed", "unexpected_runtime_result", "not_calibrated")
+        != CLAIM_BOUNDARY_ALLOWED_TERMINAL_STATES
     ):
         raise CandidateVerificationError("candidate_claim_boundary_mismatch")
-    if not isinstance(document["exclusions"], list) or not document["exclusions"]:
+    if (
+        not isinstance(document["exclusions"], list)
+        or tuple(document["exclusions"]) != CLAIM_BOUNDARY_EXCLUSIONS
+    ):
         raise CandidateVerificationError("candidate_claim_boundary_mismatch")
-    if not isinstance(document["scope"], str) or not document["scope"].strip():
+    if document["scope"] != CLAIM_BOUNDARY_SCOPE:
         raise CandidateVerificationError("candidate_claim_boundary_mismatch")
 
 
@@ -891,25 +1081,45 @@ def _validate_schema_document(document: Mapping[str, Any], expected_contract: st
     schema = document["json_schema"]
     if not isinstance(schema, Mapping):
         raise CandidateVerificationError("candidate_schema_invalid")
-    expected_schema = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "title": _SCHEMA_TITLES[expected_contract],
-        "type": "object",
-        "additionalProperties": False,
-        "required": ["schema_version", "document_kind", "family_id", "family_version"],
-        "properties": {
-            "schema_version": {"const": SCHEMA_VERSION},
-            "document_kind": {"const": _SCHEMA_DOCUMENT_KINDS[expected_contract]},
-            "family_id": {"const": FAMILY_ID},
-            "family_version": {"const": FAMILY_VERSION},
-        },
+    required = schema.get("required")
+    properties = schema.get("properties")
+    if (
+        schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema"
+        or schema.get("title") != _SCHEMA_TITLES[expected_contract]
+        or schema.get("type") != "object"
+        or schema.get("additionalProperties") is not False
+        or required != list(_SCHEMA_REQUIRED_FIELDS[expected_contract])
+        or not isinstance(properties, Mapping)
+        or set(properties) != set(required or ())
+    ):
+        raise CandidateVerificationError("candidate_schema_contract_mismatch")
+    common_properties = {
+        "schema_version": {"const": SCHEMA_VERSION},
+        "document_kind": {"const": _SCHEMA_DOCUMENT_KINDS[expected_contract]},
+        "family_id": {"const": FAMILY_ID},
+        "family_version": {"const": FAMILY_VERSION},
     }
-    if dict(schema) != expected_schema:
+    if any(properties.get(field) != value for field, value in common_properties.items()):
+        raise CandidateVerificationError("candidate_schema_contract_mismatch")
+    if canonical_sha256(schema) != _SCHEMA_CANONICAL_SHA256[expected_contract]:
         raise CandidateVerificationError("candidate_schema_contract_mismatch")
     try:
         Draft202012Validator.check_schema(schema)
     except SchemaError:
         raise CandidateVerificationError("candidate_schema_invalid") from None
+
+
+def _validate_against_schema(
+    document: Mapping[str, Any],
+    schema_document: Mapping[str, Any],
+) -> None:
+    schema = schema_document["json_schema"]
+    try:
+        errors = list(Draft202012Validator(schema).iter_errors(document))
+    except (KeyError, SchemaError, TypeError, ValueError):
+        raise CandidateVerificationError("candidate_schema_invalid") from None
+    if errors:
+        raise CandidateVerificationError("candidate_schema_document_mismatch")
 
 
 def _validate_projection(
@@ -1158,7 +1368,10 @@ def verify_candidate_inputs(candidate_root: str | Path) -> CandidateInputs:
     if not isinstance(raw_entries, list) or len(raw_entries) != len(EXPECTED_ARTIFACT_KINDS):
         raise CandidateVerificationError("candidate_artifact_set_mismatch")
     entries = tuple(_artifact_entry(item) for item in raw_entries)
-    if tuple(entry.kind for entry in entries) != EXPECTED_ARTIFACT_KINDS:
+    if (
+        tuple(entry.kind for entry in entries) != EXPECTED_ARTIFACT_KINDS
+        or tuple(entry.path for entry in entries) != EXPECTED_ARTIFACT_PATHS
+    ):
         raise CandidateVerificationError("candidate_artifact_set_mismatch")
     if len({entry.path for entry in entries}) != len(entries):
         raise CandidateVerificationError("candidate_duplicate_input")
@@ -1187,9 +1400,16 @@ def verify_candidate_inputs(candidate_root: str | Path) -> CandidateInputs:
     _validate_source_pair(source_pair)
     _validate_discovery_commitments(discovery)
     _validate_claim_boundary(claim)
+    schema_documents: dict[str, Mapping[str, Any]] = {}
     for contract in _SCHEMA_CONTRACTS:
         path = f"schemas/{contract}.schema.json"
         _validate_schema_document(loaded[path].document, contract)
+        schema_documents[contract] = loaded[path].document
+
+    _validate_against_schema(family, schema_documents["family_manifest"])
+    _validate_against_schema(source_pair, schema_documents["source_pair"])
+    _validate_against_schema(discovery, schema_documents["discovery_commitments"])
+    _validate_against_schema(claim, schema_documents["claim_boundary"])
 
     lane_file_map: dict[str, dict[str, str]] = {}
     for number, (lane_id, directory) in enumerate(zip(LANE_IDS, LANE_DIRECTORIES), start=1):
@@ -1200,6 +1420,22 @@ def verify_candidate_inputs(candidate_root: str | Path) -> CandidateInputs:
             "run_spec": f"runtime/lanes/{directory}/run-spec.yaml",
         }
         paths = lane_file_map[lane_id]
+        _validate_against_schema(
+            loaded[paths["run_spec"]].document,
+            schema_documents["run_spec"],
+        )
+        _validate_against_schema(
+            loaded[paths["driver_plan"]].document,
+            schema_documents["driver_plan"],
+        )
+        _validate_against_schema(
+            loaded[paths["recipe"]].document,
+            schema_documents["recipe"],
+        )
+        _validate_against_schema(
+            loaded[paths["projection"]].document,
+            schema_documents["projection"],
+        )
         _validate_run_spec(loaded[paths["run_spec"]].document, lane_id)
         _validate_plan(
             loaded[paths["driver_plan"]].document,
@@ -1519,7 +1755,10 @@ def _validate_stage_terminal(
         if len(document["artifacts"]) != len(EXPECTED_ARTIFACT_KINDS):
             raise CandidateVerificationError("stage_receipt_invalid")
         entries = tuple(_artifact_entry(item) for item in document["artifacts"])
-        if tuple(entry.kind for entry in entries) != EXPECTED_ARTIFACT_KINDS:
+        if (
+            tuple(entry.kind for entry in entries) != EXPECTED_ARTIFACT_KINDS
+            or tuple(entry.path for entry in entries) != EXPECTED_ARTIFACT_PATHS
+        ):
             raise CandidateVerificationError("stage_receipt_invalid")
         if document["artifact_inventory_sha256"] != _sha256_bytes(
             _canonical_json_bytes([entry.to_dict() for entry in entries])
@@ -1634,6 +1873,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 __all__ = [
     "CANDIDATE_CLAIM_BOUNDARY",
     "EXPECTED_ARTIFACT_KINDS",
+    "EXPECTED_ARTIFACT_PATHS",
     "FAMILY_ID",
     "FAMILY_VERSION",
     "CandidateInputs",

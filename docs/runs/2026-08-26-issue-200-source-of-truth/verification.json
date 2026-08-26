@@ -6,9 +6,9 @@
   "candidate": {
     "family_id": "opencalc-runtime-calibration-v1",
     "family_version": "v1",
-    "candidate_identity_sha256": "d8613a9af06f2d18eec3439da51426f4b837fe5b83b91449d1017aa7f302286e",
+    "candidate_identity_sha256": "a4cf767f22bdb7ad94ad625773a988c6a4cfec163ce1c6d39aa287494adf86a3",
     "artifact_count": 28,
-    "artifact_inventory_sha256": "f55bbb0161d011102a3bbd823901d118da39a0319619e158d69984b368876492",
+    "artifact_inventory_sha256": "7dd7556397a7452962e2c99aa5127b292ecf1e656010661b477bb646af23ff85",
     "package": "com.darkempire78.opencalculator.debug",
     "activity": "com.darkempire78.opencalculator.activities.MainActivity",
     "terminal_status": "accepted"
@@ -18,33 +18,33 @@
       "name": "public_contract",
       "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -q tests/bench/test_runtime_calibration.py --junitxml=docs/runs/2026-08-26-issue-200-source-of-truth/verification/contract-pytest.xml",
       "exit_code": 0,
-      "collected": 14,
-      "passed": 14,
+      "collected": 21,
+      "passed": 21,
       "failed": 0,
       "skipped": 0,
-      "pytest_seconds": 1.358,
-      "wall_seconds": 1.50,
+      "pytest_seconds": 1.547,
+      "wall_seconds": 1.63,
       "artifact": "verification/contract-pytest.xml"
     },
     {
       "name": "full_repository",
       "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -qq --junitxml=docs/runs/2026-08-26-issue-200-source-of-truth/verification/full-pytest.xml",
       "exit_code": 0,
-      "collected": 1307,
-      "passed": 1306,
+      "collected": 1314,
+      "passed": 1313,
       "failed": 0,
       "skipped": 1,
-      "pytest_seconds": 449.819,
-      "wall_seconds": 450.16,
+      "pytest_seconds": 325.794,
+      "wall_seconds": 326.03,
       "artifact": "verification/full-pytest.xml",
       "skip_reason": "pre-existing external-fixture test requires --run-external-fixtures"
     },
     {
       "name": "candidate_cli",
-      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.runtime_calibration verify-candidate --candidate-root bench/runtime-calibration/opencalc-input-save-enabled-v1 --output-root /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-stage > /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-terminal.json",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.runtime_calibration verify-candidate --candidate-root bench/runtime-calibration/opencalc-input-save-enabled-v1 --output-root /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-stage-final > /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-terminal-final.json",
       "exit_code": 0,
       "status": "accepted",
-      "artifact": "verification/candidate-terminal.json"
+      "artifact": "verification/candidate-terminal-final.json"
     },
     {
       "name": "compileall",

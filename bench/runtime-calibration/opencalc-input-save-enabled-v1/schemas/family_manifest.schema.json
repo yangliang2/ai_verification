@@ -7,12 +7,74 @@
     "title": "OpenCalc Runtime Calibration family manifest",
     "type": "object",
     "additionalProperties": false,
-    "required": ["schema_version", "document_kind", "family_id", "family_version"],
+    "required": ["schema_version", "document_kind", "family_id", "family_version", "status", "claim_boundary_ref", "source_pair_ref", "discovery_commitments_ref", "schema_refs", "backend_identity", "lane_root", "lane_ids", "lane_files", "quality_contract_id", "risk_prior_id", "attack_operator_id", "risk_hypothesis_id", "attack_plan_id", "exploration_policy_id", "preparation_contract_id", "terminal_state_contract_id", "reducer_contract_id", "evidence_boundary_id"],
     "properties": {
       "schema_version": {"const": 1},
       "document_kind": {"const": "runtime_calibration_family_manifest"},
       "family_id": {"const": "opencalc-runtime-calibration-v1"},
-      "family_version": {"const": "v1"}
+      "family_version": {"const": "v1"},
+      "status": {"const": "candidate_frozen"},
+      "claim_boundary_ref": {"const": "claim-boundary.json"},
+      "source_pair_ref": {"const": "source-pair.json"},
+      "discovery_commitments_ref": {"const": "discovery-commitments.json"},
+      "schema_refs": {
+        "type": "array",
+        "minItems": 8,
+        "maxItems": 8,
+        "prefixItems": [
+          {"const": "schemas/family_manifest.schema.json"},
+          {"const": "schemas/source_pair.schema.json"},
+          {"const": "schemas/discovery_commitments.schema.json"},
+          {"const": "schemas/claim_boundary.schema.json"},
+          {"const": "schemas/projection.schema.json"},
+          {"const": "schemas/driver_plan.schema.json"},
+          {"const": "schemas/run_spec.schema.json"},
+          {"const": "schemas/recipe.schema.json"}
+        ],
+        "items": false
+      },
+      "backend_identity": {"const": "deterministic_android_v1"},
+      "lane_root": {"const": "runtime/lanes"},
+      "lane_ids": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4,
+        "prefixItems": [
+          {"const": "ocrc-v1-lane-01"},
+          {"const": "ocrc-v1-lane-02"},
+          {"const": "ocrc-v1-lane-03"},
+          {"const": "ocrc-v1-lane-04"}
+        ],
+        "items": false
+      },
+      "lane_files": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lane_id", "relative_path", "projection", "driver_plan", "recipe", "run_spec"],
+          "properties": {
+            "lane_id": {"type": "string", "pattern": "^ocrc-v1-lane-0[1-4]$"},
+            "relative_path": {"type": "string", "pattern": "^runtime/lanes/lane-0[1-4]$"},
+            "projection": {"type": "string", "pattern": "^runtime/lanes/lane-0[1-4]/projection\\.json$"},
+            "driver_plan": {"type": "string", "pattern": "^runtime/lanes/lane-0[1-4]/driver-plan\\.json$"},
+            "recipe": {"type": "string", "pattern": "^runtime/lanes/lane-0[1-4]/recipe\\.json$"},
+            "run_spec": {"type": "string", "pattern": "^runtime/lanes/lane-0[1-4]/run-spec\\.yaml$"}
+          }
+        }
+      },
+      "quality_contract_id": {"const": "opencalc-unfinished-expression-config-recreation-v1"},
+      "risk_prior_id": {"const": "opencalc-state-evolution-v1"},
+      "attack_operator_id": {"const": "orientation-activity-recreation-v1"},
+      "risk_hypothesis_id": {"const": "opencalc-input-preservation-v1"},
+      "attack_plan_id": {"const": "opencalc-orientation-preservation-v1"},
+      "exploration_policy_id": {"const": "opencalc-context-nine-v1"},
+      "preparation_contract_id": {"const": "opencalc-runtime-preparation-v1"},
+      "terminal_state_contract_id": {"const": "opencalc-runtime-terminal-state-v1"},
+      "reducer_contract_id": {"const": "opencalc-runtime-reducer-v1"},
+      "evidence_boundary_id": {"const": "opencalc-journey-evidence-boundary-v1"}
     }
   }
 }

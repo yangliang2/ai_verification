@@ -7,12 +7,40 @@
     "title": "OpenCalc Runtime Calibration claim boundary",
     "type": "object",
     "additionalProperties": false,
-    "required": ["schema_version", "document_kind", "family_id", "family_version"],
+    "required": ["schema_version", "document_kind", "family_id", "family_version", "claim_boundary_id", "family_kind", "local_only", "model_free", "allowed_terminal_states", "exclusions", "scope"],
     "properties": {
       "schema_version": {"const": 1},
       "document_kind": {"const": "runtime_calibration_claim_boundary"},
       "family_id": {"const": "opencalc-runtime-calibration-v1"},
-      "family_version": {"const": "v1"}
+      "family_version": {"const": "v1"},
+      "claim_boundary_id": {"const": "candidate_source_of_truth_only"},
+      "family_kind": {"const": "Runtime Calibration Family"},
+      "local_only": {"const": true},
+      "model_free": {"const": true},
+      "allowed_terminal_states": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "prefixItems": [
+          {"const": "expected_split_observed"},
+          {"const": "unexpected_runtime_result"},
+          {"const": "not_calibrated"}
+        ],
+        "items": false
+      },
+      "exclusions": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4,
+        "prefixItems": [
+          {"const": "Qualification Cohort or benchmark denominator"},
+          {"const": "Verification Agent capability or detection rate"},
+          {"const": "L3, model adjudication, or Finding"},
+          {"const": "upstream acceptance or general Android coverage"}
+        ],
+        "items": false
+      },
+      "scope": {"const": "Only the frozen OpenCalc source, four opaque lane commitments, and later production-seam evidence may be interpreted."}
     }
   }
 }

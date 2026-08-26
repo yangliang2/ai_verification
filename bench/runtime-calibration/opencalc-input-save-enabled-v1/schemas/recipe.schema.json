@@ -7,12 +7,45 @@
     "title": "OpenCalc Runtime Build Recipe",
     "type": "object",
     "additionalProperties": false,
-    "required": ["schema_version", "document_kind", "family_id", "family_version"],
+    "required": ["schema_version", "document_kind", "family_id", "family_version", "lane_id", "recipe_id", "command", "timeout_seconds", "output_relative_path", "environment_policy", "claim_boundary_ref"],
     "properties": {
       "schema_version": {"const": 1},
       "document_kind": {"const": "runtime_build_recipe"},
       "family_id": {"const": "opencalc-runtime-calibration-v1"},
-      "family_version": {"const": "v1"}
+      "family_version": {"const": "v1"},
+      "lane_id": {"type": "string", "pattern": "^ocrc-v1-lane-0[1-4]$"},
+      "recipe_id": {"type": "string", "pattern": "^ocrc-v1-lane-0[1-4]-build-recipe$"},
+      "command": {
+        "type": "array",
+        "minItems": 9,
+        "maxItems": 9,
+        "prefixItems": [
+          {"const": "./gradlew"},
+          {"const": "--offline"},
+          {"const": "--no-daemon"},
+          {"const": "--no-build-cache"},
+          {"const": "--no-configuration-cache"},
+          {"const": "--max-workers=1"},
+          {"const": "--console=plain"},
+          {"const": "clean"},
+          {"const": ":app:assembleDebug"}
+        ],
+        "items": false
+      },
+      "timeout_seconds": {"const": 900},
+      "output_relative_path": {"const": "build/app-debug.apk"},
+      "environment_policy": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["mode", "dependency_resolution", "network_claim", "retry"],
+        "properties": {
+          "mode": {"const": "private_allowlist"},
+          "dependency_resolution": {"const": "offline"},
+          "network_claim": {"const": "none"},
+          "retry": {"const": false}
+        }
+      },
+      "claim_boundary_ref": {"const": "claim-boundary.json"}
     }
   }
 }

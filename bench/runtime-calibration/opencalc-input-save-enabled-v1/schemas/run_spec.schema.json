@@ -7,12 +7,63 @@
     "title": "OpenCalc backend-neutral Run Spec",
     "type": "object",
     "additionalProperties": false,
-    "required": ["schema_version", "document_kind", "family_id", "family_version"],
+    "required": ["schema_version", "document_kind", "family_id", "family_version", "lane_id", "run_spec_id", "host_project", "apk_glob", "package", "activity", "diff", "spec", "scenario"],
     "properties": {
       "schema_version": {"const": 1},
       "document_kind": {"const": "runtime_calibration_run_spec"},
       "family_id": {"const": "opencalc-runtime-calibration-v1"},
-      "family_version": {"const": "v1"}
+      "family_version": {"const": "v1"},
+      "lane_id": {"type": "string", "pattern": "^ocrc-v1-lane-0[1-4]$"},
+      "run_spec_id": {"type": "string", "pattern": "^ocrc-v1-lane-0[1-4]-run-spec$"},
+      "host_project": {"const": "."},
+      "apk_glob": {"const": "build/app-debug.apk"},
+      "package": {"const": "com.darkempire78.opencalculator.debug"},
+      "activity": {"const": "com.darkempire78.opencalculator.activities.MainActivity"},
+      "diff": {"const": null},
+      "spec": {"const": null},
+      "scenario": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "user_actions", "system_events", "assertions"],
+        "properties": {
+          "id": {"const": "opencalc-preserve-expression"},
+          "user_actions": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "prefixItems": [
+              {"const": "wait for resource id oneButton"},
+              {"const": "tap resource id oneButton"},
+              {"const": "tap resource id twoButton"},
+              {"const": "tap resource id addButton"},
+              {"const": "tap resource id threeButton"},
+              {"const": "tap resource id fourButton"}
+            ],
+            "items": false
+          },
+          "system_events": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["step_index", "event", "args"],
+              "properties": {
+                "step_index": {"const": 5},
+                "event": {"const": "rotate"},
+                "args": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["orientation"],
+                  "properties": {"orientation": {"const": "landscape"}}
+                }
+              }
+            }
+          },
+          "assertions": {"type": "array", "maxItems": 0}
+        }
+      }
     }
   }
 }
