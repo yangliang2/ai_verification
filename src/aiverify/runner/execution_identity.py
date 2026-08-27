@@ -17,6 +17,10 @@ import yaml
 
 from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
 from aiverify.runner.execution_record import write_bytes_artifact, write_json_artifact
+from aiverify.runner.journey_backend import (
+    CODEX_CLI,
+    SUPPORTED_JOURNEY_BACKENDS,
+)
 from aiverify.runner.run_spec import RunSpec, RunSpecError, parse_run_spec
 
 
@@ -43,6 +47,7 @@ class ExecutionIdentityCollector:
         android_bin: str = "android",
         adb_bin: str = "adb",
         codex_bin: str = "codex",
+        journey_driver_backend: str = CODEX_CLI,
         git_bin: str = "git",
         allow_host_project_subdir: bool = False,
         run_spec_snapshot_path: Path | None = None,
@@ -62,6 +67,7 @@ class ExecutionIdentityCollector:
         self.android_bin = android_bin
         self.adb_bin = adb_bin
         self.codex_bin = codex_bin
+        self.journey_driver_backend = journey_driver_backend
         self.git_bin = git_bin
         self.allow_host_project_subdir = allow_host_project_subdir
         self.identity_dir = self.run_dir / "identity"
@@ -84,6 +90,14 @@ class ExecutionIdentityCollector:
 
     def capture_static(self) -> None:
         """Capture immutable inputs before deployment or agent invocation."""
+        if self.journey_driver_backend not in SUPPORTED_JOURNEY_BACKENDS:
+            raise ExecutionIdentityError(
+                f"unsupported Journey Driver backend: {self.journey_driver_backend}"
+            )
+        if self.journey_driver_backend != CODEX_CLI:
+            raise ExecutionIdentityError(
+                "deterministic_android_v1 identity capture is not available yet"
+            )
         source_bytes = self._run_spec_bytes()
         snapshot_path = self.run_spec_snapshot_path
         snapshot_path.parent.mkdir(parents=True, exist_ok=True)
@@ -124,6 +138,7 @@ class ExecutionIdentityCollector:
             "apk_glob": self.spec.apk_glob,
             "package": self.spec.package,
             "activity": self.spec.activity,
+            "journey_driver_backend": self.journey_driver_backend,
         }
         if self.allow_host_project_subdir:
             run_spec["host_project_within_repository"] = True
@@ -802,6 +817,13 @@ def _validate_run_spec_identity(
     for key in ("invocation_path", "snapshot_path", "host_project", "apk_glob", "package"):
         if not isinstance(value.get(key), str) or not value[key]:
             raise ExecutionIdentityError(f"Run Spec identity field is missing: {key}")
+    journey_driver_backend = value.get("journey_driver_backend", CODEX_CLI)
+    if journey_driver_backend not in SUPPORTED_JOURNEY_BACKENDS:
+        raise ExecutionIdentityError("Journey Driver backend identity is invalid")
+    if journey_driver_backend != CODEX_CLI:
+        raise ExecutionIdentityError(
+            "deterministic_android_v1 identity verification is not available yet"
+        )
     if value.get("scenario") != scenario:
         raise ExecutionIdentityError("Run Spec scenario contradicts provenance")
     for key in ("consumed_sha256", "snapshot_sha256"):

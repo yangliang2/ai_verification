@@ -29,12 +29,23 @@ from aiverify.runner.execution_record import (
     ExecutionRecordStore,
     write_bytes_artifact,
 )
+from aiverify.runner.journey_backend import (
+    CODEX_CLI,
+    DEFAULT_JOURNEY_BACKEND,
+    JourneyBackendSelectionError,
+    JourneyDriverSelection,
+    SUPPORTED_JOURNEY_BACKENDS,
+)
 from aiverify.runner.run_spec import RunSpec
 
 
 ADMISSION_SCHEMA_VERSION = 1
 RUNNER_POLICY_VERSION = "m9-production-seam-v1"
-SUPPORTED_BACKEND = "codex_cli"
+DEFAULT_BACKEND = DEFAULT_JOURNEY_BACKEND
+# Kept for callers that imported the old singular name; the supported set is
+# exposed as SUPPORTED_BACKENDS for new policy consumers.
+SUPPORTED_BACKEND = DEFAULT_BACKEND
+SUPPORTED_BACKENDS = SUPPORTED_JOURNEY_BACKENDS
 _PACKAGE_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)+$")
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _GIT_SHA1_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -200,16 +211,17 @@ class PlannedRunnerOptions:
     launch: bool = True
     requested_driver_model: str | None = None
     requested_l3_model: str | None = None
-    backend: str = SUPPORTED_BACKEND
+    backend: str = DEFAULT_BACKEND
     android_bin: str = "android"
     adb_bin: str = "adb"
     codex_bin: str = "codex"
     runner_policy_version: str = RUNNER_POLICY_VERSION
     allow_host_project_subdir: bool = False
+    driver_plan_path: Path | None = None
 
     def as_dict(self) -> dict[str, object]:
         """Return a canonical, JSON-compatible representation."""
-        return {
+        result: dict[str, object] = {
             "device": self.device,
             "workdir": str(Path(self.workdir).resolve()),
             "artifact_dir": str(Path(self.artifact_dir).resolve()),
@@ -224,6 +236,21 @@ class PlannedRunnerOptions:
             "runner_policy_version": self.runner_policy_version,
             "allow_host_project_subdir": self.allow_host_project_subdir,
         }
+        # Keep the legacy Codex receipt shape byte-for-byte compatible.  A
+        # deterministic selection carries its plan as an explicit policy input.
+        if self.driver_plan_path is not None:
+            result["driver_plan_path"] = str(
+                Path(self.driver_plan_path).expanduser().resolve()
+            )
+        return result
+
+    def journey_driver_selection(self) -> JourneyDriverSelection:
+        """Return the backend choice kept outside the backend-neutral Run Spec."""
+        return JourneyDriverSelection(
+            backend=self.backend,
+            requested_model=self.requested_driver_model,
+            driver_plan_path=self.driver_plan_path,
+        )
 
 
 @dataclass(frozen=True)
@@ -305,8 +332,15 @@ def admit_production_seam(
             "message": str(error),
         }
 
+    driver_plan: dict[str, object] | None = None
     try:
         tools = _validate_runner_policy(spec, options)
+        try:
+            binding = options.journey_driver_selection().bind_driver_plan()
+        except JourneyBackendSelectionError as error:
+            raise ProductionSeamAdmissionError(str(error)) from error
+        if binding is not None:
+            driver_plan = binding.to_dict()
         checks["runner_policy"] = {"status": "passed"}
     except ProductionSeamAdmissionError as error:
         reasons.append(str(error))
@@ -328,6 +362,14 @@ def admit_production_seam(
         }
 
     admitted = not reasons
+    runner_policy: dict[str, object] = {
+        "version": options.runner_policy_version,
+        "backend": options.backend,
+        "options": options.as_dict(),
+        "tools": tools,
+    }
+    if driver_plan is not None:
+        runner_policy["driver_plan"] = driver_plan
     receipt: dict[str, object] = {
         "schema_version": ADMISSION_SCHEMA_VERSION,
         "status": "admitted" if admitted else "rejected",
@@ -341,12 +383,7 @@ def admit_production_seam(
         },
         "host": host,
         "target": target,
-        "runner_policy": {
-            "version": options.runner_policy_version,
-            "backend": options.backend,
-            "options": options.as_dict(),
-            "tools": tools,
-        },
+        "runner_policy": runner_policy,
         "artifact_namespace": artifact_namespace,
         "checks": checks,
         "side_effects": {
@@ -661,27 +698,23 @@ def _validate_runner_policy(
     spec: RunSpec,
     options: PlannedRunnerOptions,
 ) -> dict[str, object]:
-    if options.backend != SUPPORTED_BACKEND:
-        raise ProductionSeamAdmissionError(
-            f"unsupported Verification Agent Backend: {options.backend}"
-        )
+    try:
+        selection = options.journey_driver_selection()
+        selection.validate()
+    except JourneyBackendSelectionError as error:
+        raise ProductionSeamAdmissionError(str(error)) from error
     if not options.runner_policy_version.strip():
         raise ProductionSeamAdmissionError("runner policy version is required")
-    if (
-        options.requested_driver_model is not None
-        and not options.requested_driver_model.strip()
-    ):
-        raise ProductionSeamAdmissionError(
-            "requested driver model cannot be empty"
-        )
     if options.requested_l3_model is not None and not options.requested_l3_model.strip():
         raise ProductionSeamAdmissionError("requested L3 model cannot be empty")
     resolved: dict[str, object] = {}
-    for label, requested in (
+    prerequisites = [
         ("android", options.android_bin),
         ("adb", options.adb_bin),
-        ("codex", options.codex_bin),
-    ):
+    ]
+    if selection.backend == CODEX_CLI:
+        prerequisites.append(("codex", options.codex_bin))
+    for label, requested in prerequisites:
         path = _resolve_executable(requested)
         resolved[label] = {
             "requested": requested,
@@ -689,10 +722,20 @@ def _validate_runner_policy(
             "sha256": _sha256_file(path),
         }
     resolved["model_selection"] = {
-        "journey_driver": _model_selection(options.requested_driver_model),
+        "journey_driver": _journey_model_selection(selection),
         "l3_semantic_judge": _model_selection(options.requested_l3_model),
     }
     return resolved
+
+
+def _journey_model_selection(selection: JourneyDriverSelection) -> dict[str, object]:
+    if selection.backend == CODEX_CLI:
+        return _model_selection(selection.requested_model)
+    return {
+        "policy": "deterministic_android_v1_no_model",
+        "requested_model": None,
+        "model_override_present": False,
+    }
 
 
 def _model_selection(requested_model: str | None) -> dict[str, object]:

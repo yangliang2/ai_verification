@@ -58,6 +58,15 @@ from aiverify.runner.journey import (
     JourneySegmentFlow,
     JourneySegmentRunner,
 )
+from aiverify.runner.journey_backend import (
+    CODEX_CLI,
+    DEFAULT_JOURNEY_BACKEND,
+    JourneyBackend,
+    JourneyBackendSelectionError,
+    JourneyDriverSelection,
+    backend_id,
+    create_journey_backend,
+)
 from aiverify.runner.run_spec import RunSpec, ScenarioSpec, load_run_spec
 from aiverify.runner.system_events import DeviceSystemEventInjector
 from aiverify.runner.verdict import judge_l2_from_android_layout
@@ -1032,6 +1041,9 @@ def _write_non_accountable_verdict(
 def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         launch: bool = True, model: str | None = None,
         l3_model: str | None = None,
+        backend: str | None = None,
+        driver_plan_path: Path | None = None,
+        journey_backend: JourneyBackend | None = None,
         instruction_prefix: str | None = None,
         pre_run_setup: Callable[[], object] | None = None,
         preflight_command_runner: CommandRunner | None = None,
@@ -1060,6 +1072,53 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         raise ProductionSeamAdmissionError(
             "admission and runtime preparation handoffs are mutually exclusive"
         )
+    selected_backend_name = (
+        backend
+        if backend is not None
+        else (
+            admission_options.backend
+            if admission_options is not None
+            else DEFAULT_JOURNEY_BACKEND
+        )
+    )
+    selected_driver_plan_path = (
+        driver_plan_path
+        if driver_plan_path is not None
+        else (
+            admission_options.driver_plan_path
+            if admission_options is not None
+            else None
+        )
+    )
+    selection = JourneyDriverSelection(
+        backend=selected_backend_name,
+        requested_model=model,
+        driver_plan_path=selected_driver_plan_path,
+    )
+    try:
+        selection.validate()
+    except JourneyBackendSelectionError as error:
+        raise ProductionSeamAdmissionError(str(error)) from error
+    if selected_backend_name != CODEX_CLI and instruction_prefix:
+        raise ProductionSeamAdmissionError(
+            "deterministic_android_v1 does not accept Codex instruction prefix"
+        )
+    selected_backend: JourneyBackend | None = None
+    try:
+        if journey_backend is not None:
+            if backend_id(journey_backend) != selected_backend_name:
+                raise JourneyBackendSelectionError(
+                    "selected Journey backend identity contradicts runner policy"
+                )
+            selected_backend = journey_backend
+        elif selected_backend_name != CODEX_CLI:
+            # Resolve non-Codex implementations before establishing an
+            # ExecutionRecord or doing preflight/device work.  Codex creation
+            # is deferred to the existing runner-setup phase so constructing a
+            # backend cannot change the historical phase ordering.
+            selected_backend = create_journey_backend(selection)
+    except JourneyBackendSelectionError as error:
+        raise ProductionSeamAdmissionError(str(error)) from error
     if admission_required or preparation_required:
         if admission_options is None:
             raise ProductionSeamAdmissionError(
@@ -1077,8 +1136,11 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             launch=launch,
             requested_driver_model=model,
             requested_l3_model=l3_model,
+            backend=selected_backend_name,
+            driver_plan_path=selected_driver_plan_path,
             android_bin=spec.live_validation.android_bin,
             adb_bin=spec.live_validation.adb_bin,
+            codex_bin=admission_options.codex_bin,
             allow_host_project_subdir=allow_host_project_subdir,
         )
         if actual_options.as_dict() != admission_options.as_dict():
@@ -1155,6 +1217,12 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             command_runner=identity_command_runner,
             android_bin=spec.live_validation.android_bin,
             adb_bin=spec.live_validation.adb_bin,
+            codex_bin=(
+                admission_options.codex_bin
+                if admission_options is not None
+                else "codex"
+            ),
+            journey_driver_backend=selected_backend_name,
             allow_host_project_subdir=allow_host_project_subdir,
         )
     try:
@@ -1299,8 +1367,21 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             if formal_one_attempt
             else AndroidEvidenceCollector()
         )
+        if selected_backend is None:
+            codex_factory = CodexCliBackend
+            if (
+                admission_options is not None
+                and admission_options.codex_bin != "codex"
+            ):
+                codex_factory = lambda: CodexCliBackend(
+                    codex_bin=admission_options.codex_bin
+                )
+            selected_backend = create_journey_backend(
+                selection,
+                codex_factory=codex_factory,
+            )
         runner = JourneySegmentRunner(
-            backend=CodexCliBackend(),
+            backend=selected_backend,
             checkpoint_collector=checkpoint_collector,
             system_event_injector=DeviceSystemEventInjector(
                 device=controller, package=spec.package, activity=spec.activity
@@ -1363,7 +1444,11 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             output_schema=_DEFAULT_SCHEMA_PATH,
             device=device,
             instruction_prefix=(
-                build_instruction_prefix(device)
+                (
+                    build_instruction_prefix(device)
+                    if selected_backend_name == CODEX_CLI
+                    else ""
+                )
                 if instruction_prefix is None
                 else instruction_prefix
             ),
@@ -1557,6 +1642,24 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--model", default=None, help="Override Codex model")
     ap.add_argument("--l3-model", default=None, help="Override Codex model for the L3 judge")
     ap.add_argument(
+        "--backend",
+        "--journey-backend",
+        dest="backend",
+        default=None,
+        help=(
+            "Journey Driver backend (codex_cli by default; "
+            "deterministic_android_v1 requires --driver-plan)"
+        ),
+    )
+    ap.add_argument(
+        "--driver-plan",
+        "--driver-plan-path",
+        dest="driver_plan_path",
+        type=Path,
+        default=None,
+        help="Checksum-bound deterministic Driver Plan outside the Run Spec",
+    )
+    ap.add_argument(
         "--expected-source-commit",
         default=None,
         help="Bind an opaque Run Spec source reference to the admitted Git commit",
@@ -1587,6 +1690,12 @@ def main(argv: list[str] | None = None) -> int:
             launch=not args.no_launch,
             requested_driver_model=args.model,
             requested_l3_model=args.l3_model,
+            backend=(
+                args.backend
+                if args.backend is not None
+                else DEFAULT_JOURNEY_BACKEND
+            ),
+            driver_plan_path=args.driver_plan_path,
             android_bin=spec.live_validation.android_bin,
             adb_bin=spec.live_validation.adb_bin,
             allow_host_project_subdir=args.allow_host_project_subdir,
@@ -1615,6 +1724,8 @@ def main(argv: list[str] | None = None) -> int:
             launch=not args.no_launch,
             model=args.model,
             l3_model=args.l3_model,
+            backend=args.backend,
+            driver_plan_path=args.driver_plan_path,
             run_spec_path=Path(args.run_spec),
             allow_host_project_subdir=args.allow_host_project_subdir,
             admission_required=admission_required,

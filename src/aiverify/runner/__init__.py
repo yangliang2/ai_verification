@@ -18,7 +18,6 @@ from aiverify.runner.codex_backend import (
     CodexCliBackend,
     CodexCliError,
     JourneyExecutionRequest,
-    JourneyExecutionResult,
 )
 from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
 from aiverify.runner.evidence import AndroidEvidenceCollector, EvidenceCheckpoint
@@ -28,6 +27,20 @@ from aiverify.runner.journey import (
     JourneySegmentRunner,
     scenario_to_segments,
     segment_to_journey_xml,
+)
+from aiverify.runner.journey_backend import (
+    CODEX_CLI,
+    DEFAULT_JOURNEY_BACKEND,
+    DETERMINISTIC_ANDROID_V1,
+    DriverPlanBinding,
+    JourneyBackend,
+    JourneyBackendSelectionError,
+    JourneyBackendUnavailableError,
+    JourneyDriverSelection,
+    JourneyExecutionResult,
+    SUPPORTED_JOURNEY_BACKENDS,
+    backend_id,
+    create_journey_backend,
 )
 from aiverify.runner.run_spec import (
     AssertionSpec,
@@ -51,11 +64,15 @@ __all__ = [
     "AssertionSpec",
     "CodexCliBackend",
     "CodexCliError",
+    "CODEX_CLI",
     "CommandResult",
     "CommandRunner",
     "CleanCheckoutSourceAuthority",
     "DryRunPlan",
     "DeviceSystemEventInjector",
+    "DETERMINISTIC_ANDROID_V1",
+    "DEFAULT_JOURNEY_BACKEND",
+    "DriverPlanBinding",
     "EvidenceCheckpoint",
     "HostProjectLocator",
     "HostAuthority",
@@ -65,6 +82,10 @@ __all__ = [
     "JourneySegment",
     "JourneySegmentFlow",
     "JourneySegmentRunner",
+    "JourneyBackend",
+    "JourneyBackendSelectionError",
+    "JourneyBackendUnavailableError",
+    "JourneyDriverSelection",
     "PlannedRunnerOptions",
     "ProductionSeamAdmissionError",
     "SourceAuthority",
@@ -75,6 +96,8 @@ __all__ = [
     "SubprocessCommandRunner",
     "SystemEventSpec",
     "SystemEventInjectionError",
+    "SUPPORTED_JOURNEY_BACKENDS",
+    "backend_id",
     "judge_l2_from_android_layout",
     "load_run_spec",
     "admit_production_seam",
@@ -83,4 +106,5 @@ __all__ = [
     "segment_to_journey_xml",
     "verify_admitted_receipt",
     "write_admission_receipt",
+    "create_journey_backend",
 ]

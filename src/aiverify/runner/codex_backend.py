@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import jsonschema
 
@@ -15,6 +14,7 @@ from aiverify.runner.codex_identity import (
     capture_codex_invocation_identity,
     default_codex_session_root,
 )
+from aiverify.runner.journey_backend import CODEX_CLI, JourneyExecutionResult
 
 
 _DEFAULT_SCHEMA_PATH = Path(__file__).with_name("journey_result_schema.json")
@@ -51,19 +51,10 @@ class JourneyExecutionRequest:
     model: str | None = None
 
 
-@dataclass(frozen=True)
-class JourneyExecutionResult:
-    """Structured result emitted by the Codex CLI backend."""
-
-    data: dict[str, Any]
-    result_path: Path
-    events_path: Path
-    command: list[str]
-    metadata: dict[str, str] = field(default_factory=dict)
-
-
 class CodexCliBackend:
     """Invoke Codex CLI as a Verification Agent Backend."""
+
+    backend_id = CODEX_CLI
 
     def __init__(
         self,
@@ -75,6 +66,26 @@ class CodexCliBackend:
         self.codex_bin = codex_bin
         self.runner = runner if runner is not None else SubprocessCommandRunner()
         self.session_root = session_root or default_codex_session_root()
+
+    def build_request(
+        self,
+        *,
+        segment: object,
+        journey_instructions: str,
+        workdir: Path,
+        artifact_dir: Path,
+        output_schema: Path,
+        device: str | None,
+        model: str | None,
+    ) -> JourneyExecutionRequest:
+        """Build the Codex-specific request for the shared Journey seam."""
+        return JourneyExecutionRequest(
+            journey_instructions=journey_instructions,
+            workdir=workdir,
+            artifact_dir=artifact_dir,
+            output_schema=output_schema,
+            model=model,
+        )
 
     def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
         """Run Codex CLI and parse its schema-constrained final response."""
@@ -183,4 +194,5 @@ class CodexCliBackend:
             events_path=events_path,
             command=args,
             metadata=metadata,
+            backend=CODEX_CLI,
         )
