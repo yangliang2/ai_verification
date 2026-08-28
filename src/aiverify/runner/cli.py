@@ -1187,6 +1187,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
                     plan=deterministic_plan,
                     device=device,
                     android_bin=spec.live_validation.android_bin,
+                    adb_bin=spec.live_validation.adb_bin,
                     command_runner=SubprocessCommandRunner(),
                 ),
             )

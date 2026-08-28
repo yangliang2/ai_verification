@@ -33,6 +33,71 @@ def _run_spec_bytes() -> bytes:
     return b"host_project: .\nscenario:\n  id: wait-smoke\n  user_actions:\n    - wait for resource id oneButton\n"
 
 
+KEYPAD_ACTIONS = (
+    "wait for resource id oneButton",
+    "tap resource id oneButton",
+    "tap resource id twoButton",
+    "tap resource id addButton",
+    "tap resource id threeButton",
+    "tap resource id fourButton",
+)
+
+
+def _keypad_run_spec_bytes() -> bytes:
+    return (
+        b"host_project: .\n"
+        b"scenario:\n"
+        b"  id: opencalc-preserve-expression\n"
+        b"  user_actions:\n"
+        b"    - wait for resource id oneButton\n"
+        b"    - tap resource id oneButton\n"
+        b"    - tap resource id twoButton\n"
+        b"    - tap resource id addButton\n"
+        b"    - tap resource id threeButton\n"
+        b"    - tap resource id fourButton\n"
+    )
+
+
+def _keypad_plan_payload(run_spec_path: str, run_spec_bytes: bytes) -> dict:
+    resources = (
+        "oneButton",
+        "oneButton",
+        "twoButton",
+        "addButton",
+        "threeButton",
+        "fourButton",
+    )
+    kinds = (
+        "wait_for_resource_id",
+        "tap_resource_id",
+        "tap_resource_id",
+        "tap_resource_id",
+        "tap_resource_id",
+        "tap_resource_id",
+    )
+    return {
+        "schema_version": 1,
+        "document_kind": "deterministic_driver_plan",
+        "family_id": "test-family",
+        "family_version": "v1",
+        "lane_id": "lane-01",
+        "plan_id": "lane-01-driver-plan",
+        "run_spec_path": run_spec_path,
+        "run_spec_sha256": hashlib.sha256(run_spec_bytes).hexdigest(),
+        "actions": [
+            {
+                "action_id": f"action-{index:02d}",
+                "kind": kind,
+                "resource_id": resource,
+                "timeout_ms": 5000 if kind == "wait_for_resource_id" else 0,
+                "observation_interval_ms": 350 if kind == "wait_for_resource_id" else 0,
+                "settle_ms": 0 if kind == "wait_for_resource_id" else 350,
+            }
+            for index, (kind, resource) in enumerate(zip(kinds, resources), start=1)
+        ],
+    }
+
+
 def _plan_payload(run_spec_path: str, run_spec_bytes: bytes) -> dict:
     return {
         "schema_version": 1,
@@ -77,6 +142,88 @@ def test_plan_is_bound_to_exact_run_spec_bytes_and_action() -> None:
     assert plan.run_spec_sha256 == hashlib.sha256(raw).hexdigest()
 
 
+def test_keypad_plan_is_bound_to_the_complete_frozen_action_sequence(
+    tmp_path: Path,
+) -> None:
+    raw = _keypad_run_spec_bytes()
+    spec_path = tmp_path / "run-spec.yaml"
+    spec_path.write_bytes(raw)
+    plan_path = _write_plan(tmp_path, _keypad_plan_payload(spec_path.name, raw))
+
+    plan = load_deterministic_driver_plan(
+        plan_path,
+        serialized_run_spec=raw,
+        run_spec_path=spec_path,
+        expected_actions=KEYPAD_ACTIONS,
+    )
+
+    assert [(action.kind, action.resource_id) for action in plan.actions] == [
+        ("wait_for_resource_id", "oneButton"),
+        ("tap_resource_id", "oneButton"),
+        ("tap_resource_id", "twoButton"),
+        ("tap_resource_id", "addButton"),
+        ("tap_resource_id", "threeButton"),
+        ("tap_resource_id", "fourButton"),
+    ]
+    assert [action.settle_ms for action in plan.actions] == [0, 350, 350, 350, 350, 350]
+
+
+def test_public_opencalc_plan_accepts_its_canonical_run_spec_binding() -> None:
+    lane = Path(
+        "bench/runtime-calibration/opencalc-input-save-enabled-v1/runtime/lanes/lane-01"
+    ).resolve()
+    run_spec_path = lane / "run-spec.yaml"
+
+    plan = load_deterministic_driver_plan(
+        lane / "driver-plan.json",
+        serialized_run_spec=run_spec_path.read_bytes(),
+        run_spec_path=run_spec_path,
+        expected_actions=KEYPAD_ACTIONS,
+    )
+
+    assert [action.action_id for action in plan.actions] == [
+        f"action-{index:02d}" for index in range(1, 7)
+    ]
+
+
+@pytest.mark.parametrize(
+    "mutator, message",
+    [
+        (
+            lambda p: p["actions"][2].update({"resource_id": "equalsButton"}),
+            "does not match",
+        ),
+        (
+            lambda p: p["actions"][1].update({"center": "[150,1888]"}),
+            "unknown field",
+        ),
+        (
+            lambda p: p["actions"][1].update({"observation_interval_ms": 1}),
+            "fixed",
+        ),
+    ],
+)
+def test_keypad_plan_rejects_order_coordinates_and_unbounded_timing(
+    tmp_path: Path,
+    mutator,
+    message: str,
+) -> None:
+    raw = _keypad_run_spec_bytes()
+    spec_path = tmp_path / "run-spec.yaml"
+    spec_path.write_bytes(raw)
+    payload = _keypad_plan_payload(spec_path.name, raw)
+    mutator(payload)
+    plan_path = _write_plan(tmp_path, payload)
+
+    with pytest.raises(DeterministicDriverPlanError, match=message):
+        load_deterministic_driver_plan(
+            plan_path,
+            serialized_run_spec=raw,
+            run_spec_path=spec_path,
+            expected_actions=KEYPAD_ACTIONS,
+        )
+
+
 @pytest.mark.parametrize(
     "mutator, message",
     [
@@ -84,7 +231,17 @@ def test_plan_is_bound_to_exact_run_spec_bytes_and_action() -> None:
         (lambda p: p["actions"].append(dict(p["actions"][0])), "action count"),
         (lambda p: p["actions"][0].update({"timeout_ms": "5000"}), "timeout_ms"),
         (lambda p: p.update({"run_spec_sha256": "0" * 64}), "Run Spec digest"),
-        (lambda p: p["actions"][0].update({"kind": "tap_resource_id"}), "only admits"),
+        (
+            lambda p: p["actions"][0].update(
+                {
+                    "kind": "tap_resource_id",
+                    "timeout_ms": 0,
+                    "observation_interval_ms": 0,
+                    "settle_ms": 350,
+                }
+            ),
+            "does not match",
+        ),
     ],
 )
 def test_invalid_plan_is_rejected_before_it_can_be_used(
@@ -135,6 +292,90 @@ class RecordingLayoutAdapter:
         return value
 
 
+class RecordingDeviceAdapter(RecordingLayoutAdapter):
+    def __init__(
+        self,
+        observations: list[object],
+        tap_results: list[object] | None = None,
+    ) -> None:
+        super().__init__(observations)
+        self.tap_results = list(tap_results or [])
+        self.taps: list[tuple[int, int]] = []
+
+    def tap(self, x: int, y: int) -> CommandResult | None:
+        self.taps.append((x, y))
+        if not self.tap_results:
+            return CommandResult(
+                args=[
+                    "adb",
+                    "-s",
+                    "emulator-5554",
+                    "shell",
+                    "input",
+                    "tap",
+                    str(x),
+                    str(y),
+                ],
+                stdout="",
+                stderr="",
+                returncode=0,
+            )
+        value = self.tap_results.pop(0)
+        if isinstance(value, BaseException):
+            raise value
+        return value
+
+
+def _loaded_keypad_plan(tmp_path: Path):
+    raw = _keypad_run_spec_bytes()
+    spec_path = tmp_path / "run-spec.yaml"
+    spec_path.write_bytes(raw)
+    plan_path = _write_plan(tmp_path, _keypad_plan_payload(spec_path.name, raw))
+    return load_deterministic_driver_plan(
+        plan_path,
+        serialized_run_spec=raw,
+        run_spec_path=spec_path,
+        expected_actions=KEYPAD_ACTIONS,
+    )
+
+
+def _layout_response(
+    resource_id: str,
+    *,
+    center: str | None = None,
+    clickable: bool = True,
+) -> LayoutObservation:
+    node: dict[str, object] = {"resource-id": resource_id}
+    if clickable:
+        node["interactions"] = ["clickable", "focusable"]
+    if center is not None:
+        node["center"] = center
+    return LayoutObservation(
+        command=("android", "layout", "--device=emulator-5554", "--pretty"),
+        stdout=json.dumps([node]),
+    )
+
+
+def _keypad_layouts() -> list[object]:
+    centers = {
+        "oneButton": "[150,1888]",
+        "twoButton": "[409,1888]",
+        "addButton": "[929,1888]",
+        "threeButton": "[669,1888]",
+        "fourButton": "[150,1590]",
+    }
+    return [
+        _layout_response("oneButton"),
+        *[
+            _layout_response(
+                action.removeprefix("tap resource id "),
+                center=centers[action.removeprefix("tap resource id ")],
+            )
+            for action in KEYPAD_ACTIONS[1:]
+        ],
+    ]
+
+
 class RecordingCommandRunner(CommandRunner):
     def __init__(self) -> None:
         self.calls: list[list[str]] = []
@@ -173,6 +414,31 @@ def test_android_layout_adapter_uses_the_fixed_wait_read_timeout() -> None:
     assert runner.timeouts == [5]
 
 
+def test_android_layout_adapter_taps_with_the_selected_device_and_fixed_timeout() -> None:
+    runner = RecordingCommandRunner()
+    adapter = AndroidLayoutDeviceAdapter(
+        device="emulator-5554",
+        android_bin="android",
+        adb_bin="adb-custom",
+        runner=runner,
+    )
+
+    result = adapter.tap(150, 1888)
+
+    assert result.returncode == 0
+    assert runner.calls == [[
+        "adb-custom",
+        "-s",
+        "emulator-5554",
+        "shell",
+        "input",
+        "tap",
+        "150",
+        "1888",
+    ]]
+    assert runner.timeouts == [5]
+
+
 def _loaded_plan(tmp_path: Path):
     raw = _run_spec_bytes()
     spec_path = tmp_path / "run-spec.yaml"
@@ -184,6 +450,258 @@ def _loaded_plan(tmp_path: Path):
         run_spec_path=spec_path,
         expected_actions=("wait for resource id oneButton",),
     )
+
+
+def test_keypad_executes_the_frozen_sequence_with_fresh_center_dispatches(
+    tmp_path: Path,
+) -> None:
+    plan = _loaded_keypad_plan(tmp_path)
+    adapter = RecordingDeviceAdapter(_keypad_layouts())
+    sleeps: list[float] = []
+    backend = DeterministicAndroidBackend(
+        plan=plan,
+        device="emulator-5554",
+        device_adapter=adapter,
+        sleeper=sleeps.append,
+    )
+    request = backend.build_request(
+        segment_id="opencalc-preserve-expression-segment-0",
+        action_offset=0,
+        action_count=6,
+        artifact_dir=tmp_path / "artifacts",
+    )
+
+    assert request.action_ids == tuple(f"action-{index}" for index in range(1, 7))
+    assert [action.action_id for action in request.plan_actions] == [
+        f"action-{index:02d}" for index in range(1, 7)
+    ]
+    result = backend.execute(request)
+
+    assert adapter.calls == 6
+    assert adapter.taps == [
+        (150, 1888),
+        (409, 1888),
+        (929, 1888),
+        (669, 1888),
+        (150, 1590),
+    ]
+    assert sleeps == [0.35] * 5
+    assert [item["status"] for item in result.data["results"]] == [
+        "PASSED"
+    ] * 6
+    assert not any(
+        "equals" in str(item).lower() for item in result.data["results"]
+    )
+
+    events = json.loads(result.events_path.read_text(encoding="utf-8"))
+    assert len(events["observations"]) == 6
+    assert [item["status"] for item in events["observations"]] == [
+        "resource_found",
+        "tap_target_validated",
+        "tap_target_validated",
+        "tap_target_validated",
+        "tap_target_validated",
+        "tap_target_validated",
+    ]
+    assert [item["resource_id"] for item in events["dispatches"]] == [
+        "oneButton",
+        "twoButton",
+        "addButton",
+        "threeButton",
+        "fourButton",
+    ]
+    assert [item["center"] for item in events["dispatches"]] == [
+        [150, 1888],
+        [409, 1888],
+        [929, 1888],
+        [669, 1888],
+        [150, 1590],
+    ]
+    assert all(item["status"] == "dispatched" for item in events["dispatches"])
+
+    invocation = json.loads(
+        (tmp_path / "artifacts" / "deterministic-driver-invocation.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert invocation["action_ids"] == [f"action-{index}" for index in range(1, 7)]
+    assert invocation["plan_action_ids"] == [
+        f"action-{index:02d}" for index in range(1, 7)
+    ]
+    assert invocation["dispatch_count"] == 5
+    assert invocation["command"][:2] == ["android", "layout"]
+    assert all("equals" not in command for command in invocation["commands"])
+    assert set(result.data) == {"schema_version", "journey", "results"}
+
+
+@pytest.mark.parametrize(
+    "layout, message, expected_status",
+    [
+        ([], "missing", "resource_missing"),
+        (
+            [
+                {"resource-id": "oneButton"},
+                {"resource-id": "oneButton"},
+            ],
+            "duplicated",
+            "resource_duplicate",
+        ),
+        (
+            [{"resource-id": "oneButton", "center": "[150,1888]"}],
+            "not clickable",
+            "resource_not_clickable",
+        ),
+        (
+            [{"resource-id": "oneButton", "interactions": ["clickable"]}],
+            "on-screen coordinate",
+            "center_invalid",
+        ),
+        (
+            [
+                {
+                    "resource-id": "oneButton",
+                    "interactions": ["clickable"],
+                    "center": "[150,1888]",
+                    "bounds": "[0,0][100,100]",
+                }
+            ],
+            "outside node bounds",
+            "center_invalid",
+        ),
+        ("not-json-layout", "malformed", "malformed_layout"),
+    ],
+)
+def test_tap_requires_one_clickable_target_with_a_valid_center(
+    tmp_path: Path,
+    layout: object,
+    message: str,
+    expected_status: str,
+) -> None:
+    plan = _loaded_keypad_plan(tmp_path)
+    adapter = RecordingDeviceAdapter([layout])
+    sleeps: list[float] = []
+    backend = DeterministicAndroidBackend(
+        plan=plan,
+        device="emulator-5554",
+        device_adapter=adapter,
+        sleeper=sleeps.append,
+    )
+    request = backend.build_request(
+        segment_id="opencalc-preserve-expression-segment-0",
+        action_offset=1,
+        action_count=1,
+        artifact_dir=tmp_path / "artifacts",
+    )
+
+    with pytest.raises(DeterministicDriverError, match=message) as raised:
+        backend.execute(request)
+
+    assert adapter.calls == 1
+    assert adapter.taps == []
+    assert sleeps == []
+    events = json.loads(raised.value.events_path.read_text(encoding="utf-8"))
+    assert events["observations"][0]["status"] == expected_status
+    assert events["dispatches"] == []
+
+
+def test_tap_dispatch_failure_is_terminal_and_is_not_retried(tmp_path: Path) -> None:
+    plan = _loaded_keypad_plan(tmp_path)
+    adapter = RecordingDeviceAdapter(
+        [_layout_response("oneButton", center="[150,1888]")],
+        tap_results=[
+            CommandResult(
+                args=["adb", "tap", "150", "1888"],
+                stdout="",
+                stderr="transport failed",
+                returncode=7,
+            )
+        ],
+    )
+    sleeps: list[float] = []
+    backend = DeterministicAndroidBackend(
+        plan=plan,
+        device="emulator-5554",
+        device_adapter=adapter,
+        sleeper=sleeps.append,
+    )
+    request = backend.build_request(
+        segment_id="opencalc-preserve-expression-segment-0",
+        action_offset=1,
+        action_count=1,
+        artifact_dir=tmp_path / "artifacts",
+    )
+
+    with pytest.raises(DeterministicDriverError, match="tap command failed") as raised:
+        backend.execute(request)
+
+    assert adapter.taps == [(150, 1888)]
+    assert sleeps == []
+    events = json.loads(raised.value.events_path.read_text(encoding="utf-8"))
+    assert len(events["dispatches"]) == 1
+    assert events["dispatches"][0]["status"] == "failed"
+
+
+@pytest.mark.parametrize("failure", [RuntimeError("tap transport closed"), None])
+def test_tap_has_one_dispatch_even_when_dispatch_or_settle_is_interrupted(
+    tmp_path: Path,
+    failure: BaseException | None,
+) -> None:
+    plan = _loaded_keypad_plan(tmp_path)
+    tap_results = [failure] if failure is not None else None
+    adapter = RecordingDeviceAdapter(
+        [_layout_response("oneButton", center="[150,1888]")],
+        tap_results=tap_results,
+    )
+    sleeps: list[float] = []
+
+    def interrupted_settle(seconds: float) -> None:
+        sleeps.append(seconds)
+        raise InterruptedError("settle cancelled")
+
+    backend = DeterministicAndroidBackend(
+        plan=plan,
+        device="emulator-5554",
+        device_adapter=adapter,
+        sleeper=interrupted_settle if failure is None else sleeps.append,
+    )
+    request = backend.build_request(
+        segment_id="opencalc-preserve-expression-segment-0",
+        action_offset=1,
+        action_count=1,
+        artifact_dir=tmp_path / "artifacts",
+    )
+
+    expected = "tap dispatch interrupted" if failure is not None else "settle interrupted"
+    with pytest.raises(DeterministicDriverError, match=expected) as raised:
+        backend.execute(request)
+
+    assert adapter.taps == [(150, 1888)]
+    assert len(sleeps) == (0 if failure is not None else 1)
+    events = json.loads(raised.value.events_path.read_text(encoding="utf-8"))
+    assert len(events["dispatches"]) == 1
+    assert events["dispatches"][0]["status"] == (
+        "interrupted" if failure is not None else "dispatched"
+    )
+
+
+def test_driver_plan_bytes_cannot_drift_between_admission_and_dispatch(
+    tmp_path: Path,
+) -> None:
+    plan = _loaded_keypad_plan(tmp_path)
+    backend = DeterministicAndroidBackend(
+        plan=plan,
+        device="emulator-5554",
+        device_adapter=RecordingDeviceAdapter([]),
+    )
+    plan.path.write_text("{}\n", encoding="utf-8")
+
+    with pytest.raises(DeterministicDriverPlanError, match="drifted"):
+        backend.build_request(
+            segment_id="opencalc-preserve-expression-segment-0",
+            action_offset=0,
+            action_count=6,
+            artifact_dir=tmp_path / "artifacts",
+        )
 
 
 def test_invalid_source_backed_plan_is_rejected_before_execution_record(
@@ -440,6 +958,53 @@ def test_runner_emits_backend_neutral_normalized_result_and_lineage(
     assert not (result.result_path.parent / "codex-journey-result.normalized.json").exists()
 
 
+def test_runner_preserves_all_keypad_action_lineage_without_oracle_fields(
+    tmp_path: Path,
+) -> None:
+    plan = _loaded_keypad_plan(tmp_path)
+    backend = DeterministicAndroidBackend(
+        plan=plan,
+        device="emulator-5554",
+        device_adapter=RecordingDeviceAdapter(_keypad_layouts()),
+        sleeper=lambda seconds: None,
+    )
+    flow = JourneySegmentRunner(
+        backend=backend,
+        checkpoint_collector=RecordingCheckpointCollector(),
+        system_event_injector=lambda event: None,
+    ).run(
+        scenario=ScenarioSpec(id="opencalc-preserve-expression", user_actions=list(KEYPAD_ACTIONS)),
+        workdir=tmp_path,
+        artifact_dir=tmp_path / "artifacts",
+        output_schema=tmp_path / "unused-schema.json",
+        device="emulator-5554",
+    )
+
+    result = flow.journey_results[0]
+    lineage = json.loads(result.action_lineage_path.read_text(encoding="utf-8"))
+    assert [item["requested_action"] for item in lineage["results"]] == list(
+        KEYPAD_ACTIONS
+    )
+    assert [item["action_id"] for item in lineage["results"]] == [
+        f"action-{index}" for index in range(1, 7)
+    ]
+    assert [item["plan_action_id"] for item in lineage["results"]] == [
+        f"action-{index:02d}" for index in range(1, 7)
+    ]
+    assert lineage["results"][0] == {
+        "action_id": "action-1",
+        "plan_action_id": "action-01",
+        "requested_action": KEYPAD_ACTIONS[0],
+        "status": "PASSED",
+        "operation": "observation_probe",
+    }
+    for item in lineage["results"][1:]:
+        assert item["operation"] == "side_effect_dispatch"
+    assert not any(
+        key in result.data for key in ("L1", "L2", "L3", "finding", "oracle")
+    )
+
+
 def test_deterministic_identity_records_real_tool_and_zero_model_calls(
     tmp_path: Path,
 ) -> None:
@@ -609,6 +1174,78 @@ def test_deterministic_attempt_identity_materializes_role_artifacts(tmp_path: Pa
     assert ledger["model_calls"] == 0
     assert ledger["requested_model"] is None
     assert ledger["effective_model"] is None
+
+
+def test_multi_action_identity_retains_exact_sequence_and_zero_model_calls(
+    tmp_path: Path,
+) -> None:
+    run_dir = tmp_path / "run"
+    artifact_dir = run_dir / "artifacts"
+    binary_path = tmp_path / "bin" / "android"
+    binary_path.parent.mkdir()
+    binary_path.write_text("android test binary\n", encoding="utf-8")
+    binary = {
+        "requested": str(binary_path),
+        "resolved_path": str(binary_path.resolve()),
+        "sha256": hashlib.sha256(binary_path.read_bytes()).hexdigest(),
+        "version": "android-cli test-v1",
+    }
+    binary["identity_sha256"] = hashlib.sha256(
+        json.dumps(binary, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    layout_command = (
+        str(binary_path),
+        "layout",
+        "--device=emulator-5554",
+        "--pretty",
+    )
+    observations = [
+        LayoutObservation(command=layout_command, stdout=value.stdout)
+        for value in _keypad_layouts()
+    ]
+    backend = DeterministicAndroidBackend(
+        plan=_loaded_keypad_plan(tmp_path),
+        device="emulator-5554",
+        device_adapter=RecordingDeviceAdapter(observations),
+        sleeper=lambda seconds: None,
+    )
+    request = backend.build_request(
+        segment_id="opencalc-preserve-expression-segment-0",
+        action_offset=0,
+        action_count=6,
+        artifact_dir=artifact_dir / "opencalc-preserve-expression-segment-0",
+    )
+    backend.execute(request)
+
+    collector = object.__new__(ExecutionIdentityCollector)
+    collector.run_dir = run_dir.resolve()
+    collector.artifact_dir = artifact_dir.resolve()
+    collector.attempt_id = "attempt-deterministic"
+    collector.workdir = tmp_path.resolve()
+    collector.journey_driver_backend = DETERMINISTIC_ANDROID_V1
+    collector._static = {"tools": {"android_cli": binary}}
+    collector._materialize_deterministic_identity_receipts()
+
+    identity_path = (
+        artifact_dir
+        / "opencalc-preserve-expression-segment-0"
+        / "deterministic-invocation-identity.json"
+    )
+    identity = json.loads(identity_path.read_text(encoding="utf-8"))
+    assert identity["action_ids"] == [f"action-{index}" for index in range(1, 7)]
+    assert identity["plan_action_ids"] == [
+        f"action-{index:02d}" for index in range(1, 7)
+    ]
+    assert identity["dispatch_count"] == 5
+    assert identity["model_calls"] == 0
+    collector._role_identity(
+        "journey_driver",
+        [identity_path],
+        None,
+        [identity_path.with_name("deterministic-invocation-ledger.json")],
+        binary,
+        backend=DETERMINISTIC_ANDROID_V1,
+    )
 
 
 def test_cli_public_deterministic_run_records_verified_real_tool_identity(

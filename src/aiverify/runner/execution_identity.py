@@ -25,6 +25,11 @@ from aiverify.runner.journey_backend import (
 from aiverify.runner.run_spec import RunSpec, RunSpecError, parse_run_spec
 
 
+_DETERMINISTIC_SEQUENCE_FIELDS = frozenset(
+    {"action_ids", "plan_action_ids", "commands", "dispatch_count"}
+)
+
+
 class ExecutionIdentityError(RuntimeError):
     """Raised when required execution identity is missing or contradictory."""
 
@@ -397,27 +402,29 @@ class ExecutionIdentityCollector:
                 "deterministic driver invocation receipt is missing"
             )
         binary = dict(self._static["tools"]["android_cli"])
+        legacy_fields = {
+            "schema_version",
+            "backend",
+            "role",
+            "journey",
+            "action_id",
+            "plan_action_id",
+            "requested_model",
+            "effective_model",
+            "model_calls",
+            "command",
+            "result_path",
+            "events_path",
+            "raw_result_sha256",
+            "raw_events_sha256",
+            "observation_count",
+        }
         for index, raw_path in enumerate(raw_paths, start=1):
             raw = _load_json(raw_path, label="deterministic driver invocation")
+            raw_fields = set(raw)
             if (
-                set(raw)
-                != {
-                    "schema_version",
-                    "backend",
-                    "role",
-                    "journey",
-                    "action_id",
-                    "plan_action_id",
-                    "requested_model",
-                    "effective_model",
-                    "model_calls",
-                    "command",
-                    "result_path",
-                    "events_path",
-                    "raw_result_sha256",
-                    "raw_events_sha256",
-                    "observation_count",
-                }
+                raw_fields != legacy_fields
+                and raw_fields != legacy_fields | _DETERMINISTIC_SEQUENCE_FIELDS
                 or not isinstance(raw.get("journey"), str)
                 or not raw["journey"]
                 or not isinstance(raw.get("action_id"), str)
@@ -442,6 +449,9 @@ class ExecutionIdentityCollector:
                 raise ExecutionIdentityError(
                     "deterministic driver invocation receipt is invalid"
                 )
+            has_sequence = raw_fields == legacy_fields | _DETERMINISTIC_SEQUENCE_FIELDS
+            if has_sequence:
+                _validate_deterministic_sequence_fields(raw)
             for path_key, digest_key in (
                 ("result_path", "raw_result_sha256"),
                 ("events_path", "raw_events_sha256"),
@@ -454,33 +464,56 @@ class ExecutionIdentityCollector:
                     raise ExecutionIdentityError(
                         "deterministic driver raw artifact checksum mismatch"
                     )
+            if has_sequence:
+                events = _load_json(
+                    Path(raw["events_path"]),
+                    label="deterministic driver raw events",
+                )
+                dispatches = events.get("dispatches")
+                if (
+                    not isinstance(dispatches, list)
+                    or len(dispatches) != raw["dispatch_count"]
+                ):
+                    raise ExecutionIdentityError(
+                        "deterministic driver dispatch evidence is incomplete"
+                    )
             identity_path = raw_path.with_name("deterministic-invocation-identity.json")
             ledger_path = raw_path.with_name("deterministic-invocation-ledger.json")
+            identity = {
+                "schema_version": 1,
+                "role": "journey_driver",
+                "backend": DETERMINISTIC_ANDROID_V1,
+                "binary": binary,
+                "requested_model": None,
+                "effective_model": None,
+                "model_identity": {
+                    "status": "not_applicable",
+                    "reason": "deterministic_backend_has_no_model_role",
+                },
+                "model_calls": 0,
+                "invocation_id": f"{self.attempt_id}:deterministic:{index}",
+                "journey": raw["journey"],
+                "action_id": raw["action_id"],
+                "plan_action_id": raw["plan_action_id"],
+                "command": {"argv": raw["command"]},
+                "raw_result_path": raw["result_path"],
+                "raw_events_path": raw["events_path"],
+                "raw_result_sha256": raw["raw_result_sha256"],
+                "raw_events_sha256": raw["raw_events_sha256"],
+                "observation_count": raw["observation_count"],
+            }
+            if has_sequence:
+                identity.update(
+                    {
+                        "action_ids": raw["action_ids"],
+                        "plan_action_ids": raw["plan_action_ids"],
+                        "commands": raw["commands"],
+                        "dispatch_count": raw["dispatch_count"],
+                    }
+                )
             write_json_artifact(
                 identity_path,
-                {
-                    "schema_version": 1,
-                    "role": "journey_driver",
-                    "backend": DETERMINISTIC_ANDROID_V1,
-                    "binary": binary,
-                    "requested_model": None,
-                    "effective_model": None,
-                    "model_identity": {
-                        "status": "not_applicable",
-                        "reason": "deterministic_backend_has_no_model_role",
-                    },
-                    "model_calls": 0,
-                    "invocation_id": f"{self.attempt_id}:deterministic:{index}",
-                    "journey": raw["journey"],
-                    "action_id": raw["action_id"],
-                    "plan_action_id": raw["plan_action_id"],
-                    "command": {"argv": raw["command"]},
-                    "raw_result_path": raw["result_path"],
-                    "raw_events_path": raw["events_path"],
-                    "raw_result_sha256": raw["raw_result_sha256"],
-                    "raw_events_sha256": raw["raw_events_sha256"],
-                    "observation_count": raw["observation_count"],
-                },
+                identity,
             )
             write_json_artifact(
                 ledger_path,
@@ -1463,10 +1496,16 @@ def _validate_deterministic_role_receipt(
         "raw_events_sha256",
         "observation_count",
     }
-    if set(receipt) != required:
+    receipt_fields = set(receipt)
+    if (
+        receipt_fields != required
+        and receipt_fields != required | _DETERMINISTIC_SEQUENCE_FIELDS
+    ):
         raise ExecutionIdentityError(
             "deterministic driver identity receipt fields are invalid"
         )
+    if receipt_fields == required | _DETERMINISTIC_SEQUENCE_FIELDS:
+        _validate_deterministic_sequence_fields(receipt)
     if expected_role != "journey_driver":
         raise ExecutionIdentityError(
             "deterministic backend identity is only valid for the Journey driver"
@@ -1541,6 +1580,47 @@ def _validate_deterministic_role_receipt(
             raise ExecutionIdentityError(
                 f"deterministic driver raw artifact checksum is invalid: {digest_key}"
             )
+
+
+def _validate_deterministic_sequence_fields(value: Mapping[str, object]) -> None:
+    """Validate the optional exact action/command lineage on a multi-action call."""
+    action_ids = value.get("action_ids")
+    plan_action_ids = value.get("plan_action_ids")
+    commands = value.get("commands")
+    dispatch_count = value.get("dispatch_count")
+    command_value = value.get("command")
+    primary_command = (
+        command_value.get("argv")
+        if isinstance(command_value, dict)
+        else command_value
+    )
+    if (
+        not isinstance(action_ids, list)
+        or not action_ids
+        or not all(isinstance(item, str) and item for item in action_ids)
+        or not isinstance(plan_action_ids, list)
+        or len(plan_action_ids) != len(action_ids)
+        or not all(isinstance(item, str) and item for item in plan_action_ids)
+        or not isinstance(commands, list)
+        or not all(
+            isinstance(command, list)
+            and all(isinstance(argument, str) for argument in command)
+            for command in commands
+        )
+        or not commands
+        or type(dispatch_count) is not int
+        or dispatch_count < 0
+        or value.get("action_id") != action_ids[0]
+        or value.get("plan_action_id") != plan_action_ids[0]
+        or primary_command != commands[0]
+    ):
+        raise ExecutionIdentityError(
+            "deterministic driver action sequence identity is invalid"
+        )
+    if any("--model" in command for command in commands):
+        raise ExecutionIdentityError(
+            "deterministic driver command identity is invalid"
+        )
 
 
 def _verify_deterministic_ledger(

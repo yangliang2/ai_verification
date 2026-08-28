@@ -214,6 +214,11 @@ def _action_lineage_results(
     normalized_actions: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """Project normalized actions into the stable lineage contract."""
+    has_tap_action = any(
+        item.get("action", "").startswith("tap resource id ")
+        and "plan_action_id" in item
+        for item in normalized_actions
+    )
     results = []
     for item in normalized_actions:
         lineage = {
@@ -223,6 +228,12 @@ def _action_lineage_results(
         }
         if "plan_action_id" in item:
             lineage["plan_action_id"] = item["plan_action_id"]
+            if has_tap_action:
+                lineage["operation"] = (
+                    "side_effect_dispatch"
+                    if item["action"].startswith("tap resource id ")
+                    else "observation_probe"
+                )
         results.append(lineage)
     return results
 

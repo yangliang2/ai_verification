@@ -1,7 +1,7 @@
 """Least-authority deterministic Journey execution.
 
 The deterministic backend is intentionally small.  Admission owns the exact
-Run Spec and Driver Plan bytes; execution receives one opaque plan action, a
+Run Spec and Driver Plan bytes; execution receives an opaque plan-action slice, a
 read-only resource-layout adapter, and an opaque evidence sink.  It cannot
 inspect source meaning, an oracle, or a complete Run Spec through its request
 type.
@@ -16,15 +16,20 @@ import time
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import NoReturn, Protocol, cast
 
-from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
+import yaml
+
+from aiverify.runner.command import (
+    CommandResult,
+    CommandRunner,
+    SubprocessCommandRunner,
+)
 from aiverify.runner.execution_record import write_json_artifact
 from aiverify.runner.journey_backend import (
     DETERMINISTIC_ANDROID_V1,
     JourneyExecutionResult,
 )
-
 
 _PLAN_FIELDS = {
     "schema_version",
@@ -50,6 +55,7 @@ _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _ACTION_ID_RE = re.compile(r"^action-([0-9]{2})$")
 _SAFE_RELATIVE_PATH_RE = re.compile(r"^[^\x00]+$")
 _LAYOUT_READ_TIMEOUT_SECONDS = 5
+_TAP_DISPATCH_TIMEOUT_SECONDS = 5
 
 
 class DeterministicDriverPlanError(ValueError):
@@ -114,7 +120,7 @@ class DeterministicDriverPlan:
 
     @property
     def action(self) -> DeterministicPlanAction:
-        """Return the sole action admitted by the current minimal slice."""
+        """Return the sole action when a caller has admitted a one-action plan."""
         if len(self.actions) != 1:
             raise DeterministicDriverPlanError(
                 "Driver Plan action count must be exactly one"
@@ -153,32 +159,60 @@ class DeterministicLayoutAdapter(Protocol):
         """Read one fresh device-scoped UI layout."""
 
 
+class DeterministicDeviceAdapter(DeterministicLayoutAdapter, Protocol):
+    """Narrow device surface for read-only probes and one tap dispatch."""
+
+    def tap(self, x: int, y: int) -> CommandResult:
+        """Dispatch one tap at an already validated on-screen center."""
+
+
+class _LayoutOnlyDeviceAdapter:
+    """Adapt the legacy wait-only fake to the typed device capability seam."""
+
+    def __init__(self, adapter: DeterministicLayoutAdapter) -> None:
+        self._adapter = adapter
+
+    def read_layout(self) -> LayoutObservation | CommandResult | str | list[object]:
+        return self._adapter.read_layout()
+
+    def tap(self, x: int, y: int) -> NoReturn:
+        raise DeterministicDriverError(
+            "deterministic device adapter does not expose tap"
+        )
+
+
 class DeterministicEvidenceSink(Protocol):
     """Opaque append-only sink for backend-owned raw observations."""
 
     def record_observation(self, observation: dict[str, object]) -> None:
         """Retain one observation without exposing filesystem operations."""
 
+    def record_dispatch(self, dispatch: dict[str, object]) -> None:
+        """Retain one side-effect dispatch without exposing filesystem operations."""
+
     def persist(self) -> Path:
         """Finalize the retained observations and return their opaque reference."""
 
 
 class AndroidLayoutDeviceAdapter:
-    """Execute only the device-scoped Android CLI layout primitive."""
+    """Execute the admitted device-scoped layout and tap primitives."""
 
-    __slots__ = ("_command", "_reader")
+    __slots__ = ("_command", "_reader", "_runner", "_tap_command")
 
     def __init__(
         self,
         *,
         device: str,
         android_bin: str = "android",
+        adb_bin: str = "adb",
         runner: CommandRunner | None = None,
     ) -> None:
         if not isinstance(device, str) or not device.strip():
             raise ValueError("deterministic device serial is required")
         self._command = (android_bin, "layout", f"--device={device}", "--pretty")
+        self._tap_command = (adb_bin, "-s", device, "shell", "input", "tap")
         command_runner = runner or SubprocessCommandRunner()
+        self._runner = command_runner
 
         def read() -> LayoutObservation:
             result = command_runner.run(
@@ -197,6 +231,15 @@ class AndroidLayoutDeviceAdapter:
     def read_layout(self) -> LayoutObservation:
         return self._reader()
 
+    def tap(self, x: int, y: int) -> CommandResult:
+        """Dispatch exactly one serial-scoped Android tap command."""
+        if type(x) is not int or type(y) is not int or x < 0 or y < 0:
+            raise ValueError("tap coordinates must be non-negative integers")
+        return self._runner.run(
+            [*self._tap_command, str(x), str(y)],
+            timeout_seconds=_TAP_DISPATCH_TIMEOUT_SECONDS,
+        )
+
 
 class RecordingEvidenceSink:
     """Small recording sink useful for contract tests and local diagnostics."""
@@ -205,10 +248,14 @@ class RecordingEvidenceSink:
         self._artifact_dir = Path(artifact_dir).resolve()
         self._artifact_dir.mkdir(parents=True, exist_ok=True)
         self.records: list[dict[str, object]] = []
+        self.dispatches: list[dict[str, object]] = []
         self._path = self._artifact_dir / "deterministic-observations.json"
 
     def record_observation(self, observation: dict[str, object]) -> None:
         self.records.append(dict(observation))
+
+    def record_dispatch(self, dispatch: dict[str, object]) -> None:
+        self.dispatches.append(dict(dispatch))
 
     def persist(self) -> Path:
         write_json_artifact(
@@ -217,6 +264,7 @@ class RecordingEvidenceSink:
                 "schema_version": 1,
                 "backend": DETERMINISTIC_ANDROID_V1,
                 "observations": self.records,
+                "dispatches": self.dispatches,
             },
         )
         return self._path
@@ -224,13 +272,27 @@ class RecordingEvidenceSink:
 
 @dataclass(frozen=True)
 class DeterministicDriverRequest:
-    """Least-authority request for exactly one deterministic Journey action."""
+    """Least-authority request for one contiguous deterministic action slice."""
 
     segment_id: str
-    action_id: str
-    plan_action: DeterministicPlanAction
-    device: DeterministicLayoutAdapter
+    action_id: str | tuple[str, ...]
+    plan_action: DeterministicPlanAction | tuple[DeterministicPlanAction, ...]
+    device: DeterministicDeviceAdapter
     evidence_sink: DeterministicEvidenceSink
+
+    @property
+    def action_ids(self) -> tuple[str, ...]:
+        """Return local Journey action identities without widening the request."""
+        return (self.action_id,) if isinstance(self.action_id, str) else self.action_id
+
+    @property
+    def plan_actions(self) -> tuple[DeterministicPlanAction, ...]:
+        """Return the contiguous admitted Driver Plan action slice."""
+        return (
+            (self.plan_action,)
+            if isinstance(self.plan_action, DeterministicPlanAction)
+            else self.plan_action
+        )
 
 
 def load_deterministic_driver_plan(
@@ -286,9 +348,9 @@ def load_deterministic_driver_plan(
     declared_run_spec_sha256 = _require_sha256(payload, "run_spec_sha256")
 
     actions_value = payload["actions"]
-    if not isinstance(actions_value, list) or len(actions_value) != 1:
+    if not isinstance(actions_value, list) or not actions_value:
         raise DeterministicDriverPlanError(
-            "Driver Plan action count must be exactly one"
+            "Driver Plan action count must be at least one"
         )
     if len(actions_value) != len(expected):
         raise DeterministicDriverPlanError(
@@ -302,8 +364,7 @@ def load_deterministic_driver_plan(
     source_bytes = serialized_run_spec
     if not isinstance(source_bytes, bytes):
         raise DeterministicDriverPlanError("serialized Run Spec must be bytes")
-    actual_run_spec_sha256 = hashlib.sha256(source_bytes).hexdigest()
-    if declared_run_spec_sha256 != actual_run_spec_sha256:
+    if declared_run_spec_sha256 not in _run_spec_sha256_candidates(source_bytes):
         raise DeterministicDriverPlanError(
             "Driver Plan Run Spec digest mismatch"
         )
@@ -362,7 +423,7 @@ def validate_deterministic_driver_plan(
 
 
 class DeterministicAndroidBackend:
-    """Execute the minimal fixed-bound resource wait primitive."""
+    """Execute admitted resource waits and single-dispatch resource taps."""
 
     backend_id = DETERMINISTIC_ANDROID_V1
 
@@ -372,6 +433,7 @@ class DeterministicAndroidBackend:
         plan: DeterministicDriverPlan,
         device: str,
         android_bin: str = "android",
+        adb_bin: str = "adb",
         command_runner: CommandRunner | None = None,
         device_adapter: DeterministicLayoutAdapter | None = None,
         evidence_sink_factory: Callable[[Path], DeterministicEvidenceSink] | None = None,
@@ -384,10 +446,17 @@ class DeterministicAndroidBackend:
             raise DeterministicDriverError("deterministic device serial is required")
         self._plan = plan
         self._device = device
-        self._device_adapter = device_adapter or AndroidLayoutDeviceAdapter(
+        candidate_adapter = device_adapter or AndroidLayoutDeviceAdapter(
             device=device,
             android_bin=android_bin,
+            adb_bin=adb_bin,
             runner=command_runner,
+        )
+        self._supports_tap = callable(getattr(candidate_adapter, "tap", None))
+        self._device_adapter: DeterministicDeviceAdapter = (
+            cast(DeterministicDeviceAdapter, candidate_adapter)
+            if self._supports_tap
+            else _LayoutOnlyDeviceAdapter(candidate_adapter)
         )
         self._evidence_sink_factory = evidence_sink_factory or RecordingEvidenceSink
         self._clock = clock
@@ -410,87 +479,198 @@ class DeterministicAndroidBackend:
             raise DeterministicDriverError("deterministic request device contradicts selection")
         if type(action_offset) is not int or action_offset < 0:
             raise DeterministicDriverPlanError("deterministic action offset is invalid")
-        if type(action_count) is not int or action_count != 1:
+        if type(action_count) is not int or action_count < 1:
             raise DeterministicDriverPlanError(
-                "deterministic_android_v1 currently admits one opaque Journey action"
+                "deterministic action count must be at least one"
             )
-        if len(self._plan.actions) != 1 or action_offset != 0:
+        if action_offset + action_count > len(self._plan.actions):
             raise DeterministicDriverPlanError("deterministic action slice is outside the Driver Plan")
-        action = self._plan.actions[action_offset]
-        if action.kind != "wait_for_resource_id":
-            raise DeterministicDriverPlanError(
-                "deterministic_android_v1 only admits wait_for_resource_id"
+        self._verify_plan_file()
+        actions = self._plan.actions[action_offset : action_offset + action_count]
+        if any(action.kind == "tap_resource_id" for action in actions) and not self._supports_tap:
+            raise DeterministicDriverError(
+                "deterministic tap action requires a device tap adapter"
             )
+        action_ids: str | tuple[str, ...]
+        plan_actions: DeterministicPlanAction | tuple[DeterministicPlanAction, ...]
+        local_ids = tuple(f"action-{index}" for index in range(1, action_count + 1))
+        if action_count == 1:
+            action_ids = local_ids[0]
+            plan_actions = actions[0]
+        else:
+            action_ids = local_ids
+            plan_actions = actions
         sink = self._evidence_sink_factory(Path(artifact_dir))
         return DeterministicDriverRequest(
             segment_id=segment_id,
-            action_id=f"action-{action_offset + 1}",
-            plan_action=action,
+            action_id=action_ids,
+            plan_action=plan_actions,
             device=self._device_adapter,
             evidence_sink=sink,
         )
 
+    def _verify_plan_file(self) -> None:
+        """Reject a Driver Plan that changed after side-effect-free admission."""
+        try:
+            plan_bytes = self._plan.path.read_bytes()
+        except OSError as error:
+            raise DeterministicDriverPlanError(
+                f"Driver Plan cannot be read: {self._plan.path}"
+            ) from error
+        if (
+            len(plan_bytes) != self._plan.bytes
+            or hashlib.sha256(plan_bytes).hexdigest() != self._plan.sha256
+        ):
+            raise DeterministicDriverPlanError("Driver Plan bytes drifted after admission")
+
     def execute(self, request: DeterministicDriverRequest) -> JourneyExecutionResult:
-        """Run exactly one wait poll and persist raw backend evidence."""
+        """Run each admitted action once and persist raw backend evidence."""
 
         if not isinstance(request, DeterministicDriverRequest):
             raise DeterministicDriverError("deterministic request type is invalid")
+        self._verify_plan_file()
+        actions = request.plan_actions
+        action_ids = request.action_ids
+        if request.device is not self._device_adapter or not actions:
+            raise DeterministicDriverError(
+                "deterministic request is not the admitted Driver Plan slice"
+            )
+        if len(actions) != len(action_ids):
+            raise DeterministicDriverError(
+                "deterministic request action identities are incomplete"
+            )
+        if not all(isinstance(action_id, str) and action_id for action_id in action_ids):
+            raise DeterministicDriverError(
+                "deterministic request action identities are invalid"
+            )
+        if not all(isinstance(action, DeterministicPlanAction) for action in actions):
+            raise DeterministicDriverError(
+                "deterministic request contains an invalid Driver Plan action"
+            )
+        if any(action.kind == "tap_resource_id" for action in actions) and not self._supports_tap:
+            raise DeterministicDriverError(
+                "deterministic tap action requires a device tap adapter"
+            )
+        try:
+            first_index = next(
+                index
+                for index, plan_action in enumerate(self._plan.actions)
+                if plan_action == actions[0]
+            )
+        except StopIteration as error:
+            raise DeterministicDriverError(
+                "deterministic request is not the admitted Driver Plan slice"
+            ) from error
         if (
-            request.device is not self._device_adapter
-            or len(self._plan.actions) != 1
-            or request.plan_action != self._plan.action
-            or request.action_id != "action-1"
+            tuple(self._plan.actions[first_index : first_index + len(actions)]) != actions
+            or tuple(
+                f"action-{index}"
+                for index in range(1, len(actions) + 1)
+            )
+            != action_ids
         ):
             raise DeterministicDriverError(
                 "deterministic request is not the admitted Driver Plan slice"
             )
-        if request.plan_action.kind != "wait_for_resource_id":
-            raise DeterministicDriverError(
-                "deterministic_android_v1 only admits wait_for_resource_id"
-            )
         observations: list[dict[str, object]] = []
-        start = self._clock()
-        deadline = start + request.plan_action.timeout_ms / 1000
-        max_observations = (
-            request.plan_action.timeout_ms
-            // request.plan_action.observation_interval_ms
-            + 1
+        dispatches: list[dict[str, object]] = []
+        commands: list[list[str]] = []
+        action_results: list[dict[str, object]] = []
+
+        for action_id, plan_action in zip(action_ids, actions, strict=True):
+            if plan_action.kind == "wait_for_resource_id":
+                self._execute_wait(
+                    request,
+                    action_id=action_id,
+                    plan_action=plan_action,
+                    observations=observations,
+                    dispatches=dispatches,
+                    commands=commands,
+                    action_results=action_results,
+                )
+                continue
+            if plan_action.kind == "tap_resource_id":
+                self._execute_tap(
+                    request,
+                    action_id=action_id,
+                    plan_action=plan_action,
+                    observations=observations,
+                    dispatches=dispatches,
+                    commands=commands,
+                    action_results=action_results,
+                )
+                continue
+            raise DeterministicDriverError(
+                f"deterministic_android_v1 does not admit {plan_action.kind}"
+            )
+
+        return self._succeeded(
+            request,
+            observations,
+            dispatches,
+            action_results,
+            commands=commands,
         )
-        command: list[str] = []
+
+    def _execute_wait(
+        self,
+        request: DeterministicDriverRequest,
+        *,
+        action_id: str,
+        plan_action: DeterministicPlanAction,
+        observations: list[dict[str, object]],
+        dispatches: list[dict[str, object]],
+        commands: list[list[str]],
+        action_results: list[dict[str, object]],
+    ) -> None:
+        """Run one bounded Observation Poll without dispatching a side effect."""
+        start = self._clock()
+        deadline = start + plan_action.timeout_ms / 1000
+        max_observations = (
+            plan_action.timeout_ms // plan_action.observation_interval_ms + 1
+        )
+        action_observation_count = 0
+        last_command: list[str] = []
 
         while True:
+            action_observation_count += 1
             observation_index = len(observations) + 1
             try:
                 read = request.device.read_layout()
                 layout_read = _coerce_layout_observation(read)
-                command = list(layout_read.command)
+                last_command = list(layout_read.command)
             except Exception as error:  # noqa: BLE001 - device interruption is evidence
-                observation = {
-                    "observation_index": observation_index,
-                    "status": "interrupted",
-                    "command": command,
-                    "returncode": None,
-                    "stdout": "",
-                    "stderr": "",
-                    "layout": None,
-                    "match_count": None,
-                    "error": f"{type(error).__name__}: {error}",
-                }
+                observation = self._interrupted_observation(
+                    action_id=action_id,
+                    plan_action=plan_action,
+                    observation_index=observation_index,
+                    command=last_command,
+                    error=error,
+                )
                 self._record(request.evidence_sink, observation, observations)
-                return self._failed(
+                self._failed(
                     request,
                     observations,
+                    dispatches,
+                    action_results,
+                    [],
                     f"deterministic layout observation interrupted: {error}",
-                    command=command,
+                    command=last_command,
                 )
 
             base = {
+                "event_type": "observation_probe",
+                "action_id": action_id,
+                "plan_action_id": plan_action.action_id,
+                "resource_id": plan_action.resource_id,
                 "observation_index": observation_index,
                 "command": list(layout_read.command),
                 "returncode": layout_read.returncode,
                 "stdout": layout_read.stdout,
                 "stderr": layout_read.stderr,
             }
+            if layout_read.command:
+                commands.append(list(layout_read.command))
             if layout_read.returncode != 0:
                 observation = {
                     **base,
@@ -499,11 +679,14 @@ class DeterministicAndroidBackend:
                     "match_count": None,
                 }
                 self._record(request.evidence_sink, observation, observations)
-                return self._failed(
+                self._failed(
                     request,
                     observations,
+                    dispatches,
+                    action_results,
+                    commands,
                     "deterministic layout command failed",
-                    command=command,
+                    command=last_command,
                 )
 
             try:
@@ -517,17 +700,20 @@ class DeterministicAndroidBackend:
                     "error": str(error),
                 }
                 self._record(request.evidence_sink, observation, observations)
-                return self._failed(
+                self._failed(
                     request,
                     observations,
+                    dispatches,
+                    action_results,
+                    commands,
                     str(error),
-                    command=command,
+                    command=last_command,
                 )
 
             matching = [
                 node
                 for node in layout
-                if _resource_id_matches(node, request.plan_action.resource_id)
+                if _resource_id_matches(node, plan_action.resource_id)
             ]
             status = (
                 "resource_found"
@@ -544,49 +730,345 @@ class DeterministicAndroidBackend:
             }
             self._record(request.evidence_sink, observation, observations)
             if len(matching) == 1:
-                return self._succeeded(
-                    request,
-                    observations,
-                    command=command,
+                action_results.append(
+                    {
+                        "action_id": action_id,
+                        "plan_action_id": plan_action.action_id,
+                        "status": "PASSED",
+                        "commands": [last_command] if last_command else [],
+                        "comment": (
+                            f"{plan_action.resource_id} was observed exactly once; "
+                            "dispatch only."
+                        ),
+                    }
                 )
+                return
             if len(matching) > 1:
-                return self._failed(
+                self._failed(
                     request,
                     observations,
-                    f"resource id {request.plan_action.resource_id} is duplicated",
-                    command=command,
+                    dispatches,
+                    action_results,
+                    commands,
+                    f"resource id {plan_action.resource_id} is duplicated",
+                    command=last_command,
                 )
 
             now = self._clock()
-            interval = request.plan_action.observation_interval_ms / 1000
-            if len(observations) >= max_observations or now + interval > deadline:
-                return self._failed(
+            interval = plan_action.observation_interval_ms / 1000
+            if (
+                action_observation_count >= max_observations
+                or now + interval > deadline
+            ):
+                self._failed(
                     request,
                     observations,
-                    f"wait for resource id {request.plan_action.resource_id} timed out",
-                    command=command,
+                    dispatches,
+                    action_results,
+                    commands,
+                    f"wait for resource id {plan_action.resource_id} timed out",
+                    command=last_command,
                 )
             try:
                 self._sleeper(interval)
             except Exception as error:  # noqa: BLE001 - interruption is evidence
-                interruption = {
-                    "observation_index": len(observations) + 1,
-                    "status": "interrupted",
-                    "command": command,
-                    "returncode": None,
-                    "stdout": "",
-                    "stderr": "",
-                    "layout": None,
-                    "match_count": None,
-                    "error": f"{type(error).__name__}: {error}",
-                }
+                interruption = self._interrupted_observation(
+                    action_id=action_id,
+                    plan_action=plan_action,
+                    observation_index=len(observations) + 1,
+                    command=last_command,
+                    error=error,
+                )
                 self._record(request.evidence_sink, interruption, observations)
-                return self._failed(
+                self._failed(
                     request,
                     observations,
+                    dispatches,
+                    action_results,
+                    commands,
                     f"deterministic wait interrupted: {error}",
-                    command=command,
+                    command=last_command,
                 )
+
+    def _execute_tap(
+        self,
+        request: DeterministicDriverRequest,
+        *,
+        action_id: str,
+        plan_action: DeterministicPlanAction,
+        observations: list[dict[str, object]],
+        dispatches: list[dict[str, object]],
+        commands: list[list[str]],
+        action_results: list[dict[str, object]],
+    ) -> None:
+        """Resolve one fresh clickable node and dispatch one derived tap."""
+        observation_index = len(observations) + 1
+        command: list[str] = []
+        try:
+            read = request.device.read_layout()
+            layout_read = _coerce_layout_observation(read)
+            command = list(layout_read.command)
+        except Exception as error:  # noqa: BLE001 - device interruption is evidence
+            observation = self._interrupted_observation(
+                action_id=action_id,
+                plan_action=plan_action,
+                observation_index=observation_index,
+                command=command,
+                error=error,
+            )
+            self._record(request.evidence_sink, observation, observations)
+            self._failed(
+                request,
+                observations,
+                dispatches,
+                action_results,
+                commands,
+                f"deterministic tap layout observation interrupted: {error}",
+                command=command,
+            )
+
+        if command:
+            commands.append(command)
+        base = {
+            "event_type": "observation_probe",
+            "action_id": action_id,
+            "plan_action_id": plan_action.action_id,
+            "resource_id": plan_action.resource_id,
+            "observation_index": observation_index,
+            "command": list(layout_read.command),
+            "returncode": layout_read.returncode,
+            "stdout": layout_read.stdout,
+            "stderr": layout_read.stderr,
+        }
+        if layout_read.returncode != 0:
+            observation = {
+                **base,
+                "status": "command_failed",
+                "layout": None,
+                "match_count": None,
+            }
+            self._record(request.evidence_sink, observation, observations)
+            self._failed(
+                request,
+                observations,
+                dispatches,
+                action_results,
+                commands,
+                "deterministic tap layout command failed",
+                command=command,
+            )
+
+        try:
+            layout = _parse_layout(layout_read.stdout)
+        except DeterministicDriverError as error:
+            observation = {
+                **base,
+                "status": "malformed_layout",
+                "layout": None,
+                "match_count": None,
+                "error": str(error),
+            }
+            self._record(request.evidence_sink, observation, observations)
+            self._failed(
+                request,
+                observations,
+                dispatches,
+                action_results,
+                commands,
+                str(error),
+                command=command,
+            )
+
+        matching = [
+            node
+            for node in layout
+            if _resource_id_matches(node, plan_action.resource_id)
+        ]
+        status = (
+            "resource_found"
+            if len(matching) == 1
+            else "resource_duplicate"
+            if len(matching) > 1
+            else "resource_missing"
+        )
+        if len(matching) != 1:
+            observation = {
+                **base,
+                "status": status,
+                "layout": layout,
+                "match_count": len(matching),
+            }
+            self._record(request.evidence_sink, observation, observations)
+            self._failed(
+                request,
+                observations,
+                dispatches,
+                action_results,
+                commands,
+                (
+                    f"resource id {plan_action.resource_id} is duplicated"
+                    if len(matching) > 1
+                    else f"resource id {plan_action.resource_id} is missing"
+                ),
+                command=command,
+            )
+
+        node = matching[0]
+        if not _node_is_clickable(node):
+            observation = {
+                **base,
+                "status": "resource_not_clickable",
+                "layout": layout,
+                "match_count": 1,
+            }
+            self._record(request.evidence_sink, observation, observations)
+            self._failed(
+                request,
+                observations,
+                dispatches,
+                action_results,
+                commands,
+                f"resource id {plan_action.resource_id} is not clickable",
+                command=command,
+            )
+
+        try:
+            center = _parse_node_center(node)
+        except DeterministicDriverError as error:
+            observation = {
+                **base,
+                "status": "center_invalid",
+                "layout": layout,
+                "match_count": 1,
+                "error": str(error),
+            }
+            self._record(request.evidence_sink, observation, observations)
+            self._failed(
+                request,
+                observations,
+                dispatches,
+                action_results,
+                commands,
+                str(error),
+                command=command,
+            )
+
+        x, y = center
+        observation = {
+            **base,
+            "status": "tap_target_validated",
+            "layout": layout,
+            "match_count": 1,
+            "clickable": True,
+            "center": [x, y],
+        }
+        self._record(request.evidence_sink, observation, observations)
+
+        try:
+            dispatch_result = _coerce_tap_result(request.device.tap(x, y))
+        except Exception as error:  # noqa: BLE001 - one dispatch failure is evidence
+            dispatch = {
+                "event_type": "side_effect_dispatch",
+                "action_id": action_id,
+                "plan_action_id": plan_action.action_id,
+                "resource_id": plan_action.resource_id,
+                "status": "interrupted",
+                "center": [x, y],
+                "command": [],
+                "settle_ms": plan_action.settle_ms,
+                "error": f"{type(error).__name__}: {error}",
+            }
+            self._record_dispatch(request.evidence_sink, dispatch, dispatches)
+            self._failed(
+                request,
+                observations,
+                dispatches,
+                action_results,
+                commands,
+                f"deterministic tap dispatch interrupted: {error}",
+                command=command,
+            )
+
+        tap_command = list(dispatch_result.args)
+        if tap_command:
+            commands.append(tap_command)
+        dispatch = {
+            "event_type": "side_effect_dispatch",
+            "action_id": action_id,
+            "plan_action_id": plan_action.action_id,
+            "resource_id": plan_action.resource_id,
+            "status": "dispatched" if dispatch_result.returncode == 0 else "failed",
+            "center": [x, y],
+            "command": tap_command,
+            "returncode": dispatch_result.returncode,
+            "stdout": dispatch_result.stdout,
+            "stderr": dispatch_result.stderr,
+            "settle_ms": plan_action.settle_ms,
+        }
+        self._record_dispatch(request.evidence_sink, dispatch, dispatches)
+        if dispatch_result.returncode != 0:
+            self._failed(
+                request,
+                observations,
+                dispatches,
+                action_results,
+                commands,
+                "deterministic tap command failed",
+                command=tap_command or command,
+            )
+
+        try:
+            self._sleeper(plan_action.settle_ms / 1000)
+        except Exception as error:  # noqa: BLE001 - no retry after dispatch
+            self._failed(
+                request,
+                observations,
+                dispatches,
+                action_results,
+                commands,
+                f"deterministic tap settle interrupted: {error}",
+                command=tap_command or command,
+            )
+
+        action_results.append(
+            {
+                "action_id": action_id,
+                "plan_action_id": plan_action.action_id,
+                "status": "PASSED",
+                "commands": [
+                    item for item in (command, tap_command) if item
+                ],
+                "comment": (
+                    f"{plan_action.resource_id} was located at [{x}, {y}] and tapped "
+                    "exactly once; fixed 350 ms settle; dispatch only."
+                ),
+            }
+        )
+
+    def _interrupted_observation(
+        self,
+        *,
+        action_id: str,
+        plan_action: DeterministicPlanAction,
+        observation_index: int,
+        command: list[str],
+        error: Exception,
+    ) -> dict[str, object]:
+        return {
+            "event_type": "observation_probe",
+            "action_id": action_id,
+            "plan_action_id": plan_action.action_id,
+            "resource_id": plan_action.resource_id,
+            "observation_index": observation_index,
+            "status": "interrupted",
+            "command": command,
+            "returncode": None,
+            "stdout": "",
+            "stderr": "",
+            "layout": None,
+            "match_count": None,
+            "error": f"{type(error).__name__}: {error}",
+        }
 
     def _record(
         self,
@@ -597,55 +1079,73 @@ class DeterministicAndroidBackend:
         observations.append(observation)
         sink.record_observation(observation)
 
+    def _record_dispatch(
+        self,
+        sink: DeterministicEvidenceSink,
+        dispatch: dict[str, object],
+        dispatches: list[dict[str, object]],
+    ) -> None:
+        dispatches.append(dispatch)
+        record_dispatch = getattr(sink, "record_dispatch", None)
+        if callable(record_dispatch):
+            record_dispatch(dispatch)
+        else:
+            sink.record_observation(dispatch)
+
     def _succeeded(
         self,
         request: DeterministicDriverRequest,
         observations: list[dict[str, object]],
+        dispatches: list[dict[str, object]],
+        action_results: list[dict[str, object]],
         *,
-        command: list[str],
+        commands: list[list[str]],
     ) -> JourneyExecutionResult:
         data = {
             "schema_version": 1,
             "journey": request.segment_id,
-            "results": [
-                {
-                    "action_id": request.action_id,
-                    "plan_action_id": request.plan_action.action_id,
-                    "status": "PASSED",
-                    "commands": [command] if command else [],
-                    "comment": f"{request.plan_action.resource_id} was observed exactly once; dispatch only.",
-                }
-            ],
+            "results": action_results,
         }
         return self._persist_result(
             request,
             data,
             observations,
-            command=command,
+            dispatches=dispatches,
+            commands=commands,
         )
 
     def _failed(
         self,
         request: DeterministicDriverRequest,
         observations: list[dict[str, object]],
+        dispatches: list[dict[str, object]],
+        action_results: list[dict[str, object]],
+        commands: list[list[str]],
         message: str,
         *,
         command: list[str],
-    ) -> JourneyExecutionResult:
+    ) -> NoReturn:
         data = {
             "schema_version": 1,
             "journey": request.segment_id,
             "results": [
+                *action_results,
                 {
-                    "action_id": request.action_id,
-                    "plan_action_id": request.plan_action.action_id,
+                    "action_id": request.action_ids[len(action_results)],
+                    "plan_action_id": request.plan_actions[len(action_results)].action_id,
                     "status": "FAILED",
                     "commands": [command] if command else [],
                     "comment": message,
-                }
+                },
             ],
         }
-        result = self._persist_result(request, data, observations, command=command)
+        result = self._persist_result(
+            request,
+            data,
+            observations,
+            dispatches=dispatches,
+            commands=commands,
+        )
         raise DeterministicDriverError(
             message,
             result_path=result.raw_result_path or result.result_path,
@@ -660,7 +1160,8 @@ class DeterministicAndroidBackend:
         data: dict[str, object],
         observations: list[dict[str, object]],
         *,
-        command: list[str],
+        dispatches: list[dict[str, object]],
+        commands: list[list[str]],
     ) -> JourneyExecutionResult:
         sink = request.evidence_sink
         persist = getattr(sink, "persist", None)
@@ -672,31 +1173,44 @@ class DeterministicAndroidBackend:
         write_json_artifact(result_path, data)
         result_sha256 = _sha256_file(result_path)
         events_sha256 = _sha256_file(events_path)
+        action_ids = list(request.action_ids)
+        plan_action_ids = [action.action_id for action in request.plan_actions]
+        primary_command = commands[0] if commands else []
+        invocation = {
+            "schema_version": 1,
+            "backend": DETERMINISTIC_ANDROID_V1,
+            "role": "journey_driver",
+            "journey": request.segment_id,
+            "action_id": action_ids[0],
+            "plan_action_id": plan_action_ids[0],
+            "requested_model": None,
+            "effective_model": None,
+            "model_calls": 0,
+            "command": primary_command,
+            "result_path": str(result_path),
+            "events_path": str(events_path),
+            "raw_result_sha256": result_sha256,
+            "raw_events_sha256": events_sha256,
+            "observation_count": len(observations),
+        }
+        if len(action_ids) > 1 or dispatches:
+            invocation.update(
+                {
+                    "action_ids": action_ids,
+                    "plan_action_ids": plan_action_ids,
+                    "commands": commands,
+                    "dispatch_count": len(dispatches),
+                }
+            )
         write_json_artifact(
             invocation_path,
-            {
-                "schema_version": 1,
-                "backend": DETERMINISTIC_ANDROID_V1,
-                "role": "journey_driver",
-                "journey": request.segment_id,
-                "action_id": request.action_id,
-                "plan_action_id": request.plan_action.action_id,
-                "requested_model": None,
-                "effective_model": None,
-                "model_calls": 0,
-                "command": command,
-                "result_path": str(result_path),
-                "events_path": str(events_path),
-                "raw_result_sha256": result_sha256,
-                "raw_events_sha256": events_sha256,
-                "observation_count": len(observations),
-            },
+            invocation,
         )
         return JourneyExecutionResult(
             data=data,
             result_path=result_path,
             events_path=events_path,
-            command=command,
+            command=primary_command,
             metadata={
                 "backend": DETERMINISTIC_ANDROID_V1,
                 "raw_result_path": str(result_path),
@@ -722,9 +1236,9 @@ def _parse_action(value: object, *, expected_index: int) -> DeterministicPlanAct
             f"Driver Plan action {expected_index} has an invalid action_id"
         )
     kind = _require_nonempty_string(value, "kind")
-    if kind != "wait_for_resource_id":
+    if kind not in {"wait_for_resource_id", "tap_resource_id"}:
         raise DeterministicDriverPlanError(
-            "deterministic_android_v1 only admits wait_for_resource_id"
+            "deterministic_android_v1 only admits wait_for_resource_id and tap_resource_id"
         )
     resource_id = _require_nonempty_string(value, "resource_id")
     if _RESOURCE_ID_RE.fullmatch(resource_id) is None:
@@ -732,11 +1246,18 @@ def _parse_action(value: object, *, expected_index: int) -> DeterministicPlanAct
             f"Driver Plan action {expected_index} resource_id is invalid"
         )
     timeout_ms = _require_int(value, "timeout_ms", minimum=0)
-    interval_ms = _require_int(value, "observation_interval_ms", minimum=1)
+    interval_ms = _require_int(value, "observation_interval_ms", minimum=0)
     settle_ms = _require_int(value, "settle_ms", minimum=0)
-    if timeout_ms != 5000 or interval_ms != 350 or settle_ms != 0:
+    if kind == "wait_for_resource_id":
+        expected_timing = (5000, 350, 0)
+    else:
+        expected_timing = (0, 0, 350)
+    if (timeout_ms, interval_ms, settle_ms) != expected_timing:
         raise DeterministicDriverPlanError(
-            "wait_for_resource_id is fixed at timeout 5000 ms, observation interval 350 ms, and settle 0 ms"
+            "wait_for_resource_id is fixed at timeout 5000 ms, observation "
+            "interval 350 ms, and settle 0 ms"
+            if kind == "wait_for_resource_id"
+            else "tap_resource_id is fixed at timeout 0 ms, observation interval 0 ms, and settle 350 ms"
         )
     return DeterministicPlanAction(
         action_id=action_id,
@@ -749,12 +1270,35 @@ def _parse_action(value: object, *, expected_index: int) -> DeterministicPlanAct
 
 
 def _parse_requested_action(value: str) -> tuple[str, str]:
-    match = re.fullmatch(r"wait for resource id ([A-Za-z][A-Za-z0-9_.:-]*)", value)
+    match = re.fullmatch(
+        r"(wait for|tap) resource id ([A-Za-z][A-Za-z0-9_.:-]*)", value
+    )
     if match is None:
         raise DeterministicDriverPlanError(
-            "admitted Journey contains an action outside the deterministic wait contract"
+            "admitted Journey contains an action outside the deterministic resource contract"
         )
-    return "wait_for_resource_id", match.group(1)
+    return (
+        "wait_for_resource_id" if match.group(1) == "wait for" else "tap_resource_id",
+        match.group(2),
+    )
+
+
+def _run_spec_sha256_candidates(source_bytes: bytes) -> set[str]:
+    """Return raw and public canonical identities for one exact Run Spec."""
+    candidates = {hashlib.sha256(source_bytes).hexdigest()}
+    try:
+        parsed = yaml.safe_load(source_bytes.decode("utf-8"))
+        canonical = json.dumps(
+            parsed,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    except (TypeError, UnicodeDecodeError, ValueError, yaml.YAMLError):
+        return candidates
+    candidates.add(hashlib.sha256(canonical).hexdigest())
+    return candidates
 
 
 def _coerce_layout_observation(value: object) -> LayoutObservation:
@@ -791,6 +1335,51 @@ def _resource_id_matches(node: Mapping[str, object], expected: str) -> bool:
     return isinstance(actual, str) and (
         actual == expected or actual.endswith(f":id/{expected}")
     )
+
+
+def _node_is_clickable(node: Mapping[str, object]) -> bool:
+    interactions = node.get("interactions")
+    return isinstance(interactions, list) and "clickable" in interactions
+
+
+def _parse_center(value: object) -> tuple[int, int]:
+    if isinstance(value, str):
+        match = re.fullmatch(r"\[\s*(\d+)\s*,\s*(\d+)\s*\]", value.strip())
+        if match is None:
+            raise DeterministicDriverError("tap target center is not an on-screen coordinate")
+        return int(match.group(1)), int(match.group(2))
+    if isinstance(value, (list, tuple)) and len(value) == 2:
+        x, y = value
+        if type(x) is int and type(y) is int and x >= 0 and y >= 0:
+            return x, y
+    raise DeterministicDriverError("tap target center is not an on-screen coordinate")
+
+
+def _parse_node_center(node: Mapping[str, object]) -> tuple[int, int]:
+    """Validate the Android CLI center, including bounds when the node supplies them."""
+    center = _parse_center(node.get("center"))
+    bounds = node.get("bounds")
+    if bounds is None:
+        return center
+    if not isinstance(bounds, str):
+        raise DeterministicDriverError("tap target bounds are malformed")
+    match = re.fullmatch(
+        r"\[\s*(\d+)\s*,\s*(\d+)\s*\]\s*\[\s*(\d+)\s*,\s*(\d+)\s*\]",
+        bounds.strip(),
+    )
+    if match is None:
+        raise DeterministicDriverError("tap target bounds are malformed")
+    left, top, right, bottom = (int(value) for value in match.groups())
+    x, y = center
+    if left > right or top > bottom or not (left <= x <= right and top <= y <= bottom):
+        raise DeterministicDriverError("tap target center is outside node bounds")
+    return center
+
+
+def _coerce_tap_result(value: object) -> CommandResult:
+    if isinstance(value, CommandResult):
+        return value
+    raise DeterministicDriverError("deterministic tap adapter returned an invalid result")
 
 
 def _validate_exact_fields(value: Mapping[str, object], allowed: set[str], label: str) -> None:
@@ -907,6 +1496,7 @@ def _reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]
 __all__ = [
     "AndroidLayoutDeviceAdapter",
     "DeterministicAndroidBackend",
+    "DeterministicDeviceAdapter",
     "DeterministicDriverError",
     "DeterministicDriverPlan",
     "DeterministicDriverPlanError",

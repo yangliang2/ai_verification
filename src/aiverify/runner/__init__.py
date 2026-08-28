@@ -23,6 +23,7 @@ from aiverify.runner.command import CommandResult, CommandRunner, SubprocessComm
 from aiverify.runner.deterministic_backend import (
     AndroidLayoutDeviceAdapter,
     DeterministicAndroidBackend,
+    DeterministicDeviceAdapter,
     DeterministicDriverError,
     DeterministicDriverPlan,
     DeterministicDriverPlanError,
@@ -86,6 +87,7 @@ __all__ = [
     "DeviceSystemEventInjector",
     "DETERMINISTIC_ANDROID_V1",
     "DeterministicAndroidBackend",
+    "DeterministicDeviceAdapter",
     "DeterministicDriverError",
     "DeterministicDriverPlan",
     "DeterministicDriverPlanError",
