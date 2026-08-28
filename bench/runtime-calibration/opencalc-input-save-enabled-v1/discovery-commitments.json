@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "document_kind": "runtime_calibration_discovery_commitments",
+  "family_id": "opencalc-runtime-calibration-v1",
+  "family_version": "v1",
+  "commitment_id": "opencalc-discovery-commitments-v1",
+  "context_acquisition": {
+    "budget": 9,
+    "required_paths": [
+      "app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt",
+      "app/src/main/AndroidManifest.xml",
+      "app/src/main/res/layout/activity_main.xml",
+      "app/src/main/res/layout-land/activity_main.xml",
+      "app/build.gradle.kts",
+      "build.gradle.kts",
+      "settings.gradle.kts",
+      "gradle/libs.versions.toml",
+      "gradle/wrapper/gradle-wrapper.properties"
+    ],
+    "adapters": [
+      "source-file",
+      "manifest",
+      "layout",
+      "build-file",
+      "settings",
+      "version-catalog"
+    ]
+  },
+  "neutral_contracts": {
+    "quality_contract_id": "opencalc-unfinished-expression-config-recreation-v1",
+    "risk_prior_id": "opencalc-state-evolution-v1",
+    "attack_operator_id": "orientation-activity-recreation-v1",
+    "risk_hypothesis_id": "opencalc-input-preservation-v1",
+    "attack_plan_id": "opencalc-orientation-preservation-v1",
+    "exploration_policy_id": "opencalc-context-nine-v1"
+  },
+  "source_rich_package_commitments": [
+    {
+      "package_id": "opencalc-change-control-package-v1",
+      "target_kind": "ChangeTarget",
+      "variant": "control",
+      "identity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "package_id": "opencalc-change-defect-package-v1",
+      "target_kind": "ChangeTarget",
+      "variant": "defect",
+      "identity": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "package_id": "opencalc-project-control-package-v1",
+      "target_kind": "ProjectTarget",
+      "variant": "control",
+      "identity": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "package_id": "opencalc-project-defect-package-v1",
+      "target_kind": "ProjectTarget",
+      "variant": "defect",
+      "identity": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    }
+  ],
+  "no_model_calls": true
+}

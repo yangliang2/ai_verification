@@ -18,6 +18,7 @@ from aiverify.runner.evidence import AndroidEvidenceCollector, EvidenceCheckpoin
 from aiverify.runner.execution_record import ExecutionRecordStorageError
 from aiverify.runner.execution_identity import ExecutionIdentityError
 from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentFlow
+from aiverify.runner.journey_backend import CODEX_CLI
 from aiverify.runner.run_spec import (
     AssertionSpec,
     AppSmokeSpec,
@@ -886,6 +887,7 @@ def test_public_run_reproduces_historical_anr_failed_status(
 def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, monkeypatch):
     flow = _flow(tmp_path)
     controller_calls: list[object] = []
+    journey_init_kwargs: dict[str, object] = {}
     journey_run_kwargs: dict[str, object] = {}
 
     class FakeController:
@@ -902,7 +904,7 @@ def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, mo
 
     class SuccessfulRunner:
         def __init__(self, **kwargs):
-            pass
+            journey_init_kwargs.update(kwargs)
 
         def run(self, **kwargs):
             journey_run_kwargs.update(kwargs)
@@ -920,6 +922,7 @@ def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, mo
         artifact_dir=artifact_dir,
         workdir=tmp_path,
         model="gpt-5.1-codex",
+        backend=CODEX_CLI,
         preflight_command_runner=preflight_runner,
     )
 
@@ -938,6 +941,7 @@ def test_completed_run_persists_and_links_live_validation_preflight(tmp_path, mo
         "logcat_clear",
         ("launch", "org.wikipedia.dev", None),
     ]
+    assert journey_init_kwargs["backend"].backend_id == CODEX_CLI
     assert journey_run_kwargs["model"] == "gpt-5.1-codex"
     assert [call[0:2] for call in preflight_runner.calls] == [
         ["adb", "devices"],

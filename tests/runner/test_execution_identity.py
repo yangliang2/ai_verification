@@ -350,6 +350,7 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
     assert provenance["run_spec"]["consumed_sha256"] == _sha256(
         resolved_run_spec_path
     )
+    assert provenance["run_spec"]["journey_driver_backend"] == "codex_cli"
     assert provenance["run_spec"]["snapshot_sha256"] == _sha256(
         run_dir / provenance["run_spec"]["snapshot_path"]
     )
@@ -405,6 +406,30 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
         "invocation_ledger": [],
     }
 
+    legacy = deepcopy(provenance)
+    del legacy["run_spec"]["journey_driver_backend"]
+    legacy_run_spec_identity = {
+        key: value
+        for key, value in legacy["run_spec"].items()
+        if key != "identity_sha256"
+    }
+    legacy["run_spec"]["identity_sha256"] = hashlib.sha256(
+        json.dumps(
+            legacy_run_spec_identity,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    legacy_path = run_dir / "legacy-execution-provenance.json"
+    legacy_path.write_text(json.dumps(legacy) + "\n", encoding="utf-8")
+    legacy_verified = verify_execution_provenance(
+        {"path": legacy_path.name, "sha256": _sha256(legacy_path)},
+        attempt_id="attempt-1",
+        scenario="identity-smoke",
+        base_dir=run_dir,
+    )
+    assert "journey_driver_backend" not in legacy_verified["run_spec"]
+
     def rejected(name: str, tampered: dict, message: str) -> None:
         tampered_path = run_dir / f"tampered-{name}.json"
         tampered_path.write_text(json.dumps(tampered) + "\n", encoding="utf-8")
@@ -423,6 +448,10 @@ def test_collector_binds_effective_execution_and_verifies_provenance(tmp_path: P
     tampered = deepcopy(provenance)
     tampered["run_spec"]["package"] = "org.example.other"
     rejected("run-spec-package", tampered, "Run Spec snapshot contradicts")
+
+    tampered = deepcopy(provenance)
+    tampered["run_spec"]["journey_driver_backend"] = "unknown-backend"
+    rejected("run-spec-backend", tampered, "Journey Driver backend identity is invalid")
 
     tampered = deepcopy(provenance)
     tampered["deployment"]["process"]["args"][2] = "--device=other-device"

@@ -155,6 +155,7 @@ src/aiverify/
   agent/oracle/       L1/L2/L3 分层 oracle 与 verdict
   runner/             Run Spec、ExecutionRecord、identity、Journey 与 CLI
   bench/              evidence-derived aggregate、审计与 checksum 工具
+    runtime-calibration/  OpenCalc V1 source-of-truth inputs and staged verifier
 
 bench/goldset/        版本化行为层 fixture、Run Spec 与历史素材
 docs/adr/             架构决策
@@ -230,7 +231,33 @@ worktree、APK、installed binary、device、tool 与 agent role identity。缺�
 - Android CLI-first ADR：[`docs/adr/0001-android-cli-first-execution-base.md`](docs/adr/0001-android-cli-first-execution-base.md)
 - Codex CLI backend ADR：[`docs/adr/0002-codex-cli-as-verification-agent-backend.md`](docs/adr/0002-codex-cli-as-verification-agent-backend.md)
 - Discovery Campaign boundary ADR：[`docs/adr/0003-discovery-campaign-above-run-spec.md`](docs/adr/0003-discovery-campaign-above-run-spec.md)
+- Journey driver backend ADR：[`docs/adr/0004-first-class-journey-driver-backends.md`](docs/adr/0004-first-class-journey-driver-backends.md)
+- Runtime Calibration Family ADR：[`docs/adr/0005-accountable-runtime-calibration-family.md`](docs/adr/0005-accountable-runtime-calibration-family.md)
+- OpenCalc Runtime Calibration V1：[`docs/opencalc-runtime-calibration-v1.md`](docs/opencalc-runtime-calibration-v1.md)
 - M5 gap register：[`docs/research/2026-07-19-verification-gap-register.md`](docs/research/2026-07-19-verification-gap-register.md)
+
+## OpenCalc Runtime Calibration V1
+
+Issue #200 freezes the model-free calibration candidate under
+[`bench/runtime-calibration/opencalc-input-save-enabled-v1/`](bench/runtime-calibration/opencalc-input-save-enabled-v1/).
+The source pair, discovery commitments, blind lane projections, deterministic
+plans, build recipes, Run Specs, schemas, and claim boundary are all listed in
+the candidate manifest and bound by raw and canonical SHA-256 digests.
+
+Verify the complete public-input set without invoking Git, a build, Android CLI,
+adb, a model, or a device:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python \
+  -m aiverify.bench.runtime_calibration verify-candidate \
+  --candidate-root bench/runtime-calibration/opencalc-input-save-enabled-v1 \
+  --output-root /absolute/path/to/new-empty-output-root
+```
+
+The command returns zero only for an accepted candidate and writes
+`stage-start.json` before validation plus one checksum-bound `stage-terminal.json`.
+An interrupted stage has no terminal receipt, is reported as `abandoned`, and
+cannot be resumed or accepted.
 
 历史初版计划保留为背景资料，但已经被当前 PRD、ADR、run record 和 GitHub
 issue 状态 supersede；不要按旧 AC1-AC10 判断当前能力。

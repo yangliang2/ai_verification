@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import html
-import json
 import time
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -12,10 +11,16 @@ from typing import Any, Protocol
 from aiverify.runner.codex_backend import (
     CodexCliError,
     JourneyExecutionRequest,
-    JourneyExecutionResult,
 )
 from aiverify.runner.evidence import EvidenceCaptureError, EvidenceCheckpoint
 from aiverify.runner.execution_record import write_json_artifact
+from aiverify.runner.journey_backend import (
+    CODEX_CLI,
+    JourneyBackend,
+    JourneyBackendSelectionError,
+    JourneyExecutionResult,
+    backend_id,
+)
 from aiverify.runner.run_spec import ScenarioSpec, SystemEventSpec
 
 
@@ -69,13 +74,6 @@ class JourneyExecutionInterrupted(RuntimeError):
             timings=list(timings),
         )
         self.backend_diagnostics = list(backend_diagnostics or [])
-
-
-class JourneyBackend(Protocol):
-    """Backend capable of executing one Journey segment."""
-
-    def execute(self, request: JourneyExecutionRequest) -> JourneyExecutionResult:
-        """Execute one Journey segment."""
 
 
 class CheckpointCollector(Protocol):
@@ -164,6 +162,56 @@ def segment_to_journey_xml(segment: JourneySegment) -> str:
     )
 
 
+def _build_backend_request(
+    backend: JourneyBackend,
+    *,
+    segment: JourneySegment,
+    journey_instructions: str,
+    workdir: Path,
+    artifact_dir: Path,
+    output_schema: Path,
+    device: str | None,
+    model: str | None,
+) -> Any:
+    """Build a backend-specific request while retaining legacy fake support."""
+    builder = getattr(backend, "build_request", None)
+    if callable(builder):
+        return builder(
+            segment=segment,
+            journey_instructions=journey_instructions,
+            workdir=workdir,
+            artifact_dir=artifact_dir,
+            output_schema=output_schema,
+            device=device,
+            model=model,
+        )
+    if backend_id(backend) != CODEX_CLI:
+        raise JourneyBackendSelectionError(
+            "selected non-Codex Journey backend has no request builder"
+        )
+    return JourneyExecutionRequest(
+        journey_instructions=journey_instructions,
+        workdir=workdir,
+        artifact_dir=artifact_dir,
+        output_schema=output_schema,
+        model=model,
+    )
+
+
+def _action_lineage_results(
+    normalized_actions: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Project normalized actions into the stable lineage contract."""
+    return [
+        {
+            "action_id": item["action_id"],
+            "requested_action": item["action"],
+            "status": item["status"],
+        }
+        for item in normalized_actions
+    ]
+
+
 class JourneySegmentRunner:
     """Execute Journey segments, checkpoints, and boundary events in order."""
 
@@ -199,6 +247,7 @@ class JourneySegmentRunner:
         injected_events: list[SystemEventSpec] = []
         system_event_evidence: list[Path] = []
         timings: list[dict[str, Any]] = []
+        selected_backend_id = backend_id(self.backend)
 
         def _timed(phase: str, kind: str, fn, **extra: Any):
             start = time.monotonic()
@@ -267,11 +316,14 @@ class JourneySegmentRunner:
                     segment.id,
                     "journey",
                     lambda: self.backend.execute(
-                        JourneyExecutionRequest(
+                        _build_backend_request(
+                            self.backend,
+                            segment=segment,
                             journey_instructions=journey_xml,
                             workdir=workdir,
                             artifact_dir=segment_dir,
                             output_schema=output_schema,
+                            device=device,
                             model=model,
                         )
                     ),
@@ -279,6 +331,14 @@ class JourneySegmentRunner:
             except Exception as exc:
                 raise _interrupt("journey_backend_error", exc) from exc
             journey_results.append(result)
+            if result.backend != selected_backend_id:
+                raise _interruption(
+                    "journey_backend_contract",
+                    (
+                        f"Journey result backend {result.backend!r} does not match "
+                        f"selected backend {selected_backend_id!r}"
+                    ),
+                )
             try:
                 checkpoints.append(
                     _timed(
@@ -295,6 +355,11 @@ class JourneySegmentRunner:
                 raise _interrupt("checkpoint_capture_error", exc) from exc
 
             reported_actions = result.data.get("results", [])
+            if not isinstance(reported_actions, list):
+                raise _interruption(
+                    "journey_action_incomplete",
+                    f"Journey segment {segment.id} reported a non-list results value",
+                )
             if len(reported_actions) != len(segment.actions):
                 raise _interruption(
                     "journey_action_incomplete",
@@ -361,47 +426,80 @@ class JourneySegmentRunner:
                     }
                 )
 
+            raw_result_path = result.raw_result_path or result.result_path
+            raw_events_path = result.raw_events_path or result.events_path
             normalized_data = {**result.data, "results": normalized_actions}
-            normalized_path = result.result_path.with_name(
-                "codex-journey-result.normalized.json"
-            )
-            normalized_path.write_text(
-                json.dumps(normalized_data, ensure_ascii=False, indent=2) + "\n",
-                encoding="utf-8",
-            )
-            lineage_path = result.result_path.with_name(
-                "codex-journey-action-lineage.json"
-            )
-            lineage_path.write_text(
-                json.dumps(
+            normalized_path = segment_dir / "journey-result.normalized.json"
+            lineage_path = segment_dir / "journey-action-lineage.json"
+            legacy_normalized_path = segment_dir / "codex-journey-result.normalized.json"
+            legacy_lineage_path = segment_dir / "codex-journey-action-lineage.json"
+            if raw_result_path.resolve() == normalized_path.resolve():
+                raise _interruption(
+                    "journey_backend_contract",
+                    "backend raw result path collides with canonical normalized output",
+                )
+            try:
+                write_json_artifact(normalized_path, normalized_data)
+                write_json_artifact(
+                    lineage_path,
                     {
                         "schema_version": 1,
+                        "backend": selected_backend_id,
                         "journey": segment.id,
-                        "raw_result": str(result.result_path),
-                        "events": str(result.events_path),
-                        "results": [
-                            {
-                                "action_id": item["action_id"],
-                                "requested_action": item["action"],
-                                "status": item["status"],
-                            }
-                            for item in normalized_actions
-                        ],
+                        "raw_result": str(raw_result_path),
+                        "events": str(raw_events_path),
+                        "results": _action_lineage_results(normalized_actions),
                     },
-                    ensure_ascii=False,
-                    indent=2,
                 )
-                + "\n",
-                encoding="utf-8",
+                # Codex-named normalized aliases remain the public paths for
+                # existing callers.  The neutral files above remain the
+                # runner-owned canonical artifacts for every backend.
+                legacy_backend = selected_backend_id == CODEX_CLI
+                if selected_backend_id == CODEX_CLI:
+                    write_json_artifact(legacy_normalized_path, normalized_data)
+                    write_json_artifact(
+                        legacy_lineage_path,
+                        {
+                            "schema_version": 1,
+                            "journey": segment.id,
+                            "raw_result": str(raw_result_path),
+                            "events": str(raw_events_path),
+                            "results": _action_lineage_results(normalized_actions),
+                        },
+                    )
+            except Exception as exc:
+                raise _interrupt("journey_evidence_error", exc) from exc
+            public_result_path = (
+                legacy_normalized_path if legacy_backend else normalized_path
             )
+            public_lineage_path = legacy_lineage_path if legacy_backend else lineage_path
             result = replace(
                 result,
                 data=normalized_data,
-                result_path=normalized_path,
+                result_path=public_result_path,
+                raw_result_path=raw_result_path,
+                raw_events_path=raw_events_path,
+                normalized_result_path=normalized_path,
+                action_lineage_path=lineage_path,
                 metadata={
                     **result.metadata,
-                    "raw_result_path": str(result.result_path),
-                    "action_lineage_path": str(lineage_path),
+                    "backend": selected_backend_id,
+                    "raw_result_path": str(raw_result_path),
+                    "raw_events_path": str(raw_events_path),
+                    "normalized_result_path": str(normalized_path),
+                    "action_lineage_path": str(public_lineage_path),
+                    "canonical_action_lineage_path": str(lineage_path),
+                    **(
+                        {
+                            "legacy_normalized_result_path": str(
+                                legacy_normalized_path
+                            ),
+                            "legacy_action_lineage_path": str(legacy_lineage_path),
+                            "public_action_lineage_path": str(public_lineage_path),
+                        }
+                        if legacy_backend
+                        else {}
+                    ),
                 },
             )
             journey_results[-1] = result

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "document_kind": "runtime_calibration_contract_schema",
+  "contract_kind": "discovery_commitments",
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "OpenCalc Runtime Calibration discovery commitments",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "document_kind", "family_id", "family_version", "commitment_id", "context_acquisition", "neutral_contracts", "source_rich_package_commitments", "no_model_calls"],
+    "properties": {
+      "schema_version": {"const": 1},
+      "document_kind": {"const": "runtime_calibration_discovery_commitments"},
+      "family_id": {"const": "opencalc-runtime-calibration-v1"},
+      "family_version": {"const": "v1"},
+      "commitment_id": {"const": "opencalc-discovery-commitments-v1"},
+      "context_acquisition": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["budget", "required_paths", "adapters"],
+        "properties": {
+          "budget": {"const": 9},
+          "required_paths": {
+            "type": "array",
+            "minItems": 9,
+            "maxItems": 9,
+            "prefixItems": [
+              {"const": "app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt"},
+              {"const": "app/src/main/AndroidManifest.xml"},
+              {"const": "app/src/main/res/layout/activity_main.xml"},
+              {"const": "app/src/main/res/layout-land/activity_main.xml"},
+              {"const": "app/build.gradle.kts"},
+              {"const": "build.gradle.kts"},
+              {"const": "settings.gradle.kts"},
+              {"const": "gradle/libs.versions.toml"},
+              {"const": "gradle/wrapper/gradle-wrapper.properties"}
+            ],
+            "items": false
+          },
+          "adapters": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "prefixItems": [
+              {"const": "source-file"},
+              {"const": "manifest"},
+              {"const": "layout"},
+              {"const": "build-file"},
+              {"const": "settings"},
+              {"const": "version-catalog"}
+            ],
+            "items": false
+          }
+        }
+      },
+      "neutral_contracts": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["quality_contract_id", "risk_prior_id", "attack_operator_id", "risk_hypothesis_id", "attack_plan_id", "exploration_policy_id"],
+        "properties": {
+          "quality_contract_id": {"const": "opencalc-unfinished-expression-config-recreation-v1"},
+          "risk_prior_id": {"const": "opencalc-state-evolution-v1"},
+          "attack_operator_id": {"const": "orientation-activity-recreation-v1"},
+          "risk_hypothesis_id": {"const": "opencalc-input-preservation-v1"},
+          "attack_plan_id": {"const": "opencalc-orientation-preservation-v1"},
+          "exploration_policy_id": {"const": "opencalc-context-nine-v1"}
+        }
+      },
+      "source_rich_package_commitments": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["package_id", "target_kind", "variant", "identity"],
+          "properties": {
+            "package_id": {"type": "string", "pattern": "^opencalc-(change|project)-(control|defect)-package-v1$"},
+            "target_kind": {"enum": ["ChangeTarget", "ProjectTarget"]},
+            "variant": {"enum": ["control", "defect"]},
+            "identity": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        }
+      },
+      "no_model_calls": {"const": true}
+    }
+  }
+}

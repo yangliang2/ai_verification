@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "document_kind": "runtime_calibration_run_spec",
+  "family_id": "opencalc-runtime-calibration-v1",
+  "family_version": "v1",
+  "lane_id": "ocrc-v1-lane-04",
+  "run_spec_id": "ocrc-v1-lane-04-run-spec",
+  "host_project": ".",
+  "apk_glob": "build/app-debug.apk",
+  "package": "com.darkempire78.opencalculator.debug",
+  "activity": "com.darkempire78.opencalculator.activities.MainActivity",
+  "diff": null,
+  "spec": null,
+  "scenario": {
+    "id": "opencalc-preserve-expression",
+    "user_actions": [
+      "wait for resource id oneButton",
+      "tap resource id oneButton",
+      "tap resource id twoButton",
+      "tap resource id addButton",
+      "tap resource id threeButton",
+      "tap resource id fourButton"
+    ],
+    "system_events": [
+      {"step_index": 5, "event": "rotate", "args": {"orientation": "landscape"}}
+    ],
+    "assertions": []
+  }
+}

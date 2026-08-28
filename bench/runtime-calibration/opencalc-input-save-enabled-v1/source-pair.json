@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "document_kind": "runtime_calibration_source_pair",
+  "family_id": "opencalc-runtime-calibration-v1",
+  "family_version": "v1",
+  "pair_id": "opencalc-input-save-enabled-v1",
+  "population_classification": "curated_controlled_injection",
+  "taxonomy_id": "config-change-01",
+  "mutation_operator_id": "toggle-input-save-enabled-v1",
+  "baseline": {
+    "origin": "https://github.com/clementwzk/OpenCalc.git",
+    "commit": "0584d61189e916a62a3b402223b35e1d7a3093db",
+    "tree_sha256": "8793c063c6a990ff3448fece38e62bc103952610",
+    "archive_sha256": "58d686b47f4a97f8b1127ab3de98bdf34a1c9310a221e5d5a7b4b5adcde54f3c"
+  },
+  "upstream_source_anchor": {
+    "origin": "https://github.com/clementwzk/OpenCalc.git",
+    "commit": "0584d61189e916a62a3b402223b35e1d7a3093db",
+    "path": "app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt",
+    "target_file_sha256": "409e08157ce741bf77f7f00817a28eabee11cd1f6a5355bff7d1dd5a977eaac",
+    "context": "        setContentView(view)\n\n        // Disable the keyboard on display EditText\n        binding.input.showSoftInputOnFocus = false",
+    "context_sha256": "8c5a78d3056a160106c4b1334125eb78fe39ad1b181708c507639d9ac0b34735",
+    "required_occurrences": 1,
+    "insertion_after": "binding.input.showSoftInputOnFocus = false"
+  },
+  "variants": [
+    {
+      "variant_id": "control",
+      "source_id": "opencalc-input-save-enabled-v1-control",
+      "patch_text": "diff --git a/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt b/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt\n--- a/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt\n+++ b/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt\n@@ -120,6 +120,7 @@\n        fixView()\n\n        setContentView(view)\n\n        // Disable the keyboard on display EditText\n        binding.input.showSoftInputOnFocus = false\n+        binding.input.isSaveEnabled = true\n",
+      "patch_sha256": "ecd560750db7eddce435f117730cc3ce43dce2efad936398675b3c84f9aa8e02",
+      "difference": {
+        "field": "binding.input.isSaveEnabled",
+        "right_hand_side": "true"
+      }
+    },
+    {
+      "variant_id": "defect",
+      "source_id": "opencalc-input-save-enabled-v1-defect",
+      "patch_text": "diff --git a/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt b/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt\n--- a/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt\n+++ b/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt\n@@ -120,6 +120,7 @@\n        fixView()\n\n        setContentView(view)\n\n        // Disable the keyboard on display EditText\n        binding.input.showSoftInputOnFocus = false\n+        binding.input.isSaveEnabled = false\n",
+      "patch_sha256": "9a6adda7316dba08d36562cbb1da2cba94f1bc4d6b51772698497f4e663699c4",
+      "difference": {
+        "field": "binding.input.isSaveEnabled",
+        "right_hand_side": "false"
+      }
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "issue": 200,
+  "date": "2026-08-26",
+  "branch_at_start": "issue-197-runtime-source-preparation",
+  "implementation_base": "843c84e40197f3d401b5cd07ef6355e4d476d1a7",
+  "candidate": {
+    "family_id": "opencalc-runtime-calibration-v1",
+    "family_version": "v1",
+    "candidate_identity_sha256": "a4cf767f22bdb7ad94ad625773a988c6a4cfec163ce1c6d39aa287494adf86a3",
+    "artifact_count": 28,
+    "artifact_inventory_sha256": "7dd7556397a7452962e2c99aa5127b292ecf1e656010661b477bb646af23ff85",
+    "package": "com.darkempire78.opencalculator.debug",
+    "activity": "com.darkempire78.opencalculator.activities.MainActivity",
+    "terminal_status": "accepted"
+  },
+  "verification": [
+    {
+      "name": "public_contract",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -q tests/bench/test_runtime_calibration.py --junitxml=docs/runs/2026-08-26-issue-200-source-of-truth/verification/contract-pytest.xml",
+      "exit_code": 0,
+      "collected": 21,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 1.547,
+      "wall_seconds": 1.63,
+      "artifact": "verification/contract-pytest.xml"
+    },
+    {
+      "name": "full_repository",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -p .venv/bin/pytest -p no:cacheprovider -o addopts='' -qq --junitxml=docs/runs/2026-08-26-issue-200-source-of-truth/verification/full-pytest.xml",
+      "exit_code": 0,
+      "collected": 1314,
+      "passed": 1313,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 325.794,
+      "wall_seconds": 326.03,
+      "artifact": "verification/full-pytest.xml",
+      "skip_reason": "pre-existing external-fixture test requires --run-external-fixtures"
+    },
+    {
+      "name": "candidate_cli",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.runtime_calibration verify-candidate --candidate-root bench/runtime-calibration/opencalc-input-save-enabled-v1 --output-root /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-stage-final > /Users/peter/projects/ai_verfication/docs/runs/2026-08-26-issue-200-source-of-truth/verification/candidate-terminal-final.json",
+      "exit_code": 0,
+      "status": "accepted",
+      "artifact": "verification/candidate-terminal-final.json"
+    },
+    {
+      "name": "compileall",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m compileall -q src/aiverify/bench/runtime_calibration.py tests/bench/test_runtime_calibration.py",
+      "exit_code": 0
+    },
+    {
+      "name": "ruff",
+      "command": "uv run --with ruff ruff check src/aiverify/bench/runtime_calibration.py tests/bench/test_runtime_calibration.py",
+      "exit_code": 0
+    },
+    {
+      "name": "diff_check",
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "name": "checksum_generate",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m aiverify.bench.run_record_checksums docs/runs/2026-08-26-issue-200-source-of-truth",
+      "exit_code": 0,
+      "artifact": "checksums.sha256"
+    },
+    {
+      "name": "checksum_verify",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m aiverify.bench.run_record_checksums docs/runs/2026-08-26-issue-200-source-of-truth --verify",
+      "exit_code": 0,
+      "result": "checksum inventory verified"
+    }
+  ],
+  "side_effect_boundary": {
+    "candidate_verifier_writes": "only stage-start.json and stage-terminal.json under caller-owned output root",
+    "build_invoked": false,
+    "android_cli_invoked": false,
+    "adb_invoked": false,
+    "device_or_emulator_used": false,
+    "network_or_source_fetch_invoked": false,
+    "model_invoked": false,
+    "manual_runtime_verification": false
+  },
+  "durability": {
+    "run_record": "docs/runs/2026-08-26-issue-200-source-of-truth",
+    "checksum_manifest": "checksums.sha256",
+    "checksum_status": "verified"
+  }
+}

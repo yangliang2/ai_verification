@@ -29,8 +29,35 @@ The smallest end-to-end run that proves the verification chain is executable for
 _Avoid_: M1, full benchmark, acceptance test
 
 **Deterministic Driver**:
-A constrained execution driver that performs predetermined device actions to prove an end-to-end chain before the LLM UI driver is ready.
-_Avoid_: LLM driver, manual testing
+A constrained execution driver that dispatches predetermined device actions. Its
+success reports action dispatch only; product quality remains runner-owned.
+_Avoid_: LLM driver, manual testing, oracle
+
+**Deterministic Driver Plan**:
+An immutable, admitted binding from Journey action identities to a closed set of
+bounded device primitives.
+_Avoid_: Run Spec commands, arbitrary script, product verdict
+
+**Journey Driver Evidence Boundary**:
+The separation between runner-owned normalized Journey evidence and a backend's
+raw execution evidence and identity.
+_Avoid_: Backend-named canonical evidence, fabricated backend identity
+
+**Deterministic Driver Capability Boundary**:
+The least-authority request and adapter surface that keeps source meaning and
+oracle knowledge outside a deterministic driver's data flow. It is not an
+operating-system sandbox claim.
+_Avoid_: Optional sensitive fields, unrestricted command access, OS isolation
+
+**Journey Driver Selection**:
+The explicit, admitted choice of Journey backend made by runner policy without
+changing the backend-neutral Run Spec.
+_Avoid_: Backend inference, Run Spec implementation command
+
+**Observation Poll**:
+A bounded series of read-only probes that retains every observation and cannot
+repeat or compensate for a side effect.
+_Avoid_: Action retry, adaptive timeout, selected observation
 
 **Android CLI**:
 Google's `android` command-line interface for agent-first Android workflows, including environment setup, project metadata, emulator/device management, app deployment, layout/screenshot inspection, Android CLI-supported Journeys, Android docs, and Android skills.
@@ -236,6 +263,140 @@ Specs, terminal ExecutionRecord, effective execution identity, evidence, and a
 local oracle.  It may support only the recorded fixture/device/contract; it does
 not imply ANR rates, OEM coverage, Project Mode coverage, or general Android
 capability.
+
+**Boundary Precondition**:
+A runner-owned proof that the required state exists at a Journey Segment
+Boundary before a system event. Failure affects accountability, not the oracle.
+_Avoid_: Driver self-report, expected verdict
+
+**State Preservation Assertion**:
+A deterministic L2 assertion comparing uniquely identified application state
+across a proven runtime boundary.
+_Avoid_: Screenshot inference, lifecycle proof
+
+**Lifecycle Transition Receipt**:
+Evidence that a requested system event caused the required target Activity
+transition while preserving the declared task and process boundary.
+_Avoid_: Setting-change receipt, layout change alone
+
+**Target Log Window Receipt**:
+A complete, attributable, marker-bounded target log capture used by runtime
+oracles and lifecycle evidence.
+_Avoid_: Checkpoint log, unscoped logcat, empty log as success
+
+**Runtime Build Recipe**:
+A checksum-bound declaration of one exact, isolated build process, its inputs,
+environment, outputs, bounds, and tool identities.
+_Avoid_: Shell snippet, developer environment summary
+
+**Sealed Runtime APK**:
+An immutable, inspected, signed, lane-local APK admitted as the sole deployment
+artifact between build and runtime.
+_Avoid_: Mutable build output, ambient APK selection
+
+**Runtime Dependency Bundle**:
+A sealed set of build-system and dependency artifacts materialized privately for
+offline dependency resolution.
+_Avoid_: Shared developer cache, online fallback
+
+**Runtime Input Vault**:
+A family-specific external store for large or private frozen inputs whose public
+manifest and identity remain committed with the evidence.
+_Avoid_: Undocumented external artifact, mutable shared directory
+
+**Runtime Signing Identity**:
+A family-scoped non-production signer whose public identity and private input
+provenance are bound without committing credentials or key bytes.
+_Avoid_: Production signer, ambient debug keystore
+
+**Runtime Device Session**:
+One evidence-bound device boot shared by a frozen runtime family, with invariant
+identity checked around each cell.
+_Avoid_: Device serial alone, unrecorded restart
+
+**Auditor Runtime Preflight**:
+A labeled, non-family runtime calibration that must validate the frozen
+production seams before a runtime family is authorized.
+_Avoid_: Family attempt, selective rehearsal, formal denominator
+
+**Attempt Setup Plan**:
+An admitted declaration of the bounded environment mutations required after
+deployment and before canonical target observation.
+_Avoid_: Arbitrary callback, unrecorded cleanup
+
+**Canonical Application Launch**:
+The sole admitted post-reset launch that starts accountable target observation.
+_Avoid_: App-smoke launch, relaunch, fallback launch
+
+**Verifier Runtime Identity**:
+The checksum-bound identity of the committed verifier implementation, locked
+runtime environment, loaded code, schemas, tools, and invocation.
+_Avoid_: Python version, dirty checkout, ambient import path
+
+**Source-Rich Discovery Package**:
+The auditor-only admitted campaign package that retains complete target identity,
+source provenance, and source meaning.
+_Avoid_: Driver input, sanitized target
+
+**Discovery Source Materialization**:
+Auditor-private preparation of immutable ChangeTarget and ProjectTarget source
+inputs before side-effect-free campaign admission.
+_Avoid_: Runtime build worktree, dirty target
+
+**Blind Runtime Projection**:
+A checksum-bound, outcome-blind projection of an admitted discovery package that
+contains only the information a runtime driver is authorized to receive.
+_Avoid_: Redacted source package, variant-bearing driver input
+
+**Runtime Mapping Release**:
+A single atomic disclosure of all opaque lane meanings to only the authorities
+that materialize source and reduce terminal family evidence.
+_Avoid_: Progressive unblinding, mutable mapping, driver disclosure
+
+**Matched Runtime Source Pair**:
+A control and defect pair that share one source baseline, anchor, taxonomy,
+operator, and context and differ only by the declared mutation.
+_Avoid_: Loosely related variants, assumed control equivalence
+
+**Upstream Source Anchor**:
+A checksum-bound proof that a curated mutation targets one unique context in an
+exact external source revision.
+_Avoid_: Local fixture substitute, branch-name anchor
+
+**Runtime Calibration Family**:
+A preregistered, non-formal set of matched runtime cells used to calibrate
+evidence seams without creating a benchmark denominator or capability claim.
+_Avoid_: Qualification Cohort, holdout, benchmark population
+
+**Model-Free Runtime Calibration**:
+A Runtime Calibration Family whose discovery, driving, oracles, and reduction
+are deterministic and whose invocation evidence proves no model role ran.
+_Avoid_: Agent evaluation, model-assisted adjudication
+
+**Runtime Calibration Run Record**:
+The durable, checksum-bound Git evidence tree for one Runtime Calibration
+Family, containing only artifacts and attempts that actually occurred.
+_Avoid_: Ephemeral staging directory, fabricated placeholder evidence
+
+**Runtime Family Preparation**:
+The pre-device materialization, build, inspection, and family-wide admission of
+all runtime cells without creating attempt records.
+_Avoid_: Build inside an attempt, partial family execution
+
+**Runtime Calibration Terminal State**:
+The retry-free closure vocabulary that distinguishes preparation disposition,
+accountable or non-accountable started attempts, and unstarted lanes.
+_Avoid_: Build failure as oracle, synthetic absent attempt
+
+**Runtime Calibration Reducer**:
+A pure reduction of frozen mapping, preparation, and terminal attempt evidence
+into a local family calibration state.
+_Avoid_: Live-state reducer, partial-family pass, benchmark metric
+
+**Runtime Calibration Freeze Boundary**:
+The separation between immutable candidate bytes and later preflight-backed
+authorization to execute those exact bytes.
+_Avoid_: Preflight mutation, evidence commit as executable input
 
 **Blinded M8 Qualification**:
 A frozen state-evolution qualification that consumes the exact merged #121

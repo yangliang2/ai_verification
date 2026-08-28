@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "document_kind": "runtime_calibration_contract_schema",
+  "contract_kind": "driver_plan",
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "OpenCalc deterministic driver plan",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "document_kind", "family_id", "family_version", "lane_id", "plan_id", "run_spec_path", "run_spec_sha256", "actions"],
+    "properties": {
+      "schema_version": {"const": 1},
+      "document_kind": {"const": "deterministic_driver_plan"},
+      "family_id": {"const": "opencalc-runtime-calibration-v1"},
+      "family_version": {"const": "v1"},
+      "lane_id": {"type": "string", "pattern": "^ocrc-v1-lane-0[1-4]$"},
+      "plan_id": {"type": "string", "pattern": "^ocrc-v1-lane-0[1-4]-driver-plan$"},
+      "run_spec_path": {"type": "string", "pattern": "^runtime/lanes/lane-0[1-4]/run-spec\\.yaml$"},
+      "run_spec_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+      "actions": {
+        "type": "array",
+        "minItems": 6,
+        "maxItems": 6,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action_id", "kind", "resource_id", "timeout_ms", "observation_interval_ms", "settle_ms"],
+          "properties": {
+            "action_id": {"type": "string", "pattern": "^action-0[1-6]$"},
+            "kind": {"enum": ["wait_for_resource_id", "tap_resource_id"]},
+            "resource_id": {"enum": ["oneButton", "twoButton", "addButton", "threeButton", "fourButton"]},
+            "timeout_ms": {"type": "integer", "minimum": 0},
+            "observation_interval_ms": {"type": "integer", "minimum": 0},
+            "settle_ms": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    }
+  }
+}
