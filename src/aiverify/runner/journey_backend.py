@@ -168,12 +168,13 @@ def create_journey_backend(
     *,
     codex_factory: Callable[[], JourneyBackend] | None = None,
     deterministic_backend: JourneyBackend | None = None,
+    deterministic_factory: Callable[[], JourneyBackend] | None = None,
 ) -> JourneyBackend:
     """Create the selected backend without inferring it from Run Spec data.
 
-    The deterministic implementation is supplied by its later capability
-    slice.  Until then, selection remains explicit and fail-closed rather than
-    silently falling back to Codex.
+    Deterministic implementations are injected by the runner or a caller;
+    selection remains explicit and fail-closed rather than silently falling
+    back to Codex.
     """
     selection.validate()
     if selection.backend == CODEX_CLI:
@@ -184,6 +185,8 @@ def create_journey_backend(
         backend = codex_factory()
     else:
         backend = deterministic_backend
+        if backend is None and deterministic_factory is not None:
+            backend = deterministic_factory()
         if backend is None:
             raise JourneyBackendUnavailableError(
                 "deterministic_android_v1 backend implementation is unavailable"

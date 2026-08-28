@@ -101,7 +101,9 @@ def _fixture(tmp_path: Path):
         "package: org.example.project\n"
         "activity: org.example.project.MainActivity\n"
         "scenario:\n"
-        "  id: selection-smoke\n",
+        "  id: selection-smoke\n"
+        "  user_actions:\n"
+        "    - wait for resource id oneButton\n",
         encoding="utf-8",
     )
     spec = load_run_spec(source, environ={"PROJECT_SOURCE": str(repository)})
@@ -123,6 +125,36 @@ def _fixture(tmp_path: Path):
     return spec, options, binaries
 
 
+def _write_strict_wait_plan(spec, path: Path) -> None:
+    run_spec_bytes = spec.source_path.read_bytes()
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "document_kind": "deterministic_driver_plan",
+                "family_id": "selection-test",
+                "family_version": "v1",
+                "lane_id": "selection-smoke-lane",
+                "plan_id": "selection-smoke-driver-plan",
+                "run_spec_path": "run-spec.yaml",
+                "run_spec_sha256": hashlib.sha256(run_spec_bytes).hexdigest(),
+                "actions": [
+                    {
+                        "action_id": "action-01",
+                        "kind": "wait_for_resource_id",
+                        "resource_id": "oneButton",
+                        "timeout_ms": 5000,
+                        "observation_interval_ms": 350,
+                        "settle_ms": 0,
+                    }
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 def test_closed_backend_identities_and_legacy_default_are_explicit() -> None:
     assert DEFAULT_JOURNEY_BACKEND == CODEX_CLI
     assert SUPPORTED_JOURNEY_BACKENDS == {CODEX_CLI, DETERMINISTIC_ANDROID_V1}
@@ -138,7 +170,7 @@ def test_deterministic_selection_binds_plan_and_forbids_journey_model(
 ) -> None:
     spec, options, _ = _fixture(tmp_path)
     plan = tmp_path / "driver-plan.json"
-    plan.write_text('{"actions": []}\n', encoding="utf-8")
+    _write_strict_wait_plan(spec, plan)
     selected = replace(
         options,
         backend=DETERMINISTIC_ANDROID_V1,
@@ -209,7 +241,7 @@ def test_unknown_backend_is_rejected_without_resolving_backend_tools(
 def test_admitted_selection_receipt_rejects_driver_plan_drift(tmp_path: Path) -> None:
     spec, options, _ = _fixture(tmp_path)
     plan = tmp_path / "driver-plan.json"
-    plan.write_text("{}\n", encoding="utf-8")
+    _write_strict_wait_plan(spec, plan)
     selected = replace(
         options,
         backend=DETERMINISTIC_ANDROID_V1,
@@ -435,7 +467,7 @@ def test_cli_does_not_fallback_to_codex_for_unwired_deterministic_selection(
 
     with pytest.raises(
         ProductionSeamAdmissionError,
-        match="deterministic_android_v1 backend implementation is unavailable",
+        match="requires exact source-backed Run Spec bytes",
     ):
         cli.run(
             spec,
