@@ -110,6 +110,332 @@ def test_admits_both_change_campaigns_from_the_pristine_source() -> None:
     assert result.model_calls == 0
 
 
+def test_admits_both_project_campaigns_from_separate_synthetic_commits(
+    tmp_path: Path,
+) -> None:
+    result = discovery.admit_project_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "project-materializations",
+    )
+
+    assert result.admitted is True
+    assert [package.variant.variant_id for package in result.packages] == [
+        "control",
+        "defect",
+    ]
+    assert [package.target.kind for package in result.packages] == [
+        "project",
+        "project",
+    ]
+    assert [projection.opaque_lane_id for projection in result.projections] == [
+        "ocrc-v1-lane-03",
+        "ocrc-v1-lane-04",
+    ]
+    assert len({package.target.source_commit for package in result.packages}) == 2
+    assert len({package.target.worktree for package in result.packages}) == 2
+    assert result.build_calls == 0
+    assert result.device_calls == 0
+    assert result.model_calls == 0
+
+
+def test_project_receipts_bind_deterministic_commits_and_clean_materializations(
+    tmp_path: Path,
+) -> None:
+    first = discovery.admit_project_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "first-materializations",
+    )
+    second = discovery.admit_project_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "second-materializations",
+    )
+
+    assert first.identity_sha256 == second.identity_sha256
+    assert [receipt.identity_sha256 for receipt in first.synthetic_commits] == [
+        receipt.identity_sha256 for receipt in second.synthetic_commits
+    ]
+    assert [receipt.synthetic_commit for receipt in first.synthetic_commits] == [
+        receipt.synthetic_commit for receipt in second.synthetic_commits
+    ]
+    assert [package.identity_sha256 for package in first.packages] == [
+        package.identity_sha256 for package in second.packages
+    ]
+    assert [projection.identity_sha256 for projection in first.projections] == [
+        projection.identity_sha256 for projection in second.projections
+    ]
+    candidate_identity_drift = replace(
+        first,
+        candidate_identity_sha256="0" * 64,
+    )
+    assert candidate_identity_drift.identity_sha256 != first.identity_sha256
+
+    for package, receipt in zip(first.packages, first.synthetic_commits):
+        worktree = Path(receipt.worktree_path)
+        assert package.target.source_commit == receipt.synthetic_commit
+        assert package.target.worktree == receipt.worktree_path
+        assert receipt.parent_commit == discovery.UPSTREAM_COMMIT
+        assert receipt.parent_tree_sha256 == discovery.UPSTREAM_TREE_SHA256
+        assert receipt.patch_sha256 == package.variant.patch_sha256
+        assert receipt.patch_applied is True
+        assert receipt.author_name == discovery.SYNTHETIC_AUTHOR_NAME
+        assert receipt.author_email == discovery.SYNTHETIC_AUTHOR_EMAIL
+        assert receipt.author_timestamp == discovery.SYNTHETIC_COMMIT_TIMESTAMP
+        assert receipt.committer_name == discovery.SYNTHETIC_AUTHOR_NAME
+        assert receipt.committer_email == discovery.SYNTHETIC_AUTHOR_EMAIL
+        assert receipt.committer_timestamp == discovery.SYNTHETIC_COMMIT_TIMESTAMP
+        assert receipt.message == discovery.SYNTHETIC_COMMIT_MESSAGE
+        serialized_receipt = receipt.to_dict()
+        assert serialized_receipt["result_identity_sha256"] == receipt.identity_sha256
+        assert discovery.SyntheticProjectCommit.from_dict(serialized_receipt) == receipt
+        assert (
+            subprocess.run(
+                ["git", "rev-parse", "HEAD^"],
+                cwd=worktree,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            == receipt.parent_commit
+        )
+        assert (
+            subprocess.run(
+                ["git", "rev-parse", "HEAD^{tree}"],
+                cwd=worktree,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            == receipt.synthetic_tree_sha256
+        )
+        assert (
+            subprocess.run(
+                ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+                cwd=worktree,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+            == ""
+        )
+        assert (worktree / discovery.TARGET_SOURCE_PATH).read_bytes() != _source_file(
+            SOURCE
+        ).read_bytes()
+
+
+def test_project_packages_preserve_source_meaning_and_share_neutral_contracts(
+    tmp_path: Path,
+) -> None:
+    change = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    project = discovery.admit_project_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "project-materializations",
+    )
+
+    for change_package, project_package in zip(change.packages, project.packages):
+        assert project_package.target.kind == "project"
+        assert project_package.target.scope == discovery.REQUIRED_CONTEXT_PATHS
+        assert project_package.target.discovery_budget == discovery.REQUIRED_CONTEXT_BUDGET
+        assert project_package.behavior_delta is None
+        assert project_package.contract_drift is None
+        assert project_package.quality_contract == change_package.quality_contract
+        assert project_package.risk_prior == change_package.risk_prior
+        assert project_package.attack_operator == change_package.attack_operator
+        assert project_package.risk_priority == change_package.risk_priority
+        assert project_package.risk_hypothesis.quality_property == (
+            change_package.risk_hypothesis.quality_property
+        )
+        assert project_package.risk_hypothesis.assumptions == (
+            change_package.risk_hypothesis.assumptions
+        )
+        assert project_package.risk_hypothesis.required_evidence == (
+            change_package.risk_hypothesis.required_evidence
+        )
+        change_hypothesis = change_package.risk_hypothesis.to_dict()
+        change_hypothesis.pop("behavior_delta_id")
+        change_hypothesis.pop("contract_drift_id")
+        assert project_package.risk_hypothesis.to_dict() == change_hypothesis
+        assert project_package.campaign.campaign.failure_chains == (
+            change_package.campaign.campaign.failure_chains
+        )
+        change_request = change_package.campaign.context_request
+        project_request = project_package.campaign.context_request
+        assert change_request is not None
+        assert project_request is not None
+        assert project_request.request_id == change_request.request_id
+        assert project_request.campaign_id == change_request.campaign_id
+        assert project_request.target_id == change_request.target_id
+        assert project_request.required_predicates == change_request.required_predicates
+        assert project_request.probe_refs == change_request.probe_refs
+        assert project_request.budget == change_request.budget
+        assert project_package.context_acquisition.required_paths == (
+            change_package.context_acquisition.required_paths
+        )
+        assert project_package.context_acquisition.adapters == (
+            change_package.context_acquisition.adapters
+        )
+        assert project_package.context_acquisition.engine_adapters == (
+            change_package.context_acquisition.engine_adapters
+        )
+        assert project_package.exploration_policy_id == (
+            change_package.exploration_policy_id
+        )
+        assert project_package.attack_plan.to_dict() | {
+            "target_id": change_package.attack_plan.target_id
+        } == change_package.attack_plan.to_dict()
+        serialized = project_package.to_dict()
+        assert "patch" not in serialized
+        assert serialized["source_injection"]["sha256"] == change_package.variant.patch_sha256
+        assert serialized["source_provenance"]["baseline_commit"] == discovery.UPSTREAM_COMMIT
+        assert serialized["source_provenance"]["commit"] == project_package.target.source_commit
+        assert serialized["synthetic_project_commit"]["identity_sha256"] == (
+            project_package.synthetic_commit.identity_sha256
+        )
+        assert discovery.SourceRichDiscoveryPackage.from_dict(serialized) == project_package
+
+    documents = project.driver_visible_serializations()
+    assert documents[0].keys() == documents[1].keys()
+    for document in documents:
+        serialized = json.dumps(document, sort_keys=True).lower()
+        assert document["diff"] is None
+        assert document["model_policy"] == {"model_calls": False}
+        assert all(term not in serialized for term in discovery.PROJECTION_LEAKAGE_TERMS)
+    assert discovery.audit_driver_serializations(documents) == project.leakage_audit
+
+
+def test_project_admission_only_runs_git_and_leaves_pristine_source_unchanged(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    target = _source_file(SOURCE)
+    before_bytes = target.read_bytes()
+    before_status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        cwd=SOURCE,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    calls: list[tuple[str, ...]] = []
+    real_run = discovery.subprocess.run
+
+    def record_run(*args: object, **kwargs: object) -> object:
+        command = args[0]
+        if isinstance(command, (list, tuple)):
+            calls.append(tuple(str(item) for item in command))
+        return real_run(*args, **kwargs)
+
+    monkeypatch.setattr(discovery.subprocess, "run", record_run)
+    discovery.admit_project_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "project-materializations",
+    )
+
+    assert calls
+    assert all(command and command[0] == "git" for command in calls)
+    assert all(
+        not any(token in {"gradle", "gradlew", "adb", "android"} for token in command)
+        for command in calls
+    )
+    assert target.read_bytes() == before_bytes
+    after_status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        cwd=SOURCE,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    assert after_status == before_status == ""
+
+
+def test_project_admission_rejects_materialized_source_drift_before_projection(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "project-materializations"
+    original_acquire = discovery._acquire_project_context_for_admission
+
+    def acquire_and_mutate(target: discovery.ProjectTarget) -> object:
+        acquired = original_acquire(target)
+        if target.target_id.endswith("-control"):
+            Path(target.worktree, "untracked-after-context.txt").write_text(
+                "drift\n",
+                encoding="utf-8",
+            )
+        return acquired
+
+    monkeypatch.setattr(
+        discovery,
+        "_acquire_project_context_for_admission",
+        acquire_and_mutate,
+    )
+    with pytest.raises(discovery.ProjectTargetAdmissionError) as error:
+        discovery.admit_project_target_pair(CANDIDATE, SOURCE, output)
+
+    assert error.value.code == "project_materialization_dirty"
+    assert output.is_dir()
+    assert not any(output.iterdir())
+
+
+def test_project_admission_rejects_a_nonempty_materialization_root_before_clone(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "project-materializations"
+    output.mkdir()
+    (output / "caller-owned.txt").write_text("keep me\n")
+
+    with pytest.raises(discovery.ProjectTargetAdmissionError) as error:
+        discovery.admit_project_target_pair(CANDIDATE, SOURCE, output)
+
+    assert error.value.code == "project_materialization_root_not_empty"
+    assert (output / "caller-owned.txt").read_text() == "keep me\n"
+
+
+def test_project_admission_rejects_pristine_source_identity_drift(
+    tmp_path: Path,
+) -> None:
+    source = _copy_source(tmp_path)
+    (source / "untracked-project-admission-test.txt").write_text("untracked\n")
+
+    with pytest.raises(discovery.ProjectTargetAdmissionError) as error:
+        discovery.admit_project_target_pair(
+            CANDIDATE,
+            source,
+            tmp_path / "project-materializations",
+        )
+
+    assert error.value.code == "source_worktree_dirty"
+    assert not (tmp_path / "project-materializations").exists()
+
+
+def test_project_package_rejects_an_invented_diff_field(
+    tmp_path: Path,
+) -> None:
+    result = discovery.admit_project_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "project-materializations",
+    )
+    serialized = result.packages[0].to_dict()
+    serialized["patch"] = {"diff": "invented"}
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery.SourceRichDiscoveryPackage.from_dict(serialized)
+
+    assert error.value.code == "package_project_diff_present"
+
+    forged_policy = result.packages[0].to_dict()
+    forged_policy["exploration_policy_id"] = "forged-policy"
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as policy_error:
+        discovery.SourceRichDiscoveryPackage.from_dict(forged_policy)
+
+    assert policy_error.value.code == "package_schema_mismatch"
+
+
 def test_admission_is_deterministic_and_packages_round_trip() -> None:
     first = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
     second = discovery.admit_opencalc_change_pair(CANDIDATE, SOURCE)

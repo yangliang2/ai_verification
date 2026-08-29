@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "document_kind": "opencalc_issue_205_project_target_discovery_verification",
+  "issue": 205,
+  "status": "passed",
+  "claim_boundary": "project_target_discovery_admission_only",
+  "fixed_point": "343cf27",
+  "tool_versions": {
+    "python": "3.14.4",
+    "pytest": "9.1.1",
+    "ruff": "0.16.5",
+    "uv": "0.11.7",
+    "git": "2.50.1 (Apple Git-155)"
+  },
+  "source": {
+    "root": "/Users/peter/hosts/opencalc-calibration",
+    "origin": "https://github.com/clementwzk/OpenCalc.git",
+    "commit": "0584d61189e916a62a3b402223b35e1d7a3093db",
+    "tree_sha256": "8793c063c6a990ff3448fece38e62bc103952610",
+    "archive_sha256": "58d686b47f4a97f8b1127ab3de98bdf34a1c9310a221e5d5a7b4b5adcde54f3c",
+    "target_path": "app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt",
+    "target_file_sha256": "409e08157ce741bf77f7f00817a28eabee11cd1f6a5355bff7d1dd5a977eaac7",
+    "worktree_clean_before_after": true,
+    "target_bytes_unchanged": true
+  },
+  "candidate": {
+    "root": "bench/runtime-calibration/opencalc-input-save-enabled-v1",
+    "identity_sha256": "1e247a243e2d9fcfc9704a641c5f1174b1f4cbceee7f2af28ad494d32c68bfd5",
+    "manifest_sha256": "cda8a8946ea77720f2fb473517559fc2c65f7c56ed3b71fd329fec322147b04b",
+    "artifact_inventory_sha256": "393a19ce2ca16b60510ed21f80ba637df1bf3236da3b565fbc7a7856ad1eab14",
+    "artifact_count": 28,
+    "verification_status": "accepted"
+  },
+  "verification": {
+    "focused": {
+      "command": "/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m pytest tests/bench/test_opencalc_discovery.py --junitxml=docs/runs/2026-08-29-issue-205-project-target-discovery/verification/focused-pytest.xml",
+      "tests": 27,
+      "passed": 27,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 25.47,
+      "wall_seconds": 25.55,
+      "user_seconds": 13.41,
+      "sys_seconds": 12.26
+    },
+    "full": {
+      "command": "/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m pytest --junitxml=docs/runs/2026-08-29-issue-205-project-target-discovery/verification/full-pytest.xml",
+      "tests": 1389,
+      "passed": 1388,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 1,
+      "pytest_seconds": 181.97,
+      "wall_seconds": 182.08,
+      "user_seconds": 90.05,
+      "sys_seconds": 79.78,
+      "skip": "tests.bench.test_m9_recovery_formal.test_frozen_target_specific_mismatch_is_side_effect_free"
+    },
+    "candidate_verification": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m aiverify.bench.runtime_calibration verify-candidate --candidate-root bench/runtime-calibration/opencalc-input-save-enabled-v1 --output-root /tmp/opencalc-issue-205-candidate-stage",
+      "status": "accepted",
+      "artifact_count": 28,
+      "artifact_inventory_sha256": "393a19ce2ca16b60510ed21f80ba637df1bf3236da3b565fbc7a7856ad1eab14"
+    },
+    "ruff": {
+      "command": "uv run --with ruff ruff check src/aiverify/bench/opencalc_discovery.py tests/bench/test_opencalc_discovery.py",
+      "status": "passed"
+    },
+    "compileall": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m compileall -q src tests",
+      "status": "passed"
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "status": "passed"
+    },
+    "manual_admission": "verification/project-admission.json"
+  },
+  "implementation": {
+    "source": "src/aiverify/bench/opencalc_discovery.py",
+    "tests": "tests/bench/test_opencalc_discovery.py",
+    "durable_evidence": "docs/runs/2026-08-29-issue-205-project-target-discovery"
+  },
+  "known_gaps": [
+    "The external synthetic materialization worktrees are temporary run outputs and are not committed; their commit, tree, diff, receipt, and worktree-clean identities are captured in project-admission.json.",
+    "No Gradle build, Android CLI, adb, device/emulator, runtime oracle, network/provider, or model execution was performed; those side effects are outside this admission seam.",
+    "The full-suite skip is the pre-existing external-fixture gate and requires explicit admission."
+  ]
+}
