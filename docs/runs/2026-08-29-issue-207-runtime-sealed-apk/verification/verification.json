@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "document_kind": "opencalc_issue_207_verification",
+  "issue": 207,
+  "status": "passed",
+  "claim_boundary": "mapped_lane_side_effect_free_sealed_runtime_apk_handoff",
+  "fixed_point": "e015604",
+  "branch": "issue-197-runtime-source-preparation",
+  "family": {
+    "id": "opencalc-runtime-calibration-v1",
+    "version": "v1",
+    "mapping_release_id": "opencalc-runtime-mapping-release-v1",
+    "mapping_release_identity_sha256": "bc98ab402cf6fbe73343749a2bfb11a12ba40e6efb56ec59e090c4bde840a8eb",
+    "candidate_root": "bench/runtime-calibration/opencalc-input-save-enabled-v1",
+    "candidate_identity_sha256": "1e247a243e2d9fcfc9704a641c5f1174b1f4cbceee7f2af28ad494d32c68bfd5",
+    "candidate_manifest_sha256": "cda8a8946ea77720f2fb473517559fc2c65f7c56ed3b71fd329fec322147b04b",
+    "candidate_artifact_inventory_sha256": "393a19ce2ca16b60510ed21f80ba637df1bf3236da3b565fbc7a7856ad1eab14",
+    "lane_id": "ocrc-v1-lane-01",
+    "source_commit": "0584d61189e916a62a3b402223b35e1d7a3093db",
+    "materialized_source_tree_sha256": "8793c063c6a990ff3448fece38e62bc103952610"
+  },
+  "tool_versions": {
+    "python": "3.11.15",
+    "pytest": "9.1.1",
+    "ruff": "0.16.5",
+    "mypy": "2.3.1",
+    "uv": "0.11.7",
+    "git": "2.50.1 (Apple Git-155)"
+  },
+  "verification": {
+    "focused_pytest": {
+      "command": "uv run pytest -q tests/test_runtime_sealed_apk.py tests/test_runtime_preparation.py --junitxml=docs/runs/2026-08-29-issue-207-runtime-sealed-apk/verification/focused-pytest.xml",
+      "tests": 72,
+      "passed": 72,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 37.698,
+      "artifact": "verification/focused-pytest.xml"
+    },
+    "full_pytest": {
+      "command": "uv run pytest -qq --junitxml=docs/runs/2026-08-29-issue-207-runtime-sealed-apk/verification/full-pytest.xml",
+      "tests": 1408,
+      "passed": 1407,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 1,
+      "pytest_seconds": 255.181,
+      "skip": "tests.bench.test_m9_recovery_formal.test_frozen_target_specific_mismatch_is_side_effect_free",
+      "artifact": "verification/full-pytest.xml"
+    },
+    "ruff": {
+      "command": "uv run --with ruff ruff check --select E,F,I src/aiverify/runtime_preparation.py src/aiverify/runner/command.py tests/test_runtime_sealed_apk.py",
+      "status": "passed"
+    },
+    "ruff_format": {
+      "command": "uv run --with ruff ruff format --check src/aiverify/runtime_preparation.py src/aiverify/runner/command.py tests/test_runtime_sealed_apk.py",
+      "status": "passed"
+    },
+    "mypy": {
+      "command": "uv run --with mypy mypy src/aiverify/runtime_preparation.py --follow-imports=skip --ignore-missing-imports",
+      "status": "passed",
+      "result": "Success: no issues found in 1 source file"
+    },
+    "compileall": {
+      "command": "uv run python -m compileall -q src tests/test_runtime_sealed_apk.py",
+      "status": "passed"
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "status": "passed"
+    }
+  },
+  "implementation": {
+    "files": [
+      "src/aiverify/runtime_preparation.py",
+      "src/aiverify/runner/command.py",
+      "src/aiverify/runner/cli.py",
+      "src/aiverify/runner/execution_identity.py",
+      "tests/test_runtime_sealed_apk.py"
+    ],
+    "public_tests": [
+      "tests/test_runtime_sealed_apk.py",
+      "tests/test_runtime_preparation.py"
+    ],
+    "runtime_effects": {
+      "shell": false,
+      "device": false,
+      "android_deployment": false,
+      "execution_record": false,
+      "agent_or_model": false
+    },
+    "test_substitutes": "explicitly enabled only by the public substitute tests; receipts record the policy"
+  },
+  "artifacts": [
+    {
+      "path": "verification/focused-pytest.xml",
+      "sha256": "5197ce0ddab8199af8fd07257611bc5a7ca780fac054e8bafd9918ed81b58412"
+    },
+    {
+      "path": "verification/full-pytest.xml",
+      "sha256": "eb2ddb90f8a260be4ef6685d5775dabb83981c4f61470cea48ca2fd5cda6d051"
+    },
+    {
+      "path": "verification/verification.json"
+    },
+    {
+      "path": "README.md"
+    },
+    {
+      "path": "code-review.md"
+    },
+    {
+      "path": "checksums.sha256"
+    }
+  ],
+  "manual_or_device_verification": {
+    "performed": false,
+    "reason": "Android/device/runtime work is outside issue #207"
+  },
+  "known_gaps": [
+    "No real Gradle, aapt2, apksigner, Android CLI, adb, emulator, device, runtime, model, or oracle invocation was performed.",
+    "The success path uses explicit recording build and APK-inspection substitutes; production requires the full release/candidate root, SubprocessCommandRunner, and AaptApkInspector.",
+    "The external dependency and signing vault is represented by ephemeral test fixtures; no private bytes are committed."
+  ]
+}
