@@ -1,0 +1,11 @@
+diff --git a/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt b/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt
+--- a/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt
++++ b/app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt
+@@ -120,6 +120,7 @@
+        fixView()
+
+        setContentView(view)
+
+        // Disable the keyboard on display EditText
+        binding.input.showSoftInputOnFocus = false
++        binding.input.isSaveEnabled = true

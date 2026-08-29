@@ -58,7 +58,6 @@ from aiverify.discovery.risk import (
     make_risk_derivation_strategy,
 )
 
-
 SCHEMA_VERSION = 1
 
 FAMILY_ID = runtime_calibration.FAMILY_ID
@@ -104,6 +103,9 @@ ENGINE_CONTEXT_ADAPTERS = (
     "persistence_state",
     "lifecycle_ownership",
     "quality_version",
+)
+PATCH_ARTIFACT_DIRECTORY = (
+    "bench/runtime-calibration/opencalc-input-save-enabled-v1-diffs"
 )
 
 CONTROL_VARIANT = "control"
@@ -281,7 +283,7 @@ class SourceBaseline:
         return result
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "SourceBaseline":
+    def from_dict(cls, data: Mapping[str, Any]) -> SourceBaseline:
         _reject_unknown(
             data,
             {
@@ -304,7 +306,8 @@ class SourceBaseline:
             )
         except KeyError:
             _fail("source_pair_schema_mismatch")
-        if data.get("identity_sha256") not in {None, baseline.identity_sha256}:
+        identity = data.get("identity_sha256")
+        if identity is not None and identity != baseline.identity_sha256:
             _fail("source_identity_digest_mismatch")
         return baseline
 
@@ -333,8 +336,7 @@ class UpstreamSourceAnchor:
         _safe_relative_path(self.path, "anchor_path")
         if not _HEX_64.fullmatch(self.target_file_sha256):
             _fail("invalid_anchor_target_digest")
-        if not self.context:
-            _fail("anchor_context_missing")
+        _required_text(self.context, "anchor_context")
         if _bytes_digest(self.context.encode("utf-8")) != self.context_sha256:
             _fail("anchor_context_digest_mismatch")
         if (
@@ -370,7 +372,7 @@ class UpstreamSourceAnchor:
         return result
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "UpstreamSourceAnchor":
+    def from_dict(cls, data: Mapping[str, Any]) -> UpstreamSourceAnchor:
         _reject_unknown(
             data,
             {
@@ -401,7 +403,8 @@ class UpstreamSourceAnchor:
             )
         except (KeyError, TypeError):
             _fail("source_pair_schema_mismatch")
-        if data.get("identity_sha256") not in {None, anchor.identity_sha256}:
+        identity = data.get("identity_sha256")
+        if identity is not None and identity != anchor.identity_sha256:
             _fail("source_anchor_digest_mismatch")
         return anchor
 
@@ -467,7 +470,7 @@ class MatchedSourceVariant:
         classification: str,
         taxonomy_id: str,
         mutation_operator_id: str,
-    ) -> "MatchedSourceVariant":
+    ) -> MatchedSourceVariant:
         _reject_unknown(
             data,
             {
@@ -590,7 +593,7 @@ class MatchedRuntimeSourcePair:
         return result
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "MatchedRuntimeSourcePair":
+    def from_dict(cls, data: Mapping[str, Any]) -> MatchedRuntimeSourcePair:
         _reject_unknown(
             data,
             {
@@ -634,7 +637,8 @@ class MatchedRuntimeSourcePair:
             )
         except KeyError:
             _fail("source_pair_schema_mismatch")
-        if data.get("identity_sha256") not in {None, pair.identity_sha256}:
+        identity = data.get("identity_sha256")
+        if identity is not None and identity != pair.identity_sha256:
             _fail("source_pair_digest_mismatch")
         return pair
 
@@ -661,7 +665,15 @@ class OpenCalcContextAcquisition:
             _fail("context_engine_adapter_mismatch")
         if self.materialized_patch_applied is not False:
             _fail("discovery_source_materialization_mutated")
+        if self.target.scope != REQUIRED_CONTEXT_PATHS:
+            _fail("context_commitment_mismatch")
+        if self.target.discovery_budget != REQUIRED_CONTEXT_BUDGET:
+            _fail("context_budget_mismatch")
         receipt = self.result.receipt
+        if receipt.requested_evidence != ENGINE_CONTEXT_ADAPTERS:
+            _fail("context_engine_adapter_mismatch")
+        if tuple(item.adapter_id for item in receipt.adapters) != ENGINE_CONTEXT_ADAPTERS:
+            _fail("context_engine_adapter_mismatch")
         if receipt.no_diff is not True:
             _fail("context_diff_present")
         if receipt.discovery_budget != REQUIRED_CONTEXT_BUDGET:
@@ -722,7 +734,7 @@ class OpenCalcContextAcquisition:
         return result
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "OpenCalcContextAcquisition":
+    def from_dict(cls, data: Mapping[str, Any]) -> OpenCalcContextAcquisition:
         _reject_unknown(
             data,
             {
@@ -783,7 +795,8 @@ class OpenCalcContextAcquisition:
         ):
             if data.get(field) != expected[field]:
                 _fail("context_identity_mismatch")
-        if data.get("identity_sha256") not in {None, acquisition.identity_sha256}:
+        identity = data.get("identity_sha256")
+        if identity is not None and identity != acquisition.identity_sha256:
             _fail("context_identity_mismatch")
         return acquisition
 
@@ -937,7 +950,7 @@ class SourceRichDiscoveryPackage:
         return result
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "SourceRichDiscoveryPackage":
+    def from_dict(cls, data: Mapping[str, Any]) -> SourceRichDiscoveryPackage:
         _reject_unknown(
             data,
             {
@@ -1025,7 +1038,8 @@ class SourceRichDiscoveryPackage:
         ):
             if data.get(field) != expected[field]:
                 _fail("package_identity_mismatch")
-        if data.get("identity_sha256") not in {None, package.identity_sha256}:
+        identity = data.get("identity_sha256")
+        if identity is not None and identity != package.identity_sha256:
             _fail("package_identity_mismatch")
         return package
 
@@ -1083,6 +1097,19 @@ class BlindRuntimeProjection:
                 _fail("projection_commitment_invalid")
         if self.family_id != FAMILY_ID or self.family_version != FAMILY_VERSION:
             _fail("projection_family_mismatch")
+        expected_contracts = {
+            "quality_contract_id": QUALITY_CONTRACT_ID,
+            "risk_prior_id": RISK_PRIOR_ID,
+            "attack_operator_id": ATTACK_OPERATOR_ID,
+            "risk_hypothesis_id": RISK_HYPOTHESIS_ID,
+            "attack_plan_id": ATTACK_PLAN_ID,
+            "exploration_policy_id": EXPLORATION_POLICY_ID,
+        }
+        if any(
+            getattr(self, field) != expected
+            for field, expected in expected_contracts.items()
+        ):
+            _fail("projection_contract_mismatch")
         if self.context_budget != REQUIRED_CONTEXT_BUDGET:
             _fail("projection_context_budget_mismatch")
         if self.required_context_count != len(REQUIRED_CONTEXT_PATHS):
@@ -1138,7 +1165,7 @@ class BlindRuntimeProjection:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "BlindRuntimeProjection":
+    def from_dict(cls, data: Mapping[str, Any]) -> BlindRuntimeProjection:
         try:
             _reject_unknown(
                 data,
@@ -1415,11 +1442,7 @@ class ChangeTargetDiscoveryResult:
 def _git(root: Path, *arguments: str) -> str:
     try:
         completed = subprocess.run(
-            ["git", *arguments],
-            cwd=root,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            ["git", *arguments], cwd=root, check=True, capture_output=True
         )
     except (OSError, subprocess.CalledProcessError):
         _fail("source_identity_unavailable")
@@ -1500,7 +1523,7 @@ def _validate_anchor_against_source(root: Path, pair: MatchedRuntimeSourcePair) 
 
 def _validate_required_context(root: Path) -> None:
     tracked_raw = _git(root, "ls-files", "-z")
-    tracked = set(item for item in tracked_raw.split("\0") if item)
+    tracked = {item for item in tracked_raw.split("\0") if item}
     required = set(REQUIRED_CONTEXT_PATHS)
     if required - tracked:
         _fail("context_required_path_missing")
@@ -1577,6 +1600,35 @@ def _validate_candidate(candidate_root: str | Path) -> tuple[runtime_calibration
 
 def _artifact_digest_map(candidate: runtime_calibration.CandidateInputs) -> dict[str, str]:
     return {artifact.path: artifact.sha256 for artifact in candidate.artifacts}
+
+
+def _patch_artifact_ref(variant_id: str) -> str:
+    if variant_id not in VARIANT_IDS:
+        _fail("pair_variant_mismatch")
+    return f"{PATCH_ARTIFACT_DIRECTORY}/{variant_id}.patch"
+
+
+def _validate_patch_artifacts(pair: MatchedRuntimeSourcePair) -> None:
+    repository_root = Path(__file__).resolve().parents[3]
+    for variant in pair.variants:
+        reference = _patch_artifact_ref(variant.variant_id)
+        path = repository_root.joinpath(*PurePosixPath(reference).parts)
+        if path.is_symlink():
+            _fail("change_target_patch_symlink")
+        try:
+            resolved = path.resolve(strict=True)
+            resolved.relative_to(repository_root)
+            raw = path.read_bytes()
+        except (OSError, RuntimeError, ValueError):
+            _fail("change_target_patch_unavailable")
+        if _bytes_digest(raw) != variant.patch_sha256:
+            _fail("change_target_patch_mismatch")
+        try:
+            patch_text = raw.decode("utf-8", errors="strict")
+        except UnicodeDecodeError:
+            _fail("change_target_patch_unreadable")
+        if patch_text != variant.patch_text:
+            _fail("change_target_patch_mismatch")
 
 
 def _source_facts(
@@ -1974,6 +2026,7 @@ def admit_change_target_pair(
     """
 
     candidate, pair = _validate_candidate(candidate_root)
+    _validate_patch_artifacts(pair)
     root = _source_root(source_root)
     _verify_pristine_source(root, pair.baseline)
     _validate_anchor_against_source(root, pair)
@@ -1990,9 +2043,9 @@ def admit_change_target_pair(
             source_origin=pair.baseline.origin,
             source_commit=pair.baseline.commit,
             worktree=str(root),
-            diff_ref=f"source-pair/{variant.source_id}.patch",
+            diff_ref=_patch_artifact_ref(variant.variant_id),
             diff_sha256=variant.patch_sha256,
-            spec_ref="candidate/source-pair.json",
+            spec_ref="bench/runtime-calibration/opencalc-input-save-enabled-v1/source-pair.json",
         )
         try:
             acquisition_target = ProjectTarget(
@@ -2078,21 +2131,14 @@ build_change_target_campaigns = admit_change_target_pair
 __all__ = [
     "ATTACK_OPERATOR_ID",
     "ATTACK_PLAN_ID",
-    "BlindRuntimeProjection",
-    "ChangeTargetAdmissionError",
-    "ChangeTargetDiscoveryResult",
     "CONTROL_LANE_ID",
     "DEFAULT_CANDIDATE_ROOT",
     "DEFAULT_SOURCE_ROOT",
     "DEFECT_LANE_ID",
     "ENGINE_CONTEXT_ADAPTERS",
     "EXPLORATION_POLICY_ID",
-    "LeakageAudit",
-    "MatchedRuntimeSourcePair",
-    "MatchedSourceVariant",
-    "OpenCalcContextAcquisition",
-    "OpenCalcDiscoveryError",
     "PAIR_ID",
+    "PATCH_ARTIFACT_DIRECTORY",
     "PROJECTION_LEAKAGE_TERMS",
     "QUALITY_CONTRACT_ID",
     "REQUIRED_CONTEXT_ADAPTERS",
@@ -2100,9 +2146,17 @@ __all__ = [
     "REQUIRED_CONTEXT_PATHS",
     "RISK_HYPOTHESIS_ID",
     "RISK_PRIOR_ID",
+    "TARGET_SOURCE_PATH",
+    "BlindRuntimeProjection",
+    "ChangeTargetAdmissionError",
+    "ChangeTargetDiscoveryResult",
+    "LeakageAudit",
+    "MatchedRuntimeSourcePair",
+    "MatchedSourceVariant",
+    "OpenCalcContextAcquisition",
+    "OpenCalcDiscoveryError",
     "SourceBaseline",
     "SourceRichDiscoveryPackage",
-    "TARGET_SOURCE_PATH",
     "UpstreamSourceAnchor",
     "admit_change_target_pair",
     "admit_opencalc_change_pair",

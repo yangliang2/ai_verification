@@ -4,13 +4,14 @@ import hashlib
 import json
 import shutil
 import subprocess
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
-from aiverify.bench import runtime_calibration
 from aiverify.bench import opencalc_discovery as discovery
-
+from aiverify.bench import runtime_calibration
+from aiverify.bench.state_evolution import verify_change_target_diff
 
 ROOT = Path(__file__).parents[2]
 CANDIDATE = ROOT / "bench/runtime-calibration/opencalc-input-save-enabled-v1"
@@ -172,6 +173,18 @@ def test_auditor_package_retains_the_real_delta_and_source_meaning() -> None:
     assert control.attack_plan.plan_id == defect.attack_plan.plan_id
 
 
+def test_change_targets_bind_real_repository_patch_artifacts() -> None:
+    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+
+    for package in result.packages:
+        assert package.target.diff_ref == (
+            f"{discovery.PATCH_ARTIFACT_DIRECTORY}/{package.variant.variant_id}.patch"
+        )
+        verification = verify_change_target_diff(package.target, repo_root=ROOT)
+        assert verification.valid is True
+        assert verification.checks[0]["actual_sha256"] == package.variant.patch_sha256
+
+
 def test_admission_only_runs_git_and_leaves_pristine_source_unchanged(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -241,6 +254,18 @@ def test_pristine_source_admission_rejects_identity_drift(
     with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
         discovery.admit_change_target_pair(CANDIDATE, source)
     assert error.value.code == code
+
+
+def test_pristine_source_admission_rejects_tree_identity_drift(tmp_path: Path) -> None:
+    source = _copy_source(tmp_path)
+    baseline = replace(
+        discovery.admit_change_target_pair(CANDIDATE, SOURCE).pair.baseline,
+        tree_sha256="0" * 40,
+    )
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery._verify_pristine_source(source, baseline)
+    assert error.value.code == "source_tree_mismatch"
 
 
 @pytest.mark.parametrize(
@@ -357,3 +382,12 @@ def test_projection_diff_and_model_policy_are_fail_closed() -> None:
     with pytest.raises(discovery.ChangeTargetAdmissionError) as model_error:
         discovery.BlindRuntimeProjection.from_dict(leaked)
     assert model_error.value.code in {"projection_model_policy_mismatch", "projection_leakage"}
+
+    leaked = result.projections[0].to_dict()
+    leaked["quality_contract_id"] = "secret-contract"
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as contract_error:
+        discovery.BlindRuntimeProjection.from_dict(leaked)
+    assert contract_error.value.code in {
+        "projection_contract_mismatch",
+        "projection_leakage",
+    }
