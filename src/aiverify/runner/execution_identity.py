@@ -19,9 +19,15 @@ from aiverify.runner.command import CommandResult, CommandRunner, SubprocessComm
 from aiverify.runner.execution_record import write_bytes_artifact, write_json_artifact
 from aiverify.runner.journey_backend import (
     CODEX_CLI,
+    DETERMINISTIC_ANDROID_V1,
     SUPPORTED_JOURNEY_BACKENDS,
 )
 from aiverify.runner.run_spec import RunSpec, RunSpecError, parse_run_spec
+
+
+_DETERMINISTIC_SEQUENCE_FIELDS = frozenset(
+    {"action_ids", "plan_action_ids", "commands", "dispatch_count"}
+)
 
 
 class ExecutionIdentityError(RuntimeError):
@@ -94,9 +100,12 @@ class ExecutionIdentityCollector:
             raise ExecutionIdentityError(
                 f"unsupported Journey Driver backend: {self.journey_driver_backend}"
             )
-        if self.journey_driver_backend != CODEX_CLI:
+        if self.journey_driver_backend == DETERMINISTIC_ANDROID_V1 and (
+            self.requested_driver_model is not None
+            or self.requested_l3_model is not None
+        ):
             raise ExecutionIdentityError(
-                "deterministic_android_v1 identity capture is not available yet"
+                "deterministic_android_v1 cannot capture requested model identity"
             )
         source_bytes = self._run_spec_bytes()
         snapshot_path = self.run_spec_snapshot_path
@@ -178,9 +187,6 @@ class ExecutionIdentityCollector:
             "adb": self._tool_identity(
                 self.adb_bin, [self.adb_bin, "version"]
             ),
-            "codex_cli": self._tool_identity(
-                self.codex_bin, [self.codex_bin, "--version"]
-            ),
             "git": self._tool_identity(
                 self.git_bin, [self.git_bin, "--version"]
             ),
@@ -191,6 +197,10 @@ class ExecutionIdentityCollector:
                 "version": platform.python_version(),
             },
         }
+        if self.journey_driver_backend == CODEX_CLI:
+            tools["codex_cli"] = self._tool_identity(
+                self.codex_bin, [self.codex_bin, "--version"]
+            )
         for identity in tools.values():
             identity["identity_sha256"] = _identity_sha256(identity)
         return tools
@@ -291,9 +301,21 @@ class ExecutionIdentityCollector:
         if self._static is None or self._deployment is None:
             raise ExecutionIdentityError("static and deployment identity are required")
         self._verify_no_drift()
-        driver_paths = sorted(
-            self.artifact_dir.glob("*/codex-invocation-identity.json")
-        )
+        if self.journey_driver_backend == DETERMINISTIC_ANDROID_V1:
+            self._materialize_deterministic_identity_receipts()
+            driver_paths = sorted(
+                self.artifact_dir.glob("*/deterministic-invocation-identity.json")
+            )
+            driver_ledger_paths = sorted(
+                self.artifact_dir.glob("*/deterministic-invocation-ledger.json")
+            )
+            expected_driver_binary = self._static["tools"]["android_cli"]
+        else:
+            driver_paths = sorted(
+                self.artifact_dir.glob("*/codex-invocation-identity.json")
+            )
+            driver_ledger_paths = []
+            expected_driver_binary = self._static["tools"]["codex_cli"]
         l3_paths = sorted(
             (self.artifact_dir / "l3-judge").glob("l3-judge-call-*.identity.json")
         )
@@ -318,12 +340,16 @@ class ExecutionIdentityCollector:
             raise ExecutionIdentityError("journey driver identity receipt is missing")
         driver = self._role_identity(
             "journey_driver", driver_paths, self.requested_driver_model,
-            ledger_paths=[],
+            ledger_paths=driver_ledger_paths,
+            expected_binary=expected_driver_binary,
+            backend=self.journey_driver_backend,
         )
         if l3_paths:
             l3_role = self._role_identity(
                 "l3_semantic_judge", l3_paths, self.requested_l3_model,
                 ledger_paths=l3_ledger_paths,
+                expected_binary=self._static["tools"]["codex_cli"],
+                backend=CODEX_CLI,
             )
         elif not l3_configured:
             l3_role = _not_applicable_role(
@@ -362,6 +388,161 @@ class ExecutionIdentityCollector:
             base_dir=self.run_dir,
         )
         return binding
+
+    def _materialize_deterministic_identity_receipts(self) -> None:
+        """Bind deterministic raw invocation receipts to captured tool identity."""
+
+        if self._static is None:
+            raise ExecutionIdentityError("static identity must be captured before role identity")
+        raw_paths = sorted(
+            self.artifact_dir.glob("*/deterministic-driver-invocation.json")
+        )
+        if not raw_paths:
+            raise ExecutionIdentityError(
+                "deterministic driver invocation receipt is missing"
+            )
+        binary = dict(self._static["tools"]["android_cli"])
+        legacy_fields = {
+            "schema_version",
+            "backend",
+            "role",
+            "journey",
+            "action_id",
+            "plan_action_id",
+            "requested_model",
+            "effective_model",
+            "model_calls",
+            "command",
+            "result_path",
+            "events_path",
+            "raw_result_sha256",
+            "raw_events_sha256",
+            "observation_count",
+        }
+        for index, raw_path in enumerate(raw_paths, start=1):
+            raw = _load_json(raw_path, label="deterministic driver invocation")
+            raw_fields = set(raw)
+            if (
+                raw_fields != legacy_fields
+                and raw_fields != legacy_fields | _DETERMINISTIC_SEQUENCE_FIELDS
+                or not isinstance(raw.get("journey"), str)
+                or not raw["journey"]
+                or not isinstance(raw.get("action_id"), str)
+                or not raw["action_id"]
+                or not isinstance(raw.get("plan_action_id"), str)
+                or not raw["plan_action_id"]
+                or raw.get("schema_version") != 1
+                or raw.get("backend") != DETERMINISTIC_ANDROID_V1
+                or raw.get("role") != "journey_driver"
+                or not isinstance(raw.get("command"), list)
+                or not all(isinstance(item, str) for item in raw["command"])
+                or not isinstance(raw.get("result_path"), str)
+                or not isinstance(raw.get("events_path"), str)
+                or not _is_sha256(raw.get("raw_result_sha256"))
+                or not _is_sha256(raw.get("raw_events_sha256"))
+                or raw.get("requested_model") is not None
+                or raw.get("effective_model") is not None
+                or raw.get("model_calls") != 0
+                or type(raw.get("observation_count")) is not int
+                or raw["observation_count"] < 1
+            ):
+                raise ExecutionIdentityError(
+                    "deterministic driver invocation receipt is invalid"
+                )
+            has_sequence = raw_fields == legacy_fields | _DETERMINISTIC_SEQUENCE_FIELDS
+            if has_sequence:
+                _validate_deterministic_sequence_fields(raw)
+            for path_key, digest_key in (
+                ("result_path", "raw_result_sha256"),
+                ("events_path", "raw_events_sha256"),
+            ):
+                raw_artifact = Path(raw[path_key])
+                if (
+                    not raw_artifact.is_file()
+                    or _sha256_file(raw_artifact) != raw[digest_key]
+                ):
+                    raise ExecutionIdentityError(
+                        "deterministic driver raw artifact checksum mismatch"
+                    )
+            if has_sequence:
+                events = _load_json(
+                    Path(raw["events_path"]),
+                    label="deterministic driver raw events",
+                )
+                dispatches = events.get("dispatches")
+                if (
+                    not isinstance(dispatches, list)
+                    or len(dispatches) != raw["dispatch_count"]
+                ):
+                    raise ExecutionIdentityError(
+                        "deterministic driver dispatch evidence is incomplete"
+                    )
+            identity_path = raw_path.with_name("deterministic-invocation-identity.json")
+            ledger_path = raw_path.with_name("deterministic-invocation-ledger.json")
+            identity = {
+                "schema_version": 1,
+                "role": "journey_driver",
+                "backend": DETERMINISTIC_ANDROID_V1,
+                "binary": binary,
+                "requested_model": None,
+                "effective_model": None,
+                "model_identity": {
+                    "status": "not_applicable",
+                    "reason": "deterministic_backend_has_no_model_role",
+                },
+                "model_calls": 0,
+                "invocation_id": f"{self.attempt_id}:deterministic:{index}",
+                "journey": raw["journey"],
+                "action_id": raw["action_id"],
+                "plan_action_id": raw["plan_action_id"],
+                "command": {"argv": raw["command"]},
+                "raw_result_path": raw["result_path"],
+                "raw_events_path": raw["events_path"],
+                "raw_result_sha256": raw["raw_result_sha256"],
+                "raw_events_sha256": raw["raw_events_sha256"],
+                "observation_count": raw["observation_count"],
+            }
+            if has_sequence:
+                identity.update(
+                    {
+                        "action_ids": raw["action_ids"],
+                        "plan_action_ids": raw["plan_action_ids"],
+                        "commands": raw["commands"],
+                        "dispatch_count": raw["dispatch_count"],
+                    }
+                )
+            write_json_artifact(
+                identity_path,
+                identity,
+            )
+            write_json_artifact(
+                ledger_path,
+                {
+                    "schema_version": 1,
+                    "role": "journey_driver",
+                    "backend": DETERMINISTIC_ANDROID_V1,
+                    "call_index": index,
+                    "requested_model": None,
+                    "effective_model": None,
+                    "model_calls": 0,
+                    "invocation_id": f"{self.attempt_id}:deterministic:{index}",
+                },
+            )
+
+    def materialize_deterministic_attempt_identity(self) -> list[Path]:
+        """Persist deterministic role identity even for a non-accountable attempt."""
+
+        if self.journey_driver_backend != DETERMINISTIC_ANDROID_V1:
+            raise ExecutionIdentityError(
+                "deterministic attempt identity requires the deterministic backend"
+            )
+        self._materialize_deterministic_identity_receipts()
+        return sorted(
+            {
+                *self.artifact_dir.glob("*/deterministic-invocation-identity.json"),
+                *self.artifact_dir.glob("*/deterministic-invocation-ledger.json"),
+            }
+        )
 
     def _export_role_files(
         self,
@@ -632,6 +813,8 @@ class ExecutionIdentityCollector:
         paths: list[Path],
         requested_model: str | None,
         ledger_paths: list[Path],
+        expected_binary: dict,
+        backend: str = CODEX_CLI,
     ) -> dict:
         refs = []
         receipts = []
@@ -641,46 +824,70 @@ class ExecutionIdentityCollector:
                 receipt,
                 expected_role=role,
                 requested_model=requested_model,
-                expected_binary=self._static["tools"]["codex_cli"],
+                expected_binary=expected_binary,
                 expected_workdir=self.workdir,
+                expected_backend=backend,
             )
             receipts.append(receipt)
             refs.append({"path": self._evidence_path(path), "sha256": _sha256_file(path)})
         ledger_refs = []
         for expected_index, path in enumerate(ledger_paths, start=1):
             ledger = _load_json(path, label=f"{role} invocation ledger")
-            if ledger != {
-                "schema_version": 1,
-                "role": role,
-                "call_index": expected_index,
-                "requested_model": requested_model,
-                "argv_without_prompt": ledger.get("argv_without_prompt"),
-                "prompt_sha256": ledger.get("prompt_sha256"),
-            } or not isinstance(ledger["argv_without_prompt"], list) or not _is_sha256(
-                ledger["prompt_sha256"]
-            ):
-                raise ExecutionIdentityError("L3 invocation ledger is invalid")
-            receipt_command = receipts[expected_index - 1]["command"]
-            if (
-                ledger["argv_without_prompt"] != receipt_command["argv_without_prompt"]
-                or ledger["prompt_sha256"] != receipt_command["prompt_sha256"]
-            ):
-                raise ExecutionIdentityError(
-                    "L3 invocation ledger contradicts identity receipt"
-                )
+            if backend == DETERMINISTIC_ANDROID_V1:
+                if (
+                    ledger.get("schema_version") != 1
+                    or ledger.get("role") != role
+                    or ledger.get("backend") != backend
+                    or ledger.get("call_index") != expected_index
+                    or ledger.get("requested_model") is not None
+                    or ledger.get("effective_model") is not None
+                    or ledger.get("model_calls") != 0
+                    or ledger.get("invocation_id")
+                    != receipts[expected_index - 1].get("invocation_id")
+                ):
+                    raise ExecutionIdentityError(
+                        "deterministic driver invocation ledger is invalid"
+                    )
+            else:
+                if ledger != {
+                    "schema_version": 1,
+                    "role": role,
+                    "call_index": expected_index,
+                    "requested_model": requested_model,
+                    "argv_without_prompt": ledger.get("argv_without_prompt"),
+                    "prompt_sha256": ledger.get("prompt_sha256"),
+                } or not isinstance(ledger["argv_without_prompt"], list) or not _is_sha256(
+                    ledger["prompt_sha256"]
+                ):
+                    raise ExecutionIdentityError("L3 invocation ledger is invalid")
+                receipt_command = receipts[expected_index - 1]["command"]
+                if (
+                    ledger["argv_without_prompt"] != receipt_command["argv_without_prompt"]
+                    or ledger["prompt_sha256"] != receipt_command["prompt_sha256"]
+                ):
+                    raise ExecutionIdentityError(
+                        "L3 invocation ledger contradicts identity receipt"
+                    )
             ledger_refs.append(
                 {"path": self._evidence_path(path), "sha256": _sha256_file(path)}
+            )
+        if backend == DETERMINISTIC_ANDROID_V1 and len(ledger_refs) != len(refs):
+            raise ExecutionIdentityError(
+                "deterministic driver invocation ledger is incomplete"
             )
         if role == "l3_semantic_judge" and len(ledger_refs) != len(refs):
             raise ExecutionIdentityError(
                 "L3 invoked call is missing a terminal identity receipt"
             )
-        return {
+        result = {
             "status": "invoked",
             "requested_model": requested_model,
             "invocations": refs,
             "invocation_ledger": ledger_refs,
         }
+        if backend == DETERMINISTIC_ANDROID_V1:
+            result.update({"effective_model": None, "model_calls": 0})
+        return result
 
     def _git(self, *args: str) -> CommandResult:
         result = self.runner.run([self.git_bin, *args], cwd=self.workdir, timeout_seconds=30)
@@ -774,7 +981,13 @@ def verify_execution_provenance(
         except ValueError as error:
             raise ExecutionIdentityError("APK path is outside the captured host") from error
     _validate_device_identity(payload.get("device"))
-    _validate_tools(payload.get("tools"))
+    journey_driver_backend = payload["run_spec"].get(
+        "journey_driver_backend", CODEX_CLI
+    )
+    _validate_tools(
+        payload.get("tools"),
+        journey_driver_backend=journey_driver_backend,
+    )
     _validate_deployment(
         payload.get("deployment"),
         local_hashes=local_hashes,
@@ -792,16 +1005,24 @@ def verify_execution_provenance(
     driver_identities = _verify_role(
         roles["journey_driver"],
         expected_role="journey_driver",
-        expected_binary=payload["tools"]["codex_cli"],
+        expected_binary=(
+            payload["tools"]["android_cli"]
+            if journey_driver_backend == DETERMINISTIC_ANDROID_V1
+            else payload["tools"]["codex_cli"]
+        ),
         evidence_root=evidence_root,
         expected_workdir=Path(payload["host"]["repository_root"]),
+        backend=journey_driver_backend,
     )
     l3_identities = _verify_role(
         roles["l3_semantic_judge"],
         expected_role="l3_semantic_judge",
-        expected_binary=payload["tools"]["codex_cli"],
+        expected_binary=payload["tools"].get(
+            "codex_cli", payload["tools"]["android_cli"]
+        ),
         evidence_root=evidence_root,
         expected_workdir=Path(payload["host"]["repository_root"]),
+        backend=CODEX_CLI,
     )
     all_identities = driver_identities | l3_identities
     if len(all_identities) != len(driver_identities) + len(l3_identities):
@@ -820,10 +1041,6 @@ def _validate_run_spec_identity(
     journey_driver_backend = value.get("journey_driver_backend", CODEX_CLI)
     if journey_driver_backend not in SUPPORTED_JOURNEY_BACKENDS:
         raise ExecutionIdentityError("Journey Driver backend identity is invalid")
-    if journey_driver_backend != CODEX_CLI:
-        raise ExecutionIdentityError(
-            "deterministic_android_v1 identity verification is not available yet"
-        )
     if value.get("scenario") != scenario:
         raise ExecutionIdentityError("Run Spec scenario contradicts provenance")
     for key in ("consumed_sha256", "snapshot_sha256"):
@@ -1039,8 +1256,10 @@ def _validate_device_identity(value: object) -> None:
         raise ExecutionIdentityError("declared device profile is incomplete")
 
 
-def _validate_tools(value: object) -> None:
-    required = {"android_cli", "adb", "codex_cli", "git", "python"}
+def _validate_tools(value: object, *, journey_driver_backend: str = CODEX_CLI) -> None:
+    required = {"android_cli", "adb", "git", "python"}
+    if journey_driver_backend == CODEX_CLI:
+        required.add("codex_cli")
     if not isinstance(value, dict) or set(value) != required:
         raise ExecutionIdentityError("execution-critical tool identity is incomplete")
     for name, identity in value.items():
@@ -1063,6 +1282,7 @@ def _verify_role(
     expected_binary: dict,
     evidence_root: Path | None,
     expected_workdir: Path,
+    backend: str = CODEX_CLI,
 ) -> set[tuple[str, str]]:
     if not isinstance(value, dict):
         raise ExecutionIdentityError(f"role identity is missing: {expected_role}")
@@ -1099,9 +1319,28 @@ def _verify_role(
             requested_model=requested_model,
             expected_binary=expected_binary,
             expected_workdir=expected_workdir,
+            expected_backend=backend,
         )
-        source = receipt["effective_model_source"]
-        identity = (source["thread_id"], source["turn_id"])
+        if backend == DETERMINISTIC_ANDROID_V1:
+            for path_key, digest_key in (
+                ("raw_result_path", "raw_result_sha256"),
+                ("raw_events_path", "raw_events_sha256"),
+            ):
+                raw_path = _resolve_evidence_path(
+                    receipt[path_key], evidence_root=evidence_root
+                )
+                if (
+                    not raw_path.is_file()
+                    or _sha256_file(raw_path) != receipt[digest_key]
+                ):
+                    raise ExecutionIdentityError(
+                        "deterministic driver raw artifact checksum mismatch"
+                    )
+        if backend == DETERMINISTIC_ANDROID_V1:
+            identity = (receipt["invocation_id"], receipt["plan_action_id"])
+        else:
+            source = receipt["effective_model_source"]
+            identity = (source["thread_id"], source["turn_id"])
         if identity in identities:
             raise ExecutionIdentityError("role thread or turn identity is duplicated")
         identities.add(identity)
@@ -1110,7 +1349,13 @@ def _verify_role(
         raise ExecutionIdentityError("role receipt reference is duplicated")
     ledger = value.get("invocation_ledger")
     if expected_role == "journey_driver":
-        if ledger != []:
+        if backend == DETERMINISTIC_ANDROID_V1:
+            _verify_deterministic_ledger(
+                ledger,
+                invocations=invocations,
+                evidence_root=evidence_root,
+            )
+        elif ledger != []:
             raise ExecutionIdentityError("journey driver invocation ledger is invalid")
     else:
         _verify_l3_ledger(
@@ -1129,13 +1374,21 @@ def _validate_role_receipt(
     requested_model: str | None,
     expected_binary: dict | None = None,
     expected_workdir: Path | None = None,
+    expected_backend: str = CODEX_CLI,
 ) -> None:
     if not isinstance(receipt, dict) or receipt.get("schema_version") != 1:
         raise ExecutionIdentityError("role identity receipt schema is invalid")
-    if receipt.get("role") != expected_role or receipt.get("backend") != "codex_cli":
+    if receipt.get("role") != expected_role or receipt.get("backend") != expected_backend:
         raise ExecutionIdentityError("role or backend identity contradicts invocation")
     if receipt.get("requested_model") != requested_model:
         raise ExecutionIdentityError("role requested model contradicts runner input")
+    if expected_backend == DETERMINISTIC_ANDROID_V1:
+        _validate_deterministic_role_receipt(
+            receipt,
+            expected_role=expected_role,
+            expected_binary=expected_binary,
+        )
+        return
     effective_model = receipt.get("effective_model")
     if not isinstance(effective_model, str) or not effective_model:
         raise ExecutionIdentityError("role effective model is missing")
@@ -1213,6 +1466,206 @@ def _validate_role_receipt(
         raise ExecutionIdentityError(
             "role default model selection contradicts a command model override"
         )
+
+
+def _validate_deterministic_role_receipt(
+    receipt: dict,
+    *,
+    expected_role: str,
+    expected_binary: dict | None,
+) -> None:
+    """Validate a model-free deterministic invocation identity receipt."""
+
+    required = {
+        "schema_version",
+        "role",
+        "backend",
+        "binary",
+        "requested_model",
+        "effective_model",
+        "model_identity",
+        "model_calls",
+        "invocation_id",
+        "journey",
+        "action_id",
+        "plan_action_id",
+        "command",
+        "raw_result_path",
+        "raw_events_path",
+        "raw_result_sha256",
+        "raw_events_sha256",
+        "observation_count",
+    }
+    receipt_fields = set(receipt)
+    if (
+        receipt_fields != required
+        and receipt_fields != required | _DETERMINISTIC_SEQUENCE_FIELDS
+    ):
+        raise ExecutionIdentityError(
+            "deterministic driver identity receipt fields are invalid"
+        )
+    if receipt_fields == required | _DETERMINISTIC_SEQUENCE_FIELDS:
+        _validate_deterministic_sequence_fields(receipt)
+    if expected_role != "journey_driver":
+        raise ExecutionIdentityError(
+            "deterministic backend identity is only valid for the Journey driver"
+        )
+    if (
+        receipt["requested_model"] is not None
+        or receipt["effective_model"] is not None
+        or receipt["model_calls"] != 0
+        or receipt["model_identity"]
+        != {
+            "status": "not_applicable",
+            "reason": "deterministic_backend_has_no_model_role",
+        }
+    ):
+        raise ExecutionIdentityError(
+            "deterministic driver model identity is not applicable"
+        )
+    for key in ("invocation_id", "journey", "action_id", "plan_action_id"):
+        if not isinstance(receipt[key], str) or not receipt[key]:
+            raise ExecutionIdentityError(
+                f"deterministic driver identity field is invalid: {key}"
+            )
+    if type(receipt["observation_count"]) is not int or receipt["observation_count"] < 1:
+        raise ExecutionIdentityError(
+            "deterministic driver observation count is invalid"
+        )
+    binary = receipt["binary"]
+    if (
+        not isinstance(binary, dict)
+        or not isinstance(binary.get("requested"), str)
+        or not isinstance(binary.get("resolved_path"), str)
+        or not _is_sha256(binary.get("sha256"))
+        or not isinstance(binary.get("version"), str)
+        or not binary["version"]
+        or binary.get("identity_sha256") != _identity_sha256(binary)
+    ):
+        raise ExecutionIdentityError(
+            "deterministic driver backend binary identity is incomplete"
+        )
+    if expected_binary is not None and any(
+        binary.get(key) != expected_binary.get(key)
+        for key in ("requested", "resolved_path", "sha256", "version", "identity_sha256")
+    ):
+        raise ExecutionIdentityError(
+            "deterministic driver backend binary contradicts tool identity"
+        )
+    command = receipt["command"]
+    if not isinstance(command, dict) or set(command) != {"argv"}:
+        raise ExecutionIdentityError(
+            "deterministic driver command identity is invalid"
+        )
+    argv = command["argv"]
+    if (
+        not isinstance(argv, list)
+        or not argv
+        or not all(isinstance(arg, str) for arg in argv)
+        or argv[0] != binary["requested"]
+        or "--model" in argv
+    ):
+        raise ExecutionIdentityError(
+            "deterministic driver command identity is invalid"
+        )
+    for path_key, digest_key in (
+        ("raw_result_path", "raw_result_sha256"),
+        ("raw_events_path", "raw_events_sha256"),
+    ):
+        if not isinstance(receipt[path_key], str) or not receipt[path_key]:
+            raise ExecutionIdentityError(
+                f"deterministic driver raw artifact path is invalid: {path_key}"
+            )
+        if not _is_sha256(receipt[digest_key]):
+            raise ExecutionIdentityError(
+                f"deterministic driver raw artifact checksum is invalid: {digest_key}"
+            )
+
+
+def _validate_deterministic_sequence_fields(value: Mapping[str, object]) -> None:
+    """Validate the optional exact action/command lineage on a multi-action call."""
+    action_ids = value.get("action_ids")
+    plan_action_ids = value.get("plan_action_ids")
+    commands = value.get("commands")
+    dispatch_count = value.get("dispatch_count")
+    command_value = value.get("command")
+    primary_command = (
+        command_value.get("argv")
+        if isinstance(command_value, dict)
+        else command_value
+    )
+    if (
+        not isinstance(action_ids, list)
+        or not action_ids
+        or not all(isinstance(item, str) and item for item in action_ids)
+        or not isinstance(plan_action_ids, list)
+        or len(plan_action_ids) != len(action_ids)
+        or not all(isinstance(item, str) and item for item in plan_action_ids)
+        or not isinstance(commands, list)
+        or not all(
+            isinstance(command, list)
+            and all(isinstance(argument, str) for argument in command)
+            for command in commands
+        )
+        or not commands
+        or type(dispatch_count) is not int
+        or dispatch_count < 0
+        or value.get("action_id") != action_ids[0]
+        or value.get("plan_action_id") != plan_action_ids[0]
+        or primary_command != commands[0]
+    ):
+        raise ExecutionIdentityError(
+            "deterministic driver action sequence identity is invalid"
+        )
+    if any("--model" in command for command in commands):
+        raise ExecutionIdentityError(
+            "deterministic driver command identity is invalid"
+        )
+
+
+def _verify_deterministic_ledger(
+    value: object,
+    *,
+    invocations: list[dict],
+    evidence_root: Path | None,
+) -> None:
+    if not isinstance(value, list) or len(value) != len(invocations):
+        raise ExecutionIdentityError("deterministic driver invocation ledger is incomplete")
+    for expected_index, ref in enumerate(value, start=1):
+        if (
+            not isinstance(ref, dict)
+            or not isinstance(ref.get("path"), str)
+            or not _is_sha256(ref.get("sha256"))
+        ):
+            raise ExecutionIdentityError(
+                "deterministic driver invocation ledger reference is invalid"
+            )
+        path = _resolve_evidence_path(ref["path"], evidence_root=evidence_root)
+        if not path.is_file() or _sha256_file(path) != ref["sha256"]:
+            raise ExecutionIdentityError(
+                "deterministic driver invocation ledger checksum mismatch"
+            )
+        ledger = _load_json(path, label="deterministic driver invocation ledger")
+        receipt_ref = invocations[expected_index - 1]
+        receipt_path = _resolve_evidence_path(
+            receipt_ref["path"], evidence_root=evidence_root
+        )
+        receipt = _load_json(
+            receipt_path, label="deterministic driver identity receipt"
+        )
+        if ledger != {
+            "schema_version": 1,
+            "role": "journey_driver",
+            "backend": DETERMINISTIC_ANDROID_V1,
+            "call_index": expected_index,
+            "requested_model": None,
+            "effective_model": None,
+            "model_calls": 0,
+            "invocation_id": receipt["invocation_id"],
+        }:
+            raise ExecutionIdentityError(
+                "deterministic driver invocation ledger is invalid"
+            )
 
 
 def _verify_l3_ledger(

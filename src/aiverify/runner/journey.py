@@ -16,6 +16,7 @@ from aiverify.runner.evidence import EvidenceCaptureError, EvidenceCheckpoint
 from aiverify.runner.execution_record import write_json_artifact
 from aiverify.runner.journey_backend import (
     CODEX_CLI,
+    DETERMINISTIC_ANDROID_V1,
     JourneyBackend,
     JourneyBackendSelectionError,
     JourneyExecutionResult,
@@ -31,6 +32,7 @@ class JourneySegment:
     id: str
     actions: list[str]
     system_event_after: SystemEventSpec | None = None
+    start_index: int = 0
 
 
 @dataclass(frozen=True)
@@ -131,6 +133,7 @@ def scenario_to_segments(scenario: ScenarioSpec) -> list[JourneySegment]:
                 id=f"{scenario.id}-segment-{idx}",
                 actions=segment_actions,
                 system_event_after=event,
+                start_index=start,
             )
         )
         start = end
@@ -140,6 +143,7 @@ def scenario_to_segments(scenario: ScenarioSpec) -> list[JourneySegment]:
             JourneySegment(
                 id=f"{scenario.id}-segment-{len(segments)}",
                 actions=actions[start:],
+                start_index=start,
             )
         )
 
@@ -176,6 +180,14 @@ def _build_backend_request(
     """Build a backend-specific request while retaining legacy fake support."""
     builder = getattr(backend, "build_request", None)
     if callable(builder):
+        if backend_id(backend) == DETERMINISTIC_ANDROID_V1:
+            return builder(
+                segment_id=segment.id,
+                action_offset=segment.start_index,
+                action_count=len(segment.actions),
+                artifact_dir=artifact_dir,
+                device=device,
+            )
         return builder(
             segment=segment,
             journey_instructions=journey_instructions,
@@ -202,14 +214,28 @@ def _action_lineage_results(
     normalized_actions: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """Project normalized actions into the stable lineage contract."""
-    return [
-        {
+    has_tap_action = any(
+        item.get("action", "").startswith("tap resource id ")
+        and "plan_action_id" in item
+        for item in normalized_actions
+    )
+    results = []
+    for item in normalized_actions:
+        lineage = {
             "action_id": item["action_id"],
             "requested_action": item["action"],
             "status": item["status"],
         }
-        for item in normalized_actions
-    ]
+        if "plan_action_id" in item:
+            lineage["plan_action_id"] = item["plan_action_id"]
+            if has_tap_action:
+                lineage["operation"] = (
+                    "side_effect_dispatch"
+                    if item["action"].startswith("tap resource id ")
+                    else "observation_probe"
+                )
+        results.append(lineage)
+    return results
 
 
 class JourneySegmentRunner:
@@ -302,6 +328,29 @@ class JourneySegmentRunner:
                         "command": exc.command,
                     }
                 )
+            else:
+                result_path = getattr(exc, "result_path", None)
+                events_path = getattr(exc, "events_path", None)
+                invocation_path = getattr(exc, "invocation_path", None)
+                command = getattr(exc, "command", None)
+                if (
+                    result_path is not None
+                    or events_path is not None
+                    or invocation_path is not None
+                    or command is not None
+                ):
+                    backend_diagnostics.append(
+                        {
+                            "result": str(result_path) if result_path is not None else None,
+                            "events": str(events_path) if events_path is not None else None,
+                            "invocation": (
+                                str(invocation_path)
+                                if invocation_path is not None
+                                else None
+                            ),
+                            "command": command,
+                        }
+                    )
             return _interruption(
                 reason,
                 f"{type(exc).__name__}: {exc}",

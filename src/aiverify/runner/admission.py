@@ -29,9 +29,15 @@ from aiverify.runner.execution_record import (
     ExecutionRecordStore,
     write_bytes_artifact,
 )
+from aiverify.runner.deterministic_backend import (
+    DeterministicDriverPlanError,
+    validate_deterministic_driver_plan,
+)
 from aiverify.runner.journey_backend import (
     CODEX_CLI,
     DEFAULT_JOURNEY_BACKEND,
+    DETERMINISTIC_ANDROID_V1,
+    DriverPlanBinding,
     JourneyBackendSelectionError,
     JourneyDriverSelection,
     SUPPORTED_JOURNEY_BACKENDS,
@@ -335,12 +341,41 @@ def admit_production_seam(
     driver_plan: dict[str, object] | None = None
     try:
         tools = _validate_runner_policy(spec, options)
+        selection = options.journey_driver_selection()
         try:
-            binding = options.journey_driver_selection().bind_driver_plan()
+            selection.validate()
         except JourneyBackendSelectionError as error:
             raise ProductionSeamAdmissionError(str(error)) from error
-        if binding is not None:
-            driver_plan = binding.to_dict()
+        if options.backend == DETERMINISTIC_ANDROID_V1:
+            if source_bytes is None or spec.source_path is None:
+                raise ProductionSeamAdmissionError(
+                    "deterministic Driver Plan requires exact Run Spec source bytes"
+                )
+            plan_path = Path(selection.driver_plan_path).expanduser().resolve()
+            try:
+                plan_bytes = plan_path.read_bytes()
+                binding = DriverPlanBinding(
+                    path=plan_path,
+                    sha256=_sha256_bytes(plan_bytes),
+                    bytes=len(plan_bytes),
+                )
+                driver_plan = binding.to_dict()
+                validate_deterministic_driver_plan(
+                    plan_path,
+                    serialized_run_spec=source_bytes,
+                    run_spec_path=spec.source_path,
+                    expected_actions=spec.scenario.user_actions,
+                    plan_bytes=plan_bytes,
+                )
+            except (OSError, DeterministicDriverPlanError) as error:
+                raise ProductionSeamAdmissionError(str(error)) from error
+        else:
+            try:
+                binding = selection.bind_driver_plan()
+            except JourneyBackendSelectionError as error:
+                raise ProductionSeamAdmissionError(str(error)) from error
+            if binding is not None:
+                driver_plan = binding.to_dict()
         checks["runner_policy"] = {"status": "passed"}
     except ProductionSeamAdmissionError as error:
         reasons.append(str(error))
@@ -439,11 +474,11 @@ def verify_admitted_receipt(
         command_runner=command_runner,
         source_authority=source_authority,
     )
-    current.require_admitted()
     if current.receipt["run_spec"] != expected.receipt.get("run_spec"):
         raise ProductionSeamAdmissionError("admission receipt Run Spec drift")
     if current.receipt["runner_policy"] != expected.receipt.get("runner_policy"):
         raise ProductionSeamAdmissionError("admission receipt runner-option drift")
+    current.require_admitted()
     if not _host_receipts_match(
         current.receipt["host"],
         expected.receipt.get("host"),

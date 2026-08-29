@@ -17,8 +17,12 @@ from aiverify.runner.codex_backend import JourneyExecutionResult
 from aiverify.runner.evidence import AndroidEvidenceCollector, EvidenceCheckpoint
 from aiverify.runner.execution_record import ExecutionRecordStorageError
 from aiverify.runner.execution_identity import ExecutionIdentityError
+from aiverify.runner.deterministic_backend import (
+    DeterministicAndroidBackend,
+    load_deterministic_driver_plan,
+)
 from aiverify.runner.journey import JourneyExecutionInterrupted, JourneySegmentFlow
-from aiverify.runner.journey_backend import CODEX_CLI
+from aiverify.runner.journey_backend import CODEX_CLI, DETERMINISTIC_ANDROID_V1
 from aiverify.runner.run_spec import (
     AssertionSpec,
     AppSmokeSpec,
@@ -27,6 +31,7 @@ from aiverify.runner.run_spec import (
     RunSpec,
     ScenarioSpec,
     SystemEventSpec,
+    load_run_spec,
 )
 
 
@@ -265,6 +270,110 @@ def _passing_preflight_responses() -> list[dict[str, object]]:
         {"stdout": '[{"resource-id":"launcher"}]'},
         {"stdout": "UI hierchary dumped to: /sdcard/window_dump.xml\n"},
     ]
+
+
+class RecordingDeterministicAdapter:
+    def __init__(self, layout: list[dict[str, object]]) -> None:
+        self.layout = layout
+        self.calls = 0
+
+    def read_layout(self):
+        self.calls += 1
+        return self.layout
+
+
+def test_source_backed_deterministic_run_reaches_normalized_evidence(
+    tmp_path: Path, monkeypatch
+) -> None:
+    source_path = tmp_path / "run-spec.yaml"
+    source_path.write_text(
+        "host_project: .\n"
+        "apk_glob: '*.apk'\n"
+        "package: org.example.app\n"
+        "activity: org.example.MainActivity\n"
+        "scenario:\n"
+        "  id: deterministic-cli-smoke\n"
+        "  user_actions:\n"
+        "    - wait for resource id oneButton\n",
+        encoding="utf-8",
+    )
+    spec = load_run_spec(source_path)
+    plan_path = tmp_path / "driver-plan.json"
+    plan_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "document_kind": "deterministic_driver_plan",
+                "family_id": "test-family",
+                "family_version": "v1",
+                "lane_id": "lane-01",
+                "plan_id": "lane-01-driver-plan",
+                "run_spec_path": "run-spec.yaml",
+                "run_spec_sha256": spec.source_sha256,
+                "actions": [
+                    {
+                        "action_id": "action-01",
+                        "kind": "wait_for_resource_id",
+                        "resource_id": "oneButton",
+                        "timeout_ms": 5000,
+                        "observation_interval_ms": 350,
+                        "settle_ms": 0,
+                    }
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    plan = load_deterministic_driver_plan(
+        plan_path,
+        serialized_run_spec=source_path.read_bytes(),
+        run_spec_path=source_path,
+        expected_actions=spec.scenario.user_actions,
+    )
+    adapter = RecordingDeterministicAdapter([{"resource-id": "oneButton"}])
+    backend = DeterministicAndroidBackend(
+        plan=plan,
+        device="emulator-5554",
+        device_adapter=adapter,
+    )
+    monkeypatch.setattr(cli, "DeviceController", FakeDeviceController)
+    monkeypatch.setattr(
+        cli, "AndroidEvidenceCollector", lambda: StaticCheckpointCollector()
+    )
+    artifact_dir = tmp_path / "run" / "artifacts"
+
+    verdict = cli.run(
+        spec,
+        device="emulator-5554",
+        artifact_dir=artifact_dir,
+        workdir=tmp_path,
+        backend=DETERMINISTIC_ANDROID_V1,
+        driver_plan_path=plan_path,
+        journey_backend=backend,
+        preflight_command_runner=FakePreflightRunner(_passing_preflight_responses()),
+    )
+
+    assert verdict["execution"] == {
+        "status": "completed",
+        "accounting_eligible": True,
+        "reason": None,
+        "message": None,
+    }
+    assert adapter.calls == 1
+    assert verdict["journey_results"][0]["results"][0] == {
+        "action_id": "action-1",
+        "plan_action_id": "action-01",
+        "action": "wait for resource id oneButton",
+        "status": "PASSED",
+        "commands": [],
+        "comment": "oneButton was observed exactly once; dispatch only.",
+    }
+    segment_dir = artifact_dir / "deterministic-cli-smoke-segment-0"
+    assert (segment_dir / "journey-result.normalized.json").is_file()
+    assert (segment_dir / "journey-action-lineage.json").is_file()
+    assert not (segment_dir / "codex-journey-result.normalized.json").exists()
+    assert (artifact_dir.parent / "execution-record.json").is_file()
 
 
 def test_instruction_prefix_separates_action_dispatch_from_product_outcome() -> None:

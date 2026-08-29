@@ -18,6 +18,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import time
@@ -33,7 +34,13 @@ from aiverify.harness.device import AdbResult
 from aiverify.harness.device.controller import DeviceController
 from aiverify.providers.codex_cli import CodexCliProvider, CodexCliProviderError
 from aiverify.runner.codex_backend import CodexCliBackend, _DEFAULT_SCHEMA_PATH
-from aiverify.runner.command import CommandRunner
+from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
+from aiverify.runner.deterministic_backend import (
+    DeterministicAndroidBackend,
+    DeterministicDriverPlan,
+    DeterministicDriverPlanError,
+    validate_deterministic_driver_plan,
+)
 from aiverify.runner.evidence import AndroidEvidenceCollector
 from aiverify.runner.execution_identity import (
     ExecutionIdentityCollector,
@@ -61,6 +68,7 @@ from aiverify.runner.journey import (
 from aiverify.runner.journey_backend import (
     CODEX_CLI,
     DEFAULT_JOURNEY_BACKEND,
+    DETERMINISTIC_ANDROID_V1,
     JourneyBackend,
     JourneyBackendSelectionError,
     JourneyDriverSelection,
@@ -888,6 +896,7 @@ def _write_non_accountable_verdict(
     preflight_summary: dict,
     preflight_timing: dict,
     execution_record: ExecutionRecordStore,
+    deterministic_identity_paths: list[Path] | None = None,
 ) -> dict:
     """Persist a diagnostic run result that cannot enter benchmark accounting."""
     flow = error.flow
@@ -938,6 +947,11 @@ def _write_non_accountable_verdict(
         "backend_errors": error.backend_diagnostics,
         "system_events": system_event_refs,
     }
+    if deterministic_identity_paths:
+        diagnostic_artifacts["deterministic_identity"] = [
+            _portable_evidence_ref(path, run_dir=run_dir)
+            for path in deterministic_identity_paths
+        ]
     verdict = {
         "scenario": spec.scenario.id,
         "execution": {
@@ -1014,26 +1028,37 @@ def _write_non_accountable_verdict(
             execution_record=execution_record,
             prior_phase_errors=phase_errors,
         )
+    evidence_refs = {
+        "live_validation_gate": _portable_evidence_ref(
+            preflight_summary["artifact"], run_dir=run_dir
+        ),
+        "verdict": _portable_evidence_ref(
+            artifact_dir.parent / "verdict.json", run_dir=run_dir
+        ),
+        **_flow_evidence_refs(flow, run_dir=run_dir),
+        **(
+            {
+                "deterministic_identity": [
+                    _portable_evidence_ref(path, run_dir=run_dir)
+                    for path in deterministic_identity_paths
+                ]
+            }
+            if deterministic_identity_paths
+            else {}
+        ),
+        **(
+            {"runner_setup": runner_setup_ref}
+            if runner_setup_ref is not None
+            else {}
+        ),
+    }
     execution_record.finalize(
         lifecycle_state="interrupted",
         execution=verdict["execution"],
         process_exit_code=2,
         timing=verdict["timing"],
         phase_errors=phase_errors,
-        evidence_refs={
-            "live_validation_gate": _portable_evidence_ref(
-                preflight_summary["artifact"], run_dir=run_dir
-            ),
-            "verdict": _portable_evidence_ref(
-                artifact_dir.parent / "verdict.json", run_dir=run_dir
-            ),
-            **_flow_evidence_refs(flow, run_dir=run_dir),
-            **(
-                {"runner_setup": runner_setup_ref}
-                if runner_setup_ref is not None
-                else {}
-            ),
-        },
+        evidence_refs=evidence_refs,
     )
     return verdict
 
@@ -1099,9 +1124,46 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         selection.validate()
     except JourneyBackendSelectionError as error:
         raise ProductionSeamAdmissionError(str(error)) from error
-    if selected_backend_name != CODEX_CLI and instruction_prefix:
+    if selected_backend_name == DETERMINISTIC_ANDROID_V1 and instruction_prefix:
         raise ProductionSeamAdmissionError(
             "deterministic_android_v1 does not accept Codex instruction prefix"
+        )
+    if selected_backend_name == DETERMINISTIC_ANDROID_V1 and (
+        spec.scenario.l3_spec or l3_model is not None
+    ):
+        raise ProductionSeamAdmissionError(
+            "deterministic_android_v1 is model-free and forbids L3 configuration"
+        )
+    deterministic_plan: DeterministicDriverPlan | None = None
+    if (
+        selected_backend_name == DETERMINISTIC_ANDROID_V1
+        and spec.source_path is not None
+    ):
+        if selected_driver_plan_path is None:
+            raise ProductionSeamAdmissionError(
+                "deterministic_android_v1 requires a Driver Plan"
+            )
+        try:
+            source_bytes = spec.source_path.read_bytes()
+            if (
+                spec.source_sha256 is None
+                or hashlib.sha256(source_bytes).hexdigest() != spec.source_sha256
+            ):
+                raise ProductionSeamAdmissionError(
+                    "Run Spec source bytes drifted after parsing"
+                )
+            deterministic_plan = validate_deterministic_driver_plan(
+                selected_driver_plan_path,
+                serialized_run_spec=source_bytes,
+                run_spec_path=spec.source_path,
+                expected_actions=spec.scenario.user_actions,
+            )
+        except (OSError, DeterministicDriverPlanError) as error:
+            raise ProductionSeamAdmissionError(str(error)) from error
+    if selected_backend_name == DETERMINISTIC_ANDROID_V1 and deterministic_plan is None:
+        raise ProductionSeamAdmissionError(
+            "deterministic_android_v1 requires exact source-backed Run Spec bytes "
+            "and a validated Driver Plan"
         )
     selected_backend: JourneyBackend | None = None
     try:
@@ -1111,12 +1173,24 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
                     "selected Journey backend identity contradicts runner policy"
                 )
             selected_backend = journey_backend
-        elif selected_backend_name != CODEX_CLI:
+        elif (
+            selected_backend_name == DETERMINISTIC_ANDROID_V1
+            and deterministic_plan is not None
+        ):
             # Resolve non-Codex implementations before establishing an
             # ExecutionRecord or doing preflight/device work.  Codex creation
             # is deferred to the existing runner-setup phase so constructing a
             # backend cannot change the historical phase ordering.
-            selected_backend = create_journey_backend(selection)
+            selected_backend = create_journey_backend(
+                selection,
+                deterministic_factory=lambda: DeterministicAndroidBackend(
+                    plan=deterministic_plan,
+                    device=device,
+                    android_bin=spec.live_validation.android_bin,
+                    adb_bin=spec.live_validation.adb_bin,
+                    command_runner=SubprocessCommandRunner(),
+                ),
+            )
     except JourneyBackendSelectionError as error:
         raise ProductionSeamAdmissionError(str(error)) from error
     if admission_required or preparation_required:
@@ -1455,6 +1529,25 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             model=model,
         )
     except JourneyExecutionInterrupted as error:
+        deterministic_identity_paths: list[Path] = []
+        if selected_backend_name == DETERMINISTIC_ANDROID_V1:
+            materialize = getattr(
+                identity_collector,
+                "materialize_deterministic_attempt_identity",
+                None,
+            )
+            if callable(materialize):
+                try:
+                    deterministic_identity_paths = list(materialize())
+                except Exception as identity_error:  # noqa: BLE001 - preserve the original interruption
+                    error.backend_diagnostics.append(
+                        {
+                            "identity": (
+                                f"{type(identity_error).__name__}: "
+                                f"{identity_error}"
+                            )
+                        }
+                    )
         return _write_non_accountable_verdict(
             spec=spec,
             error=error,
@@ -1464,6 +1557,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             preflight_summary=preflight_summary,
             preflight_timing=preflight_timing,
             execution_record=execution_record,
+            deterministic_identity_paths=deterministic_identity_paths,
         )
     except Exception as error:
         return _write_failed_run_verdict(
