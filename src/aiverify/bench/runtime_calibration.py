@@ -40,7 +40,7 @@ UPSTREAM_COMMIT = "0584d61189e916a62a3b402223b35e1d7a3093db"
 TARGET_SOURCE_PATH = (
     "app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt"
 )
-TARGET_SOURCE_SHA256 = "409e08157ce741bf77f7f00817a28eabee11cd1f6a5355bff7d1dd5a977eaac"
+TARGET_SOURCE_SHA256 = "409e08157ce741bf77f7f00817a28eabee11cd1f6a5355bff7d1dd5a977eaac7"
 UPSTREAM_TREE_SHA256 = "8793c063c6a990ff3448fece38e62bc103952610"
 UPSTREAM_ARCHIVE_SHA256 = "58d686b47f4a97f8b1127ab3de98bdf34a1c9310a221e5d5a7b4b5adcde54f3c"
 
@@ -276,7 +276,7 @@ _SCHEMA_CANONICAL_SHA256 = {
     "projection": "2e242d8ada565dd8e49dd15b57e5fcc01c1aa5b4853640e594b9a1fcf61a3670",
     "recipe": "862166d2cbb3aa60e503cd639df76514b398b13f18f2d728cf602800bad2590c",
     "run_spec": "e76a4f512a8908a28f3c4d1d578b5f45d17336777249716ede3b932f8e513fad",
-    "source_pair": "5ae2a46f51e266ea93fbfd4c28d7847bb5aaa7c7da46caeb0a2da7d97cc45daa",
+    "source_pair": "8c8a76de1f9bb6600fd2dcaf9fb90729c0179ea7bb5ebf5024fcefd7f94b5a6a",
 }
 
 

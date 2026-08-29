@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "document_kind": "opencalc_issue_204_verification",
+  "issue": 204,
+  "status": "passed",
+  "claim_boundary": "change_target_discovery_admission_only",
+  "tool_versions": {
+    "python": "3.11.15",
+    "pytest": "9.1.1",
+    "ruff": "0.16.5",
+    "uv": "0.11.7",
+    "git": "2.50.1"
+  },
+  "source": {
+    "root": "/Users/peter/hosts/opencalc-calibration",
+    "origin": "https://github.com/clementwzk/OpenCalc.git",
+    "commit": "0584d61189e916a62a3b402223b35e1d7a3093db",
+    "tree_sha256": "8793c063c6a990ff3448fece38e62bc103952610",
+    "archive_sha256": "58d686b47f4a97f8b1127ab3de98bdf34a1c9310a221e5d5a7b4b5adcde54f3c",
+    "target_path": "app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt",
+    "target_file_sha256": "409e08157ce741bf77f7f00817a28eabee11cd1f6a5355bff7d1dd5a977eaac7",
+    "anchor_required_occurrences": 1,
+    "worktree_clean": true
+  },
+  "candidate": {
+    "root": "bench/runtime-calibration/opencalc-input-save-enabled-v1",
+    "identity_sha256": "1e247a243e2d9fcfc9704a641c5f1174b1f4cbceee7f2af28ad494d32c68bfd5",
+    "manifest_sha256": "cda8a8946ea77720f2fb473517559fc2c65f7c56ed3b71fd329fec322147b04b",
+    "artifact_inventory_sha256": "393a19ce2ca16b60510ed21f80ba637df1bf3236da3b565fbc7a7856ad1eab14",
+    "artifact_count": 28,
+    "verification_status": "accepted"
+  },
+  "verification": {
+    "focused": {
+      "command": "/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/pytest -q tests/bench/test_opencalc_discovery.py tests/bench/test_runtime_calibration.py tests/discovery tests/injection --junitxml=docs/runs/2026-08-29-issue-204-change-target-discovery/verification/focused-pytest.xml",
+      "tests": 217,
+      "passed": 217,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 87.13,
+      "wall_seconds": 88.32,
+      "user_seconds": 40.36,
+      "sys_seconds": 40.72
+    },
+    "full": {
+      "command": "/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/pytest -q --junitxml=docs/runs/2026-08-29-issue-204-change-target-discovery/verification/full-pytest.xml",
+      "tests": 1381,
+      "passed": 1380,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 1,
+      "pytest_seconds": 163.479,
+      "wall_seconds": 166.45,
+      "user_seconds": 80.67,
+      "sys_seconds": 71.74,
+      "skip": "tests.bench.test_m9_recovery_formal.test_frozen_target_specific_mismatch_is_side_effect_free"
+    },
+    "compileall": "passed",
+    "diff_check": "passed",
+    "ruff": "passed"
+  },
+  "patch_artifacts": [
+    {
+      "path": "bench/runtime-calibration/opencalc-input-save-enabled-v1-diffs/control.patch",
+      "sha256": "ecd560750db7eddce435f117730cc3ce43dce2efad936398675b3c84f9aa8e02"
+    },
+    {
+      "path": "bench/runtime-calibration/opencalc-input-save-enabled-v1-diffs/defect.patch",
+      "sha256": "9a6adda7316dba08d36562cbb1da2cba94f1bc4d6b51772698497f4e663699c4"
+    }
+  ],
+  "matched_pair": {
+    "pair_id": "opencalc-input-save-enabled-v1",
+    "identity_sha256": "2a1f1cebbe29202c73524e77bad9258da99ecfb58e639d3fa7e3f01b8fa31848",
+    "taxonomy_id": "config-change-01",
+    "mutation_operator_id": "toggle-input-save-enabled-v1",
+    "variants": [
+      {
+        "variant_id": "control",
+        "source_id": "opencalc-input-save-enabled-v1-control",
+        "patch_sha256": "ecd560750db7eddce435f117730cc3ce43dce2efad936398675b3c84f9aa8e02",
+        "right_hand_side": "true"
+      },
+      {
+        "variant_id": "defect",
+        "source_id": "opencalc-input-save-enabled-v1-defect",
+        "patch_sha256": "9a6adda7316dba08d36562cbb1da2cba94f1bc4d6b51772698497f4e663699c4",
+        "right_hand_side": "false"
+      }
+    ]
+  },
+  "packages": [
+    {
+      "variant_id": "control",
+      "package_id": "opencalc-input-save-enabled-v1-control-package-v1",
+      "catalog_id": "opencalc-input-save-enabled-control-v1",
+      "target_id": "opencalc-input-save-enabled-v1-control",
+      "identity_sha256": "cd3ad14a3c7de28f8f791a341703aa6d098039846f0c3f55714b6734e2f536da",
+      "diff_ref": "bench/runtime-calibration/opencalc-input-save-enabled-v1-diffs/control.patch",
+      "spec_ref": "bench/runtime-calibration/opencalc-input-save-enabled-v1/source-pair.json",
+      "campaign_status": "plan-admitted",
+      "context_budget": 9,
+      "inspected_required_paths": 9,
+      "unknown_fact_count": 5,
+      "materialized_patch_applied": false
+    },
+    {
+      "variant_id": "defect",
+      "package_id": "opencalc-input-save-enabled-v1-defect-package-v1",
+      "catalog_id": "opencalc-input-save-enabled-defect-v1",
+      "target_id": "opencalc-input-save-enabled-v1-defect",
+      "identity_sha256": "10899234ba0a41b14f5017002e19883a3cc79db9dd14d386cc3805ef70d87f09",
+      "diff_ref": "bench/runtime-calibration/opencalc-input-save-enabled-v1-diffs/defect.patch",
+      "spec_ref": "bench/runtime-calibration/opencalc-input-save-enabled-v1/source-pair.json",
+      "campaign_status": "plan-admitted",
+      "context_budget": 9,
+      "inspected_required_paths": 9,
+      "unknown_fact_count": 5,
+      "materialized_patch_applied": false
+    }
+  ],
+  "projections": [
+    {
+      "projection_id": "ocrc-v1-projection-f19901e24f165a5ec265e44c",
+      "opaque_lane_id": "ocrc-v1-lane-01",
+      "opaque_identity": "336dd295524d43f12d5a29efe583dea998d18e833acfd5bab826d52a37c7e753",
+      "quality_contract_id": "opencalc-unfinished-expression-config-recreation-v1",
+      "risk_prior_id": "opencalc-state-evolution-v1",
+      "attack_operator_id": "orientation-activity-recreation-v1",
+      "risk_hypothesis_id": "opencalc-input-preservation-v1",
+      "attack_plan_id": "opencalc-orientation-preservation-v1",
+      "exploration_policy_id": "opencalc-context-nine-v1",
+      "context_budget": 9,
+      "required_context_count": 9,
+      "execution_commitments": {
+        "projection": "9188dab944f52d8b8f345ecc07fe33e30a3b46373a9b95ca3bb1242f95cda262",
+        "driver_plan": "1f9599f4165b2a214873fc8d704c2569ebd315659cfbcde245a52c01083e73b6",
+        "recipe": "11e3dc9547a2996aa3d718f128fe47cb3efb57dd21b4514d7fcc274975f8b05e",
+        "run_spec": "834af4755faa87ebace044cce0925cf27dab32d6ae936eadefb7e3a04d366688"
+      },
+      "model_calls": false,
+      "diff": null
+    },
+    {
+      "projection_id": "ocrc-v1-projection-cc20fd8b278cbff81c246200",
+      "opaque_lane_id": "ocrc-v1-lane-02",
+      "opaque_identity": "4eafd53e8d241ece75904fce07f5fc79185d1e22b4db5ef57ef270e07e173f3b",
+      "quality_contract_id": "opencalc-unfinished-expression-config-recreation-v1",
+      "risk_prior_id": "opencalc-state-evolution-v1",
+      "attack_operator_id": "orientation-activity-recreation-v1",
+      "risk_hypothesis_id": "opencalc-input-preservation-v1",
+      "attack_plan_id": "opencalc-orientation-preservation-v1",
+      "exploration_policy_id": "opencalc-context-nine-v1",
+      "context_budget": 9,
+      "required_context_count": 9,
+      "execution_commitments": {
+        "projection": "476ae44ca13ec84ebca32d2b639950a7c3148bac75b310ec00c1cd5b622f737c",
+        "driver_plan": "66af5b822f48365d5e7022db29a631d4ec25905cccbd917632e6047f4c1785b6",
+        "recipe": "1572cf3a371a0ded641d6c7e73fda594bed3fc619c5e5863a036ac2e14fe44a1",
+        "run_spec": "3049ee8cd369492574a7dcd933b51256a1484ef5515f7c3f427c45bd1d3e3c7d"
+      },
+      "model_calls": false,
+      "diff": null
+    }
+  ],
+  "leakage_audit": {
+    "status": "passed",
+    "checked_projection_count": 2,
+    "serialization_sha256": "b93209447370473d22773d0c0807413c032c32c98ff7cf5f2301e66db644f56a"
+  },
+  "side_effects": {
+    "build_calls": 0,
+    "device_calls": 0,
+    "model_calls": 0,
+    "source_patches_applied": 0
+  },
+  "result_identity_sha256": "1109552d6f23c3b34161784159599c50702d42e1f4fa36cfd8944f1a44e04dba"
+}

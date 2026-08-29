@@ -1,0 +1,393 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import shutil
+import subprocess
+from dataclasses import replace
+from pathlib import Path
+
+import pytest
+
+from aiverify.bench import opencalc_discovery as discovery
+from aiverify.bench import runtime_calibration
+from aiverify.bench.state_evolution import verify_change_target_diff
+
+ROOT = Path(__file__).parents[2]
+CANDIDATE = ROOT / "bench/runtime-calibration/opencalc-input-save-enabled-v1"
+SOURCE = Path("/Users/peter/hosts/opencalc-calibration")
+
+
+def _source_available() -> bool:
+    return SOURCE.is_dir() and (SOURCE / ".git").exists()
+
+
+pytestmark = pytest.mark.skipif(
+    not _source_available(),
+    reason="the pinned OpenCalc checkout is not available at the documented path",
+)
+
+
+def _copy_candidate(tmp_path: Path) -> Path:
+    destination = tmp_path / "candidate"
+    shutil.copytree(CANDIDATE, destination)
+    return destination
+
+
+def _copy_source(tmp_path: Path) -> Path:
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    destination = tmp_path / "source"
+    shutil.copytree(
+        SOURCE,
+        destination,
+        ignore=shutil.ignore_patterns("build", ".gradle"),
+    )
+    return destination
+
+
+def _rebind_manifest(candidate: Path) -> None:
+    path = candidate / "candidate-manifest.json"
+    manifest = json.loads(path.read_text())
+    for artifact in manifest["artifacts"]:
+        artifact_path = candidate / artifact["path"]
+        raw = artifact_path.read_bytes()
+        artifact["sha256"] = hashlib.sha256(raw).hexdigest()
+        artifact["canonical_sha256"] = runtime_calibration.canonical_sha256(
+            json.loads(raw)
+        )
+    manifest["identity_sha256"] = runtime_calibration.canonical_sha256(
+        {key: value for key, value in manifest.items() if key != "identity_sha256"}
+    )
+    path.write_text(json.dumps(manifest, indent=2) + "\n")
+
+
+def _source_file(source_root: Path) -> Path:
+    return source_root / discovery.TARGET_SOURCE_PATH
+
+
+def test_admits_both_change_campaigns_from_the_pristine_source() -> None:
+    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+
+    assert result.admitted is True
+    assert [package.variant.variant_id for package in result.packages] == [
+        "control",
+        "defect",
+    ]
+    assert [package.campaign.campaign.status for package in result.packages] == [
+        "plan-admitted",
+        "plan-admitted",
+    ]
+    assert [projection.opaque_lane_id for projection in result.projections] == [
+        discovery.CONTROL_LANE_ID,
+        discovery.DEFECT_LANE_ID,
+    ]
+
+    for package in result.packages:
+        assert package.target.kind == "change"
+        assert package.context_acquisition.target.kind == "project"
+        assert package.context_acquisition.materialized_patch_applied is False
+        assert package.context_acquisition.result.receipt.no_diff is True
+        assert package.context_acquisition.result.receipt.discovery_budget == 9
+        assert package.context_acquisition.result.receipt.budget_used == 9
+        assert package.context_acquisition.result.receipt.skipped_scope == ()
+        assert package.context_acquisition.result.receipt.inspected_scope == tuple(
+            sorted(discovery.REQUIRED_CONTEXT_PATHS)
+        )
+        assert package.behavior_delta.subject == "binding.input.isSaveEnabled"
+        assert package.behavior_delta.after.endswith(
+            {"control": "true", "defect": "false"}[package.variant.variant_id]
+        )
+        assert package.campaign.campaign.target == package.target
+        assert package.campaign.campaign.attack_plans[0].status == "admitted"
+        assert package.context_acquisition.unknown_fact_ids
+        assert all(
+            package.context_acquisition.result.graph.fact(fact_id).status == "unknown"
+            for fact_id in package.context_acquisition.unknown_fact_ids
+        )
+
+    assert result.build_calls == 0
+    assert result.device_calls == 0
+    assert result.model_calls == 0
+
+
+def test_admission_is_deterministic_and_packages_round_trip() -> None:
+    first = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    second = discovery.admit_opencalc_change_pair(CANDIDATE, SOURCE)
+
+    assert first.to_dict() == second.to_dict()
+    assert first.identity_sha256 == second.identity_sha256
+    assert first.pair.identity_sha256 == second.pair.identity_sha256
+    assert [item.identity_sha256 for item in first.packages] == [
+        item.identity_sha256 for item in second.packages
+    ]
+    for package in first.packages:
+        restored = discovery.SourceRichDiscoveryPackage.from_dict(package.to_dict())
+        assert restored == package
+        assert restored.identity_sha256 == package.identity_sha256
+    for projection in first.projections:
+        restored = discovery.BlindRuntimeProjection.from_dict(projection.to_dict())
+        assert restored == projection
+
+
+def test_driver_projections_are_symmetric_and_outcome_blind() -> None:
+    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    documents = result.driver_visible_serializations()
+
+    assert documents[0].keys() == documents[1].keys()
+    for document in documents:
+        serialized = json.dumps(document, sort_keys=True).lower()
+        assert "target_kind" not in document
+        assert "source_provenance" not in document
+        assert "oracle" not in serialized
+        assert "expected" not in serialized
+        assert "control" not in serialized
+        assert "defect" not in serialized
+        assert "variant" not in serialized
+        assert document["diff"] is None
+        assert document["model_policy"] == {"model_calls": False}
+
+    audit = discovery.audit_driver_serializations(documents)
+    assert audit == result.leakage_audit
+    assert audit.status == "passed"
+
+
+def test_auditor_package_retains_the_real_delta_and_source_meaning() -> None:
+    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    control, defect = result.packages
+
+    assert control.variant.right_hand_side == "true"
+    assert defect.variant.right_hand_side == "false"
+    assert control.behavior_delta.after != defect.behavior_delta.after
+    assert control.target.diff_sha256 != defect.target.diff_sha256
+    assert control.target.source_commit == discovery.UPSTREAM_COMMIT
+    assert control.pair.anchor.path == discovery.TARGET_SOURCE_PATH
+    assert control.pair.anchor.required_occurrences == 1
+    assert control.pair.baseline.tree_sha256 == discovery.UPSTREAM_TREE_SHA256
+    assert control.pair.baseline.archive_sha256 == discovery.UPSTREAM_ARCHIVE_SHA256
+    assert control.campaign.campaign.quality_contracts == (
+        defect.campaign.campaign.quality_contracts[0],
+    )
+    assert control.risk_prior == defect.risk_prior
+    assert control.attack_operator == defect.attack_operator
+    assert control.risk_hypothesis.quality_property == defect.risk_hypothesis.quality_property
+    assert control.attack_plan.plan_id == defect.attack_plan.plan_id
+
+
+def test_change_targets_bind_real_repository_patch_artifacts() -> None:
+    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+
+    for package in result.packages:
+        assert package.target.diff_ref == (
+            f"{discovery.PATCH_ARTIFACT_DIRECTORY}/{package.variant.variant_id}.patch"
+        )
+        verification = verify_change_target_diff(package.target, repo_root=ROOT)
+        assert verification.valid is True
+        assert verification.checks[0]["actual_sha256"] == package.variant.patch_sha256
+
+
+def test_admission_only_runs_git_and_leaves_pristine_source_unchanged(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = _source_file(SOURCE)
+    before_bytes = target.read_bytes()
+    before_status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        cwd=SOURCE,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    calls: list[tuple[str, ...]] = []
+    real_run = discovery.subprocess.run
+
+    def record_run(*args: object, **kwargs: object) -> object:
+        command = args[0]
+        if isinstance(command, (list, tuple)):
+            calls.append(tuple(str(item) for item in command))
+        return real_run(*args, **kwargs)
+
+    monkeypatch.setattr(discovery.subprocess, "run", record_run)
+    discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+
+    assert calls
+    assert all(command and command[0] == "git" for command in calls)
+    assert all(
+        not any(token in {"gradle", "gradlew", "adb", "android"} for token in command)
+        for command in calls
+    )
+    assert target.read_bytes() == before_bytes
+    after_status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        cwd=SOURCE,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    assert after_status == before_status == ""
+
+
+@pytest.mark.parametrize(
+    ("mutation", "code"),
+    (
+        ("dirty", "source_worktree_dirty"),
+        ("origin", "source_origin_mismatch"),
+        ("commit", "source_commit_mismatch"),
+    ),
+)
+def test_pristine_source_admission_rejects_identity_drift(
+    tmp_path: Path,
+    mutation: str,
+    code: str,
+) -> None:
+    source = _copy_source(tmp_path)
+    if mutation == "dirty":
+        (source / "untracked-admission-test.txt").write_text("untracked\n")
+    elif mutation == "origin":
+        subprocess.run(
+            ["git", "remote", "set-url", "origin", "https://example.invalid/wrong.git"],
+            cwd=source,
+            check=True,
+        )
+    else:
+        subprocess.run(["git", "checkout", "--detach", "HEAD^"], cwd=source, check=True)
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery.admit_change_target_pair(CANDIDATE, source)
+    assert error.value.code == code
+
+
+def test_pristine_source_admission_rejects_tree_identity_drift(tmp_path: Path) -> None:
+    source = _copy_source(tmp_path)
+    baseline = replace(
+        discovery.admit_change_target_pair(CANDIDATE, SOURCE).pair.baseline,
+        tree_sha256="0" * 40,
+    )
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery._verify_pristine_source(source, baseline)
+    assert error.value.code == "source_tree_mismatch"
+
+
+@pytest.mark.parametrize(
+    ("mutation", "code"),
+    (
+        ("missing", "anchor_context_missing"),
+        ("ambiguous", "anchor_ambiguous"),
+        ("digest", "anchor_target_digest_mismatch"),
+    ),
+)
+def test_anchor_admission_rejects_missing_ambiguous_or_drifted_context(
+    tmp_path: Path,
+    mutation: str,
+    code: str,
+) -> None:
+    source = _copy_source(tmp_path)
+    path = _source_file(source)
+    text = path.read_text()
+    anchor = discovery.admit_change_target_pair(CANDIDATE, SOURCE).pair
+    if mutation == "missing":
+        text = text.replace(anchor.anchor.context, "anchor context removed", 1)
+    elif mutation == "ambiguous":
+        text += "\n" + anchor.anchor.context + "\n"
+    else:
+        text = text.replace("package ", "package altered.", 1)
+    path.write_text(text)
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery._validate_anchor_against_source(source, anchor)
+    assert error.value.code == code
+
+
+@pytest.mark.parametrize(
+    ("mutation", "code"),
+    (
+        ("taxonomy", "pair_taxonomy_mismatch"),
+        ("operator", "pair_operator_mismatch"),
+        ("extra_hunk", "extra_source_hunk"),
+    ),
+)
+def test_candidate_pair_admission_rejects_pair_contract_drift(
+    tmp_path: Path,
+    mutation: str,
+    code: str,
+) -> None:
+    candidate = _copy_candidate(tmp_path)
+    path = candidate / "source-pair.json"
+    document = json.loads(path.read_text())
+    if mutation == "taxonomy":
+        document["taxonomy_id"] = "wrong-taxonomy"
+    elif mutation == "operator":
+        document["mutation_operator_id"] = "wrong-operator"
+    else:
+        for variant in document["variants"]:
+            variant["patch_text"] += "diff --git a/extra b/extra\n"
+            variant["patch_sha256"] = hashlib.sha256(
+                variant["patch_text"].encode()
+            ).hexdigest()
+    path.write_text(json.dumps(document, indent=2) + "\n")
+    _rebind_manifest(candidate)
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery.admit_change_target_pair(candidate, SOURCE)
+    assert error.value.code == code
+
+
+def test_required_context_rejects_missing_unreadable_and_budget_exhaustion(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = _copy_source(tmp_path)
+    required = source / discovery.REQUIRED_CONTEXT_PATHS[1]
+    required.unlink()
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as missing:
+        discovery._validate_required_context(source)
+    assert missing.value.code == "context_required_path_missing"
+
+    source = _copy_source(tmp_path / "unreadable")
+    invalid = source / discovery.REQUIRED_CONTEXT_PATHS[1]
+    invalid.write_bytes(b"\xff\xfe\xfd")
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as unreadable:
+        discovery._validate_required_context(source)
+    assert unreadable.value.code == "context_required_path_unreadable"
+
+    monkeypatch.setattr(discovery, "REQUIRED_CONTEXT_BUDGET", 8)
+    source = _copy_source(tmp_path / "budget")
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as exhausted:
+        discovery._validate_required_context(source)
+    assert exhausted.value.code == "context_budget_exhausted"
+
+
+def test_projection_leakage_rejects_hidden_material_without_mutating_auditor_package() -> None:
+    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    original_package = result.packages[0].to_dict()
+    leaked = result.projections[0].to_dict()
+    leaked["hidden_variant"] = "defect"
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery.audit_projection_leakage((leaked, result.projections[1].to_dict()))
+    assert error.value.code == "projection_leakage"
+    assert result.packages[0].to_dict() == original_package
+
+
+def test_projection_diff_and_model_policy_are_fail_closed() -> None:
+    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    leaked = result.projections[0].to_dict()
+    leaked["diff"] = "hidden patch"
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as diff_error:
+        discovery.BlindRuntimeProjection.from_dict(leaked)
+    assert diff_error.value.code in {"projection_diff_present", "projection_leakage"}
+
+    leaked = result.projections[0].to_dict()
+    leaked["model_policy"] = {"model_calls": True}
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as model_error:
+        discovery.BlindRuntimeProjection.from_dict(leaked)
+    assert model_error.value.code in {"projection_model_policy_mismatch", "projection_leakage"}
+
+    leaked = result.projections[0].to_dict()
+    leaked["quality_contract_id"] = "secret-contract"
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as contract_error:
+        discovery.BlindRuntimeProjection.from_dict(leaked)
+    assert contract_error.value.code in {
+        "projection_contract_mismatch",
+        "projection_leakage",
+    }
