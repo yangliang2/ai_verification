@@ -2178,6 +2178,8 @@ def admit_family(
         error_code = error.code
     except (discovery.OpenCalcDiscoveryError, runtime_calibration.RuntimeCalibrationError) as error:
         error_code = getattr(error, "code", "mapping_family_admission_failed")
+    except Exception:
+        error_code = "mapping_family_admission_failed"
     status = "accepted" if release is not None else "rejected"
     terminal: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
