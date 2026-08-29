@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "document_kind": "opencalc_issue_205_project_target_discovery_evidence",
+  "issue": 205,
+  "status": "admitted",
+  "claim_boundary": "project_target_discovery_admission_only",
+  "candidate": {
+    "root": "bench/runtime-calibration/opencalc-input-save-enabled-v1",
+    "identity_sha256": "1e247a243e2d9fcfc9704a641c5f1174b1f4cbceee7f2af28ad494d32c68bfd5",
+    "manifest_sha256": "cda8a8946ea77720f2fb473517559fc2c65f7c56ed3b71fd329fec322147b04b",
+    "artifact_inventory_sha256": "393a19ce2ca16b60510ed21f80ba637df1bf3236da3b565fbc7a7856ad1eab14",
+    "artifact_count": 28
+  },
+  "source_baseline": {
+    "root": "/Users/peter/hosts/opencalc-calibration",
+    "origin": "https://github.com/clementwzk/OpenCalc.git",
+    "commit": "0584d61189e916a62a3b402223b35e1d7a3093db",
+    "tree_sha256": "8793c063c6a990ff3448fece38e62bc103952610",
+    "archive_sha256": "58d686b47f4a97f8b1127ab3de98bdf34a1c9310a221e5d5a7b4b5adcde54f3c",
+    "target_path": "app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt",
+    "target_file_sha256": "409e08157ce741bf77f7f00817a28eabee11cd1f6a5355bff7d1dd5a977eaac7",
+    "context_sha256": "8c5a78d3056a160106c4b1334125eb78fe39ad1b181708c507639d9ac0b34735",
+    "required_occurrences": 1,
+    "worktree_clean_before_after": true,
+    "target_bytes_unchanged": true
+  },
+  "matched_pair": {
+    "pair_id": "opencalc-input-save-enabled-v1",
+    "identity_sha256": "2a1f1cebbe29202c73524e77bad9258da99ecfb58e639d3fa7e3f01b8fa31848",
+    "taxonomy_id": "config-change-01",
+    "mutation_operator_id": "toggle-input-save-enabled-v1",
+    "patches": [
+      {
+        "variant_id": "control",
+        "source_id": "opencalc-input-save-enabled-v1-control",
+        "sha256": "ecd560750db7eddce435f117730cc3ce43dce2efad936398675b3c84f9aa8e02",
+        "right_hand_side": "true"
+      },
+      {
+        "variant_id": "defect",
+        "source_id": "opencalc-input-save-enabled-v1-defect",
+        "sha256": "9a6adda7316dba08d36562cbb1da2cba94f1bc4d6b51772698497f4e663699c4",
+        "right_hand_side": "false"
+      }
+    ]
+  },
+  "packages": [
+    {
+      "variant_id": "control",
+      "package_id": "opencalc-input-save-enabled-v1-control-project-package-v1",
+      "catalog_id": "opencalc-input-save-enabled-control-project-v1",
+      "target_kind": "project",
+      "target_id": "opencalc-input-save-enabled-v1-control",
+      "source_commit": "299a7d80ea51feaa1e393ca0ad60cba94784d9d9",
+      "worktree": "/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/opencalc-issue-205-evidence-dme47ovy/opencalc-input-save-enabled-v1-control",
+      "scope_count": 9,
+      "discovery_budget": 9,
+      "campaign_status": "plan-admitted",
+      "context_budget_used": 9,
+      "context_inspected_path_count": 9,
+      "context_adapters": [
+        "manifest",
+        "build",
+        "symbols_calls",
+        "persistence_state",
+        "lifecycle_ownership",
+        "quality_version"
+      ],
+      "behavior_delta": null,
+      "contract_drift": null,
+      "source_injection_sha256": "ecd560750db7eddce435f117730cc3ce43dce2efad936398675b3c84f9aa8e02",
+      "has_diff_field": false,
+      "identity_sha256": "83ba23207293683ab9a68851bd52d0d31eb8e29a405e003ef0c24823cbf5652f",
+      "roundtrip": true
+    },
+    {
+      "variant_id": "defect",
+      "package_id": "opencalc-input-save-enabled-v1-defect-project-package-v1",
+      "catalog_id": "opencalc-input-save-enabled-defect-project-v1",
+      "target_kind": "project",
+      "target_id": "opencalc-input-save-enabled-v1-defect",
+      "source_commit": "ca4d164d0dd36abd70fcde3068a2d1ccb04af11a",
+      "worktree": "/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/opencalc-issue-205-evidence-dme47ovy/opencalc-input-save-enabled-v1-defect",
+      "scope_count": 9,
+      "discovery_budget": 9,
+      "campaign_status": "plan-admitted",
+      "context_budget_used": 9,
+      "context_inspected_path_count": 9,
+      "context_adapters": [
+        "manifest",
+        "build",
+        "symbols_calls",
+        "persistence_state",
+        "lifecycle_ownership",
+        "quality_version"
+      ],
+      "behavior_delta": null,
+      "contract_drift": null,
+      "source_injection_sha256": "9a6adda7316dba08d36562cbb1da2cba94f1bc4d6b51772698497f4e663699c4",
+      "has_diff_field": false,
+      "identity_sha256": "3cc95ee778555eca0e1666a7971cb54373d8b6ff61f9772ed5607e5b102ce81e",
+      "roundtrip": true
+    }
+  ],
+  "receipts": [
+    {
+      "variant_id": "control",
+      "source_id": "opencalc-input-save-enabled-v1-control",
+      "worktree_path": "/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/opencalc-issue-205-evidence-dme47ovy/opencalc-input-save-enabled-v1-control",
+      "parent_commit": "0584d61189e916a62a3b402223b35e1d7a3093db",
+      "parent_tree_sha256": "8793c063c6a990ff3448fece38e62bc103952610",
+      "synthetic_commit": "299a7d80ea51feaa1e393ca0ad60cba94784d9d9",
+      "synthetic_tree_sha256": "d3755bcc944e0e6926916414cbba1bbfebe974a5",
+      "parent_source_tree_sha256": "7b6af923c8ed76f909e1de8e3f3e0d1f82c525659651a0960e920cd10ec14e95",
+      "synthetic_source_tree_sha256": "51634972ce13a2f968294be6be9f7cadcae698662ab36b7b199acd5cf0b1177c",
+      "target_file_sha256": "5d794d076826291cb8c53c41659779efa711ea4dd91a76ce2a842e0645cc1af7",
+      "patch_sha256": "ecd560750db7eddce435f117730cc3ce43dce2efad936398675b3c84f9aa8e02",
+      "result_diff_sha256": "87d165a052c3fb353dfa532b26cce7702b1db10bb2050d4db6c97759eebf5796",
+      "identity_sha256": "76e7ac43661e62555af1ba8a1612886d75f7c695bcb59b4a86e10e77879d30eb",
+      "result_identity_sha256": "76e7ac43661e62555af1ba8a1612886d75f7c695bcb59b4a86e10e77879d30eb",
+      "author_name": "OpenCalc Calibration",
+      "author_email": "opencalc-calibration@localhost",
+      "author_timestamp": "2000-01-01T00:00:00Z",
+      "committer_name": "OpenCalc Calibration",
+      "committer_email": "opencalc-calibration@localhost",
+      "committer_timestamp": "2000-01-01T00:00:00Z",
+      "message": "OpenCalc calibration synthetic project target",
+      "parent_matches": true,
+      "tree_matches": true,
+      "worktree_clean": true,
+      "result_diff_matches": true
+    },
+    {
+      "variant_id": "defect",
+      "source_id": "opencalc-input-save-enabled-v1-defect",
+      "worktree_path": "/private/var/folders/kj/j2g0jc115tl9jf4fsmj_wxcc0000gn/T/opencalc-issue-205-evidence-dme47ovy/opencalc-input-save-enabled-v1-defect",
+      "parent_commit": "0584d61189e916a62a3b402223b35e1d7a3093db",
+      "parent_tree_sha256": "8793c063c6a990ff3448fece38e62bc103952610",
+      "synthetic_commit": "ca4d164d0dd36abd70fcde3068a2d1ccb04af11a",
+      "synthetic_tree_sha256": "b9c0e191b29006026094ad9e0e5126d79cf7ca50",
+      "parent_source_tree_sha256": "7b6af923c8ed76f909e1de8e3f3e0d1f82c525659651a0960e920cd10ec14e95",
+      "synthetic_source_tree_sha256": "a45608e73e2639aa9be45079ed27bcafdfd142c94d9dd85c91f12fc540dfc94a",
+      "target_file_sha256": "165096d5c6709ebf92e4e68dfe79d257b20123de7757adc9ec2f223406425d0f",
+      "patch_sha256": "9a6adda7316dba08d36562cbb1da2cba94f1bc4d6b51772698497f4e663699c4",
+      "result_diff_sha256": "a993048839a46139eb4d8cc6a755b7bb9c5dee228390f06859660f3cffd6a5e4",
+      "identity_sha256": "b79d8a96badc1843f0070033fc1505c870c0e48a36cc0fa8195f4c2f7c062f0f",
+      "result_identity_sha256": "b79d8a96badc1843f0070033fc1505c870c0e48a36cc0fa8195f4c2f7c062f0f",
+      "author_name": "OpenCalc Calibration",
+      "author_email": "opencalc-calibration@localhost",
+      "author_timestamp": "2000-01-01T00:00:00Z",
+      "committer_name": "OpenCalc Calibration",
+      "committer_email": "opencalc-calibration@localhost",
+      "committer_timestamp": "2000-01-01T00:00:00Z",
+      "message": "OpenCalc calibration synthetic project target",
+      "parent_matches": true,
+      "tree_matches": true,
+      "worktree_clean": true,
+      "result_diff_matches": true
+    }
+  ],
+  "projections": [
+    {
+      "lane_id": "ocrc-v1-lane-03",
+      "projection_id": "ocrc-v1-projection-b7d2b441bb378a784a3ca93a",
+      "identity_sha256": "cf43967a9b798fc3d61928c16ad888b48f8671d155d88f9e763ccf692cd5c043",
+      "context_budget": 9,
+      "required_context_count": 9,
+      "model_calls": false,
+      "diff": null,
+      "shape_keys": [
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "projection_id",
+        "opaque_lane_id",
+        "opaque_identity",
+        "quality_contract_id",
+        "risk_prior_id",
+        "attack_operator_id",
+        "risk_hypothesis_id",
+        "attack_plan_id",
+        "exploration_policy_id",
+        "context_budget",
+        "required_context_count",
+        "execution_commitments",
+        "model_policy",
+        "diff"
+      ]
+    },
+    {
+      "lane_id": "ocrc-v1-lane-04",
+      "projection_id": "ocrc-v1-projection-020d05afeb97728c0a08f72b",
+      "identity_sha256": "7b38f46858a07990234686f27f45f40dee820f64fd3d7fc59d5c5fa535f8250d",
+      "context_budget": 9,
+      "required_context_count": 9,
+      "model_calls": false,
+      "diff": null,
+      "shape_keys": [
+        "schema_version",
+        "document_kind",
+        "family_id",
+        "family_version",
+        "projection_id",
+        "opaque_lane_id",
+        "opaque_identity",
+        "quality_contract_id",
+        "risk_prior_id",
+        "attack_operator_id",
+        "risk_hypothesis_id",
+        "attack_plan_id",
+        "exploration_policy_id",
+        "context_budget",
+        "required_context_count",
+        "execution_commitments",
+        "model_policy",
+        "diff"
+      ]
+    }
+  ],
+  "leakage_audit": {
+    "status": "passed",
+    "checked_projection_ids": [
+      "ocrc-v1-projection-b7d2b441bb378a784a3ca93a",
+      "ocrc-v1-projection-020d05afeb97728c0a08f72b"
+    ],
+    "serialization_sha256": "32c3507eae4bc6874cc0cac501352fb2435a0ca23539a20fa87f4dc9e6d2962c"
+  },
+  "side_effects": {
+    "source_patches_applied": 2,
+    "build_calls": 0,
+    "device_calls": 0,
+    "model_calls": 0
+  },
+  "subprocess_boundary": {
+    "command_count": 123,
+    "all_git": true,
+    "no_build_device_android_tokens": true
+  },
+  "result_identity_sha256": "2e5091a2deb7bae20d28447c02b10520c43cabbdb6f9dc36946755a622635934"
+}

@@ -1,23 +1,28 @@
-"""Admission of the OpenCalc ChangeTarget matched pair.
+"""Admission of the OpenCalc ChangeTarget and ProjectTarget matched pair.
 
 This module owns the side-effect-free discovery boundary for the OpenCalc
 runtime-calibration family.  It binds the checked-in candidate to a pristine
 upstream checkout, validates the two controlled injections, acquires bounded
-context from the pristine tree, and emits two auditor-only packages plus two
-blind runtime projections.
+context from each admitted source, and emits auditor-only packages plus blind
+runtime projections for both target modes.
 
-The source tree passed to :func:`admit_change_target_pair` is never patched.
-The patch remains a value in the auditor package and the resulting
-``ChangeTarget``.  In particular, this module does not invoke Gradle, Android
-CLI, adb, a model, or a runtime oracle.
+The source tree passed to :func:`admit_change_target_pair` is never patched;
+the patch remains a value in the auditor package and resulting
+``ChangeTarget``.  ``admit_project_target_pair`` instead creates separate
+fresh clones, applies the anchored injection, and records deterministic
+synthetic commits.  Neither path invokes Gradle, Android CLI, adb, a model, or
+a runtime oracle.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import shutil
 import subprocess
+import tempfile
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path, PurePosixPath
@@ -34,6 +39,7 @@ from aiverify.discovery.campaign import (
     DiscoveryCampaignPackage,
     admit_campaign_plan,
     seed_change_campaign,
+    seed_project_campaign,
 )
 from aiverify.discovery.contracts import (
     AttackOperator,
@@ -113,6 +119,14 @@ DEFECT_VARIANT = "defect"
 VARIANT_IDS = (CONTROL_VARIANT, DEFECT_VARIANT)
 CONTROL_LANE_ID = "ocrc-v1-lane-01"
 DEFECT_LANE_ID = "ocrc-v1-lane-02"
+PROJECT_CONTROL_LANE_ID = "ocrc-v1-lane-03"
+PROJECT_DEFECT_LANE_ID = "ocrc-v1-lane-04"
+PROJECT_LANE_IDS = (PROJECT_CONTROL_LANE_ID, PROJECT_DEFECT_LANE_ID)
+
+SYNTHETIC_COMMIT_MESSAGE = "OpenCalc calibration synthetic project target"
+SYNTHETIC_AUTHOR_NAME = "OpenCalc Calibration"
+SYNTHETIC_AUTHOR_EMAIL = "opencalc-calibration@localhost"
+SYNTHETIC_COMMIT_TIMESTAMP = "2000-01-01T00:00:00Z"
 
 DEFAULT_CANDIDATE_ROOT = (
     Path(__file__).resolve().parents[3]
@@ -151,9 +165,16 @@ class ChangeTargetAdmissionError(runtime_calibration.RuntimeCalibrationError):
         super().__init__(code)
 
 
-# The shorter name is useful to callers that already use the discovery
-# vocabulary.  Keep one exception type so callers can match either spelling.
+# Keep the historical public alias exact; ProjectTarget errors subclass this
+# type so existing broad handlers still cover both discovery target modes.
 OpenCalcDiscoveryError = ChangeTargetAdmissionError
+
+
+class ProjectTargetAdmissionError(ChangeTargetAdmissionError):
+    """A stable, non-disclosing rejection at the ProjectTarget seam."""
+
+
+ProjectTargetDiscoveryError = ProjectTargetAdmissionError
 
 
 def _fail(code: str) -> None:
@@ -807,7 +828,7 @@ def _normalized_identity(value: Any) -> Any:
     if isinstance(value, Mapping):
         result: dict[str, Any] = {}
         for key, item in value.items():
-            if key in {"worktree", "source_root"}:
+            if key in {"worktree", "source_root", "worktree_path"}:
                 result[key] = "<pristine-source-root>"
             else:
                 result[key] = _normalized_identity(item)
@@ -817,19 +838,282 @@ def _normalized_identity(value: Any) -> Any:
     return value
 
 
+def _project_normalized_identity(
+    value: Any,
+    *,
+    path: tuple[str, ...] = (),
+) -> Any:
+    """Normalize delivery paths and nested receipts for ProjectTarget identity."""
+
+    if isinstance(value, Mapping):
+        result: dict[str, Any] = {}
+        for key, item in value.items():
+            if key == "identity_sha256" and path[-1:] == ("context_acquisition",):
+                continue
+            if key in {"worktree", "source_root", "worktree_path"}:
+                result[key] = "<project-materialization-path>"
+            else:
+                result[key] = _project_normalized_identity(item, path=(*path, key))
+        return result
+    if isinstance(value, list):
+        return [
+            _project_normalized_identity(item, path=path) for item in value
+        ]
+    return value
+
+
+@dataclass(frozen=True)
+class SyntheticProjectCommit:
+    """Receipt for one deterministic, source-materialized ProjectTarget."""
+
+    variant_id: str
+    source_id: str
+    parent_commit: str
+    parent_tree_sha256: str
+    parent_source_tree_sha256: str
+    synthetic_commit: str
+    synthetic_tree_sha256: str
+    synthetic_source_tree_sha256: str
+    target_file_sha256: str
+    patch_sha256: str
+    result_diff_sha256: str
+    author_name: str
+    author_email: str
+    author_timestamp: str
+    committer_name: str
+    committer_email: str
+    committer_timestamp: str
+    message: str
+    worktree_path: str
+    patch_applied: bool = True
+    schema_version: int = SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if self.variant_id not in VARIANT_IDS:
+            _fail("synthetic_variant_mismatch")
+        if self.source_id != f"{PAIR_ID}-{self.variant_id}":
+            _fail("synthetic_source_id_mismatch")
+        for field in (
+            "parent_commit",
+            "synthetic_commit",
+            "parent_tree_sha256",
+            "synthetic_tree_sha256",
+        ):
+            value = getattr(self, field)
+            if not isinstance(value, str) or not _HEX_40.fullmatch(value):
+                _fail("synthetic_git_identity_invalid")
+        for field in (
+            "parent_source_tree_sha256",
+            "synthetic_source_tree_sha256",
+            "target_file_sha256",
+            "patch_sha256",
+            "result_diff_sha256",
+        ):
+            value = getattr(self, field)
+            if not isinstance(value, str) or not _HEX_64.fullmatch(value):
+                _fail("synthetic_digest_invalid")
+        if self.parent_commit != UPSTREAM_COMMIT:
+            _fail("synthetic_parent_commit_mismatch")
+        if self.parent_tree_sha256 != UPSTREAM_TREE_SHA256:
+            _fail("synthetic_parent_tree_mismatch")
+        if self.synthetic_commit == self.parent_commit:
+            _fail("synthetic_commit_unchanged")
+        if self.synthetic_tree_sha256 == self.parent_tree_sha256:
+            _fail("synthetic_tree_unchanged")
+        for field in (
+            "author_name",
+            "author_email",
+            "author_timestamp",
+            "committer_name",
+            "committer_email",
+            "committer_timestamp",
+            "message",
+            "worktree_path",
+        ):
+            _required_text(getattr(self, field), f"synthetic_{field}")
+        if (
+            self.author_name != SYNTHETIC_AUTHOR_NAME
+            or self.author_email != SYNTHETIC_AUTHOR_EMAIL
+            or self.author_timestamp != SYNTHETIC_COMMIT_TIMESTAMP
+            or self.committer_name != SYNTHETIC_AUTHOR_NAME
+            or self.committer_email != SYNTHETIC_AUTHOR_EMAIL
+            or self.committer_timestamp != SYNTHETIC_COMMIT_TIMESTAMP
+            or self.message != SYNTHETIC_COMMIT_MESSAGE
+        ):
+            _fail("synthetic_commit_metadata_mismatch")
+        if not Path(self.worktree_path).is_absolute():
+            _fail("synthetic_worktree_path_invalid")
+        if self.patch_applied is not True:
+            _fail("synthetic_patch_not_applied")
+        if isinstance(self.schema_version, bool) or self.schema_version != SCHEMA_VERSION:
+            _fail("schema_version_mismatch")
+
+    @property
+    def commit(self) -> str:
+        return self.synthetic_commit
+
+    @property
+    def source_commit(self) -> str:
+        return self.synthetic_commit
+
+    @property
+    def tree(self) -> str:
+        return self.synthetic_tree_sha256
+
+    @property
+    def result_tree_sha256(self) -> str:
+        return self.synthetic_tree_sha256
+
+    @property
+    def parent(self) -> str:
+        return self.parent_commit
+
+    @property
+    def source_tree_sha256(self) -> str:
+        return self.synthetic_source_tree_sha256
+
+    @property
+    def result_source_tree_sha256(self) -> str:
+        return self.synthetic_source_tree_sha256
+
+    @property
+    def receipt_identity_sha256(self) -> str:
+        return self.identity_sha256
+
+    @property
+    def result_identity_sha256(self) -> str:
+        return self.identity_sha256
+
+    @property
+    def patch_identity_sha256(self) -> str:
+        return self.patch_sha256
+
+    @property
+    def identity_sha256(self) -> str:
+        return _digest(
+            {
+                key: value
+                for key, value in self.to_dict(include_identity=False).items()
+                if key not in {"worktree_path", "result_identity_sha256"}
+            }
+        )
+
+    def to_dict(self, *, include_identity: bool = True) -> dict[str, Any]:
+        result: dict[str, Any] = {
+            "schema_version": self.schema_version,
+            "document_kind": "synthetic_project_target_commit_receipt",
+            "variant_id": self.variant_id,
+            "source_id": self.source_id,
+            "parent_commit": self.parent_commit,
+            "parent_tree_sha256": self.parent_tree_sha256,
+            "parent_source_tree_sha256": self.parent_source_tree_sha256,
+            "synthetic_commit": self.synthetic_commit,
+            "synthetic_tree_sha256": self.synthetic_tree_sha256,
+            "synthetic_source_tree_sha256": self.synthetic_source_tree_sha256,
+            "target_file_sha256": self.target_file_sha256,
+            "patch_sha256": self.patch_sha256,
+            "result_diff_sha256": self.result_diff_sha256,
+            "author_name": self.author_name,
+            "author_email": self.author_email,
+            "author_timestamp": self.author_timestamp,
+            "committer_name": self.committer_name,
+            "committer_email": self.committer_email,
+            "committer_timestamp": self.committer_timestamp,
+            "message": self.message,
+            "patch_applied": self.patch_applied,
+        }
+        result["worktree_path"] = self.worktree_path
+        if include_identity:
+            result["result_identity_sha256"] = self.identity_sha256
+            result["identity_sha256"] = self.identity_sha256
+        return result
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> SyntheticProjectCommit:
+        _reject_unknown(
+            data,
+            {
+                "schema_version",
+                "document_kind",
+                "variant_id",
+                "source_id",
+                "parent_commit",
+                "parent_tree_sha256",
+                "parent_source_tree_sha256",
+                "synthetic_commit",
+                "synthetic_tree_sha256",
+                "synthetic_source_tree_sha256",
+                "target_file_sha256",
+                "patch_sha256",
+                "result_diff_sha256",
+                "author_name",
+                "author_email",
+                "author_timestamp",
+                "committer_name",
+                "committer_email",
+                "committer_timestamp",
+                "message",
+                "worktree_path",
+                "patch_applied",
+                "result_identity_sha256",
+                "identity_sha256",
+            },
+            "synthetic_commit_schema_mismatch",
+        )
+        if data.get("document_kind") != "synthetic_project_target_commit_receipt":
+            _fail("synthetic_commit_document_kind_mismatch")
+        try:
+            receipt = cls(
+                variant_id=data["variant_id"],
+                source_id=data["source_id"],
+                parent_commit=data["parent_commit"],
+                parent_tree_sha256=data["parent_tree_sha256"],
+                parent_source_tree_sha256=data["parent_source_tree_sha256"],
+                synthetic_commit=data["synthetic_commit"],
+                synthetic_tree_sha256=data["synthetic_tree_sha256"],
+                synthetic_source_tree_sha256=data["synthetic_source_tree_sha256"],
+                target_file_sha256=data["target_file_sha256"],
+                patch_sha256=data["patch_sha256"],
+                result_diff_sha256=data["result_diff_sha256"],
+                author_name=data["author_name"],
+                author_email=data["author_email"],
+                author_timestamp=data["author_timestamp"],
+                committer_name=data["committer_name"],
+                committer_email=data["committer_email"],
+                committer_timestamp=data["committer_timestamp"],
+                message=data["message"],
+                worktree_path=data["worktree_path"],
+                patch_applied=data["patch_applied"],
+                schema_version=data.get("schema_version", SCHEMA_VERSION),
+            )
+        except KeyError:
+            _fail("synthetic_commit_schema_mismatch")
+        identity = data.get("identity_sha256")
+        if identity is not None and identity != receipt.identity_sha256:
+            _fail("synthetic_commit_identity_mismatch")
+        result_identity = data.get("result_identity_sha256")
+        if result_identity is not None and result_identity != receipt.identity_sha256:
+            _fail("synthetic_commit_identity_mismatch")
+        return receipt
+
+
+SyntheticCommitReceipt = SyntheticProjectCommit
+ProjectTargetMaterializationReceipt = SyntheticProjectCommit
+
+
 @dataclass(frozen=True)
 class SourceRichDiscoveryPackage:
-    """An auditor-only admitted ChangeTarget discovery package."""
+    """An auditor-only admitted source-rich ChangeTarget or ProjectTarget package."""
 
     package_id: str
     catalog_id: str
-    target: ChangeTarget
+    target: ChangeTarget | ProjectTarget
     pair: MatchedRuntimeSourcePair
     variant: MatchedSourceVariant
     context_acquisition: OpenCalcContextAcquisition
     campaign: DiscoveryCampaignPackage
-    behavior_delta: BehaviorDelta
-    contract_drift: ContractDrift
+    behavior_delta: BehaviorDelta | None
+    contract_drift: ContractDrift | None
     quality_contract: QualityContract
     risk_prior: RiskPrior
     attack_operator: AttackOperator
@@ -838,6 +1122,7 @@ class SourceRichDiscoveryPackage:
     risk_priority: RiskPriority
     exploration_policy_id: str
     schema_version: int = SCHEMA_VERSION
+    synthetic_commit: SyntheticProjectCommit | None = None
 
     def __post_init__(self) -> None:
         _required_text(self.package_id, "package_id")
@@ -846,31 +1131,71 @@ class SourceRichDiscoveryPackage:
             _fail("schema_version_mismatch")
         if self.schema_version != SCHEMA_VERSION:
             _fail("schema_version_mismatch")
-        if not isinstance(self.target, ChangeTarget):
+        if not isinstance(self.target, (ChangeTarget, ProjectTarget)):
             _fail("package_target_invalid")
         if self.variant != self.pair.variant(self.variant.variant_id):
             _fail("package_variant_mismatch")
         if self.target.source_origin != self.pair.baseline.origin:
             _fail("package_source_origin_mismatch")
-        if self.target.source_commit != self.pair.baseline.commit:
-            _fail("package_source_commit_mismatch")
-        if self.target.diff_sha256 != self.variant.patch_sha256:
-            _fail("package_patch_mismatch")
         if self.target.worktree != self.context_acquisition.source_root:
             _fail("package_context_source_mismatch")
         if self.context_acquisition.target.target_id != self.target.target_id:
             _fail("package_context_target_mismatch")
         if self.context_acquisition.materialized_patch_applied:
             _fail("discovery_source_materialization_mutated")
+        if isinstance(self.target, ChangeTarget):
+            if self.target.source_commit != self.pair.baseline.commit:
+                _fail("package_source_commit_mismatch")
+            if self.target.diff_sha256 != self.variant.patch_sha256:
+                _fail("package_patch_mismatch")
+            if self.behavior_delta is None or self.contract_drift is None:
+                _fail("package_change_contract_missing")
+            if self.synthetic_commit is not None:
+                _fail("package_synthetic_commit_unexpected")
+        else:
+            if self.target.source_commit == self.pair.baseline.commit:
+                _fail("package_project_source_commit_mismatch")
+            if self.target.scope != REQUIRED_CONTEXT_PATHS:
+                _fail("package_scope_mismatch")
+            if self.target.discovery_budget != REQUIRED_CONTEXT_BUDGET:
+                _fail("package_budget_mismatch")
+            if self.behavior_delta is not None or self.contract_drift is not None:
+                _fail("package_project_diff_present")
+            receipt = self.synthetic_commit
+            if not isinstance(receipt, SyntheticProjectCommit):
+                _fail("package_synthetic_commit_missing")
+            if receipt.variant_id != self.variant.variant_id or receipt.source_id != self.source_id:
+                _fail("package_synthetic_commit_mismatch")
+            if receipt.synthetic_commit != self.target.source_commit:
+                _fail("package_source_commit_mismatch")
+            if receipt.worktree_path != self.target.worktree:
+                _fail("package_synthetic_worktree_mismatch")
+            if self.context_acquisition.target != self.target:
+                _fail("package_context_target_mismatch")
+            if receipt.patch_sha256 != self.variant.patch_sha256:
+                _fail("package_patch_mismatch")
+            if receipt.synthetic_source_tree_sha256 != self.context_acquisition.source_tree_sha256:
+                _fail("package_source_tree_mismatch")
+            if receipt.parent_commit != self.pair.baseline.commit:
+                _fail("package_parent_commit_mismatch")
+            if receipt.parent_tree_sha256 != self.pair.baseline.tree_sha256:
+                _fail("package_parent_tree_mismatch")
         if self.campaign.campaign.status != "plan-admitted":
             _fail("campaign_not_admitted")
         if self.campaign.campaign.target != self.target:
             _fail("package_campaign_target_mismatch")
-        if self.behavior_delta.target_id != self.target.target_id:
+        if (
+            self.behavior_delta is not None
+            and self.behavior_delta.target_id != self.target.target_id
+        ):
             _fail("package_behavior_delta_mismatch")
-        if self.contract_drift.contract_id != QUALITY_CONTRACT_ID:
+        if (
+            self.contract_drift is not None
+            and self.contract_drift.contract_id != QUALITY_CONTRACT_ID
+        ):
             _fail("package_contract_drift_mismatch")
-        _required_text(self.exploration_policy_id, "exploration_policy_id")
+        if self.exploration_policy_id != EXPLORATION_POLICY_ID:
+            _fail("package_exploration_policy_mismatch")
         campaign = self.campaign.campaign
         if campaign.quality_contracts != (self.quality_contract,):
             _fail("package_quality_contract_mismatch")
@@ -893,48 +1218,25 @@ class SourceRichDiscoveryPackage:
 
     @property
     def identity_sha256(self) -> str:
+        if isinstance(self.target, ProjectTarget):
+            return _digest(_project_normalized_identity(self.to_dict(include_identity=False)))
         return _digest(_normalized_identity(self.to_dict(include_identity=False)))
 
     def to_dict(self, *, include_identity: bool = True) -> dict[str, Any]:
+        is_change = isinstance(self.target, ChangeTarget)
         result: dict[str, Any] = {
             "schema_version": self.schema_version,
             "package_kind": "source_rich_discovery_package",
             "package_id": self.package_id,
             "catalog_id": self.catalog_id,
-            "target_kind": "ChangeTarget",
+            "target_kind": "ChangeTarget" if is_change else "ProjectTarget",
             "variant": self.variant.variant_id,
             "source_id": self.source_id,
             "target": self.target.to_dict(),
             "matched_source_pair": self.pair.to_dict(),
-            "source_provenance": {
-                "origin": self.pair.baseline.origin,
-                "commit": self.pair.baseline.commit,
-                "tree_sha256": self.pair.baseline.tree_sha256,
-                "archive_sha256": self.pair.baseline.archive_sha256,
-                "anchor_identity_sha256": self.pair.anchor.identity_sha256,
-                "target_path": self.pair.anchor.path,
-                "target_file_sha256": self.pair.anchor.target_file_sha256,
-                "context_sha256": self.pair.anchor.context_sha256,
-                "required_occurrences": self.pair.anchor.required_occurrences,
-            },
-            "patch": {
-                "ref": self.target.diff_ref,
-                "path": self.pair.anchor.path,
-                "text": self.variant.patch_text,
-                "sha256": self.variant.patch_sha256,
-                "field": self.variant.difference_field,
-                "right_hand_side": self.variant.right_hand_side,
-            },
-            "discovery_source_materialization": {
-                "source_root": self.context_acquisition.source_root,
-                "pristine_tree_sha256": self.pair.baseline.tree_sha256,
-                "patch_applied": self.context_acquisition.materialized_patch_applied,
-                "runtime_build_worktree": False,
-            },
+            "source_provenance": {},
             "context_acquisition": self.context_acquisition.to_dict(),
             "campaign": self.campaign.to_dict(),
-            "behavior_delta": self.behavior_delta.to_dict(),
-            "contract_drift": self.contract_drift.to_dict(),
             "neutral_contracts": {
                 "quality_contract": self.quality_contract.to_dict(),
                 "risk_prior": self.risk_prior.to_dict(),
@@ -945,6 +1247,75 @@ class SourceRichDiscoveryPackage:
             },
             "exploration_policy_id": self.exploration_policy_id,
         }
+        if is_change:
+            assert isinstance(self.target, ChangeTarget)
+            assert self.behavior_delta is not None
+            assert self.contract_drift is not None
+            result["source_provenance"] = {
+                "origin": self.pair.baseline.origin,
+                "commit": self.pair.baseline.commit,
+                "tree_sha256": self.pair.baseline.tree_sha256,
+                "archive_sha256": self.pair.baseline.archive_sha256,
+                "anchor_identity_sha256": self.pair.anchor.identity_sha256,
+                "target_path": self.pair.anchor.path,
+                "target_file_sha256": self.pair.anchor.target_file_sha256,
+                "context_sha256": self.pair.anchor.context_sha256,
+                "required_occurrences": self.pair.anchor.required_occurrences,
+            }
+            result["patch"] = {
+                "ref": self.target.diff_ref,
+                "path": self.pair.anchor.path,
+                "text": self.variant.patch_text,
+                "sha256": self.variant.patch_sha256,
+                "field": self.variant.difference_field,
+                "right_hand_side": self.variant.right_hand_side,
+            }
+            result["discovery_source_materialization"] = {
+                "source_root": self.context_acquisition.source_root,
+                "pristine_tree_sha256": self.pair.baseline.tree_sha256,
+                "patch_applied": self.context_acquisition.materialized_patch_applied,
+                "runtime_build_worktree": False,
+            }
+            result["behavior_delta"] = self.behavior_delta.to_dict()
+            result["contract_drift"] = self.contract_drift.to_dict()
+        else:
+            assert self.synthetic_commit is not None
+            receipt = self.synthetic_commit
+            result["source_provenance"] = {
+                "origin": self.pair.baseline.origin,
+                "commit": receipt.synthetic_commit,
+                "tree_sha256": receipt.synthetic_tree_sha256,
+                "source_tree_sha256": receipt.synthetic_source_tree_sha256,
+                "baseline_commit": self.pair.baseline.commit,
+                "baseline_tree_sha256": self.pair.baseline.tree_sha256,
+                "archive_sha256": self.pair.baseline.archive_sha256,
+                "anchor_identity_sha256": self.pair.anchor.identity_sha256,
+                "target_path": self.pair.anchor.path,
+                "baseline_target_file_sha256": self.pair.anchor.target_file_sha256,
+                "target_file_sha256": receipt.target_file_sha256,
+                "context_sha256": self.pair.anchor.context_sha256,
+                "required_occurrences": self.pair.anchor.required_occurrences,
+            }
+            result["source_injection"] = {
+                "ref": _patch_artifact_ref(self.variant.variant_id),
+                "path": self.pair.anchor.path,
+                "text": self.variant.patch_text,
+                "sha256": self.variant.patch_sha256,
+                "field": self.variant.difference_field,
+                "right_hand_side": self.variant.right_hand_side,
+            }
+            result["discovery_source_materialization"] = {
+                "source_root": self.context_acquisition.source_root,
+                "pristine_tree_sha256": self.pair.baseline.tree_sha256,
+                "pristine_source_tree_sha256": receipt.parent_source_tree_sha256,
+                "patch_applied": receipt.patch_applied,
+                "runtime_build_worktree": False,
+                "synthetic_commit": receipt.synthetic_commit,
+                "synthetic_tree_sha256": receipt.synthetic_tree_sha256,
+                "receipt_identity_sha256": receipt.identity_sha256,
+            }
+            result["synthetic_project_commit"] = receipt.to_dict()
+
         if include_identity:
             result["identity_sha256"] = self.identity_sha256
         return result
@@ -965,7 +1336,9 @@ class SourceRichDiscoveryPackage:
                 "matched_source_pair",
                 "source_provenance",
                 "patch",
+                "source_injection",
                 "discovery_source_materialization",
+                "synthetic_project_commit",
                 "context_acquisition",
                 "campaign",
                 "behavior_delta",
@@ -978,11 +1351,28 @@ class SourceRichDiscoveryPackage:
         )
         if data.get("package_kind") != "source_rich_discovery_package":
             _fail("package_kind_mismatch")
-        if data.get("target_kind") != "ChangeTarget":
+        target_kind = data.get("target_kind")
+        if target_kind not in {"ChangeTarget", "ProjectTarget"}:
             _fail("package_target_kind_mismatch")
-        target = ChangeTarget.from_dict(
-            _as_mapping(data.get("target"), "package_schema_mismatch")
-        )
+        target_data = _as_mapping(data.get("target"), "package_schema_mismatch")
+        try:
+            if target_kind == "ChangeTarget":
+                target = ChangeTarget.from_dict(target_data)
+            else:
+                target = ProjectTarget.from_dict(target_data)
+        except (DiscoveryContractError, ValueError) as error:
+            raise ChangeTargetAdmissionError("package_schema_mismatch") from error
+        if target_kind == "ProjectTarget" and (
+            data.get("patch") is not None
+            or data.get("behavior_delta") is not None
+            or data.get("contract_drift") is not None
+        ):
+            _fail("package_project_diff_present")
+        if target_kind == "ChangeTarget" and (
+            data.get("source_injection") is not None
+            or data.get("synthetic_project_commit") is not None
+        ):
+            _fail("package_change_materialization_mismatch")
         pair = MatchedRuntimeSourcePair.from_dict(
             _as_mapping(data.get("matched_source_pair"), "package_schema_mismatch")
         )
@@ -1000,11 +1390,19 @@ class SourceRichDiscoveryPackage:
                 campaign=DiscoveryCampaignPackage.from_dict(
                     _as_mapping(data["campaign"], "package_schema_mismatch")
                 ),
-                behavior_delta=BehaviorDelta.from_dict(
-                    _as_mapping(data["behavior_delta"], "package_schema_mismatch")
+                behavior_delta=(
+                    BehaviorDelta.from_dict(
+                        _as_mapping(data["behavior_delta"], "package_schema_mismatch")
+                    )
+                    if target_kind == "ChangeTarget"
+                    else None
                 ),
-                contract_drift=ContractDrift.from_dict(
-                    _as_mapping(data["contract_drift"], "package_schema_mismatch")
+                contract_drift=(
+                    ContractDrift.from_dict(
+                        _as_mapping(data["contract_drift"], "package_schema_mismatch")
+                    )
+                    if target_kind == "ChangeTarget"
+                    else None
                 ),
                 quality_contract=QualityContract.from_dict(
                     _as_mapping(contracts["quality_contract"], "package_schema_mismatch")
@@ -1026,17 +1424,19 @@ class SourceRichDiscoveryPackage:
                 ),
                 exploration_policy_id=data["exploration_policy_id"],
                 schema_version=data.get("schema_version", SCHEMA_VERSION),
+                synthetic_commit=(
+                    SyntheticProjectCommit.from_dict(
+                        _as_mapping(data["synthetic_project_commit"], "package_schema_mismatch")
+                    )
+                    if target_kind == "ProjectTarget"
+                    else None
+                ),
             )
-        except (KeyError, DiscoveryContractError, ChangeTargetAdmissionError):
+        except (KeyError, DiscoveryContractError, OpenCalcDiscoveryError):
             _fail("package_schema_mismatch")
         expected = package.to_dict(include_identity=False)
-        for field in (
-            "source_id",
-            "source_provenance",
-            "patch",
-            "discovery_source_materialization",
-        ):
-            if data.get(field) != expected[field]:
+        for field, expected_value in expected.items():
+            if data.get(field) != expected_value:
                 _fail("package_identity_mismatch")
         identity = data.get("identity_sha256")
         if identity is not None and identity != package.identity_sha256:
@@ -1046,7 +1446,7 @@ class SourceRichDiscoveryPackage:
 
 @dataclass(frozen=True)
 class BlindRuntimeProjection:
-    """The only ChangeTarget discovery data allowed toward the driver."""
+    """The only target-neutral discovery data allowed toward the driver."""
 
     projection_id: str
     opaque_lane_id: str
@@ -1439,6 +1839,136 @@ class ChangeTargetDiscoveryResult:
         return result
 
 
+@dataclass(frozen=True)
+class ProjectTargetDiscoveryResult:
+    """The complete auditor result for two synthetic ProjectTarget campaigns."""
+
+    candidate_identity_sha256: str
+    candidate_manifest_sha256: str
+    candidate_artifact_inventory_sha256: str
+    pair: MatchedRuntimeSourcePair
+    packages: tuple[SourceRichDiscoveryPackage, ...]
+    projections: tuple[BlindRuntimeProjection, ...]
+    source_materializations: tuple[SyntheticProjectCommit, ...]
+    leakage_audit: LeakageAudit
+    build_calls: int = 0
+    device_calls: int = 0
+    model_calls: int = 0
+    source_patches_applied: int = 2
+    schema_version: int = SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        for field in (
+            "candidate_identity_sha256",
+            "candidate_manifest_sha256",
+            "candidate_artifact_inventory_sha256",
+        ):
+            _required_text(getattr(self, field), field)
+            if not _HEX_64.fullmatch(getattr(self, field)):
+                _fail("candidate_identity_invalid")
+        if len(self.packages) != 2 or len(self.projections) != 2:
+            _fail("matched_pair_cardinality_mismatch")
+        if tuple(item.variant.variant_id for item in self.packages) != VARIANT_IDS:
+            _fail("package_variant_order_mismatch")
+        if tuple(item.target.kind for item in self.packages) != ("project", "project"):
+            _fail("package_target_kind_mismatch")
+        if tuple(item.opaque_lane_id for item in self.projections) != PROJECT_LANE_IDS:
+            _fail("projection_lane_identity_mismatch")
+        if len(self.source_materializations) != 2:
+            _fail("synthetic_commit_cardinality_mismatch")
+        if tuple(item.variant_id for item in self.source_materializations) != VARIANT_IDS:
+            _fail("synthetic_commit_variant_order_mismatch")
+        if any(item.pair != self.pair for item in self.packages):
+            _fail("package_pair_mismatch")
+        if any(
+            package.synthetic_commit != receipt
+            for package, receipt in zip(self.packages, self.source_materializations)
+        ):
+            _fail("package_synthetic_commit_mismatch")
+        if len({item.synthetic_commit for item in self.source_materializations}) != 2:
+            _fail("synthetic_commit_not_distinct")
+        if len({item.worktree_path for item in self.source_materializations}) != 2:
+            _fail("synthetic_worktree_not_distinct")
+        if self.leakage_audit.checked_projection_ids != tuple(
+            item.projection_id for item in self.projections
+        ):
+            _fail("leakage_audit_mismatch")
+        if any(
+            not isinstance(getattr(self, field), int)
+            or isinstance(getattr(self, field), bool)
+            or getattr(self, field) != 0
+            for field in ("build_calls", "device_calls", "model_calls")
+        ):
+            _fail("unexpected_side_effect")
+        if self.source_patches_applied != 2:
+            _fail("synthetic_patch_cardinality_mismatch")
+        if isinstance(self.schema_version, bool) or self.schema_version != SCHEMA_VERSION:
+            _fail("schema_version_mismatch")
+
+    @property
+    def admitted(self) -> bool:
+        return True
+
+    @property
+    def auditor_packages(self) -> tuple[SourceRichDiscoveryPackage, ...]:
+        return self.packages
+
+    @property
+    def project_packages(self) -> tuple[SourceRichDiscoveryPackage, ...]:
+        return self.packages
+
+    @property
+    def driver_projections(self) -> tuple[BlindRuntimeProjection, ...]:
+        return self.projections
+
+    @property
+    def synthetic_commits(self) -> tuple[SyntheticProjectCommit, ...]:
+        return self.source_materializations
+
+    @property
+    def materialization_receipts(self) -> tuple[SyntheticProjectCommit, ...]:
+        return self.source_materializations
+
+    @property
+    def identity_sha256(self) -> str:
+        return _digest(_project_normalized_identity(self.to_dict(include_identity=False)))
+
+    def driver_visible_serializations(self) -> tuple[dict[str, Any], ...]:
+        return tuple(item.to_dict() for item in self.projections)
+
+    def to_dict(self, *, include_identity: bool = True) -> dict[str, Any]:
+        result: dict[str, Any] = {
+            "schema_version": self.schema_version,
+            "document_kind": "opencalc_project_target_discovery_admission",
+            "family_id": FAMILY_ID,
+            "family_version": FAMILY_VERSION,
+            "candidate": {
+                "identity_sha256": self.candidate_identity_sha256,
+                "manifest_sha256": self.candidate_manifest_sha256,
+                "artifact_inventory_sha256": self.candidate_artifact_inventory_sha256,
+            },
+            "matched_source_pair": self.pair.to_dict(),
+            "source_materializations": [
+                item.to_dict() for item in self.source_materializations
+            ],
+            "source_rich_packages": [item.to_dict() for item in self.packages],
+            "blind_runtime_projections": [item.to_dict() for item in self.projections],
+            "leakage_audit": self.leakage_audit.to_dict(),
+            "side_effects": {
+                "source_patches_applied": self.source_patches_applied,
+                "build_calls": self.build_calls,
+                "device_calls": self.device_calls,
+                "model_calls": self.model_calls,
+            },
+        }
+        if include_identity:
+            result["identity_sha256"] = self.identity_sha256
+        return result
+
+
+ProjectTargetDiscoveryAdmission = ProjectTargetDiscoveryResult
+
+
 def _git(root: Path, *arguments: str) -> str:
     try:
         completed = subprocess.run(
@@ -1479,6 +2009,416 @@ def _verify_pristine_source(root: Path, baseline: SourceBaseline) -> None:
         _fail("source_worktree_dirty")
     if _git(root, "rev-parse", "HEAD^{tree}") != baseline.tree_sha256:
         _fail("source_tree_mismatch")
+
+
+def _project_fail(code: str) -> None:
+    raise ProjectTargetAdmissionError(code)
+
+
+def _project_git(
+    root: Path,
+    *arguments: str,
+    input_bytes: bytes | None = None,
+    env: Mapping[str, str] | None = None,
+) -> bytes:
+    """Run one non-interactive Git command inside a project materialization."""
+
+    try:
+        completed = subprocess.run(
+            ["git", *arguments],
+            cwd=root,
+            check=True,
+            input=input_bytes,
+            capture_output=True,
+            env=dict(env) if env is not None else _project_git_environment(),
+        )
+    except (OSError, subprocess.CalledProcessError):
+        _project_fail("project_materialization_failed")
+    return completed.stdout
+
+
+def _project_git_environment() -> dict[str, str]:
+    environment = {
+        key: value for key, value in os.environ.items() if not key.startswith("GIT_")
+    }
+    environment.update(
+        {
+            "GIT_ATTR_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_OPTIONAL_LOCKS": "0",
+            "GIT_TERMINAL_PROMPT": "0",
+        }
+    )
+    return environment
+
+
+def _project_git_text(root: Path, *arguments: str) -> str:
+    try:
+        return _project_git(root, *arguments).decode("utf-8", errors="strict").strip()
+    except UnicodeDecodeError:
+        _project_fail("project_materialization_failed")
+
+
+def _project_source_tree_sha256(root: Path, commit: str) -> str:
+    return _bytes_digest(
+        _project_git(root, "ls-tree", "-r", "--full-tree", "-z", commit)
+    )
+
+
+def _project_materialization_root(
+    root_value: str | Path | None,
+    source_root: Path,
+) -> Path:
+    if root_value is None:
+        try:
+            return Path(tempfile.mkdtemp(prefix="opencalc-project-target-")).resolve()
+        except OSError:
+            _project_fail("project_materialization_root_unavailable")
+    raw = Path(root_value).expanduser()
+    if raw.is_symlink():
+        _project_fail("project_materialization_root_symlink")
+    try:
+        root = raw.resolve()
+        root.relative_to(source_root)
+        _project_fail("project_materialization_root_unsafe")
+    except ValueError:
+        try:
+            source_root.relative_to(root)
+            _project_fail("project_materialization_root_unsafe")
+        except ValueError:
+            pass
+        except (OSError, RuntimeError):
+            _project_fail("project_materialization_root_unavailable")
+    except (OSError, RuntimeError):
+        _project_fail("project_materialization_root_unavailable")
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        _project_fail("project_materialization_root_unavailable")
+    if root.is_symlink() or not root.is_dir():
+        _project_fail("project_materialization_root_unavailable")
+    try:
+        if any(root.iterdir()):
+            _project_fail("project_materialization_root_not_empty")
+    except OSError:
+        _project_fail("project_materialization_root_unavailable")
+    return root
+
+
+def _project_patch_addition(
+    pair: MatchedRuntimeSourcePair,
+    variant: MatchedSourceVariant,
+) -> str:
+    additions = [
+        line[1:]
+        for line in variant.patch_text.splitlines()
+        if line.startswith("+") and not line.startswith("+++")
+    ]
+    removals = [
+        line
+        for line in variant.patch_text.splitlines()
+        if line.startswith("-") and not line.startswith("---")
+    ]
+    expected = f"        binding.input.isSaveEnabled = {variant.right_hand_side}"
+    if len(additions) != 1 or removals or additions[0] != expected:
+        _project_fail("project_patch_mismatch")
+    if pair.anchor.insertion_after not in pair.anchor.context:
+        _project_fail("source_anchor_baseline_mismatch")
+    return additions[0]
+
+
+def _project_commit_metadata(
+    root: Path,
+    commit: str,
+) -> tuple[str, str, str, str, str, str, str]:
+    try:
+        raw = _project_git(
+            root,
+            "show",
+            "-s",
+            "--format=%an%x00%ae%x00%aI%x00%cn%x00%ce%x00%cI%x00%B",
+            commit,
+        ).decode("utf-8", errors="strict")
+    except UnicodeDecodeError:
+        _project_fail("project_commit_metadata_unavailable")
+    fields = raw.split("\0", 6)
+    if len(fields) != 7:
+        _project_fail("project_commit_metadata_unavailable")
+    message = fields[6].rstrip("\n")
+    return (*fields[:6], message)
+
+
+def _project_commit_environment() -> dict[str, str]:
+    environment = _project_git_environment()
+    environment.update(
+        {
+            "GIT_AUTHOR_NAME": SYNTHETIC_AUTHOR_NAME,
+            "GIT_AUTHOR_EMAIL": SYNTHETIC_AUTHOR_EMAIL,
+            "GIT_AUTHOR_DATE": SYNTHETIC_COMMIT_TIMESTAMP,
+            "GIT_COMMITTER_NAME": SYNTHETIC_AUTHOR_NAME,
+            "GIT_COMMITTER_EMAIL": SYNTHETIC_AUTHOR_EMAIL,
+            "GIT_COMMITTER_DATE": SYNTHETIC_COMMIT_TIMESTAMP,
+        }
+    )
+    return environment
+
+
+def _project_result_diff(root: Path, parent: str, commit: str) -> bytes:
+    return _project_git(
+        root,
+        "diff",
+        "--binary",
+        "--full-index",
+        "--no-ext-diff",
+        "--no-textconv",
+        "--no-color",
+        "--no-renames",
+        "--src-prefix=a/",
+        "--dst-prefix=b/",
+        "--diff-algorithm=myers",
+        "--no-indent-heuristic",
+        "--inter-hunk-context=0",
+        "-U3",
+        "--no-relative",
+        parent,
+        commit,
+        "--",
+    )
+
+
+def _materialize_project_variant(
+    source_root: Path,
+    pair: MatchedRuntimeSourcePair,
+    variant: MatchedSourceVariant,
+    materialization_root: Path,
+) -> SyntheticProjectCommit:
+    worktree = materialization_root / variant.source_id
+    if worktree.exists() or worktree.is_symlink():
+        _project_fail("project_materialization_path_exists")
+    try:
+        # Claim the destination atomically so rejection cleanup cannot remove
+        # a directory another process placed at the requested child path.
+        worktree.mkdir()
+    except FileExistsError:
+        _project_fail("project_materialization_path_exists")
+    except OSError:
+        _project_fail("project_materialization_path_unavailable")
+    try:
+        # Git accepts an existing empty destination; the exclusive mkdir above
+        # establishes ownership before any clone bytes are written.
+        _project_git(
+            materialization_root,
+            "clone",
+            "--no-local",
+            "--no-hardlinks",
+            str(source_root),
+            str(worktree),
+        )
+        _project_git(worktree, "remote", "set-url", "origin", pair.baseline.origin)
+        _project_git(worktree, "checkout", "--detach", pair.baseline.commit)
+        repository_root = Path(
+            _project_git_text(worktree, "rev-parse", "--show-toplevel")
+        ).resolve()
+        if repository_root != worktree.resolve():
+            _project_fail("project_materialization_failed")
+        if _project_git_text(worktree, "rev-parse", "HEAD") != pair.baseline.commit:
+            _project_fail("project_parent_commit_mismatch")
+        if _canonical_origin(
+            _project_git_text(worktree, "remote", "get-url", "origin")
+        ) != _canonical_origin(pair.baseline.origin):
+            _project_fail("project_source_origin_mismatch")
+        if _project_git_text(
+            worktree, "status", "--porcelain=v1", "--untracked-files=all"
+        ):
+            _project_fail("project_materialization_dirty")
+        parent_tree = _project_git_text(worktree, "rev-parse", "HEAD^{tree}")
+        if parent_tree != pair.baseline.tree_sha256:
+            _project_fail("project_parent_tree_mismatch")
+        parent_source_tree = _project_source_tree_sha256(worktree, pair.baseline.commit)
+        addition = _project_patch_addition(pair, variant)
+        target_path = _contained_source_path(worktree.resolve(), pair.anchor.path)
+        try:
+            raw = target_path.read_bytes()
+            text = raw.decode("utf-8", errors="strict")
+        except (OSError, UnicodeDecodeError):
+            _project_fail("project_source_target_unreadable")
+        if _bytes_digest(raw) != pair.anchor.target_file_sha256:
+            _project_fail("project_source_target_digest_mismatch")
+        if text.count(pair.anchor.context) != pair.anchor.required_occurrences:
+            _project_fail("project_anchor_context_mismatch")
+        updated = text.replace(
+            pair.anchor.context,
+            pair.anchor.context + "\n" + addition,
+            pair.anchor.required_occurrences,
+        )
+        if updated == text:
+            _project_fail("project_patch_did_not_change_source")
+        try:
+            target_path.write_bytes(updated.encode("utf-8"))
+        except OSError:
+            _project_fail("project_source_target_unwritable")
+        _project_git(worktree, "add", "--", pair.anchor.path)
+        staged_paths = _project_git(worktree, "diff", "--cached", "--name-only", "-z", "--")
+        if staged_paths != (pair.anchor.path + "\0").encode("utf-8"):
+            _project_fail("project_staged_scope_mismatch")
+        numstat = _project_git(
+            worktree, "diff", "--cached", "--numstat", "--", pair.anchor.path
+        ).decode("utf-8", errors="strict").strip()
+        if not numstat.startswith("1\t0\t"):
+            _project_fail("project_staged_delta_mismatch")
+        synthetic_tree = _project_git_text(worktree, "write-tree")
+        if synthetic_tree == parent_tree:
+            _project_fail("synthetic_tree_unchanged")
+        commit_output = _project_git(
+            worktree,
+            "commit-tree",
+            synthetic_tree,
+            "-p",
+            pair.baseline.commit,
+            "--no-gpg-sign",
+            input_bytes=(SYNTHETIC_COMMIT_MESSAGE + "\n").encode("utf-8"),
+            env=_project_commit_environment(),
+        )
+        try:
+            synthetic_commit = commit_output.decode("ascii", errors="strict").strip()
+        except UnicodeDecodeError:
+            _project_fail("project_commit_identity_unavailable")
+        if not _HEX_40.fullmatch(synthetic_commit):
+            _project_fail("project_commit_identity_unavailable")
+        _project_git(worktree, "reset", "--hard", synthetic_commit)
+        if _project_git_text(worktree, "rev-parse", "HEAD") != synthetic_commit:
+            _project_fail("project_commit_identity_mismatch")
+        if _project_git_text(
+            worktree, "status", "--porcelain=v1", "--untracked-files=all"
+        ):
+            _project_fail("project_materialization_dirty")
+        committed_tree = _project_git_text(
+            worktree, "rev-parse", f"{synthetic_commit}^{{tree}}"
+        )
+        if committed_tree != synthetic_tree:
+            _project_fail("project_commit_tree_mismatch")
+        if _project_git_text(worktree, "rev-parse", f"{synthetic_commit}^") != pair.baseline.commit:
+            _project_fail("project_parent_commit_mismatch")
+        synthetic_source_tree = _project_source_tree_sha256(worktree, synthetic_commit)
+        result_diff = _project_result_diff(worktree, pair.baseline.commit, synthetic_commit)
+        if not result_diff:
+            _project_fail("project_result_diff_missing")
+        target_file_sha256 = _bytes_digest(target_path.read_bytes())
+        metadata = _project_commit_metadata(worktree, synthetic_commit)
+        if metadata != (
+            SYNTHETIC_AUTHOR_NAME,
+            SYNTHETIC_AUTHOR_EMAIL,
+            SYNTHETIC_COMMIT_TIMESTAMP,
+            SYNTHETIC_AUTHOR_NAME,
+            SYNTHETIC_AUTHOR_EMAIL,
+            SYNTHETIC_COMMIT_TIMESTAMP,
+            SYNTHETIC_COMMIT_MESSAGE,
+        ):
+            _project_fail("project_commit_metadata_mismatch")
+        return SyntheticProjectCommit(
+            variant_id=variant.variant_id,
+            source_id=variant.source_id,
+            parent_commit=pair.baseline.commit,
+            parent_tree_sha256=parent_tree,
+            parent_source_tree_sha256=parent_source_tree,
+            synthetic_commit=synthetic_commit,
+            synthetic_tree_sha256=committed_tree,
+            synthetic_source_tree_sha256=synthetic_source_tree,
+            target_file_sha256=target_file_sha256,
+            patch_sha256=variant.patch_sha256,
+            result_diff_sha256=_bytes_digest(result_diff),
+            author_name=metadata[0],
+            author_email=metadata[1],
+            author_timestamp=metadata[2],
+            committer_name=metadata[3],
+            committer_email=metadata[4],
+            committer_timestamp=metadata[5],
+            message=metadata[6],
+            worktree_path=str(worktree.resolve()),
+        )
+    except ProjectTargetAdmissionError:
+        _discard_project_worktree(materialization_root, worktree)
+        raise
+    except (OSError, UnicodeDecodeError, ValueError):
+        _discard_project_worktree(materialization_root, worktree)
+        _project_fail("project_materialization_failed")
+
+
+def _verify_project_materialization(
+    materialization_root: Path,
+    pair: MatchedRuntimeSourcePair,
+    variant: MatchedSourceVariant,
+    receipt: SyntheticProjectCommit,
+) -> None:
+    """Revalidate a receipt before any later consumer can use its worktree."""
+
+    expected_worktree = materialization_root / variant.source_id
+    worktree = Path(receipt.worktree_path)
+    if worktree != expected_worktree or worktree.is_symlink():
+        _project_fail("project_materialization_path_drift")
+    try:
+        if worktree.resolve(strict=True) != expected_worktree.resolve(strict=True):
+            _project_fail("project_materialization_path_drift")
+        if not worktree.is_dir():
+            _project_fail("project_materialization_missing")
+        repository_root = Path(
+            _project_git_text(worktree, "rev-parse", "--show-toplevel")
+        ).resolve()
+        if repository_root != expected_worktree.resolve(strict=True):
+            _project_fail("project_materialization_path_drift")
+        if _project_git_text(worktree, "rev-parse", "HEAD") != receipt.synthetic_commit:
+            _project_fail("project_materialization_commit_drift")
+        if _project_git_text(worktree, "rev-parse", "HEAD^") != receipt.parent_commit:
+            _project_fail("project_materialization_parent_drift")
+        if _project_git_text(worktree, "rev-parse", "HEAD^{tree}") != receipt.synthetic_tree_sha256:
+            _project_fail("project_materialization_tree_drift")
+        if _canonical_origin(
+            _project_git_text(worktree, "remote", "get-url", "origin")
+        ) != _canonical_origin(pair.baseline.origin):
+            _project_fail("project_source_origin_mismatch")
+        if _project_git_text(
+            worktree, "status", "--porcelain=v1", "--untracked-files=all"
+        ):
+            _project_fail("project_materialization_dirty")
+        if _project_source_tree_sha256(worktree, receipt.synthetic_commit) != (
+            receipt.synthetic_source_tree_sha256
+        ):
+            _project_fail("project_materialization_source_tree_drift")
+        target_path = _contained_source_path(worktree, pair.anchor.path)
+        if _bytes_digest(target_path.read_bytes()) != receipt.target_file_sha256:
+            _project_fail("project_materialization_target_drift")
+        result_diff = _project_result_diff(
+            worktree, receipt.parent_commit, receipt.synthetic_commit
+        )
+        if _bytes_digest(result_diff) != receipt.result_diff_sha256:
+            _project_fail("project_materialization_diff_drift")
+        if _project_commit_metadata(worktree, receipt.synthetic_commit) != (
+            receipt.author_name,
+            receipt.author_email,
+            receipt.author_timestamp,
+            receipt.committer_name,
+            receipt.committer_email,
+            receipt.committer_timestamp,
+            receipt.message,
+        ):
+            _project_fail("project_materialization_metadata_drift")
+    except ProjectTargetAdmissionError:
+        raise
+    except (OSError, UnicodeDecodeError, RuntimeError, ValueError):
+        _project_fail("project_materialization_drift")
+
+
+def _discard_project_worktree(materialization_root: Path, worktree: Path) -> None:
+    """Remove only a child created by this admission attempt after rejection."""
+
+    try:
+        if worktree.parent != materialization_root or worktree.is_symlink():
+            return
+        if worktree.exists():
+            shutil.rmtree(worktree)
+    except OSError:
+        return
 
 
 def _contained_source_path(root: Path, relative_path: str) -> Path:
@@ -1634,9 +2574,13 @@ def _validate_patch_artifacts(pair: MatchedRuntimeSourcePair) -> None:
 def _source_facts(
     pair: MatchedRuntimeSourcePair,
     candidate: runtime_calibration.CandidateInputs,
+    *,
+    source_commit: str | None = None,
+    source_file_sha256: str | None = None,
 ) -> tuple[ContextFact, ...]:
     artifact_digests = _artifact_digest_map(candidate)
-    source_sha256 = pair.anchor.target_file_sha256
+    effective_source_commit = source_commit or pair.baseline.commit
+    source_sha256 = source_file_sha256 or pair.anchor.target_file_sha256
     anchor_fact = ContextFact(
         fact_id="opencalc-source-anchor-v1",
         subject=pair.anchor.path,
@@ -1655,7 +2599,7 @@ def _source_facts(
                 locator="unique-context",
             ),
         ),
-        source_version=pair.baseline.commit,
+        source_version=effective_source_commit,
         confidence=1.0,
         status="known",
     )
@@ -1672,7 +2616,7 @@ def _source_facts(
                 locator="matched-source-pair",
             ),
         ),
-        source_version=pair.baseline.commit,
+        source_version=effective_source_commit,
         confidence=1.0,
         status="known",
     )
@@ -1693,7 +2637,7 @@ def _source_facts(
                 locator="variants",
             ),
         ),
-        source_version=pair.baseline.commit,
+        source_version=effective_source_commit,
         confidence=1.0,
         status="known",
     )
@@ -1786,11 +2730,14 @@ def _make_strategy(
                 "the input state is observed before and after that transition",
             ),
             trigger="one bounded orientation-driven Activity recreation",
-            mechanism="the declared input state-saving configuration participates in recreation",
+            mechanism=(
+                "the target's declared input state-saving configuration participates "
+                "in recreation"
+            ),
             consequence="the quality contract may be violated after recreation",
             rationale=(
-                "The hypothesis is frozen from the shared source anchor and matched "
-                "change context; it is not an observed runtime outcome."
+                "The hypothesis is frozen from the shared source anchor and target "
+                "context; it is not an observed runtime outcome."
             ),
             required_evidence=(
                 "pre-transition input observation",
@@ -1810,7 +2757,7 @@ def _make_strategy(
         chain = FailureChain(
             chain_id=chain_id,
             steps=(
-                "the declared input state-saving configuration is changed",
+                "the target has the declared input state-saving configuration",
                 "one bounded orientation-driven activity recreation occurs",
                 "the input quality contract is checked after recreation",
             ),
@@ -1864,6 +2811,152 @@ def _make_strategy(
         compatible_prior_ids=(prior.prior_id,),
         compatible_operator_ids=(operator.operator_id,),
         target_modes=("change",),
+        deriver=derive,
+    )
+
+
+def _make_neutral_quality_contract() -> QualityContract:
+    return QualityContract(
+        contract_id=QUALITY_CONTRACT_ID,
+        name="bounded response quality contract",
+        scope="opencalc-input",
+        quality_property=(
+            "input text remains 12+34 across orientation-driven Activity recreation"
+        ),
+        constraint=(
+            "input text remains 12+34 across orientation-driven Activity recreation"
+        ),
+        source_fact_ids=("opencalc-quality-contract-v1",),
+        status="derived",
+    )
+
+
+def _make_project_strategy(
+    prior: RiskPrior,
+    operator: AttackOperator,
+):
+    def derive(
+        target: ProjectTarget,
+        graph: Any,
+        *,
+        mode: str,
+        behavior_delta: BehaviorDelta | None = None,
+        contract_drift: ContractDrift | None = None,
+    ) -> RiskDerivationResult:
+        if (
+            mode != "project"
+            or behavior_delta is not None
+            or contract_drift is not None
+            or not isinstance(target, ProjectTarget)
+        ):
+            return RiskDerivationResult(
+                prior=prior,
+                operator=operator,
+                hypothesis=None,
+                failure_chain=None,
+                priority=None,
+                attack_plan=None,
+                rejection_reasons=(
+                    "OpenCalc ProjectTarget strategy does not consume a source diff",
+                ),
+            )
+        chain_id = f"{RISK_HYPOTHESIS_ID}-failure-chain-v1"
+        priority_id = f"{RISK_HYPOTHESIS_ID}-priority-v1"
+        supporting_fact_ids = (
+            "opencalc-source-anchor-v1",
+            "opencalc-quality-contract-v1",
+            "opencalc-change-context-v1",
+        )
+        hypothesis = RiskHypothesis(
+            hypothesis_id=RISK_HYPOTHESIS_ID,
+            target_id=target.target_id,
+            quality_property=(
+                "input text remains 12+34 across orientation-driven Activity recreation"
+            ),
+            assumptions=(
+                "the orientation transition recreates the activity",
+                "the input state is observed before and after that transition",
+            ),
+            trigger="one bounded orientation-driven Activity recreation",
+            mechanism=(
+                "the target's declared input state-saving configuration participates "
+                "in recreation"
+            ),
+            consequence="the quality contract may be violated after recreation",
+            rationale=(
+                "The hypothesis is frozen from the shared source anchor and target "
+                "context; it is not an observed runtime outcome."
+            ),
+            required_evidence=(
+                "pre-transition input observation",
+                "lifecycle transition receipt",
+                "post-transition input observation",
+            ),
+            confidence=0.9,
+            status="frozen",
+            supporting_fact_ids=supporting_fact_ids,
+            prior_id=prior.prior_id,
+            failure_chain_id=chain_id,
+            unknowns=("runtime lifecycle evidence remains unknown before execution",),
+            priority_id=priority_id,
+        )
+        chain = FailureChain(
+            chain_id=chain_id,
+            steps=(
+                "the target has the declared input state-saving configuration",
+                "one bounded orientation-driven activity recreation occurs",
+                "the input quality contract is checked after recreation",
+            ),
+            consequence="input text remains 12+34 across orientation-driven Activity recreation",
+            fact_ids=supporting_fact_ids,
+            causal_roles=("local_behavior", "dependency_propagation", "system_impact"),
+        )
+        priority = RiskPriority(
+            priority_id=priority_id,
+            impact=0.8,
+            propagation_reach=0.5,
+            context_sensitivity=0.9,
+            uncertainty=0.2,
+            evidence_gap=0.6,
+            estimated_probe_cost=0.4,
+            rationale=(
+                "Factors order the bounded discovery probe; the score is not a "
+                "probability or runtime conclusion."
+            ),
+        )
+        plan = AttackPlan(
+            plan_id=ATTACK_PLAN_ID,
+            target_id=target.target_id,
+            hypothesis_id=hypothesis.hypothesis_id,
+            operator_id=operator.operator_id,
+            trigger="one bounded orientation-driven Activity recreation",
+            observations=(
+                "input before recreation",
+                "lifecycle transition",
+                "input after recreation",
+            ),
+            evidence_expectations=hypothesis.required_evidence,
+            oracle="quality-contract-oracle-v1",
+            abort_boundary="abort before an unbounded wait or external side effect",
+            claim_boundary="the frozen local target and its recorded runtime evidence only",
+            fixture_refs=("opencalc-change-target-context",),
+            status="frozen",
+        )
+        return RiskDerivationResult(
+            prior=prior,
+            operator=operator,
+            hypothesis=hypothesis,
+            failure_chain=chain,
+            priority=priority,
+            attack_plan=plan,
+        )
+
+    return make_risk_derivation_strategy(
+        strategy_id="opencalc-project-target-discovery-v1",
+        version="ocrc-v1",
+        compatible_prior_ids=(prior.prior_id,),
+        compatible_operator_ids=(operator.operator_id,),
+        target_modes=("project",),
         deriver=derive,
     )
 
@@ -1959,6 +3052,64 @@ def _make_campaign(
     if not admission.admission.admitted:
         _fail("campaign_admission_rejected")
     return admission.package, delta, drift
+
+
+def _make_project_campaign(
+    target: ProjectTarget,
+    acquisition: ContextAcquisitionResult,
+    prior: RiskPrior,
+    operator: AttackOperator,
+    strategy: Any,
+) -> DiscoveryCampaignPackage:
+    request = ContextExpansionRequest(
+        request_id=f"{target.target_id}-context-request",
+        campaign_id=f"{target.target_id}-campaign",
+        target_id=target.target_id,
+        required_predicates=("source_anchor", "quality_contract", "change_context"),
+        probe_refs=(),
+        budget=REQUIRED_CONTEXT_BUDGET,
+        unresolved_questions=tuple(
+            f"fact {fact.fact_id} remains {fact.status}"
+            for fact in acquisition.graph.facts
+            if fact.status in {"unknown", "contradictory", "stale"}
+        ),
+    )
+    expansion_result = ContextExpansionResult(
+        request_id=request.request_id,
+        target_id=target.target_id,
+        graph=acquisition.graph,
+        resolved_fact_ids=tuple(
+            fact.fact_id for fact in acquisition.graph.facts if fact.status == "known"
+        ),
+        unresolved_questions=request.unresolved_questions,
+        budget_used=acquisition.receipt.budget_used,
+        status="partial" if request.unresolved_questions else "complete",
+    )
+    try:
+        package = seed_project_campaign(
+            request.campaign_id,
+            target,
+            acquisition.graph,
+            context_request=request,
+            context_result=expansion_result,
+            prior=prior,
+            operator=operator,
+            strategy=strategy,
+        )
+        # ProjectTarget has no ContractDrift to provide the shared contract
+        # identity. Bind the same neutral Quality Contract used by ChangeTarget
+        # after seeding, while retaining the campaign's immutable graph.
+        campaign = replace(
+            package.campaign,
+            quality_contracts=(_make_neutral_quality_contract(),),
+        )
+        package = replace(package, campaign=campaign)
+        admission = admit_campaign_plan(package)
+    except (DiscoveryContractError, ValueError) as error:
+        raise ProjectTargetAdmissionError("campaign_admission_rejected") from error
+    if not admission.admission.admitted:
+        raise ProjectTargetAdmissionError("campaign_admission_rejected")
+    return admission.package
 
 
 def _build_projection(
@@ -2123,9 +3274,164 @@ def admit_change_target_pair(
     )
 
 
+def _acquire_project_context_for_admission(
+    target: ProjectTarget,
+) -> ContextAcquisitionResult:
+    try:
+        return acquire_project_context(target)
+    except (DiscoveryContractError, ValueError) as error:
+        message = str(error).lower()
+        if "unreadable" in message or "non-utf" in message:
+            code = "context_required_path_unreadable"
+        elif "budget" in message or "skipped" in message:
+            code = "context_budget_exhausted"
+        elif "changed during" in message or "identity" in message:
+            code = "context_source_identity_drift"
+        else:
+            code = "context_acquisition_rejected"
+        raise ProjectTargetAdmissionError(code) from error
+
+
+def admit_project_target_pair(
+    candidate_root: str | Path = DEFAULT_CANDIDATE_ROOT,
+    source_root: str | Path = DEFAULT_SOURCE_ROOT,
+    materialization_root: str | Path | None = None,
+) -> ProjectTargetDiscoveryResult:
+    """Admit two complete synthetic OpenCalc ProjectTarget campaigns.
+
+    Candidate and pristine-source identities are checked before any source
+    materialization. Each variant then receives a fresh clone, one declared
+    anchored source injection, and a deterministic synthetic commit. The
+    materialized repositories remain clean and are never used as a runtime
+    build worktree by this seam.
+    """
+
+    created_worktrees: list[Path] = []
+    output_root: Path | None = None
+    try:
+        candidate, pair = _validate_candidate(candidate_root)
+        _validate_patch_artifacts(pair)
+        root = _source_root(source_root)
+        _verify_pristine_source(root, pair.baseline)
+        _validate_anchor_against_source(root, pair)
+        _validate_required_context(root)
+        output_root = _project_materialization_root(materialization_root, root)
+
+        prior = _make_neutral_prior()
+        operator = _make_neutral_operator()
+        strategy = _make_project_strategy(prior, operator)
+        packages: list[SourceRichDiscoveryPackage] = []
+        receipts: list[SyntheticProjectCommit] = []
+        for variant in pair.variants:
+            _verify_pristine_source(root, pair.baseline)
+            worktree_path = output_root / variant.source_id
+            receipt = _materialize_project_variant(root, pair, variant, output_root)
+            created_worktrees.append(worktree_path)
+            receipts.append(receipt)
+            target = ProjectTarget(
+                target_id=variant.source_id,
+                source_origin=pair.baseline.origin,
+                source_commit=receipt.synthetic_commit,
+                worktree=receipt.worktree_path,
+                scope=REQUIRED_CONTEXT_PATHS,
+                discovery_budget=REQUIRED_CONTEXT_BUDGET,
+            )
+            acquired = _acquire_project_context_for_admission(target)
+            _verify_project_materialization(output_root, pair, variant, receipt)
+            source_facts = _source_facts(
+                pair,
+                candidate,
+                source_commit=receipt.synthetic_commit,
+                source_file_sha256=receipt.target_file_sha256,
+            )
+            acquired = _augment_context(acquired, source_facts)
+            context = OpenCalcContextAcquisition(acquired)
+            campaign = _make_project_campaign(
+                target,
+                acquired,
+                prior,
+                operator,
+                strategy,
+            )
+            quality_contract = campaign.campaign.quality_contracts[0]
+            risk_hypothesis = campaign.campaign.hypotheses[0]
+            attack_plan = campaign.campaign.attack_plans[0]
+            risk_priority = campaign.risk_priority
+            if risk_priority is None:
+                _project_fail("campaign_priority_missing")
+            packages.append(
+                SourceRichDiscoveryPackage(
+                    package_id=f"{PAIR_ID}-{variant.variant_id}-project-package-v1",
+                    catalog_id=(
+                        f"opencalc-input-save-enabled-{variant.variant_id}-project-v1"
+                    ),
+                    target=target,
+                    pair=pair,
+                    variant=variant,
+                    context_acquisition=context,
+                    campaign=campaign,
+                    behavior_delta=None,
+                    contract_drift=None,
+                    quality_contract=quality_contract,
+                    risk_prior=campaign.campaign.risk_priors[0],
+                    attack_operator=campaign.campaign.attack_operators[0],
+                    risk_hypothesis=risk_hypothesis,
+                    attack_plan=attack_plan,
+                    risk_priority=risk_priority,
+                    exploration_policy_id=EXPLORATION_POLICY_ID,
+                    synthetic_commit=receipt,
+                )
+            )
+
+        final_candidate, final_pair = _validate_candidate(candidate_root)
+        _validate_patch_artifacts(final_pair)
+        if (
+            final_candidate.candidate_identity_sha256
+            != candidate.candidate_identity_sha256
+            or final_candidate.manifest_sha256 != candidate.manifest_sha256
+            or final_candidate.artifact_inventory_sha256
+            != candidate.artifact_inventory_sha256
+            or final_pair != pair
+        ):
+            _project_fail("candidate_input_drift")
+        candidate = final_candidate
+        for variant, receipt in zip(pair.variants, receipts):
+            _verify_project_materialization(output_root, pair, variant, receipt)
+        projections = [
+            _build_projection(candidate, packages[0], PROJECT_CONTROL_LANE_ID),
+            _build_projection(candidate, packages[1], PROJECT_DEFECT_LANE_ID),
+        ]
+        leakage = audit_projection_leakage(projections)
+        _verify_pristine_source(root, pair.baseline)
+        return ProjectTargetDiscoveryResult(
+            candidate_identity_sha256=candidate.candidate_identity_sha256,
+            candidate_manifest_sha256=candidate.manifest_sha256,
+            candidate_artifact_inventory_sha256=candidate.artifact_inventory_sha256,
+            pair=pair,
+            packages=tuple(packages),
+            projections=tuple(projections),
+            source_materializations=tuple(receipts),
+            leakage_audit=leakage,
+        )
+    except ProjectTargetAdmissionError:
+        if output_root is not None:
+            for worktree in created_worktrees:
+                _discard_project_worktree(output_root, worktree)
+        raise
+    except ChangeTargetAdmissionError as error:
+        if output_root is not None:
+            for worktree in created_worktrees:
+                _discard_project_worktree(output_root, worktree)
+        raise ProjectTargetAdmissionError(error.code) from error
+
+
 admit_opencalc_change_pair = admit_change_target_pair
 run_change_target_discovery = admit_change_target_pair
 build_change_target_campaigns = admit_change_target_pair
+admit_opencalc_project_pair = admit_project_target_pair
+admit_opencalc_project_target_pair = admit_project_target_pair
+run_project_target_discovery = admit_project_target_pair
+build_project_target_campaigns = admit_project_target_pair
 
 
 __all__ = [
@@ -2140,12 +3446,19 @@ __all__ = [
     "PAIR_ID",
     "PATCH_ARTIFACT_DIRECTORY",
     "PROJECTION_LEAKAGE_TERMS",
+    "PROJECT_CONTROL_LANE_ID",
+    "PROJECT_DEFECT_LANE_ID",
+    "PROJECT_LANE_IDS",
     "QUALITY_CONTRACT_ID",
     "REQUIRED_CONTEXT_ADAPTERS",
     "REQUIRED_CONTEXT_BUDGET",
     "REQUIRED_CONTEXT_PATHS",
     "RISK_HYPOTHESIS_ID",
     "RISK_PRIOR_ID",
+    "SYNTHETIC_AUTHOR_EMAIL",
+    "SYNTHETIC_AUTHOR_NAME",
+    "SYNTHETIC_COMMIT_MESSAGE",
+    "SYNTHETIC_COMMIT_TIMESTAMP",
     "TARGET_SOURCE_PATH",
     "BlindRuntimeProjection",
     "ChangeTargetAdmissionError",
@@ -2155,13 +3468,25 @@ __all__ = [
     "MatchedSourceVariant",
     "OpenCalcContextAcquisition",
     "OpenCalcDiscoveryError",
+    "ProjectTargetAdmissionError",
+    "ProjectTargetDiscoveryAdmission",
+    "ProjectTargetDiscoveryError",
+    "ProjectTargetDiscoveryResult",
+    "ProjectTargetMaterializationReceipt",
     "SourceBaseline",
     "SourceRichDiscoveryPackage",
+    "SyntheticCommitReceipt",
+    "SyntheticProjectCommit",
     "UpstreamSourceAnchor",
     "admit_change_target_pair",
     "admit_opencalc_change_pair",
+    "admit_opencalc_project_pair",
+    "admit_opencalc_project_target_pair",
+    "admit_project_target_pair",
     "audit_driver_serializations",
     "audit_projection_leakage",
     "build_change_target_campaigns",
+    "build_project_target_campaigns",
     "run_change_target_discovery",
+    "run_project_target_discovery",
 ]
