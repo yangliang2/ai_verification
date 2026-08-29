@@ -154,6 +154,13 @@ def test_release_is_exclusive_and_reordered_or_tampered_forms_fail_closed(
         runtime_mapping.RuntimeMappingRelease.from_dict(document)
     assert meaning.value.code == "mapping_lane_meaning_mismatch"
 
+    with pytest.raises(runtime_mapping.RuntimeMappingReleaseError) as result_kind:
+        replace(
+            release.discovery_admissions[0],
+            discovery_result_kind="ProjectTargetDiscoveryResult",
+        )
+    assert result_kind.value.code == "mapping_admission_schema_mismatch"
+
 
 def test_release_reverification_rejects_candidate_input_drift(tmp_path: Path) -> None:
     release = _release(tmp_path)

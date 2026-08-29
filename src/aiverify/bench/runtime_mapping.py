@@ -471,10 +471,12 @@ class DiscoveryAdmissionReceipt:
         meaning = _meaning_for_lane(self.lane_id)
         if (self.target_kind, self.variant) != (meaning.target_kind, meaning.variant):
             _fail("mapping_admission_meaning_mismatch")
-        if self.discovery_result_kind not in {
-            "ChangeTargetDiscoveryResult",
-            "ProjectTargetDiscoveryResult",
-        }:
+        expected_result_kind = (
+            "ChangeTargetDiscoveryResult"
+            if meaning.target_kind == "ChangeTarget"
+            else "ProjectTargetDiscoveryResult"
+        )
+        if self.discovery_result_kind != expected_result_kind:
             _fail("mapping_admission_schema_mismatch")
         for field_name in (
             "discovery_result_identity_sha256",
