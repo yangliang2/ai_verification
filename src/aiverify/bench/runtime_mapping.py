@@ -1658,7 +1658,7 @@ def _validate_shared_discovery_contracts(
         document = getattr(package, field_name).to_dict()
         return {key: value for key, value in document.items() if key not in excluded}
 
-    neutral_fields = (
+    neutral_fields: tuple[tuple[str, frozenset[str]], ...] = (
         ("quality_contract", frozenset()),
         ("risk_prior", frozenset()),
         ("attack_operator", frozenset()),
@@ -2178,7 +2178,7 @@ def admit_family(
         error_code = error.code
     except (discovery.OpenCalcDiscoveryError, runtime_calibration.RuntimeCalibrationError) as error:
         error_code = getattr(error, "code", "mapping_family_admission_failed")
-    except Exception:
+    except Exception:  # noqa: BLE001 - terminalize every ordinary admission failure
         error_code = "mapping_family_admission_failed"
     status = "accepted" if release is not None else "rejected"
     terminal: dict[str, Any] = {
