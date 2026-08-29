@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import shutil
 from dataclasses import replace
 from pathlib import Path
 
@@ -128,7 +130,7 @@ def test_release_is_exclusive_and_reordered_or_tampered_forms_fail_closed(
 
     first_digest = runtime_mapping.write_runtime_mapping_release(release, output)
     first_bytes = output.read_bytes()
-    assert first_digest == __import__("hashlib").sha256(first_bytes).hexdigest()
+    assert first_digest == hashlib.sha256(first_bytes).hexdigest()
     assert json.loads(first_bytes)["status"] == "mapping_released"
 
     with pytest.raises(runtime_mapping.RuntimeMappingReleaseError) as duplicate:
@@ -156,7 +158,6 @@ def test_release_is_exclusive_and_reordered_or_tampered_forms_fail_closed(
 def test_release_reverification_rejects_candidate_input_drift(tmp_path: Path) -> None:
     release = _release(tmp_path)
     candidate = tmp_path / "candidate"
-    import shutil
 
     shutil.copytree(CANDIDATE, candidate)
     path = candidate / "runtime/lanes/lane-01/recipe.json"

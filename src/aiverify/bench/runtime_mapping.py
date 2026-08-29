@@ -1647,18 +1647,38 @@ def _validate_shared_discovery_contracts(
 ) -> None:
     if len(packages) != 4:
         _fail("mapping_discovery_admission_incomplete")
-    for field_name in (
-        "quality_contract",
-        "risk_prior",
-        "attack_operator",
-        "risk_hypothesis",
-        "attack_plan",
-        "risk_priority",
-        "exploration_policy_id",
-    ):
-        expected = getattr(packages[0], field_name)
-        if any(getattr(package, field_name) != expected for package in packages[1:]):
+
+    def neutral_document(
+        package: discovery.SourceRichDiscoveryPackage,
+        field_name: str,
+        excluded: frozenset[str] = frozenset(),
+    ) -> dict[str, Any]:
+        document = getattr(package, field_name).to_dict()
+        return {key: value for key, value in document.items() if key not in excluded}
+
+    neutral_fields = (
+        ("quality_contract", frozenset()),
+        ("risk_prior", frozenset()),
+        ("attack_operator", frozenset()),
+        (
+            "risk_hypothesis",
+            frozenset({"target_id", "behavior_delta_id", "contract_drift_id"}),
+        ),
+        ("attack_plan", frozenset({"target_id"})),
+        ("risk_priority", frozenset()),
+    )
+    for field_name, excluded in neutral_fields:
+        expected = neutral_document(packages[0], field_name, excluded)
+        if any(
+            neutral_document(package, field_name, excluded) != expected
+            for package in packages[1:]
+        ):
             _fail("mapping_discovery_contract_mismatch")
+    if any(
+        package.exploration_policy_id != packages[0].exploration_policy_id
+        for package in packages[1:]
+    ):
+        _fail("mapping_discovery_contract_mismatch")
     if any(
         package.context_acquisition.required_paths != discovery.REQUIRED_CONTEXT_PATHS
         or package.context_acquisition.adapters != discovery.REQUIRED_CONTEXT_ADAPTERS
