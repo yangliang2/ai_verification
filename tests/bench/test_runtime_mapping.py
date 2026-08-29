@@ -67,8 +67,14 @@ def _release(tmp_path: Path) -> runtime_mapping.RuntimeMappingRelease:
 
 
 class _RecordingSourceAuthority(runtime_mapping.SourceAuthority):
+    def __init__(self) -> None:
+        self.request_ids: list[str] = []
+
     def resolve_host(self, spec: object, options: object, runner: object) -> object:
         raise AssertionError("mapping verification must not resolve a runtime host")
+
+    def verify_runtime_source_request(self, request: runtime_mapping.RuntimeSourceRequest) -> None:
+        self.request_ids.append(request.request_id)
 
 
 def test_release_round_trips_and_grants_only_authorized_views(tmp_path: Path) -> None:
@@ -86,7 +92,8 @@ def test_release_round_trips_and_grants_only_authorized_views(tmp_path: Path) ->
         "serialization_sha256": release.driver_visible_serialization_sha256,
     }
 
-    source_view = release.consume(_RecordingSourceAuthority())
+    authority = _RecordingSourceAuthority()
+    source_view = release.consume(authority)
     assert isinstance(source_view, runtime_mapping.SourceAuthorityMapping)
     assert source_view.lane_ids == runtime_mapping.RUNTIME_LANE_IDS
     assert [request.target_kind for request in source_view.source_requests] == [
@@ -97,10 +104,14 @@ def test_release_round_trips_and_grants_only_authorized_views(tmp_path: Path) ->
     ]
     assert source_view.source_requests[0].result_diff_sha256 is None
     assert source_view.source_requests[2].result_diff_sha256 is not None
+    verification_authority = _RecordingSourceAuthority()
     assert runtime_mapping.verify_released_source_requests(
         source_view,
-        _RecordingSourceAuthority(),
+        verification_authority,
     ) is True
+    assert verification_authority.request_ids == [
+        request.request_id for request in source_view.source_requests
+    ]
 
     with pytest.raises(runtime_mapping.RuntimeMappingReleaseError) as unauthorized:
         release.consume(object())
@@ -176,6 +187,36 @@ def test_release_reverification_rejects_candidate_input_drift(tmp_path: Path) ->
             candidate_root=candidate,
         )
     assert error.value.code == "mapping_candidate_input_mismatch"
+
+
+def test_release_reverification_rejects_post_release_discovery_mutation(
+    tmp_path: Path,
+) -> None:
+    change = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    project = discovery.admit_project_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "project-materializations",
+    )
+    release = runtime_mapping.release_runtime_mapping(
+        change,
+        project,
+        candidate_root=CANDIDATE,
+    )
+    changed_project = discovery.admit_project_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "changed-project-materializations",
+    )
+
+    with pytest.raises(runtime_mapping.RuntimeMappingVerificationError) as error:
+        runtime_mapping.verify_runtime_mapping_release(
+            release,
+            candidate_root=CANDIDATE,
+            change_discovery=change,
+            project_discovery=changed_project,
+        )
+    assert error.value.code == "mapping_post_release_mutation"
 
 
 def test_admit_family_stage_requires_terminal_candidate_and_writes_one_release(
