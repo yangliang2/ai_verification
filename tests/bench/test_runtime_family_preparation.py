@@ -8,7 +8,11 @@ from pathlib import Path
 
 import pytest
 
-from aiverify.bench import runtime_calibration, runtime_mapping
+from aiverify.bench import (
+    runtime_calibration,
+    runtime_family_preparation,
+    runtime_mapping,
+)
 from aiverify.bench.runtime_family_preparation import (
     RuntimeFamilyLaneInput,
     RuntimeFamilyLaneResult,
@@ -141,6 +145,7 @@ def _receipt(
         "args": list(lane.build_recipe.args),
         "timeout_seconds": 900,
         "apk_glob": lane.build_recipe.apk_glob,
+        "returncode": 0,
         "retry": False,
         "private_input_root": str(private_root),
         "runtime_signing_identity": signer.to_dict(),
@@ -339,6 +344,69 @@ def test_prepare_runtime_family_success_records_four_opaque_lanes_and_gates(
     assert not list(output.rglob("execution-record.json"))
     assert (output / "family-preparation.json").is_file()
     assert (output / "stage-terminal.json").is_file()
+
+
+def test_default_preparer_records_one_public_lane_handoff_per_build(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    lanes, signer = _family_inputs(tmp_path)
+    calls: list[tuple[str, Path, bool]] = []
+    payloads = (b"control", b"defect", b"control", b"defect")
+
+    def recording_prepare_runtime_case(**kwargs: object) -> RuntimePreparationReceipt:
+        authority = kwargs["source_authority"]
+        lane = next(item for item in lanes if item.source_authority is authority)
+        sealed_path = kwargs["sealed_apk_path"]
+        assert isinstance(sealed_path, Path)
+        index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+        sealed_path.parent.mkdir(parents=True)
+        sealed_path.write_bytes(payloads[index])
+        sealed_path.chmod(0o444)
+        if index == 0:
+            extra_apk = lane.options.workdir / "app" / "build" / "outputs" / "extra.apk"
+            extra_apk.parent.mkdir(parents=True)
+            extra_apk.write_bytes(b"extra real APK output")
+            extra_apk.chmod(0o444)
+        calls.append(
+            (
+                lane.lane_id,
+                sealed_path,
+                kwargs["allow_test_substitutes"] is True,
+            )
+        )
+        return _receipt(
+            lane,
+            signer,
+            sealed_path,
+            payloads[index],
+            lane.source_authority.mapping_binding,
+        )
+
+    monkeypatch.setattr(
+        runtime_family_preparation,
+        "prepare_runtime_case",
+        recording_prepare_runtime_case,
+    )
+    output = tmp_path / "family-output"
+    receipt = prepare_runtime_family(
+        candidate_root=CANDIDATE_ROOT,
+        predecessor_root=MAPPING_ROOT,
+        output_root=output,
+        lane_inputs=lanes,
+    )
+
+    assert receipt.accepted is True
+    assert [lane_id for lane_id, _, _ in calls] == list(
+        runtime_mapping.FROZEN_LANE_ORDER
+    )
+    assert all(test_substitutes for _, _, test_substitutes in calls)
+    assert all(path.is_file() for _, path, _ in calls)
+    assert any(
+        path.read_bytes() == b"extra real APK output"
+        for path in (output / "lanes" / "lane-01" / "preserved").glob("*")
+    )
+    verify_runtime_family_preparation(receipt)
 
 
 def test_lane_local_failure_reproves_health_and_continues_planned_lanes(

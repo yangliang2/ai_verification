@@ -465,6 +465,17 @@ def _is_overlapping(first: Path, second: Path) -> bool:
     )
 
 
+def _apk_files(root: Path) -> tuple[Path, ...]:
+    """Return every non-symlink APK currently visible in one source tree."""
+    try:
+        candidates = sorted(root.rglob("*.apk"))
+    except (OSError, RuntimeError):
+        return ()
+    return tuple(
+        path for path in candidates if not path.is_symlink() and path.is_file()
+    )
+
+
 def _prepare_output_root(output_root: str | Path) -> Path:
     raw = Path(output_root).expanduser()
     if raw.is_symlink():
@@ -716,13 +727,8 @@ def _validate_lane_inputs(
             worktree, output_root
         ):
             raise RuntimeFamilyPreparationError("family_worktree_location_invalid")
-        for relative in (
-            Path("app/build/outputs/apk/debug/app-debug.apk"),
-            Path("build/app-debug.apk"),
-        ):
-            existing = worktree / relative
-            if existing.exists() or existing.is_symlink():
-                raise RuntimeFamilyPreparationError("family_worktree_not_fresh")
+        if _apk_files(worktree):
+            raise RuntimeFamilyPreparationError("family_worktree_not_fresh")
         worktrees.append(worktree)
 
         expected_recipe = _candidate_recipe(candidate, lane.lane_id)
@@ -1048,6 +1054,12 @@ def _validate_prepared_receipt(
     if build.get("retry") is not False:
         raise RuntimeFamilyPreparationError("preparation_build_retry_forbidden")
     if build.get("args") != list(lane.build_recipe.args):
+        raise RuntimeFamilyPreparationError("preparation_build_recipe_mismatch")
+    if (
+        build.get("timeout_seconds") != lane.build_recipe.timeout_seconds
+        or build.get("apk_glob") != lane.build_recipe.apk_glob
+        or build.get("returncode") != 0
+    ):
         raise RuntimeFamilyPreparationError("preparation_build_recipe_mismatch")
     build_identity = build.get("identity_sha256")
     build_body = dict(build)
@@ -1419,7 +1431,7 @@ def _family_gates(
         if lane.runtime_input_vault is not None
     }
     gates["family_vault_identity"] = _gate(
-        len(vault_identities) == 1 and len(lane_inputs) == 4,
+        all_prepared and len(vault_identities) == 1 and len(lane_inputs) == 4,
         identity_sha256_by_lane={
             lane.lane_id: lane.runtime_input_vault.manifest.identity_sha256
             for lane in lane_inputs
@@ -1644,6 +1656,226 @@ def _all_gates_pass(gates: Mapping[str, Mapping[str, object]]) -> bool:
     return bool(gates) and all(value.get("passed") is True for value in gates.values())
 
 
+def _persisted_gate_statuses(
+    rows: tuple[RuntimeFamilyPreparationRow, ...],
+    *,
+    candidate: runtime_calibration.CandidateInputs,
+    release: runtime_mapping.RuntimeMappingRelease,
+    output_root: Path,
+) -> dict[str, bool]:
+    """Recompute terminal gate booleans from persisted rows and live files."""
+    prepared = tuple(
+        row
+        for row in rows
+        if row.status
+        in {
+            "prepared",
+            "prepared_but_family_not_admitted",
+        }
+    )
+    all_prepared = (
+        len(rows) == 4
+        and len(prepared) == 4
+        and all(
+            row.status in {"prepared", "prepared_but_family_not_admitted"}
+            for row in rows
+        )
+    )
+    documents: dict[str, Mapping[str, object]] = {}
+    sealed_paths: dict[str, Path] = {}
+    sealed_digests: dict[str, str] = {}
+    signers: dict[str, Mapping[str, object]] = {}
+    vaults: dict[str, str] = {}
+    if all_prepared:
+        for row in prepared:
+            document = row.preparation_receipt
+            if document is None:
+                continue
+            documents[row.lane_id] = document
+            build = document.get("build")
+            if isinstance(build, Mapping) and isinstance(
+                build.get("runtime_signing_identity"), Mapping
+            ):
+                signers[row.lane_id] = build["runtime_signing_identity"]
+            vault = document.get("runtime_input_vault")
+            if isinstance(vault, Mapping) and isinstance(
+                vault.get("manifest_sha256"), str
+            ):
+                vaults[row.lane_id] = vault["manifest_sha256"]
+            try:
+                binding = sealed_apk_binding_from_receipt(document)
+                if binding is None:
+                    continue
+                path, size, digest = binding
+                if (
+                    path.is_file()
+                    and not path.is_symlink()
+                    and path.resolve().relative_to(output_root) is not None
+                    and path.stat().st_size == size
+                    and path.stat().st_nlink == 1
+                    and not path.stat().st_mode & 0o222
+                    and _file_sha256(path) == digest
+                ):
+                    sealed_paths[row.lane_id] = path
+                    sealed_digests[row.lane_id] = digest
+            except (OSError, RuntimeError, TypeError, ValueError):
+                continue
+
+    sealed_valid = all_prepared and len(sealed_paths) == 4
+    receipt_identity_valid = all_prepared and len(documents) == 4
+    if receipt_identity_valid:
+        try:
+            for document in documents.values():
+                _verify_receipt_identity(document)
+        except RuntimeFamilyPreparationError:
+            receipt_identity_valid = False
+    signer_valid = (
+        all_prepared
+        and len(signers) == 4
+        and len({_canonical_sha256(value) for value in signers.values()}) == 1
+    )
+    vault_valid = all_prepared and len(vaults) == 4 and len(set(vaults.values())) == 1
+
+    metadata_valid = all_prepared and len(documents) == 4
+    if metadata_valid:
+        for index, lane_id in enumerate(runtime_mapping.FROZEN_LANE_ORDER, start=1):
+            document = documents.get(lane_id)
+            apk = document.get("apk") if document is not None else None
+            build = document.get("build") if document is not None else None
+            signer = (
+                build.get("runtime_signing_identity")
+                if isinstance(build, Mapping)
+                else None
+            )
+            try:
+                spec = load_run_spec(_candidate_spec_path(candidate, lane_id))
+            except (OSError, RuntimeError, TypeError, ValueError):
+                metadata_valid = False
+                break
+            if not isinstance(apk, Mapping) or not isinstance(signer, Mapping):
+                metadata_valid = False
+                break
+            expected = {
+                "package": spec.package,
+                "launcher_activity": spec.activity,
+                "version_code": 54,
+                "version_name": "3.2.1",
+                "min_sdk": 21,
+                "target_sdk": 35,
+                "compile_sdk": 35,
+                "debuggable": True,
+                "signer_sha256": signer.get("certificate_sha256"),
+                "signer_count": 1,
+                "v1_verified": True,
+                "v2_verified": True,
+            }
+            if any(apk.get(key) != value for key, value in expected.items()):
+                metadata_valid = False
+                break
+            certificate_sha = signer.get("certificate_sha256")
+            if (
+                not isinstance(certificate_sha, str)
+                or apk.get("signer_sha256") != certificate_sha
+            ):
+                metadata_valid = False
+                break
+
+    environments = {
+        row.lane_id: row.private_environment_root
+        for row in prepared
+        if row.private_environment_root is not None
+    }
+    environments_valid = (
+        all_prepared
+        and len(environments) == 4
+        and len({str(path) for path in environments.values()}) == 4
+        and all(
+            path.is_dir() and not path.is_symlink() for path in environments.values()
+        )
+        and all(
+            not _is_overlapping(path, output_root)
+            and all(not _is_overlapping(path, row.source_worktree) for row in rows)
+            for path in environments.values()
+        )
+    )
+    attempts_valid = all(
+        row.status in {"prepared", "prepared_but_family_not_admitted"}
+        and row.build_started
+        and row.build_attempts == 1
+        for row in rows
+    )
+    effects_valid = all_prepared and all(
+        document.get("runtime_effects") == _PREPARATION_RUNTIME_EFFECTS
+        for document in documents.values()
+    )
+    handoff_valid = all_prepared and len(documents) == 4
+    source_valid = all_prepared and len(documents) == 4
+    if handoff_valid or source_valid:
+        for lane_id, document in documents.items():
+            source = document.get("source")
+            if not isinstance(source, Mapping):
+                handoff_valid = False
+                source_valid = False
+                break
+            binding = source.get("mapping_binding")
+            if not isinstance(binding, Mapping) or (
+                binding.get("lane_id") != lane_id
+                or binding.get("release_id") != release.release_id
+                or binding.get("release_identity_sha256") != release.identity_sha256
+            ):
+                handoff_valid = False
+            source_body = dict(source)
+            source_identity = source_body.pop("identity_sha256", None)
+            if (
+                source_identity != _canonical_sha256(source_body)
+                or not isinstance(source.get("before"), Mapping)
+                or not isinstance(source.get("after"), Mapping)
+                or dict(source["before"]) != dict(source["after"])
+            ):
+                source_valid = False
+
+    equality_valid = False
+    inequality_valid = False
+    if len(sealed_paths) == 4:
+        try:
+            control_equal = all(
+                sealed_paths[runtime_mapping.FROZEN_LANE_ORDER[index]].read_bytes()
+                == sealed_paths[
+                    runtime_mapping.FROZEN_LANE_ORDER[index + 2]
+                ].read_bytes()
+                for index in (0, 1)
+            )
+            equality_valid = control_equal and all(
+                sealed_digests[runtime_mapping.FROZEN_LANE_ORDER[index]]
+                == sealed_digests[runtime_mapping.FROZEN_LANE_ORDER[index + 2]]
+                for index in (0, 1)
+            )
+            inequality_valid = (
+                sealed_digests[runtime_mapping.FROZEN_LANE_ORDER[0]]
+                != sealed_digests[runtime_mapping.FROZEN_LANE_ORDER[1]]
+                and sealed_paths[runtime_mapping.FROZEN_LANE_ORDER[0]].read_bytes()
+                != sealed_paths[runtime_mapping.FROZEN_LANE_ORDER[1]].read_bytes()
+            )
+        except (OSError, KeyError):
+            pass
+
+    return {
+        "all_lanes_prepared": all_prepared,
+        "sealed_apks": sealed_valid,
+        "receipt_identity": receipt_identity_valid,
+        "family_signing_identity": signer_valid,
+        "family_vault_identity": vault_valid,
+        "family_metadata_identity": metadata_valid,
+        "independent_build_environments": environments_valid,
+        "single_build_attempt": attempts_valid,
+        "no_runtime_effects": effects_valid,
+        "mapping_handoff_identity": handoff_valid,
+        "source_identity": source_valid,
+        "within_variant_byte_equality": equality_valid,
+        "control_defect_byte_inequality": inequality_valid,
+    }
+
+
 def _receipt_from_document(
     document: Mapping[str, object],
 ) -> RuntimeFamilyPreparationReceipt:
@@ -1838,6 +2070,12 @@ def verify_runtime_family_preparation(
     ):
         raise RuntimeFamilyPreparationError("family_stage_terminal_mismatch")
     for row in value.rows:
+        row_index = value.lane_ids.index(row.lane_id) + 1
+        expected_artifact_root = (
+            value.output_root / "lanes" / f"lane-{row_index:02d}" / "artifacts"
+        ).resolve()
+        if row.artifact_root != expected_artifact_root:
+            raise RuntimeFamilyPreparationError("family_artifact_root_mismatch")
         if row.status in {"prepared", "prepared_but_family_not_admitted"} and (
             not row.build_started or row.build_attempts != 1
         ):
@@ -1929,6 +2167,17 @@ def verify_runtime_family_preparation(
                 or details.st_mode & 0o222
             ):
                 raise RuntimeFamilyPreparationError("preparation_artifact_drifted")
+    recomputed_gates = _persisted_gate_statuses(
+        value.rows,
+        candidate=candidate,
+        release=release,
+        output_root=value.output_root,
+    )
+    if set(value.gates) != set(recomputed_gates) or any(
+        value.gates[name].get("passed") is not passed
+        for name, passed in recomputed_gates.items()
+    ):
+        raise RuntimeFamilyPreparationError("family_gates_drifted")
     if value.accepted and not _all_gates_pass(value.gates):
         raise RuntimeFamilyPreparationError("family_gates_not_satisfied")
 
@@ -2127,8 +2376,8 @@ def prepare_runtime_family(
         except Exception as error:  # noqa: BLE001 - ordinary failures close the family
             normalized = RuntimeFamilyLaneResult(
                 receipt=None,
-                build_started=True,
-                build_attempts=1,
+                build_started=False,
+                build_attempts=0,
                 failure_scope="unknown",
                 rejection_code=getattr(error, "code", "family_lane_preparation_failed"),
             )
@@ -2224,16 +2473,16 @@ def prepare_runtime_family(
                 if remaining_index <= 4:
                     next_lane = ordered[remaining_index - 1]
                     try:
-                        healthy = (
-                            _invoke_health_check(selected_health_check, row, next_lane)
-                            if selected_health_check is not None
-                            else _default_health_check(
-                                ordered,
-                                candidate_root=candidate.root,
-                                predecessor_root=predecessor,
-                            )
+                        healthy = _default_health_check(
+                            ordered,
+                            candidate_root=candidate.root,
+                            predecessor_root=predecessor,
                         )
-                    except RuntimeFamilyPreparationError:
+                        if selected_health_check is not None:
+                            healthy = healthy and _invoke_health_check(
+                                selected_health_check, row, next_lane
+                            )
+                    except Exception:  # noqa: BLE001 - shared health is fail-closed
                         healthy = False
                     if not healthy:
                         abort_reason = "family_shared_health_rejected"
@@ -2312,20 +2561,7 @@ def prepare_runtime_family(
 
 def _default_lane_preparer(lane: RuntimeFamilyLaneInput) -> RuntimeFamilyLaneResult:
     def existing_built_paths() -> tuple[Path, ...]:
-        return tuple(
-            path
-            for path in (
-                lane.options.workdir
-                / "app"
-                / "build"
-                / "outputs"
-                / "apk"
-                / "debug"
-                / "app-debug.apk",
-                lane.options.workdir / "build" / "app-debug.apk",
-            )
-            if path.is_file() and not path.is_symlink()
-        )
+        return _apk_files(lane.options.workdir)
 
     built_paths = existing_built_paths()
     try:
@@ -2344,31 +2580,20 @@ def _default_lane_preparer(lane: RuntimeFamilyLaneInput) -> RuntimeFamilyLaneRes
             allow_test_substitutes=lane.allow_test_substitutes,
         )
     except Exception as error:  # noqa: BLE001 - preserve outputs from a failed build
+        artifacts = existing_built_paths()
+        build_started = bool(artifacts)
         return RuntimeFamilyLaneResult(
             receipt=None,
-            artifacts=existing_built_paths(),
-            build_started=True,
-            build_attempts=1,
+            artifacts=artifacts,
+            build_started=build_started,
+            build_attempts=1 if build_started else 0,
             failure_scope="unknown",
             rejection_code=getattr(error, "code", "family_lane_preparation_failed"),
         )
     # The one-lane function deliberately returns a small rejected receipt after
     # cleaning private inputs. The source-side APK is still a real artifact and
     # must be handed to the family preservation path before the next lane.
-    refreshed_built_paths = tuple(
-        path
-        for path in (
-            lane.options.workdir
-            / "app"
-            / "build"
-            / "outputs"
-            / "apk"
-            / "debug"
-            / "app-debug.apk",
-            lane.options.workdir / "build" / "app-debug.apk",
-        )
-        if path.is_file() and not path.is_symlink()
-    )
+    refreshed_built_paths = _apk_files(lane.options.workdir)
     return RuntimeFamilyLaneResult(
         receipt=receipt,
         artifacts=tuple(dict.fromkeys((*built_paths, *refreshed_built_paths))),

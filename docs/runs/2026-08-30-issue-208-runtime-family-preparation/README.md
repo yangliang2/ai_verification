@@ -35,14 +35,16 @@ runtime attempt record.
   artifact preservation, stage receipts, and terminal re-verification.
 - `src/aiverify/bench/runtime_calibration.py` exposes the explicit
   `prepare-family` command and a module-callable lane-input boundary. The
-  command delegates exact lane materialization to the source-authorized
-  provider and never constructs runtime inputs from driver-visible meaning.
+  command delegates exact, already-authorized lane input construction to the
+  source boundary and never constructs runtime inputs from driver-visible
+  meaning.
 - `src/aiverify/runtime_family_preparation.py` is a compatibility import, and
   `src/aiverify/runtime_preparation.py` lazily exposes the family vocabulary
   without introducing an import cycle.
 - `tests/bench/test_runtime_family_preparation.py` uses recording fakes to
-  cover complete success, lane-local continuation, shared abort, interruption,
-  artifact preservation, no runtime effects, and every family-wide gate.
+  cover complete success through the default one-lane handoff, lane-local
+  continuation, shared abort, interruption, artifact preservation, no runtime
+  effects, and every family-wide gate.
 
 The family stage emits only `prepared`, `preparation_rejected`,
 `not_prepared_due_to_family_abort`, and `prepared_but_family_not_admitted`.
@@ -58,15 +60,15 @@ Tool versions: CPython `3.11.15`, pytest `9.1.1`, Ruff `0.16.5`, mypy
 /usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run pytest -q tests/bench/test_runtime_family_preparation.py tests/test_runtime_sealed_apk.py tests/test_runtime_preparation.py tests/bench/test_runtime_mapping.py tests/bench/test_runtime_calibration.py --junitxml=docs/runs/2026-08-30-issue-208-runtime-family-preparation/verification/focused-pytest.xml
 ```
 
-Result: **116 passed**, 0 failed/errors/skipped; pytest XML time `55.348s`,
-wall time `55.68s`.
+Result: **117 passed**, 0 failed/errors/skipped; pytest XML time `54.514s`,
+wall time `54.83s`.
 
 ```text
 /usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run pytest -qq --junitxml=docs/runs/2026-08-30-issue-208-runtime-family-preparation/verification/full-pytest.xml
 ```
 
-Result: **1,423 passed, 1 skipped, 0 failed/errors** of 1,424 tests; pytest
-XML time `256.122s`, wall time `256.41s`. The sole skip is the pre-existing
+Result: **1,424 passed, 1 skipped, 0 failed/errors** of 1,425 tests; pytest
+XML time `217.759s`, wall time `218.15s`. The sole skip is the pre-existing
 `tests.bench.test_m9_recovery_formal.test_frozen_target_specific_mismatch_is_side_effect_free`
 external-fixture case, which requires explicit admission.
 
@@ -85,10 +87,10 @@ public command help passed. The two JUnit reports are retained under
 
 ## Evidence inventory and checksums
 
-- `verification/focused-pytest.xml` — 116-test focused JUnit report;
-  SHA-256 `6dd36c9a7188943f04bee13428d607767e2d8b15f511f8b069aa212829b52822`.
-- `verification/full-pytest.xml` — 1,424-test repository-wide JUnit report;
-  SHA-256 `089e47bda42d49b7b16d4ce184aa9a01070991cc2b739b266cfea1d30aeb0b57`.
+- `verification/focused-pytest.xml` — 117-test focused JUnit report;
+  SHA-256 `f296fa22850f8d422092e33dee63e11d7ff9aa647bda8bc966e82f8e92f8e26e`.
+- `verification/full-pytest.xml` — 1,425-test repository-wide JUnit report;
+  SHA-256 `e19fb1166861f056053a093e0407197dacc54225c2f6ed07d51b366751297005`.
 - `verification/verification.json` — machine-readable command/result and
   acceptance summary.
 - `code-review.md` — final Standards/Spec review and remediation record.
@@ -106,3 +108,11 @@ four source-authorized lane inputs, the external Runtime Input Vault, real
 tool identities, and strict mapped authorities. No lane `ExecutionRecord`,
 install, launch, Journey, lifecycle event, oracle, agent, or model call is
 created by this stage. The one external-fixture skip is documented above.
+
+The CLI lane-input provider is an explicit source-authority boundary: it must
+return the four already-materialized inputs and must not perform a build. The
+committed #206 mapping currently records one shared ChangeTarget source path
+for lanes 01/02; strict family preparation rejects that non-independent input
+until a fresh per-lane source mapping is issued. The recording-fake success
+path uses the explicit test-substitute flag and does not claim strict production
+admission.
