@@ -4063,6 +4063,45 @@ def verify_runtime_preparation_receipt(
         )
 
 
+_RUNTIME_FAMILY_PREPARATION_EXPORTS = {
+    "RUNTIME_FAMILY_PREPARATION_CLAIM_BOUNDARY",
+    "RUNTIME_FAMILY_PREPARATION_FILENAME",
+    "RUNTIME_FAMILY_PREPARATION_FAILURE_SCOPES",
+    "RUNTIME_FAMILY_PREPARATION_LANE_STATUSES",
+    "RUNTIME_FAMILY_PREPARATION_STAGE",
+    "RUNTIME_FAMILY_PREPARATION_STAGE_STATUSES",
+    "RuntimeFamilyHealthCheck",
+    "RuntimeFamilyLane",
+    "RuntimeFamilyLaneFailure",
+    "RuntimeFamilyLaneInput",
+    "RuntimeFamilyLanePreparer",
+    "RuntimeFamilyLaneResult",
+    "RuntimeFamilyPreparationError",
+    "RuntimeFamilyPreparationInput",
+    "RuntimeFamilyPreparationReceipt",
+    "RuntimeFamilyPreparationRow",
+    "RuntimeFamilyPreparationStageReceipt",
+    "prepare_family",
+    "prepare_runtime_calibration_family",
+    "prepare_runtime_family",
+    "load_family_preparation",
+    "load_runtime_family_preparation",
+    "verify_family_preparation",
+    "verify_runtime_family_preparation",
+}
+
+
+def __getattr__(name: str) -> object:
+    """Lazily expose the family stage without introducing an import cycle."""
+    if name in _RUNTIME_FAMILY_PREPARATION_EXPORTS:
+        from aiverify.bench import runtime_family_preparation
+
+        value = getattr(runtime_family_preparation, name)
+        globals()[name] = value
+        return value
+    raise AttributeError(name)
+
+
 __all__ = [
     "AaptApkInspector",
     "ApkInspectionError",
@@ -4090,4 +4129,5 @@ __all__ = [
     "sealed_apk_path_from_receipt",
     "runtime_preparation_uses_test_substitutes",
     "verify_runtime_preparation_receipt",
+    *_RUNTIME_FAMILY_PREPARATION_EXPORTS,
 ]
