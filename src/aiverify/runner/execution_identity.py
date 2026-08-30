@@ -7,6 +7,7 @@ import json
 import os
 import platform
 import shutil
+import stat
 import sys
 from collections import Counter
 from collections.abc import Mapping
@@ -15,7 +16,11 @@ from pathlib import Path
 
 import yaml
 
-from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
+from aiverify.runner.command import (
+    CommandResult,
+    CommandRunner,
+    SubprocessCommandRunner,
+)
 from aiverify.runner.execution_record import write_bytes_artifact, write_json_artifact
 from aiverify.runner.journey_backend import (
     CODEX_CLI,
@@ -59,6 +64,9 @@ class ExecutionIdentityCollector:
         run_spec_snapshot_path: Path | None = None,
         run_spec_identity_annotations: Mapping[str, object] | None = None,
         authoritative_role_identity_dir: Path | None = None,
+        prepared_apk_path: Path | None = None,
+        prepared_apk_bytes: int | None = None,
+        prepared_apk_sha256: str | None = None,
     ) -> None:
         self.run_dir = Path(run_dir).resolve()
         self.artifact_dir = Path(artifact_dir).resolve()
@@ -82,14 +90,46 @@ class ExecutionIdentityCollector:
             if run_spec_snapshot_path is not None
             else self.identity_dir / "run-spec.yaml"
         )
-        self.run_spec_identity_annotations = dict(
-            run_spec_identity_annotations or {}
-        )
+        self.run_spec_identity_annotations = dict(run_spec_identity_annotations or {})
         self.authoritative_role_identity_dir = (
             Path(authoritative_role_identity_dir).resolve()
             if authoritative_role_identity_dir is not None
             else None
         )
+        self.prepared_apk_path = (
+            Path(prepared_apk_path).expanduser()
+            if prepared_apk_path is not None
+            else None
+        )
+        self.prepared_apk_bytes = prepared_apk_bytes
+        self.prepared_apk_sha256 = prepared_apk_sha256
+        prepared_binding = (
+            self.prepared_apk_path,
+            self.prepared_apk_bytes,
+            self.prepared_apk_sha256,
+        )
+        if any(value is not None for value in prepared_binding) and not all(
+            value is not None for value in prepared_binding
+        ):
+            raise ValueError("sealed APK path, size, and digest must be bound together")
+        if self.prepared_apk_bytes is not None and (
+            not isinstance(self.prepared_apk_bytes, int)
+            or isinstance(self.prepared_apk_bytes, bool)
+            or self.prepared_apk_bytes < 0
+        ):
+            raise ValueError("sealed APK size is invalid")
+        if self.prepared_apk_sha256 is not None and not _is_sha256(
+            self.prepared_apk_sha256
+        ):
+            raise ValueError("sealed APK digest is invalid")
+        if self.prepared_apk_path is not None:
+            expected_prepared_path = self.artifact_dir / "build" / "app-debug.apk"
+            if (
+                not self.prepared_apk_path.is_absolute()
+                or self.prepared_apk_path.resolve() != self.prepared_apk_path
+                or self.prepared_apk_path != expected_prepared_path
+            ):
+                raise ValueError("sealed APK path is not the lane-local artifact")
         self.provenance_path = self.run_dir / "execution-provenance.json"
         self._static: dict | None = None
         self._deployment: dict | None = None
@@ -135,6 +175,9 @@ class ExecutionIdentityCollector:
         tools = self._tools_identity()
         host["identity_sha256"] = _identity_sha256(host)
         apk = {"artifacts": apk_artifacts}
+        if self.prepared_apk_path is not None:
+            apk["source"] = "sealed_runtime_apk"
+            apk["sealed_artifact_root"] = str(self.artifact_dir)
         apk["identity_sha256"] = _identity_sha256(apk)
         device["identity_sha256"] = _identity_sha256(device)
         run_spec = {
@@ -161,9 +204,7 @@ class ExecutionIdentityCollector:
                 "expected_commit": locator.expected_commit,
             }
         reserved_annotations = set(run_spec) | {"identity_sha256"}
-        overlap = reserved_annotations.intersection(
-            self.run_spec_identity_annotations
-        )
+        overlap = reserved_annotations.intersection(self.run_spec_identity_annotations)
         if overlap:
             raise ExecutionIdentityError(
                 "Run Spec identity annotation overrides reserved field(s): "
@@ -184,12 +225,8 @@ class ExecutionIdentityCollector:
             "android_cli": self._tool_identity(
                 self.android_bin, [self.android_bin, "--version"]
             ),
-            "adb": self._tool_identity(
-                self.adb_bin, [self.adb_bin, "version"]
-            ),
-            "git": self._tool_identity(
-                self.git_bin, [self.git_bin, "--version"]
-            ),
+            "adb": self._tool_identity(self.adb_bin, [self.adb_bin, "version"]),
+            "git": self._tool_identity(self.git_bin, [self.git_bin, "--version"]),
             "python": {
                 "requested": sys.executable,
                 "resolved_path": str(Path(sys.executable).resolve()),
@@ -208,8 +245,17 @@ class ExecutionIdentityCollector:
     def deploy(self) -> dict:
         """Deploy the captured APK set and bind device-side installed bytes."""
         if self._static is None:
-            raise ExecutionIdentityError("static identity must be captured before deploy")
-        apk_artifacts = self._static["apk"]["artifacts"]
+            raise ExecutionIdentityError(
+                "static identity must be captured before deploy"
+            )
+        current_apk = {"artifacts": self._apk_artifacts()}
+        if self.prepared_apk_path is not None:
+            current_apk["source"] = "sealed_runtime_apk"
+            current_apk["sealed_artifact_root"] = str(self.artifact_dir)
+        current_apk["identity_sha256"] = _identity_sha256(current_apk)
+        if current_apk != self._static["apk"]:
+            raise ExecutionIdentityError("APK identity drifted before deployment")
+        apk_artifacts = current_apk["artifacts"]
         command = [
             self.android_bin,
             "run",
@@ -237,11 +283,17 @@ class ExecutionIdentityCollector:
             if line.startswith("package:") and line.removeprefix("package:").strip()
         ]
         if not installed_paths or len(installed_paths) != len(set(installed_paths)):
-            raise ExecutionIdentityError("installed APK path set is empty or duplicated")
+            raise ExecutionIdentityError(
+                "installed APK path set is empty or duplicated"
+            )
         installed_artifacts = []
         for installed_path in installed_paths:
             digest_result = self._adb("shell", "sha256sum", installed_path)
-            digest = digest_result.stdout.strip().split()[0] if digest_result.stdout.strip() else ""
+            digest = (
+                digest_result.stdout.strip().split()[0]
+                if digest_result.stdout.strip()
+                else ""
+            )
             if not _is_sha256(digest):
                 raise ExecutionIdentityError(
                     f"device-side APK hash is missing for {installed_path}"
@@ -339,14 +391,18 @@ class ExecutionIdentityCollector:
         if not driver_paths:
             raise ExecutionIdentityError("journey driver identity receipt is missing")
         driver = self._role_identity(
-            "journey_driver", driver_paths, self.requested_driver_model,
+            "journey_driver",
+            driver_paths,
+            self.requested_driver_model,
             ledger_paths=driver_ledger_paths,
             expected_binary=expected_driver_binary,
             backend=self.journey_driver_backend,
         )
         if l3_paths:
             l3_role = self._role_identity(
-                "l3_semantic_judge", l3_paths, self.requested_l3_model,
+                "l3_semantic_judge",
+                l3_paths,
+                self.requested_l3_model,
                 ledger_paths=l3_ledger_paths,
                 expected_binary=self._static["tools"]["codex_cli"],
                 backend=CODEX_CLI,
@@ -393,7 +449,9 @@ class ExecutionIdentityCollector:
         """Bind deterministic raw invocation receipts to captured tool identity."""
 
         if self._static is None:
-            raise ExecutionIdentityError("static identity must be captured before role identity")
+            raise ExecutionIdentityError(
+                "static identity must be captured before role identity"
+            )
         raw_paths = sorted(
             self.artifact_dir.glob("*/deterministic-driver-invocation.json")
         )
@@ -583,9 +641,10 @@ class ExecutionIdentityCollector:
         self._verify_no_drift()
 
     def _verify_no_drift(self) -> None:
-        if _sha256_bytes(self._run_spec_bytes()) != self._static["run_spec"][
-            "consumed_sha256"
-        ]:
+        if (
+            _sha256_bytes(self._run_spec_bytes())
+            != self._static["run_spec"]["consumed_sha256"]
+        ):
             raise ExecutionIdentityError("Run Spec identity drifted during execution")
 
         current_host = self._host_identity()
@@ -599,6 +658,8 @@ class ExecutionIdentityCollector:
             raise ExecutionIdentityError("host identity drifted during execution")
 
         current_apk = {"artifacts": self._apk_artifacts()}
+        if self.prepared_apk_path is not None:
+            current_apk["source"] = "sealed_runtime_apk"
         current_apk["identity_sha256"] = _identity_sha256(current_apk)
         if current_apk != self._static["apk"]:
             raise ExecutionIdentityError("APK identity drifted during execution")
@@ -619,10 +680,18 @@ class ExecutionIdentityCollector:
             )
         expected_component = self._deployment["target"]["component"]
         component_result = self._adb(
-            "shell", "cmd", "package", "resolve-activity", "--brief", "-n",
+            "shell",
+            "cmd",
+            "package",
+            "resolve-activity",
+            "--brief",
+            "-n",
             expected_component,
         )
-        if _component_value(_last_nonempty_line(component_result.stdout)) != expected_component:
+        if (
+            _component_value(_last_nonempty_line(component_result.stdout))
+            != expected_component
+        ):
             raise ExecutionIdentityError(
                 "launch component identity drifted during execution"
             )
@@ -635,11 +704,17 @@ class ExecutionIdentityCollector:
             if line.startswith("package:") and line.removeprefix("package:").strip()
         ]
         if not installed_paths or len(installed_paths) != len(set(installed_paths)):
-            raise ExecutionIdentityError("installed APK path set is empty or duplicated")
+            raise ExecutionIdentityError(
+                "installed APK path set is empty or duplicated"
+            )
         installed_artifacts = []
         for installed_path in installed_paths:
             digest_result = self._adb("shell", "sha256sum", installed_path)
-            digest = digest_result.stdout.strip().split()[0] if digest_result.stdout.strip() else ""
+            digest = (
+                digest_result.stdout.strip().split()[0]
+                if digest_result.stdout.strip()
+                else ""
+            )
             if not _is_sha256(digest):
                 raise ExecutionIdentityError(
                     f"device-side APK hash is missing for {installed_path}"
@@ -651,16 +726,22 @@ class ExecutionIdentityCollector:
         if self.spec.source_path is None or self.spec.source_sha256 is None:
             raise ExecutionIdentityError("Run Spec source identity is unavailable")
         if self.spec.source_path.resolve() != self.run_spec_path:
-            raise ExecutionIdentityError("Run Spec invocation path contradicts loaded source")
+            raise ExecutionIdentityError(
+                "Run Spec invocation path contradicts loaded source"
+            )
         try:
             source_bytes = self.run_spec_path.read_bytes()
         except OSError as error:
-            raise ExecutionIdentityError(f"Run Spec source cannot be read: {error}") from error
+            raise ExecutionIdentityError(
+                f"Run Spec source cannot be read: {error}"
+            ) from error
         if _sha256_bytes(source_bytes) != self.spec.source_sha256:
             raise ExecutionIdentityError("Run Spec drifted after it was consumed")
         if self.spec.host_project.resolve() != self.workdir:
             if not self.allow_host_project_subdir:
-                raise ExecutionIdentityError("runner workdir contradicts Run Spec host_project")
+                raise ExecutionIdentityError(
+                    "runner workdir contradicts Run Spec host_project"
+                )
             try:
                 self.spec.host_project.resolve().relative_to(self.workdir)
             except ValueError as error:
@@ -670,11 +751,11 @@ class ExecutionIdentityCollector:
         return source_bytes
 
     def _host_identity(self) -> dict:
-        root = Path(
-            self._git("rev-parse", "--show-toplevel").stdout.strip()
-        ).resolve()
+        root = Path(self._git("rev-parse", "--show-toplevel").stdout.strip()).resolve()
         if root != self.workdir:
-            raise ExecutionIdentityError("workdir is not the captured git repository root")
+            raise ExecutionIdentityError(
+                "workdir is not the captured git repository root"
+            )
         origin = self._git("remote", "get-url", "origin").stdout.strip()
         commit = self._git("rev-parse", "HEAD").stdout.strip()
         status = self._git("status", "--porcelain=v1", "--untracked-files=all").stdout
@@ -689,9 +770,7 @@ class ExecutionIdentityCollector:
                 raise ExecutionIdentityError(
                     f"unsupported non-file untracked host input: {relative}"
                 )
-            untracked.append(
-                {"path": relative, "sha256": _sha256_file(path)}
-            )
+            untracked.append({"path": relative, "sha256": _sha256_file(path)})
         if not origin or not _is_sha1(commit):
             raise ExecutionIdentityError("git origin or commit identity is unavailable")
         if self.spec.host_locator is not None and (
@@ -720,16 +799,57 @@ class ExecutionIdentityCollector:
         }
 
     def _apk_artifacts(self) -> list[dict[str, object]]:
+        if self.prepared_apk_path is not None:
+            if os.environ.get("AIVERIFY_DEPLOYED_APK"):
+                raise ExecutionIdentityError(
+                    "ambient APK override is forbidden for a sealed Runtime APK"
+                )
+            path = self.prepared_apk_path
+            try:
+                details = path.lstat()
+            except OSError as error:
+                raise ExecutionIdentityError(
+                    f"sealed Runtime APK is unavailable: {path}"
+                ) from error
+            if (
+                stat.S_ISLNK(details.st_mode)
+                or not stat.S_ISREG(details.st_mode)
+                or details.st_nlink != 1
+                or details.st_mode & 0o222
+                or not path.is_absolute()
+                or path.resolve() != path
+            ):
+                raise ExecutionIdentityError("sealed Runtime APK is not immutable")
+            digest = _sha256_file(path)
+            if (
+                self.prepared_apk_bytes is not None
+                and details.st_size != self.prepared_apk_bytes
+            ) or (
+                self.prepared_apk_sha256 is not None
+                and digest != self.prepared_apk_sha256
+            ):
+                raise ExecutionIdentityError("sealed Runtime APK identity drifted")
+            return [
+                {
+                    "path": str(path),
+                    "bytes": details.st_size,
+                    "sha256": digest,
+                }
+            ]
         override = os.environ.get("AIVERIFY_DEPLOYED_APK")
         if override:
             path = Path(override).resolve()
             if not path.is_file():
-                raise ExecutionIdentityError(f"deployed APK override is missing: {path}")
-            return [{
-                "path": str(path),
-                "bytes": path.stat().st_size,
-                "sha256": _sha256_file(path),
-            }]
+                raise ExecutionIdentityError(
+                    f"deployed APK override is missing: {path}"
+                )
+            return [
+                {
+                    "path": str(path),
+                    "bytes": path.stat().st_size,
+                    "sha256": _sha256_file(path),
+                }
+            ]
         paths = sorted(
             path.resolve()
             for path in self.spec.host_project.glob(self.spec.apk_glob)
@@ -756,7 +876,12 @@ class ExecutionIdentityCollector:
         product_device = self._adb(
             "shell", "getprop", "ro.product.device"
         ).stdout.strip()
-        if not api_level.isdigit() or not fingerprint or not model or not product_device:
+        if (
+            not api_level.isdigit()
+            or not fingerprint
+            or not model
+            or not product_device
+        ):
             raise ExecutionIdentityError("required device identity is unavailable")
         if qemu == "1":
             avd_result = self._adb("emu", "avd", "name")
@@ -829,7 +954,9 @@ class ExecutionIdentityCollector:
                 expected_backend=backend,
             )
             receipts.append(receipt)
-            refs.append({"path": self._evidence_path(path), "sha256": _sha256_file(path)})
+            refs.append(
+                {"path": self._evidence_path(path), "sha256": _sha256_file(path)}
+            )
         ledger_refs = []
         for expected_index, path in enumerate(ledger_paths, start=1):
             ledger = _load_json(path, label=f"{role} invocation ledger")
@@ -849,20 +976,24 @@ class ExecutionIdentityCollector:
                         "deterministic driver invocation ledger is invalid"
                     )
             else:
-                if ledger != {
-                    "schema_version": 1,
-                    "role": role,
-                    "call_index": expected_index,
-                    "requested_model": requested_model,
-                    "argv_without_prompt": ledger.get("argv_without_prompt"),
-                    "prompt_sha256": ledger.get("prompt_sha256"),
-                } or not isinstance(ledger["argv_without_prompt"], list) or not _is_sha256(
-                    ledger["prompt_sha256"]
+                if (
+                    ledger
+                    != {
+                        "schema_version": 1,
+                        "role": role,
+                        "call_index": expected_index,
+                        "requested_model": requested_model,
+                        "argv_without_prompt": ledger.get("argv_without_prompt"),
+                        "prompt_sha256": ledger.get("prompt_sha256"),
+                    }
+                    or not isinstance(ledger["argv_without_prompt"], list)
+                    or not _is_sha256(ledger["prompt_sha256"])
                 ):
                     raise ExecutionIdentityError("L3 invocation ledger is invalid")
                 receipt_command = receipts[expected_index - 1]["command"]
                 if (
-                    ledger["argv_without_prompt"] != receipt_command["argv_without_prompt"]
+                    ledger["argv_without_prompt"]
+                    != receipt_command["argv_without_prompt"]
                     or ledger["prompt_sha256"] != receipt_command["prompt_sha256"]
                 ):
                     raise ExecutionIdentityError(
@@ -890,7 +1021,9 @@ class ExecutionIdentityCollector:
         return result
 
     def _git(self, *args: str) -> CommandResult:
-        result = self.runner.run([self.git_bin, *args], cwd=self.workdir, timeout_seconds=30)
+        result = self.runner.run(
+            [self.git_bin, *args], cwd=self.workdir, timeout_seconds=30
+        )
         if result.returncode != 0:
             raise ExecutionIdentityError(
                 f"git identity command failed: {' '.join(args)}: {result.stderr.strip()}"
@@ -949,7 +1082,9 @@ def verify_execution_provenance(
     if payload.get("schema_version") != 1:
         raise ExecutionIdentityError("unsupported execution provenance schema")
     if payload.get("attempt_id") != attempt_id or payload.get("scenario") != scenario:
-        raise ExecutionIdentityError("execution provenance attempt or scenario mismatch")
+        raise ExecutionIdentityError(
+            "execution provenance attempt or scenario mismatch"
+        )
     _validate_run_spec_identity(
         payload.get("run_spec"), scenario=scenario, evidence_root=evidence_root
     )
@@ -974,12 +1109,63 @@ def verify_execution_provenance(
             "host repository identity contradicts the consumed Run Spec locator"
         )
     local_hashes = _validate_apk_identity(payload.get("apk"))
+    apk = payload["apk"]
     host_root = Path(payload["host"]["repository_root"])
-    for artifact in payload["apk"]["artifacts"]:
+    if apk.get("source") != "sealed_runtime_apk":
+        for artifact in apk["artifacts"]:
+            try:
+                Path(artifact["path"]).relative_to(host_root)
+            except ValueError as error:
+                raise ExecutionIdentityError(
+                    "APK path is outside the captured host"
+                ) from error
+    else:
+        if evidence_root is None:
+            raise ExecutionIdentityError("sealed APK evidence root is unavailable")
+        if len(apk["artifacts"]) != 1:
+            raise ExecutionIdentityError("sealed APK identity is not singular")
+        sealed_root_value = apk.get("sealed_artifact_root")
+        if not isinstance(sealed_root_value, str):
+            raise ExecutionIdentityError("sealed APK artifact root is unavailable")
+        sealed_root = Path(sealed_root_value)
         try:
-            Path(artifact["path"]).relative_to(host_root)
+            sealed_root_canonical = sealed_root.resolve(strict=True)
+        except OSError as error:
+            raise ExecutionIdentityError(
+                "sealed APK artifact root is unavailable"
+            ) from error
+        if not sealed_root.is_absolute() or sealed_root_canonical != sealed_root:
+            raise ExecutionIdentityError("sealed APK artifact root is not canonical")
+        try:
+            sealed_root.relative_to(evidence_root)
         except ValueError as error:
-            raise ExecutionIdentityError("APK path is outside the captured host") from error
+            raise ExecutionIdentityError(
+                "sealed APK artifact root is outside the evidence root"
+            ) from error
+        for artifact in apk["artifacts"]:
+            try:
+                artifact_path = Path(artifact["path"])
+                if (
+                    not artifact_path.is_absolute()
+                    or artifact_path.resolve(strict=True) != artifact_path
+                    or artifact_path != sealed_root / "build" / "app-debug.apk"
+                ):
+                    raise ValueError("sealed APK path is not canonical")
+                artifact_path.relative_to(evidence_root)
+                details = artifact_path.lstat()
+                if (
+                    stat.S_ISLNK(details.st_mode)
+                    or not stat.S_ISREG(details.st_mode)
+                    or details.st_nlink != 1
+                    or details.st_mode & 0o222
+                    or details.st_size != artifact["bytes"]
+                    or _sha256_file(artifact_path) != artifact["sha256"]
+                ):
+                    raise ValueError("sealed APK evidence is mutable or drifted")
+            except (OSError, ValueError) as error:
+                raise ExecutionIdentityError(
+                    "sealed APK evidence is unavailable or mutable"
+                ) from error
     _validate_device_identity(payload.get("device"))
     journey_driver_backend = payload["run_spec"].get(
         "journey_driver_backend", CODEX_CLI
@@ -1035,7 +1221,13 @@ def _validate_run_spec_identity(
 ) -> None:
     if not isinstance(value, dict):
         raise ExecutionIdentityError("Run Spec identity is missing")
-    for key in ("invocation_path", "snapshot_path", "host_project", "apk_glob", "package"):
+    for key in (
+        "invocation_path",
+        "snapshot_path",
+        "host_project",
+        "apk_glob",
+        "package",
+    ):
         if not isinstance(value.get(key), str) or not value[key]:
             raise ExecutionIdentityError(f"Run Spec identity field is missing: {key}")
     journey_driver_backend = value.get("journey_driver_backend", CODEX_CLI)
@@ -1097,7 +1289,9 @@ def _validate_run_spec_identity(
         "package": snapshot_spec.package,
         "activity": snapshot_spec.activity,
     }
-    if any(value.get(key) != expected_value for key, expected_value in expected.items()):
+    if any(
+        value.get(key) != expected_value for key, expected_value in expected.items()
+    ):
         raise ExecutionIdentityError("Run Spec snapshot contradicts captured identity")
     if locator is not None and locator != {
         "root": snapshot_spec.host_locator.root,
@@ -1130,14 +1324,19 @@ def _validate_host_identity(value: object, *, evidence_root: Path | None) -> Non
         if not _is_sha256(worktree.get(key)):
             raise ExecutionIdentityError(f"host worktree checksum is invalid: {key}")
     status = worktree.get("status")
-    if not isinstance(status, str) or _sha256_bytes(status.encode("utf-8")) != worktree["status_sha256"]:
+    if (
+        not isinstance(status, str)
+        or _sha256_bytes(status.encode("utf-8")) != worktree["status_sha256"]
+    ):
         raise ExecutionIdentityError("host status checksum mismatch")
     if worktree["clean"] != (not bool(status.strip())):
         raise ExecutionIdentityError("host clean flag contradicts captured status")
     patch_path = worktree.get("patch_path")
-    if not isinstance(patch_path, str) or _sha256_file(
-        _resolve_evidence_path(patch_path, evidence_root=evidence_root)
-    ) != worktree["patch_sha256"]:
+    if (
+        not isinstance(patch_path, str)
+        or _sha256_file(_resolve_evidence_path(patch_path, evidence_root=evidence_root))
+        != worktree["patch_sha256"]
+    ):
         raise ExecutionIdentityError("host patch checksum mismatch")
     untracked = worktree.get("untracked_files")
     if not isinstance(untracked, list):
@@ -1155,6 +1354,11 @@ def _validate_apk_identity(value: object) -> Counter[str]:
     artifacts = value.get("artifacts") if isinstance(value, dict) else None
     if not isinstance(artifacts, list) or not artifacts:
         raise ExecutionIdentityError("APK identity set is missing")
+    if isinstance(value, dict) and value.get("source") not in {
+        None,
+        "sealed_runtime_apk",
+    }:
+        raise ExecutionIdentityError("APK identity source is invalid")
     paths = []
     hashes = []
     for item in artifacts:
@@ -1163,7 +1367,12 @@ def _validate_apk_identity(value: object) -> Counter[str]:
         path = item.get("path")
         size = item.get("bytes")
         digest = item.get("sha256")
-        if not isinstance(path, str) or not isinstance(size, int) or size < 0 or not _is_sha256(digest):
+        if (
+            not isinstance(path, str)
+            or not isinstance(size, int)
+            or size < 0
+            or not _is_sha256(digest)
+        ):
             raise ExecutionIdentityError("APK identity entry is incomplete")
         paths.append(path)
         hashes.append(digest)
@@ -1190,7 +1399,9 @@ def _validate_deployment(
         raise ExecutionIdentityError("deployment process did not succeed")
     if process.get("identity_sha256") != _identity_sha256(process):
         raise ExecutionIdentityError("deployment process checksum mismatch")
-    if not isinstance(process.get("stdout"), str) or not isinstance(process.get("stderr"), str):
+    if not isinstance(process.get("stdout"), str) or not isinstance(
+        process.get("stderr"), str
+    ):
         raise ExecutionIdentityError("deployment process output is incomplete")
     target = value.get("target")
     expected_component = _component(run_spec["package"], run_spec.get("activity"))
@@ -1207,9 +1418,7 @@ def _validate_deployment(
         "--apks=" + ",".join(item["path"] for item in local_artifacts),
     ]
     if run_spec.get("activity"):
-        expected_args.extend(
-            [f"--activity={run_spec['activity']}", "--type=ACTIVITY"]
-        )
+        expected_args.extend([f"--activity={run_spec['activity']}", "--type=ACTIVITY"])
     if process.get("args") != expected_args:
         raise ExecutionIdentityError("deployment command contradicts captured identity")
     installed = value.get("installed_artifacts")
@@ -1218,7 +1427,11 @@ def _validate_deployment(
     paths = []
     hashes = []
     for item in installed:
-        if not isinstance(item, dict) or not isinstance(item.get("path"), str) or not _is_sha256(item.get("sha256")):
+        if (
+            not isinstance(item, dict)
+            or not isinstance(item.get("path"), str)
+            or not _is_sha256(item.get("sha256"))
+        ):
             raise ExecutionIdentityError("installed artifact identity is invalid")
         paths.append(item["path"])
         hashes.append(item["sha256"])
@@ -1247,12 +1460,21 @@ def _validate_device_identity(value: object) -> None:
         raise ExecutionIdentityError("device serial is missing")
     if not isinstance(value.get("api_level"), str) or not value["api_level"].isdigit():
         raise ExecutionIdentityError("device API level is invalid")
-    if not isinstance(value.get("build_fingerprint"), str) or not value["build_fingerprint"]:
+    if (
+        not isinstance(value.get("build_fingerprint"), str)
+        or not value["build_fingerprint"]
+    ):
         raise ExecutionIdentityError("device fingerprint is missing")
     profile = value.get("profile")
-    if not isinstance(profile, dict) or profile.get("kind") not in {"emulator", "physical_device"}:
+    if not isinstance(profile, dict) or profile.get("kind") not in {
+        "emulator",
+        "physical_device",
+    }:
         raise ExecutionIdentityError("declared device profile is invalid")
-    if any(not isinstance(profile.get(key), str) or not profile[key] for key in ("name", "model", "device")):
+    if any(
+        not isinstance(profile.get(key), str) or not profile[key]
+        for key in ("name", "model", "device")
+    ):
         raise ExecutionIdentityError("declared device profile is incomplete")
 
 
@@ -1265,7 +1487,10 @@ def _validate_tools(value: object, *, journey_driver_backend: str = CODEX_CLI) -
     for name, identity in value.items():
         if not isinstance(identity, dict):
             raise ExecutionIdentityError(f"tool identity is invalid: {name}")
-        if not isinstance(identity.get("resolved_path"), str) or not identity["resolved_path"]:
+        if (
+            not isinstance(identity.get("resolved_path"), str)
+            or not identity["resolved_path"]
+        ):
             raise ExecutionIdentityError(f"tool path is missing: {name}")
         if not _is_sha256(identity.get("sha256")):
             raise ExecutionIdentityError(f"tool binary checksum is invalid: {name}")
@@ -1292,24 +1517,36 @@ def _verify_role(
     if requested_model is not None and (
         not isinstance(requested_model, str) or not requested_model
     ):
-        raise ExecutionIdentityError(f"role requested model is invalid: {expected_role}")
+        raise ExecutionIdentityError(
+            f"role requested model is invalid: {expected_role}"
+        )
     if status == "not_applicable":
-        if expected_role != "l3_semantic_judge" or value.get("reason") not in {
-            "scenario_has_no_l3_spec",
-            "gated_by_lower_oracle",
-        } or invocations != [] or value.get("invocation_ledger") != []:
+        if (
+            expected_role != "l3_semantic_judge"
+            or value.get("reason")
+            not in {
+                "scenario_has_no_l3_spec",
+                "gated_by_lower_oracle",
+            }
+            or invocations != []
+            or value.get("invocation_ledger") != []
+        ):
             raise ExecutionIdentityError("not-applicable role identity is invalid")
         return set()
     if status != "invoked" or not isinstance(invocations, list) or not invocations:
-        raise ExecutionIdentityError(f"invoked role identity is incomplete: {expected_role}")
+        raise ExecutionIdentityError(
+            f"invoked role identity is incomplete: {expected_role}"
+        )
     paths = []
     identities: set[tuple[str, str]] = set()
     for ref in invocations:
-        if not isinstance(ref, dict) or not isinstance(ref.get("path"), str) or not _is_sha256(ref.get("sha256")):
+        if (
+            not isinstance(ref, dict)
+            or not isinstance(ref.get("path"), str)
+            or not _is_sha256(ref.get("sha256"))
+        ):
             raise ExecutionIdentityError("role receipt reference is invalid")
-        path = _resolve_evidence_path(
-            ref["path"], evidence_root=evidence_root
-        )
+        path = _resolve_evidence_path(ref["path"], evidence_root=evidence_root)
         if not path.is_file() or _sha256_file(path) != ref["sha256"]:
             raise ExecutionIdentityError("role receipt checksum mismatch")
         receipt = _load_json(path, label=f"{expected_role} receipt")
@@ -1378,7 +1615,10 @@ def _validate_role_receipt(
 ) -> None:
     if not isinstance(receipt, dict) or receipt.get("schema_version") != 1:
         raise ExecutionIdentityError("role identity receipt schema is invalid")
-    if receipt.get("role") != expected_role or receipt.get("backend") != expected_backend:
+    if (
+        receipt.get("role") != expected_role
+        or receipt.get("backend") != expected_backend
+    ):
         raise ExecutionIdentityError("role or backend identity contradicts invocation")
     if receipt.get("requested_model") != requested_model:
         raise ExecutionIdentityError("role requested model contradicts runner input")
@@ -1395,7 +1635,12 @@ def _validate_role_receipt(
     if requested_model is not None and effective_model != requested_model:
         raise ExecutionIdentityError("role requested and effective models differ")
     binary = receipt.get("binary")
-    if not isinstance(binary, dict) or not _is_sha256(binary.get("sha256")) or not isinstance(binary.get("version"), str) or not binary["version"]:
+    if (
+        not isinstance(binary, dict)
+        or not _is_sha256(binary.get("sha256"))
+        or not isinstance(binary.get("version"), str)
+        or not binary["version"]
+    ):
         raise ExecutionIdentityError("role backend binary identity is incomplete")
     if expected_binary is not None and any(
         binary.get(key) != expected_binary.get(key)
@@ -1404,7 +1649,11 @@ def _validate_role_receipt(
         raise ExecutionIdentityError("role backend binary contradicts tool identity")
     source = receipt.get("effective_model_source")
     observation = receipt.get("source_observation")
-    if not isinstance(source, dict) or source.get("kind") != "codex_session_turn_context" or not _is_sha256(source.get("observation_sha256")):
+    if (
+        not isinstance(source, dict)
+        or source.get("kind") != "codex_session_turn_context"
+        or not _is_sha256(source.get("observation_sha256"))
+    ):
         raise ExecutionIdentityError("role effective-model source is invalid")
     if not isinstance(observation, dict):
         raise ExecutionIdentityError("role source observation is missing")
@@ -1414,7 +1663,11 @@ def _validate_role_receipt(
         raise ExecutionIdentityError("role source observation is incomplete")
     if source["observation_sha256"] != _identity_sha256(observation):
         raise ExecutionIdentityError("role source observation checksum mismatch")
-    if meta.get("id") != source.get("thread_id") or turn.get("turn_id") != source.get("turn_id") or turn.get("model") != effective_model:
+    if (
+        meta.get("id") != source.get("thread_id")
+        or turn.get("turn_id") != source.get("turn_id")
+        or turn.get("model") != effective_model
+    ):
         raise ExecutionIdentityError("role source observation contradicts receipt")
     if meta.get("source") != "exec":
         raise ExecutionIdentityError("role source is not a Codex exec invocation")
@@ -1446,20 +1699,27 @@ def _validate_role_receipt(
     if expected_workdir is not None and command_cwd != expected_workdir.resolve():
         raise ExecutionIdentityError("role command cwd contradicts captured host")
     if expected_role == "journey_driver":
-        if "--output-schema" not in argv or "--dangerously-bypass-approvals-and-sandbox" not in argv:
+        if (
+            "--output-schema" not in argv
+            or "--dangerously-bypass-approvals-and-sandbox" not in argv
+        ):
             raise ExecutionIdentityError("journey driver command shape is invalid")
     else:
         try:
             sandbox = argv[argv.index("--sandbox") + 1]
         except (ValueError, IndexError) as error:
-            raise ExecutionIdentityError("L3 judge command sandbox is invalid") from error
+            raise ExecutionIdentityError(
+                "L3 judge command sandbox is invalid"
+            ) from error
         if sandbox != "read-only":
             raise ExecutionIdentityError("L3 judge command sandbox is invalid")
     if requested_model is not None:
         try:
             command_model = argv[argv.index("--model") + 1]
         except (ValueError, IndexError) as error:
-            raise ExecutionIdentityError("role model override is absent from command") from error
+            raise ExecutionIdentityError(
+                "role model override is absent from command"
+            ) from error
         if command_model != requested_model:
             raise ExecutionIdentityError("role command model contradicts runner input")
     elif "--model" in argv:
@@ -1528,7 +1788,10 @@ def _validate_deterministic_role_receipt(
             raise ExecutionIdentityError(
                 f"deterministic driver identity field is invalid: {key}"
             )
-    if type(receipt["observation_count"]) is not int or receipt["observation_count"] < 1:
+    if (
+        type(receipt["observation_count"]) is not int
+        or receipt["observation_count"] < 1
+    ):
         raise ExecutionIdentityError(
             "deterministic driver observation count is invalid"
         )
@@ -1547,16 +1810,20 @@ def _validate_deterministic_role_receipt(
         )
     if expected_binary is not None and any(
         binary.get(key) != expected_binary.get(key)
-        for key in ("requested", "resolved_path", "sha256", "version", "identity_sha256")
+        for key in (
+            "requested",
+            "resolved_path",
+            "sha256",
+            "version",
+            "identity_sha256",
+        )
     ):
         raise ExecutionIdentityError(
             "deterministic driver backend binary contradicts tool identity"
         )
     command = receipt["command"]
     if not isinstance(command, dict) or set(command) != {"argv"}:
-        raise ExecutionIdentityError(
-            "deterministic driver command identity is invalid"
-        )
+        raise ExecutionIdentityError("deterministic driver command identity is invalid")
     argv = command["argv"]
     if (
         not isinstance(argv, list)
@@ -1565,9 +1832,7 @@ def _validate_deterministic_role_receipt(
         or argv[0] != binary["requested"]
         or "--model" in argv
     ):
-        raise ExecutionIdentityError(
-            "deterministic driver command identity is invalid"
-        )
+        raise ExecutionIdentityError("deterministic driver command identity is invalid")
     for path_key, digest_key in (
         ("raw_result_path", "raw_result_sha256"),
         ("raw_events_path", "raw_events_sha256"),
@@ -1590,9 +1855,7 @@ def _validate_deterministic_sequence_fields(value: Mapping[str, object]) -> None
     dispatch_count = value.get("dispatch_count")
     command_value = value.get("command")
     primary_command = (
-        command_value.get("argv")
-        if isinstance(command_value, dict)
-        else command_value
+        command_value.get("argv") if isinstance(command_value, dict) else command_value
     )
     if (
         not isinstance(action_ids, list)
@@ -1618,9 +1881,7 @@ def _validate_deterministic_sequence_fields(value: Mapping[str, object]) -> None
             "deterministic driver action sequence identity is invalid"
         )
     if any("--model" in command for command in commands):
-        raise ExecutionIdentityError(
-            "deterministic driver command identity is invalid"
-        )
+        raise ExecutionIdentityError("deterministic driver command identity is invalid")
 
 
 def _verify_deterministic_ledger(
@@ -1630,7 +1891,9 @@ def _verify_deterministic_ledger(
     evidence_root: Path | None,
 ) -> None:
     if not isinstance(value, list) or len(value) != len(invocations):
-        raise ExecutionIdentityError("deterministic driver invocation ledger is incomplete")
+        raise ExecutionIdentityError(
+            "deterministic driver invocation ledger is incomplete"
+        )
     for expected_index, ref in enumerate(value, start=1):
         if (
             not isinstance(ref, dict)
@@ -1678,7 +1941,11 @@ def _verify_l3_ledger(
     if not isinstance(value, list) or len(value) != len(invocations):
         raise ExecutionIdentityError("L3 invocation ledger is incomplete")
     for expected_index, ref in enumerate(value, start=1):
-        if not isinstance(ref, dict) or not isinstance(ref.get("path"), str) or not _is_sha256(ref.get("sha256")):
+        if (
+            not isinstance(ref, dict)
+            or not isinstance(ref.get("path"), str)
+            or not _is_sha256(ref.get("sha256"))
+        ):
             raise ExecutionIdentityError("L3 invocation ledger reference is invalid")
         path = _resolve_evidence_path(ref["path"], evidence_root=evidence_root)
         if not path.is_file() or _sha256_file(path) != ref["sha256"]:
@@ -1830,12 +2097,16 @@ def _version_number(value: str) -> str:
 
 
 def _is_sha256(value: object) -> bool:
-    return isinstance(value, str) and len(value) == 64 and all(
-        character in "0123456789abcdef" for character in value
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
     )
 
 
 def _is_sha1(value: object) -> bool:
-    return isinstance(value, str) and len(value) == 40 and all(
-        character in "0123456789abcdef" for character in value
+    return (
+        isinstance(value, str)
+        and len(value) == 40
+        and all(character in "0123456789abcdef" for character in value)
     )

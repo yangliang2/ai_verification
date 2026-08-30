@@ -79,7 +79,10 @@ from aiverify.runner.run_spec import RunSpec, ScenarioSpec, load_run_spec
 from aiverify.runner.system_events import DeviceSystemEventInjector
 from aiverify.runner.verdict import judge_l2_from_android_layout
 from aiverify.runtime_preparation import (
+    MappedRuntimeSourceAuthority,
     RuntimePreparationHandoff,
+    sealed_apk_binding_from_receipt,
+    runtime_preparation_uses_test_substitutes,
     verify_runtime_preparation_receipt,
 )
 
@@ -150,9 +153,18 @@ def _build_l3_trace_summary(spec: RunSpec, flow) -> str:
     )
 
 
-def _judge_l3(spec: RunSpec, flow, *, l1: dict, l2: dict, steps: list[str],
-              workdir: Path, artifact_dir: Path, model: str | None,
-              retry_invalid: bool = True) -> dict | None:
+def _judge_l3(
+    spec: RunSpec,
+    flow,
+    *,
+    l1: dict,
+    l2: dict,
+    steps: list[str],
+    workdir: Path,
+    artifact_dir: Path,
+    model: str | None,
+    retry_invalid: bool = True,
+) -> dict | None:
     """按分层 oracle 设计门控并执行 L3：仅当 l3_spec 非空且 L1/L2 均未 fail。
 
     judge 调用失败（格式两次不合规 / codex 出错）降级为 inconclusive 而不是
@@ -179,18 +191,29 @@ def _judge_l3(spec: RunSpec, flow, *, l1: dict, l2: dict, steps: list[str],
         )
     except (VerdictValidationError, CodexCliProviderError, json.JSONDecodeError) as exc:
         verdict = {
-            "verdict_id": "L3-error", "level": "L3", "outcome": "inconclusive",
-            "defect_class_hypothesis": None, "trigger_steps": steps,
-            "evidence": [{"type": "llm_reasoning", "ref": "l3 judge error",
-                          "note": f"{type(exc).__name__}: {exc}"[:500]}],
+            "verdict_id": "L3-error",
+            "level": "L3",
+            "outcome": "inconclusive",
+            "defect_class_hypothesis": None,
+            "trigger_steps": steps,
+            "evidence": [
+                {
+                    "type": "llm_reasoning",
+                    "ref": "l3 judge error",
+                    "note": f"{type(exc).__name__}: {exc}"[:500],
+                }
+            ],
             "confidence": 0.0,
         }
         validate_verdict(verdict)
     finally:
-        flow.timings.append({
-            "phase": "l3-judge", "kind": "oracle",
-            "seconds": round(time.monotonic() - start, 3),
-        })
+        flow.timings.append(
+            {
+                "phase": "l3-judge",
+                "kind": "oracle",
+                "seconds": round(time.monotonic() - start, 3),
+            }
+        )
     return verdict
 
 
@@ -276,7 +299,9 @@ def _judge_l2_from_checkpoints(
     )
 
 
-def _build_metric_context(spec: RunSpec, *, l1: dict, l2: dict, l3: dict | None) -> dict:
+def _build_metric_context(
+    spec: RunSpec, *, l1: dict, l2: dict, l3: dict | None
+) -> dict:
     """Build top-level benchmark metric context without changing oracle verdicts."""
     oracle_verdicts = {"L1": l1, "L2": l2, "L3": l3}
     oracle_outcomes = {
@@ -623,9 +648,7 @@ def _write_preflight_exception_verdict(
         timing=timing,
         phase_errors=phase_errors,
         evidence_refs={
-            "verdict": _portable_evidence_ref(
-                verdict_path, run_dir=artifact_dir.parent
-            )
+            "verdict": _portable_evidence_ref(verdict_path, run_dir=artifact_dir.parent)
         },
     )
     return verdict
@@ -697,9 +720,7 @@ def _write_failed_run_verdict(
             ),
         },
         "journey_results": (
-            [result.data for result in flow.journey_results]
-            if flow is not None
-            else []
+            [result.data for result in flow.journey_results] if flow is not None else []
         ),
         "checkpoints": (
             [checkpoint.name for checkpoint in flow.checkpoints]
@@ -823,9 +844,7 @@ def _finalize_output_failure(
         "l3": None,
         "diagnostic_artifacts": {},
         "journey_results": (
-            [result.data for result in flow.journey_results]
-            if flow is not None
-            else []
+            [result.data for result in flow.journey_results] if flow is not None else []
         ),
         "checkpoints": (
             [checkpoint.name for checkpoint in flow.checkpoints]
@@ -853,12 +872,8 @@ def _finalize_output_failure(
         verdict["diagnostic_artifacts"]["runner_setup"] = runner_setup_ref
         evidence_refs["runner_setup"] = runner_setup_ref
     if flow is not None:
-        journey_refs = [
-            str(result.result_path) for result in flow.journey_results
-        ]
-        checkpoint_refs = [
-            str(checkpoint.directory) for checkpoint in flow.checkpoints
-        ]
+        journey_refs = [str(result.result_path) for result in flow.journey_results]
+        checkpoint_refs = [str(checkpoint.directory) for checkpoint in flow.checkpoints]
         verdict["diagnostic_artifacts"].update(
             {"journey_results": journey_refs, "checkpoints": checkpoint_refs}
         )
@@ -1046,11 +1061,7 @@ def _write_non_accountable_verdict(
             if deterministic_identity_paths
             else {}
         ),
-        **(
-            {"runner_setup": runner_setup_ref}
-            if runner_setup_ref is not None
-            else {}
-        ),
+        **({"runner_setup": runner_setup_ref} if runner_setup_ref is not None else {}),
     }
     execution_record.finalize(
         lifecycle_state="interrupted",
@@ -1063,33 +1074,44 @@ def _write_non_accountable_verdict(
     return verdict
 
 
-def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
-        launch: bool = True, model: str | None = None,
-        l3_model: str | None = None,
-        backend: str | None = None,
-        driver_plan_path: Path | None = None,
-        journey_backend: JourneyBackend | None = None,
-        instruction_prefix: str | None = None,
-        pre_run_setup: Callable[[], object] | None = None,
-        preflight_command_runner: CommandRunner | None = None,
-        run_spec_path: Path | None = None,
-        identity_command_runner: CommandRunner | None = None,
-        identity_collector: ExecutionIdentityCollector | None = None,
-        identity_collector_factory: Callable[[str], ExecutionIdentityCollector] | None = None,
-        allow_host_project_subdir: bool = False,
-        admission_required: bool = False,
-        admission_receipt: AdmissionResult | Mapping[str, object] | None = None,
-        admission_options: PlannedRunnerOptions | None = None,
-        admission_command_runner: CommandRunner | None = None,
-        admission_source_authority: SourceAuthority | None = None,
-        runtime_preparation_handoff: RuntimePreparationHandoff | None = None,
-        formal_one_attempt: bool = False) -> dict:
+def run(
+    spec: RunSpec,
+    *,
+    device: str,
+    artifact_dir: Path,
+    workdir: Path,
+    launch: bool = True,
+    model: str | None = None,
+    l3_model: str | None = None,
+    backend: str | None = None,
+    driver_plan_path: Path | None = None,
+    journey_backend: JourneyBackend | None = None,
+    instruction_prefix: str | None = None,
+    pre_run_setup: Callable[[], object] | None = None,
+    preflight_command_runner: CommandRunner | None = None,
+    run_spec_path: Path | None = None,
+    identity_command_runner: CommandRunner | None = None,
+    identity_collector: ExecutionIdentityCollector | None = None,
+    identity_collector_factory: Callable[[str], ExecutionIdentityCollector]
+    | None = None,
+    allow_host_project_subdir: bool = False,
+    admission_required: bool = False,
+    admission_receipt: AdmissionResult | Mapping[str, object] | None = None,
+    admission_options: PlannedRunnerOptions | None = None,
+    admission_command_runner: CommandRunner | None = None,
+    admission_source_authority: SourceAuthority | None = None,
+    runtime_preparation_handoff: RuntimePreparationHandoff | None = None,
+    formal_one_attempt: bool = False,
+) -> dict:
     artifact_dir = Path(artifact_dir).resolve()
     workdir = Path(workdir).resolve()
     if identity_collector is not None and identity_collector_factory is not None:
         raise ProductionSeamAdmissionError(
             "provide either identity_collector or identity_collector_factory, not both"
         )
+    prepared_apk_path: Path | None = None
+    prepared_apk_bytes: int | None = None
+    prepared_apk_sha256: str | None = None
     preparation_required = runtime_preparation_handoff is not None
     if preparation_required and (
         admission_receipt is not None or admission_source_authority is not None
@@ -1223,6 +1245,12 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             )
         if preparation_required:
             assert runtime_preparation_handoff is not None
+            if runtime_preparation_uses_test_substitutes(
+                runtime_preparation_handoff.receipt
+            ):
+                raise ProductionSeamAdmissionError(
+                    "test-substitute Runtime APK handoffs cannot reach runtime"
+                )
             verify_runtime_preparation_receipt(
                 runtime_preparation_handoff.receipt,
                 spec=spec,
@@ -1231,6 +1259,32 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
                 apk_inspector=runtime_preparation_handoff.apk_inspector,
                 command_runner=admission_command_runner,
             )
+            sealed_binding = sealed_apk_binding_from_receipt(
+                runtime_preparation_handoff.receipt
+            )
+            if sealed_binding is None and isinstance(
+                runtime_preparation_handoff.source_authority,
+                MappedRuntimeSourceAuthority,
+            ):
+                raise ProductionSeamAdmissionError(
+                    "mapped runtime preparation requires a sealed APK handoff"
+                )
+            if sealed_binding is not None and identity_command_runner is not None:
+                raise ProductionSeamAdmissionError(
+                    "sealed Runtime APK requires the runner-owned command runner"
+                )
+            if sealed_binding is not None:
+                (
+                    prepared_apk_path,
+                    prepared_apk_bytes,
+                    prepared_apk_sha256,
+                ) = sealed_binding
+            if prepared_apk_path is not None and (
+                identity_collector is not None or identity_collector_factory is not None
+            ):
+                raise ProductionSeamAdmissionError(
+                    "sealed Runtime APK requires the runner-owned identity collector"
+                )
         else:
             if admission_receipt is None:
                 raise ProductionSeamAdmissionError(
@@ -1298,6 +1352,9 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             ),
             journey_driver_backend=selected_backend_name,
             allow_host_project_subdir=allow_host_project_subdir,
+            prepared_apk_path=prepared_apk_path,
+            prepared_apk_bytes=prepared_apk_bytes,
+            prepared_apk_sha256=prepared_apk_sha256,
         )
     try:
         identity_collector.capture_static()
@@ -1443,10 +1500,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         )
         if selected_backend is None:
             codex_factory = CodexCliBackend
-            if (
-                admission_options is not None
-                and admission_options.codex_bin != "codex"
-            ):
+            if admission_options is not None and admission_options.codex_bin != "codex":
                 codex_factory = lambda: CodexCliBackend(
                     codex_bin=admission_options.codex_bin
                 )
@@ -1487,9 +1541,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
                             "type": type(error).__name__,
                             "message": str(error),
                         },
-                        "duration_seconds": round(
-                            time.monotonic() - setup_start, 3
-                        ),
+                        "duration_seconds": round(time.monotonic() - setup_start, 3),
                     },
                 )
             except Exception:
@@ -1543,8 +1595,7 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
                     error.backend_diagnostics.append(
                         {
                             "identity": (
-                                f"{type(identity_error).__name__}: "
-                                f"{identity_error}"
+                                f"{type(identity_error).__name__}: {identity_error}"
                             )
                         }
                     )
@@ -1658,7 +1709,9 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
         "l3": l3,
         "journey_results": [r.data for r in flow.journey_results],
         "checkpoints": [c.name for c in flow.checkpoints],
-        "injected_events": [{"event": e.event, "args": e.args} for e in flow.injected_events],
+        "injected_events": [
+            {"event": e.event, "args": e.args} for e in flow.injected_events
+        ],
         "system_event_evidence": [
             _portable_evidence_ref(path, run_dir=artifact_dir.parent)
             for path in flow.system_event_evidence
@@ -1688,10 +1741,13 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
             flow=flow,
             execution_record=execution_record,
         )
-    process_exit_code = 1 if any(
-        value is not None and value["outcome"] == "fail"
-        for value in (l1, l2, l3)
-    ) else 0
+    process_exit_code = (
+        1
+        if any(
+            value is not None and value["outcome"] == "fail" for value in (l1, l2, l3)
+        )
+        else 0
+    )
     execution_record.finalize(
         lifecycle_state="completed",
         execution=verdict["execution"],
@@ -1719,8 +1775,15 @@ def run(spec: RunSpec, *, device: str, artifact_dir: Path, workdir: Path,
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="aiverify.runner", description=__doc__)
     ap.add_argument("run_spec", help="Path to a run-spec.yaml")
-    ap.add_argument("--device", required=True, help="adb device serial, e.g. emulator-5554")
-    ap.add_argument("--artifact-dir", required=True, type=Path, help="Directory for evidence checkpoints")
+    ap.add_argument(
+        "--device", required=True, help="adb device serial, e.g. emulator-5554"
+    )
+    ap.add_argument(
+        "--artifact-dir",
+        required=True,
+        type=Path,
+        help="Directory for evidence checkpoints",
+    )
     ap.add_argument(
         "--host-project",
         type=Path,
@@ -1732,9 +1795,13 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Codex --cd working directory (defaults to the resolved host project)",
     )
-    ap.add_argument("--no-launch", action="store_true", help="Do not launch the app first")
+    ap.add_argument(
+        "--no-launch", action="store_true", help="Do not launch the app first"
+    )
     ap.add_argument("--model", default=None, help="Override Codex model")
-    ap.add_argument("--l3-model", default=None, help="Override Codex model for the L3 judge")
+    ap.add_argument(
+        "--l3-model", default=None, help="Override Codex model for the L3 judge"
+    )
     ap.add_argument(
         "--backend",
         "--journey-backend",
@@ -1785,9 +1852,7 @@ def main(argv: list[str] | None = None) -> int:
             requested_driver_model=args.model,
             requested_l3_model=args.l3_model,
             backend=(
-                args.backend
-                if args.backend is not None
-                else DEFAULT_JOURNEY_BACKEND
+                args.backend if args.backend is not None else DEFAULT_JOURNEY_BACKEND
             ),
             driver_plan_path=args.driver_plan_path,
             android_bin=spec.live_validation.android_bin,
@@ -1795,7 +1860,9 @@ def main(argv: list[str] | None = None) -> int:
             allow_host_project_subdir=args.allow_host_project_subdir,
         )
         admission = admit_production_seam(spec, admission_options)
-        receipt_path = Path(args.artifact_dir).resolve().parent / "production-seam-admission.json"
+        receipt_path = (
+            Path(args.artifact_dir).resolve().parent / "production-seam-admission.json"
+        )
         try:
             receipt_path.parent.mkdir(parents=True, exist_ok=True)
             write_admission_receipt(admission, receipt_path)
@@ -1804,8 +1871,7 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         if not admission.admitted:
             print(
-                "production-seam admission rejected: "
-                + "; ".join(admission.reasons),
+                "production-seam admission rejected: " + "; ".join(admission.reasons),
                 file=sys.stderr,
             )
             return 2

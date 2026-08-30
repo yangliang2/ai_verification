@@ -1846,14 +1846,46 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="new empty directory for stage-start.json and stage-terminal.json",
     )
+    admit = commands.add_parser(
+        "admit-family",
+        help="admit all four discovery lanes and write one runtime mapping release",
+    )
+    admit.add_argument(
+        "candidate_root_positional",
+        nargs="?",
+        help="candidate root (defaults to the bundled OpenCalc V1 candidate)",
+    )
+    admit.add_argument(
+        "--candidate-root",
+        "--input-root",
+        dest="candidate_root_option",
+        help="candidate root; mutually exclusive with the positional root",
+    )
+    admit.add_argument(
+        "--source-root",
+        required=True,
+        help="pinned pristine OpenCalc checkout used for discovery admission",
+    )
+    admit.add_argument(
+        "--predecessor-root",
+        required=True,
+        help="accepted verify-candidate stage root",
+    )
+    admit.add_argument(
+        "--output-root",
+        required=True,
+        help="new empty directory for the mapping release and stage receipts",
+    )
+    admit.add_argument(
+        "--materialization-root",
+        help="new empty root for the two private ProjectTarget materializations",
+    )
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command != "verify-candidate":
-        parser.error("unsupported command")
     if args.candidate_root_positional and args.candidate_root_option:
         parser.error("candidate root may be supplied once")
     candidate_root = (
@@ -1861,13 +1893,31 @@ def main(argv: Sequence[str] | None = None) -> int:
         or args.candidate_root_positional
         or str(_default_candidate_root())
     )
-    try:
-        receipt = verify_candidate(candidate_root, args.output_root)
-    except StageReceiptError as error:
-        print(error.code, file=sys.stderr)
-        return 2
-    print(json.dumps(receipt.to_dict(), ensure_ascii=False, sort_keys=True, indent=2))
-    return 0 if receipt.accepted else 1
+    if args.command == "verify-candidate":
+        try:
+            receipt = verify_candidate(candidate_root, args.output_root)
+        except StageReceiptError as error:
+            print(error.code, file=sys.stderr)
+            return 2
+        print(json.dumps(receipt.to_dict(), ensure_ascii=False, sort_keys=True, indent=2))
+        return 0 if receipt.accepted else 1
+    if args.command == "admit-family":
+        from aiverify.bench import runtime_mapping
+
+        try:
+            release = runtime_mapping.admit_family(
+                candidate_root=candidate_root,
+                source_root=args.source_root,
+                predecessor_root=args.predecessor_root,
+                output_root=args.output_root,
+                materialization_root=args.materialization_root,
+            )
+        except runtime_mapping.RuntimeMappingError as error:
+            print(error.code, file=sys.stderr)
+            return 1
+        print(json.dumps(release.to_dict(), ensure_ascii=False, sort_keys=True, indent=2))
+        return 0
+    parser.error("unsupported command")
 
 
 __all__ = [
