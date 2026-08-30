@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib
+import inspect
 import json
 import os
 import re
@@ -40,9 +42,13 @@ UPSTREAM_COMMIT = "0584d61189e916a62a3b402223b35e1d7a3093db"
 TARGET_SOURCE_PATH = (
     "app/src/main/java/com/darkempire78/opencalculator/activities/MainActivity.kt"
 )
-TARGET_SOURCE_SHA256 = "409e08157ce741bf77f7f00817a28eabee11cd1f6a5355bff7d1dd5a977eaac7"
+TARGET_SOURCE_SHA256 = (
+    "409e08157ce741bf77f7f00817a28eabee11cd1f6a5355bff7d1dd5a977eaac7"
+)
 UPSTREAM_TREE_SHA256 = "8793c063c6a990ff3448fece38e62bc103952610"
-UPSTREAM_ARCHIVE_SHA256 = "58d686b47f4a97f8b1127ab3de98bdf34a1c9310a221e5d5a7b4b5adcde54f3c"
+UPSTREAM_ARCHIVE_SHA256 = (
+    "58d686b47f4a97f8b1127ab3de98bdf34a1c9310a221e5d5a7b4b5adcde54f3c"
+)
 
 PAIR_ID = "opencalc-input-save-enabled-v1"
 QUALITY_CONTRACT_ID = "opencalc-unfinished-expression-config-recreation-v1"
@@ -74,7 +80,12 @@ CLAIM_BOUNDARY_SCOPE = (
 
 LANE_IDS = tuple(f"ocrc-v1-lane-{number:02d}" for number in range(1, 5))
 LANE_DIRECTORIES = tuple(f"lane-{number:02d}" for number in range(1, 5))
-LANE_FILE_NAMES = ("projection.json", "driver-plan.json", "recipe.json", "run-spec.yaml")
+LANE_FILE_NAMES = (
+    "projection.json",
+    "driver-plan.json",
+    "recipe.json",
+    "run-spec.yaml",
+)
 DRIVER_PLAN_ACTIONS = (
     ("action-01", "wait_for_resource_id", "oneButton"),
     ("action-02", "tap_resource_id", "oneButton"),
@@ -111,6 +122,7 @@ def _expected_patch_text(right_hand_side: str) -> str:
         "        binding.input.showSoftInputOnFocus = false\n"
         f"+        binding.input.isSaveEnabled = {right_hand_side}\n"
     )
+
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _COMMIT = re.compile(r"^[0-9a-f]{40}$")
@@ -783,7 +795,9 @@ def _check_common(document: Mapping[str, Any], expected_kind: str) -> None:
         raise CandidateVerificationError("candidate_document_kind_mismatch")
 
 
-def _validate_family_manifest(document: Mapping[str, Any], paths: Mapping[str, ArtifactDigest]) -> None:
+def _validate_family_manifest(
+    document: Mapping[str, Any], paths: Mapping[str, ArtifactDigest]
+) -> None:
     _require_exact_fields(document, _FAMILY_FIELDS)
     _check_common(document, "runtime_calibration_family_manifest")
     if document["status"] != "candidate_frozen":
@@ -836,7 +850,14 @@ def _validate_family_manifest(document: Mapping[str, Any], paths: Mapping[str, A
             raise CandidateVerificationError("candidate_input_contradictory")
         _require_exact_fields(
             lane,
-            {"lane_id", "relative_path", "projection", "driver_plan", "recipe", "run_spec"},
+            {
+                "lane_id",
+                "relative_path",
+                "projection",
+                "driver_plan",
+                "recipe",
+                "run_spec",
+            },
         )
         lane_id = f"ocrc-v1-lane-{number:02d}"
         directory = f"runtime/lanes/lane-{number:02d}"
@@ -952,9 +973,9 @@ def _validate_source_pair(document: Mapping[str, Any]) -> None:
         raise CandidateVerificationError("candidate_input_contradictory")
     control_patch = by_id["control"]["patch_text"]
     defect_patch = by_id["defect"]["patch_text"]
-    if control_patch.replace("isSaveEnabled = true", "isSaveEnabled = VALUE") != defect_patch.replace(
-        "isSaveEnabled = false", "isSaveEnabled = VALUE"
-    ):
+    if control_patch.replace(
+        "isSaveEnabled = true", "isSaveEnabled = VALUE"
+    ) != defect_patch.replace("isSaveEnabled = false", "isSaveEnabled = VALUE"):
         raise CandidateVerificationError("candidate_pair_not_matched")
 
 
@@ -1023,7 +1044,9 @@ def _validate_discovery_commitments(document: Mapping[str, Any]) -> None:
     for package in packages:
         if not isinstance(package, Mapping):
             raise CandidateVerificationError("candidate_discovery_commitment_mismatch")
-        _require_exact_fields(package, {"package_id", "target_kind", "variant", "identity"})
+        _require_exact_fields(
+            package, {"package_id", "target_kind", "variant", "identity"}
+        )
         key = (str(package["target_kind"]), str(package["variant"]))
         package_keys.add(key)
         if package["target_kind"] not in {"ChangeTarget", "ProjectTarget"}:
@@ -1048,7 +1071,10 @@ def _validate_claim_boundary(document: Mapping[str, Any]) -> None:
         raise CandidateVerificationError("candidate_schema_version_mismatch")
     if document["document_kind"] != "runtime_calibration_claim_boundary":
         raise CandidateVerificationError("candidate_document_kind_mismatch")
-    if document["family_id"] != FAMILY_ID or document["family_version"] != FAMILY_VERSION:
+    if (
+        document["family_id"] != FAMILY_ID
+        or document["family_version"] != FAMILY_VERSION
+    ):
         raise CandidateVerificationError("candidate_input_version_mismatch")
     if document["claim_boundary_id"] != CANDIDATE_CLAIM_BOUNDARY:
         raise CandidateVerificationError("candidate_claim_boundary_mismatch")
@@ -1070,7 +1096,9 @@ def _validate_claim_boundary(document: Mapping[str, Any]) -> None:
         raise CandidateVerificationError("candidate_claim_boundary_mismatch")
 
 
-def _validate_schema_document(document: Mapping[str, Any], expected_contract: str) -> None:
+def _validate_schema_document(
+    document: Mapping[str, Any], expected_contract: str
+) -> None:
     _require_exact_fields(document, _SCHEMA_FIELDS)
     if document["schema_version"] != SCHEMA_VERSION:
         raise CandidateVerificationError("candidate_schema_version_mismatch")
@@ -1099,7 +1127,9 @@ def _validate_schema_document(document: Mapping[str, Any], expected_contract: st
         "family_id": {"const": FAMILY_ID},
         "family_version": {"const": FAMILY_VERSION},
     }
-    if any(properties.get(field) != value for field, value in common_properties.items()):
+    if any(
+        properties.get(field) != value for field, value in common_properties.items()
+    ):
         raise CandidateVerificationError("candidate_schema_contract_mismatch")
     if canonical_sha256(schema) != _SCHEMA_CANONICAL_SHA256[expected_contract]:
         raise CandidateVerificationError("candidate_schema_contract_mismatch")
@@ -1129,7 +1159,10 @@ def _validate_projection(
 ) -> None:
     _require_exact_fields(document, _PROJECTION_FIELDS)
     _check_common(document, "blind_runtime_projection")
-    if document["lane_id"] != lane_id or document["projection_id"] != f"{lane_id}-projection":
+    if (
+        document["lane_id"] != lane_id
+        or document["projection_id"] != f"{lane_id}-projection"
+    ):
         raise CandidateVerificationError("candidate_lane_identity_mismatch")
     if (
         document["run_spec_path"] != expected_paths["run_spec"]
@@ -1153,7 +1186,9 @@ def _validate_projection(
     boundary = document["evidence_boundary"]
     if not isinstance(boundary, Mapping):
         raise CandidateVerificationError("candidate_projection_invalid")
-    _require_exact_fields(boundary, {"normalized_result", "action_lineage", "raw_backend_evidence"})
+    _require_exact_fields(
+        boundary, {"normalized_result", "action_lineage", "raw_backend_evidence"}
+    )
     if boundary != {
         "normalized_result": "runner_owned",
         "action_lineage": "runner_owned",
@@ -1177,7 +1212,10 @@ def _validate_plan(
 ) -> None:
     _require_exact_fields(document, _PLAN_FIELDS)
     _check_common(document, "deterministic_driver_plan")
-    if document["lane_id"] != lane_id or document["plan_id"] != f"{lane_id}-driver-plan":
+    if (
+        document["lane_id"] != lane_id
+        or document["plan_id"] != f"{lane_id}-driver-plan"
+    ):
         raise CandidateVerificationError("candidate_lane_identity_mismatch")
     if (
         document["run_spec_path"] != expected_run_spec_path
@@ -1208,9 +1246,17 @@ def _validate_plan(
         ) != expected:
             raise CandidateVerificationError("candidate_plan_invalid")
         if action["kind"] == "wait_for_resource_id":
-            if action["timeout_ms"] != 5000 or action["observation_interval_ms"] != 350 or action["settle_ms"] != 0:
+            if (
+                action["timeout_ms"] != 5000
+                or action["observation_interval_ms"] != 350
+                or action["settle_ms"] != 0
+            ):
                 raise CandidateVerificationError("candidate_plan_invalid")
-        elif action["timeout_ms"] != 0 or action["observation_interval_ms"] != 0 or action["settle_ms"] != 350:
+        elif (
+            action["timeout_ms"] != 0
+            or action["observation_interval_ms"] != 0
+            or action["settle_ms"] != 350
+        ):
             raise CandidateVerificationError("candidate_plan_invalid")
     _reject_projection_leakage(document)
 
@@ -1218,16 +1264,24 @@ def _validate_plan(
 def _validate_recipe(document: Mapping[str, Any], lane_id: str) -> None:
     _require_exact_fields(document, _RECIPE_FIELDS)
     _check_common(document, "runtime_build_recipe")
-    if document["lane_id"] != lane_id or document["recipe_id"] != f"{lane_id}-build-recipe":
+    if (
+        document["lane_id"] != lane_id
+        or document["recipe_id"] != f"{lane_id}-build-recipe"
+    ):
         raise CandidateVerificationError("candidate_lane_identity_mismatch")
     if tuple(document["command"]) != BUILD_COMMAND:
         raise CandidateVerificationError("candidate_recipe_invalid")
-    if document["timeout_seconds"] != 900 or document["output_relative_path"] != "build/app-debug.apk":
+    if (
+        document["timeout_seconds"] != 900
+        or document["output_relative_path"] != "build/app-debug.apk"
+    ):
         raise CandidateVerificationError("candidate_recipe_invalid")
     environment = document["environment_policy"]
     if not isinstance(environment, Mapping):
         raise CandidateVerificationError("candidate_recipe_invalid")
-    _require_exact_fields(environment, {"mode", "dependency_resolution", "network_claim", "retry"})
+    _require_exact_fields(
+        environment, {"mode", "dependency_resolution", "network_claim", "retry"}
+    )
     if dict(environment) != {
         "mode": "private_allowlist",
         "dependency_resolution": "offline",
@@ -1243,13 +1297,17 @@ def _validate_recipe(document: Mapping[str, Any], lane_id: str) -> None:
 def _validate_run_spec(document: Mapping[str, Any], lane_id: str) -> None:
     _require_exact_fields(document, _RUN_SPEC_FIELDS)
     _check_common(document, "runtime_calibration_run_spec")
-    if document["lane_id"] != lane_id or document["run_spec_id"] != f"{lane_id}-run-spec":
+    if (
+        document["lane_id"] != lane_id
+        or document["run_spec_id"] != f"{lane_id}-run-spec"
+    ):
         raise CandidateVerificationError("candidate_lane_identity_mismatch")
     if (
         document["host_project"] != "."
         or document["apk_glob"] != "build/app-debug.apk"
         or document["package"] != "com.darkempire78.opencalculator.debug"
-        or document["activity"] != "com.darkempire78.opencalculator.activities.MainActivity"
+        or document["activity"]
+        != "com.darkempire78.opencalculator.activities.MainActivity"
         or document["diff"] is not None
         or document["spec"] is not None
     ):
@@ -1257,7 +1315,9 @@ def _validate_run_spec(document: Mapping[str, Any], lane_id: str) -> None:
     scenario = document["scenario"]
     if not isinstance(scenario, Mapping):
         raise CandidateVerificationError("candidate_run_spec_invalid")
-    _require_exact_fields(scenario, {"id", "user_actions", "system_events", "assertions"})
+    _require_exact_fields(
+        scenario, {"id", "user_actions", "system_events", "assertions"}
+    )
     actions = (
         "wait for resource id oneButton",
         "tap resource id oneButton",
@@ -1304,7 +1364,9 @@ def _reject_projection_leakage(document: Mapping[str, Any]) -> None:
 def _walk_files(root: Path) -> set[str]:
     files: set[str] = set()
     try:
-        for current, directories, names in os.walk(root, topdown=True, followlinks=False):
+        for current, directories, names in os.walk(
+            root, topdown=True, followlinks=False
+        ):
             current_path = Path(current)
             retained: list[str] = []
             for name in sorted(directories):
@@ -1365,7 +1427,9 @@ def verify_candidate_inputs(candidate_root: str | Path) -> CandidateInputs:
     if tuple(required_kinds) != EXPECTED_ARTIFACT_KINDS:
         raise CandidateVerificationError("candidate_artifact_set_mismatch")
     raw_entries = manifest["artifacts"]
-    if not isinstance(raw_entries, list) or len(raw_entries) != len(EXPECTED_ARTIFACT_KINDS):
+    if not isinstance(raw_entries, list) or len(raw_entries) != len(
+        EXPECTED_ARTIFACT_KINDS
+    ):
         raise CandidateVerificationError("candidate_artifact_set_mismatch")
     entries = tuple(_artifact_entry(item) for item in raw_entries)
     if (
@@ -1412,7 +1476,9 @@ def verify_candidate_inputs(candidate_root: str | Path) -> CandidateInputs:
     _validate_against_schema(claim, schema_documents["claim_boundary"])
 
     lane_file_map: dict[str, dict[str, str]] = {}
-    for number, (lane_id, directory) in enumerate(zip(LANE_IDS, LANE_DIRECTORIES), start=1):
+    for number, (lane_id, directory) in enumerate(
+        zip(LANE_IDS, LANE_DIRECTORIES), start=1
+    ):
         lane_file_map[lane_id] = {
             "projection": f"runtime/lanes/{directory}/projection.json",
             "driver_plan": f"runtime/lanes/{directory}/driver-plan.json",
@@ -1475,9 +1541,9 @@ def _utc_now() -> str:
 
 def _encoded_receipt(document: Mapping[str, Any]) -> bytes:
     try:
-        return (json.dumps(document, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode(
-            "utf-8"
-        )
+        return (
+            json.dumps(document, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+        ).encode("utf-8")
     except (TypeError, ValueError) as error:
         raise StageReceiptError("stage_receipt_encoding_failed") from error
 
@@ -1544,7 +1610,9 @@ def _prepare_output_root(candidate_root: str | Path, output_root: str | Path) ->
     return output
 
 
-def _start_receipt(candidate_root: str | Path, output_root: Path) -> tuple[dict[str, Any], str]:
+def _start_receipt(
+    candidate_root: str | Path, output_root: Path
+) -> tuple[dict[str, Any], str]:
     document: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "stage": "verify-candidate",
@@ -1554,7 +1622,9 @@ def _start_receipt(candidate_root: str | Path, output_root: Path) -> tuple[dict[
         "claim_boundary": CANDIDATE_CLAIM_BOUNDARY,
         "started_at": _utc_now(),
     }
-    document["start_identity_sha256"] = _stage_identity(document, "start_identity_sha256")
+    document["start_identity_sha256"] = _stage_identity(
+        document, "start_identity_sha256"
+    )
     digest = _write_exclusive_json(output_root / "stage-start.json", document)
     return document, digest
 
@@ -1719,9 +1789,10 @@ def _validate_stage_terminal(
         or document["status"] not in {"accepted", "rejected"}
     ):
         raise CandidateVerificationError("stage_receipt_invalid")
-    if not isinstance(document["candidate_root"], str) or not Path(
-        document["candidate_root"]
-    ).is_absolute():
+    if (
+        not isinstance(document["candidate_root"], str)
+        or not Path(document["candidate_root"]).is_absolute()
+    ):
         raise CandidateVerificationError("stage_receipt_invalid")
     if not isinstance(document["finished_at"], str) or not document["finished_at"]:
         raise CandidateVerificationError("stage_receipt_invalid")
@@ -1800,7 +1871,13 @@ def stage_status(output_root: str | Path) -> str:
             return "abandoned"
         terminal, _ = _load_receipt(terminal_path)
         return _validate_stage_terminal(terminal, root, start, start_digest)
-    except (CandidateVerificationError, StageReceiptError, OSError, TypeError, ValueError):
+    except (
+        CandidateVerificationError,
+        StageReceiptError,
+        OSError,
+        TypeError,
+        ValueError,
+    ):
         return "invalid"
 
 
@@ -1817,7 +1894,10 @@ def is_candidate_accepted(output_root: str | Path) -> bool:
 
 
 def _default_candidate_root() -> Path:
-    return Path(__file__).resolve().parents[3] / "bench/runtime-calibration/opencalc-input-save-enabled-v1"
+    return (
+        Path(__file__).resolve().parents[3]
+        / "bench/runtime-calibration/opencalc-input-save-enabled-v1"
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1880,7 +1960,68 @@ def build_parser() -> argparse.ArgumentParser:
         "--materialization-root",
         help="new empty root for the two private ProjectTarget materializations",
     )
+    prepare = commands.add_parser(
+        "prepare-family",
+        help="prepare four sealed runtime APKs and close family-wide gates",
+    )
+    prepare.add_argument(
+        "candidate_root_positional",
+        nargs="?",
+        help="candidate root (defaults to the bundled OpenCalc V1 candidate)",
+    )
+    prepare.add_argument(
+        "--candidate-root",
+        "--input-root",
+        dest="candidate_root_option",
+        help="candidate root; mutually exclusive with the positional root",
+    )
+    prepare.add_argument(
+        "--predecessor-root",
+        "--mapping-stage-root",
+        required=True,
+        help="accepted admit-family stage root containing the terminal mapping receipt",
+    )
+    prepare.add_argument(
+        "--output-root",
+        required=True,
+        help="new empty directory for family preparation and stage receipts",
+    )
+    prepare.add_argument(
+        "--lane-input-provider",
+        "--lane-inputs-provider",
+        required=True,
+        help="import path module:callable that returns the four exact lane inputs",
+    )
     return parser
+
+
+def _load_lane_input_provider(value: str):
+    module_name, separator, attribute = value.partition(":")
+    if not separator or not module_name or not attribute:
+        raise ValueError("lane input provider must use module:callable syntax")
+    module = importlib.import_module(module_name)
+    provider = getattr(module, attribute, None)
+    if not callable(provider):
+        raise TypeError("lane input provider is not callable")
+    return provider
+
+
+def _call_lane_input_provider(provider, candidate_root: str, predecessor_root: str):
+    parameters = tuple(inspect.signature(provider).parameters.values())
+    positional = tuple(
+        parameter
+        for parameter in parameters
+        if parameter.kind
+        in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+    )
+    variadic = any(
+        parameter.kind == inspect.Parameter.VAR_POSITIONAL for parameter in parameters
+    )
+    if variadic or len(positional) >= 2:
+        return provider(candidate_root, predecessor_root)
+    if len(positional) == 1:
+        return provider(candidate_root)
+    return provider()
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -1899,7 +2040,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         except StageReceiptError as error:
             print(error.code, file=sys.stderr)
             return 2
-        print(json.dumps(receipt.to_dict(), ensure_ascii=False, sort_keys=True, indent=2))
+        print(
+            json.dumps(receipt.to_dict(), ensure_ascii=False, sort_keys=True, indent=2)
+        )
         return 0 if receipt.accepted else 1
     if args.command == "admit-family":
         from aiverify.bench import runtime_mapping
@@ -1915,8 +2058,44 @@ def main(argv: Sequence[str] | None = None) -> int:
         except runtime_mapping.RuntimeMappingError as error:
             print(error.code, file=sys.stderr)
             return 1
-        print(json.dumps(release.to_dict(), ensure_ascii=False, sort_keys=True, indent=2))
+        print(
+            json.dumps(release.to_dict(), ensure_ascii=False, sort_keys=True, indent=2)
+        )
         return 0
+    if args.command == "prepare-family":
+        from aiverify.bench import runtime_family_preparation
+
+        try:
+            provider = _load_lane_input_provider(args.lane_input_provider)
+            lane_inputs = _call_lane_input_provider(
+                provider,
+                candidate_root,
+                args.predecessor_root,
+            )
+            receipt = runtime_family_preparation.prepare_runtime_family(
+                candidate_root=candidate_root,
+                predecessor_root=args.predecessor_root,
+                output_root=args.output_root,
+                lane_inputs=lane_inputs,
+            )
+        except (
+            runtime_family_preparation.RuntimeFamilyPreparationError,
+            ImportError,
+            AttributeError,
+            OSError,
+            TypeError,
+            ValueError,
+            RuntimeError,
+        ) as error:
+            print(
+                getattr(error, "code", "family_lane_input_provider_unavailable"),
+                file=sys.stderr,
+            )
+            return 1
+        print(
+            json.dumps(receipt.to_dict(), ensure_ascii=False, sort_keys=True, indent=2)
+        )
+        return 0 if receipt.accepted else 1
     parser.error("unsupported command")
 
 

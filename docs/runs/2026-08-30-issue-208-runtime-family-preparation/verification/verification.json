@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "document_kind": "opencalc_issue_208_verification",
+  "issue": 208,
+  "status": "passed",
+  "claim_boundary": "pre_device_four_lane_runtime_family_preparation_only",
+  "fixed_point": "6c03f89",
+  "branch": "issue-197-runtime-source-preparation",
+  "family": {
+    "id": "opencalc-runtime-calibration-v1",
+    "version": "v1",
+    "mapping_release_id": "opencalc-runtime-mapping-release-v1",
+    "mapping_release_identity_sha256": "bc98ab402cf6fbe73343749a2bfb11a12ba40e6efb56ec59e090c4bde840a8eb",
+    "mapping_release_sha256": "947341f108f78d3100adc543d138f63e59279c66c27a4ea1c039a9c8df1eaa37",
+    "candidate_root": "bench/runtime-calibration/opencalc-input-save-enabled-v1",
+    "candidate_identity_sha256": "1e247a243e2d9fcfc9704a641c5f1174b1f4cbceee7f2af28ad494d32c68bfd5",
+    "candidate_manifest_sha256": "cda8a8946ea77720f2fb473517559fc2c65f7c56ed3b71fd329fec322147b04b",
+    "candidate_artifact_inventory_sha256": "393a19ce2ca16b60510ed21f80ba637df1bf3236da3b565fbc7a7856ad1eab14",
+    "lane_ids": [
+      "ocrc-v1-lane-01",
+      "ocrc-v1-lane-02",
+      "ocrc-v1-lane-03",
+      "ocrc-v1-lane-04"
+    ]
+  },
+  "tool_versions": {
+    "python": "3.11.15",
+    "pytest": "9.1.1",
+    "ruff": "0.16.5",
+    "mypy": "2.3.1",
+    "uv": "0.11.7",
+    "git": "2.50.1 (Apple Git-155)"
+  },
+  "verification": {
+    "focused_pytest": {
+      "command": "/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run pytest -q tests/bench/test_runtime_family_preparation.py tests/test_runtime_sealed_apk.py tests/test_runtime_preparation.py tests/bench/test_runtime_mapping.py tests/bench/test_runtime_calibration.py --junitxml=docs/runs/2026-08-30-issue-208-runtime-family-preparation/verification/focused-pytest.xml",
+      "tests": 117,
+      "passed": 117,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 54.514,
+      "wall_seconds": 54.83,
+      "artifact": "verification/focused-pytest.xml",
+      "sha256": "f296fa22850f8d422092e33dee63e11d7ff9aa647bda8bc966e82f8e92f8e26e"
+    },
+    "full_pytest": {
+      "command": "/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run pytest -qq --junitxml=docs/runs/2026-08-30-issue-208-runtime-family-preparation/verification/full-pytest.xml",
+      "tests": 1425,
+      "passed": 1424,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 1,
+      "pytest_seconds": 217.759,
+      "wall_seconds": 218.15,
+      "skip": "tests.bench.test_m9_recovery_formal.test_frozen_target_specific_mismatch_is_side_effect_free: repository-external fixture tests require explicit admission",
+      "artifact": "verification/full-pytest.xml",
+      "sha256": "e19fb1166861f056053a093e0407197dacc54225c2f6ed07d51b366751297005"
+    },
+    "ruff": {
+      "command": "uv run --with ruff ruff check src/aiverify/bench/runtime_family_preparation.py src/aiverify/runtime_family_preparation.py src/aiverify/bench/runtime_calibration.py tests/bench/test_runtime_family_preparation.py",
+      "status": "passed"
+    },
+    "ruff_format": {
+      "command": "uv run --with ruff ruff format --check src/aiverify/bench/runtime_family_preparation.py src/aiverify/runtime_family_preparation.py tests/bench/test_runtime_family_preparation.py",
+      "status": "passed"
+    },
+    "mypy": {
+      "command": "uv run --with mypy mypy --follow-imports=skip --ignore-missing-imports src/aiverify/runtime_preparation.py src/aiverify/bench/runtime_family_preparation.py",
+      "status": "passed",
+      "result": "Success: no issues found in 2 source files"
+    },
+    "compileall": {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run python -m compileall -q src tests",
+      "status": "passed"
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "status": "passed"
+    },
+    "command_surface": {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run python -m aiverify.bench.runtime_calibration prepare-family --help",
+      "status": "passed",
+      "result": "exit 0; explicit prepare-family command exposes candidate, accepted mapping predecessor, new output root, and lane-input provider"
+    }
+  },
+  "implementation": {
+    "files": [
+      "src/aiverify/bench/runtime_family_preparation.py",
+      "src/aiverify/bench/runtime_calibration.py",
+      "src/aiverify/runtime_family_preparation.py",
+      "src/aiverify/runtime_preparation.py",
+      "tests/bench/test_runtime_family_preparation.py"
+    ],
+    "public_tests": [
+      "tests/bench/test_runtime_family_preparation.py",
+      "tests/test_runtime_sealed_apk.py",
+      "tests/test_runtime_preparation.py",
+      "tests/bench/test_runtime_mapping.py",
+      "tests/bench/test_runtime_calibration.py"
+    ],
+    "family_wide_gates": [
+      "all_lanes_prepared",
+      "sealed_apks",
+      "receipt_identity",
+      "family_signing_identity",
+      "family_vault_identity",
+      "family_metadata_identity",
+      "independent_build_environments",
+      "single_build_attempt",
+      "no_runtime_effects",
+      "mapping_handoff_identity",
+      "source_identity",
+      "within_variant_byte_equality",
+      "control_defect_byte_inequality"
+    ],
+    "lane_statuses": [
+      "prepared",
+      "preparation_rejected",
+      "not_prepared_due_to_family_abort",
+      "prepared_but_family_not_admitted"
+    ],
+    "runtime_effects": {
+      "shell": false,
+      "device": false,
+      "android_deployment": false,
+      "execution_record": false,
+      "agent_or_model": false
+    },
+    "test_substitutes": "explicit recording fakes only; production strict inputs remain required"
+  },
+  "artifacts": [
+    {
+      "path": "verification/focused-pytest.xml",
+      "sha256": "6dd36c9a7188943f04bee13428d607767e2d8b15f511f8b069aa212829b52822"
+    },
+    {
+      "path": "verification/full-pytest.xml",
+      "sha256": "089e47bda42d49b7b16d4ce184aa9a01070991cc2b739b266cfea1d30aeb0b57"
+    },
+    {
+      "path": "README.md"
+    },
+    {
+      "path": "verification/verification.json"
+    },
+    {
+      "path": "code-review.md"
+    },
+    {
+      "path": "checksums.sha256"
+    }
+  ],
+  "manual_or_device_verification": {
+    "performed": false,
+    "reason": "Issue #208 is pre-device preparation; no emulator, install, launch, or manual runtime check is in scope"
+  },
+  "known_gaps": [
+    "No real Gradle, aapt2, apksigner, Android CLI, adb, emulator, device, runtime, model, or oracle invocation was performed.",
+    "The recording-build integration tests use explicit fakes and ephemeral source/vault roots; no private bytes or credentials are committed.",
+    "Production execution requires four independently materialized source-authorized lane inputs and a strict external Runtime Input Vault.",
+    "The committed #206 mapping currently gives ChangeTarget lanes 01/02 one shared source worktree path; strict family preparation rejects that non-independent input until a fresh per-lane source mapping is issued.",
+    "The CLI lane-input provider is a source-authority boundary and must return already-materialized inputs without performing a build; the recording-fake path does not claim strict production admission.",
+    "The repository-external M9 fixture test remains skipped because it requires explicit admission."
+  ]
+}
