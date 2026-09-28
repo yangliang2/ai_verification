@@ -19,6 +19,104 @@ Run Spec
 覆盖、benchmark-wide 检测率或 upstream acceptance。当前声明的唯一入口是
 [`docs/current-capability-claim-matrix.md`](docs/current-capability-claim-matrix.md)。
 
+## 质量层级定位与生态位
+
+### 在质量看护层级中的位置
+
+```text
+静态层（lint / 类型检查 / 静态分析 / diff 审查）
+  → 单元层（JUnit / Robolectric，隔离逻辑正确性）
+  → 集成层（组件交互、API 契约测试）
+  → E2E 层（Espresso / UiAutomator happy path）
+  → 行为层故障注入验证 ← 本项目
+      生命周期 / 配置变化 / 进程死亡 / 导航 / 并发 / 权限
+      在 Journey Segment Boundary 注入系统事件
+  → 生产层（崩溃与 ANR 监控 / 灰度 / 线上遥测）
+```
+
+本项目存在的全部理由是：静态层到 E2E 层全部通过、但行为层仍然出错的缺陷
+类别（Behavior-Layer Defect）。这个位置有三个关键修饰语：
+
+1. **面向 AI 生成代码，不是通用 QA。** 输入是 spec + diff + 可构建源码树，
+   看护 AI coding agent 的产出；AI 生成的代码缺少人的运行时心智推演，
+   行为层验证从抽查项变成必经 gate。
+2. **它是验证器的验证器。** 自带 Defect Injection Benchmark 与 Goldset，
+   用注入缺陷和历史真实缺陷度量自身检出能力（M1–M3、#80 gate）。
+3. **它产出有界本地结论，不是统计保证。** 每个结论只对当次记录的
+   source/binary/device/oracle 有效（Local Conclusion），不声明 benchmark
+   级检测率、OEM/设备矩阵覆盖、全无人值守可靠性或 upstream acceptance。
+
+### 需要联合使用的动作
+
+**上游（必须先有干净输入）：**
+
+- 清晰的需求/spec：Run Spec 需要 `expected_behavior` 与 `assertions`；spec
+  模糊时 L3 oracle 也只能给出模糊判断。
+- 静态检查与单元测试：本项目不抓逻辑 bug；静态层/单元层未通过时运行行为层
+  验证是浪费设备时间。
+- 可复现构建与 source 冻结：Effective Execution Identity 依赖 pinned commit
+  与 checksum 绑定 APK；构建不可复现则证据链断裂。
+- 人工 review（设计/意图层）：本项目验证"行为是否符合声明"，不验证"声明
+  本身是否合理"。
+
+**同层（覆盖面互补）：**
+
+- 传统 instrumentation 测试：正常路径穷举仍靠 Espresso/UI 测试。
+- Monkey / fuzz：本项目是有针对性的故障注入，不是随机探索，两者互为补充。
+- 性能基线工具：G-06 只证明有界阈值检查能力，不是性能看护。
+- 视觉/多模态检查：L3 视觉判断不声明可靠性，像素级回归需专门工具。
+- 真机/OEM 矩阵：全部证据在单台 API-35 模拟器上，物理设备覆盖是明确的
+  非声明区。
+
+**下游（本地结论之后仍需生产兜底）：**
+
+- 灰度发布与崩溃/ANR 监控：本地 `locally_supported` 不等于线上无风险。
+- beta 测试 / staged rollout：覆盖本项目无法覆盖的设备多样性与真实使用
+  分布。
+
+**流程上嵌入的回路：**
+
+1. AI 编码回路：`AI agent 实现 → 行为层验证 → 失败回喂修复`；providers 层
+   强制 injector/verifier 异源。
+2. 证据纪律回路：run record + issue 证据评论 + claim matrix 更新；脱离这套
+   纪律，结论退化为不可审计的"跑过一次"。
+3. 自校准回路：定期用 Goldset/注入缺陷重跑 benchmark（如 #80 的 30-lane
+   gate），防止验证器自身能力漂移。
+4. 人工 adjudication：prospective 场景需要独立裁决与盲化纪律（M6 模式），
+   不能全交给同一个 agent。
+
+### 传统软件工程质量链上的生态位
+
+概念血统是五个经典测试思想的合体：
+
+| 传统概念 | 本项目的继承与改造 |
+|---|---|
+| 变异测试（Mutation Testing） | 方向反转：传统用法度量测试套件能否杀死变异体；本项目度量 AI 验证器能否抓住注入的行为层缺陷——对验证器本身做变异测试 |
+| 混沌工程（Chaos Engineering） | 从服务端搬到客户端：在 Journey Segment Boundary 注入旋转、进程死亡、权限撤销，验证 App 状态韧性 |
+| 蜕变测试（Metamorphic Testing） | baseline/defect matched pair：同一 Journey 经系统事件扰动后，应保持的状态关系必须成立 |
+| 状态转换/基于模型的测试 | Android 生命周期、导航栈、进程死亡等状态机故障模型，变成 Journey 边界上机器可检查的运行时探针 |
+| 探索性测试自动化 | Discovery Campaign（Risk Hypothesis → Attack Plan → Falsification Review）把对抗直觉形式化，信号来自白盒源码分析 |
+
+在 SDLC 上，它位于系统测试与验收之间，change-scoped 而非 release-scoped。
+传统上这个位置由 SDET 手工 Espresso 场景（"路径走不走得通"）与 QA 的
+"魔鬼测试"（旋转、杀进程、切后台）占据；本项目把第二类角色自动化为
+agent-in-the-loop 的 Verification Agent。工具谱系上的位置是：
+
+```text
+Monkey → Espresso/UiAutomator → Appium/Maestro → Firebase Test Lab → AIVerify
+```
+
+前代工具的核心断言是"路径走通了"；本项目的核心断言是"路径被运行时事件
+打断之后，状态还是对的"。
+
+生态位的生存依赖：可复现构建与 source 冻结、至少一台真实设备/模拟器、
+证据纪律、Goldset/注入基准的定期自校准。四者缺一，这个生态位就不成立。
+
+一句话：本项目占据传统质量链上"系统测试与验收之间、自动化脚本与人工探索
+之间"的空白带，把变异测试、混沌工程、蜕变测试压缩进单次可审计运行。这个
+空白带在传统时代由资深 QA 的对抗直觉零星填充；AI 编码时代，它从奢侈品
+变成必需品。
+
 ## 当前状态
 
 截至 2026-08-12：
