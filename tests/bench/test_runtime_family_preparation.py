@@ -247,14 +247,13 @@ def _family_inputs(tmp_path: Path) -> tuple[tuple[RuntimeFamilyLaneInput, ...], 
             CANDIDATE_ROOT / "runtime" / "lanes" / f"lane-{index:02d}" / "run-spec.yaml"
         )
         spec = replace(source_spec, host_project=source_dir)
-        mapped_lane = runtime_mapping.load_runtime_mapping_release(
+        mapped_release = runtime_mapping.load_runtime_mapping_release(
             MAPPING_ROOT / "mapping-release.json"
-        ).lanes[index - 1]
+        )
+        mapped_lane = mapped_release.lanes[index - 1]
         binding = {
-            "release_id": runtime_mapping.RUNTIME_MAPPING_RELEASE_ID,
-            "release_identity_sha256": runtime_mapping.load_runtime_mapping_release(
-                MAPPING_ROOT / "mapping-release.json"
-            ).identity_sha256,
+            "release_id": mapped_release.release_id,
+            "release_identity_sha256": mapped_release.identity_sha256,
             "lane_id": lane_id,
             "source_request_identity_sha256": mapped_lane.source_request.identity_sha256,
             "lane_identity_sha256": mapped_lane.identity_sha256,

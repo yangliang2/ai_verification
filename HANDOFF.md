@@ -1,6 +1,6 @@
 # HANDOFF
 
-更新时间：2026-09-28（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
+更新时间：2026-09-28（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
 
 M9 与 M9-R 均已以不可变的 `Not Supported` 失败证据收口。#137 的六条 lane 均在
 install 前 non-accountable；fresh recovery packet #154 的唯一调用更早在
@@ -35,11 +35,17 @@ control rejection、0/6 review，零 retry/replacement/rerun。接手者应先�
   mapping release（#206）、sealed APK handoff（#207）、four-lane runtime
   family preparation（#208，[run record](docs/runs/2026-08-30-issue-208-runtime-family-preparation/README.md)，
   全量 1424 passed）。
+- **逐 lane mapping 重签发**（#225，[run record](docs/runs/2026-09-28-issue-225-runtime-mapping-reissue/README.md)）：
+  ChangeTarget 两条 lane 各自物化一份 private pristine clone
+  （`change_target_pristine_source`，baseline `0584d61`），四条 lane 的
+  worktree 两两独立；新 release `opencalc-runtime-mapping-release-v2`
+  （identity `cd2c36ec…`），v1 release 保持可加载、可再验证且字节一致；
+  lane 03/04 与驱动接口不变，未修改 #206 已提交产物。
 - **当前状态**：family preparation 完成但仍 **pre-device**——无 device
-  session、无 runtime attempt record。已知缺口：#206 mapping 中 lane 01/02
-  共享同一 ChangeTarget source 路径，严格 family preparation 会拒绝，需签发
-  逐 lane 新 mapping。Runtime Calibration Family 按定义不形成 benchmark
-  denominator 或 capability claim。
+  session、无 runtime attempt record。原已知缺口（#206 mapping 中 lane 01/02
+  共享同一 ChangeTarget source 路径）已由 #225 解除；#216（real four-cell
+  family preparation）等待消费新 release。Runtime Calibration Family 按
+  定义不形成 benchmark denominator 或 capability claim。
 
 ### 第二宿主 tasks/tasks（2026-09-28）
 
@@ -309,9 +315,10 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
 
 **当前待办（2026-09-28）：**
 
-1. OpenCalc：签发逐 lane source mapping 解除 #208 记录的 lane 01/02 共享
-   ChangeTarget source 路径缺口，然后才谈 device session；此前不创建任何
-   runtime attempt record。
+1. OpenCalc：逐 lane source mapping 已由 #225 重签发并提交 run record，
+   lane 01/02 共享路径缺口解除；下一步是让 #216 消费
+   `opencalc-runtime-mapping-release-v2` 做真实 four-cell family preparation。
+   device session 与 runtime attempt record 仍未授权，此前不得创建。
 2. tasks/tasks：执行测试计划 Part 1 环境准备（P1.1–P1.7），放行条件是用户
    批准计划与冻结 commit；Part 2 的 formal population 未人工冻结、未授权。
 3. Catima 保持未见 holdout：不 clone、不构建、不暴露源码给任何验证动作。

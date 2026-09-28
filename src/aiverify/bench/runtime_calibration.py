@@ -1960,6 +1960,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--materialization-root",
         help="new empty root for the two private ProjectTarget materializations",
     )
+    admit.add_argument(
+        "--change-materialization-root",
+        help="new empty root for the two private ChangeTarget materializations",
+    )
     prepare = commands.add_parser(
         "prepare-family",
         help="prepare four sealed runtime APKs and close family-wide gates",
@@ -2054,6 +2058,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 predecessor_root=args.predecessor_root,
                 output_root=args.output_root,
                 materialization_root=args.materialization_root,
+                change_materialization_root=args.change_materialization_root,
             )
         except runtime_mapping.RuntimeMappingError as error:
             print(error.code, file=sys.stderr)

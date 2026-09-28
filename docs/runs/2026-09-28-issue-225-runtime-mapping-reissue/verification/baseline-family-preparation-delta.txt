@@ -1,0 +1,33 @@
+Issue #225 — family-preparation failure-set baseline (pre-existing, environmental)
+=================================================================================
+
+HEAD side (detached worktree at 3365b82c0a247ef52fd7b59926a0d6f41d871292):
+
+    git worktree add /tmp/issue-225-head-check --detach HEAD
+    cd /tmp/issue-225-head-check
+    env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
+        AIVERIFY_OPENCALC_SOURCE_ROOT=$HOME/hosts/opencalc-calibration \
+        /Users/80268204/Projects/ai_verification/.venv/bin/python -m pytest \
+        tests/bench/test_runtime_family_preparation.py -q -p no:cacheprovider
+
+Working-tree side: identical command from the repository root with .venv/bin/python.
+
+Result: 17 failed of 17 collected on both sides. The sorted FAILED lists are
+byte-identical (`diff` exits 0; see baseline-head-failed-tests.txt and
+baseline-worktree-failed-tests.txt). Failure-set identity, not just the count,
+is the baseline claim.
+
+Root cause (independent of #225): every test in the module binds the committed
+#206 stage receipts, which record a foreign absolute candidate_root:
+
+    docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/
+        family-stage-final/stage-terminal.json
+        "candidate_root": "/Users/peter/projects/ai_verfication/bench/runtime-calibration/opencalc-input-save-enabled-v1"
+
+runtime_family_preparation then raises `mapping_predecessor_input_mismatch`
+(34 occurrences across the 17 failures) because that path can never equal the
+local candidate root on this machine. The module exercises the strict family
+preparation stage end to end, which cannot run green here for any codebase
+state; the #225-specific gate behaviour is therefore verified through the
+production predicate and the real `admit_family` stage in
+tests/bench/test_runtime_mapping.py instead.

@@ -1,0 +1,7 @@
+scope: uvx mypy --ignore-missing-imports src/aiverify/bench/opencalc_discovery.py src/aiverify/bench/runtime_calibration.py src/aiverify/bench/runtime_mapping.py
+HEAD total 78 | working tree total 74
+INTRODUCED 0
+RESOLVED 4
+  - 1 src/aiverify/bench/opencalc_discovery.py error: Argument "risk_priority" to "SourceRichDiscoveryPackage" has incompatible type "RiskPriority | None"; expected "RiskPriority"  [arg-type]
+  - 1 src/aiverify/bench/opencalc_discovery.py error: Argument 1 to "Path" has incompatible type "str | Path | None"; expected "str | PathLike[str]"  [arg-type]
+  - 2 src/aiverify/bench/opencalc_discovery.py error: Missing return statement  [return]

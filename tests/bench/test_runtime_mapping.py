@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 from dataclasses import replace
 from pathlib import Path
@@ -9,11 +10,25 @@ from pathlib import Path
 import pytest
 
 from aiverify.bench import opencalc_discovery as discovery
-from aiverify.bench import runtime_calibration, runtime_mapping
+from aiverify.bench import (
+    runtime_calibration,
+    runtime_family_preparation,
+    runtime_mapping,
+)
 
 ROOT = Path(__file__).parents[2]
 CANDIDATE = ROOT / "bench/runtime-calibration/opencalc-input-save-enabled-v1"
-SOURCE = Path("/Users/peter/hosts/opencalc-calibration")
+SOURCE = Path(
+    os.environ.get(
+        "AIVERIFY_OPENCALC_SOURCE_ROOT",
+        "/Users/peter/hosts/opencalc-calibration",
+    )
+)
+COMMITTED_V1_RELEASE = (
+    ROOT
+    / "docs/runs/2026-08-29-issue-206-runtime-mapping-release"
+    / "verification/family-stage-final/mapping-release.json"
+)
 
 
 pytestmark = pytest.mark.skipif(
@@ -25,7 +40,11 @@ pytestmark = pytest.mark.skipif(
 def test_release_runtime_mapping_binds_the_four_frozen_lanes(
     tmp_path: Path,
 ) -> None:
-    change = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    change = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
     project = discovery.admit_project_target_pair(
         CANDIDATE,
         SOURCE,
@@ -40,6 +59,7 @@ def test_release_runtime_mapping_binds_the_four_frozen_lanes(
 
     assert release.status == "mapping_released"
     assert release.previous_status == "sealed_blind"
+    assert release.release_id == runtime_mapping.RUNTIME_MAPPING_RELEASE_ID_V2
     assert release.lane_ids == runtime_mapping.RUNTIME_LANE_IDS
     assert [lane.lane_id for lane in release.lanes] == list(
         runtime_mapping.RUNTIME_LANE_IDS
@@ -50,10 +70,39 @@ def test_release_runtime_mapping_binds_the_four_frozen_lanes(
         ("ProjectTarget", "control"),
         ("ProjectTarget", "defect"),
     ]
+    # The four lanes resolve to four distinct private worktrees, and lanes 01/02
+    # deliver exactly the per-variant ChangeTarget clones.
+    worktrees = [lane.source_request.worktree_path for lane in release.lanes]
+    assert len(set(worktrees)) == 4
+    assert worktrees[:2] == [package.target.worktree for package in change.packages]
+    # The strict family-preparation independence gate passes for all four lanes,
+    # including lanes 01/02 which used to share one host checkout.
+    for index, first in enumerate(worktrees):
+        for second in worktrees[index + 1 :]:
+            assert not runtime_family_preparation._is_overlapping(
+                Path(first),
+                Path(second),
+            )
+    for lane, package in zip(release.lanes[:2], change.packages):
+        # The ChangeTarget delivery contract is unchanged by the per-lane clone.
+        request = lane.source_request
+        assert request.materialization_kind == "change_target_pristine_source"
+        assert request.source_commit == request.baseline_commit
+        assert request.materialized_tree_sha256 == package.pair.baseline.tree_sha256
+        assert request.materialization_receipt_identity_sha256 is None
+        assert request.result_diff_sha256 is None
+        assert package.context_acquisition.materialized_patch_applied is False
+    assert [
+        lane.source_request.materialization_kind for lane in release.lanes[2:]
+    ] == ["project_target_synthetic_commit"] * 2
 
 
 def _release(tmp_path: Path) -> runtime_mapping.RuntimeMappingRelease:
-    change = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    change = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
     project = discovery.admit_project_target_pair(
         CANDIDATE,
         SOURCE,
@@ -192,7 +241,11 @@ def test_release_reverification_rejects_candidate_input_drift(tmp_path: Path) ->
 def test_release_reverification_rejects_post_release_discovery_mutation(
     tmp_path: Path,
 ) -> None:
-    change = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    change = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
     project = discovery.admit_project_target_pair(
         CANDIDATE,
         SOURCE,
@@ -228,12 +281,14 @@ def test_admit_family_stage_requires_terminal_candidate_and_writes_one_release(
 
     output = tmp_path / "family-stage"
     materializations = tmp_path / "project-materializations"
+    change_materializations = tmp_path / "change-materializations"
     release = runtime_mapping.admit_family(
         candidate_root=CANDIDATE,
         source_root=SOURCE,
         predecessor_root=predecessor,
         output_root=output,
         materialization_root=materializations,
+        change_materialization_root=change_materializations,
     )
 
     assert release.status == "mapping_released"
@@ -247,6 +302,17 @@ def test_admit_family_stage_requires_terminal_candidate_and_writes_one_release(
     assert runtime_mapping.RuntimeMappingRelease.from_dict(
         json.loads((output / "mapping-release.json").read_text())
     ) == release
+    worktree_roots = [
+        Path(lane.source_request.worktree_path).parent for lane in release.lanes
+    ]
+    assert worktree_roots[:2] == [
+        change_materializations.resolve(),
+        change_materializations.resolve(),
+    ]
+    assert worktree_roots[2:] == [
+        materializations.resolve(),
+        materializations.resolve(),
+    ]
 
 
 def test_admit_family_stage_rejects_missing_predecessor_without_output_receipts(
@@ -262,3 +328,78 @@ def test_admit_family_stage_rejects_missing_predecessor_without_output_receipts(
         )
     assert error.value.code == "mapping_predecessor_not_accepted"
     assert runtime_mapping.stage_status(output) == "absent"
+
+
+def test_committed_v1_release_stays_loadable_and_byte_identical(
+    tmp_path: Path,
+) -> None:
+    release = runtime_mapping.load_runtime_mapping_release(COMMITTED_V1_RELEASE)
+
+    assert release.release_id == runtime_mapping.RUNTIME_MAPPING_RELEASE_ID_V1
+    assert (
+        runtime_mapping.RUNTIME_MAPPING_RELEASE_ID
+        == runtime_mapping.RUNTIME_MAPPING_RELEASE_ID_V2
+    )
+    assert runtime_mapping.verify_runtime_mapping_release(
+        release,
+        candidate_root=CANDIDATE,
+    ) is True
+    target = tmp_path / runtime_mapping.RUNTIME_MAPPING_RELEASE_FILENAME
+    digest = runtime_mapping.write_runtime_mapping_release(release, target)
+    assert target.read_bytes() == COMMITTED_V1_RELEASE.read_bytes()
+    assert digest == hashlib.sha256(COMMITTED_V1_RELEASE.read_bytes()).hexdigest()
+
+
+def test_versioned_release_ids_reverify_with_their_own_discoveries(
+    tmp_path: Path,
+) -> None:
+    change = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
+    project = discovery.admit_project_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "project-materializations",
+    )
+    current = runtime_mapping.release_runtime_mapping(
+        change,
+        project,
+        candidate_root=CANDIDATE,
+    )
+    legacy = runtime_mapping.release_runtime_mapping(
+        change,
+        project,
+        candidate_root=CANDIDATE,
+        release_id=runtime_mapping.RUNTIME_MAPPING_RELEASE_ID_V1,
+    )
+
+    assert current.release_id == runtime_mapping.RUNTIME_MAPPING_RELEASE_ID_V2
+    assert legacy.release_id == runtime_mapping.RUNTIME_MAPPING_RELEASE_ID_V1
+    assert current.identity_sha256 != legacy.identity_sha256
+    for release in (current, legacy):
+        assert runtime_mapping.verify_runtime_mapping_release(
+            release,
+            candidate_root=CANDIDATE,
+            change_discovery=change,
+            project_discovery=project,
+        ) is True
+    authority = _RecordingSourceAuthority()
+    source_view = legacy.consume(authority)
+    assert [request.request_id for request in source_view.source_requests] == [
+        f"{runtime_mapping.RUNTIME_MAPPING_RELEASE_ID_V1}:{lane_id}:source-request"
+        for lane_id in runtime_mapping.RUNTIME_LANE_IDS
+    ]
+
+
+def test_unknown_release_ids_fail_closed() -> None:
+    release = runtime_mapping.load_runtime_mapping_release(COMMITTED_V1_RELEASE)
+
+    for unknown in (
+        "opencalc-runtime-mapping-release",
+        "opencalc-runtime-mapping-release-v3",
+    ):
+        with pytest.raises(runtime_mapping.RuntimeMappingReleaseError) as error:
+            replace(release, release_id=unknown)
+        assert error.value.code == "mapping_release_identity_mismatch"

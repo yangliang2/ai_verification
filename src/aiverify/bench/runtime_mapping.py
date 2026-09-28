@@ -35,7 +35,15 @@ SCHEMA_VERSION = runtime_calibration.SCHEMA_VERSION
 FAMILY_ID = runtime_calibration.FAMILY_ID
 FAMILY_VERSION = runtime_calibration.FAMILY_VERSION
 
-RUNTIME_MAPPING_RELEASE_ID = "opencalc-runtime-mapping-release-v1"
+RUNTIME_MAPPING_RELEASE_ID_V1 = "opencalc-runtime-mapping-release-v1"
+RUNTIME_MAPPING_RELEASE_ID_V2 = "opencalc-runtime-mapping-release-v2"
+# v1 releases stay loadable and verifiable so the committed #206 artifact keeps
+# re-deriving byte-identically; new releases use the current v2 identity.
+RUNTIME_MAPPING_RELEASE_ID = RUNTIME_MAPPING_RELEASE_ID_V2
+RUNTIME_MAPPING_RELEASE_IDS = (
+    RUNTIME_MAPPING_RELEASE_ID_V1,
+    RUNTIME_MAPPING_RELEASE_ID_V2,
+)
 RUNTIME_MAPPING_RELEASE_FILENAME = "mapping-release.json"
 RUNTIME_MAPPING_CLAIM_BOUNDARY = "local_runtime_mapping_release_only"
 SEALED_BLIND_STATUS = "sealed_blind"
@@ -844,7 +852,7 @@ class SourceAuthorityVerification:
     status: str = "verified"
 
     def __post_init__(self) -> None:
-        if self.release_id != RUNTIME_MAPPING_RELEASE_ID:
+        if self.release_id not in RUNTIME_MAPPING_RELEASE_IDS:
             _fail("mapping_release_identity_mismatch")
         _sha256(self.release_identity_sha256)
         _required_text(self.authority_kind)
@@ -873,7 +881,7 @@ class SourceAuthorityMapping:
     status: str = MAPPING_RELEASED_STATUS
 
     def __post_init__(self) -> None:
-        if self.release_id != RUNTIME_MAPPING_RELEASE_ID:
+        if self.release_id not in RUNTIME_MAPPING_RELEASE_IDS:
             _fail("mapping_release_identity_mismatch")
         _sha256(self.release_identity_sha256)
         if self.status != MAPPING_RELEASED_STATUS:
@@ -971,7 +979,7 @@ class ReducerMapping:
     status: str = MAPPING_RELEASED_STATUS
 
     def __post_init__(self) -> None:
-        if self.release_id != RUNTIME_MAPPING_RELEASE_ID:
+        if self.release_id not in RUNTIME_MAPPING_RELEASE_IDS:
             _fail("mapping_release_identity_mismatch")
         _sha256(self.release_identity_sha256)
         if self.status != MAPPING_RELEASED_STATUS:
@@ -1046,7 +1054,7 @@ class RuntimeMappingRelease:
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
-        if self.release_id != RUNTIME_MAPPING_RELEASE_ID:
+        if self.release_id not in RUNTIME_MAPPING_RELEASE_IDS:
             _fail("mapping_release_identity_mismatch")
         for field_name in (
             "candidate_identity_sha256",
@@ -1414,6 +1422,7 @@ def _source_request_for_package(
     *,
     lane_id: str,
     result: discovery.ChangeTargetDiscoveryResult | discovery.ProjectTargetDiscoveryResult,
+    release_id: str,
 ) -> RuntimeSourceRequest:
     target = package.target
     pair = package.pair
@@ -1445,7 +1454,7 @@ def _source_request_for_package(
     else:
         _fail("mapping_source_target_invalid")
     return RuntimeSourceRequest(
-        request_id=f"{RUNTIME_MAPPING_RELEASE_ID}:{lane_id}:source-request",
+        request_id=f"{release_id}:{lane_id}:source-request",
         candidate_identity_sha256=result.candidate_identity_sha256,
         candidate_manifest_sha256=result.candidate_manifest_sha256,
         candidate_artifact_inventory_sha256=result.candidate_artifact_inventory_sha256,
@@ -1526,6 +1535,7 @@ def _candidate_lane_binding(
     projection: discovery.BlindRuntimeProjection,
     lane_id: str,
     result: discovery.ChangeTargetDiscoveryResult | discovery.ProjectTargetDiscoveryResult,
+    release_id: str,
 ) -> RuntimeLaneBinding:
     documents = _read_lane_documents(candidate, lane_id)
     projection_document, projection_raw, projection_canonical = documents["projection"]
@@ -1566,7 +1576,12 @@ def _candidate_lane_binding(
     raw_commitments = (projection_raw, plan_raw, recipe_raw, run_spec_raw)
     if internal_commitments != raw_commitments:
         _fail("mapping_input_digest_mismatch")
-    source_request = _source_request_for_package(package, lane_id=lane_id, result=result)
+    source_request = _source_request_for_package(
+        package,
+        lane_id=lane_id,
+        result=result,
+        release_id=release_id,
+    )
     return RuntimeLaneBinding(
         lane_id=lane_id,
         target_kind="ChangeTarget"
@@ -1606,6 +1621,7 @@ def _validate_discovery_result(
     candidate: runtime_calibration.CandidateInputs,
     result: discovery.ChangeTargetDiscoveryResult | discovery.ProjectTargetDiscoveryResult,
     target_kind: str,
+    release_id: str,
 ) -> tuple[RuntimeLaneBinding, ...]:
     expected_class = (
         discovery.ChangeTargetDiscoveryResult
@@ -1640,7 +1656,16 @@ def _validate_discovery_result(
             raise RuntimeMappingReleaseError("mapping_projection_mismatch") from error
         if projection != expected_projection:
             _fail("mapping_projection_mismatch")
-        bindings.append(_candidate_lane_binding(candidate, package, projection, lane_id, result))
+        bindings.append(
+            _candidate_lane_binding(
+                candidate,
+                package,
+                projection,
+                lane_id,
+                result,
+                release_id,
+            )
+        )
     return tuple(bindings)
 
 
@@ -1826,11 +1851,14 @@ def release_runtime_mapping(
     *,
     candidate_root: str | Path = discovery.DEFAULT_CANDIDATE_ROOT,
     output_path: str | Path | None = None,
+    release_id: str = RUNTIME_MAPPING_RELEASE_ID,
 ) -> RuntimeMappingRelease:
     """Validate all four admitted lanes and create one complete release.
 
     No output is written until both discovery results, all candidate artifacts,
-    all cross-bindings, and the uniform driver-visible shape have passed.
+    all cross-bindings, and the uniform driver-visible shape have passed.  The
+    ``release_id`` selects the versioned release identity, so a persisted v1
+    release can be re-derived byte-identically during verification.
     """
 
     if output_path is not None:
@@ -1845,8 +1873,12 @@ def release_runtime_mapping(
         _fail("mapping_project_discovery_required")
     if change_discovery.pair != project_discovery.pair:
         _fail("mapping_source_pair_mismatch")
-    change_lanes = _validate_discovery_result(candidate, change_discovery, "ChangeTarget")
-    project_lanes = _validate_discovery_result(candidate, project_discovery, "ProjectTarget")
+    change_lanes = _validate_discovery_result(
+        candidate, change_discovery, "ChangeTarget", release_id
+    )
+    project_lanes = _validate_discovery_result(
+        candidate, project_discovery, "ProjectTarget", release_id
+    )
     _validate_shared_discovery_contracts(
         (*change_discovery.packages, *project_discovery.packages)
     )
@@ -1876,7 +1908,7 @@ def release_runtime_mapping(
         for lane in lanes
     )
     release = RuntimeMappingRelease(
-        release_id=RUNTIME_MAPPING_RELEASE_ID,
+        release_id=release_id,
         candidate_identity_sha256=candidate.candidate_identity_sha256,
         candidate_manifest_sha256=candidate.manifest_sha256,
         candidate_artifact_inventory_sha256=candidate.artifact_inventory_sha256,
@@ -1941,6 +1973,7 @@ def verify_runtime_mapping_release(
             change_discovery,
             project_discovery,
             candidate_root=candidate_root or runtime_calibration._default_candidate_root(),
+            release_id=value.release_id,
         )
         if expected.to_dict() != value.to_dict():
             _fail("mapping_post_release_mutation", verification=True)
@@ -2127,6 +2160,7 @@ def admit_family(
     output_root: str | Path,
     predecessor_root: str | Path,
     materialization_root: str | Path | None = None,
+    change_materialization_root: str | Path | None = None,
 ) -> RuntimeMappingRelease:
     """Run the model-free, Git-only family-admission stage."""
 
@@ -2162,7 +2196,11 @@ def admit_family(
     release: RuntimeMappingRelease | None = None
     error_code: str | None = None
     try:
-        change = discovery.admit_change_target_pair(candidate_root, source_root)
+        change = discovery.admit_change_target_pair(
+            candidate_root,
+            source_root,
+            change_materialization_root,
+        )
         project = discovery.admit_project_target_pair(
             candidate_root,
             source_root,
@@ -2225,6 +2263,9 @@ __all__ = [
     "RUNTIME_MAPPING_CLAIM_BOUNDARY",
     "RUNTIME_MAPPING_RELEASE_FILENAME",
     "RUNTIME_MAPPING_RELEASE_ID",
+    "RUNTIME_MAPPING_RELEASE_IDS",
+    "RUNTIME_MAPPING_RELEASE_ID_V1",
+    "RUNTIME_MAPPING_RELEASE_ID_V2",
     "SEALED_BLIND_STATUS",
     "DiscoveryAdmissionReceipt",
     "ReducerLaneBinding",

@@ -1,0 +1,1825 @@
+FFFFFFFFFFFFFFFFF                                                        [100%]
+=================================== FAILURES ===================================
+___ test_prepare_runtime_family_success_records_four_opaque_lanes_and_gates ____
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_prepare_runtime_family_su0')
+
+    def test_prepare_runtime_family_success_records_four_opaque_lanes_and_gates(
+        tmp_path: Path,
+    ) -> None:
+        lanes, signer = _family_inputs(tmp_path)
+        calls: list[str] = []
+        payloads = (b"control", b"defect", b"control", b"defect")
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> RuntimePreparationReceipt:
+            calls.append(lane.lane_id)
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payloads[index])
+            apk_path.chmod(0o444)
+            binding = lane.source_authority.mapping_binding
+            return _receipt(lane, signer, apk_path, payloads[index], binding)
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:324: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_______ test_default_preparer_records_one_public_lane_handoff_per_build ________
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_default_preparer_records_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10b562e40>
+
+    def test_default_preparer_records_one_public_lane_handoff_per_build(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        lanes, signer = _family_inputs(tmp_path)
+        calls: list[tuple[str, Path, bool]] = []
+        payloads = (b"control", b"defect", b"control", b"defect")
+    
+        def recording_prepare_runtime_case(**kwargs: object) -> RuntimePreparationReceipt:
+            authority = kwargs["source_authority"]
+            lane = next(item for item in lanes if item.source_authority is authority)
+            sealed_path = kwargs["sealed_apk_path"]
+            assert isinstance(sealed_path, Path)
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            sealed_path.parent.mkdir(parents=True)
+            sealed_path.write_bytes(payloads[index])
+            sealed_path.chmod(0o444)
+            if index == 0:
+                extra_apk = lane.options.workdir / "app" / "build" / "outputs" / "extra.apk"
+                extra_apk.parent.mkdir(parents=True)
+                extra_apk.write_bytes(b"extra real APK output")
+                extra_apk.chmod(0o444)
+            calls.append(
+                (
+                    lane.lane_id,
+                    sealed_path,
+                    kwargs["allow_test_substitutes"] is True,
+                )
+            )
+            return _receipt(
+                lane,
+                signer,
+                sealed_path,
+                payloads[index],
+                lane.source_authority.mapping_binding,
+            )
+    
+        monkeypatch.setattr(
+            runtime_family_preparation,
+            "prepare_runtime_case",
+            recording_prepare_runtime_case,
+        )
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+        )
+
+tests/bench/test_runtime_family_preparation.py:391: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_____ test_lane_local_failure_reproves_health_and_continues_planned_lanes ______
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_lane_local_failure_reprov0')
+
+    def test_lane_local_failure_reproves_health_and_continues_planned_lanes(
+        tmp_path: Path,
+    ) -> None:
+        lanes, signer = _family_inputs(tmp_path)
+        calls: list[str] = []
+        health_calls: list[tuple[str, str]] = []
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            calls.append(lane.lane_id)
+            if lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[0]:
+                built = lane.options.workdir / "app" / "build" / "outputs" / "app-debug.apk"
+                built.parent.mkdir(parents=True)
+                built.write_bytes(b"real failed-lane APK")
+                built.chmod(0o444)
+                return RuntimeFamilyLaneResult(
+                    receipt=_rejected_receipt("build_failed"),
+                    artifacts=(built,),
+                    failure_scope="lane_local",
+                )
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            return _receipt(
+                lane, signer, apk_path, payload, lane.source_authority.mapping_binding
+            )
+    
+        def health(row: object, next_lane: RuntimeFamilyLaneInput) -> bool:
+            health_calls.append((row.lane_id, next_lane.lane_id))  # type: ignore[attr-defined]
+            return True
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+            shared_health_check=health,
+        )
+
+tests/bench/test_runtime_family_preparation.py:445: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+___ test_shared_failure_aborts_without_placeholder_receipts_or_later_builds ____
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_shared_failure_aborts_wit0')
+
+    def test_shared_failure_aborts_without_placeholder_receipts_or_later_builds(
+        tmp_path: Path,
+    ) -> None:
+        lanes, _ = _family_inputs(tmp_path)
+        calls: list[str] = []
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> RuntimeFamilyLaneResult:
+            calls.append(lane.lane_id)
+            return RuntimeFamilyLaneResult(
+                build_started=True,
+                build_attempts=1,
+                failure_scope="shared",
+                rejection_code="runtime_input_vault_rejected",
+            )
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:485: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+___ test_interrupted_started_family_is_abandoned_and_has_no_terminal_receipt ___
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_interrupted_started_famil0')
+
+    def test_interrupted_started_family_is_abandoned_and_has_no_terminal_receipt(
+        tmp_path: Path,
+    ) -> None:
+        lanes, _ = _family_inputs(tmp_path)
+    
+        def preparer(_lane: RuntimeFamilyLaneInput) -> object:
+            raise KeyboardInterrupt
+    
+        output = tmp_path / "family-output"
+        with pytest.raises(KeyboardInterrupt):
+>           prepare_runtime_family(
+                candidate_root=CANDIDATE_ROOT,
+                predecessor_root=MAPPING_ROOT,
+                output_root=output,
+                lane_inputs=lanes,
+                lane_preparer=preparer,
+            )
+
+tests/bench/test_runtime_family_preparation.py:514: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_failed_byte_gate_preserves_all_sealed_apks[within_variant_byte_equality-payloads0] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_failed_byte_gate_preserve0')
+name = 'within_variant_byte_equality'
+payloads = (b'control', b'defect', b'different-control', b'defect')
+
+    @pytest.mark.parametrize(
+        ("name", "payloads"),
+        (
+            (
+                "within_variant_byte_equality",
+                (b"control", b"defect", b"different-control", b"defect"),
+            ),
+            (
+                "control_defect_byte_inequality",
+                (b"same", b"same", b"same", b"same"),
+            ),
+        ),
+    )
+    def test_failed_byte_gate_preserves_all_sealed_apks(
+        tmp_path: Path,
+        name: str,
+        payloads: tuple[bytes, bytes, bytes, bytes],
+    ) -> None:
+        lanes, signer = _family_inputs(tmp_path)
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> RuntimePreparationReceipt:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payloads[index])
+            apk_path.chmod(0o444)
+            return _receipt(
+                lane,
+                signer,
+                apk_path,
+                payloads[index],
+                lane.source_authority.mapping_binding,
+            )
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:562: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_failed_byte_gate_preserves_all_sealed_apks[control_defect_byte_inequality-payloads1] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_failed_byte_gate_preserve1')
+name = 'control_defect_byte_inequality'
+payloads = (b'same', b'same', b'same', b'same')
+
+    @pytest.mark.parametrize(
+        ("name", "payloads"),
+        (
+            (
+                "within_variant_byte_equality",
+                (b"control", b"defect", b"different-control", b"defect"),
+            ),
+            (
+                "control_defect_byte_inequality",
+                (b"same", b"same", b"same", b"same"),
+            ),
+        ),
+    )
+    def test_failed_byte_gate_preserves_all_sealed_apks(
+        tmp_path: Path,
+        name: str,
+        payloads: tuple[bytes, bytes, bytes, bytes],
+    ) -> None:
+        lanes, signer = _family_inputs(tmp_path)
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> RuntimePreparationReceipt:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payloads[index])
+            apk_path.chmod(0o444)
+            return _receipt(
+                lane,
+                signer,
+                apk_path,
+                payloads[index],
+                lane.source_authority.mapping_binding,
+            )
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:562: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_metadata_gate_uses_frozen_expected_metadata_not_only_cross_lane_equality _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_metadata_gate_uses_frozen0')
+
+    def test_metadata_gate_uses_frozen_expected_metadata_not_only_cross_lane_equality(
+        tmp_path: Path,
+    ) -> None:
+        lanes, signer = _family_inputs(tmp_path)
+        wrong_metadata = ApkMetadata(
+            package=lanes[0].spec.package,
+            launcher_activity=lanes[0].spec.activity or "",
+            version_code=54,
+            version_name="not-the-frozen-version",
+        )
+        lanes = (replace(lanes[0], expected_apk_metadata=wrong_metadata), *lanes[1:])
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> RuntimePreparationReceipt:
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(
+                b"control"
+                if lane.lane_id in {"ocrc-v1-lane-01", "ocrc-v1-lane-03"}
+                else b"defect"
+            )
+            apk_path.chmod(0o444)
+            return _receipt(
+                lane,
+                signer,
+                apk_path,
+                apk_path.read_bytes(),
+                lane.source_authority.mapping_binding,
+            )
+    
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=tmp_path / "family-output",
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:618: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[sealed_apks] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_each_family_wide_gate_rej0')
+gate_name = 'sealed_apks'
+
+    @pytest.mark.parametrize(
+        "gate_name",
+        (
+            "sealed_apks",
+            "receipt_identity",
+            "family_signing_identity",
+            "family_vault_identity",
+            "independent_build_environments",
+            "single_build_attempt",
+            "no_runtime_effects",
+            "mapping_handoff_identity",
+            "source_identity",
+        ),
+    )
+    def test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts(
+        tmp_path: Path,
+        gate_name: str,
+    ) -> None:
+        lanes, default_signer = _family_inputs(tmp_path)
+        alternate_vault: RuntimeInputVault | None = None
+        alternate_signer = default_signer
+        if gate_name == "family_signing_identity":
+            alternate_vault, alternate_signer = _vault(
+                tmp_path / "alternate-signer", alias="alternate-runtime"
+            )
+        elif gate_name == "family_vault_identity":
+            alternate_vault, _ = _vault(tmp_path / "alternate-vault")
+        if alternate_vault is not None:
+            lanes = (
+                *lanes[:3],
+                replace(
+                    lanes[3],
+                    runtime_input_vault=alternate_vault,
+                    runtime_signing_identity=alternate_signer,
+                ),
+            )
+    
+        shared_environment: Path | None = None
+        if gate_name == "independent_build_environments":
+            shared_environment = (
+                lanes[2].options.workdir.parent / f"private-environment-{lanes[2].lane_id}"
+            )
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            signer = lane.runtime_signing_identity or default_signer
+            receipt = _receipt(
+                lane,
+                signer,
+                apk_path,
+                payload,
+                lane.source_authority.mapping_binding,
+                private_environment_root=shared_environment,
+            )
+            tamper_last_lane = lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[3]
+            if gate_name == "receipt_identity" and tamper_last_lane:
+                document = receipt.receipt
+                document["receipt_identity_sha256"] = "0" * 64
+                return _repack_receipt(document, recompute_identity=False)
+            if gate_name == "sealed_apks" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["sealed_apk"], dict)
+                document["sealed_apk"]["sha256"] = "0" * 64
+                return _repack_receipt(document)
+            if gate_name == "no_runtime_effects" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["runtime_effects"], dict)
+                document["runtime_effects"]["shell"] = True
+                return _repack_receipt(document)
+            if gate_name == "mapping_handoff_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                binding = source["mapping_binding"]
+                assert isinstance(binding, dict)
+                binding["lane_id"] = "tampered-lane"
+                return _repack_receipt(document)
+            if gate_name == "source_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                after = source["after"]
+                assert isinstance(after, dict)
+                after["commit"] = "b" * 40
+                return _repack_receipt(document)
+            if gate_name == "single_build_attempt" and tamper_last_lane:
+                return RuntimeFamilyLaneResult(
+                    receipt=receipt,
+                    build_started=True,
+                    build_attempts=2,
+                )
+            return receipt
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:731: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[receipt_identity] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_each_family_wide_gate_rej1')
+gate_name = 'receipt_identity'
+
+    @pytest.mark.parametrize(
+        "gate_name",
+        (
+            "sealed_apks",
+            "receipt_identity",
+            "family_signing_identity",
+            "family_vault_identity",
+            "independent_build_environments",
+            "single_build_attempt",
+            "no_runtime_effects",
+            "mapping_handoff_identity",
+            "source_identity",
+        ),
+    )
+    def test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts(
+        tmp_path: Path,
+        gate_name: str,
+    ) -> None:
+        lanes, default_signer = _family_inputs(tmp_path)
+        alternate_vault: RuntimeInputVault | None = None
+        alternate_signer = default_signer
+        if gate_name == "family_signing_identity":
+            alternate_vault, alternate_signer = _vault(
+                tmp_path / "alternate-signer", alias="alternate-runtime"
+            )
+        elif gate_name == "family_vault_identity":
+            alternate_vault, _ = _vault(tmp_path / "alternate-vault")
+        if alternate_vault is not None:
+            lanes = (
+                *lanes[:3],
+                replace(
+                    lanes[3],
+                    runtime_input_vault=alternate_vault,
+                    runtime_signing_identity=alternate_signer,
+                ),
+            )
+    
+        shared_environment: Path | None = None
+        if gate_name == "independent_build_environments":
+            shared_environment = (
+                lanes[2].options.workdir.parent / f"private-environment-{lanes[2].lane_id}"
+            )
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            signer = lane.runtime_signing_identity or default_signer
+            receipt = _receipt(
+                lane,
+                signer,
+                apk_path,
+                payload,
+                lane.source_authority.mapping_binding,
+                private_environment_root=shared_environment,
+            )
+            tamper_last_lane = lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[3]
+            if gate_name == "receipt_identity" and tamper_last_lane:
+                document = receipt.receipt
+                document["receipt_identity_sha256"] = "0" * 64
+                return _repack_receipt(document, recompute_identity=False)
+            if gate_name == "sealed_apks" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["sealed_apk"], dict)
+                document["sealed_apk"]["sha256"] = "0" * 64
+                return _repack_receipt(document)
+            if gate_name == "no_runtime_effects" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["runtime_effects"], dict)
+                document["runtime_effects"]["shell"] = True
+                return _repack_receipt(document)
+            if gate_name == "mapping_handoff_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                binding = source["mapping_binding"]
+                assert isinstance(binding, dict)
+                binding["lane_id"] = "tampered-lane"
+                return _repack_receipt(document)
+            if gate_name == "source_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                after = source["after"]
+                assert isinstance(after, dict)
+                after["commit"] = "b" * 40
+                return _repack_receipt(document)
+            if gate_name == "single_build_attempt" and tamper_last_lane:
+                return RuntimeFamilyLaneResult(
+                    receipt=receipt,
+                    build_started=True,
+                    build_attempts=2,
+                )
+            return receipt
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:731: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[family_signing_identity] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_each_family_wide_gate_rej2')
+gate_name = 'family_signing_identity'
+
+    @pytest.mark.parametrize(
+        "gate_name",
+        (
+            "sealed_apks",
+            "receipt_identity",
+            "family_signing_identity",
+            "family_vault_identity",
+            "independent_build_environments",
+            "single_build_attempt",
+            "no_runtime_effects",
+            "mapping_handoff_identity",
+            "source_identity",
+        ),
+    )
+    def test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts(
+        tmp_path: Path,
+        gate_name: str,
+    ) -> None:
+        lanes, default_signer = _family_inputs(tmp_path)
+        alternate_vault: RuntimeInputVault | None = None
+        alternate_signer = default_signer
+        if gate_name == "family_signing_identity":
+            alternate_vault, alternate_signer = _vault(
+                tmp_path / "alternate-signer", alias="alternate-runtime"
+            )
+        elif gate_name == "family_vault_identity":
+            alternate_vault, _ = _vault(tmp_path / "alternate-vault")
+        if alternate_vault is not None:
+            lanes = (
+                *lanes[:3],
+                replace(
+                    lanes[3],
+                    runtime_input_vault=alternate_vault,
+                    runtime_signing_identity=alternate_signer,
+                ),
+            )
+    
+        shared_environment: Path | None = None
+        if gate_name == "independent_build_environments":
+            shared_environment = (
+                lanes[2].options.workdir.parent / f"private-environment-{lanes[2].lane_id}"
+            )
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            signer = lane.runtime_signing_identity or default_signer
+            receipt = _receipt(
+                lane,
+                signer,
+                apk_path,
+                payload,
+                lane.source_authority.mapping_binding,
+                private_environment_root=shared_environment,
+            )
+            tamper_last_lane = lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[3]
+            if gate_name == "receipt_identity" and tamper_last_lane:
+                document = receipt.receipt
+                document["receipt_identity_sha256"] = "0" * 64
+                return _repack_receipt(document, recompute_identity=False)
+            if gate_name == "sealed_apks" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["sealed_apk"], dict)
+                document["sealed_apk"]["sha256"] = "0" * 64
+                return _repack_receipt(document)
+            if gate_name == "no_runtime_effects" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["runtime_effects"], dict)
+                document["runtime_effects"]["shell"] = True
+                return _repack_receipt(document)
+            if gate_name == "mapping_handoff_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                binding = source["mapping_binding"]
+                assert isinstance(binding, dict)
+                binding["lane_id"] = "tampered-lane"
+                return _repack_receipt(document)
+            if gate_name == "source_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                after = source["after"]
+                assert isinstance(after, dict)
+                after["commit"] = "b" * 40
+                return _repack_receipt(document)
+            if gate_name == "single_build_attempt" and tamper_last_lane:
+                return RuntimeFamilyLaneResult(
+                    receipt=receipt,
+                    build_started=True,
+                    build_attempts=2,
+                )
+            return receipt
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:731: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[family_vault_identity] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_each_family_wide_gate_rej3')
+gate_name = 'family_vault_identity'
+
+    @pytest.mark.parametrize(
+        "gate_name",
+        (
+            "sealed_apks",
+            "receipt_identity",
+            "family_signing_identity",
+            "family_vault_identity",
+            "independent_build_environments",
+            "single_build_attempt",
+            "no_runtime_effects",
+            "mapping_handoff_identity",
+            "source_identity",
+        ),
+    )
+    def test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts(
+        tmp_path: Path,
+        gate_name: str,
+    ) -> None:
+        lanes, default_signer = _family_inputs(tmp_path)
+        alternate_vault: RuntimeInputVault | None = None
+        alternate_signer = default_signer
+        if gate_name == "family_signing_identity":
+            alternate_vault, alternate_signer = _vault(
+                tmp_path / "alternate-signer", alias="alternate-runtime"
+            )
+        elif gate_name == "family_vault_identity":
+            alternate_vault, _ = _vault(tmp_path / "alternate-vault")
+        if alternate_vault is not None:
+            lanes = (
+                *lanes[:3],
+                replace(
+                    lanes[3],
+                    runtime_input_vault=alternate_vault,
+                    runtime_signing_identity=alternate_signer,
+                ),
+            )
+    
+        shared_environment: Path | None = None
+        if gate_name == "independent_build_environments":
+            shared_environment = (
+                lanes[2].options.workdir.parent / f"private-environment-{lanes[2].lane_id}"
+            )
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            signer = lane.runtime_signing_identity or default_signer
+            receipt = _receipt(
+                lane,
+                signer,
+                apk_path,
+                payload,
+                lane.source_authority.mapping_binding,
+                private_environment_root=shared_environment,
+            )
+            tamper_last_lane = lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[3]
+            if gate_name == "receipt_identity" and tamper_last_lane:
+                document = receipt.receipt
+                document["receipt_identity_sha256"] = "0" * 64
+                return _repack_receipt(document, recompute_identity=False)
+            if gate_name == "sealed_apks" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["sealed_apk"], dict)
+                document["sealed_apk"]["sha256"] = "0" * 64
+                return _repack_receipt(document)
+            if gate_name == "no_runtime_effects" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["runtime_effects"], dict)
+                document["runtime_effects"]["shell"] = True
+                return _repack_receipt(document)
+            if gate_name == "mapping_handoff_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                binding = source["mapping_binding"]
+                assert isinstance(binding, dict)
+                binding["lane_id"] = "tampered-lane"
+                return _repack_receipt(document)
+            if gate_name == "source_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                after = source["after"]
+                assert isinstance(after, dict)
+                after["commit"] = "b" * 40
+                return _repack_receipt(document)
+            if gate_name == "single_build_attempt" and tamper_last_lane:
+                return RuntimeFamilyLaneResult(
+                    receipt=receipt,
+                    build_started=True,
+                    build_attempts=2,
+                )
+            return receipt
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:731: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[independent_build_environments] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_each_family_wide_gate_rej4')
+gate_name = 'independent_build_environments'
+
+    @pytest.mark.parametrize(
+        "gate_name",
+        (
+            "sealed_apks",
+            "receipt_identity",
+            "family_signing_identity",
+            "family_vault_identity",
+            "independent_build_environments",
+            "single_build_attempt",
+            "no_runtime_effects",
+            "mapping_handoff_identity",
+            "source_identity",
+        ),
+    )
+    def test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts(
+        tmp_path: Path,
+        gate_name: str,
+    ) -> None:
+        lanes, default_signer = _family_inputs(tmp_path)
+        alternate_vault: RuntimeInputVault | None = None
+        alternate_signer = default_signer
+        if gate_name == "family_signing_identity":
+            alternate_vault, alternate_signer = _vault(
+                tmp_path / "alternate-signer", alias="alternate-runtime"
+            )
+        elif gate_name == "family_vault_identity":
+            alternate_vault, _ = _vault(tmp_path / "alternate-vault")
+        if alternate_vault is not None:
+            lanes = (
+                *lanes[:3],
+                replace(
+                    lanes[3],
+                    runtime_input_vault=alternate_vault,
+                    runtime_signing_identity=alternate_signer,
+                ),
+            )
+    
+        shared_environment: Path | None = None
+        if gate_name == "independent_build_environments":
+            shared_environment = (
+                lanes[2].options.workdir.parent / f"private-environment-{lanes[2].lane_id}"
+            )
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            signer = lane.runtime_signing_identity or default_signer
+            receipt = _receipt(
+                lane,
+                signer,
+                apk_path,
+                payload,
+                lane.source_authority.mapping_binding,
+                private_environment_root=shared_environment,
+            )
+            tamper_last_lane = lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[3]
+            if gate_name == "receipt_identity" and tamper_last_lane:
+                document = receipt.receipt
+                document["receipt_identity_sha256"] = "0" * 64
+                return _repack_receipt(document, recompute_identity=False)
+            if gate_name == "sealed_apks" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["sealed_apk"], dict)
+                document["sealed_apk"]["sha256"] = "0" * 64
+                return _repack_receipt(document)
+            if gate_name == "no_runtime_effects" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["runtime_effects"], dict)
+                document["runtime_effects"]["shell"] = True
+                return _repack_receipt(document)
+            if gate_name == "mapping_handoff_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                binding = source["mapping_binding"]
+                assert isinstance(binding, dict)
+                binding["lane_id"] = "tampered-lane"
+                return _repack_receipt(document)
+            if gate_name == "source_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                after = source["after"]
+                assert isinstance(after, dict)
+                after["commit"] = "b" * 40
+                return _repack_receipt(document)
+            if gate_name == "single_build_attempt" and tamper_last_lane:
+                return RuntimeFamilyLaneResult(
+                    receipt=receipt,
+                    build_started=True,
+                    build_attempts=2,
+                )
+            return receipt
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:731: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[single_build_attempt] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_each_family_wide_gate_rej5')
+gate_name = 'single_build_attempt'
+
+    @pytest.mark.parametrize(
+        "gate_name",
+        (
+            "sealed_apks",
+            "receipt_identity",
+            "family_signing_identity",
+            "family_vault_identity",
+            "independent_build_environments",
+            "single_build_attempt",
+            "no_runtime_effects",
+            "mapping_handoff_identity",
+            "source_identity",
+        ),
+    )
+    def test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts(
+        tmp_path: Path,
+        gate_name: str,
+    ) -> None:
+        lanes, default_signer = _family_inputs(tmp_path)
+        alternate_vault: RuntimeInputVault | None = None
+        alternate_signer = default_signer
+        if gate_name == "family_signing_identity":
+            alternate_vault, alternate_signer = _vault(
+                tmp_path / "alternate-signer", alias="alternate-runtime"
+            )
+        elif gate_name == "family_vault_identity":
+            alternate_vault, _ = _vault(tmp_path / "alternate-vault")
+        if alternate_vault is not None:
+            lanes = (
+                *lanes[:3],
+                replace(
+                    lanes[3],
+                    runtime_input_vault=alternate_vault,
+                    runtime_signing_identity=alternate_signer,
+                ),
+            )
+    
+        shared_environment: Path | None = None
+        if gate_name == "independent_build_environments":
+            shared_environment = (
+                lanes[2].options.workdir.parent / f"private-environment-{lanes[2].lane_id}"
+            )
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            signer = lane.runtime_signing_identity or default_signer
+            receipt = _receipt(
+                lane,
+                signer,
+                apk_path,
+                payload,
+                lane.source_authority.mapping_binding,
+                private_environment_root=shared_environment,
+            )
+            tamper_last_lane = lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[3]
+            if gate_name == "receipt_identity" and tamper_last_lane:
+                document = receipt.receipt
+                document["receipt_identity_sha256"] = "0" * 64
+                return _repack_receipt(document, recompute_identity=False)
+            if gate_name == "sealed_apks" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["sealed_apk"], dict)
+                document["sealed_apk"]["sha256"] = "0" * 64
+                return _repack_receipt(document)
+            if gate_name == "no_runtime_effects" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["runtime_effects"], dict)
+                document["runtime_effects"]["shell"] = True
+                return _repack_receipt(document)
+            if gate_name == "mapping_handoff_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                binding = source["mapping_binding"]
+                assert isinstance(binding, dict)
+                binding["lane_id"] = "tampered-lane"
+                return _repack_receipt(document)
+            if gate_name == "source_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                after = source["after"]
+                assert isinstance(after, dict)
+                after["commit"] = "b" * 40
+                return _repack_receipt(document)
+            if gate_name == "single_build_attempt" and tamper_last_lane:
+                return RuntimeFamilyLaneResult(
+                    receipt=receipt,
+                    build_started=True,
+                    build_attempts=2,
+                )
+            return receipt
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:731: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[no_runtime_effects] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_each_family_wide_gate_rej6')
+gate_name = 'no_runtime_effects'
+
+    @pytest.mark.parametrize(
+        "gate_name",
+        (
+            "sealed_apks",
+            "receipt_identity",
+            "family_signing_identity",
+            "family_vault_identity",
+            "independent_build_environments",
+            "single_build_attempt",
+            "no_runtime_effects",
+            "mapping_handoff_identity",
+            "source_identity",
+        ),
+    )
+    def test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts(
+        tmp_path: Path,
+        gate_name: str,
+    ) -> None:
+        lanes, default_signer = _family_inputs(tmp_path)
+        alternate_vault: RuntimeInputVault | None = None
+        alternate_signer = default_signer
+        if gate_name == "family_signing_identity":
+            alternate_vault, alternate_signer = _vault(
+                tmp_path / "alternate-signer", alias="alternate-runtime"
+            )
+        elif gate_name == "family_vault_identity":
+            alternate_vault, _ = _vault(tmp_path / "alternate-vault")
+        if alternate_vault is not None:
+            lanes = (
+                *lanes[:3],
+                replace(
+                    lanes[3],
+                    runtime_input_vault=alternate_vault,
+                    runtime_signing_identity=alternate_signer,
+                ),
+            )
+    
+        shared_environment: Path | None = None
+        if gate_name == "independent_build_environments":
+            shared_environment = (
+                lanes[2].options.workdir.parent / f"private-environment-{lanes[2].lane_id}"
+            )
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            signer = lane.runtime_signing_identity or default_signer
+            receipt = _receipt(
+                lane,
+                signer,
+                apk_path,
+                payload,
+                lane.source_authority.mapping_binding,
+                private_environment_root=shared_environment,
+            )
+            tamper_last_lane = lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[3]
+            if gate_name == "receipt_identity" and tamper_last_lane:
+                document = receipt.receipt
+                document["receipt_identity_sha256"] = "0" * 64
+                return _repack_receipt(document, recompute_identity=False)
+            if gate_name == "sealed_apks" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["sealed_apk"], dict)
+                document["sealed_apk"]["sha256"] = "0" * 64
+                return _repack_receipt(document)
+            if gate_name == "no_runtime_effects" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["runtime_effects"], dict)
+                document["runtime_effects"]["shell"] = True
+                return _repack_receipt(document)
+            if gate_name == "mapping_handoff_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                binding = source["mapping_binding"]
+                assert isinstance(binding, dict)
+                binding["lane_id"] = "tampered-lane"
+                return _repack_receipt(document)
+            if gate_name == "source_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                after = source["after"]
+                assert isinstance(after, dict)
+                after["commit"] = "b" * 40
+                return _repack_receipt(document)
+            if gate_name == "single_build_attempt" and tamper_last_lane:
+                return RuntimeFamilyLaneResult(
+                    receipt=receipt,
+                    build_started=True,
+                    build_attempts=2,
+                )
+            return receipt
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:731: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[mapping_handoff_identity] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_each_family_wide_gate_rej7')
+gate_name = 'mapping_handoff_identity'
+
+    @pytest.mark.parametrize(
+        "gate_name",
+        (
+            "sealed_apks",
+            "receipt_identity",
+            "family_signing_identity",
+            "family_vault_identity",
+            "independent_build_environments",
+            "single_build_attempt",
+            "no_runtime_effects",
+            "mapping_handoff_identity",
+            "source_identity",
+        ),
+    )
+    def test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts(
+        tmp_path: Path,
+        gate_name: str,
+    ) -> None:
+        lanes, default_signer = _family_inputs(tmp_path)
+        alternate_vault: RuntimeInputVault | None = None
+        alternate_signer = default_signer
+        if gate_name == "family_signing_identity":
+            alternate_vault, alternate_signer = _vault(
+                tmp_path / "alternate-signer", alias="alternate-runtime"
+            )
+        elif gate_name == "family_vault_identity":
+            alternate_vault, _ = _vault(tmp_path / "alternate-vault")
+        if alternate_vault is not None:
+            lanes = (
+                *lanes[:3],
+                replace(
+                    lanes[3],
+                    runtime_input_vault=alternate_vault,
+                    runtime_signing_identity=alternate_signer,
+                ),
+            )
+    
+        shared_environment: Path | None = None
+        if gate_name == "independent_build_environments":
+            shared_environment = (
+                lanes[2].options.workdir.parent / f"private-environment-{lanes[2].lane_id}"
+            )
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            signer = lane.runtime_signing_identity or default_signer
+            receipt = _receipt(
+                lane,
+                signer,
+                apk_path,
+                payload,
+                lane.source_authority.mapping_binding,
+                private_environment_root=shared_environment,
+            )
+            tamper_last_lane = lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[3]
+            if gate_name == "receipt_identity" and tamper_last_lane:
+                document = receipt.receipt
+                document["receipt_identity_sha256"] = "0" * 64
+                return _repack_receipt(document, recompute_identity=False)
+            if gate_name == "sealed_apks" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["sealed_apk"], dict)
+                document["sealed_apk"]["sha256"] = "0" * 64
+                return _repack_receipt(document)
+            if gate_name == "no_runtime_effects" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["runtime_effects"], dict)
+                document["runtime_effects"]["shell"] = True
+                return _repack_receipt(document)
+            if gate_name == "mapping_handoff_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                binding = source["mapping_binding"]
+                assert isinstance(binding, dict)
+                binding["lane_id"] = "tampered-lane"
+                return _repack_receipt(document)
+            if gate_name == "source_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                after = source["after"]
+                assert isinstance(after, dict)
+                after["commit"] = "b" * 40
+                return _repack_receipt(document)
+            if gate_name == "single_build_attempt" and tamper_last_lane:
+                return RuntimeFamilyLaneResult(
+                    receipt=receipt,
+                    build_started=True,
+                    build_attempts=2,
+                )
+            return receipt
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:731: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+_ test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[source_identity] _
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-15/test_each_family_wide_gate_rej8')
+gate_name = 'source_identity'
+
+    @pytest.mark.parametrize(
+        "gate_name",
+        (
+            "sealed_apks",
+            "receipt_identity",
+            "family_signing_identity",
+            "family_vault_identity",
+            "independent_build_environments",
+            "single_build_attempt",
+            "no_runtime_effects",
+            "mapping_handoff_identity",
+            "source_identity",
+        ),
+    )
+    def test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts(
+        tmp_path: Path,
+        gate_name: str,
+    ) -> None:
+        lanes, default_signer = _family_inputs(tmp_path)
+        alternate_vault: RuntimeInputVault | None = None
+        alternate_signer = default_signer
+        if gate_name == "family_signing_identity":
+            alternate_vault, alternate_signer = _vault(
+                tmp_path / "alternate-signer", alias="alternate-runtime"
+            )
+        elif gate_name == "family_vault_identity":
+            alternate_vault, _ = _vault(tmp_path / "alternate-vault")
+        if alternate_vault is not None:
+            lanes = (
+                *lanes[:3],
+                replace(
+                    lanes[3],
+                    runtime_input_vault=alternate_vault,
+                    runtime_signing_identity=alternate_signer,
+                ),
+            )
+    
+        shared_environment: Path | None = None
+        if gate_name == "independent_build_environments":
+            shared_environment = (
+                lanes[2].options.workdir.parent / f"private-environment-{lanes[2].lane_id}"
+            )
+    
+        def preparer(lane: RuntimeFamilyLaneInput) -> object:
+            index = runtime_mapping.FROZEN_LANE_ORDER.index(lane.lane_id)
+            payload = (b"control", b"defect", b"control", b"defect")[index]
+            apk_path = lane.options.artifact_dir / "build" / "app-debug.apk"
+            apk_path.parent.mkdir(parents=True)
+            apk_path.write_bytes(payload)
+            apk_path.chmod(0o444)
+            signer = lane.runtime_signing_identity or default_signer
+            receipt = _receipt(
+                lane,
+                signer,
+                apk_path,
+                payload,
+                lane.source_authority.mapping_binding,
+                private_environment_root=shared_environment,
+            )
+            tamper_last_lane = lane.lane_id == runtime_mapping.FROZEN_LANE_ORDER[3]
+            if gate_name == "receipt_identity" and tamper_last_lane:
+                document = receipt.receipt
+                document["receipt_identity_sha256"] = "0" * 64
+                return _repack_receipt(document, recompute_identity=False)
+            if gate_name == "sealed_apks" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["sealed_apk"], dict)
+                document["sealed_apk"]["sha256"] = "0" * 64
+                return _repack_receipt(document)
+            if gate_name == "no_runtime_effects" and tamper_last_lane:
+                document = receipt.receipt
+                assert isinstance(document["runtime_effects"], dict)
+                document["runtime_effects"]["shell"] = True
+                return _repack_receipt(document)
+            if gate_name == "mapping_handoff_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                binding = source["mapping_binding"]
+                assert isinstance(binding, dict)
+                binding["lane_id"] = "tampered-lane"
+                return _repack_receipt(document)
+            if gate_name == "source_identity" and tamper_last_lane:
+                document = receipt.receipt
+                source = document["source"]
+                assert isinstance(source, dict)
+                after = source["after"]
+                assert isinstance(after, dict)
+                after["commit"] = "b" * 40
+                return _repack_receipt(document)
+            if gate_name == "single_build_attempt" and tamper_last_lane:
+                return RuntimeFamilyLaneResult(
+                    receipt=receipt,
+                    build_started=True,
+                    build_attempts=2,
+                )
+            return receipt
+    
+        output = tmp_path / "family-output"
+>       receipt = prepare_runtime_family(
+            candidate_root=CANDIDATE_ROOT,
+            predecessor_root=MAPPING_ROOT,
+            output_root=output,
+            lane_inputs=lanes,
+            lane_preparer=preparer,
+        )
+
+tests/bench/test_runtime_family_preparation.py:731: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/aiverify/bench/runtime_family_preparation.py:2289: in prepare_runtime_family
+    _load_mapping_predecessor(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+predecessor_root = PosixPath('/Users/80268204/Projects/ai_verification/docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final')
+candidate = CandidateInputs(root=PosixPath('/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save...f9b4c19c090f6e8c1e3a6c6862d274', canonical_sha256='ebaa42cd65e0e7cfb2e9f595495bbe0ec9049259d9ff073ef9cd53e8c9a35023')))
+
+    def _load_mapping_predecessor(
+        predecessor_root: str | Path,
+        *,
+        candidate: runtime_calibration.CandidateInputs,
+    ) -> tuple[runtime_mapping.RuntimeMappingRelease, Path, str, str]:
+        root = _canonical_path(predecessor_root)
+        if runtime_mapping.stage_status(root) != "accepted":
+            raise RuntimeFamilyPreparationError("mapping_predecessor_not_accepted")
+        terminal_path = root / "stage-terminal.json"
+        terminal = _read_json(terminal_path, "mapping_predecessor_not_accepted")
+        if (
+            terminal.get("stage") != "admit-family"
+            or terminal.get("status") != "accepted"
+            or terminal.get("candidate_root") != str(candidate.root)
+        ):
+>           raise RuntimeFamilyPreparationError("mapping_predecessor_input_mismatch")
+E           aiverify.bench.runtime_family_preparation.RuntimeFamilyPreparationError: mapping_predecessor_input_mismatch
+
+src/aiverify/bench/runtime_family_preparation.py:567: RuntimeFamilyPreparationError
+=========================== short test summary info ============================
+FAILED tests/bench/test_runtime_family_preparation.py::test_prepare_runtime_family_success_records_four_opaque_lanes_and_gates
+FAILED tests/bench/test_runtime_family_preparation.py::test_default_preparer_records_one_public_lane_handoff_per_build
+FAILED tests/bench/test_runtime_family_preparation.py::test_lane_local_failure_reproves_health_and_continues_planned_lanes
+FAILED tests/bench/test_runtime_family_preparation.py::test_shared_failure_aborts_without_placeholder_receipts_or_later_builds
+FAILED tests/bench/test_runtime_family_preparation.py::test_interrupted_started_family_is_abandoned_and_has_no_terminal_receipt
+FAILED tests/bench/test_runtime_family_preparation.py::test_failed_byte_gate_preserves_all_sealed_apks[within_variant_byte_equality-payloads0]
+FAILED tests/bench/test_runtime_family_preparation.py::test_failed_byte_gate_preserves_all_sealed_apks[control_defect_byte_inequality-payloads1]
+FAILED tests/bench/test_runtime_family_preparation.py::test_metadata_gate_uses_frozen_expected_metadata_not_only_cross_lane_equality
+FAILED tests/bench/test_runtime_family_preparation.py::test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[sealed_apks]
+FAILED tests/bench/test_runtime_family_preparation.py::test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[receipt_identity]
+FAILED tests/bench/test_runtime_family_preparation.py::test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[family_signing_identity]
+FAILED tests/bench/test_runtime_family_preparation.py::test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[family_vault_identity]
+FAILED tests/bench/test_runtime_family_preparation.py::test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[independent_build_environments]
+FAILED tests/bench/test_runtime_family_preparation.py::test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[single_build_attempt]
+FAILED tests/bench/test_runtime_family_preparation.py::test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[no_runtime_effects]
+FAILED tests/bench/test_runtime_family_preparation.py::test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[mapping_handoff_identity]
+FAILED tests/bench/test_runtime_family_preparation.py::test_each_family_wide_gate_rejects_and_keeps_real_lane_artifacts[source_identity]

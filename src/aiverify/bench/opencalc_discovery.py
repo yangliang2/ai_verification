@@ -6,12 +6,12 @@ upstream checkout, validates the two controlled injections, acquires bounded
 context from each admitted source, and emits auditor-only packages plus blind
 runtime projections for both target modes.
 
-The source tree passed to :func:`admit_change_target_pair` is never patched;
-the patch remains a value in the auditor package and resulting
-``ChangeTarget``.  ``admit_project_target_pair`` instead creates separate
-fresh clones, applies the anchored injection, and records deterministic
-synthetic commits.  Neither path invokes Gradle, Android CLI, adb, a model, or
-a runtime oracle.
+The source tree passed to :func:`admit_change_target_pair` is never patched or
+written; each variant is delivered from its own private pristine clone, and the
+patch remains a value in the auditor package and resulting ``ChangeTarget``.
+``admit_project_target_pair`` instead applies the anchored injection inside
+each of its own fresh clones and records deterministic synthetic commits.
+Neither path invokes Gradle, Android CLI, adb, a model, or a runtime oracle.
 """
 
 from __future__ import annotations
@@ -23,10 +23,10 @@ import re
 import shutil
 import subprocess
 import tempfile
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, Never
 
 from aiverify.bench import runtime_calibration
 from aiverify.discovery.acquisition import (
@@ -2011,17 +2011,23 @@ def _verify_pristine_source(root: Path, baseline: SourceBaseline) -> None:
         _fail("source_tree_mismatch")
 
 
-def _project_fail(code: str) -> None:
+def _change_fail(code: str) -> Never:
+    raise ChangeTargetAdmissionError(code)
+
+
+def _project_fail(code: str) -> Never:
     raise ProjectTargetAdmissionError(code)
 
 
-def _project_git(
+def _materialization_git(
     root: Path,
     *arguments: str,
+    fail: Callable[[str], Never],
+    failure_code: str,
     input_bytes: bytes | None = None,
     env: Mapping[str, str] | None = None,
 ) -> bytes:
-    """Run one non-interactive Git command inside a project materialization."""
+    """Run one non-interactive Git command inside a source materialization."""
 
     try:
         completed = subprocess.run(
@@ -2033,8 +2039,37 @@ def _project_git(
             env=dict(env) if env is not None else _project_git_environment(),
         )
     except (OSError, subprocess.CalledProcessError):
-        _project_fail("project_materialization_failed")
+        fail(failure_code)
     return completed.stdout
+
+
+def _project_git(
+    root: Path,
+    *arguments: str,
+    input_bytes: bytes | None = None,
+    env: Mapping[str, str] | None = None,
+) -> bytes:
+    """Run one non-interactive Git command inside a project materialization."""
+
+    return _materialization_git(
+        root,
+        *arguments,
+        fail=_project_fail,
+        failure_code="project_materialization_failed",
+        input_bytes=input_bytes,
+        env=env,
+    )
+
+
+def _change_git(root: Path, *arguments: str) -> bytes:
+    """Run one non-interactive Git command inside a ChangeTarget materialization."""
+
+    return _materialization_git(
+        root,
+        *arguments,
+        fail=_change_fail,
+        failure_code="source_materialization_failed",
+    )
 
 
 def _project_git_environment() -> dict[str, str]:
@@ -2066,44 +2101,107 @@ def _project_source_tree_sha256(root: Path, commit: str) -> str:
     )
 
 
-def _project_materialization_root(
+def _resolved_or_raw(path: Path) -> Path:
+    """Resolve a reference path for overlap checks without ever raising."""
+
+    try:
+        return path.resolve()
+    except (OSError, RuntimeError):
+        return path
+
+
+def _overlapping_roots(first: Path, second: Path) -> bool:
+    """Report whether either path contains the other or they are equal."""
+
+    return (
+        first == second
+        or first.is_relative_to(second)
+        or second.is_relative_to(first)
+    )
+
+
+def _materialization_root(
     root_value: str | Path | None,
+    *,
     source_root: Path,
+    candidate_root: Path,
+    fail: Callable[[str], Never],
+    codes: tuple[str, str, str, str],
+    temp_prefix: str,
 ) -> Path:
+    """Resolve one exclusive, empty materialization root.
+
+    ``codes`` carries the unavailable, symlink, unsafe, and not-empty rejection
+    codes so each admission seam keeps its own typed error family.  Every
+    overlap decision is computed without raising, so an unsafe root can never be
+    accepted by a surrounding ``except ValueError`` handler.
+    """
+
+    unavailable, symlink, unsafe, not_empty = codes
     if root_value is None:
         try:
-            return Path(tempfile.mkdtemp(prefix="opencalc-project-target-")).resolve()
+            return Path(tempfile.mkdtemp(prefix=temp_prefix)).resolve()
         except OSError:
-            _project_fail("project_materialization_root_unavailable")
+            fail(unavailable)
     raw = Path(root_value).expanduser()
     if raw.is_symlink():
-        _project_fail("project_materialization_root_symlink")
-    try:
-        root = raw.resolve()
-        root.relative_to(source_root)
-        _project_fail("project_materialization_root_unsafe")
-    except ValueError:
-        try:
-            source_root.relative_to(root)
-            _project_fail("project_materialization_root_unsafe")
-        except ValueError:
-            pass
-        except (OSError, RuntimeError):
-            _project_fail("project_materialization_root_unavailable")
-    except (OSError, RuntimeError):
-        _project_fail("project_materialization_root_unavailable")
+        fail(symlink)
+    root = _resolved_or_raw(raw)
+    protected = (_resolved_or_raw(source_root), _resolved_or_raw(candidate_root))
+    if any(_overlapping_roots(root, item) for item in protected):
+        fail(unsafe)
     try:
         root.mkdir(parents=True, exist_ok=True)
     except OSError:
-        _project_fail("project_materialization_root_unavailable")
+        fail(unavailable)
     if root.is_symlink() or not root.is_dir():
-        _project_fail("project_materialization_root_unavailable")
+        fail(unavailable)
     try:
         if any(root.iterdir()):
-            _project_fail("project_materialization_root_not_empty")
+            fail(not_empty)
     except OSError:
-        _project_fail("project_materialization_root_unavailable")
+        fail(unavailable)
     return root
+
+
+def _project_materialization_root(
+    root_value: str | Path | None,
+    source_root: Path,
+    candidate_root: Path,
+) -> Path:
+    return _materialization_root(
+        root_value,
+        source_root=source_root,
+        candidate_root=candidate_root,
+        fail=_project_fail,
+        codes=(
+            "project_materialization_root_unavailable",
+            "project_materialization_root_symlink",
+            "project_materialization_root_unsafe",
+            "project_materialization_root_not_empty",
+        ),
+        temp_prefix="opencalc-project-target-",
+    )
+
+
+def _source_materialization_root(
+    root_value: str | Path | None,
+    source_root: Path,
+    candidate_root: Path,
+) -> Path:
+    return _materialization_root(
+        root_value,
+        source_root=source_root,
+        candidate_root=candidate_root,
+        fail=_change_fail,
+        codes=(
+            "source_materialization_root_unavailable",
+            "source_materialization_root_symlink",
+            "source_materialization_root_unsafe",
+            "source_materialization_root_not_empty",
+        ),
+        temp_prefix="opencalc-change-target-",
+    )
 
 
 def _project_patch_addition(
@@ -2338,10 +2436,10 @@ def _materialize_project_variant(
             worktree_path=str(worktree.resolve()),
         )
     except ProjectTargetAdmissionError:
-        _discard_project_worktree(materialization_root, worktree)
+        _discard_materialization_worktree(materialization_root, worktree)
         raise
     except (OSError, UnicodeDecodeError, ValueError):
-        _discard_project_worktree(materialization_root, worktree)
+        _discard_materialization_worktree(materialization_root, worktree)
         _project_fail("project_materialization_failed")
 
 
@@ -2409,7 +2507,9 @@ def _verify_project_materialization(
         _project_fail("project_materialization_drift")
 
 
-def _discard_project_worktree(materialization_root: Path, worktree: Path) -> None:
+def _discard_materialization_worktree(
+    materialization_root: Path, worktree: Path
+) -> None:
     """Remove only a child created by this admission attempt after rejection."""
 
     try:
@@ -3165,113 +3265,180 @@ def _build_projection(
     )
 
 
+def _materialize_change_variant(
+    source_root: Path,
+    pair: MatchedRuntimeSourcePair,
+    variant: MatchedSourceVariant,
+    materialization_root: Path,
+) -> Path:
+    """Clone one private pristine worktree for one ChangeTarget variant."""
+
+    worktree = materialization_root / variant.source_id
+    if worktree.exists() or worktree.is_symlink():
+        _change_fail("source_materialization_path_exists")
+    try:
+        # Claim the destination atomically so rejection cleanup cannot remove
+        # a directory another process placed at the requested child path.
+        worktree.mkdir()
+    except FileExistsError:
+        _change_fail("source_materialization_path_exists")
+    except OSError:
+        _change_fail("source_materialization_path_unavailable")
+    try:
+        # Git accepts an existing empty destination; the exclusive mkdir above
+        # establishes ownership before any clone bytes are written.  The clone
+        # stays pristine: a ChangeTarget delivery is the baseline itself.
+        _change_git(
+            materialization_root,
+            "clone",
+            "--no-local",
+            "--no-hardlinks",
+            str(source_root),
+            str(worktree),
+        )
+        _change_git(worktree, "remote", "set-url", "origin", pair.baseline.origin)
+        _change_git(worktree, "checkout", "--detach", pair.baseline.commit)
+        _verify_pristine_source(worktree, pair.baseline)
+    except ChangeTargetAdmissionError:
+        _discard_materialization_worktree(materialization_root, worktree)
+        raise
+    except (OSError, UnicodeDecodeError, ValueError):
+        _discard_materialization_worktree(materialization_root, worktree)
+        _change_fail("source_materialization_failed")
+    return worktree.resolve()
+
+
 def admit_change_target_pair(
     candidate_root: str | Path = DEFAULT_CANDIDATE_ROOT,
     source_root: str | Path = DEFAULT_SOURCE_ROOT,
+    materialization_root: str | Path | None = None,
 ) -> ChangeTargetDiscoveryResult:
     """Admit both OpenCalc ChangeTarget campaigns from pristine source.
 
-    The function is deterministic for the same candidate and upstream source
-    identities.  It never applies either patch and never creates a build or
-    device side effect.
+    Candidate and pristine-source identities are checked before any source
+    materialization.  Each variant then receives its own private pristine clone
+    of the pinned baseline, so the two lanes never share a runtime worktree.
+    Rejection removes every worktree this attempt created.  The function never
+    applies either patch and never creates a build or device side effect.
     """
 
-    candidate, pair = _validate_candidate(candidate_root)
-    _validate_patch_artifacts(pair)
-    root = _source_root(source_root)
-    _verify_pristine_source(root, pair.baseline)
-    _validate_anchor_against_source(root, pair)
-    _validate_required_context(root)
-
-    prior = _make_neutral_prior()
-    operator = _make_neutral_operator()
-    strategy = _make_strategy(prior, operator)
-    source_facts = _source_facts(pair, candidate)
-    packages: list[SourceRichDiscoveryPackage] = []
-    for variant in pair.variants:
-        target = ChangeTarget(
-            target_id=variant.source_id,
-            source_origin=pair.baseline.origin,
-            source_commit=pair.baseline.commit,
-            worktree=str(root),
-            diff_ref=_patch_artifact_ref(variant.variant_id),
-            diff_sha256=variant.patch_sha256,
-            spec_ref="bench/runtime-calibration/opencalc-input-save-enabled-v1/source-pair.json",
+    created_worktrees: list[Path] = []
+    output_root: Path | None = None
+    try:
+        candidate, pair = _validate_candidate(candidate_root)
+        _validate_patch_artifacts(pair)
+        root = _source_root(source_root)
+        _verify_pristine_source(root, pair.baseline)
+        _validate_anchor_against_source(root, pair)
+        _validate_required_context(root)
+        output_root = _source_materialization_root(
+            materialization_root,
+            root,
+            candidate.root,
         )
-        try:
-            acquisition_target = ProjectTarget(
-                target_id=target.target_id,
+
+        prior = _make_neutral_prior()
+        operator = _make_neutral_operator()
+        strategy = _make_strategy(prior, operator)
+        source_facts = _source_facts(pair, candidate)
+        packages: list[SourceRichDiscoveryPackage] = []
+        for variant in pair.variants:
+            # Re-read the shared checkout before every clone so a mutation
+            # between variants is never copied into a delivered worktree.
+            _verify_pristine_source(root, pair.baseline)
+            worktree = _materialize_change_variant(root, pair, variant, output_root)
+            created_worktrees.append(output_root / variant.source_id)
+            target = ChangeTarget(
+                target_id=variant.source_id,
                 source_origin=pair.baseline.origin,
                 source_commit=pair.baseline.commit,
-                worktree=str(root),
-                scope=REQUIRED_CONTEXT_PATHS,
-                discovery_budget=REQUIRED_CONTEXT_BUDGET,
+                worktree=str(worktree),
+                diff_ref=_patch_artifact_ref(variant.variant_id),
+                diff_sha256=variant.patch_sha256,
+                spec_ref="bench/runtime-calibration/opencalc-input-save-enabled-v1/source-pair.json",
             )
-            acquired = acquire_project_context(acquisition_target)
-        except (DiscoveryContractError, ValueError) as error:
-            message = str(error).lower()
-            if "unreadable" in message or "non-utf" in message:
-                code = "context_required_path_unreadable"
-            elif "budget" in message or "skipped" in message:
-                code = "context_budget_exhausted"
-            else:
-                code = "context_acquisition_rejected"
-            raise ChangeTargetAdmissionError(code) from error
-        acquired = _augment_context(acquired, source_facts)
-        context = OpenCalcContextAcquisition(acquired)
-        campaign, delta, drift = _make_campaign(
-            target,
-            acquired,
-            variant,
-            prior,
-            operator,
-            strategy,
-        )
-        quality_contract = campaign.campaign.quality_contracts[0]
-        risk_hypothesis = campaign.campaign.hypotheses[0]
-        attack_plan = campaign.campaign.attack_plans[0]
-        risk_priority = campaign.risk_priority
-        if risk_priority is None:
-            _fail("campaign_priority_missing")
-        packages.append(
-            SourceRichDiscoveryPackage(
-                package_id=f"{PAIR_ID}-{variant.variant_id}-package-v1",
-                catalog_id=f"opencalc-input-save-enabled-{variant.variant_id}-v1",
-                target=target,
-                pair=pair,
-                variant=variant,
-                context_acquisition=context,
-                campaign=campaign,
-                behavior_delta=delta,
-                contract_drift=drift,
-                quality_contract=quality_contract,
-                risk_prior=campaign.campaign.risk_priors[0],
-                attack_operator=campaign.campaign.attack_operators[0],
-                risk_hypothesis=risk_hypothesis,
-                attack_plan=attack_plan,
-                risk_priority=risk_priority,
-                exploration_policy_id=EXPLORATION_POLICY_ID,
+            try:
+                acquisition_target = ProjectTarget(
+                    target_id=target.target_id,
+                    source_origin=pair.baseline.origin,
+                    source_commit=pair.baseline.commit,
+                    worktree=str(worktree),
+                    scope=REQUIRED_CONTEXT_PATHS,
+                    discovery_budget=REQUIRED_CONTEXT_BUDGET,
+                )
+                acquired = acquire_project_context(acquisition_target)
+            except (DiscoveryContractError, ValueError) as error:
+                message = str(error).lower()
+                if "unreadable" in message or "non-utf" in message:
+                    code = "context_required_path_unreadable"
+                elif "budget" in message or "skipped" in message:
+                    code = "context_budget_exhausted"
+                else:
+                    code = "context_acquisition_rejected"
+                raise ChangeTargetAdmissionError(code) from error
+            acquired = _augment_context(acquired, source_facts)
+            context = OpenCalcContextAcquisition(acquired)
+            campaign, delta, drift = _make_campaign(
+                target,
+                acquired,
+                variant,
+                prior,
+                operator,
+                strategy,
             )
-        )
+            quality_contract = campaign.campaign.quality_contracts[0]
+            risk_hypothesis = campaign.campaign.hypotheses[0]
+            attack_plan = campaign.campaign.attack_plans[0]
+            risk_priority = campaign.risk_priority
+            if risk_priority is None:
+                _fail("campaign_priority_missing")
+            packages.append(
+                SourceRichDiscoveryPackage(
+                    package_id=f"{PAIR_ID}-{variant.variant_id}-package-v1",
+                    catalog_id=f"opencalc-input-save-enabled-{variant.variant_id}-v1",
+                    target=target,
+                    pair=pair,
+                    variant=variant,
+                    context_acquisition=context,
+                    campaign=campaign,
+                    behavior_delta=delta,
+                    contract_drift=drift,
+                    quality_contract=quality_contract,
+                    risk_prior=campaign.campaign.risk_priors[0],
+                    attack_operator=campaign.campaign.attack_operators[0],
+                    risk_hypothesis=risk_hypothesis,
+                    attack_plan=attack_plan,
+                    risk_priority=risk_priority,
+                    exploration_policy_id=EXPLORATION_POLICY_ID,
+                )
+            )
 
-    projections = [
-        _build_projection(candidate, packages[0], CONTROL_LANE_ID),
-        _build_projection(candidate, packages[1], DEFECT_LANE_ID),
-    ]
-    leakage = audit_projection_leakage(projections)
-    # Re-read identity after acquisition and before returning.  This protects
-    # the result from a source mutation between the generic adapter's own
-    # before/after checks and result assembly.
-    _verify_pristine_source(root, pair.baseline)
-    return ChangeTargetDiscoveryResult(
-        candidate_identity_sha256=candidate.candidate_identity_sha256,
-        candidate_manifest_sha256=candidate.manifest_sha256,
-        candidate_artifact_inventory_sha256=candidate.artifact_inventory_sha256,
-        pair=pair,
-        packages=tuple(packages),
-        projections=tuple(projections),
-        leakage_audit=leakage,
-    )
+        projections = [
+            _build_projection(candidate, packages[0], CONTROL_LANE_ID),
+            _build_projection(candidate, packages[1], DEFECT_LANE_ID),
+        ]
+        leakage = audit_projection_leakage(projections)
+        # Re-read every delivered worktree and the shared checkout after
+        # acquisition and before returning.  This protects the result from a
+        # source mutation between the generic adapter's own before/after checks
+        # and result assembly.
+        for worktree in created_worktrees:
+            _verify_pristine_source(worktree, pair.baseline)
+        _verify_pristine_source(root, pair.baseline)
+        return ChangeTargetDiscoveryResult(
+            candidate_identity_sha256=candidate.candidate_identity_sha256,
+            candidate_manifest_sha256=candidate.manifest_sha256,
+            candidate_artifact_inventory_sha256=candidate.artifact_inventory_sha256,
+            pair=pair,
+            packages=tuple(packages),
+            projections=tuple(projections),
+            leakage_audit=leakage,
+        )
+    except ChangeTargetAdmissionError:
+        if output_root is not None:
+            for worktree in created_worktrees:
+                _discard_materialization_worktree(output_root, worktree)
+        raise
 
 
 def _acquire_project_context_for_admission(
@@ -3315,7 +3482,11 @@ def admit_project_target_pair(
         _verify_pristine_source(root, pair.baseline)
         _validate_anchor_against_source(root, pair)
         _validate_required_context(root)
-        output_root = _project_materialization_root(materialization_root, root)
+        output_root = _project_materialization_root(
+            materialization_root,
+            root,
+            candidate.root,
+        )
 
         prior = _make_neutral_prior()
         operator = _make_neutral_operator()
@@ -3416,12 +3587,12 @@ def admit_project_target_pair(
     except ProjectTargetAdmissionError:
         if output_root is not None:
             for worktree in created_worktrees:
-                _discard_project_worktree(output_root, worktree)
+                _discard_materialization_worktree(output_root, worktree)
         raise
     except ChangeTargetAdmissionError as error:
         if output_root is not None:
             for worktree in created_worktrees:
-                _discard_project_worktree(output_root, worktree)
+                _discard_materialization_worktree(output_root, worktree)
         raise ProjectTargetAdmissionError(error.code) from error
 
 

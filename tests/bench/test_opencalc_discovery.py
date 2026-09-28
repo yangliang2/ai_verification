@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 from dataclasses import replace
@@ -15,7 +16,12 @@ from aiverify.bench.state_evolution import verify_change_target_diff
 
 ROOT = Path(__file__).parents[2]
 CANDIDATE = ROOT / "bench/runtime-calibration/opencalc-input-save-enabled-v1"
-SOURCE = Path("/Users/peter/hosts/opencalc-calibration")
+SOURCE = Path(
+    os.environ.get(
+        "AIVERIFY_OPENCALC_SOURCE_ROOT",
+        "/Users/peter/hosts/opencalc-calibration",
+    )
+)
 
 
 def _source_available() -> bool:
@@ -65,8 +71,21 @@ def _source_file(source_root: Path) -> Path:
     return source_root / discovery.TARGET_SOURCE_PATH
 
 
-def test_admits_both_change_campaigns_from_the_pristine_source() -> None:
-    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+def _git_text(root: Path, *arguments: str) -> str:
+    return subprocess.run(
+        ["git", *arguments],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def test_admits_both_change_campaigns_from_the_pristine_source(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "change-materializations"
+    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE, output)
 
     assert result.admitted is True
     assert [package.variant.variant_id for package in result.packages] == [
@@ -103,6 +122,30 @@ def test_admits_both_change_campaigns_from_the_pristine_source() -> None:
         assert all(
             package.context_acquisition.result.graph.fact(fact_id).status == "unknown"
             for fact_id in package.context_acquisition.unknown_fact_ids
+        )
+
+    worktrees = [package.target.worktree for package in result.packages]
+    assert len(set(worktrees)) == 2
+    assert set(worktrees) == {
+        str(output.resolve() / package.variant.source_id)
+        for package in result.packages
+    }
+    for package, worktree in zip(result.packages, worktrees):
+        # Every lane is delivered from its own private pristine clone.
+        assert package.context_acquisition.source_root == worktree
+        assert Path(worktree).parent == output.resolve()
+        assert not Path(worktree).is_relative_to(SOURCE)
+        assert _git_text(worktree, "rev-parse", "HEAD") == discovery.UPSTREAM_COMMIT
+        assert (
+            _git_text(worktree, "rev-parse", "HEAD^{tree}")
+            == discovery.UPSTREAM_TREE_SHA256
+        )
+        assert (
+            _git_text(worktree, "status", "--porcelain=v1", "--untracked-files=all")
+            == ""
+        )
+        assert _git_text(worktree, "remote", "get-url", "origin") == (
+            discovery.UPSTREAM_ORIGIN
         )
 
     assert result.build_calls == 0
@@ -228,7 +271,11 @@ def test_project_receipts_bind_deterministic_commits_and_clean_materializations(
 def test_project_packages_preserve_source_meaning_and_share_neutral_contracts(
     tmp_path: Path,
 ) -> None:
-    change = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    change = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
     project = discovery.admit_project_target_pair(
         CANDIDATE,
         SOURCE,
@@ -436,27 +483,60 @@ def test_project_package_rejects_an_invented_diff_field(
     assert policy_error.value.code == "package_schema_mismatch"
 
 
-def test_admission_is_deterministic_and_packages_round_trip() -> None:
-    first = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
-    second = discovery.admit_opencalc_change_pair(CANDIDATE, SOURCE)
+def test_admission_is_deterministic_and_packages_round_trip(tmp_path: Path) -> None:
+    first = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "first-materializations",
+    )
+    second = discovery.admit_opencalc_change_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "second-materializations",
+    )
 
-    assert first.to_dict() == second.to_dict()
-    assert first.identity_sha256 == second.identity_sha256
+    assert first.pair == second.pair
     assert first.pair.identity_sha256 == second.pair.identity_sha256
-    assert [item.identity_sha256 for item in first.packages] == [
-        item.identity_sha256 for item in second.packages
+    for left, right in zip(first.packages, second.packages):
+        assert left.variant == right.variant
+        # Delivery paths are per-lane, so only the delivery-independent fields
+        # are comparable across two admissions.
+        for field_name in (
+            "behavior_delta",
+            "contract_drift",
+            "quality_contract",
+            "risk_prior",
+            "attack_operator",
+            "risk_hypothesis",
+            "attack_plan",
+            "risk_priority",
+        ):
+            assert getattr(left, field_name) == getattr(right, field_name)
+        assert left.target.source_commit == right.target.source_commit
+        assert left.target.diff_sha256 == right.target.diff_sha256
+        assert left.target.worktree != right.target.worktree
+        restored = discovery.SourceRichDiscoveryPackage.from_dict(left.to_dict())
+        assert restored == left
+        assert restored.identity_sha256 == left.identity_sha256
+        assert restored.to_dict() == left.to_dict()
+    # Package identities bind the recorded delivery paths, so two admissions
+    # into different materialization roots cannot share one identity.
+    assert first.identity_sha256 != second.identity_sha256
+    assert [package.identity_sha256 for package in first.packages] != [
+        package.identity_sha256 for package in second.packages
     ]
-    for package in first.packages:
-        restored = discovery.SourceRichDiscoveryPackage.from_dict(package.to_dict())
-        assert restored == package
-        assert restored.identity_sha256 == package.identity_sha256
     for projection in first.projections:
         restored = discovery.BlindRuntimeProjection.from_dict(projection.to_dict())
         assert restored == projection
+        assert restored.identity_sha256 == projection.identity_sha256
 
 
-def test_driver_projections_are_symmetric_and_outcome_blind() -> None:
-    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+def test_driver_projections_are_symmetric_and_outcome_blind(tmp_path: Path) -> None:
+    result = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
     documents = result.driver_visible_serializations()
 
     assert documents[0].keys() == documents[1].keys()
@@ -477,8 +557,14 @@ def test_driver_projections_are_symmetric_and_outcome_blind() -> None:
     assert audit.status == "passed"
 
 
-def test_auditor_package_retains_the_real_delta_and_source_meaning() -> None:
-    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+def test_auditor_package_retains_the_real_delta_and_source_meaning(
+    tmp_path: Path,
+) -> None:
+    result = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
     control, defect = result.packages
 
     assert control.variant.right_hand_side == "true"
@@ -499,8 +585,12 @@ def test_auditor_package_retains_the_real_delta_and_source_meaning() -> None:
     assert control.attack_plan.plan_id == defect.attack_plan.plan_id
 
 
-def test_change_targets_bind_real_repository_patch_artifacts() -> None:
-    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+def test_change_targets_bind_real_repository_patch_artifacts(tmp_path: Path) -> None:
+    result = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
 
     for package in result.packages:
         assert package.target.diff_ref == (
@@ -513,6 +603,7 @@ def test_change_targets_bind_real_repository_patch_artifacts() -> None:
 
 def test_admission_only_runs_git_and_leaves_pristine_source_unchanged(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
     target = _source_file(SOURCE)
     before_bytes = target.read_bytes()
@@ -533,7 +624,11 @@ def test_admission_only_runs_git_and_leaves_pristine_source_unchanged(
         return real_run(*args, **kwargs)
 
     monkeypatch.setattr(discovery.subprocess, "run", record_run)
-    discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+    discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
 
     assert calls
     assert all(command and command[0] == "git" for command in calls)
@@ -550,6 +645,176 @@ def test_admission_only_runs_git_and_leaves_pristine_source_unchanged(
         text=True,
     ).stdout
     assert after_status == before_status == ""
+
+
+@pytest.mark.parametrize(
+    ("kind", "code"),
+    (
+        ("missing", "source_root_unavailable"),
+        ("symlink", "source_root_symlink"),
+        ("nested", "source_root_not_repository"),
+        ("plain", "source_identity_unavailable"),
+    ),
+)
+def test_unusable_source_roots_are_rejected_with_typed_codes(
+    tmp_path: Path,
+    kind: str,
+    code: str,
+) -> None:
+    if kind == "missing":
+        source: Path = tmp_path / "missing-source"
+    elif kind == "symlink":
+        source = tmp_path / "linked-source"
+        source.symlink_to(SOURCE, target_is_directory=True)
+    elif kind == "nested":
+        source = SOURCE / "app"
+    else:
+        source = tmp_path / "plain-source"
+        source.mkdir()
+    materializations = tmp_path / "change-materializations"
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery.admit_change_target_pair(CANDIDATE, source, materializations)
+
+    assert error.value.code == code
+    assert not materializations.exists()
+
+
+def test_change_admission_rejects_a_nonempty_materialization_root_before_clone(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "change-materializations"
+    output.mkdir()
+    (output / "caller-owned.txt").write_text("keep me\n")
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery.admit_change_target_pair(CANDIDATE, SOURCE, output)
+
+    assert error.value.code == "source_materialization_root_not_empty"
+    assert (output / "caller-owned.txt").read_text() == "keep me\n"
+
+
+@pytest.mark.parametrize("kind", ("source", "source-parent", "candidate"))
+def test_change_admission_rejects_an_overlapping_materialization_root(
+    tmp_path: Path,
+    kind: str,
+) -> None:
+    root = {
+        "source": SOURCE,
+        "source-parent": SOURCE.parent,
+        "candidate": CANDIDATE,
+    }[kind]
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery.admit_change_target_pair(CANDIDATE, SOURCE, root)
+
+    assert error.value.code == "source_materialization_root_unsafe"
+    assert root.is_dir()
+
+
+def test_change_admission_rejects_symlinked_or_unusable_materialization_roots(
+    tmp_path: Path,
+) -> None:
+    real = tmp_path / "real-root"
+    real.mkdir()
+    link = tmp_path / "linked-root"
+    link.symlink_to(real, target_is_directory=True)
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as linked:
+        discovery.admit_change_target_pair(CANDIDATE, SOURCE, link)
+
+    assert linked.value.code == "source_materialization_root_symlink"
+    assert not any(real.iterdir())
+
+    occupied = tmp_path / "occupied-root"
+    occupied.write_text("i am a file\n")
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as unusable:
+        discovery.admit_change_target_pair(CANDIDATE, SOURCE, occupied)
+
+    assert unusable.value.code == "source_materialization_root_unavailable"
+    assert occupied.read_text() == "i am a file\n"
+
+
+@pytest.mark.parametrize("variant_id", ("control", "defect"))
+def test_change_admission_removes_created_worktrees_after_context_rejection(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    variant_id: str,
+) -> None:
+    output = tmp_path / "change-materializations"
+    original_acquire = discovery.acquire_project_context
+
+    def acquire_and_fail(target: object) -> object:
+        if str(target.target_id).endswith(f"-{variant_id}"):
+            raise ValueError("rejected")
+        return original_acquire(target)
+
+    monkeypatch.setattr(discovery, "acquire_project_context", acquire_and_fail)
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery.admit_change_target_pair(CANDIDATE, SOURCE, output)
+
+    assert error.value.code == "context_acquisition_rejected"
+    assert output.is_dir()
+    assert not any(output.iterdir())
+
+
+@pytest.mark.parametrize("failure", ("clone", "verify"))
+def test_change_admission_failure_removes_every_worktree_it_created(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure: str,
+) -> None:
+    output = tmp_path / "change-materializations"
+    if failure == "clone":
+        original_change_git = discovery._change_git
+
+        def failing_clone(root: Path, *arguments: str) -> bytes:
+            if arguments and arguments[0] == "clone" and arguments[-1].endswith(
+                "-defect"
+            ):
+                raise OSError("clone refused")
+            return original_change_git(root, *arguments)
+
+        monkeypatch.setattr(discovery, "_change_git", failing_clone)
+        code = "source_materialization_failed"
+    else:
+        original_verify = discovery._verify_pristine_source
+
+        def failing_verify(root: object, baseline: object) -> None:
+            original_verify(root, baseline)
+            if Path(root).name.endswith("-defect"):
+                raise discovery.ChangeTargetAdmissionError("source_worktree_dirty")
+
+        monkeypatch.setattr(discovery, "_verify_pristine_source", failing_verify)
+        code = "source_worktree_dirty"
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery.admit_change_target_pair(CANDIDATE, SOURCE, output)
+
+    assert error.value.code == code
+    assert output.is_dir()
+    assert not any(output.iterdir())
+    assert (
+        _git_text(SOURCE, "status", "--porcelain=v1", "--untracked-files=all") == ""
+    )
+
+
+def test_change_materialization_refuses_a_pre_claimed_child_path(
+    tmp_path: Path,
+) -> None:
+    _, pair = discovery._validate_candidate(CANDIDATE)
+    output = tmp_path / "change-materializations"
+    output.mkdir()
+    variant = pair.variants[0]
+    claimed = output / variant.source_id
+    claimed.mkdir()
+
+    with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
+        discovery._materialize_change_variant(SOURCE, pair, variant, output)
+
+    assert error.value.code == "source_materialization_path_exists"
+    assert claimed.is_dir()
 
 
 @pytest.mark.parametrize(
@@ -578,14 +843,22 @@ def test_pristine_source_admission_rejects_identity_drift(
         subprocess.run(["git", "checkout", "--detach", "HEAD^"], cwd=source, check=True)
 
     with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
-        discovery.admit_change_target_pair(CANDIDATE, source)
+        discovery.admit_change_target_pair(
+            CANDIDATE,
+            source,
+            tmp_path / "change-materializations",
+        )
     assert error.value.code == code
 
 
 def test_pristine_source_admission_rejects_tree_identity_drift(tmp_path: Path) -> None:
     source = _copy_source(tmp_path)
     baseline = replace(
-        discovery.admit_change_target_pair(CANDIDATE, SOURCE).pair.baseline,
+        discovery.admit_change_target_pair(
+            CANDIDATE,
+            SOURCE,
+            tmp_path / "change-materializations",
+        ).pair.baseline,
         tree_sha256="0" * 40,
     )
 
@@ -610,7 +883,11 @@ def test_anchor_admission_rejects_missing_ambiguous_or_drifted_context(
     source = _copy_source(tmp_path)
     path = _source_file(source)
     text = path.read_text()
-    anchor = discovery.admit_change_target_pair(CANDIDATE, SOURCE).pair
+    anchor = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    ).pair
     if mutation == "missing":
         text = text.replace(anchor.anchor.context, "anchor context removed", 1)
     elif mutation == "ambiguous":
@@ -654,7 +931,11 @@ def test_candidate_pair_admission_rejects_pair_contract_drift(
     _rebind_manifest(candidate)
 
     with pytest.raises(discovery.ChangeTargetAdmissionError) as error:
-        discovery.admit_change_target_pair(candidate, SOURCE)
+        discovery.admit_change_target_pair(
+            candidate,
+            SOURCE,
+            tmp_path / "change-materializations",
+        )
     assert error.value.code == code
 
 
@@ -683,8 +964,14 @@ def test_required_context_rejects_missing_unreadable_and_budget_exhaustion(
     assert exhausted.value.code == "context_budget_exhausted"
 
 
-def test_projection_leakage_rejects_hidden_material_without_mutating_auditor_package() -> None:
-    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+def test_projection_leakage_rejects_hidden_material_without_mutating_auditor_package(
+    tmp_path: Path,
+) -> None:
+    result = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
     original_package = result.packages[0].to_dict()
     leaked = result.projections[0].to_dict()
     leaked["hidden_variant"] = "defect"
@@ -695,8 +982,12 @@ def test_projection_leakage_rejects_hidden_material_without_mutating_auditor_pac
     assert result.packages[0].to_dict() == original_package
 
 
-def test_projection_diff_and_model_policy_are_fail_closed() -> None:
-    result = discovery.admit_change_target_pair(CANDIDATE, SOURCE)
+def test_projection_diff_and_model_policy_are_fail_closed(tmp_path: Path) -> None:
+    result = discovery.admit_change_target_pair(
+        CANDIDATE,
+        SOURCE,
+        tmp_path / "change-materializations",
+    )
     leaked = result.projections[0].to_dict()
     leaked["diff"] = "hidden patch"
     with pytest.raises(discovery.ChangeTargetAdmissionError) as diff_error:

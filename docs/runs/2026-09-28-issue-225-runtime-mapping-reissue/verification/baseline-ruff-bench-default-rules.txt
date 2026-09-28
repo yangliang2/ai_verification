@@ -1,0 +1,3718 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/l3_repeatability.py:8:1
+   |
+ 6 |   """
+ 7 |
+ 8 | / from __future__ import annotations
+ 9 | |
+10 | | import argparse
+11 | | import json
+12 | | import time
+13 | | from collections import Counter
+14 | | from dataclasses import dataclass
+15 | | from datetime import datetime, timezone
+16 | | from pathlib import Path
+17 | | from statistics import median
+18 | | from typing import Callable, Any
+19 | |
+20 | | from aiverify.agent.oracle.l3 import L3Oracle
+21 | | from aiverify.providers.base import LLMProvider
+22 | | from aiverify.providers.codex_cli import CodexCliProvider
+23 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+17 | from statistics import median
+   - from typing import Callable, Any
+18 + from typing import Any, Callable
+19 |
+--------------------------------------------------------------------------------
+23 | from aiverify.runner.run_spec import load_run_spec
+   -
+24 |
+   |
+
+UP035 [*] Import from `collections.abc` instead: `Callable`
+  --> src/aiverify/bench/l3_repeatability.py:18:1
+   |
+16 | from pathlib import Path
+17 | from statistics import median
+18 | from typing import Callable, Any
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 |
+20 | from aiverify.agent.oracle.l3 import L3Oracle
+   |
+help: Import from `collections.abc`
+   |
+17 | from statistics import median
+   - from typing import Callable, Any
+18 + from typing import Any
+19 + from collections.abc import Callable
+20 |
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+  --> src/aiverify/bench/l3_repeatability.py:97:38
+   |
+96 |     return {
+97 |         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+   |                                      ^^^^^^^^^^^^
+98 |         "total_iterations": len(calls),
+99 |         "total_errors": total_errors,
+   |
+help: Convert to `datetime.UTC` alias
+   |
+14 | from dataclasses import dataclass
+   - from datetime import datetime, timezone
+15 + from datetime import datetime, timezone, UTC
+16 | from pathlib import Path
+--------------------------------------------------------------------------------
+96 |     return {
+   -         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+97 +         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
+98 |         "total_iterations": len(calls),
+   |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/lifecycle_recovery.py:357:9
+    |
+355 |     data = json.loads(layout_json)
+356 |     if not isinstance(data, list):
+357 |         raise ValueError("Android layout evidence must be a JSON list")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+358 |     by_id = {
+359 |         str(item.get("resource-id", "")).rsplit("/", 1)[-1]: item.get("text")
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/lifecycle_recovery.py:374:9
+    |
+372 |     data = json.loads(path.read_text(encoding="utf-8"))
+373 |     if not isinstance(data, dict):
+374 |         raise ValueError(f"{label} must be a JSON object")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+375 |     return data
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/lifecycle_recovery.py:389:9
+    |
+387 |     value = data.get(key)
+388 |     if not isinstance(value, dict):
+389 |         raise ValueError(f"{key} must be an object")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+390 |     return value
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> src/aiverify/bench/lifecycle_recovery.py:423:12
+    |
+421 |     try:
+422 |         write_json_artifact(args.output, verdict)
+423 |     except Exception as error:
+    |            ^^^^^^^^^
+424 |         print(f"cannot write lifecycle oracle verdict: {error}", file=sys.stderr)
+425 |         return 2
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/live_validation_gate.py:3:1
+   |
+ 1 |   """Live Android environment validation gate."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import argparse
+ 6 | | import json
+ 7 | | import subprocess
+ 8 | | import sys
+ 9 | | import time
+10 | | from dataclasses import dataclass
+11 | | from pathlib import Path
+12 | |
+13 | | from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
+   | |_________________________________________________________________________________________^
+help: Organize imports
+   |
+12 |
+   - from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
+   -
+13 + from aiverify.runner.command import (
+14 +     CommandResult,
+15 +     CommandRunner,
+16 +     SubprocessCommandRunner,
+17 + )
+18 |
+   |
+
+F401 [*] `aiverify.runner.command.CommandResult` imported but unused
+  --> src/aiverify/bench/live_validation_gate.py:13:37
+   |
+11 | from pathlib import Path
+12 |
+13 | from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
+   |                                     ^^^^^^^^^^^^^
+help: Remove unused import: `aiverify.runner.command.CommandResult`
+   |
+12 |
+   - from aiverify.runner.command import CommandResult, CommandRunner, SubprocessCommandRunner
+13 + from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
+14 |
+   |
+
+SIM103 Return the negated condition directly
+   --> src/aiverify/bench/live_validation_gate.py:667:5
+    |
+665 |           return False
+666 |       content_desc = target_surface.get("content_desc")
+667 | /     if content_desc and _first_str(node, "content-desc", "contentDesc") != content_desc:
+668 | |         return False
+669 | |     return True
+    | |_______________^
+help: Inline condition
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m2_beta_summary.py:3:1
+   |
+ 1 |   """M2-beta benchmark slice aggregation."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import argparse
+ 6 | | import json
+ 7 | | from collections import Counter
+ 8 | | from dataclasses import dataclass
+ 9 | | from pathlib import Path
+10 | | from typing import Any
+11 | |
+12 | | import yaml
+13 | |
+14 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+15 |
+   -
+16 | _DEFAULT_MANIFEST = Path("bench/goldset/m2-beta-slice.yaml")
+   |
+
+TRY004 Prefer `TypeError` exception for invalid type
+  --> src/aiverify/bench/m2_beta_summary.py:83:9
+   |
+81 |     raw_repeatability = manifest.get("repeatability_packages", [])
+82 |     if not isinstance(raw_seeds, list):
+83 |         raise ValueError("m2-beta manifest seeds must be a list")
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+84 |     if not isinstance(raw_repeatability, list):
+85 |         raise ValueError("m2-beta manifest repeatability_packages must be a list")
+   |
+
+TRY004 Prefer `TypeError` exception for invalid type
+  --> src/aiverify/bench/m2_beta_summary.py:85:9
+   |
+83 |         raise ValueError("m2-beta manifest seeds must be a list")
+84 |     if not isinstance(raw_repeatability, list):
+85 |         raise ValueError("m2-beta manifest repeatability_packages must be a list")
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+86 |
+87 |     seeds = tuple(_load_seed(repo_root, row) for row in raw_seeds)
+   |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:228:9
+    |
+226 | def _load_seed(repo_root: Path, row: object) -> SeedRecord:
+227 |     if not isinstance(row, dict):
+228 |         raise ValueError("m2-beta seed rows must be mappings")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+229 |
+230 |     seed_id = _required_str(row, "id")
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:377:9
+    |
+375 |     selected = payload.get(selector)
+376 |     if not isinstance(selected, dict):
+377 |         raise ValueError(f"{seed_id} {role} verdict selector not found: {selector}")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+378 |     return selected
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:496:9
+    |
+494 | def _load_repeatability(repo_root: Path, row: object) -> RepeatabilityRecord:
+495 |     if not isinstance(row, dict):
+496 |         raise ValueError("m2-beta repeatability rows must be mappings")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+497 |     run_record = _required_str(row, "run_record")
+498 |     summary_path = repo_root / run_record / "summary.json"
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:517:9
+    |
+515 |     data = yaml.safe_load(path.read_text(encoding="utf-8"))
+516 |     if not isinstance(data, dict):
+517 |         raise ValueError(f"{path} must be a mapping")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+518 |     return data
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:524:9
+    |
+522 |     data = json.loads(path.read_text(encoding="utf-8"))
+523 |     if not isinstance(data, dict):
+524 |         raise ValueError(f"{path} must be a JSON object")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+525 |     return data
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:535:9
+    |
+533 |     by_half = summary.get("by_half")
+534 |     if not isinstance(by_half, dict):
+535 |         raise ValueError("repeatability summary requires by_half mapping")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+536 |     half_summary = by_half.get(half)
+537 |     if not isinstance(half_summary, dict):
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:538:9
+    |
+536 |     half_summary = by_half.get(half)
+537 |     if not isinstance(half_summary, dict):
+538 |         raise ValueError(f"repeatability summary requires {half} half")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+539 |     outcomes = half_summary.get("outcomes")
+540 |     if not isinstance(outcomes, dict):
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:541:9
+    |
+539 |     outcomes = half_summary.get("outcomes")
+540 |     if not isinstance(outcomes, dict):
+541 |         raise ValueError(f"repeatability summary requires {half}.outcomes")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+542 |     value = outcomes.get(outcome, 0)
+543 |     if not isinstance(value, int):
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:544:9
+    |
+542 |     value = outcomes.get(outcome, 0)
+543 |     if not isinstance(value, int):
+544 |         raise ValueError(f"repeatability {half}.{outcome} count must be integer")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+545 |     return value
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:590:9
+    |
+588 |     value = row.get(key)
+589 |     if not isinstance(value, int):
+590 |         raise ValueError(f"m2-beta manifest requires integer {key}")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+591 |     return value
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m2_beta_summary.py:597:9
+    |
+595 |     value = row.get(key)
+596 |     if not isinstance(value, dict):
+597 |         raise ValueError(f"m2-beta manifest requires mapping {key}")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+598 |     return value
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m3_audit.py:3:1
+   |
+ 1 |   """Final evidence-derived audit for the bounded M3 reliability slice."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import json
+ 6 | | from collections import Counter
+ 7 | | from dataclasses import asdict, dataclass
+ 8 | | from hashlib import sha256
+ 9 | | from pathlib import Path
+10 | |
+11 | | from aiverify.bench.m3_reliability import (
+12 | |     ReliabilityManifest,
+13 | |     ReliabilityLane,
+14 | |     ReliabilitySummary,
+15 | |     attempt_directories,
+16 | |     build_summary,
+17 | |     failure_class,
+18 | |     is_accountable,
+19 | |     lane_outcome,
+20 | |     load_manifest,
+21 | |     load_verified_attempt,
+22 | |     summary_to_dict,
+23 | | )
+24 | | from aiverify.bench.run_record_checksums import verify_manifest
+25 | | from aiverify.runner.run_spec import load_run_spec
+26 | | from aiverify.runner.execution_identity import (
+27 | |     ExecutionIdentityError,
+28 | |     verify_execution_provenance,
+29 | | )
+   | |_^
+30 |
+31 |   _LANE_ROLES = frozenset({"baseline", "defect"})
+   |
+help: Organize imports
+   |
+11 | from aiverify.bench.m3_reliability import (
+12 +     ReliabilityLane,
+13 |     ReliabilityManifest,
+   -     ReliabilityLane,
+14 |     ReliabilitySummary,
+--------------------------------------------------------------------------------
+24 | from aiverify.bench.run_record_checksums import verify_manifest
+   - from aiverify.runner.run_spec import load_run_spec
+25 | from aiverify.runner.execution_identity import (
+26 |     ExecutionIdentityError,
+27 |     verify_execution_provenance,
+28 | )
+29 + from aiverify.runner.run_spec import load_run_spec
+30 |
+   |
+
+ISC004 Unparenthesized implicit string concatenation in collection
+   --> src/aiverify/bench/m3_audit.py:311:17
+    |
+309 |                   "Wikipedia host only",
+310 |                   "Codex CLI Verification Agent Backend only",
+311 | /                 "Android CLI across the two declared package environments: "
+312 | |                 "Android 16/API 36 medium_phone and Android 15/API 35 "
+313 | |                 "aiverify_api35 emulators",
+    | |__________________________________________^
+314 |                   f"versioned five-seed, 30-lane live v{manifest.schema_version} slice only",
+315 |                   "mixed host/device environments prevent causal timing comparisons",
+    |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m3_audit.py:536:13
+    |
+534 |         values = environment.get(section)
+535 |         if not isinstance(values, dict):
+536 |             raise ValueError(f"package {package} environment {section} is invalid")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+537 |         for key in keys:
+538 |             value = values.get(key)
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m3_audit.py:557:9
+    |
+555 | ) -> None:
+556 |     if not isinstance(identity, dict):
+557 |         raise ValueError(f"package {package} model identity is invalid")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+558 |     status = identity.get("status")
+559 |     if status not in {"retained", "not_retained"}:
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m3_audit.py:571:9
+    |
+569 |         return
+570 |     if not isinstance(retained_models, dict):
+571 |         raise ValueError(f"package {package} retained model identity is missing")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+572 |     for role in ("journey_driver", "l3_judge"):
+573 |         retained_role = retained_models.get(role)
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m3_audit.py:575:13
+    |
+573 |         retained_role = retained_models.get(role)
+574 |         if not isinstance(retained_role, dict):
+575 |             raise ValueError(f"package {package} retained model identity is invalid")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+576 |         explicit_override = retained_role.get("explicit_override")
+577 |         if explicit_override is not None and (
+    |
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1298:13
+     |
+1296 |               "## Execution Identity",
+1297 |               "",
+1298 | /             f"- Host: Wikipedia at `{environment['host']['git_commit']}`; "
+1299 | |             "clean audit worktree.",
+     | |___________________________________^
+1300 |               f"- Device: `{environment['device']['serial']}` / "
+1301 |               f"`{environment['device']['avd']}`, "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1300:13
+     |
+1298 |               f"- Host: Wikipedia at `{environment['host']['git_commit']}`; "
+1299 |               "clean audit worktree.",
+1300 | /             f"- Device: `{environment['device']['serial']}` / "
+1301 | |             f"`{environment['device']['avd']}`, "
+1302 | |             f"Android {environment['device']['android_version']} "
+1303 | |             f"API {environment['device']['api_level']}, "
+1304 | |             f"model `{environment['device']['model']}`.",
+     | |________________________________________________________^
+1305 |               f"- Verification Agent Backend: {environment['backend']['name']} "
+1306 |               f"`{environment['backend']['version']}`.",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1305:13
+     |
+1303 |               f"API {environment['device']['api_level']}, "
+1304 |               f"model `{environment['device']['model']}`.",
+1305 | /             f"- Verification Agent Backend: {environment['backend']['name']} "
+1306 | |             f"`{environment['backend']['version']}`.",
+     | |_____________________________________________________^
+1307 |               f"- Android CLI `{environment['tools']['android_cli']}`; "
+1308 |               f"adb `{environment['tools']['adb']}`; "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1307:13
+     |
+1305 |               f"- Verification Agent Backend: {environment['backend']['name']} "
+1306 |               f"`{environment['backend']['version']}`.",
+1307 | /             f"- Android CLI `{environment['tools']['android_cli']}`; "
+1308 | |             f"adb `{environment['tools']['adb']}`; "
+1309 | |             f"OpenJDK `{environment['tools']['openjdk']}`; "
+1310 | |             f"Python `{environment['tools']['python']}`; "
+1311 | |             f"pytest `{environment['tools']['pytest']}`.",
+     | |_________________________________________________________^
+1312 |               "- Runner gates: "
+1313 |               f"{report.execution_identity['preflight_statuses'].get('passed', 0)} "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1312:13
+     |
+1310 |               f"Python `{environment['tools']['python']}`; "
+1311 |               f"pytest `{environment['tools']['pytest']}`.",
+1312 | /             "- Runner gates: "
+1313 | |             f"{report.execution_identity['preflight_statuses'].get('passed', 0)} "
+1314 | |             "passed, "
+1315 | |             f"{report.execution_identity['preflight_statuses'].get('failed', 0)} "
+1316 | |             "failed.",
+     | |_____________________^
+1317 |               "",
+1318 |               "## Evidence Packages",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_audit.py:1340:9
+     |
+1338 |     prior = comparison.get("prior_comparison")
+1339 |     if not isinstance(prior, dict):
+1340 |         raise ValueError("v3 audit comparison is missing the original/v2 chain")
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1341 |     original = prior["historical"]
+1342 |     v2 = comparison["historical"]
+     |
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1354:9
+     |
+1352 |           "| Criterion | Result | Evidence |",
+1353 |           "|---|---|---|",
+1354 | /         f"| M3 v3 overall | **{criteria['m3_overall']['status'].upper()}** | "
+1355 | |         "All strict v3 criteria must pass |",
+     | |____________________________________________^
+1356 |           f"| Eventual accountability | **{criteria['eventual_accountability']['status'].upper()}** | "
+1357 |           f"{current['eventual_accountable']} / 30; required 30 / 30 |",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1356:9
+     |
+1354 |           f"| M3 v3 overall | **{criteria['m3_overall']['status'].upper()}** | "
+1355 |           "All strict v3 criteria must pass |",
+1356 | /         f"| Eventual accountability | **{criteria['eventual_accountability']['status'].upper()}** | "
+1357 | |         f"{current['eventual_accountable']} / 30; required 30 / 30 |",
+     | |_____________________________________________________________________^
+1358 |           "| Baseline controls | **"
+1359 |           f"{criteria['passed_baseline_controls']['status'].upper()}** | "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1358:9
+     |
+1356 |           f"| Eventual accountability | **{criteria['eventual_accountability']['status'].upper()}** | "
+1357 |           f"{current['eventual_accountable']} / 30; required 30 / 30 |",
+1358 | /         "| Baseline controls | **"
+1359 | |         f"{criteria['passed_baseline_controls']['status'].upper()}** | "
+1360 | |         f"{criteria['passed_baseline_controls']['actual']} / 15 passed; "
+1361 | |         "0 false positives |",
+     | |_____________________________^
+1362 |           "| Expected defect detection | **"
+1363 |           f"{criteria['accountable_defect_consistency']['status'].upper()}** | "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1362:9
+     |
+1360 |           f"{criteria['passed_baseline_controls']['actual']} / 15 passed; "
+1361 |           "0 false positives |",
+1362 | /         "| Expected defect detection | **"
+1363 | |         f"{criteria['accountable_defect_consistency']['status'].upper()}** | "
+1364 | |         f"{criteria['accountable_defect_consistency']['actual']} / 15 caught "
+1365 | |         "at expected oracle/class |",
+     | |____________________________________^
+1366 |           "| Complete execution provenance | **"
+1367 |           f"{criteria['complete_execution_provenance']['status'].upper()}** | "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1366:9
+     |
+1364 |           f"{criteria['accountable_defect_consistency']['actual']} / 15 caught "
+1365 |           "at expected oracle/class |",
+1366 | /         "| Complete execution provenance | **"
+1367 | |         f"{criteria['complete_execution_provenance']['status'].upper()}** | "
+1368 | |         f"{criteria['complete_execution_provenance']['actual']} / "
+1369 | |         f"{criteria['complete_execution_provenance']['required']} attempts |",
+     | |_____________________________________________________________________________^
+1370 |           "",
+1371 |           "Original, v2, and v3 remain three distinct 30-lane populations. "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1371:9
+     |
+1369 |           f"{criteria['complete_execution_provenance']['required']} attempts |",
+1370 |           "",
+1371 | /         "Original, v2, and v3 remain three distinct 30-lane populations. "
+1372 | |         "Their denominators are never merged and no historical lane is replaced.",
+     | |_________________________________________________________________________________^
+1373 |           "",
+1374 |           "## Immutable Population Comparison",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1378:9
+     |
+1376 |           "| Metric | Original | V2 | V3 |",
+1377 |           "|---|---:|---:|---:|",
+1378 | /         f"| Decision | {original['criteria']['m3_overall']['status'].upper()} | "
+1379 | |         f"{v2['criteria']['m3_overall']['status'].upper()} | "
+1380 | |         f"{criteria['m3_overall']['status'].upper()} |",
+     | |_______________________________________________________^
+1381 |           f"| Eventual accountable | {original['summary']['eventual_accountable']} / 30 | "
+1382 |           f"{v2['summary']['eventual_accountable']} / 30 | "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1381:9
+     |
+1379 |           f"{v2['criteria']['m3_overall']['status'].upper()} | "
+1380 |           f"{criteria['m3_overall']['status'].upper()} |",
+1381 | /         f"| Eventual accountable | {original['summary']['eventual_accountable']} / 30 | "
+1382 | |         f"{v2['summary']['eventual_accountable']} / 30 | "
+1383 | |         f"{current['eventual_accountable']} / 30 |",
+     | |___________________________________________________^
+1384 |           f"| Retries | {original['summary']['retry_count']} | "
+1385 |           f"{v2['summary']['retry_count']} | {current['retry_count']} |",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1384:9
+     |
+1382 |           f"{v2['summary']['eventual_accountable']} / 30 | "
+1383 |           f"{current['eventual_accountable']} / 30 |",
+1384 | /         f"| Retries | {original['summary']['retry_count']} | "
+1385 | |         f"{v2['summary']['retry_count']} | {current['retry_count']} |",
+     | |______________________________________________________________________^
+1386 |           "",
+1387 |           "## V3 Per-Oracle Breakdown",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1501:9
+     |
+1499 |           decision_sentence,
+1500 |           "",
+1501 | /         "The original and v2 runs remain distinct populations: **30 + 30**, not "
+1502 | |         "a combined 60-lane denominator. No historical lane was replaced.",
+     | |__________________________________________________________________________^
+1503 |           "Non-accountable lanes remain execution-reliability failures and are not "
+1504 |           "reclassified as oracle outcomes.",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1503:9
+     |
+1501 |           "The original and v2 runs remain distinct populations: **30 + 30**, not "
+1502 |           "a combined 60-lane denominator. No historical lane was replaced.",
+1503 | /         "Non-accountable lanes remain execution-reliability failures and are not "
+1504 | |         "reclassified as oracle outcomes.",
+     | |__________________________________________^
+1505 |           "",
+1506 |           "## Immutable Original vs Fresh V2",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1575:9
+     |
+1573 |           ),
+1574 |           "",
+1575 | /         "Timing and intervention differences are descriptive only because v2 used "
+1576 | |         "mixed retained host/device environments.",
+     | |__________________________________________________^
+1577 |           "",
+1578 |           "## V2 Per-Oracle Breakdown",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1596:13
+     |
+1594 |               _count_table(report.summary.failure_classes),
+1595 |               "",
+1596 | /             "Failure classes count non-accountable attempts; "
+1597 | |             f"{sum(report.summary.failure_classes.values())} failed attempt(s) "
+1598 | |             "resolve to "
+1599 | |             f"{report.summary.planned_lanes - report.summary.eventual_accountable} "
+1600 | |             "non-accountable lane(s).",
+     | |______________________________________^
+1601 |               "",
+1602 |               "## V2 Lane Resolution",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1623:13
+     |
+1621 |               "## V2 Bounded Attempt Lineage",
+1622 |               "",
+1623 | /             "| Lane | Attempt | Gate | Accountable | Exit | Seconds | Judge seconds "
+1624 | |             "| Interventions | Checksum |",
+     | |__________________________________________^
+1625 |               "|---|---:|---|---|---:|---:|---:|---:|---|",
+1626 |           ]
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1646:13
+     |
+1644 |               "## Execution and Evidence Identity",
+1645 |               "",
+1646 | /             f"Audit host: `{audit_environment['audit_host']['workspace']}` at "
+1647 | |             f"`{audit_environment['audit_host']['generated_from_revision']}`; "
+1648 | |             f"Codex CLI `{audit_environment['backend']['version']}`, Python "
+1649 | |             f"`{audit_environment['tools']['python']}`, pytest "
+1650 | |             f"`{audit_environment['tools']['pytest']}`.",
+     | |________________________________________________________^
+1651 |               "",
+1652 |               "Each lane is cross-checked against its own checksummed package "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1652:13
+     |
+1650 |               f"`{audit_environment['tools']['pytest']}`.",
+1651 |               "",
+1652 | /             "Each lane is cross-checked against its own checksummed package "
+1653 | |             "environment; the reused serial alone is not treated as a homogeneous "
+1654 | |             "device identity.",
+     | |______________________________^
+1655 |               "",
+1656 |               "| Package | Lanes / attempts | Host workspace | Wikipedia commit | "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1656:13
+     |
+1654 |               "device identity.",
+1655 |               "",
+1656 | /             "| Package | Lanes / attempts | Host workspace | Wikipedia commit | "
+1657 | |             "Device | Android | Codex | Model |",
+     | |________________________________________________^
+1658 |               "|---|---:|---|---|---|---|---|---|",
+1659 |           ]
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1731:13
+     |
+1729 |           [
+1730 |               "",
+1731 | /             f"{model_packages} explicitly retain(s) effective model(s) "
+1732 | |             f"{', '.join(f'`{model}`' for model in retained_models)}. "
+1733 | |             f"The other {missing_model_count} package model identities are "
+1734 | |             "reported as unavailable, not backfilled from current configuration.",
+     | |_________________________________________________________________________________^
+1735 |               f"{missing_run_spec_count} package(s) omit contemporaneous Run Spec "
+1736 |               f"hashes and {missing_commit_count} omit Wikipedia commits; current "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1735:13
+     |
+1733 |               f"The other {missing_model_count} package model identities are "
+1734 |               "reported as unavailable, not backfilled from current configuration.",
+1735 | /             f"{missing_run_spec_count} package(s) omit contemporaneous Run Spec "
+1736 | |             f"hashes and {missing_commit_count} omit Wikipedia commits; current "
+1737 | |             "Run Spec hashes are shown in JSON as repository cross-checks with "
+1738 | |             "`not_retained` status.",
+     | |____________________________________^
+1739 |               "",
+1740 |               "## V2 Evidence Packages",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1757:13
+     |
+1755 |               "",
+1756 |               f"- Status: **{integrity['status'].upper()}**.",
+1757 | /             f"- Manifest: `{integrity['manifest']['path']}` / "
+1758 | |             f"`{integrity['manifest']['sha256']}`.",
+     | |___________________________________________________^
+1759 |               f"- Final record: `{integrity['run_record']}`.",
+1760 |               "- The retained historical JSON and Markdown were regenerated from "
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1760:13
+     |
+1758 |               f"`{integrity['manifest']['sha256']}`.",
+1759 |               f"- Final record: `{integrity['run_record']}`.",
+1760 | /             "- The retained historical JSON and Markdown were regenerated from "
+1761 | |             "their evidence and matched byte-for-model; all five historical package "
+1762 | |             "checksum anchors also matched.",
+     | |____________________________________________^
+1763 |               "- Original and v2 denominators are not combined, and no original lane "
+1764 |               "is selectively replaced.",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m3_audit.py:1763:13
+     |
+1761 |               "their evidence and matched byte-for-model; all five historical package "
+1762 |               "checksum anchors also matched.",
+1763 | /             "- Original and v2 denominators are not combined, and no original lane "
+1764 | |             "is selectively replaced.",
+     | |______________________________________^
+1765 |               "",
+1766 |               "## Scope and Claim Boundary",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_audit.py:1871:13
+     |
+1869 |         values = environment.get(section)
+1870 |         if not isinstance(values, dict):
+1871 |             raise ValueError(f"audit environment {section} is invalid")
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1872 |         for key in keys:
+1873 |             value = values.get(key)
+     |
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_audit.py:1975:9
+     |
+1973 |         raise ValueError(f"invalid {label}: {path}: {error}") from error
+1974 |     if not isinstance(value, dict):
+1975 |         raise ValueError(f"invalid {label}: {path} must contain an object")
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1976 |     return value
+     |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m3_reliability.py:3:1
+   |
+ 1 |   """Manifest-driven M3 Verification Agent reliability tracing."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import argparse
+ 6 | | import json
+ 7 | | import math
+ 8 | | import os
+ 9 | | import sys
+10 | | from collections import Counter
+11 | | from dataclasses import asdict, dataclass
+12 | | from datetime import datetime, timezone
+13 | | from pathlib import Path
+14 | | from uuid import uuid4
+15 | |
+16 | | import yaml
+17 | |
+18 | | from aiverify.agent.oracle.schema import VerdictValidationError, validate_verdict
+19 | | from aiverify.bench.run_record_checksums import verify_manifest, write_manifest
+20 | | from aiverify.providers.parsing import extract_json_block
+21 | | from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
+22 | | from aiverify.runner.execution_record import (
+23 | |     execution_record_reason,
+24 | |     is_execution_record_accountable,
+25 | |     load_execution_record,
+26 | | )
+27 | | from aiverify.runner.execution_identity import (
+28 | |     ExecutionIdentityError,
+29 | |     verify_execution_provenance,
+30 | | )
+31 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+21 | from aiverify.runner.command import CommandRunner, SubprocessCommandRunner
+22 + from aiverify.runner.execution_identity import (
+23 +     ExecutionIdentityError,
+24 +     verify_execution_provenance,
+25 + )
+26 | from aiverify.runner.execution_record import (
+--------------------------------------------------------------------------------
+30 | )
+   - from aiverify.runner.execution_identity import (
+   -     ExecutionIdentityError,
+   -     verify_execution_provenance,
+   - )
+31 | from aiverify.runner.run_spec import load_run_spec
+   -
+32 |
+   |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m3_reliability.py:119:9
+    |
+117 |     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+118 |     if not isinstance(raw, dict):
+119 |         raise ValueError("M3 reliability manifest must be a mapping")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+120 |
+121 |     schema_version = _required_int(raw, "schema_version")
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m3_reliability.py:201:9
+    |
+199 |     """Validate the immutable execution declaration required before v3 runs."""
+200 |     if not isinstance(raw, dict):
+201 |         raise ValueError("M3 v3 manifest preregistration must be a mapping")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+202 |     string_fields = (
+203 |         "frozen_at",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> src/aiverify/bench/m3_reliability.py:315:41
+    |
+313 |             "lane_id": lane.lane_id,
+314 |             "attempt_number": attempt_number,
+315 |             "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    |                                         ^^^^^^^^^^^^
+316 |         },
+317 |     )
+    |
+help: Convert to `datetime.UTC` alias
+    |
+11  | from dataclasses import asdict, dataclass
+    - from datetime import datetime, timezone
+12  + from datetime import datetime, timezone, UTC
+13  | from pathlib import Path
+--------------------------------------------------------------------------------
+314 |             "attempt_number": attempt_number,
+    -             "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+315 +             "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
+316 |         },
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> src/aiverify/bench/m3_reliability.py:334:31
+    |
+332 |     if deployed_apk:
+333 |         os.environ["AIVERIFY_DEPLOYED_APK"] = deployed_apk
+334 |     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    |                               ^^^^^^^^^^^^
+335 |     try:
+336 |         command_result = (runner or SubprocessCommandRunner()).run(
+    |
+help: Convert to `datetime.UTC` alias
+    |
+11  | from dataclasses import asdict, dataclass
+    - from datetime import datetime, timezone
+12  + from datetime import datetime, timezone, UTC
+13  | from pathlib import Path
+--------------------------------------------------------------------------------
+333 |         os.environ["AIVERIFY_DEPLOYED_APK"] = deployed_apk
+    -     started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+334 +     started_at = datetime.now(UTC).isoformat(timespec="seconds")
+335 |     try:
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> src/aiverify/bench/m3_reliability.py:348:45
+    |
+346 |                 "lane_id": lane.lane_id,
+347 |                 "attempt_number": attempt_number,
+348 |                 "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    |                                             ^^^^^^^^^^^^
+349 |                 "result": "wrapper_error",
+350 |                 "error_type": type(error).__name__,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+11  | from dataclasses import asdict, dataclass
+    - from datetime import datetime, timezone
+12  + from datetime import datetime, timezone, UTC
+13  | from pathlib import Path
+--------------------------------------------------------------------------------
+347 |                 "attempt_number": attempt_number,
+    -                 "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+348 +                 "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
+349 |                 "result": "wrapper_error",
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> src/aiverify/bench/m3_reliability.py:354:32
+    |
+352 |         )
+353 |         raise
+354 |     finished_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    |                                ^^^^^^^^^^^^
+355 |     (attempt_dir / "runner.stdout.txt").write_text(
+356 |         command_result.stdout, encoding="utf-8"
+    |
+help: Convert to `datetime.UTC` alias
+    |
+11  | from dataclasses import asdict, dataclass
+    - from datetime import datetime, timezone
+12  + from datetime import datetime, timezone, UTC
+13  | from pathlib import Path
+--------------------------------------------------------------------------------
+353 |         raise
+    -     finished_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+354 +     finished_at = datetime.now(UTC).isoformat(timespec="seconds")
+355 |     (attempt_dir / "runner.stdout.txt").write_text(
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> src/aiverify/bench/m3_reliability.py:402:41
+    |
+400 |             "lane_id": lane.lane_id,
+401 |             "attempt_number": attempt_number,
+402 |             "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    |                                         ^^^^^^^^^^^^
+403 |             "result": "preserved",
+404 |             "runner_exit_code": command_result.returncode,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+11  | from dataclasses import asdict, dataclass
+    - from datetime import datetime, timezone
+12  + from datetime import datetime, timezone, UTC
+13  | from pathlib import Path
+--------------------------------------------------------------------------------
+401 |             "attempt_number": attempt_number,
+    -             "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+402 +             "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
+403 |             "result": "preserved",
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m3_reliability.py:543:17
+    |
+541 |             raw_interventions = metadata.get("operational_interventions", [])
+542 |             if not isinstance(raw_interventions, list):
+543 |                 raise ValueError(f"lane {lane.lane_id} interventions must be a list")
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+544 |             interventions += len(raw_interventions)
+545 |             loaded.append((metadata, verdict))
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m3_reliability.py:770:9
+    |
+768 | def _load_lane(raw: object, *, repo_root: Path) -> ReliabilityLane:
+769 |     if not isinstance(raw, dict):
+770 |         raise ValueError("M3 reliability lane must be a mapping")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+771 |     role = _required_str(raw, "role")
+772 |     if role not in _LANE_ROLES:
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m3_reliability.py:865:13
+    |
+863 |             ) from error
+864 |         if not isinstance(event, dict):
+865 |             raise ValueError(f"attempt ledger line {line_number} is not an object")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+866 |         invocation_id = event.get("invocation_id")
+867 |         lane_id = event.get("lane_id")
+    |
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_reliability.py:1097:9
+     |
+1095 |         raise ValueError(f"invalid {label}: {path}: {error}") from error
+1096 |     if not isinstance(value, dict):
+1097 |         raise ValueError(f"invalid {label}: {path} must contain an object")
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1098 |     return value
+     |
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_reliability.py:1136:9
+     |
+1134 |     execution = verdict.get("execution")
+1135 |     if not isinstance(execution, dict):
+1136 |         raise ValueError(f"lane {lane.lane_id} verdict is missing execution")
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1137 |     status = execution.get("status")
+1138 |     if status not in {"completed", "non_accountable"}:
+     |
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_reliability.py:1149:9
+     |
+1147 |     metric_context = verdict.get("metric_context")
+1148 |     if not isinstance(metric_context, dict):
+1149 |         raise ValueError(f"lane {lane.lane_id} verdict is missing metric_context")
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1150 |     if metric_context.get("seed_id") != lane.seed_id:
+1151 |         raise ValueError(f"lane {lane.lane_id} metric_context seed_id mismatch")
+     |
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_reliability.py:1185:9
+     |
+1183 |     actual = metadata.get("runner_exit_code")
+1184 |     if not isinstance(actual, int) or isinstance(actual, bool):
+1185 |         raise ValueError(f"lane {lane.lane_id} runner exit code is invalid")
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1186 |     if execution_record is not None:
+1187 |         if execution_record["lifecycle_state"] == "in_progress":
+     |
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_reliability.py:1299:13
+     |
+1297 |         )
+1298 |         if not isinstance(final_output, dict):
+1299 |             raise ValueError("final L3 judge output is not an object")
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1300 |         validate_verdict(final_output)
+1301 |     except (json.JSONDecodeError, VerdictValidationError, ValueError) as error:
+     |
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_reliability.py:1387:9
+     |
+1385 |     phases = timing.get("phases") if isinstance(timing, dict) else None
+1386 |     if not isinstance(phases, list):
+1387 |         raise ValueError(f"lane {lane.lane_id} timing.phases is invalid")
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1388 |
+1389 |     judge_phases = [
+     |
+
+TRY004 Prefer `TypeError` exception for invalid type
+    --> src/aiverify/bench/m3_reliability.py:1437:9
+     |
+1435 |     value = raw.get(key)
+1436 |     if not isinstance(value, int) or isinstance(value, bool):
+1437 |         raise ValueError(f"M3 reliability {key} must be an integer")
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1438 |     return value
+     |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m6_case_package.py:9:1
+   |
+ 7 |   """
+ 8 |
+ 9 | / from __future__ import annotations
+10 | |
+11 | | import argparse
+12 | | import json
+13 | | import sys
+14 | | from collections import Counter, defaultdict
+15 | | from dataclasses import dataclass
+16 | | from datetime import datetime
+17 | | from hashlib import sha256
+18 | | from pathlib import Path, PurePosixPath
+19 | | from typing import Any, Iterable, Mapping, Sequence
+20 | | from urllib.parse import urlparse
+21 | |
+22 | | from jsonschema import Draft202012Validator, FormatChecker
+23 | |
+24 | | from aiverify.bench.m6_cohort import (
+25 | |     QualificationCohortManifest,
+26 | |     load_cohort_manifest,
+27 | | )
+28 | | from aiverify.runner.execution_record import (
+29 | |     ExecutionRecordValidationError,
+30 | |     load_execution_record,
+31 | | )
+   | |_^
+help: Organize imports
+   |
+32 |
+   -
+33 | _SCHEMA_PATH = Path(__file__).with_name("m6_case_package_schema.json")
+   |
+
+UP035 [*] Import from `collections.abc` instead: `Iterable`, `Mapping`, `Sequence`
+  --> src/aiverify/bench/m6_case_package.py:19:1
+   |
+17 | from hashlib import sha256
+18 | from pathlib import Path, PurePosixPath
+19 | from typing import Any, Iterable, Mapping, Sequence
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 | from urllib.parse import urlparse
+   |
+help: Import from `collections.abc`
+   |
+18 | from pathlib import Path, PurePosixPath
+   - from typing import Any, Iterable, Mapping, Sequence
+19 + from typing import Any
+20 + from collections.abc import Iterable, Mapping, Sequence
+21 | from urllib.parse import urlparse
+   |
+
+ISC004 Unparenthesized implicit string concatenation in collection
+   --> src/aiverify/bench/m6_case_package.py:460:9
+    |
+458 |           f"Manifest SHA-256: `{model['cohort']['manifest_sha256']}`",
+459 |           "",
+460 | /         "The package is local-only and keeps historical and prospective tracks "
+461 | |         "as separate populations.",
+    | |__________________________________^
+462 |           "",
+463 |           "## Track summaries",
+    |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+   --> src/aiverify/bench/m6_case_package.py:480:13
+    |
+478 |               "## Lane accountability",
+479 |               "",
+480 | /             f"Planned lanes: `{qualification['planned_lanes']}`; observed lanes: `{qualification['observed_lanes']}`; "
+481 | |             f"first-attempt accountable: `{qualification['first_attempt_accountable']}`; "
+482 | |             f"eventual accountable: `{qualification['eventual_accountable']}`; "
+483 | |             f"retries: `{qualification['retries']}`.",
+    | |_____________________________________________________^
+484 |               "",
+485 |               "Historical and prospective lane populations are reconciled independently; their denominators are not merged.",
+    |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+   --> src/aiverify/bench/m6_case_package.py:532:13
+    |
+530 |               "## Operational record",
+531 |               "",
+532 | /             f"Package duration seconds: `{model['operational']['package_duration_seconds']}`; "
+533 | |             f"backend time seconds: `{model['operational']['backend_time_seconds']}`; "
+534 | |             f"judge time seconds: `{model['operational']['judge_time_seconds']}`.",
+    | |__________________________________________________________________________________^
+535 |           ]
+536 |       )
+    |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+   --> src/aiverify/bench/m6_case_package.py:556:13
+    |
+554 |               "## Scope boundary",
+555 |               "",
+556 | /             "Only the recorded local observations, accountability, adjudication, "
+557 | |             "and operational timing are represented. No population-level or "
+558 | |             "upstream conclusion is produced.",
+    | |______________________________________________^
+559 |               "",
+560 |           ]
+    |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+   --> src/aiverify/bench/m6_case_package.py:639:5
+    |
+637 |       if source["final_diff"]["revision"] == source["base_revision"]:
+638 |           errors.append("final diff revision must differ from base revision")
+639 | /     if document["cohort"]["track"] == "historical":
+640 | |         if source["final_diff"]["revision"] != slot["historical"]["fixed_revision"]:
+    | |____________________________________________________________________________________^
+641 |               errors.append("historical final diff revision does not match frozen fixed revision")
+642 |       return errors
+    |
+help: Combine `if` statements using `and`
+
+FURB162 Unnecessary timezone replacement with zero offset
+    --> src/aiverify/bench/m6_case_package.py:1067:35
+     |
+1066 | def _parse_datetime(value: str) -> datetime:
+1067 |     return datetime.fromisoformat(value.replace("Z", "+00:00"))
+     |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Remove `.replace()` call
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m6_cohort.py:3:1
+   |
+ 1 |   """Fail-closed loader and validator for the M6 qualification cohort."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import argparse
+ 6 | | import json
+ 7 | | import sys
+ 8 | | from collections import Counter
+ 9 | | from dataclasses import dataclass
+10 | | from datetime import datetime
+11 | | from hashlib import sha256
+12 | | from pathlib import Path, PurePosixPath
+13 | | from typing import Any, Iterable, Mapping
+14 | | from urllib.parse import urlparse
+15 | |
+16 | | import yaml
+17 | | from jsonschema import Draft202012Validator, FormatChecker
+   | |__________________________________________________________^
+help: Organize imports
+   |
+18 |
+   -
+19 | _SCHEMA_PATH = Path(__file__).with_name("m6_cohort_schema.json")
+   |
+
+UP035 [*] Import from `collections.abc` instead: `Iterable`, `Mapping`
+  --> src/aiverify/bench/m6_cohort.py:13:1
+   |
+11 | from hashlib import sha256
+12 | from pathlib import Path, PurePosixPath
+13 | from typing import Any, Iterable, Mapping
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 | from urllib.parse import urlparse
+   |
+help: Import from `collections.abc`
+   |
+12 | from pathlib import Path, PurePosixPath
+   - from typing import Any, Iterable, Mapping
+13 + from typing import Any
+14 + from collections.abc import Iterable, Mapping
+15 | from urllib.parse import urlparse
+   |
+
+ISC004 Unparenthesized implicit string concatenation in collection
+   --> src/aiverify/bench/m6_cohort.py:255:13
+    |
+253 |       raise CohortValidationError(
+254 |           [
+255 | /             "repository root could not be inferred; pass --repo-root "
+256 | |             "or place the manifest inside the repository"
+    | |_________________________________________________________^
+257 |           ]
+258 |       )
+    |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+   --> src/aiverify/bench/m6_cohort.py:279:9
+    |
+277 |           if approval is None:
+278 |               errors.append("frozen manifest requires maintainer_approval")
+279 | /         if frozen_at is not None and approval is not None:
+280 | |             if _parse_datetime(approval["approved_at"]) > _parse_datetime(frozen_at):
+    | |_____________________________________________________________________________________^
+281 |                   errors.append("maintainer approval cannot occur after frozen_at")
+282 |       elif frozen_at is not None or approval is not None:
+    |
+help: Combine `if` statements using `and`
+
+FURB162 Unnecessary timezone replacement with zero offset
+   --> src/aiverify/bench/m6_cohort.py:833:35
+    |
+832 | def _parse_datetime(value: str) -> datetime:
+833 |     return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Remove `.replace()` call
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m7_qualification.py:10:1
+   |
+ 8 |   """
+ 9 |
+10 | / from __future__ import annotations
+11 | |
+12 | | import json
+13 | | from dataclasses import dataclass
+14 | | from hashlib import sha256
+15 | | from pathlib import Path
+16 | | from typing import Any, Iterable, Mapping
+17 | |
+18 | | from jsonschema import Draft202012Validator
+19 | |
+20 | | from aiverify.discovery import (
+21 | |     AttemptEvidence,
+22 | |     BehaviorDelta,
+23 | |     ChangeTarget,
+24 | |     ContextExpansionRequest,
+25 | |     ContextExpansionResult,
+26 | |     ContractDrift,
+27 | |     DiscoveryCampaignPackage,
+28 | |     DiscoveryContractError,
+29 | |     ProjectTarget,
+30 | |     apply_context_expansion,
+31 | |     admit_campaign_plan,
+32 | |     compile_attack_plan_to_run_spec,
+33 | |     create_campaign,
+34 | |     freeze_campaign_hypothesis,
+35 | |     load_context_manifest,
+36 | |     reduce_attempt_evidence,
+37 | | )
+38 | | from aiverify.runner.run_spec import ScenarioSpec
+   | |_________________________________________________^
+help: Organize imports
+   |
+29 |     ProjectTarget,
+30 +     admit_campaign_plan,
+31 |     apply_context_expansion,
+   -     admit_campaign_plan,
+32 |     compile_attack_plan_to_run_spec,
+--------------------------------------------------------------------------------
+38 | from aiverify.runner.run_spec import ScenarioSpec
+   -
+39 |
+   |
+
+UP035 [*] Import from `collections.abc` instead: `Iterable`, `Mapping`
+  --> src/aiverify/bench/m7_qualification.py:16:1
+   |
+14 | from hashlib import sha256
+15 | from pathlib import Path
+16 | from typing import Any, Iterable, Mapping
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17 |
+18 | from jsonschema import Draft202012Validator
+   |
+help: Import from `collections.abc`
+   |
+15 | from pathlib import Path
+   - from typing import Any, Iterable, Mapping
+16 + from typing import Any
+17 + from collections.abc import Iterable, Mapping
+18 |
+   |
+
+UP012 [*] Unnecessary UTF-8 `encoding` argument to `encode`
+   --> src/aiverify/bench/m7_qualification.py:501:13
+    |
+499 |         accountable=True,
+500 |         execution_identity_sha256=sha256(
+501 |             f"m7-execution-identity-{packet.lane_id}".encode("utf-8")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+502 |         ).hexdigest(),
+503 |     )
+    |
+help: Remove unnecessary `encoding` argument
+    |
+500 |         execution_identity_sha256=sha256(
+    -             f"m7-execution-identity-{packet.lane_id}".encode("utf-8")
+501 +             f"m7-execution-identity-{packet.lane_id}".encode()
+502 |         ).hexdigest(),
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m8_formal.py:16:1
+   |
+14 |   """
+15 |
+16 | / from __future__ import annotations
+17 | |
+18 | | import argparse
+19 | | import hashlib
+20 | | import json
+21 | | import shutil
+22 | | import subprocess
+23 | | import time
+24 | | from collections import Counter
+25 | | from collections.abc import Mapping, Sequence
+26 | | from datetime import datetime, timezone
+27 | | from pathlib import Path
+28 | | from typing import Any
+29 | |
+30 | | from aiverify.bench.m8_qualification import (
+31 | |     M8QualificationError,
+32 | |     _admit_lane,
+33 | |     admit_qualification,
+34 | |     load_manifest,
+35 | | )
+36 | | from aiverify.bench.state_evolution import (
+37 | |     StateEvolutionContractError,
+38 | |     judge_state_evolution,
+39 | |     load_state_evolution_contract,
+40 | |     _migration_evidence_accountable,
+41 | |     _read_layout_observation,
+42 | |     verify_state_evolution_matched_pair,
+43 | |     verify_state_evolution_provenance,
+44 | | )
+45 | | from aiverify.discovery import AttemptEvidence, reduce_attempt_evidence
+46 | | from aiverify.discovery.state_evolution_risk import (
+47 | |     make_historical_state_replay_operator,
+48 | |     make_state_evolution_prior,
+49 | |     make_state_evolution_strategy,
+50 | | )
+51 | | from aiverify.runner.cli import build_instruction_prefix, run as run_spec
+52 | | from aiverify.runner.execution_identity import (
+53 | |     ExecutionIdentityError,
+54 | |     verify_execution_provenance,
+55 | | )
+56 | | from aiverify.runner.execution_record import ExecutionRecordStore, load_execution_record
+57 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+37 |     StateEvolutionContractError,
+38 +     _migration_evidence_accountable,
+39 +     _read_layout_observation,
+40 |     judge_state_evolution,
+41 |     load_state_evolution_contract,
+   -     _migration_evidence_accountable,
+   -     _read_layout_observation,
+42 |     verify_state_evolution_matched_pair,
+--------------------------------------------------------------------------------
+50 | )
+   - from aiverify.runner.cli import build_instruction_prefix, run as run_spec
+51 + from aiverify.runner.cli import build_instruction_prefix
+52 + from aiverify.runner.cli import run as run_spec
+53 | from aiverify.runner.execution_identity import (
+--------------------------------------------------------------------------------
+58 | from aiverify.runner.run_spec import load_run_spec
+   -
+59 |
+   |
+
+F401 [*] `collections.Counter` imported but unused
+  --> src/aiverify/bench/m8_formal.py:24:25
+   |
+22 | import subprocess
+23 | import time
+24 | from collections import Counter
+   |                         ^^^^^^^
+25 | from collections.abc import Mapping, Sequence
+26 | from datetime import datetime, timezone
+   |
+help: Remove unused import: `collections.Counter`
+   |
+23 | import time
+   - from collections import Counter
+24 | from collections.abc import Mapping, Sequence
+   |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/m8_formal.py:336:13
+    |
+334 |         raw_observations = payload.get("observations")
+335 |         if not isinstance(raw_observations, Mapping):
+336 |             raise ValueError("state observations are missing")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+337 |         observations: dict[str, Any] = {}
+338 |         for name in ("initial", "rotation", "process_death", "backup_restore"):
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> src/aiverify/bench/m8_formal.py:683:32
+    |
+681 |             )
+682 |     else:
+683 |         started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    |                                ^^^^^^^^^^^^
+684 |         store = ExecutionRecordStore.establish(
+685 |             lane_dir,
+    |
+help: Convert to `datetime.UTC` alias
+    |
+25  | from collections.abc import Mapping, Sequence
+    - from datetime import datetime, timezone
+26  + from datetime import datetime, timezone, UTC
+27  | from pathlib import Path
+--------------------------------------------------------------------------------
+682 |     else:
+    -         started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+683 +         started = datetime.now(UTC).isoformat(timespec="seconds")
+684 |         store = ExecutionRecordStore.establish(
+    |
+
+F841 Local variable `provenance` is assigned to but never used
+   --> src/aiverify/bench/m8_formal.py:970:13
+    |
+968 |         provenance_path = lane_dir / "execution-provenance.json"
+969 |         if provenance_path.is_file():
+970 |             provenance = _load_json(provenance_path)
+    |             ^^^^^^^^^^
+971 |             if record is None:
+972 |                 raise ExecutionIdentityError("execution record is missing for provenance")
+    |
+help: Remove assignment to unused variable `provenance`
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m8_formal.py:1529:37
+     |
+1527 |         "claim_boundary": manifest.document["claim_boundary"],
+1528 |         "workspace_root": str(workspace),
+1529 |         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+     |                                     ^^^^^^^^^^^^
+1530 |     }
+1531 |     _write_json(artifacts / "formal-summary.json", summary)
+     |
+help: Convert to `datetime.UTC` alias
+     |
+25   | from collections.abc import Mapping, Sequence
+     - from datetime import datetime, timezone
+26   + from datetime import datetime, timezone, UTC
+27   | from pathlib import Path
+--------------------------------------------------------------------------------
+1528 |         "workspace_root": str(workspace),
+     -         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+1529 +         "finished_at": datetime.now(UTC).isoformat(timespec="seconds"),
+1530 |     }
+     |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m9_formal.py:16:1
+   |
+14 |   """
+15 |
+16 | / from __future__ import annotations
+17 | |
+18 | | import argparse
+19 | | import hashlib
+20 | | import json
+21 | | import os
+22 | | import shutil
+23 | | import subprocess
+24 | | import time
+25 | | from dataclasses import dataclass
+26 | | from datetime import datetime, timezone
+27 | | from pathlib import Path
+28 | | from typing import Any, Mapping, Sequence
+29 | |
+30 | | from aiverify.bench.m9_qualification import (
+31 | |     ACTIVITY,
+32 | |     BACKEND,
+33 | |     BASELINE_COMMIT,
+34 | |     DEFECT_COMMIT,
+35 | |     LANE_IDS,
+36 | |     MODEL,
+37 | |     PACKAGE,
+38 | |     QUALIFICATION_ID,
+39 | |     RUNNER_POLICY,
+40 | |     SOURCE_ORIGIN,
+41 | |     audit_contradiction_packet,
+42 | |     audit_neutral_packets,
+43 | |     canonical_json_bytes,
+44 | |     load_manifest,
+45 | |     sealed_source_binding_ref,
+46 | |     sha256_bytes,
+47 | |     sha256_file,
+48 | | )
+49 | | from aiverify.discovery import (
+50 | |     AttackPlanGenerationRequest,
+51 | |     AttackPlanProposal,
+52 | |     FailureChain,
+53 | |     Finding,
+54 | |     FalsificationReviewContext,
+55 | |     FalsificationReviewerIdentity,
+56 | |     HypothesisCandidate,
+57 | |     HypothesisGenerationRequest,
+58 | |     HypothesisGeneratorIdentity,
+59 | |     ImmutableArtifactRef,
+60 | |     OracleContract,
+61 | |     PlanElement,
+62 | |     PlannerIdentity,
+63 | |     ProjectRiskMap,
+64 | |     ProjectTarget,
+65 | |     ResidualRisk,
+66 | |     RiskHypothesis,
+67 | |     ValidatedEvidenceRef,
+68 | |     approved_m9_prior_registry,
+69 | |     compile_admitted_attack_plan,
+70 | |     freeze_hypothesis_portfolio,
+71 | |     generate_attack_plan,
+72 | |     generate_hypothesis_response,
+73 | |     run_falsification_review,
+74 | | )
+75 | | from aiverify.discovery.acquisition import acquire_project_context
+76 | | from aiverify.discovery.falsification_review import (
+77 | |     REVIEW_DIMENSIONS,
+78 | |     reconcile_finding,
+79 | | )
+80 | | from aiverify.harness.device.controller import DeviceController
+81 | | from aiverify.runner.admission import (
+82 | |     AdmissionResult,
+83 | |     PlannedRunnerOptions,
+84 | |     admit_production_seam,
+85 | |     write_admission_receipt,
+86 | | )
+87 | | from aiverify.runner.package_reset import PackageResetError, reset_package_data
+88 | | from aiverify.runner.cli import run as run_spec
+89 | | from aiverify.runner.execution_record import ExecutionRecordStore, load_execution_record
+90 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+52 |     FailureChain,
+   -     Finding,
+53 |     FalsificationReviewContext,
+54 |     FalsificationReviewerIdentity,
+55 +     Finding,
+56 |     HypothesisCandidate,
+--------------------------------------------------------------------------------
+86 | )
+   - from aiverify.runner.package_reset import PackageResetError, reset_package_data
+87 | from aiverify.runner.cli import run as run_spec
+88 | from aiverify.runner.execution_record import ExecutionRecordStore, load_execution_record
+89 + from aiverify.runner.package_reset import PackageResetError, reset_package_data
+90 | from aiverify.runner.run_spec import load_run_spec
+   -
+91 |
+   |
+
+F401 [*] `os` imported but unused
+  --> src/aiverify/bench/m9_formal.py:21:8
+   |
+19 | import hashlib
+20 | import json
+21 | import os
+   |        ^^
+22 | import shutil
+23 | import subprocess
+   |
+help: Remove unused import: `os`
+   |
+20 | import json
+   - import os
+21 | import shutil
+   |
+
+F401 [*] `dataclasses.dataclass` imported but unused
+  --> src/aiverify/bench/m9_formal.py:25:25
+   |
+23 | import subprocess
+24 | import time
+25 | from dataclasses import dataclass
+   |                         ^^^^^^^^^
+26 | from datetime import datetime, timezone
+27 | from pathlib import Path
+   |
+help: Remove unused import: `dataclasses.dataclass`
+   |
+24 | import time
+   - from dataclasses import dataclass
+25 | from datetime import datetime, timezone
+   |
+
+UP035 [*] Import from `collections.abc` instead: `Mapping`, `Sequence`
+  --> src/aiverify/bench/m9_formal.py:28:1
+   |
+26 | from datetime import datetime, timezone
+27 | from pathlib import Path
+28 | from typing import Any, Mapping, Sequence
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29 |
+30 | from aiverify.bench.m9_qualification import (
+   |
+help: Import from `collections.abc`
+   |
+27 | from pathlib import Path
+   - from typing import Any, Mapping, Sequence
+28 + from typing import Any
+29 + from collections.abc import Mapping, Sequence
+30 |
+   |
+
+F401 [*] `aiverify.runner.admission.AdmissionResult` imported but unused
+  --> src/aiverify/bench/m9_formal.py:82:5
+   |
+80 | from aiverify.harness.device.controller import DeviceController
+81 | from aiverify.runner.admission import (
+82 |     AdmissionResult,
+   |     ^^^^^^^^^^^^^^^
+83 |     PlannedRunnerOptions,
+84 |     admit_production_seam,
+   |
+help: Remove unused import: `aiverify.runner.admission.AdmissionResult`
+   |
+81 | from aiverify.runner.admission import (
+   -     AdmissionResult,
+82 |     PlannedRunnerOptions,
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m9_formal.py:1326:35
+     |
+1324 |             )
+1325 |     else:
+1326 |         started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+     |                                   ^^^^^^^^^^^^
+1327 |         store = ExecutionRecordStore.establish(
+1328 |             lane_dir,
+     |
+help: Convert to `datetime.UTC` alias
+     |
+25   | from dataclasses import dataclass
+     - from datetime import datetime, timezone
+26   + from datetime import datetime, timezone, UTC
+27   | from pathlib import Path
+--------------------------------------------------------------------------------
+1325 |     else:
+     -         started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+1326 +         started_at = datetime.now(UTC).isoformat(timespec="seconds")
+1327 |         store = ExecutionRecordStore.establish(
+     |
+
+RUF059 Unpacked variable `residual` is never used
+    --> src/aiverify/bench/m9_formal.py:1387:14
+     |
+1385 |     identity = _write_effective_identity(lane_dir, verdict)
+1386 |     raw_refs = _copy_raw_evidence(lane_dir)
+1387 |     finding, residual, risk_map, classification = _finding_and_risk(
+     |              ^^^^^^^^
+1388 |         lane_dir,
+1389 |         lane_id,
+     |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `risk_map` is never used
+    --> src/aiverify/bench/m9_formal.py:1387:24
+     |
+1385 |     identity = _write_effective_identity(lane_dir, verdict)
+1386 |     raw_refs = _copy_raw_evidence(lane_dir)
+1387 |     finding, residual, risk_map, classification = _finding_and_risk(
+     |                        ^^^^^^^^
+1388 |         lane_dir,
+1389 |         lane_id,
+     |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `residual` is never used
+    --> src/aiverify/bench/m9_formal.py:1516:14
+     |
+1514 |     identity = _write_effective_identity(lane_dir, run_result)
+1515 |     raw_refs = _copy_raw_evidence(lane_dir)
+1516 |     finding, residual, risk_map, classification = _finding_and_risk(
+     |              ^^^^^^^^
+1517 |         lane_dir,
+1518 |         lane_id,
+     |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `risk_map` is never used
+    --> src/aiverify/bench/m9_formal.py:1516:24
+     |
+1514 |     identity = _write_effective_identity(lane_dir, run_result)
+1515 |     raw_refs = _copy_raw_evidence(lane_dir)
+1516 |     finding, residual, risk_map, classification = _finding_and_risk(
+     |                        ^^^^^^^^
+1517 |         lane_dir,
+1518 |         lane_id,
+     |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+RUF059 Unpacked variable `compiled` is never used
+    --> src/aiverify/bench/m9_formal.py:1661:17
+     |
+1659 |         root, control_project.resolve()
+1660 |     )
+1661 |     generation, compiled = _attack_plan(
+     |                 ^^^^^^^^
+1662 |         root,
+1663 |         target,
+     |
+help: Prefix it with an underscore or any other dummy variable pattern
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m9_qualification.py:10:1
+   |
+ 8 |   """
+ 9 |
+10 | / from __future__ import annotations
+11 | |
+12 | | import hashlib
+13 | | import json
+14 | | import re
+15 | | from collections.abc import Iterable, Mapping, Sequence
+16 | | from dataclasses import dataclass
+17 | | from pathlib import Path
+18 | | from typing import Any
+   | |______________________^
+help: Organize imports
+   |
+19 |
+   -
+20 | QUALIFICATION_ID = "m9-project-qualification-v1"
+   |
+
+RUF022 [*] `__all__` is not sorted
+   --> src/aiverify/bench/m9_qualification.py:446:11
+    |
+446 |   __all__ = [
+    |  ___________^
+447 | |     "ACTIVITY",
+448 | |     "BACKEND",
+449 | |     "BASELINE_COMMIT",
+450 | |     "CONTRADICTION_REQUIRED_FIELDS",
+451 | |     "CONTRADICTION_REJECTION_BOUNDARY",
+452 | |     "DEFECT_COMMIT",
+453 | |     "LANE_IDS",
+454 | |     "M9QualificationError",
+455 | |     "M9QualificationManifest",
+456 | |     "M9QualificationPreflight",
+457 | |     "MODEL",
+458 | |     "PACKAGE",
+459 | |     "QUALIFICATION_ID",
+460 | |     "RUNNER_POLICY",
+461 | |     "SOURCE_ORIGIN",
+462 | |     "audit_contradiction_packet",
+463 | |     "audit_neutral_packets",
+464 | |     "canonical_json_bytes",
+465 | |     "load_manifest",
+466 | |     "sha256_bytes",
+467 | |     "sha256_file",
+468 | |     "sealed_source_binding_ref",
+469 | |     "validate_admission_receipts",
+470 | | ]
+    | |_^
+help: Apply an isort-style sorting to `__all__`
+    |
+449 |     "BASELINE_COMMIT",
+450 +     "CONTRADICTION_REJECTION_BOUNDARY",
+451 |     "CONTRADICTION_REQUIRED_FIELDS",
+    -     "CONTRADICTION_REJECTION_BOUNDARY",
+452 |     "DEFECT_COMMIT",
+453 |     "LANE_IDS",
+    -     "M9QualificationError",
+    -     "M9QualificationManifest",
+    -     "M9QualificationPreflight",
+454 |     "MODEL",
+--------------------------------------------------------------------------------
+458 |     "SOURCE_ORIGIN",
+459 +     "M9QualificationError",
+460 +     "M9QualificationManifest",
+461 +     "M9QualificationPreflight",
+462 |     "audit_contradiction_packet",
+463 |     "audit_neutral_packets",
+464 |     "canonical_json_bytes",
+465 |     "load_manifest",
+466 +     "sealed_source_binding_ref",
+467 |     "sha256_bytes",
+468 |     "sha256_file",
+    -     "sealed_source_binding_ref",
+469 |     "validate_admission_receipts",
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m9_recovery_canary.py:11:1
+   |
+ 9 |   """
+10 |
+11 | / from __future__ import annotations
+12 | |
+13 | | import argparse
+14 | | import hashlib
+15 | | import json
+16 | | import shutil
+17 | | import subprocess
+18 | | import time
+19 | | from dataclasses import dataclass
+20 | | from pathlib import Path
+21 | | from typing import Any, Mapping, Sequence
+22 | |
+23 | | from aiverify.bench.m9_qualification import (
+24 | |     ACTIVITY,
+25 | |     BACKEND,
+26 | |     BASELINE_COMMIT,
+27 | |     CONTRADICTION_REJECTION_BOUNDARY,
+28 | |     PACKAGE,
+29 | |     RUNNER_POLICY,
+30 | |     SOURCE_ORIGIN,
+31 | |     DEFECT_COMMIT,
+32 | |     audit_contradiction_packet,
+33 | | )
+34 | | from aiverify.discovery import (
+35 | |     AttackPlan,
+36 | |     Finding,
+37 | |     FalsificationReviewContext,
+38 | |     FalsificationReviewerIdentity,
+39 | |     ImmutableArtifactRef,
+40 | |     ProjectTarget,
+41 | |     RiskHypothesis,
+42 | |     run_falsification_review,
+43 | | )
+44 | | from aiverify.discovery.falsification_review import (
+45 | |     FALSIFICATION_REVIEW_ROLE_ID,
+46 | |     REVIEW_DIMENSIONS,
+47 | |     reconcile_finding,
+48 | | )
+49 | | from aiverify.harness.device.controller import DeviceController
+50 | | from aiverify.providers.codex_cli import CodexCliProvider
+51 | | from aiverify.runner.admission import (
+52 | |     PlannedRunnerOptions,
+53 | |     admit_production_seam,
+54 | |     write_admission_receipt,
+55 | | )
+56 | | from aiverify.runner.cli import build_instruction_prefix, run as run_spec
+57 | | from aiverify.runner.execution_record import load_execution_record
+58 | | from aiverify.runner.package_reset import PackageResetError, reset_package_data
+59 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+27 |     CONTRADICTION_REJECTION_BOUNDARY,
+28 +     DEFECT_COMMIT,
+29 |     PACKAGE,
+30 |     RUNNER_POLICY,
+31 |     SOURCE_ORIGIN,
+   -     DEFECT_COMMIT,
+32 |     audit_contradiction_packet,
+33 | )
+34 | from aiverify.discovery import (
+35 |     AttackPlan,
+   -     Finding,
+36 |     FalsificationReviewContext,
+37 |     FalsificationReviewerIdentity,
+38 +     Finding,
+39 |     ImmutableArtifactRef,
+--------------------------------------------------------------------------------
+55 | )
+   - from aiverify.runner.cli import build_instruction_prefix, run as run_spec
+56 + from aiverify.runner.cli import build_instruction_prefix
+57 + from aiverify.runner.cli import run as run_spec
+58 | from aiverify.runner.execution_record import load_execution_record
+59 | from aiverify.runner.package_reset import PackageResetError, reset_package_data
+60 | from aiverify.runner.run_spec import load_run_spec
+   -
+61 |
+   |
+
+UP035 [*] Import from `collections.abc` instead: `Mapping`, `Sequence`
+  --> src/aiverify/bench/m9_recovery_canary.py:21:1
+   |
+19 | from dataclasses import dataclass
+20 | from pathlib import Path
+21 | from typing import Any, Mapping, Sequence
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+22 |
+23 | from aiverify.bench.m9_qualification import (
+   |
+help: Import from `collections.abc`
+   |
+20 | from pathlib import Path
+   - from typing import Any, Mapping, Sequence
+21 + from typing import Any
+22 + from collections.abc import Mapping, Sequence
+23 |
+   |
+
+F401 [*] `aiverify.bench.m9_qualification.ACTIVITY` imported but unused
+  --> src/aiverify/bench/m9_recovery_canary.py:24:5
+   |
+23 | from aiverify.bench.m9_qualification import (
+24 |     ACTIVITY,
+   |     ^^^^^^^^
+25 |     BACKEND,
+26 |     BASELINE_COMMIT,
+   |
+help: Remove unused import: `aiverify.bench.m9_qualification.ACTIVITY`
+   |
+23 | from aiverify.bench.m9_qualification import (
+   -     ACTIVITY,
+24 |     BACKEND,
+   |
+
+ISC004 Unparenthesized implicit string concatenation in collection
+    --> src/aiverify/bench/m9_recovery_canary.py:1193:13
+     |
+1191 |           ),
+1192 |           assumptions=(
+1193 | /             "the recorded UI actions reached the editor and explicit save "
+1194 | |             "navigation boundaries",
+     | |___________________________________^
+1195 |           ),
+1196 |           trigger="create one uniquely named task, edit it, and invoke Save once",
+     |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> src/aiverify/bench/m9_recovery_formal.py:20:1
+    |
+ 18 |   """
+ 19 |
+ 20 | / from __future__ import annotations
+ 21 | |
+ 22 | | import argparse
+ 23 | | import json
+ 24 | | import re
+ 25 | | import shutil
+ 26 | | import struct
+ 27 | | import subprocess
+ 28 | | import time
+ 29 | | from dataclasses import dataclass, field
+ 30 | | from datetime import datetime, timezone
+ 31 | | from enum import IntEnum
+ 32 | | from pathlib import Path
+ 33 | | from typing import Any, Mapping, Sequence
+ 34 | |
+ 35 | | import yaml
+ 36 | |
+ 37 | | from aiverify.bench.m9_recovery_qualification import (
+ 38 | |     ACTIVITY,
+ 39 | |     APK_GLOB,
+ 40 | |     BACKEND,
+ 41 | |     CONTROL_APK_BYTES,
+ 42 | |     CONTROL_APK_SHA256,
+ 43 | |     CONTRADICTION_REQUIRED_FIELDS,
+ 44 | |     DEFECT_APK_BYTES,
+ 45 | |     DEFECT_APK_SHA256,
+ 46 | |     DEFECT_COMMIT,
+ 47 | |     DEFECT_TREE,
+ 48 | |     DEVICE,
+ 49 | |     FORMAL_ATTEMPT_ID,
+ 50 | |     FORMAL_HYPOTHESIS_ID,
+ 51 | |     LANE_IDS,
+ 52 | |     LOCAL_CLAIM_BOUNDARY,
+ 53 | |     PACKAGE,
+ 54 | |     PROBE_TOKENS,
+ 55 | |     PROJECT_TARGET_COMMIT,
+ 56 | |     PROJECT_TARGET_ID,
+ 57 | |     PROJECT_TARGET_TREE,
+ 58 | |     QUALIFICATION_ID,
+ 59 | |     R4_ARTIFACT_ROOT,
+ 60 | |     R4_RUN_RECORD,
+ 61 | |     RUNNER_POLICY,
+ 62 | |     SOURCE_ORIGIN,
+ 63 | |     audit_contradiction_packet,
+ 64 | |     audit_neutral_packets,
+ 65 | |     build_execution_review_summary,
+ 66 | |     canonical_json_bytes,
+ 67 | |     execute_falsification_review,
+ 68 | |     load_auditor_mapping,
+ 69 | |     load_manifest,
+ 70 | |     sealed_source_binding_ref,
+ 71 | |     sha256_bytes,
+ 72 | |     sha256_file,
+ 73 | |     validate_admission_receipts,
+ 74 | |     validate_formal_attempt_row,
+ 75 | | )
+ 76 | | from aiverify.discovery import (
+ 77 | |     AttackPlanGenerationRequest,
+ 78 | |     AttackPlanProposal,
+ 79 | |     FailureChain,
+ 80 | |     HypothesisCandidate,
+ 81 | |     HypothesisGenerationRequest,
+ 82 | |     HypothesisGeneratorIdentity,
+ 83 | |     OracleContract,
+ 84 | |     PlanElement,
+ 85 | |     PlannerIdentity,
+ 86 | |     ProjectTarget,
+ 87 | |     RiskHypothesis,
+ 88 | |     ValidatedEvidenceRef,
+ 89 | |     approved_m9_prior_registry,
+ 90 | |     compile_admitted_attack_plan,
+ 91 | |     freeze_hypothesis_portfolio,
+ 92 | |     generate_attack_plan,
+ 93 | |     generate_hypothesis_response,
+ 94 | | )
+ 95 | | from aiverify.discovery.acquisition import acquire_project_context
+ 96 | | from aiverify.harness.device.controller import DeviceController
+ 97 | | from aiverify.runner.admission import (
+ 98 | |     AdmissionResult,
+ 99 | |     PlannedRunnerOptions,
+100 | |     admit_production_seam,
+101 | |     write_admission_receipt,
+102 | | )
+103 | | from aiverify.runner.cli import run as run_spec
+104 | | from aiverify.runner.execution_identity import ExecutionIdentityCollector
+105 | | from aiverify.runner.execution_record import (
+106 | |     ExecutionRecordStore,
+107 | |     is_execution_record_accountable,
+108 | |     load_execution_record,
+109 | |     write_bytes_artifact,
+110 | |     write_json_artifact,
+111 | | )
+112 | | from aiverify.runner.package_reset import PackageResetError, reset_package_data
+113 | | from aiverify.runner.run_spec import RunSpec, load_run_spec
+    | |___________________________________________________________^
+help: Organize imports
+    |
+40  |     BACKEND,
+41  +     CONTRADICTION_REQUIRED_FIELDS,
+42  |     CONTROL_APK_BYTES,
+43  |     CONTROL_APK_SHA256,
+    -     CONTRADICTION_REQUIRED_FIELDS,
+44  |     DEFECT_APK_BYTES,
+--------------------------------------------------------------------------------
+113 | from aiverify.runner.run_spec import RunSpec, load_run_spec
+    -
+114 |
+    |
+
+UP035 [*] Import from `collections.abc` instead: `Mapping`, `Sequence`
+  --> src/aiverify/bench/m9_recovery_formal.py:33:1
+   |
+31 | from enum import IntEnum
+32 | from pathlib import Path
+33 | from typing import Any, Mapping, Sequence
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+34 |
+35 | import yaml
+   |
+help: Import from `collections.abc`
+   |
+32 | from pathlib import Path
+   - from typing import Any, Mapping, Sequence
+33 + from typing import Any
+34 + from collections.abc import Mapping, Sequence
+35 |
+   |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> src/aiverify/bench/m9_recovery_formal.py:334:25
+    |
+333 | def _utc_now() -> str:
+334 |     return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+    |                         ^^^^^^^^^^^^
+help: Convert to `datetime.UTC` alias
+    |
+29  | from dataclasses import dataclass, field
+    - from datetime import datetime, timezone
+30  + from datetime import datetime, timezone, UTC
+31  | from enum import IntEnum
+--------------------------------------------------------------------------------
+333 | def _utc_now() -> str:
+    -     return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+334 +     return datetime.now(UTC).isoformat(timespec="microseconds")
+335 |
+    |
+
+F841 Local variable `target` is assigned to but never used
+    --> src/aiverify/bench/m9_recovery_formal.py:2705:9
+     |
+2703 |         contradiction = _reject_contradiction(manifest)
+2704 |         state.advance(FormalStage.CREATED, FormalStage.CONTRADICTION_REJECTED)
+2705 |         target = preclaim.target
+     |         ^^^^^^
+2706 |         context = preclaim.context
+2707 |         metadata = preclaim.metadata
+     |
+help: Remove assignment to unused variable `target`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/m9_recovery_qualification.py:19:1
+   |
+17 |   """
+18 |
+19 | / from __future__ import annotations
+20 | |
+21 | | import datetime as dt
+22 | | import json
+23 | | import re
+24 | | import struct
+25 | | import unicodedata
+26 | | import zlib
+27 | | from collections.abc import Iterable, Mapping, Sequence
+28 | | from dataclasses import dataclass
+29 | | from pathlib import Path
+30 | | from typing import Any
+31 | |
+32 | | import yaml
+33 | |
+34 | | from aiverify.bench.m9_qualification import (
+35 | |     CONTRADICTION_REJECTION_BOUNDARY,
+36 | |     CONTRADICTION_REQUIRED_FIELDS,
+37 | |     audit_contradiction_packet,
+38 | |     audit_neutral_packets,
+39 | |     canonical_json_bytes,
+40 | |     sha256_bytes,
+41 | |     sha256_file,
+42 | | )
+43 | | from aiverify.discovery.contracts import Finding, ProjectRiskMap, ResidualRisk
+44 | | from aiverify.discovery.models import DiscoveryContractError
+45 | | from aiverify.runner.codex_identity import (
+46 | |     capture_codex_invocation_identity,
+47 | |     default_codex_session_root,
+48 | | )
+49 | | from aiverify.runner.command import (
+50 | |     CommandResult,
+51 | |     CommandRunner,
+52 | |     SubprocessCommandRunner,
+53 | | )
+54 | | from aiverify.runner.execution_identity import (
+55 | |     ExecutionIdentityError,
+56 | |     verify_execution_provenance,
+57 | | )
+58 | | from aiverify.runner.execution_record import (
+59 | |     ExecutionRecordValidationError,
+60 | |     is_execution_record_accountable,
+61 | |     load_execution_record,
+62 | |     write_bytes_artifact,
+63 | |     write_json_artifact,
+64 | | )
+   | |_^
+help: Organize imports
+   |
+65 |
+   -
+66 | QUALIFICATION_ID = "m9-recovery-project-qualification-v2"
+   |
+
+ISC004 Unparenthesized implicit string concatenation in collection
+   --> src/aiverify/bench/m9_recovery_qualification.py:510:17
+    |
+508 |           raise M9RecoveryQualificationError(
+509 |               (
+510 | /                 "released auditor mapping content contradicts the frozen "
+511 | |                 "canonical commitment",
+    | |______________________________________^
+512 |               )
+513 |           )
+    |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+FURB162 Unnecessary timezone replacement with zero offset
+   --> src/aiverify/bench/m9_recovery_qualification.py:709:17
+    |
+707 |         try:
+708 |             timestamp = dt.datetime.fromisoformat(
+709 |                 approved_at.replace("Z", "+00:00")
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+710 |             )
+711 |         except ValueError:
+    |
+help: Remove `.replace()` call
+
+PIE810 Call `startswith` once with a `tuple`
+   --> src/aiverify/bench/m9_recovery_qualification.py:906:13
+    |
+904 |           lowered = item.strip().lower()
+905 |           if (
+906 | /             lowered in {"--model", "-m", "--profile", "-p"}
+907 | |             or lowered.startswith("--model=")
+908 | |             or lowered.startswith("--profile=")
+909 | |             or (lowered.startswith("-p") and not lowered.startswith("--"))
+    | |__________________________________________________________________________^
+910 |           ):
+911 |               return True
+    |
+help: Merge into a single `startswith` call
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m9_recovery_qualification.py:2819:34
+     |
+2817 |     command = [*plan.argv_without_prompt, plan.prompt]
+2818 |     command_runner = runner or SubprocessCommandRunner()
+2819 |     started_at = dt.datetime.now(dt.timezone.utc).isoformat(
+     |                                  ^^^^^^^^^^^^^^^
+2820 |         timespec="microseconds"
+2821 |     )
+     |
+help: Convert to `datetime.UTC` alias
+     |
+2818 |     command_runner = runner or SubprocessCommandRunner()
+     -     started_at = dt.datetime.now(dt.timezone.utc).isoformat(
+2819 +     started_at = dt.datetime.now(dt.UTC).isoformat(
+2820 |         timespec="microseconds"
+     |
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m9_recovery_qualification.py:2830:39
+     |
+2828 |         )
+2829 |     except Exception as error:
+2830 |         finished_at = dt.datetime.now(dt.timezone.utc).isoformat(
+     |                                       ^^^^^^^^^^^^^^^
+2831 |             timespec="microseconds"
+2832 |         )
+     |
+help: Convert to `datetime.UTC` alias
+     |
+2829 |     except Exception as error:
+     -         finished_at = dt.datetime.now(dt.timezone.utc).isoformat(
+2830 +         finished_at = dt.datetime.now(dt.UTC).isoformat(
+2831 |             timespec="microseconds"
+     |
+
+BLE001 Do not catch blind exception: `Exception`
+    --> src/aiverify/bench/m9_recovery_qualification.py:2836:16
+     |
+2834 |         try:
+2835 |             write_bytes_artifact(plan.events_path, b"")
+2836 |         except Exception as event_error:
+     |                ^^^^^^^^^
+2837 |             event_persistence_detail = (
+2838 |                 "; empty event-stream persistence also failed with "
+     |
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m9_recovery_qualification.py:2880:41
+     |
+2878 |             reason=f"{type(error).__name__}: {error}",
+2879 |             started_at=started_at,
+2880 |             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+     |                                         ^^^^^^^^^^^^^^^
+2881 |                 timespec="microseconds"
+2882 |             ),
+     |
+help: Convert to `datetime.UTC` alias
+     |
+2879 |             started_at=started_at,
+     -             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+2880 +             finished_at=dt.datetime.now(dt.UTC).isoformat(
+2881 |                 timespec="microseconds"
+     |
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m9_recovery_qualification.py:2900:41
+     |
+2898 |             reason="review runner reported a command other than the frozen argv",
+2899 |             started_at=started_at,
+2900 |             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+     |                                         ^^^^^^^^^^^^^^^
+2901 |                 timespec="microseconds"
+2902 |             ),
+     |
+help: Convert to `datetime.UTC` alias
+     |
+2899 |             started_at=started_at,
+     -             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+2900 +             finished_at=dt.datetime.now(dt.UTC).isoformat(
+2901 |                 timespec="microseconds"
+     |
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m9_recovery_qualification.py:2930:41
+     |
+2928 |             ),
+2929 |             started_at=started_at,
+2930 |             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+     |                                         ^^^^^^^^^^^^^^^
+2931 |                 timespec="microseconds"
+2932 |             ),
+     |
+help: Convert to `datetime.UTC` alias
+     |
+2929 |             started_at=started_at,
+     -             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+2930 +             finished_at=dt.datetime.now(dt.UTC).isoformat(
+2931 |                 timespec="microseconds"
+     |
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m9_recovery_qualification.py:2950:41
+     |
+2948 |             reason="review invocation did not create the semantic output",
+2949 |             started_at=started_at,
+2950 |             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+     |                                         ^^^^^^^^^^^^^^^
+2951 |                 timespec="microseconds"
+2952 |             ),
+     |
+help: Convert to `datetime.UTC` alias
+     |
+2949 |             started_at=started_at,
+     -             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+2950 +             finished_at=dt.datetime.now(dt.UTC).isoformat(
+2951 |                 timespec="microseconds"
+     |
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m9_recovery_qualification.py:2981:41
+     |
+2979 |             reason=f"{type(error).__name__}: {error}",
+2980 |             started_at=started_at,
+2981 |             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+     |                                         ^^^^^^^^^^^^^^^
+2982 |                 timespec="microseconds"
+2983 |             ),
+     |
+help: Convert to `datetime.UTC` alias
+     |
+2980 |             started_at=started_at,
+     -             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+2981 +             finished_at=dt.datetime.now(dt.UTC).isoformat(
+2982 |                 timespec="microseconds"
+     |
+
+UP017 [*] Use `datetime.UTC` alias
+    --> src/aiverify/bench/m9_recovery_qualification.py:3007:41
+     |
+3005 |             reason=f"{type(error).__name__}: {error}",
+3006 |             started_at=started_at,
+3007 |             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+     |                                         ^^^^^^^^^^^^^^^
+3008 |                 timespec="microseconds"
+3009 |             ),
+     |
+help: Convert to `datetime.UTC` alias
+     |
+3006 |             started_at=started_at,
+     -             finished_at=dt.datetime.now(dt.timezone.utc).isoformat(
+3007 +             finished_at=dt.datetime.now(dt.UTC).isoformat(
+3008 |                 timespec="microseconds"
+     |
+
+FURB162 Unnecessary timezone replacement with zero offset
+    --> src/aiverify/bench/m9_recovery_qualification.py:3168:13
+     |
+3166 |     try:
+3167 |         captured_at = dt.datetime.fromisoformat(
+3168 |             str(provenance.get("captured_at")).replace("Z", "+00:00")
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3169 |         )
+3170 |     except ValueError:
+     |
+help: Remove `.replace()` call
+
+RUF022 [*] `__all__` is not sorted
+    --> src/aiverify/bench/m9_recovery_qualification.py:4811:11
+     |
+4811 |   __all__ = [
+     |  ___________^
+4812 | |     "ACTIVITY",
+4813 | |     "APK_GLOB",
+4814 | |     "BACKEND",
+4815 | |     "CONTROL_APK_BYTES",
+4816 | |     "CONTROL_APK_SHA256",
+4817 | |     "CONTRADICTION_PACKET_ID",
+4818 | |     "CONTRADICTION_REJECTION_BOUNDARY",
+4819 | |     "CONTRADICTION_REQUIRED_FIELDS",
+4820 | |     "DEFECT_COMMIT",
+4821 | |     "DEFECT_APK_BYTES",
+4822 | |     "DEFECT_APK_SHA256",
+4823 | |     "DEFECT_TREE",
+4824 | |     "DEVICE",
+4825 | |     "FORMAL_ATTEMPT_ID",
+4826 | |     "FORMAL_HYPOTHESIS_ID",
+4827 | |     "LANE_IDS",
+4828 | |     "M9RecoveryAuditorMapping",
+4829 | |     "M9RecoveryQualificationError",
+4830 | |     "M9RecoveryQualificationManifest",
+4831 | |     "PACKAGE",
+4832 | |     "PROJECT_TARGET_COMMIT",
+4833 | |     "PROJECT_TARGET_TREE",
+4834 | |     "QUALIFICATION_ID",
+4835 | |     "R4_ARTIFACT_ROOT",
+4836 | |     "R4_RUN_RECORD",
+4837 | |     "RUNNER_POLICY",
+4838 | |     "SOURCE_ORIGIN",
+4839 | |     "audit_contradiction_packet",
+4840 | |     "audit_neutral_packets",
+4841 | |     "build_execution_review_summary",
+4842 | |     "canonical_json_bytes",
+4843 | |     "freeze_payload",
+4844 | |     "freeze_payload_sha256",
+4845 | |     "ensure_candidate_regeneration_allowed",
+4846 | |     "ensure_evidence_ledger_regeneration_allowed",
+4847 | |     "execute_falsification_review",
+4848 | |     "load_auditor_mapping",
+4849 | |     "load_manifest",
+4850 | |     "reconcile_formal_rows",
+4851 | |     "sealed_source_binding_ref",
+4852 | |     "sha256_bytes",
+4853 | |     "sha256_file",
+4854 | |     "validate_admission_receipts",
+4855 | |     "validate_formal_attempt_row",
+4856 | |     "validate_human_approval",
+4857 | | ]
+     | |_^
+help: Apply an isort-style sorting to `__all__`
+     |
+4814 |     "BACKEND",
+     -     "CONTROL_APK_BYTES",
+     -     "CONTROL_APK_SHA256",
+4815 |     "CONTRADICTION_PACKET_ID",
+4816 |     "CONTRADICTION_REJECTION_BOUNDARY",
+4817 |     "CONTRADICTION_REQUIRED_FIELDS",
+     -     "DEFECT_COMMIT",
+4818 +     "CONTROL_APK_BYTES",
+4819 +     "CONTROL_APK_SHA256",
+4820 |     "DEFECT_APK_BYTES",
+4821 |     "DEFECT_APK_SHA256",
+4822 +     "DEFECT_COMMIT",
+4823 |     "DEFECT_TREE",
+--------------------------------------------------------------------------------
+4827 |     "LANE_IDS",
+     -     "M9RecoveryAuditorMapping",
+     -     "M9RecoveryQualificationError",
+     -     "M9RecoveryQualificationManifest",
+4828 |     "PACKAGE",
+--------------------------------------------------------------------------------
+4835 |     "SOURCE_ORIGIN",
+4836 +     "M9RecoveryAuditorMapping",
+4837 +     "M9RecoveryQualificationError",
+4838 +     "M9RecoveryQualificationManifest",
+4839 |     "audit_contradiction_packet",
+4840 |     "audit_neutral_packets",
+4841 |     "build_execution_review_summary",
+4842 |     "canonical_json_bytes",
+     -     "freeze_payload",
+     -     "freeze_payload_sha256",
+4843 |     "ensure_candidate_regeneration_allowed",
+4844 |     "ensure_evidence_ledger_regeneration_allowed",
+4845 |     "execute_falsification_review",
+4846 +     "freeze_payload",
+4847 +     "freeze_payload_sha256",
+4848 |     "load_auditor_mapping",
+     |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/aiverify/bench/network_reliability.py:3:1
+   |
+ 1 |   """Fail-closed oracle for the deterministic network-reliability slice."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import argparse
+ 6 | | import json
+ 7 | | import math
+ 8 | | import re
+ 9 | | from collections.abc import Mapping
+10 | | from pathlib import Path
+11 | | from typing import Any
+   | |______________________^
+help: Organize imports
+   |
+12 |
+   -
+13 | _REQUIRED_SCENARIOS = (
+   |
+
+TRY004 Prefer `TypeError` exception for invalid type
+   --> src/aiverify/bench/network_reliability.py:168:9
+    |
+166 |     payload = json.loads(Path(path).read_text(encoding="utf-8"))
+167 |     if not isinstance(payload, list):
+168 |         raise ValueError(f"layout must be a list: {path}")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+169 |     texts = [
+170 |         item.get("text")
+    |
+
+RUF007 Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
+   --> src/aiverify/bench/network_reliability.py:450:49
+    |
+448 |             for value in sequences
+449 |         )
+450 |         or any(left >= right for left, right in zip(sequences, sequences[1:]))
+    |                                                 ^^^
+451 |     ):
+452 |         return {"outcome": "inconclusive", "faults": ["evidence_invalid"]}
+    |
+help: Replace `zip()` with `itertools.pairwise()`
+
+PERF102 When using only the values of a dict use the `values()` method
+   --> src/aiverify/bench/network_reliability.py:465:29
+    |
+463 |         faults.add("crash_or_anr")
+464 |
+465 |     for name, checkpoint in checkpoints.items():
+    |                             ^^^^^^^^^^^^^^^^^
+466 |         if not isinstance(checkpoint, Mapping):
+467 |             return {"outcome": "inconclusive", "faults": ["evidence_invalid"]}
+    |
+help: Replace `.items()` with `.values()`
+
+RUF007 Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
+   --> src/aiverify/bench/network_reliability.py:613:49
+    |
+611 |             for sequence in sequences
+612 |         )
+613 |         or any(left >= right for left, right in zip(sequences, sequences[1:]))
+    |                                                 ^^^
+614 |         or sequences[1] != sequences[0] + 1
+615 |     ):
+    |
+help: Replace `zip()` with `itertools.pairwise()`
+
+RUF007 Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
+   --> src/aiverify/bench/network_reliability.py:628:41
+    |
+626 |     observed_ranks = [scenario_rank[event["scenario"]] for event in events]
+627 |     if any(
+628 |         left > right for left, right in zip(observed_ranks, observed_ranks[1:])
+    |                                         ^^^
+629 |     ):
+630 |         return False
+    |
+help: Replace `zip()` with `itertools.pairwise()`
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> src/aiverify/bench/run_record_checksums.py:3:1
+  |
+1 |   """Generate and verify deterministic SHA-256 run-record inventories."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | import argparse
+6 | | import hashlib
+7 | | import re
+8 | | from collections import Counter
+9 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+   |
+10 |
+   -
+11 | _MANIFEST = "checksums.sha256"
+   |
+
+RUF022 [*] `__all__` is not sorted
+  --> src/aiverify/bench/taxonomy/__init__.py:16:11
+   |
+14 |   )
+15 |
+16 |   __all__ = [
+   |  ___________^
+17 | |     "Category",
+18 | |     "Pattern",
+19 | |     "Taxonomy",
+20 | |     "TaxonomyError",
+21 | |     "load_taxonomy",
+22 | |     "MIN_PATTERNS_PER_CATEGORY",
+23 | |     "REQUIRED_CATEGORIES",
+24 | |     "REQUIRED_PATTERN_FIELDS",
+25 | | ]
+   | |_^
+help: Apply an isort-style sorting to `__all__`
+   |
+16 | __all__ = [
+17 +     "MIN_PATTERNS_PER_CATEGORY",
+18 +     "REQUIRED_CATEGORIES",
+19 +     "REQUIRED_PATTERN_FIELDS",
+20 |     "Category",
+--------------------------------------------------------------------------------
+24 |     "load_taxonomy",
+   -     "MIN_PATTERNS_PER_CATEGORY",
+   -     "REQUIRED_CATEGORIES",
+   -     "REQUIRED_PATTERN_FIELDS",
+25 | ]
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_accessibility_slice.py:1:1
+  |
+1 | / import copy
+2 | | import json
+3 | | from pathlib import Path
+4 | |
+5 | | import pytest
+6 | |
+7 | | from aiverify.bench.accessibility_slice import contrast_ratio, judge_accessibility, load_uiautomator_layout
+8 | | from aiverify.runner.run_spec import load_run_spec
+  | |__________________________________________________^
+help: Organize imports
+   |
+6  |
+   - from aiverify.bench.accessibility_slice import contrast_ratio, judge_accessibility, load_uiautomator_layout
+7  + from aiverify.bench.accessibility_slice import (
+8  +     contrast_ratio,
+9  +     judge_accessibility,
+10 +     load_uiautomator_layout,
+11 + )
+12 | from aiverify.runner.run_spec import load_run_spec
+   -
+13 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_admission_contract_matrix.py:3:1
+  |
+1 |   """Integrity contract for Issue #167 admission rejection evidence."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | import json
+6 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+  |
+7 |
+  -
+8 | _ROOT = Path(__file__).resolve().parents[2]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_compatibility_matrix.py:1:1
+  |
+1 | / import json
+2 | | from pathlib import Path
+3 | |
+4 | | from aiverify.bench.compatibility_matrix import judge_matrix, judge_matrix_runs, load_contract
+5 | | from aiverify.runner.run_spec import load_run_spec
+  | |__________________________________________________^
+help: Organize imports
+   |
+3  |
+   - from aiverify.bench.compatibility_matrix import judge_matrix, judge_matrix_runs, load_contract
+4  + from aiverify.bench.compatibility_matrix import (
+5  +     judge_matrix,
+6  +     judge_matrix_runs,
+7  +     load_contract,
+8  + )
+9  | from aiverify.runner.run_spec import load_run_spec
+   -
+10 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_concurrency_slice.py:1:1
+  |
+1 | / import copy
+2 | | import json
+3 | | from pathlib import Path
+4 | |
+5 | | from aiverify.bench.concurrency_slice import judge_concurrency, judge_lane, validate_raw_receipts
+6 | | from aiverify.runner.run_spec import load_run_spec
+  | |__________________________________________________^
+help: Organize imports
+   |
+4  |
+   - from aiverify.bench.concurrency_slice import judge_concurrency, judge_lane, validate_raw_receipts
+5  + from aiverify.bench.concurrency_slice import (
+6  +     judge_concurrency,
+7  +     judge_lane,
+8  +     validate_raw_receipts,
+9  + )
+10 | from aiverify.runner.run_spec import load_run_spec
+   -
+11 |
+   |
+
+F401 [*] `copy` imported but unused
+ --> tests/bench/test_concurrency_slice.py:1:8
+  |
+1 | import copy
+  |        ^^^^
+2 | import json
+3 | from pathlib import Path
+  |
+help: Remove unused import: `copy`
+  |
+  - import copy
+1 | import json
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_coverage_audit_contract.py:3:1
+  |
+1 |   """Integrity contract for the Issue #165 coverage audit projection."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | import json
+6 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+  |
+7 |
+  -
+8 | _RUN_RECORD = (
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_current_claim_matrix.py:1:1
+  |
+1 | / from __future__ import annotations
+2 | |
+3 | | import re
+4 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+  |
+5 |
+  -
+6 | _ROOT = Path(__file__).resolve().parents[2]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_execution_record_terminal_accounting_matrix.py:3:1
+  |
+1 |   """Integrity contract for Issue #171 ExecutionRecord branch disposition."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | import json
+6 | | import subprocess
+7 | | import sys
+8 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+   |
+9  |
+   -
+10 | _ROOT = Path(__file__).resolve().parents[2]
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_lifecycle_recovery.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import json
+ 4 | | from pathlib import Path
+ 5 | |
+ 6 | | from aiverify.bench.lifecycle_recovery import (
+ 7 | |     LifecycleRecoveryContract,
+ 8 | |     judge_lifecycle_recovery,
+ 9 | |     judge_lifecycle_recovery_run,
+10 | |     load_lifecycle_recovery_contract,
+11 | | )
+12 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+13 |
+   -
+14 | CONTRACT = LifecycleRecoveryContract(
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_m2_beta_benchmark_slice_report.py:1:1
+  |
+1 | / from __future__ import annotations
+2 | |
+3 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+  |
+4 |
+  -
+5 | _ROOT = Path(__file__).resolve().parents[2]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_m2_beta_inclusion_rules.py:1:1
+  |
+1 | / from __future__ import annotations
+2 | |
+3 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+  |
+4 |
+  -
+5 | _ROOT = Path(__file__).resolve().parents[2]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_m2_beta_metric_context.py:1:1
+  |
+1 | / from __future__ import annotations
+2 | |
+3 | | from pathlib import Path
+4 | |
+5 | | import pytest
+6 | |
+7 | | from aiverify.runner.run_spec import load_run_spec
+  | |__________________________________________________^
+help: Organize imports
+  |
+8 |
+  -
+9 | _ROOT = Path(__file__).resolve().parents[2]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_m2_beta_oversized_saved_state_quarantine.py:1:1
+  |
+1 | / from __future__ import annotations
+2 | |
+3 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+  |
+4 |
+  -
+5 | _ROOT = Path(__file__).resolve().parents[2]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_m2_beta_summary.py:1:1
+  |
+1 | / from __future__ import annotations
+2 | |
+3 | | import json
+4 | | from pathlib import Path
+5 | |
+6 | | import pytest
+7 | |
+8 | | from aiverify.bench.m2_beta_summary import build_summary, render_markdown
+  | |_________________________________________________________________________^
+help: Organize imports
+   |
+9  |
+   -
+10 | _ROOT = Path(__file__).resolve().parents[2]
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_m2_l3_text_layout_summary.py:1:1
+  |
+1 | / from __future__ import annotations
+2 | |
+3 | | import json
+4 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+  |
+5 |
+  -
+6 | _ROOT = Path(__file__).resolve().parents[2]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_m2_scoped_milestone_note.py:1:1
+  |
+1 | / from __future__ import annotations
+2 | |
+3 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+  |
+4 |
+  -
+5 | _ROOT = Path(__file__).resolve().parents[2]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m3_rebaseline_audit.py:3:1
+   |
+ 1 |   """Final audited comparison tests for the fresh M3 v2 reliability slice."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import json
+ 6 | | from dataclasses import replace
+ 7 | | from pathlib import Path
+ 8 | |
+ 9 | | import pytest
+10 | |
+11 | | import aiverify.bench.m3_audit as m3_audit
+12 | | from aiverify.bench.m3_audit import (
+13 | |     audited_report_to_dict,
+14 | |     build_audited_report,
+15 | |     render_audited_markdown,
+16 | | )
+17 | | from aiverify.bench.m3_reliability import load_manifest
+18 | | from aiverify.bench.run_record_checksums import verify_manifest
+   | |_______________________________________________________________^
+help: Organize imports
+   |
+19 |
+   -
+20 | _ROOT = Path(__file__).resolve().parents[2]
+   |
+
+PLR0402 [*] Use `from aiverify.bench import m3_audit` in lieu of alias
+  --> tests/bench/test_m3_rebaseline_audit.py:11:8
+   |
+ 9 | import pytest
+10 |
+11 | import aiverify.bench.m3_audit as m3_audit
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+12 | from aiverify.bench.m3_audit import (
+13 |     audited_report_to_dict,
+   |
+help: Replace with `from aiverify.bench import m3_audit`
+   |
+10 |
+   - import aiverify.bench.m3_audit as m3_audit
+11 + from aiverify.bench import m3_audit
+12 | from aiverify.bench.m3_audit import (
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m3_reliability.py:3:1
+   |
+ 1 |   """M3 Verification Agent execution-reliability tracer tests."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import json
+ 6 | | import math
+ 7 | | from copy import deepcopy
+ 8 | | from dataclasses import replace
+ 9 | | from pathlib import Path
+10 | |
+11 | | import pytest
+12 | |
+13 | | import aiverify.bench.m3_audit as m3_audit
+14 | | from aiverify.bench.m3_audit import (
+15 | |     audited_report_to_dict,
+16 | |     build_audited_report,
+17 | |     render_audited_markdown,
+18 | | )
+19 | | from aiverify.bench.m3_reliability import (
+20 | |     build_progress,
+21 | |     build_summary,
+22 | |     load_manifest,
+23 | |     main,
+24 | |     plan_lanes,
+25 | |     progress_to_dict,
+26 | |     render_markdown,
+27 | |     run_lane,
+28 | |     summary_to_dict,
+29 | | )
+30 | | from aiverify.bench.run_record_checksums import verify_manifest, write_manifest
+31 | | from aiverify.providers.parsing import extract_json_block
+32 | | from aiverify.runner.command import CommandResult, CommandRunner
+33 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+34 |
+   -
+35 | _ROOT = Path(__file__).resolve().parents[2]
+   |
+
+PLR0402 [*] Use `from aiverify.bench import m3_audit` in lieu of alias
+  --> tests/bench/test_m3_reliability.py:13:8
+   |
+11 | import pytest
+12 |
+13 | import aiverify.bench.m3_audit as m3_audit
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 | from aiverify.bench.m3_audit import (
+15 |     audited_report_to_dict,
+   |
+help: Replace with `from aiverify.bench import m3_audit`
+   |
+12 |
+   - import aiverify.bench.m3_audit as m3_audit
+13 + from aiverify.bench import m3_audit
+14 | from aiverify.bench.m3_audit import (
+   |
+
+FURB192 Prefer `max` over `sorted()` to compute the maximum value in a sequence
+    --> tests/bench/test_m3_reliability.py:2485:25
+     |
+2483 |     assert len(defect_lanes) == 3
+2484 |     for lane in defect_lanes:
+2485 |         final_attempt = sorted(lane.evidence_dir.glob("attempt-*"))[-1]
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2486 |         verdict = json.loads(
+2487 |             (final_attempt / "verdict.json").read_text(encoding="utf-8")
+     |
+help: Replace with `max`
+
+FURB192 Prefer `max` over `sorted()` to compute the maximum value in a sequence
+    --> tests/bench/test_m3_reliability.py:2515:25
+     |
+2513 |     }
+2514 |     for lane in lanes:
+2515 |         final_attempt = sorted(lane.evidence_dir.glob("attempt-*"))[-1]
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2516 |         verdict = json.loads(
+2517 |             (final_attempt / "verdict.json").read_text(encoding="utf-8")
+     |
+help: Replace with `max`
+
+FURB192 Prefer `max` over `sorted()` to compute the maximum value in a sequence
+    --> tests/bench/test_m3_reliability.py:2556:25
+     |
+2554 |     }
+2555 |     for lane in lanes:
+2556 |         final_attempt = sorted(lane.evidence_dir.glob("attempt-*"))[-1]
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2557 |         verdict = json.loads(
+2558 |             (final_attempt / "verdict.json").read_text(encoding="utf-8")
+     |
+help: Replace with `max`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m3_v3_audit.py:3:1
+   |
+ 1 |   """Strict final-audit contract for the immutable M3 v3 slice."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import json
+ 6 | | from copy import deepcopy
+ 7 | | from pathlib import Path
+ 8 | |
+ 9 | | import pytest
+10 | |
+11 | | from aiverify.bench.m3_audit import (
+12 | |     _build_criteria,
+13 | |     _validate_lane_apk_identity,
+14 | |     _validate_lane_execution_identity,
+15 | |     audited_report_to_dict,
+16 | |     build_audited_report,
+17 | |     render_audited_markdown,
+18 | | )
+19 | | from aiverify.bench.m3_reliability import ReliabilitySummary, load_manifest
+20 | | from aiverify.bench.run_record_checksums import verify_manifest
+   | |_______________________________________________________________^
+help: Organize imports
+   |
+21 |
+   -
+22 | _ROOT = Path(__file__).resolve().parents[2]
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m6_case_package.py:3:1
+   |
+ 1 |   """Contract tests for the common M6 Qualification Case Package."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import copy
+ 6 | | import hashlib
+ 7 | | import json
+ 8 | | from pathlib import Path
+ 9 | |
+10 | | import pytest
+11 | | import yaml
+12 | |
+13 | | from aiverify.bench.m6_case_package import (
+14 | |     CasePackageValidationError,
+15 | |     aggregate_packages,
+16 | |     load_case_package,
+17 | |     render_markdown,
+18 | |     render_structured,
+19 | |     self_validate_schema,
+20 | | )
+   | |_^
+help: Organize imports
+   |
+21 |
+   -
+22 | MANIFEST = Path("bench/m6/m6-qualification-v1.yaml")
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m7_qualification.py:3:1
+   |
+ 1 |   """Contract tests for the frozen, blinded M7 qualification slice."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import json
+ 6 | | from copy import deepcopy
+ 7 | | from pathlib import Path
+ 8 | |
+ 9 | | import pytest
+10 | |
+11 | | from aiverify.bench.m7_qualification import (
+12 | |     M7QualificationError,
+13 | |     audit_packet,
+14 | |     load_manifest,
+15 | |     run_qualification,
+16 | |     self_validate_schema,
+17 | | )
+   | |_^
+help: Organize imports
+   |
+18 |
+   -
+19 | _ROOT = Path(__file__).parents[2]
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m9_formal.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import json
+ 4 | | from pathlib import Path
+ 5 | |
+ 6 | | import pytest
+ 7 | |
+ 8 | | from aiverify.harness.device import AdbResult
+ 9 | | from aiverify.harness.device.adb import FakeAdbRunner
+10 | | from aiverify.harness.device.controller import DeviceController
+11 | | from aiverify.bench.m9_formal import (
+12 | |     LANE_IDS,
+13 | |     M9FormalExecutionError,
+14 | |     _clear_package,
+15 | |     _oracle_conclusion,
+16 | |     _reconcile,
+17 | | )
+   | |_^
+help: Organize imports
+   |
+7  |
+   - from aiverify.harness.device import AdbResult
+   - from aiverify.harness.device.adb import FakeAdbRunner
+   - from aiverify.harness.device.controller import DeviceController
+8  | from aiverify.bench.m9_formal import (
+--------------------------------------------------------------------------------
+14 | )
+15 + from aiverify.harness.device import AdbResult
+16 + from aiverify.harness.device.adb import FakeAdbRunner
+17 + from aiverify.harness.device.controller import DeviceController
+18 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m9_qualification.py:3:1
+   |
+ 1 |   """Contract tests for the M9 freeze hand-off."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import copy
+ 6 | | import json
+ 7 | | from pathlib import Path
+ 8 | |
+ 9 | | import pytest
+10 | |
+11 | | from aiverify.bench.m9_qualification import (
+12 | |     LANE_IDS,
+13 | |     M9QualificationError,
+14 | |     SOURCE_ORIGIN,
+15 | |     audit_contradiction_packet,
+16 | |     audit_neutral_packets,
+17 | |     load_manifest,
+18 | |     validate_admission_receipts,
+19 | | )
+   | |_^
+help: Organize imports
+   |
+12 |     LANE_IDS,
+13 +     SOURCE_ORIGIN,
+14 |     M9QualificationError,
+   -     SOURCE_ORIGIN,
+15 |     audit_contradiction_packet,
+--------------------------------------------------------------------------------
+19 | )
+   -
+20 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_m9_recovery_baseline.py:1:1
+  |
+1 | / from __future__ import annotations
+2 | |
+3 | | import hashlib
+4 | | import json
+5 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+  |
+6 |
+  -
+7 | ROOT = Path(__file__).resolve().parents[2]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m9_recovery_canary.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import hashlib
+ 4 | | import json
+ 5 | | from pathlib import Path
+ 6 | | from types import SimpleNamespace
+ 7 | |
+ 8 | | import jsonschema
+ 9 | | import pytest
+10 | |
+11 | | from aiverify.bench.m9_recovery_canary import (
+12 | |     ENGLISH_US_INPUT_SUBTYPE,
+13 | |     REVIEW_SCHEMA,
+14 | |     RUN_SPEC_ROOT,
+15 | |     M9RecoveryCanaryError,
+16 | |     _assert_default_receipt,
+17 | |     _canary_instruction_prefix,
+18 | |     _configure_device_input,
+19 | |     _contradiction_gate,
+20 | |     _copy_peer_evidence,
+21 | |     _copy_raw_evidence,
+22 | |     _finalize_failed_attempt,
+23 | |     _oracle_conclusion,
+24 | |     _peer_control_artifacts,
+25 | |     _reconcile_canary,
+26 | |     _review_contract,
+27 | |     _review_input_audit,
+28 | |     _review_prompt,
+29 | |     _require_accountable_runtime,
+30 | |     _write_review_safe_provenance,
+31 | | )
+32 | | from aiverify.discovery import Finding, FalsificationReviewerIdentity
+33 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+25 |     _reconcile_canary,
+26 +     _require_accountable_runtime,
+27 |     _review_contract,
+28 |     _review_input_audit,
+29 |     _review_prompt,
+   -     _require_accountable_runtime,
+30 |     _write_review_safe_provenance,
+31 | )
+   - from aiverify.discovery import Finding, FalsificationReviewerIdentity
+32 + from aiverify.discovery import FalsificationReviewerIdentity, Finding
+33 | from aiverify.runner.run_spec import load_run_spec
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m9_recovery_formal.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import json
+ 4 | | from pathlib import Path
+ 5 | | from types import SimpleNamespace
+ 6 | |
+ 7 | | import pytest
+ 8 | | import yaml
+ 9 | |
+10 | | from aiverify.bench import m9_recovery_formal as formal
+11 | | from aiverify.bench.m9_recovery_qualification import (
+12 | |     CONTRADICTION_REQUIRED_FIELDS,
+13 | |     DEFECT_COMMIT,
+14 | |     LANE_IDS,
+15 | |     PROJECT_TARGET_COMMIT,
+16 | |     PROBE_TOKENS,
+17 | |     sha256_file,
+18 | | )
+   | |_^
+help: Organize imports
+   |
+14 |     LANE_IDS,
+15 +     PROBE_TOKENS,
+16 |     PROJECT_TARGET_COMMIT,
+   -     PROBE_TOKENS,
+17 |     sha256_file,
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_m9_recovery_qualification.py:3:1
+   |
+ 1 |   """Contract tests for the fresh M9-R3 recovery freeze."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import copy
+ 6 | | import datetime as dt
+ 7 | | import json
+ 8 | | import os
+ 9 | | import struct
+10 | | import zlib
+11 | | from pathlib import Path
+12 | |
+13 | | import jsonschema
+14 | | import pytest
+15 | | import yaml
+16 | |
+17 | | from aiverify.bench.m9_recovery_qualification import (
+18 | |     ACTIVITY,
+19 | |     APK_GLOB,
+20 | |     BACKEND,
+21 | |     CONTROL_APK_BYTES,
+22 | |     CONTROL_APK_SHA256,
+23 | |     DEFECT_APK_BYTES,
+24 | |     DEFECT_APK_SHA256,
+25 | |     DEFECT_COMMIT,
+26 | |     DEVICE,
+27 | |     FalsificationReviewExecutionError,
+28 | |     FalsificationReviewInvocationPlan,
+29 | |     FORMAL_ATTEMPT_ID,
+30 | |     FORMAL_HYPOTHESIS_ID,
+31 | |     LANE_IDS,
+32 | |     LOCAL_CLAIM_BOUNDARY,
+33 | |     M9RecoveryQualificationError,
+34 | |     PACKAGE,
+35 | |     PROBE_TOKENS,
+36 | |     PROJECT_TARGET_COMMIT,
+37 | |     PROJECT_TARGET_ID,
+38 | |     R4_ARTIFACT_ROOT,
+39 | |     R4_RUN_RECORD,
+40 | |     RUNNER_POLICY,
+41 | |     SOURCE_ORIGIN,
+42 | |     _execution_review_summary,
+43 | |     _expected_review_prompt,
+44 | |     build_falsification_review_receipt,
+45 | |     canonical_json_bytes,
+46 | |     ensure_candidate_regeneration_allowed,
+47 | |     ensure_evidence_ledger_regeneration_allowed,
+48 | |     execute_falsification_review,
+49 | |     freeze_payload_sha256,
+50 | |     load_auditor_mapping,
+51 | |     load_manifest,
+52 | |     persist_falsification_review_receipt,
+53 | |     prepare_falsification_review_invocation,
+54 | |     reconcile_formal_rows,
+55 | |     sealed_source_binding_ref,
+56 | |     sha256_bytes,
+57 | |     validate_admission_receipts,
+58 | | )
+59 | | from aiverify.runner.command import CommandResult, CommandRunner
+   | |________________________________________________________________^
+help: Organize imports
+   |
+26 |     DEVICE,
+   -     FalsificationReviewExecutionError,
+   -     FalsificationReviewInvocationPlan,
+27 |     FORMAL_ATTEMPT_ID,
+28 |     FORMAL_HYPOTHESIS_ID,
+29 |     LANE_IDS,
+30 |     LOCAL_CLAIM_BOUNDARY,
+   -     M9RecoveryQualificationError,
+31 |     PACKAGE,
+--------------------------------------------------------------------------------
+38 |     SOURCE_ORIGIN,
+39 +     FalsificationReviewExecutionError,
+40 +     FalsificationReviewInvocationPlan,
+41 +     M9RecoveryQualificationError,
+42 |     _execution_review_summary,
+--------------------------------------------------------------------------------
+59 | from aiverify.runner.command import CommandResult, CommandRunner
+   -
+60 |
+   |
+
+B023 Function definition does not bind loop variable `token`
+   --> tests/bench/test_m9_recovery_qualification.py:281:33
+    |
+279 |                 nodes.append(
+280 |                     {
+281 |                         "text": token,
+    |                                 ^^^^^
+282 |                         "interactions": [
+283 |                             "clickable",
+    |
+
+F841 Local variable `review_prompt_path` is assigned to but never used
+    --> tests/bench/test_m9_recovery_qualification.py:1141:9
+     |
+1139 |             tuple(review_input_sources)
+1140 |         )
+1141 |         review_prompt_path = review_plan.prompt_path
+     |         ^^^^^^^^^^^^^^^^^^
+1142 |         review_identity_path = lane_root / "falsification-review-identity.json"
+1143 |         write_json(
+     |
+help: Remove assignment to unused variable `review_prompt_path`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_network_reliability.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | from copy import deepcopy
+ 4 | | import hashlib
+ 5 | | import json
+ 6 | | from pathlib import Path
+ 7 | |
+ 8 | | import pytest
+ 9 | |
+10 | | from aiverify.bench.network_reliability import (
+11 | |     build_evidence_bundle,
+12 | |     evaluate_network_pair,
+13 | |     main,
+14 | | )
+15 | | from aiverify.runner.run_spec import load_run_spec
+   | |__________________________________________________^
+help: Organize imports
+   |
+2  |
+   - from copy import deepcopy
+3  | import hashlib
+4  | import json
+5  + from copy import deepcopy
+6  | from pathlib import Path
+--------------------------------------------------------------------------------
+15 | from aiverify.runner.run_spec import load_run_spec
+   -
+16 |
+   |
+
+C400 Unnecessary generator (rewrite as a list comprehension)
+   --> tests/bench/test_network_reliability.py:618:12
+    |
+616 |     assert exit_code == 0
+617 |     assert payload["conclusion"] == "locally_supported"
+618 |     assert list(key for key in payload if key == "conclusion") == ["conclusion"]
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Rewrite as a list comprehension
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_performance_intent_slice.py:1:1
+  |
+1 | / import copy
+2 | | import json
+3 | | from pathlib import Path
+4 | |
+5 | | from aiverify.bench.performance_intent_slice import judge_slice, validate_receipt_files
+6 | | from aiverify.runner.run_spec import load_run_spec
+  | |__________________________________________________^
+help: Organize imports
+  |
+7 |
+  -
+8 | CONTRACT = json.loads(Path("bench/capability-slices/performance-intent-security/contract.json").read_text())
+  |
+
+F401 [*] `copy` imported but unused
+ --> tests/bench/test_performance_intent_slice.py:1:8
+  |
+1 | import copy
+  |        ^^^^
+2 | import json
+3 | from pathlib import Path
+  |
+help: Remove unused import: `copy`
+  |
+  - import copy
+1 | import json
+  |
+
+PERF102 When using only the values of a dict use the `values()` method
+  --> tests/bench/test_performance_intent_slice.py:92:31
+   |
+90 |     data = evidence()
+91 |     for domain in ("performance_resource", "intent_security"):
+92 |         for name, relative in data[domain]["raw_receipts"].items():
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+93 |             path = tmp_path / relative
+94 |             path.parent.mkdir(parents=True, exist_ok=True)
+   |
+help: Replace `.items()` with `.values()`
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_runner_cli_phase_ordering_matrix.py:3:1
+  |
+1 |   """Integrity contract for Issue #169 Runner CLI phase-ordering evidence."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | import json
+6 | | import subprocess
+7 | | import sys
+8 | | from pathlib import Path
+  | |________________________^
+help: Organize imports
+   |
+9  |
+   -
+10 | _ROOT = Path(__file__).resolve().parents[2]
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/bench/test_runtime_permission_slice.py:3:1
+  |
+1 |   """Contract tests for GitHub #70's bounded runtime-permission slice."""
+2 |
+3 | / from __future__ import annotations
+4 | |
+5 | | from pathlib import Path
+6 | |
+7 | | from aiverify.agent.oracle import L1Oracle
+8 | | from aiverify.runner.run_spec import load_run_spec
+9 | | from aiverify.runner.verdict import judge_l2_from_android_layout
+  | |________________________________________________________________^
+help: Organize imports
+   |
+10 |
+   -
+11 | _ROOT = Path(__file__).resolve().parents[2] / "bench" / "runtime-permission"
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/bench/test_taxonomy.py:6:1
+   |
+ 4 |   """
+ 5 |
+ 6 | / from __future__ import annotations
+ 7 | |
+ 8 | | import textwrap
+ 9 | |
+10 | | import pytest
+11 | |
+12 | | from aiverify.bench.taxonomy import (
+13 | |     MIN_PATTERNS_PER_CATEGORY,
+14 | |     REQUIRED_CATEGORIES,
+15 | |     REQUIRED_PATTERN_FIELDS,
+16 | |     TaxonomyError,
+17 | |     load_taxonomy,
+18 | | )
+   | |_^
+help: Organize imports
+   |
+19 |
+   -
+20 | # --- 真实 taxonomy.yaml 的不变量 ------------------------------------------------
+   |
+
+Found 186 errors.
+[*] 86 fixable with the `--fix` option (58 hidden fixes can be enabled with the `--unsafe-fixes` option).
