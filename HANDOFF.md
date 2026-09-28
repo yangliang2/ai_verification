@@ -1,6 +1,6 @@
 # HANDOFF
 
-更新时间：2026-09-28（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
+更新时间：2026-09-28（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发与 #209 复核 reopen；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
 
 M9 与 M9-R 均已以不可变的 `Not Supported` 失败证据收口。#137 的六条 lane 均在
 install 前 non-accountable；fresh recovery packet #154 的唯一调用更早在
@@ -44,7 +44,8 @@ control rejection、0/6 review，零 retry/replacement/rerun。接手者应先�
 - **当前状态**：family preparation 完成但仍 **pre-device**——无 device
   session、无 runtime attempt record。原已知缺口（#206 mapping 中 lane 01/02
   共享同一 ChangeTarget source 路径）已由 #225 解除；#216（real four-cell
-  family preparation）等待消费新 release。Runtime Calibration Family 按
+  family preparation）等待消费新 release；DIL-M1 链条的直接可动项是 #209（见
+  「接手时的正确下一步」）。Runtime Calibration Family 按
   定义不形成 benchmark denominator 或 capability claim。
 
 ### 第二宿主 tasks/tasks（2026-09-28）
@@ -316,9 +317,14 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
 **当前待办（2026-09-28）：**
 
 1. OpenCalc：逐 lane source mapping 已由 #225 重签发并提交 run record，
-   lane 01/02 共享路径缺口解除；下一步是让 #216 消费
-   `opencalc-runtime-mapping-release-v2` 做真实 four-cell family preparation。
-   device session 与 runtime attempt record 仍未授权，此前不得创建。
+   lane 01/02 共享路径缺口解除。DIL-M1 链条的当前可动项是 **#209**
+   （DIL-M1.11：单 lane accountable tracer）：它 2026-08-30 的关闭已被复核为
+   不可审计（声称的 commit `040ebd6…` 与 run record 均不存在，仓库中也没有
+   `runtime_attempt` seam），已 reopen，需要真正实现；下游 #210–#218 的链路
+   都建立在该 seam 之上。链条随后的顺序是 #210 → #211 → #212 → #213 →
+   #214 → #215 → #216（消费 `opencalc-runtime-mapping-release-v2` 做真实
+   four-cell family preparation）→ #217 → #218。device session 与 runtime
+   attempt record 未获明确授权前不得创建。
 2. tasks/tasks：执行测试计划 Part 1 环境准备（P1.1–P1.7），放行条件是用户
    批准计划与冻结 commit；Part 2 的 formal population 未人工冻结、未授权。
 3. Catima 保持未见 holdout：不 clone、不构建、不暴露源码给任何验证动作。
