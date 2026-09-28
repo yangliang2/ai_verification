@@ -1,6 +1,6 @@
 # HANDOFF
 
-更新时间：2026-08-12
+更新时间：2026-09-28（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
 
 M9 与 M9-R 均已以不可变的 `Not Supported` 失败证据收口。#137 的六条 lane 均在
 install 前 non-accountable；fresh recovery packet #154 的唯一调用更早在
@@ -11,6 +11,47 @@ control rejection、0/6 review，零 retry/replacement/rerun。接手者应先�
 再读 [#137 formal run](docs/runs/2026-08-06-issue-137-formal-execution/README.md)
 与 [#157 R5 run](docs/runs/2026-08-08-issue-157-m9-r5-reconciliation/README.md)，
 不要从旧 issue 编号或聊天记录推断当前声明。M8 与首次 M9 人口都保持不可变。
+
+## #161 之后的进展（2026-08-12 → 2026-09-28）
+
+### OpenCalc Runtime Calibration V1（#163–#208，PR 至 #224）
+
+- **合同加固**（#163–#175）：external fixture gate、risk-weighted white-box
+  coverage audit、admission rejection contracts、runner CLI phase ordering、
+  ExecutionRecord terminal accounting / post-rename durability / temporary
+  authority。
+- **Injection Lab 产物化**（#185–#190）：curated candidate materialization、
+  catalog admission、disclosure rejection、blind-safe ChangeTarget/ProjectTarget
+  packets、four-cell auditor mapping。
+- **OpenCalc host 校准**（2026-08-23，exploratory 无 issue）：冻结 commit
+  `0584d61`、独立缓存冷构建 + offline 重建字节一致、3/3 确定性 UI 切片；
+  OpenCalc 定为 **calibration-only** host，Catima 保留为未见 holdout。见
+  [OpenCalc calibration run](docs/runs/2026-08-23-opencalc-calibration/README.md)。
+- **Runtime 赛道**（#197–#208）：sealed runtime source preparation（#197）、
+  Journey Driver Selection（#201）、deterministic resource wait（#202）、
+  opaque OpenCalc keypad journey（#203）、Change/Project discovery（#204/#205）、
+  #200 冻结 model-free 校准候选 `bench/runtime-calibration/opencalc-input-save-enabled-v1/`
+  （`verify-candidate` 无需 Git/构建/设备/模型即可验证）、atomic runtime
+  mapping release（#206）、sealed APK handoff（#207）、four-lane runtime
+  family preparation（#208，[run record](docs/runs/2026-08-30-issue-208-runtime-family-preparation/README.md)，
+  全量 1424 passed）。
+- **当前状态**：family preparation 完成但仍 **pre-device**——无 device
+  session、无 runtime attempt record。已知缺口：#206 mapping 中 lane 01/02
+  共享同一 ChangeTarget source 路径，严格 family preparation 会拒绝，需签发
+  逐 lane 新 mapping。Runtime Calibration Family 按定义不形成 benchmark
+  denominator 或 capability claim。
+
+### 第二宿主 tasks/tasks（2026-09-28）
+
+- **选型**：8 个档案外新候选经 GitHub API 实查，tasks/tasks 六项硬指标全过，
+  推荐为第二完整验证宿主；AnkiDroid 顺位备选；Thunderbird 备选地位不变；
+  Catima 未见 holdout 不动。见
+  [候选调研](docs/research/2026-09-28-second-host-candidate-research.md)
+  （含 3.4 前置条件尽调：无硬阻断）。
+- **测试计划**：Part 1 环境准备（P1.1–P1.7）+ Part 2 验证任务（T1–T3），
+  已获用户确认拆分；formal population 未人工冻结，Part 2 未授权。见
+  [测试计划](docs/research/2026-09-28-tasks-host-verification-test-plan.md)。
+- 上述调研与计划已提交于 `b617647` 并推送。
 
 ## 当前 tracker 状态
 
@@ -265,6 +306,17 @@ GitHub 完成评论必须链接 committed run record，不能只引用 `/tmp` �
 run record 与其 artifacts 在 commit 前都不算 durable evidence。
 
 ## 接手时的正确下一步
+
+**当前待办（2026-09-28）：**
+
+1. OpenCalc：签发逐 lane source mapping 解除 #208 记录的 lane 01/02 共享
+   ChangeTarget source 路径缺口，然后才谈 device session；此前不创建任何
+   runtime attempt record。
+2. tasks/tasks：执行测试计划 Part 1 环境准备（P1.1–P1.7），放行条件是用户
+   批准计划与冻结 commit；Part 2 的 formal population 未人工冻结、未授权。
+3. Catima 保持未见 holdout：不 clone、不构建、不暴露源码给任何验证动作。
+
+**历史边界（仍然有效）：**
 
 1. 保持 M8 #117–#122、M9 #136/#137、M9-R #152/#154/#157 证据不可变；不得重跑、
    替换、改写、回填或合并 population。
