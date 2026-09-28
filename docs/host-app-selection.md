@@ -5,6 +5,8 @@
 > **查询时间：2026-06（2026-06-11，美东时间）**。星数、commit 时间、语言占比均为当日实测值。
 
 > Current MVP update（2026-06-15）：首选宿主 `wikimedia/apps-android-wikipedia` 已在本机实测构建、部署、启动和 evidence capture。详见 `docs/runs/2026-06-15-afk-verification/README.md`。当前 MVP 继续使用 Wikipedia；Thunderbird 保留为后续第二宿主备选。
+>
+> Second-host update（2026-09-28）：档案外新候选调研已完成，推荐 `tasks/tasks` 为第二完整验证宿主、`ankidroid/Anki-Android` 为顺位备选；Thunderbird 备选地位不变，Catima 继续保留为未见 holdout。详见 `docs/research/2026-09-28-second-host-candidate-research.md`。
 
 ## 1. 硬指标回顾
 
