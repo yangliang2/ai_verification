@@ -1,6 +1,6 @@
 # HANDOFF
 
-更新时间：2026-09-29（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发、#209 单 lane runtime attempt seam、#210 pre-observation 与 #211 post-observation fail-closed 加固完成；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
+更新时间：2026-09-29（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发、#209 单 lane runtime attempt seam、#210 pre-observation 与 #211 post-observation fail-closed 加固完成、family-preparation fixture 跨机修正与 m7 归因更正；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
 
 M9 与 M9-R 均已以不可变的 `Not Supported` 失败证据收口。#137 的六条 lane 均在
 install 前 non-accountable；fresh recovery packet #154 的唯一调用更早在
@@ -81,6 +81,16 @@ control rejection、0/6 review，零 retry/replacement/rerun。接手者应先�
   7 例 accountable L2 观测矩阵，聚焦 187 passed，全量 1536 tests / 18 个
   pre-existing failures（与 `2a5d16b` 基线失败集逐行相同，零回归）。该证据仍只
   覆盖录制设备模拟，不构成真实设备声明。
+- **Family-preparation fixture 修正与 m7 归因更正**（2026-09-29，
+  [run record](docs/runs/2026-09-29-family-preparation-fixture-correction/README.md)）：
+  `tests/bench/test_runtime_family_preparation.py` 的 `MAPPING_ROOT` 从 #206
+  stage（terminal 记录另一台机器的绝对 `candidate_root`）改指 #225 本机 v2
+  stage，17 条跨机 `mapping_predecessor_input_mismatch` 失败全部转绿（聚焦
+  17 passed / 5.1 s），#206 v1 release 保持字节可验证（`test_runtime_mapping.py`
+  仍钉住其 identity）；#209/#210/#211 三处 run record 的 m7 归因由
+  「issue-206 fixture 路径」更正为「Gradle 9.1.0 分发包下载被 TLS 拦截
+  （PKIX path building failed）」，三个 checksums 重算并复核；全量 1536 tests /
+  1 failed（仅剩 m7，环境阻塞）/ 52 skipped、零回归。
 - **当前状态**：Runtime Attempt seam 已落地并有 recording-device 证据（#209 的
   accountable lane、#210 的 19 例 pre-observation 失败矩阵、#211 的 31 例
   post-observation 失败矩阵与 7 例 L2 观测矩阵），但真实 device

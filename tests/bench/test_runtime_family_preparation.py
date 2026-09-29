@@ -36,9 +36,14 @@ from aiverify.runtime_preparation import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CANDIDATE_ROOT = REPO_ROOT / "bench/runtime-calibration/opencalc-input-save-enabled-v1"
+# The locally reissued v2 stage is the only accepted predecessor this repository
+# can load: the committed #206 stage pins another machine's absolute
+# `candidate_root` (`/Users/peter/...`), so every gate below would trip
+# `mapping_predecessor_input_mismatch` anywhere else. The #206 release stays
+# on disk and stays verifiable; `test_runtime_mapping.py` keeps asserting it.
 MAPPING_ROOT = (
     REPO_ROOT
-    / "docs/runs/2026-08-29-issue-206-runtime-mapping-release/verification/family-stage-final"
+    / "docs/runs/2026-09-28-issue-225-runtime-mapping-reissue/verification/family-stage-final"
 )
 
 

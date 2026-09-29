@@ -1,0 +1,44 @@
+........................................................................ [  4%]
+........................................................................ [  9%]
+........................................................................ [ 14%]
+........................................................................ [ 18%]
+..................................................F..................... [ 23%]
+......................................s................................. [ 28%]
+........................................................................ [ 32%]
+....................................ssssssssssssssssssssssssssssssssssss [ 37%]
+sssss................................................................... [ 42%]
+........................................................................ [ 46%]
+.........ssssssssss..................................................... [ 51%]
+........................................................................ [ 56%]
+........................................................................ [ 60%]
+........................................................................ [ 65%]
+........................................................................ [ 70%]
+........................................................................ [ 75%]
+........................................................................ [ 79%]
+........................................................................ [ 84%]
+........................................................................ [ 89%]
+........................................................................ [ 93%]
+........................................................................ [ 98%]
+........................                                                 [100%]
+=================================== FAILURES ===================================
+____ test_runtime_admission_accepts_frozen_local_inputs_after_offline_build ____
+
+    def test_runtime_admission_accepts_frozen_local_inputs_after_offline_build() -> None:
+        admission = admit_runtime_probe(_MANIFEST, repo_root=_ROOT, run_build=True)
+    
+>       assert admission.admitted is True
+E       AssertionError: assert False is True
+E        +  where False = RuntimeProbeAdmission(manifest=RuntimeProbeManifest(source_path=PosixPath('/Users/80268204/Projects/ai_verification/be...or.java:434)\n\t... 31 more\n'}), apk_snapshots=(), side_effects=False, formal_denominator=False, campaign_receipts=()).admitted
+
+tests/bench/test_m7_runtime_probe.py:52: AssertionError
+=============================== warnings summary ===============================
+tests/agent/test_oracle_l2.py::test_l2_fail_when_node_gone
+tests/bench/test_goldset_process_death_02_state_loss.py::test_defect_build_l2_fails_with_state_loss
+tests/bench/test_runtime_permission_slice.py::test_missing_fallback_is_detected_after_denial
+  /Users/80268204/Projects/ai_verification/src/aiverify/agent/oracle/l2.py:123: DeprecationWarning: Testing an element's truth value will always return True in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    before_val = node_before.get(attr, "<absent>") if node_before else "<absent>"
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/bench/test_m7_runtime_probe.py::test_runtime_admission_accepts_frozen_local_inputs_after_offline_build
+EXIT=1

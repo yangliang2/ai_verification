@@ -73,7 +73,7 @@
     "layout-read budget (len(actions)+2) vs. the driver's bounded wait observation poll; invisible on the recording device, decided by #210-#218",
     "orphan receipt if record finalisation fails after the receipt is written; verification fails closed on the residue",
     "AdbRuntimeDevice exercised only through a stub command runner; no live device",
-    "18 pre-existing environment-bound failures at f87ae04 (issue-206 fixtures pin another workstation's absolute path), unrepaired here"
+    "18 pre-existing failures at f87ae04: 17 fixture-path failures (issue-206 fixtures pin another workstation's absolute path; repaired later via the locally reissued v2 stage, see docs/runs/2026-09-29-family-preparation-fixture-correction/) plus 1 m7 Gradle distribution download blocked by TLS interception (remains open)"
   ],
   "lane": {
     "activity": "com.darkempire78.opencalculator.activities.MainActivity",

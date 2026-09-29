@@ -138,11 +138,19 @@ reviewed fixed point `e2aee56` (`verification/baseline-pytest.xml`):
 verification/full-pytest-failures-current.txt` is empty: the failure sets are
 identical line for line, so **no existing runner behaviour regressed**. The
 `+26` tests are the new cases in `tests/bench/test_runtime_attempt.py`.
-The 18 failures are pre-existing and environment-bound: the frozen
-issue-206 mapping-release fixtures pin another workstation's absolute
-`candidate_root` (`/Users/peter/...`), so `test_runtime_family_preparation.py`
-(17) and `test_m7_runtime_probe.py` (1) fail on any other machine at `e2aee56`
-too. They are unrelated to this change and are not repaired here.
+The 18 failures are pre-existing and have two independent causes, neither
+related to this change and both present at `e2aee56`:
+`test_runtime_family_preparation.py` (17) trips
+`mapping_predecessor_input_mismatch` because the frozen issue-206
+mapping-release fixture pins another workstation's absolute `candidate_root`
+(`/Users/peter/...`); `test_m7_runtime_probe.py` (1) is not a path failure —
+the Gradle wrapper cannot fetch `gradle-9.1.0-bin.zip` because the TLS
+handshake to `services.gradle.org` is intercepted and the wrapper JVM refuses
+the interception certificate (`PKIX path building failed`; the wrapper cache
+holds only a zero-byte `.zip.part`). The 17 fixture-path failures were repaired
+afterwards by pointing the gates at the locally reissued v2 stage:
+[`docs/runs/2026-09-29-family-preparation-fixture-correction/`](../2026-09-29-family-preparation-fixture-correction/README.md).
+The m7 failure remains open and environment-bound.
 
 ```text
 uvx ruff check src/aiverify/bench/runtime_attempt.py src/aiverify/runtime_attempt.py \
@@ -255,7 +263,12 @@ No case ever dispatches a forbidden operation, and no case reports any
    binds no terminal record; the verifier fails closed on it
    (`attempt_record_binding_mismatch`), but no durable repair path exists.
 5. **Pre-existing environment-bound failures.** The 18 failures described above
-   are inherited from `e2aee56` and are not repaired in this issue.
+   are inherited from `e2aee56`. Seventeen are the fixture-path failures
+   (`mapping_predecessor_input_mismatch` against the committed issue-206 stage);
+   they were repaired afterwards — see
+   [`docs/runs/2026-09-29-family-preparation-fixture-correction/`](../2026-09-29-family-preparation-fixture-correction/README.md).
+   One is the m7 Gradle distribution download blocked by TLS interception; it
+   remains open in this environment.
 
 ## Follow-ups
 
