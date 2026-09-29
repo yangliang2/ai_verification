@@ -1,0 +1,39 @@
+===== variant 250 (offline, no trustStore) =====
+> Task :app:mergeDebugResources
+> Task :app:processDebugResources
+> Task :app:dexBuilderDebug UP-TO-DATE
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:mergeProjectDexDebug UP-TO-DATE
+> Task :app:packageDebug
+> Task :app:assembleDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+
+BUILD SUCCESSFUL in 2m 6s
+34 actionable tasks: 6 executed, 28 up-to-date
+Configuration cache entry stored.
+
+real	2m12.950s
+user	0m2.912s
+sys	0m1.127s
+===== variant 0 (offline, no trustStore) =====
+> Task :app:mergeDebugResources FROM-CACHE
+> Task :app:processDebugResources FROM-CACHE
+> Task :app:dexBuilderDebug UP-TO-DATE
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:mergeProjectDexDebug UP-TO-DATE
+> Task :app:packageDebug
+> Task :app:assembleDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+
+BUILD SUCCESSFUL in 2s
+34 actionable tasks: 1 executed, 5 from cache, 28 up-to-date
+Configuration cache entry stored.
+
+real	0m2.915s
+user	0m1.141s
+sys	0m0.352s
+total 1840
+drwxr-xr-x  4 80268204  ADC\Domain Users     128  9月 29 19:27 .
+drwxr-xr-x  3 80268204  ADC\Domain Users      96  9月 29 19:27 ..
+-rw-r--r--  1 80268204  ADC\Domain Users  934222  9月 29 19:30 app-debug.apk
+-rw-r--r--  1 80268204  ADC\Domain Users     411  9月 29 19:30 output-metadata.json

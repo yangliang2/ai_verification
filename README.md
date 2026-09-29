@@ -288,6 +288,10 @@ android info
 adb devices
 ```
 
+m7/m8 运行时 probe 还会调用 Android SDK 的 `apkanalyzer` 校验 APK 元数据与权限，
+需确保 `$ANDROID_HOME/cmdline-tools/latest/bin` 在 `PATH` 中（主机解锁记录见
+`docs/runs/2026-09-29-gradle-env-unblock/`；测试侧 ANDROID_HOME 回退解析见 #226）。
+
 具体 Android CLI、Codex CLI、host commit、device 与 package 版本必须从目标 run
 record 的 Effective Execution Identity 读取；不要把本机当前环境当成历史运行身份。
 
