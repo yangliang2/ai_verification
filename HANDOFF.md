@@ -1,6 +1,6 @@
 # HANDOFF
 
-更新时间：2026-09-29（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发、#209 单 lane runtime attempt seam 与 #210 pre-observation fail-closed 加固完成；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
+更新时间：2026-09-29（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发、#209 单 lane runtime attempt seam、#210 pre-observation 与 #211 post-observation fail-closed 加固完成；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
 
 M9 与 M9-R 均已以不可变的 `Not Supported` 失败证据收口。#137 的六条 lane 均在
 install 前 non-accountable；fresh recovery packet #154 的唯一调用更早在
@@ -64,12 +64,30 @@ control rejection、0/6 review，零 retry/replacement/rerun。接手者应先�
   oracle；19 例 recording-device 矩阵逐例断言 reason/scope/phase/phase 顺序与
   forbidden command 不可达，聚焦 145 passed，全量 1494 tests / 18 个
   pre-existing failures（与 `e2aee56` 基线失败集逐行相同，零回归）。
+- **Post-observation fail-closed 加固**（#211，
+  [run record](docs/runs/2026-09-29-issue-211-post-observation-fail-closed/README.md)）：
+  新增第 16 个冻结 phase `close-post-cell-identity`（位于 close-target-log-window
+  与 prove-lifecycle-transition 之间），`post_cell_identity` 进入 accountable
+  必备组件，`probe_session` 读预算 1→2，新增 shared reason
+  `device_session_identity_drifted`（failure-scope 表 22→23 项），verifier 在
+  accountable 路径重算 drift 并以 `attempt_post_cell_identity_mismatch` 拒绝矛盾
+  的 close；boundary precondition、lifecycle 事件与 poll、log window/attribution、
+  post-cell identity 的每一类失败都停在自己的 phase 且不带 authoritative
+  oracle，开窗后失败经 terminal finalization 恰好一次关闭（dump 被拒时如实记录
+  `closed: false` + `unavailable_after_abort`），未 settled 的 poll 保留全部 50
+  次只读观测后才失败；L2 结果表为 exact text → pass/preserved_state、
+  drift/omitted/save-disabled → fail/state_loss（仍 accountable，exit 1）、
+  missing/duplicated/unusable → inconclusive。31 例 post-observation 失败矩阵 +
+  7 例 accountable L2 观测矩阵，聚焦 187 passed，全量 1536 tests / 18 个
+  pre-existing failures（与 `2a5d16b` 基线失败集逐行相同，零回归）。该证据仍只
+  覆盖录制设备模拟，不构成真实设备声明。
 - **当前状态**：Runtime Attempt seam 已落地并有 recording-device 证据（#209 的
-  accountable lane、#210 的 19 例 pre-observation 失败矩阵），但真实 device
+  accountable lane、#210 的 19 例 pre-observation 失败矩阵、#211 的 31 例
+  post-observation 失败矩阵与 7 例 L2 观测矩阵），但真实 device
   session 与真实 runtime attempt record 仍未创建。原已知缺口（#206 mapping 中
   lane 01/02 共享同一 ChangeTarget source 路径）已由 #225 解除；#216（real
   four-cell family preparation）等待消费新 release；DIL-M1 链条的下一可动项是
-  #211（见「接手时的正确下一步」）。Runtime Calibration Family 按定义不形成
+  #212（见「接手时的正确下一步」）。Runtime Calibration Family 按定义不形成
   benchmark denominator 或 capability claim。
 
 ### 第二宿主 tasks/tasks（2026-09-28）
@@ -351,10 +369,15 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
    pre-observation fail-closed）随后实现并提交
    [run record](docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/README.md)：
    failure scope 表、冻结 phase ledger、exactly-once finalize 与 verifier 复算
-   就位，19 例 pre-observation 失败矩阵全绿。DIL-M1 链条的下一可动项是
-   **#211**，随后顺序为 #211 → #212 → #213 → #214 → #215 → #216
+   就位，19 例 pre-observation 失败矩阵全绿。**#211**（DIL-M1.13：
+   post-observation fail-closed）随后实现并提交
+   [run record](docs/runs/2026-09-29-issue-211-post-observation-fail-closed/README.md)：
+   第 16 个 phase `close-post-cell-identity`、shared reason
+   `device_session_identity_drifted`、`probe_session` 读预算 2，以及 31 例
+   post-observation 失败矩阵与 7 例 accountable L2 观测矩阵全部就位。DIL-M1
+   链条的下一可动项是 **#212**，随后顺序为 #212 → #213 → #214 → #215 → #216
    （消费 `opencalc-runtime-mapping-release-v2` 做真实 four-cell family
-   preparation）→ #217 → #218。本 issue 只提交录制设备模拟证据；真实 device
+   preparation）→ #217 → #218。本条链只提交录制设备模拟证据；真实 device
    session 与真实 runtime attempt record 未获明确授权前不得创建。
 2. tasks/tasks：执行测试计划 Part 1 环境准备（P1.1–P1.7），放行条件是用户
    批准计划与冻结 commit；Part 2 的 formal population 未人工冻结、未授权。
