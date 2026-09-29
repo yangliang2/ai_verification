@@ -1,6 +1,6 @@
 # HANDOFF
 
-更新时间：2026-09-28（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发与 #209 复核 reopen；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
+更新时间：2026-09-28（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发与 #209 单 lane runtime attempt seam 完成；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
 
 M9 与 M9-R 均已以不可变的 `Not Supported` 失败证据收口。#137 的六条 lane 均在
 install 前 non-accountable；fresh recovery packet #154 的唯一调用更早在
@@ -41,11 +41,22 @@ control rejection、0/6 review，零 retry/replacement/rerun。接手者应先�
   worktree 两两独立；新 release `opencalc-runtime-mapping-release-v2`
   （identity `cd2c36ec…`），v1 release 保持可加载、可再验证且字节一致；
   lane 03/04 与驱动接口不变，未修改 #206 已提交产物。
-- **当前状态**：family preparation 完成但仍 **pre-device**——无 device
-  session、无 runtime attempt record。原已知缺口（#206 mapping 中 lane 01/02
-  共享同一 ChangeTarget source 路径）已由 #225 解除；#216（real four-cell
-  family preparation）等待消费新 release；DIL-M1 链条的直接可动项是 #209（见
-  「接手时的正确下一步」）。Runtime Calibration Family 按
+- **Runtime Attempt seam 与单 lane tracer**（#209，
+  [run record](docs/runs/2026-09-28-issue-209-runtime-attempt/README.md)）：
+  实现 `runtime_attempt_v1` 十五阶段管道、Runtime Attempt Device 协议（Recording
+  设备与生产 Adb 设备同一计数单位）、sealed APK handoff 字节校验、attempt setup、
+  marker 界定 Target Log Window、Canonical Launch、deterministic driver、boundary
+  precondition、landscape 事件与生命周期签名、L1/L2 oracle、exactly-once device
+  budget 与零 retry、sealed receipt + ExecutionRecord 对，以及无设备独立验证器
+  `verify_runtime_attempt`。lane 01 在录制设备上端到端 `recorded_simulation`、
+  `accountable_concluded`、`inconclusive`，提交字节可再验证（16 checks）；
+  聚焦 119 passed，全量 1468 tests / 18 个 pre-existing failures（与 `f87ae04`
+  基线失败集逐行相同，零回归）。该证据只覆盖录制设备模拟，不构成真实设备声明。
+- **当前状态**：Runtime Attempt seam 已落地并有一条 recording-device lane 证据
+  （#209），但真实 device session 与真实 runtime attempt record 仍未创建。原已知
+  缺口（#206 mapping 中 lane 01/02 共享同一 ChangeTarget source 路径）已由 #225
+  解除；#216（real four-cell family preparation）等待消费新 release；DIL-M1 链条
+  的下一可动项是 #210（见「接手时的正确下一步」）。Runtime Calibration Family 按
   定义不形成 benchmark denominator 或 capability claim。
 
 ### 第二宿主 tasks/tasks（2026-09-28）
@@ -317,14 +328,17 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
 **当前待办（2026-09-28）：**
 
 1. OpenCalc：逐 lane source mapping 已由 #225 重签发并提交 run record，
-   lane 01/02 共享路径缺口解除。DIL-M1 链条的当前可动项是 **#209**
-   （DIL-M1.11：单 lane accountable tracer）：它 2026-08-30 的关闭已被复核为
-   不可审计（声称的 commit `040ebd6…` 与 run record 均不存在，仓库中也没有
-   `runtime_attempt` seam），已 reopen，需要真正实现；下游 #210–#218 的链路
-   都建立在该 seam 之上。链条随后的顺序是 #210 → #211 → #212 → #213 →
-   #214 → #215 → #216（消费 `opencalc-runtime-mapping-release-v2` 做真实
-   four-cell family preparation）→ #217 → #218。device session 与 runtime
-   attempt record 未获明确授权前不得创建。
+   lane 01/02 共享路径缺口解除；**#209**（DIL-M1.11：单 lane accountable
+   tracer）已实现并提交
+   [run record](docs/runs/2026-09-28-issue-209-runtime-attempt/README.md)：
+   `runtime_attempt` seam 落地，lane 01 在录制设备上端到端 accountable。它
+   2026-08-30 的关闭已被复核为不可审计（声称的 commit `040ebd6…` 与 run record
+   均不存在，仓库中也没有 `runtime_attempt` seam），reopen 后由本次真正实现取代，
+   下游 #210–#218 的链路都建立在该 seam 之上。DIL-M1 链条的下一可动项是
+   **#210**，随后顺序为 #210 → #211 → #212 → #213 → #214 → #215 → #216
+   （消费 `opencalc-runtime-mapping-release-v2` 做真实 four-cell family
+   preparation）→ #217 → #218。本 issue 只提交录制设备模拟证据；真实 device
+   session 与真实 runtime attempt record 未获明确授权前不得创建。
 2. tasks/tasks：执行测试计划 Part 1 环境准备（P1.1–P1.7），放行条件是用户
    批准计划与冻结 commit；Part 2 的 formal population 未人工冻结、未授权。
 3. Catima 保持未见 holdout：不 clone、不构建、不暴露源码给任何验证动作。

@@ -1,0 +1,186 @@
+{
+  "command": [
+    "android",
+    "layout",
+    "--device=recording-device",
+    "--pretty"
+  ],
+  "identity_sha256": "841a8e69cc4c1206e206af71e82af2d0201331af8c4d51fb545c5cd0c81f5e75",
+  "input_node_count": 1,
+  "input_text": "12+34",
+  "input_valid": true,
+  "kind": "post_event_layout",
+  "l2_detail": "preserved_state",
+  "l2_outcome": "pass",
+  "nodes": [
+    {
+      "bounds": "[40,43][2360,129]",
+      "center": "[1200,86]",
+      "interactions": [],
+      "resource-id": "input",
+      "text": "12+34"
+    },
+    {
+      "bounds": "[40,194][604,346]",
+      "center": "[322,270]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "clearButton"
+    },
+    {
+      "bounds": "[620,194][1184,346]",
+      "center": "[902,270]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "percentButton"
+    },
+    {
+      "bounds": "[1200,194][1764,346]",
+      "center": "[1482,270]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "deleteButton"
+    },
+    {
+      "bounds": "[1780,194][2344,346]",
+      "center": "[2062,270]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "divideButton"
+    },
+    {
+      "bounds": "[40,362][604,514]",
+      "center": "[322,438]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "sevenButton"
+    },
+    {
+      "bounds": "[620,362][1184,514]",
+      "center": "[902,438]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "eightButton"
+    },
+    {
+      "bounds": "[1200,362][1764,514]",
+      "center": "[1482,438]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "nineButton"
+    },
+    {
+      "bounds": "[1780,362][2344,514]",
+      "center": "[2062,438]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "multiplyButton"
+    },
+    {
+      "bounds": "[40,530][604,682]",
+      "center": "[322,606]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "fourButton"
+    },
+    {
+      "bounds": "[620,530][1184,682]",
+      "center": "[902,606]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "fiveButton"
+    },
+    {
+      "bounds": "[1200,530][1764,682]",
+      "center": "[1482,606]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "sixButton"
+    },
+    {
+      "bounds": "[1780,530][2344,682]",
+      "center": "[2062,606]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "subtractButton"
+    },
+    {
+      "bounds": "[40,699][604,851]",
+      "center": "[322,775]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "oneButton"
+    },
+    {
+      "bounds": "[620,699][1184,851]",
+      "center": "[902,775]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "twoButton"
+    },
+    {
+      "bounds": "[1200,699][1764,851]",
+      "center": "[1482,775]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "threeButton"
+    },
+    {
+      "bounds": "[1780,699][2344,851]",
+      "center": "[2062,775]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "addButton"
+    },
+    {
+      "bounds": "[40,867][604,1019]",
+      "center": "[322,943]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "zeroButton"
+    },
+    {
+      "bounds": "[620,867][1184,1019]",
+      "center": "[902,943]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "decimalButton"
+    },
+    {
+      "bounds": "[1200,867][1764,1019]",
+      "center": "[1482,943]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "parenthesesButton"
+    },
+    {
+      "bounds": "[1780,867][2344,1019]",
+      "center": "[2062,943]",
+      "interactions": [
+        "clickable"
+      ],
+      "resource-id": "equalsButton"
+    }
+  ],
+  "phase": "collect-post-event-observation",
+  "stdout": "[{\"resource-id\": \"input\", \"center\": \"[1200,86]\", \"bounds\": \"[40,43][2360,129]\", \"interactions\": [], \"text\": \"12+34\"}, {\"resource-id\": \"clearButton\", \"center\": \"[322,270]\", \"bounds\": \"[40,194][604,346]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"percentButton\", \"center\": \"[902,270]\", \"bounds\": \"[620,194][1184,346]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"deleteButton\", \"center\": \"[1482,270]\", \"bounds\": \"[1200,194][1764,346]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"divideButton\", \"center\": \"[2062,270]\", \"bounds\": \"[1780,194][2344,346]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"sevenButton\", \"center\": \"[322,438]\", \"bounds\": \"[40,362][604,514]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"eightButton\", \"center\": \"[902,438]\", \"bounds\": \"[620,362][1184,514]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"nineButton\", \"center\": \"[1482,438]\", \"bounds\": \"[1200,362][1764,514]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"multiplyButton\", \"center\": \"[2062,438]\", \"bounds\": \"[1780,362][2344,514]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"fourButton\", \"center\": \"[322,606]\", \"bounds\": \"[40,530][604,682]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"fiveButton\", \"center\": \"[902,606]\", \"bounds\": \"[620,530][1184,682]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"sixButton\", \"center\": \"[1482,606]\", \"bounds\": \"[1200,530][1764,682]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"subtractButton\", \"center\": \"[2062,606]\", \"bounds\": \"[1780,530][2344,682]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"oneButton\", \"center\": \"[322,775]\", \"bounds\": \"[40,699][604,851]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"twoButton\", \"center\": \"[902,775]\", \"bounds\": \"[620,699][1184,851]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"threeButton\", \"center\": \"[1482,775]\", \"bounds\": \"[1200,699][1764,851]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"addButton\", \"center\": \"[2062,775]\", \"bounds\": \"[1780,699][2344,851]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"zeroButton\", \"center\": \"[322,943]\", \"bounds\": \"[40,867][604,1019]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"decimalButton\", \"center\": \"[902,943]\", \"bounds\": \"[620,867][1184,1019]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"parenthesesButton\", \"center\": \"[1482,943]\", \"bounds\": \"[1200,867][1764,1019]\", \"interactions\": [\"clickable\"]}, {\"resource-id\": \"equalsButton\", \"center\": \"[2062,943]\", \"bounds\": \"[1780,867][2344,1019]\", \"interactions\": [\"clickable\"]}]"
+}
