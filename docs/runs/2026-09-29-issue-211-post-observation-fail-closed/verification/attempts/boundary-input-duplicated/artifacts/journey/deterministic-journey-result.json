@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "journey": "runtime-attempt-journey",
+  "results": [
+    {
+      "action_id": "action-1",
+      "plan_action_id": "action-01",
+      "status": "PASSED",
+      "commands": [
+        [
+          "android",
+          "layout",
+          "--device=recording-device",
+          "--pretty"
+        ]
+      ],
+      "comment": "oneButton was observed exactly once; dispatch only."
+    },
+    {
+      "action_id": "action-2",
+      "plan_action_id": "action-02",
+      "status": "PASSED",
+      "commands": [
+        [
+          "android",
+          "layout",
+          "--device=recording-device",
+          "--pretty"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "input",
+          "tap",
+          "157",
+          "1734"
+        ]
+      ],
+      "comment": "oneButton was located at [157, 1734] and tapped exactly once; fixed 350 ms settle; dispatch only."
+    },
+    {
+      "action_id": "action-3",
+      "plan_action_id": "action-03",
+      "status": "PASSED",
+      "commands": [
+        [
+          "android",
+          "layout",
+          "--device=recording-device",
+          "--pretty"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "input",
+          "tap",
+          "407",
+          "1734"
+        ]
+      ],
+      "comment": "twoButton was located at [407, 1734] and tapped exactly once; fixed 350 ms settle; dispatch only."
+    },
+    {
+      "action_id": "action-4",
+      "plan_action_id": "action-04",
+      "status": "PASSED",
+      "commands": [
+        [
+          "android",
+          "layout",
+          "--device=recording-device",
+          "--pretty"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "input",
+          "tap",
+          "907",
+          "1734"
+        ]
+      ],
+      "comment": "addButton was located at [907, 1734] and tapped exactly once; fixed 350 ms settle; dispatch only."
+    },
+    {
+      "action_id": "action-5",
+      "plan_action_id": "action-05",
+      "status": "PASSED",
+      "commands": [
+        [
+          "android",
+          "layout",
+          "--device=recording-device",
+          "--pretty"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "input",
+          "tap",
+          "657",
+          "1734"
+        ]
+      ],
+      "comment": "threeButton was located at [657, 1734] and tapped exactly once; fixed 350 ms settle; dispatch only."
+    },
+    {
+      "action_id": "action-6",
+      "plan_action_id": "action-06",
+      "status": "PASSED",
+      "commands": [
+        [
+          "android",
+          "layout",
+          "--device=recording-device",
+          "--pretty"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "input",
+          "tap",
+          "157",
+          "1359"
+        ]
+      ],
+      "comment": "fourButton was located at [157, 1359] and tapped exactly once; fixed 350 ms settle; dispatch only."
+    }
+  ]
+}

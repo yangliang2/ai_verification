@@ -9,7 +9,11 @@ delivered landscape event, the L1/L2 oracles, and the sealed receipt/record pair
 A table-driven pre-observation matrix additionally binds every material failure
 before the product observation boundary to its exact phase prefix, canonical
 reason, failure scope, and dispatched-mutation prefix, proving that prohibited
-or repeated setup actions are unreachable.
+or repeated setup actions are unreachable.  A second table-driven matrix binds
+every material failure after the boundary precondition to the same frozen shape,
+and proves that the one rotation is dispatched once, the poll evidence is
+retained, the post-cell identity is closed, and the terminal artifacts are sealed
+exactly once.
 """
 
 from __future__ import annotations
@@ -39,21 +43,29 @@ from aiverify.bench.runtime_attempt import (
     L1_OUTCOME_FAIL,
     L1_OUTCOME_INCONCLUSIVE,
     L2_OUTCOME_FAIL,
+    L2_OUTCOME_INCONCLUSIVE,
     L2_OUTCOME_PASS,
     LANDSCAPE_ROTATION,
+    LAYOUT_FAULTS,
     LIFECYCLE_END,
+    LIFECYCLE_FAULTS,
     LIFECYCLE_POLL_BUDGET,
     LIFECYCLE_POLL_INTERVAL_SECONDS,
     LIFECYCLE_SIGNATURE_EVENTS,
     LIFECYCLE_SIGNATURE_ID,
     LIFECYCLE_SIGNATURE_STATUS,
     LIFECYCLE_START,
+    LOG_DUMP_FAULTS,
     LOG_WINDOW_BUFFERS,
     LOG_WINDOW_FORMAT,
     MARKER_TAG,
     NON_ACCOUNTABLE,
     PORTRAIT_ROTATION,
+    RECORDED_BOUNDARY_LAYOUT_READ,
+    RECORDED_JOURNEY_LAYOUT_READS,
+    RECORDED_POST_EVENT_LAYOUT_READ,
     REQUIRED_ACCOUNTABLE_COMPONENTS,
+    SESSION_DRIFT_FAULTS,
     SESSION_IDENTITY_SETTINGS,
     SESSION_REQUIRED_FIELDS,
     SHARED_FAILURE_REASONS,
@@ -81,6 +93,7 @@ from aiverify.bench.runtime_attempt import (
     log_marker_vector,
     orientation_dispatch_vector,
     rotation_setting_vector,
+    session_identity_drift,
     session_probe_vectors,
     verify_runtime_attempt,
 )
@@ -117,6 +130,7 @@ FROZEN_PHASES = (
     "lifecycle-rotation",
     "collect-post-event-observation",
     "close-target-log-window",
+    "close-post-cell-identity",
     "prove-lifecycle-transition",
     "evaluate-oracles",
     "finalize-receipt",
@@ -132,8 +146,11 @@ FROZEN_ARTIFACTS = {
     "lifecycle_window": "artifacts/lifecycle-window.log",
 }
 
-# The frozen lane-01 Driver Plan has six actions, so the attempt owes six plus
-# two runner-owned layout reads, and one foreground read plus two settle polls.
+# The frozen lane-01 Driver Plan has six actions, so the attempt owes six Journey
+# layout reads plus the boundary and post-event reads the runner owns, and one
+# foreground read plus two settle polls.  The recording device binds its two
+# layout faults to the frozen ordinals the runner owns, so the mirror is bound
+# here and asserted in the frozen-table contract test at the end of this file.
 JOURNEY_LAYOUT_READS = 8
 FOREGROUND_READS = 3
 
@@ -398,12 +415,25 @@ def test_recording_lane_concludes_one_accountable_preserved_state(
     )["artifact_sha256"]
     assert oracles["verdict"] == L1_OUTCOME_INCONCLUSIVE
 
+    # The post-cell identity is a real second probe of the same cell: it binds
+    # the pre-cell session fields as its reference and closes unchanged.
+    identity_close = _component(outcome, "post_cell_identity")
+    assert identity_close["operation"] == "probe_session"
+    assert identity_close["closed"] is True
+    assert identity_close["drifted_fields"] == []
+    assert identity_close["reference_fields"] == _component(
+        outcome, "device_session"
+    )["fields"]
+    assert identity_close["fields"] == identity_close["reference_fields"]
+    assert device.operation_counts()["probe_session"] == 2
+
     verified = verify_runtime_attempt(request.output_root)
     assert verified["verified"] is True
     assert verified["attempt_id"] == document["attempt_id"]
     assert verified["terminal_state"] == ACCOUNTABLE_CONCLUDED
     assert verified["retries"] == 0
     assert verified["receipt_sha256"] == outcome.sha256
+    assert "post-cell-identity" in verified["checks"]
     assert verified["recomputed"] == {
         "verdict": L1_OUTCOME_INCONCLUSIVE,
         "l1_outcome": L1_OUTCOME_INCONCLUSIVE,
@@ -569,7 +599,7 @@ def test_frozen_device_budget_is_spent_exactly_once_in_order(tmp_path: Path) -> 
             layout_reads=JOURNEY_LAYOUT_READS, foreground_reads=FOREGROUND_READS
         )
     ) == {
-        "probe_session": 1,
+        "probe_session": 2,
         "read_installed_apk": 1,
         "target_process_ids": 1,
         "read_rotation_state": 1,
@@ -788,6 +818,122 @@ def test_landscape_event_and_lifecycle_transition_are_frozen(tmp_path: Path) -> 
     slice_text = (request.output_root / FROZEN_ARTIFACTS["lifecycle_window"]).read_text()
     assert hashlib.sha256(slice_text.encode("utf-8")).hexdigest() == lifecycle["slice_sha256"]
     assert lifecycle["slice_lines"][0] < lifecycle["slice_lines"][1]
+
+
+def test_the_single_capture_serves_the_l1_window_and_the_lifecycle_slice(
+    tmp_path: Path,
+) -> None:
+    request, device = _request(tmp_path)
+
+    outcome = execute_runtime_attempt(request)
+
+    window = _component(outcome, "target_log_window")
+    lifecycle = _component(outcome, "lifecycle_transition")
+    capture_text = (
+        request.output_root / FROZEN_ARTIFACTS["target_log_window"]
+    ).read_text()
+    window_markers = dict(window["markers"])
+
+    # One attempt-bound capture answers both evidence families: the L1 window and
+    # the lifecycle slice are two windows of the same single dump, so no second
+    # capture, no re-read, and no per-oracle instrument may exist.
+    assert device.operation_counts()["dump_all_buffers_epoch"] == 1
+    assert window["capture_path"] == FROZEN_ARTIFACTS["target_log_window"]
+    assert _component(outcome, "oracles")["window_sha256"] == window["window_sha256"]
+    assert (
+        hashlib.sha256(
+            runtime_attempt._window_slice(
+                capture_text, window["start_line"], window["end_line"]
+            ).encode("utf-8")
+        ).hexdigest()
+        == window["window_sha256"]
+    )
+
+    # Every marker is attempt-bound and unique in the one capture, and the pair
+    # that bounds the L1 window is the same literal pair the lifecycle proof
+    # reads: both evaluations share one instrument instead of owning one each.
+    for kind in (LIFECYCLE_START, LIFECYCLE_END):
+        assert window_markers[kind] == lifecycle["markers"][kind]
+    for kind, marker in window_markers.items():
+        assert capture_text.count(f"{MARKER_TAG}: {marker}") == 1, kind
+    assert runtime_attempt._marker_indexes(
+        capture_text, window_markers[TARGET_WINDOW_START]
+    ) == [window["start_line"]]
+    assert runtime_attempt._marker_indexes(
+        capture_text, window_markers[TARGET_WINDOW_END]
+    ) == [window["end_line"]]
+    assert lifecycle["slice_lines"] == [
+        runtime_attempt._marker_indexes(
+            capture_text, window_markers[LIFECYCLE_START]
+        )[0],
+        runtime_attempt._marker_indexes(
+            capture_text, window_markers[LIFECYCLE_END]
+        )[0],
+    ]
+    assert window["start_line"] < lifecycle["slice_lines"][0]
+    assert lifecycle["slice_lines"][1] < window["end_line"]
+
+    # The lifecycle artifact is exactly the slice of that one capture.
+    lifecycle_text = (
+        request.output_root / FROZEN_ARTIFACTS["lifecycle_window"]
+    ).read_text()
+    assert lifecycle_text == runtime_attempt._window_slice(
+        capture_text, *lifecycle["slice_lines"]
+    )
+    assert hashlib.sha256(lifecycle_text.encode("utf-8")).hexdigest() == lifecycle[
+        "slice_sha256"
+    ]
+
+
+def test_the_unsettled_poll_retains_every_probe_without_compensating(
+    tmp_path: Path,
+) -> None:
+    request, device = _request(
+        tmp_path,
+        policy=RecordingDevicePolicy(lifecycle_fault="landscape_not_resumed"),
+    )
+
+    outcome = execute_runtime_attempt(request)
+
+    assert outcome.terminal_state == NON_ACCOUNTABLE
+    assert outcome.reason == "orientation_not_observed"
+    assert outcome.document["failure"]["phase"] == "lifecycle-rotation"
+    assert "oracles" not in outcome.components
+
+    # The rejected poll is never shortened, replayed, or compensated: every
+    # admitted probe was taken exactly once and all of them stay recorded.
+    lifecycle = _component(outcome, "lifecycle_transition")
+    assert lifecycle["poll_budget"] == LIFECYCLE_POLL_BUDGET
+    assert lifecycle["poll_count"] == LIFECYCLE_POLL_BUDGET
+    assert [entry["poll"] for entry in lifecycle["observations"]] == list(
+        range(1, LIFECYCLE_POLL_BUDGET + 1)
+    )
+    assert all(
+        entry["fields"]["landscape"] is False for entry in lifecycle["observations"]
+    )
+    assert lifecycle["after"]["landscape"] is False
+    assert lifecycle["dispatch_command"] == list(
+        orientation_dispatch_vector(device.serial, LANDSCAPE_ROTATION)
+    )
+    counts = device.operation_counts()
+    assert counts["read_foreground_state"] == 1 + LIFECYCLE_POLL_BUDGET
+    assert counts["dispatch_orientation"] == 1
+    assert counts["probe_session"] == 2
+    assert tuple(
+        operation for operation, _vector in device.mutation_operations()
+    ) == _COMPLETE_PREFIX
+    _assert_admitted_mutation_vectors(device, request)
+
+    # The abort owes the window close and the post-cell identity close, but it
+    # never re-observes the product: no second layout read is claimed.
+    assert "post_event_observation" not in outcome.components
+    window = _component(outcome, "target_log_window")
+    assert window["closed"] is True
+    assert window["partial"] is True
+    identity = _component(outcome, "post_cell_identity")
+    assert identity["closed"] is True
+    assert identity["drifted_fields"] == []
+    assert verify_runtime_attempt(request.output_root)["verified"] is True
 
 
 def test_state_loss_lane_concludes_accountable_with_a_failing_oracle(
@@ -1104,6 +1250,65 @@ def test_verification_rejects_a_relabelled_evidence_class(tmp_path: Path) -> Non
     assert error.value.code == "attempt_evidence_class_mismatch"
 
 
+def test_verification_rejects_a_tampered_post_cell_identity(tmp_path: Path) -> None:
+    def accountable(root: Path) -> RuntimeAttemptRequest:
+        request, _device = _request(root)
+        outcome = execute_runtime_attempt(request)
+        assert outcome.terminal_state == ACCOUNTABLE_CONCLUDED
+        return request
+
+    def reject(request: RuntimeAttemptRequest, mutate) -> None:
+        _restamp_receipt(request.output_root, mutate)
+        with pytest.raises(RuntimeAttemptVerificationError) as error:
+            verify_runtime_attempt(request.output_root)
+        assert error.value.code == "attempt_post_cell_identity_mismatch"
+
+    # The verifier recomputes the close from its two recorded probes instead of
+    # trusting the recorded shape: an unclosed identity, a restated reference, a
+    # claimed drift, and a real drift are each refused.
+    unclosed = accountable(tmp_path / "unclosed")
+    reject(
+        unclosed,
+        lambda document: document["components"]["post_cell_identity"].update(
+            {"closed": False}
+        ),
+    )
+    restated = accountable(tmp_path / "restated")
+    reject(
+        restated,
+        lambda document: document["components"]["post_cell_identity"][
+            "reference_fields"
+        ].update({"boot_id": "another-boot"}),
+    )
+    claimed = accountable(tmp_path / "claimed")
+    reject(
+        claimed,
+        lambda document: document["components"]["post_cell_identity"].update(
+            {"drifted_fields": ["serial"]}
+        ),
+    )
+    drifted = accountable(tmp_path / "drifted")
+
+    def inject_drift(document: dict) -> None:
+        post_cell = document["components"]["post_cell_identity"]
+        post_cell["fields"]["boot_id"] = "another-boot"
+        post_cell["drifted_fields"] = session_identity_drift(
+            post_cell["reference_fields"], post_cell["fields"]
+        )
+
+    reject(drifted, inject_drift)
+
+    # An accountable receipt without the close is incomplete, not verified.
+    missing = accountable(tmp_path / "missing")
+    _restamp_receipt(
+        missing.output_root,
+        lambda document: document["components"].pop("post_cell_identity"),
+    )
+    with pytest.raises(RuntimeAttemptVerificationError) as missing_error:
+        verify_runtime_attempt(missing.output_root)
+    assert missing_error.value.code == "attempt_component_invalid"
+
+
 def test_public_lane_seam_is_exported_and_mirrored_by_the_compatibility_module() -> None:
     assert "execute_runtime_attempt" in runtime_attempt.__all__
     assert "verify_runtime_attempt" in runtime_attempt.__all__
@@ -1264,6 +1469,21 @@ class _RetryTapDevice:
         if self.taps == 1:
             self._inner.tap(5, 5)
         return self._inner.tap(x, y)
+
+
+class _CountingSessionDevice:
+    """Recording-device proxy that tallies every session probe dispatched."""
+
+    def __init__(self, inner: object) -> None:
+        self._inner = inner
+        self.probes = 0
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._inner, name)
+
+    def probe_session(self) -> object:
+        self.probes += 1
+        return self._inner.probe_session()
 
 
 class _OccupiedReceiptDevice:
@@ -1683,6 +1903,40 @@ def test_a_failed_window_capture_never_dispatches_a_second_end_marker(
     assert verify_runtime_attempt(request.output_root)["verified"] is True
 
 
+def test_a_refused_session_identity_is_never_re_probed_on_the_abort_path(
+    tmp_path: Path,
+) -> None:
+    spec, _plan = _lane_inputs()
+    inner = RecordingRuntimeDevice(
+        policy=RecordingDevicePolicy(fail_operations=frozenset({"probe_session"})),
+        package=spec.package,
+        activity=spec.activity,
+    )
+    device = _CountingSessionDevice(inner)
+    request, _bound = _request(tmp_path, device=device)
+
+    outcome = execute_runtime_attempt(request)
+
+    assert outcome.terminal_state == NON_ACCOUNTABLE
+    assert outcome.reason == "device_session_unavailable"
+    assert outcome.document["failure"]["phase"] == "device-session"
+    # The one refused probe stays the whole session history of the attempt: the
+    # abort never re-probes a session it never established, and never records a
+    # close it cannot support, so a refusal cannot become a retry.
+    assert "device_session" not in outcome.components
+    assert "post_cell_identity" not in outcome.components
+    assert device.probes == 1
+    assert "probe_session" not in inner.operation_counts()
+
+    record = _record(request.output_root)
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["execution"]["reason"] == "device_session_unavailable"
+    assert outcome.document["retries"] == 0
+    assert sum(1 for _ in request.output_root.glob("attempt-receipt.json")) == 1
+    assert sum(1 for _ in request.output_root.glob("execution-record.json")) == 1
+    assert verify_runtime_attempt(request.output_root)["verified"] is True
+
+
 def test_a_receipt_write_failure_finalizes_the_record_exactly_once(
     tmp_path: Path,
 ) -> None:
@@ -1837,6 +2091,649 @@ def test_verification_rejects_an_authoritative_oracle_on_a_non_accountable_recei
     assert "oracles" not in document["components"]
 
 
+# ---------------------------------------------------------------------------
+# Post-observation fail-closed matrix
+# ---------------------------------------------------------------------------
+
+# The frozen post-launch mutation prefixes, written as literal operation names.
+# The Journey dispatches one tap per frozen trajectory entry after the launch
+# prefix, and the boundary read closes the Journey.
+_TAP_PREFIX = (*_LAUNCH_PREFIX, *("tap",) * len(FROZEN_TAP_TRAJECTORY))
+# A boundary rejection aborts before the rotation and closes the already open
+# window with its one terminal end marker.
+_BOUNDARY_PREFIX = (*_TAP_PREFIX, "write_log_marker")
+# A refused rotation dispatch writes its lifecycle start marker first, and the
+# abort path then closes the window.
+_ROTATION_PREFIX = (*_BOUNDARY_PREFIX, "write_log_marker")
+# The complete frozen order: two lifecycle markers around the one rotation, and
+# the one terminal end marker that closes the target log window.  The closing
+# phase and the abort path dispatch the same order, so one literal prefix binds
+# both and a second dispatch anywhere would break it.
+_COMPLETE_PREFIX = (
+    *_TAP_PREFIX,
+    "write_log_marker",
+    "dispatch_orientation",
+    "write_log_marker",
+    "write_log_marker",
+)
+
+
+@dataclass(frozen=True)
+class _PostObservationFailure:
+    """One material post-observation failure and its frozen fail-closed shape.
+
+    ``window`` names the target log window state the abort owes: ``phase`` when
+    the closing phase delivered it, ``abort`` when the terminal finalization had
+    to close an open window, ``refused`` when the dump itself was refused, and
+    ``unproven`` when the capture ran but never proved a usable window.
+    ``identity`` names the post-cell close the abort owes: ``closed``,
+    ``drifted`` for a recorded drift, or ``refused`` for a refused re-probe.
+    """
+
+    label: str
+    reason: str
+    scope: str
+    phase: str
+    dispatched: tuple[str, ...]
+    window: str
+    identity: str = "closed"
+    drifted: tuple[str, ...] = ()
+    policy: RecordingDevicePolicy = field(default_factory=RecordingDevicePolicy)
+
+
+# Every material failure from the boundary precondition to the sealed receipt,
+# with the exact phase, canonical reason, failure scope, dispatched-mutation
+# prefix, and closure state the attempt owes.  The prefixes are literal: any
+# extra dispatch, retry, reverse rotation, or compensation fails the case.
+POST_OBSERVATION_FAILURES = (
+    # -- the boundary precondition rejects before the rotation ---------------
+    _PostObservationFailure(
+        label="boundary-input-missing",
+        reason="boundary_layout_unreadable",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="boundary-precondition",
+        dispatched=_BOUNDARY_PREFIX,
+        window="abort",
+        policy=RecordingDevicePolicy(boundary_layout_fault="missing_input"),
+    ),
+    _PostObservationFailure(
+        label="boundary-input-duplicated",
+        reason="boundary_layout_unreadable",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="boundary-precondition",
+        dispatched=_BOUNDARY_PREFIX,
+        window="abort",
+        policy=RecordingDevicePolicy(boundary_layout_fault="duplicate_input"),
+    ),
+    _PostObservationFailure(
+        label="boundary-input-geometry-invalid",
+        reason="boundary_layout_unreadable",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="boundary-precondition",
+        dispatched=_BOUNDARY_PREFIX,
+        window="abort",
+        policy=RecordingDevicePolicy(boundary_layout_fault="invalid_geometry"),
+    ),
+    _PostObservationFailure(
+        label="boundary-text-drifted",
+        reason="boundary_layout_unreadable",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="boundary-precondition",
+        dispatched=_BOUNDARY_PREFIX,
+        window="abort",
+        policy=RecordingDevicePolicy(boundary_layout_fault="wrong_text"),
+    ),
+    _PostObservationFailure(
+        label="boundary-text-omitted",
+        reason="boundary_layout_unreadable",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="boundary-precondition",
+        dispatched=_BOUNDARY_PREFIX,
+        window="abort",
+        policy=RecordingDevicePolicy(boundary_layout_fault="omitted_text"),
+    ),
+    _PostObservationFailure(
+        label="boundary-layout-malformed",
+        reason="boundary_layout_unreadable",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="boundary-precondition",
+        dispatched=_BOUNDARY_PREFIX,
+        window="abort",
+        policy=RecordingDevicePolicy(boundary_layout_fault="malformed"),
+    ),
+    # -- the one rotation is dispatched once, never retried or reversed ------
+    _PostObservationFailure(
+        label="rotation-dispatch-refused",
+        reason="orientation_dispatch_failed",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="lifecycle-rotation",
+        dispatched=_ROTATION_PREFIX,
+        window="abort",
+        policy=RecordingDevicePolicy(
+            fail_operations=frozenset({"dispatch_orientation"})
+        ),
+    ),
+    _PostObservationFailure(
+        label="rotation-not-observed",
+        reason="orientation_not_observed",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="lifecycle-rotation",
+        dispatched=_COMPLETE_PREFIX,
+        window="abort",
+        policy=RecordingDevicePolicy(lifecycle_fault="landscape_not_resumed"),
+    ),
+    # -- the post-event observation ----------------------------------------
+    _PostObservationFailure(
+        label="post-event-layout-malformed",
+        reason="post_event_layout_unreadable",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="collect-post-event-observation",
+        dispatched=_COMPLETE_PREFIX,
+        window="abort",
+        policy=RecordingDevicePolicy(post_event_layout_fault="malformed"),
+    ),
+    # -- the one target log window: refusal, marker, and window integrity ----
+    _PostObservationFailure(
+        label="log-dump-refused",
+        reason="target_log_window_capture_failed",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-target-log-window",
+        dispatched=_COMPLETE_PREFIX,
+        window="refused",
+        policy=RecordingDevicePolicy(
+            fail_operations=frozenset({"dump_all_buffers_epoch"})
+        ),
+    ),
+    _PostObservationFailure(
+        label="log-dump-empty",
+        reason="target_log_window_marker_error",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-target-log-window",
+        dispatched=_COMPLETE_PREFIX,
+        window="unproven",
+        policy=RecordingDevicePolicy(log_dump_fault="empty_dump"),
+    ),
+    _PostObservationFailure(
+        label="log-end-marker-missing",
+        reason="target_log_window_marker_error",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-target-log-window",
+        dispatched=_COMPLETE_PREFIX,
+        window="unproven",
+        policy=RecordingDevicePolicy(log_dump_fault="missing_end_marker"),
+    ),
+    _PostObservationFailure(
+        label="log-markers-reversed",
+        reason="target_log_window_marker_error",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-target-log-window",
+        dispatched=_COMPLETE_PREFIX,
+        window="unproven",
+        policy=RecordingDevicePolicy(log_dump_fault="reversed_markers"),
+    ),
+    _PostObservationFailure(
+        label="log-markers-duplicated",
+        reason="target_log_window_marker_error",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-target-log-window",
+        dispatched=_COMPLETE_PREFIX,
+        window="unproven",
+        policy=RecordingDevicePolicy(log_dump_fault="duplicated_markers"),
+    ),
+    _PostObservationFailure(
+        label="log-window-truncated",
+        reason="target_log_window_marker_error",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-target-log-window",
+        dispatched=_COMPLETE_PREFIX,
+        window="unproven",
+        policy=RecordingDevicePolicy(log_dump_fault="truncated_dump"),
+    ),
+    _PostObservationFailure(
+        label="log-window-incomplete",
+        reason="target_log_window_capture_failed",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-target-log-window",
+        dispatched=_COMPLETE_PREFIX,
+        window="unproven",
+        policy=RecordingDevicePolicy(log_dump_fault="incomplete_window"),
+    ),
+    _PostObservationFailure(
+        label="log-lifecycle-marker-missing",
+        reason="lifecycle_transition_unproven",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="prove-lifecycle-transition",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(log_dump_fault="missing_lifecycle_marker"),
+    ),
+    _PostObservationFailure(
+        label="log-lifecycle-marker-duplicated",
+        reason="lifecycle_transition_unproven",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="prove-lifecycle-transition",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(
+            log_dump_fault="duplicated_lifecycle_marker"
+        ),
+    ),
+    # -- the frozen destruction, creation, and resume signature -------------
+    _PostObservationFailure(
+        label="lifecycle-events-reordered",
+        reason="lifecycle_transition_unproven",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="prove-lifecycle-transition",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(lifecycle_fault="reordered_events"),
+    ),
+    _PostObservationFailure(
+        label="lifecycle-event-duplicated",
+        reason="lifecycle_transition_unproven",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="prove-lifecycle-transition",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(lifecycle_fault="duplicated_event"),
+    ),
+    _PostObservationFailure(
+        label="lifecycle-event-missing",
+        reason="lifecycle_transition_unproven",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="prove-lifecycle-transition",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(lifecycle_fault="missing_event"),
+    ),
+    _PostObservationFailure(
+        label="lifecycle-relaunch-missing",
+        reason="lifecycle_transition_unproven",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="prove-lifecycle-transition",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(lifecycle_fault="relaunch_missing"),
+    ),
+    _PostObservationFailure(
+        label="lifecycle-task-changed",
+        reason="lifecycle_transition_unproven",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="prove-lifecycle-transition",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(lifecycle_fault="task_changed"),
+    ),
+    _PostObservationFailure(
+        label="lifecycle-pid-changed",
+        reason="lifecycle_transition_unproven",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="prove-lifecycle-transition",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(lifecycle_fault="pid_changed"),
+    ),
+    _PostObservationFailure(
+        label="lifecycle-target-restarted",
+        reason="target_process_restarted",
+        scope=FAILURE_SCOPE_LANE_LOCAL,
+        phase="prove-lifecycle-transition",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(restart_target_process=True),
+    ),
+    # -- the ambiguous attribution and the closed post-cell identity ---------
+    _PostObservationFailure(
+        label="log-foreign-crash-unattributable",
+        reason="log_attribution_ambiguous",
+        scope=FAILURE_SCOPE_UNKNOWN,
+        phase="evaluate-oracles",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        policy=RecordingDevicePolicy(log_dump_fault="foreign_crash"),
+    ),
+    _PostObservationFailure(
+        label="post-cell-probe-refused",
+        reason="device_session_unavailable",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-post-cell-identity",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        identity="refused",
+        policy=RecordingDevicePolicy(session_drift_fault="refused"),
+    ),
+    _PostObservationFailure(
+        label="post-cell-serial-drifted",
+        reason="device_session_identity_drifted",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-post-cell-identity",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        identity="drifted",
+        drifted=("serial",),
+        policy=RecordingDevicePolicy(session_drift_fault="serial_changed"),
+    ),
+    _PostObservationFailure(
+        label="post-cell-field-missing",
+        reason="device_session_identity_drifted",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-post-cell-identity",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        identity="drifted",
+        drifted=("boot_id",),
+        policy=RecordingDevicePolicy(session_drift_fault="fields_missing"),
+    ),
+    _PostObservationFailure(
+        label="post-cell-setting-missing",
+        reason="device_session_identity_drifted",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-post-cell-identity",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        identity="drifted",
+        drifted=("settings.font_scale",),
+        policy=RecordingDevicePolicy(session_drift_fault="settings_missing"),
+    ),
+    _PostObservationFailure(
+        label="post-cell-setting-drifted",
+        reason="device_session_identity_drifted",
+        scope=FAILURE_SCOPE_SHARED,
+        phase="close-post-cell-identity",
+        dispatched=_COMPLETE_PREFIX,
+        window="phase",
+        identity="drifted",
+        drifted=("settings.font_scale",),
+        policy=RecordingDevicePolicy(session_drift_fault="identity_drifted"),
+    ),
+)
+
+
+def _assert_aborted_window(
+    case: _PostObservationFailure,
+    outcome: RuntimeAttemptReceipt,
+    request: RuntimeAttemptRequest,
+) -> None:
+    """Assert the one target log window state the aborted attempt owes."""
+    window = _component(outcome, "target_log_window")
+    capture_path = request.output_root / FROZEN_ARTIFACTS["target_log_window"]
+    if case.window == "phase":
+        assert window["closed"] is True
+        assert "partial" not in window
+        assert window["capture_path"] == FROZEN_ARTIFACTS["target_log_window"]
+        assert window["line_count"] > 0
+    elif case.window == "abort":
+        assert window["closed"] is True
+        assert window["partial"] is True
+        assert window["capture"] == "partial"
+        assert window["capture_path"] == FROZEN_ARTIFACTS["target_log_window"]
+    elif case.window == "refused":
+        assert window["closed"] is False
+        assert window["capture"] == "unavailable_after_abort"
+        assert window["capture_error"]
+        assert not capture_path.exists()
+    else:
+        assert window["closed"] is False
+        assert "partial" not in window
+        assert "capture_path" not in window
+        assert not capture_path.exists()
+    if case.window in {"phase", "abort"}:
+        assert capture_path.is_file()
+        assert hashlib.sha256(capture_path.read_bytes()).hexdigest() == (
+            window["capture_sha256"]
+        )
+
+
+def _assert_closed_identity(
+    case: _PostObservationFailure,
+    outcome: RuntimeAttemptReceipt,
+    device: object,
+) -> None:
+    """Assert the post-cell identity close the aborted attempt still owes."""
+    counts = device.operation_counts()
+    identity = _component(outcome, "post_cell_identity")
+    # The close is attempted exactly once: the pre-cell probe plus its one
+    # post-cell re-probe are the whole session budget of this attempt.
+    assert counts["probe_session"] == 2
+    if case.identity == "refused":
+        assert identity["closed"] is False
+        assert "fields" not in identity
+        return
+    assert identity["closed"] is True
+    assert identity["reference_fields"] == _component(outcome, "device_session")[
+        "fields"
+    ]
+    assert tuple(identity["drifted_fields"]) == case.drifted
+    if case.drifted:
+        assert identity["fields"] != identity["reference_fields"]
+    else:
+        assert identity["fields"] == identity["reference_fields"]
+
+
+@pytest.mark.parametrize(
+    "case",
+    POST_OBSERVATION_FAILURES,
+    ids=[case.label for case in POST_OBSERVATION_FAILURES],
+)
+def test_post_observation_failures_fail_closed_at_the_canonical_phase(
+    tmp_path: Path, case: _PostObservationFailure
+) -> None:
+    spec, _plan = _lane_inputs()
+    device = RecordingRuntimeDevice(
+        policy=case.policy, package=spec.package, activity=spec.activity
+    )
+    request, _bound = _request(tmp_path, device=device)
+
+    outcome = execute_runtime_attempt(request)
+
+    # One canonical reason, one derived scope, and no authoritative oracle: a
+    # capture, parse, identity, or lifecycle-proof failure never becomes an
+    # L1/L2 result.
+    assert outcome.terminal_state == NON_ACCOUNTABLE
+    assert outcome.accountable_concluded is False
+    assert outcome.reason == case.reason
+    assert outcome.verdict == L1_OUTCOME_INCONCLUSIVE
+    assert "oracles" not in outcome.components
+
+    failure = outcome.document["failure"]
+    assert failure["phase"] == case.phase
+    assert failure["reason"] == case.reason
+    assert failure["scope"] == case.scope
+    assert failure["kind"] in {"device", "evidence", "harness"}
+    assert failure["message"]
+    assert failure_scope(case.reason) == case.scope
+
+    # The terminal failure is the last phase the attempt entered, so no later
+    # phase runs, no earlier phase repeats, and the attempt is never replaced.
+    phases = outcome.document["phases"]
+    assert [entry["phase"] for entry in phases] == list(
+        FROZEN_PHASES[: FROZEN_PHASES.index(case.phase) + 1]
+    )
+    assert phases[-1]["status"] == "failed"
+    assert all(entry["status"] == "ok" for entry in phases[:-1])
+
+    # Only the admitted prefix of the frozen mutation table was dispatched: the
+    # one rotation is dispatched at most once, and a boundary rejection never
+    # rotates at all.
+    operations = [operation for operation, _vector in device.mutation_operations()]
+    counts = device.operation_counts()
+    assert tuple(operations) == case.dispatched
+    _assert_admitted_mutation_vectors(device, request)
+    if case.phase == "boundary-precondition":
+        assert "dispatch_orientation" not in counts
+    assert counts.get("dispatch_orientation", 0) <= 1
+    assert counts["write_log_marker"] <= EXPECTED_DEVICE_MUTATION_COUNTS[
+        "write_log_marker"
+    ]
+
+    _assert_aborted_window(case, outcome, request)
+    _assert_closed_identity(case, outcome, device)
+
+    # The terminal artifacts are sealed exactly once, with the failure recorded
+    # where it happened and no second attempt behind it.
+    record = _record(request.output_root)
+    assert record["lifecycle_state"] == "failed"
+    assert record["process_outcome"] == {"exit_code": 2}
+    assert record["execution"]["status"] == "non_accountable"
+    assert record["execution"]["accounting_eligible"] is False
+    assert record["execution"]["reason"] == case.reason
+    assert len(record["phase_errors"]) == 1
+    assert record["phase_errors"][0]["phase"] == case.phase
+    assert record["phase_errors"][0]["reason"] == case.reason
+    assert record["phase_errors"][0]["scope"] == case.scope
+    assert record["evidence_refs"]["execution_provenance"]["terminal_state"] == (
+        NON_ACCOUNTABLE
+    )
+    assert record["evidence_refs"]["execution_provenance"]["sha256"] == outcome.sha256
+    assert outcome.document["retries"] == 0
+    assert sum(1 for _ in request.output_root.glob("execution-record.json")) == 1
+    assert sum(1 for _ in request.output_root.glob("attempt-receipt.json")) == 1
+
+    verified = verify_runtime_attempt(request.output_root)
+    assert verified["verified"] is True
+    assert verified["terminal_state"] == NON_ACCOUNTABLE
+    assert verified["reason"] == case.reason
+    assert verified["recomputed"] is None
+
+
+@dataclass(frozen=True)
+class _PostEventObservation:
+    """One bounded post-event observation and the frozen accountable outcome.
+
+    Every row is accountable: the attempt still proves its exactly-once evidence
+    and seals one receipt, and still yields exactly one bounded L2 result.  A
+    drifted or emptied cell is a real ``state_loss`` fail, while a structurally
+    ambiguous surface stays accountable and inconclusive -- it is never repaired,
+    re-observed, or turned into an L1/L2 result it cannot support.
+    """
+
+    label: str
+    l2_outcome: str
+    l2_detail: str
+    verdict: str
+    exit_code: int
+    policy: RecordingDevicePolicy = field(default_factory=RecordingDevicePolicy)
+
+
+POST_EVENT_OBSERVATIONS = (
+    _PostEventObservation(
+        label="post-event-text-exact",
+        l2_outcome=L2_OUTCOME_PASS,
+        l2_detail="preserved_state",
+        verdict=L1_OUTCOME_INCONCLUSIVE,
+        exit_code=0,
+    ),
+    _PostEventObservation(
+        label="post-event-text-drifted",
+        l2_outcome=L2_OUTCOME_FAIL,
+        l2_detail="state_loss",
+        verdict=L1_OUTCOME_FAIL,
+        exit_code=1,
+        policy=RecordingDevicePolicy(post_event_layout_fault="wrong_text"),
+    ),
+    _PostEventObservation(
+        label="post-event-text-omitted",
+        l2_outcome=L2_OUTCOME_FAIL,
+        l2_detail="state_loss",
+        verdict=L1_OUTCOME_FAIL,
+        exit_code=1,
+        policy=RecordingDevicePolicy(post_event_layout_fault="omitted_text"),
+    ),
+    _PostEventObservation(
+        label="post-event-save-disabled",
+        l2_outcome=L2_OUTCOME_FAIL,
+        l2_detail="state_loss",
+        verdict=L1_OUTCOME_FAIL,
+        exit_code=1,
+        policy=RecordingDevicePolicy(save_enabled=False),
+    ),
+    _PostEventObservation(
+        label="post-event-input-missing",
+        l2_outcome=L2_OUTCOME_INCONCLUSIVE,
+        l2_detail="post_event_input_missing",
+        verdict=L1_OUTCOME_INCONCLUSIVE,
+        exit_code=0,
+        policy=RecordingDevicePolicy(post_event_layout_fault="missing_input"),
+    ),
+    _PostEventObservation(
+        label="post-event-input-duplicated",
+        l2_outcome=L2_OUTCOME_INCONCLUSIVE,
+        l2_detail="post_event_input_duplicated",
+        verdict=L1_OUTCOME_INCONCLUSIVE,
+        exit_code=0,
+        policy=RecordingDevicePolicy(post_event_layout_fault="duplicate_input"),
+    ),
+    _PostEventObservation(
+        label="post-event-input-unusable",
+        l2_outcome=L2_OUTCOME_INCONCLUSIVE,
+        l2_detail="post_event_input_unusable",
+        verdict=L1_OUTCOME_INCONCLUSIVE,
+        exit_code=0,
+        policy=RecordingDevicePolicy(post_event_layout_fault="invalid_geometry"),
+    ),
+)
+
+
+@pytest.mark.parametrize(
+    "case",
+    POST_EVENT_OBSERVATIONS,
+    ids=[case.label for case in POST_EVENT_OBSERVATIONS],
+)
+def test_post_event_observation_yields_the_frozen_l2_result(
+    tmp_path: Path, case: _PostEventObservation
+) -> None:
+    spec, _plan = _lane_inputs()
+    device = RecordingRuntimeDevice(
+        policy=case.policy, package=spec.package, activity=spec.activity
+    )
+    request, _bound = _request(tmp_path, device=device)
+
+    outcome = execute_runtime_attempt(request)
+
+    # The bounded observation never un-concludes the attempt: the evidence is
+    # proven exactly once, and the receipt is still sealed with one verdict.
+    assert outcome.terminal_state == ACCOUNTABLE_CONCLUDED
+    assert outcome.accountable_concluded is True
+    assert outcome.reason is None
+    assert set(outcome.components) == set(REQUIRED_ACCOUNTABLE_COMPONENTS)
+    assert outcome.verdict == case.verdict
+
+    observation = _component(outcome, "post_event_observation")
+    assert observation["l2_outcome"] == case.l2_outcome
+    assert observation["l2_detail"] == case.l2_detail
+
+    oracles = _component(outcome, "oracles")
+    assert oracles["l2"]["outcome"] == case.l2_outcome
+    assert oracles["l2"]["detail"] == case.l2_detail
+    assert oracles["l2"]["defect_class"] == (
+        "state_loss" if case.l2_outcome == L2_OUTCOME_FAIL else None
+    )
+    assert oracles["verdict"] == case.verdict
+
+    # The one rotation and the one post-cell re-probe stand exactly once: a
+    # bounded L2 result never triggers a compensating or repeated action.
+    operations = [operation for operation, _vector in device.mutation_operations()]
+    counts = device.operation_counts()
+    assert tuple(operations) == _COMPLETE_PREFIX
+    assert counts["dispatch_orientation"] == 1
+    assert counts["probe_session"] == 2
+    _assert_admitted_mutation_vectors(device, request)
+
+    record = _record(request.output_root)
+    assert record["lifecycle_state"] == "completed"
+    assert record["process_outcome"] == {"exit_code": case.exit_code}
+    assert record["execution"]["status"] == "completed"
+    assert record["execution"]["accounting_eligible"] is True
+    assert record["phase_errors"] == []
+
+    verified = verify_runtime_attempt(request.output_root)
+    assert verified["verified"] is True
+    assert verified["terminal_state"] == ACCOUNTABLE_CONCLUDED
+    assert verified["recomputed"]["verdict"] == case.verdict
+    assert verified["recomputed"]["l2_outcome"] == case.l2_outcome
+    assert "post-cell-identity" in verified["checks"]
+
+
 def test_frozen_phase_and_scope_tables_are_the_frozen_contract() -> None:
     assert runtime_attempt.FROZEN_PHASES == FROZEN_PHASES
     assert set(runtime_attempt.FAILURE_SCOPES) == set(SHARED_FAILURE_REASONS)
@@ -1850,3 +2747,63 @@ def test_frozen_phase_and_scope_tables_are_the_frozen_contract() -> None:
     assert failure_scope("no_table_entry") == FAILURE_SCOPE_UNKNOWN
     with pytest.raises(RuntimeAttemptError):
         failure_scope("")
+
+    # The post-cell identity and the two layout ordinals are one frozen
+    # contract: the recording device binds each named fault to the read the
+    # runner declares, so a drifted mirror cannot silently move a fault onto
+    # the Journey's own reads.
+    assert RECORDED_JOURNEY_LAYOUT_READS == 6
+    assert runtime_attempt.RECORDED_JOURNEY_LAYOUT_READS == RECORDED_JOURNEY_LAYOUT_READS
+    assert JOURNEY_LAYOUT_READS == RECORDED_JOURNEY_LAYOUT_READS + 2
+    assert RECORDED_BOUNDARY_LAYOUT_READ == RECORDED_JOURNEY_LAYOUT_READS + 1
+    assert RECORDED_POST_EVENT_LAYOUT_READ == RECORDED_JOURNEY_LAYOUT_READS + 2
+    assert runtime_attempt.RECORDED_BOUNDARY_LAYOUT_READ == (
+        RECORDED_BOUNDARY_LAYOUT_READ
+    )
+    assert runtime_attempt.RECORDED_POST_EVENT_LAYOUT_READ == (
+        RECORDED_POST_EVENT_LAYOUT_READ
+    )
+    assert EXPECTED_DEVICE_READ_COUNTS["probe_session"] == 2
+    assert runtime_attempt.EXPECTED_DEVICE_READ_COUNTS["probe_session"] == 2
+    assert "post_cell_identity" in REQUIRED_ACCOUNTABLE_COMPONENTS
+    assert "close-post-cell-identity" in FROZEN_PHASES
+    assert SHARED_FAILURE_REASONS >= {
+        "device_session_identity_drifted",
+        "log_attribution_ambiguous",
+    }
+    assert failure_scope("device_session_identity_drifted") == FAILURE_SCOPE_SHARED
+
+    # Each closed fault vocabulary is exactly the set of names the recording
+    # policy admits, and the tables mirror the matrix below one for one.
+    for field_name, vocabulary in (
+        ("boundary_layout_fault", LAYOUT_FAULTS),
+        ("post_event_layout_fault", LAYOUT_FAULTS),
+        ("log_dump_fault", LOG_DUMP_FAULTS),
+        ("lifecycle_fault", LIFECYCLE_FAULTS),
+        ("session_drift_fault", SESSION_DRIFT_FAULTS),
+    ):
+        assert vocabulary
+        for name in vocabulary:
+            RecordingDevicePolicy(**{field_name: name})
+        with pytest.raises(RuntimeAttemptError) as invalid:
+            RecordingDevicePolicy(**{field_name: "unadmitted_fault"})
+        assert invalid.value.code == "recording_device_fault_invalid"
+    mirrored: set[str] = set()
+    for case in (*POST_OBSERVATION_FAILURES, *POST_EVENT_OBSERVATIONS):
+        mirrored |= {
+            fault
+            for fault in (
+                case.policy.boundary_layout_fault,
+                case.policy.post_event_layout_fault,
+                case.policy.log_dump_fault,
+                case.policy.lifecycle_fault,
+                case.policy.session_drift_fault,
+            )
+            if fault is not None
+        }
+    assert mirrored == (
+        set(LAYOUT_FAULTS)
+        | set(LOG_DUMP_FAULTS)
+        | set(LIFECYCLE_FAULTS)
+        | set(SESSION_DRIFT_FAULTS)
+    )

@@ -1,0 +1,94 @@
+{
+  "schema_version": 2,
+  "attempt_id": "182f362f-9120-4c17-af0e-e583ba3af04b",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T04:39:19.254+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "boundary_layout_unreadable",
+    "message": "the input node is not unique: 0"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T04:39:19.254+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "attempt-setup",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "open-target-log-window",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "canonical-launch",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "journey",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "boundary-precondition",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "boundary-precondition",
+      "kind": "evidence",
+      "reason": "boundary_layout_unreadable",
+      "message": "the input node is not unique: 0",
+      "scope": "lane_local"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [
+      "artifacts/journey/deterministic-journey-result.json",
+      "artifacts/journey/deterministic-observations.json",
+      "artifacts/journey/deterministic-driver-invocation.json",
+      "artifacts/target-log-window.log"
+    ],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "6e4728a0d8c8fb0e3521e4c145b5ec17ca0a62d978868faec665543793e9bdcf",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "182f362f-9120-4c17-af0e-e583ba3af04b",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

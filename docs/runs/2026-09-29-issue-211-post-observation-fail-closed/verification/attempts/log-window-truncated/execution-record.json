@@ -1,0 +1,110 @@
+{
+  "schema_version": 2,
+  "attempt_id": "6dc87ce1-30a8-4af5-bf41-8078c4ae7aad",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T04:39:20.071+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "target_log_window_marker_error",
+    "message": "the target window marker pair is not unique and ordered"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T04:39:20.071+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "attempt-setup",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "open-target-log-window",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "canonical-launch",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "journey",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "boundary-precondition",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "lifecycle-rotation",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "collect-post-event-observation",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "close-target-log-window",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "close-target-log-window",
+      "kind": "evidence",
+      "reason": "target_log_window_marker_error",
+      "message": "the target window marker pair is not unique and ordered",
+      "scope": "shared"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [
+      "artifacts/journey/deterministic-journey-result.json",
+      "artifacts/journey/deterministic-observations.json",
+      "artifacts/journey/deterministic-driver-invocation.json",
+      "artifacts/boundary-layout.json",
+      "artifacts/post-event-layout.json"
+    ],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "9a77c219ec3b001790cf05436fdfe8ce6a86e9a6ff954caf7c176072f1be7224",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "6dc87ce1-30a8-4af5-bf41-8078c4ae7aad",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

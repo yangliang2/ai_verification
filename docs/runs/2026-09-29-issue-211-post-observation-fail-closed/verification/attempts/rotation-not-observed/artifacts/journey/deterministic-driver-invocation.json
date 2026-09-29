@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "backend": "deterministic_android_v1",
+  "role": "journey_driver",
+  "journey": "runtime-attempt-journey",
+  "action_id": "action-1",
+  "plan_action_id": "action-01",
+  "requested_model": null,
+  "effective_model": null,
+  "model_calls": 0,
+  "command": [
+    "android",
+    "layout",
+    "--device=recording-device",
+    "--pretty"
+  ],
+  "result_path": "/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-211-post-observation-fail-closed/verification/attempts/rotation-not-observed/artifacts/journey/deterministic-journey-result.json",
+  "events_path": "/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-211-post-observation-fail-closed/verification/attempts/rotation-not-observed/artifacts/journey/deterministic-observations.json",
+  "raw_result_sha256": "46fe8ec0f25e37c854380e8b7a80130f79f09218df513d470b56e71387fa6df6",
+  "raw_events_sha256": "61c3bc886ec0b038f9ed8023adc86e8999f4135f64644c18bf649c441d4b3c2e",
+  "observation_count": 6,
+  "action_ids": [
+    "action-1",
+    "action-2",
+    "action-3",
+    "action-4",
+    "action-5",
+    "action-6"
+  ],
+  "plan_action_ids": [
+    "action-01",
+    "action-02",
+    "action-03",
+    "action-04",
+    "action-05",
+    "action-06"
+  ],
+  "commands": [
+    [
+      "android",
+      "layout",
+      "--device=recording-device",
+      "--pretty"
+    ],
+    [
+      "android",
+      "layout",
+      "--device=recording-device",
+      "--pretty"
+    ],
+    [
+      "adb",
+      "-s",
+      "recording-device",
+      "shell",
+      "input",
+      "tap",
+      "157",
+      "1734"
+    ],
+    [
+      "android",
+      "layout",
+      "--device=recording-device",
+      "--pretty"
+    ],
+    [
+      "adb",
+      "-s",
+      "recording-device",
+      "shell",
+      "input",
+      "tap",
+      "407",
+      "1734"
+    ],
+    [
+      "android",
+      "layout",
+      "--device=recording-device",
+      "--pretty"
+    ],
+    [
+      "adb",
+      "-s",
+      "recording-device",
+      "shell",
+      "input",
+      "tap",
+      "907",
+      "1734"
+    ],
+    [
+      "android",
+      "layout",
+      "--device=recording-device",
+      "--pretty"
+    ],
+    [
+      "adb",
+      "-s",
+      "recording-device",
+      "shell",
+      "input",
+      "tap",
+      "657",
+      "1734"
+    ],
+    [
+      "android",
+      "layout",
+      "--device=recording-device",
+      "--pretty"
+    ],
+    [
+      "adb",
+      "-s",
+      "recording-device",
+      "shell",
+      "input",
+      "tap",
+      "157",
+      "1359"
+    ]
+  ],
+  "dispatch_count": 5
+}

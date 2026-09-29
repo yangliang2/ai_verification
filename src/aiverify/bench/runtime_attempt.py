@@ -187,7 +187,10 @@ EXPECTED_DEVICE_MUTATION_COUNTS: Mapping[str, int] = {
     "dispatch_orientation": 1,
 }
 EXPECTED_DEVICE_READ_COUNTS: Mapping[str, int] = {
-    "probe_session": 1,
+    # The session identity is probed once before the cell and re-probed once
+    # after it, so the post-cell identity close is a real observation and never
+    # a re-used earlier receipt.
+    "probe_session": 2,
     "read_installed_apk": 1,
     "target_process_ids": 1,
     "read_rotation_state": 1,
@@ -260,12 +263,48 @@ SESSION_IDENTITY_SETTINGS = (
     "enabled_accessibility_services",
 )
 
+
+def session_identity_drift(
+    reference: Mapping[str, object], observed: Mapping[str, object]
+) -> list[str]:
+    """Return the identity names that drifted between two session probes.
+
+    The cell identity is the flat required field set, the bound serial, and the
+    flat identity settings set.  Rotation is deliberately not part of it: the
+    frozen cell rotates the surface on purpose, so the rotation settings and the
+    reported display size may change without drifting the cell identity.  A name
+    that is present in only one probe counts as drifted, so a lost identity field
+    can never pass as an unchanged one.
+    """
+    drifted: list[str] = [
+        name
+        for name in SESSION_REQUIRED_FIELDS
+        if reference.get(name) != observed.get(name)
+    ]
+    if reference.get("serial") != observed.get("serial"):
+        drifted.append("serial")
+    reference_settings = reference.get("settings")
+    observed_settings = observed.get("settings")
+    reference_settings = (
+        reference_settings if isinstance(reference_settings, Mapping) else {}
+    )
+    observed_settings = (
+        observed_settings if isinstance(observed_settings, Mapping) else {}
+    )
+    drifted.extend(
+        f"settings.{name}"
+        for name in SESSION_IDENTITY_SETTINGS
+        if reference_settings.get(name) != observed_settings.get(name)
+    )
+    return sorted(drifted)
+
 # Failure scope map.  Shared failures abort the rest of the family; lane-local
 # failures may be followed by the prescribed shared-health checks.  Every
 # non-accountable attempt binds exactly one reason from this vocabulary.
 SHARED_FAILURE_REASONS = frozenset(
     {
         "device_session_unavailable",
+        "device_session_identity_drifted",
         "sealed_apk_unavailable",
         "sealed_apk_bytes_drifted",
         "sealed_apk_deployment_failed",
@@ -303,9 +342,9 @@ FAILURE_SCOPE_UNKNOWN = "unknown"
 # verifier cannot disagree about what a failure indicts.  The split is by the
 # seam boundary that produced the evidence:
 # - shared: an input or instrument outside this lane's own trial -- the device
-#   session, the sealed APK handoff and its installed bytes, the target log
-#   window instrument, the exactly-once device budget, evidence storage, and
-#   unclassified device I/O;
+#   session and its re-probed post-cell identity, the sealed APK handoff and its
+#   installed bytes, the target log window instrument, the exactly-once device
+#   budget, evidence storage, and unclassified device I/O;
 # - lane_local: this lane's own attempt sequence -- package reset and portrait
 #   setup, the canonical launch and foreground proof, the Journey, the boundary
 #   precondition, the orientation dispatch and observation, the lifecycle
@@ -314,6 +353,7 @@ FAILURE_SCOPE_UNKNOWN = "unknown"
 #   event may be this lane's app or the shared capture path.
 FAILURE_SCOPES: Mapping[str, str] = {
     "device_session_unavailable": FAILURE_SCOPE_SHARED,
+    "device_session_identity_drifted": FAILURE_SCOPE_SHARED,
     "sealed_apk_unavailable": FAILURE_SCOPE_SHARED,
     "sealed_apk_bytes_drifted": FAILURE_SCOPE_SHARED,
     "sealed_apk_deployment_failed": FAILURE_SCOPE_SHARED,
@@ -363,6 +403,7 @@ FROZEN_PHASES = (
     "lifecycle-rotation",
     "collect-post-event-observation",
     "close-target-log-window",
+    "close-post-cell-identity",
     "prove-lifecycle-transition",
     "evaluate-oracles",
     "finalize-receipt",
@@ -376,6 +417,7 @@ PHASE_FAILURE_REASONS: Mapping[str, str] = {
     "attempt-setup": "attempt_setup_failed",
     "open-target-log-window": "target_log_window_unavailable",
     "close-target-log-window": "target_log_window_capture_failed",
+    "close-post-cell-identity": "device_session_unavailable",
     "canonical-launch": "canonical_launch_failed",
     "journey": "journey_driver_failed",
     "boundary-precondition": "boundary_layout_unreadable",
@@ -953,9 +995,11 @@ __all__ = [
     "LANDSCAPE_ROTATION",
     "LAUNCH_SETTLE_SECONDS",
     "LAUNCH_STATUS_TOKEN",
+    "LAYOUT_FAULTS",
     "LIFECYCLE_END",
     "LIFECYCLE_EVENT_EXCERPT_CHARS",
     "LIFECYCLE_EVENT_TERMS",
+    "LIFECYCLE_FAULTS",
     "LIFECYCLE_POLL_BUDGET",
     "LIFECYCLE_POLL_INTERVAL_SECONDS",
     "LIFECYCLE_POLL_SECONDS",
@@ -965,6 +1009,7 @@ __all__ = [
     "LIFECYCLE_SIGNATURE_STATUS",
     "LIFECYCLE_START",
     "LIFECYCLE_WINDOW_FILENAME",
+    "LOG_DUMP_FAULTS",
     "LOG_WINDOW_BUFFERS",
     "LOG_WINDOW_FORMAT",
     "MARKER_TAG",
@@ -978,11 +1023,15 @@ __all__ = [
     "PROCESS_START_TEMPLATE",
     "PROVENANCE_KIND",
     "RECEIPT_FILENAME",
+    "RECORDED_BOUNDARY_LAYOUT_READ",
+    "RECORDED_JOURNEY_LAYOUT_READS",
+    "RECORDED_POST_EVENT_LAYOUT_READ",
     "RECORD_FILENAME",
     "REPORTED_COMPONENT_PREFIX",
     "REQUIRED_ACCOUNTABLE_COMPONENTS",
     "SCHEMA_VERSION",
     "SEAM",
+    "SESSION_DRIFT_FAULTS",
     "SESSION_IDENTITY_SETTINGS",
     "SESSION_REQUIRED_FIELDS",
     "SETUP_SETTLE_SECONDS",
@@ -1039,6 +1088,7 @@ __all__ = [
     "resource_id_matches",
     "rotation_setting_vector",
     "rotation_state_vectors",
+    "session_identity_drift",
     "session_probe_plan",
     "session_probe_vectors",
     "tap_vector",
@@ -1346,6 +1396,71 @@ def component_matches(value: object, *, package: str, activity: str) -> bool:
     return parts == (package, activity)
 
 
+# Bounded, closed fault vocabularies for the recording device.  Each name is a
+# distinct class of post-launch evidence the attempt must fail closed on, and no
+# name is a retry, a compensation, or a second observation.
+LAYOUT_FAULTS = (
+    # the frozen input node is missing, duplicated, unusable, drifted in text,
+    # emptied, or the whole response is unparsable
+    "missing_input",
+    "duplicate_input",
+    "invalid_geometry",
+    "wrong_text",
+    "omitted_text",
+    "malformed",
+)
+LOG_DUMP_FAULTS = (
+    # the single all-buffer capture is empty, lost a marker, reordered or
+    # duplicated a marker pair, truncated, cut out of the window, or carries an
+    # unattributable crash
+    "empty_dump",
+    "missing_end_marker",
+    "reversed_markers",
+    "duplicated_markers",
+    "truncated_dump",
+    "incomplete_window",
+    "missing_lifecycle_marker",
+    "duplicated_lifecycle_marker",
+    "foreign_crash",
+)
+LIFECYCLE_FAULTS = (
+    # the recorded rotation settles into a contradicted lifecycle: reordered,
+    # duplicated, or missing events, a missing relaunch, a landscape surface
+    # that never resumes, or a task or process identity that changes
+    "reordered_events",
+    "duplicated_event",
+    "missing_event",
+    "relaunch_missing",
+    "landscape_not_resumed",
+    "task_changed",
+    "pid_changed",
+)
+SESSION_DRIFT_FAULTS = (
+    # the post-cell session re-probe is refused, reports another device, lost an
+    # identity field or setting, or reports a changed identity setting
+    "refused",
+    "serial_changed",
+    "fields_missing",
+    "settings_missing",
+    "identity_drifted",
+)
+# The two identity names the recorded drift rewrites: one flat required field
+# and one identity setting.
+_DRIFT_FIELD = "boot_id"
+_DRIFT_SETTING = "font_scale"
+_DRIFTED_SETTING_VALUE = "1.5"
+_FOREIGN_PACKAGE = "com.example.foreign"
+
+
+# The recorded Journey owns one layout read per frozen Driver Plan action, and the
+# runner then reads the boundary surface and the post-event surface once each.
+# The recording device binds its two layout faults to those frozen ordinals, so
+# one named fault corrupts one declared read instead of every read of a surface.
+RECORDED_JOURNEY_LAYOUT_READS = 6
+RECORDED_BOUNDARY_LAYOUT_READ = RECORDED_JOURNEY_LAYOUT_READS + 1
+RECORDED_POST_EVENT_LAYOUT_READ = RECORDED_JOURNEY_LAYOUT_READS + 2
+
+
 @dataclass(frozen=True)
 class RecordingDevicePolicy:
     """Bounded, explicit simulation policy for the recording device.
@@ -1353,8 +1468,10 @@ class RecordingDevicePolicy:
     Every knob is an explicit contradiction or residual the attempt must fail
     closed on: a reported serial that is not the selected device, an installed
     digest that contradicts the handoff, a target process that survived the
-    package clear, a display rotation that contradicts the portrait proof, and
-    a reported foreground component that is not the frozen target.
+    package clear, a display rotation that contradicts the portrait proof, a
+    reported foreground component that is not the frozen target, and one closed
+    post-launch fault per evidence family (boundary layout, post-event layout,
+    log dump, lifecycle settle, post-cell session re-probe).
     """
 
     serial: str = "recording-device"
@@ -1371,12 +1488,26 @@ class RecordingDevicePolicy:
     fail_operations: frozenset[str] = frozenset()
     pid: int = 4501
     task_id: int = 7
+    boundary_layout_fault: str | None = None
+    post_event_layout_fault: str | None = None
+    log_dump_fault: str | None = None
+    lifecycle_fault: str | None = None
+    session_drift_fault: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.serial, str) or not self.serial:
             raise RuntimeAttemptError("recording_device_serial_invalid")
         if self.orientation_settle_polls < 1:
             raise RuntimeAttemptError("recording_device_settle_invalid")
+        for fault, vocabulary in (
+            (self.boundary_layout_fault, LAYOUT_FAULTS),
+            (self.post_event_layout_fault, LAYOUT_FAULTS),
+            (self.log_dump_fault, LOG_DUMP_FAULTS),
+            (self.lifecycle_fault, LIFECYCLE_FAULTS),
+            (self.session_drift_fault, SESSION_DRIFT_FAULTS),
+        ):
+            if fault is not None and fault not in vocabulary:
+                raise RuntimeAttemptError("recording_device_fault_invalid")
         if self.installed_digest_override is not None:
             _require_digest(
                 self.installed_digest_override, "recording_device_digest_invalid"
@@ -1446,6 +1577,9 @@ class RecordingRuntimeDevice:
         self._log: list[str] = []
         self._epoch = 1783693058.0
         self._markers: list[str] = []
+        self._probes = 0
+        self._layout_reads = 0
+        self._task_offset = 0
 
     # -- identity -----------------------------------------------------------
 
@@ -1537,13 +1671,36 @@ class RecordingRuntimeDevice:
     # -- protocol -----------------------------------------------------------
 
     def probe_session(self) -> DeviceProbeReceipt:
+        """Answer the session probe, applying the named drift from the second one.
+
+        The first probe is the pre-cell identity.  Every later probe is the
+        post-cell re-probe and answers with the one named drift the policy
+        demands, so a drifted cell identity is a real second observation and
+        never a re-used first one.
+        """
         self._operations.begin("probe_session")
+        self._probes += 1
+        fault = self.policy.session_drift_fault if self._probes > 1 else None
+        if fault == "refused":
+            raise RuntimeAttemptDeviceError(
+                "probe_session", "the post-cell session probe is refused"
+            )
         plan = session_probe_plan(self.serial)
         fields = dict(self._session_fields)
         if self.policy.reported_serial is not None:
             fields["serial"] = self.policy.reported_serial
         settings = fields.get("settings")
-        recorded = dict(settings) if isinstance(settings, Mapping) else {}
+        settings = dict(settings) if isinstance(settings, Mapping) else {}
+        if fault == "serial_changed":
+            fields["serial"] = f"{self.serial}-elsewhere"
+        elif fault == "fields_missing":
+            fields.pop(_DRIFT_FIELD, None)
+        elif fault == "settings_missing":
+            settings.pop(_DRIFT_SETTING, None)
+        elif fault == "identity_drifted":
+            settings[_DRIFT_SETTING] = _DRIFTED_SETTING_VALUE
+        fields["settings"] = settings
+        recorded = dict(settings)
         outputs: list[str] = []
         for _, field_name in plan:
             if field_name.startswith("settings."):
@@ -1711,13 +1868,89 @@ class RecordingRuntimeDevice:
     def dump_all_buffers_epoch(self) -> DeviceCommandReceipt:
         vector = dump_all_buffers_vector(self.serial)
         self._operations.begin("dump_all_buffers_epoch")
-        payload = "\n".join(self._log)
+        payload = self._faulted_dump()
         return DeviceCommandReceipt(
             operation="dump_all_buffers_epoch",
             command=vector,
             returncode=0,
             stdout=f"{payload}\n" if payload else "",
         )
+
+    def _faulted_dump(self) -> str:
+        """Return the one recorded all-buffer capture with its named fault.
+
+        Every fault below is a capture-path defect of the released evidence: the
+        dispatch sequence itself is never repeated, reordered, or compensated.
+        """
+        fault = self.policy.log_dump_fault
+        lines = list(self._log)
+        if fault is None:
+            return "\n".join(lines)
+        if fault == "empty_dump":
+            return ""
+        target_start = (
+            _marker_line_indexes(lines, self._markers[0]) if self._markers else []
+        )
+        target_end = (
+            _marker_line_indexes(lines, self._markers[-1])
+            if len(self._markers) > 1
+            else []
+        )
+        lifecycle_start = (
+            _marker_line_indexes(lines, self._markers[1])
+            if len(self._markers) > 2
+            else []
+        )
+        lifecycle_end = (
+            _marker_line_indexes(lines, self._markers[2])
+            if len(self._markers) > 2
+            else []
+        )
+        if fault == "missing_end_marker":
+            return _drop_lines(lines, target_end)
+        if fault == "reversed_markers":
+            if target_start and target_end and target_start[0] < target_end[0]:
+                lines.insert(target_start[0], lines.pop(target_end[0]))
+            return "\n".join(lines)
+        if fault == "duplicated_markers":
+            if target_start:
+                lines.insert(target_start[0], lines[target_start[0]])
+            return "\n".join(lines)
+        if fault == "truncated_dump":
+            return "\n".join(lines[: target_end[0]] if target_end else lines)
+        if fault == "incomplete_window":
+            start = target_start[0] if target_start else 0
+            end = target_end[0] if target_end else len(lines)
+            pattern = PROCESS_START_TEMPLATE.format(
+                package=re.escape(self.package)
+            )
+            return _drop_lines(
+                lines,
+                [
+                    index
+                    for index in range(start, end)
+                    if re.search(pattern, lines[index])
+                ],
+            )
+        if fault == "missing_lifecycle_marker":
+            return _drop_lines(lines, lifecycle_end)
+        if fault == "duplicated_lifecycle_marker":
+            if lifecycle_start:
+                lines.insert(lifecycle_start[0], lines[lifecycle_start[0]])
+            return "\n".join(lines)
+        if fault == "foreign_crash":
+            pid = self._pid if self._pid is not None else _REPLAY_PID
+            insert_at = target_end[0] if target_end else len(lines)
+            foreign_lines = (
+                "FATAL EXCEPTION: main",
+                f"Process: {_FOREIGN_PACKAGE}, PID: 9001",
+                "java.lang.IllegalStateException: foreign crash",
+            )
+            lines[insert_at:insert_at] = [
+                f"{self._tick()}  {pid}  {pid} E AndroidRuntime: {text}"
+                for text in foreign_lines
+            ]
+        return "\n".join(lines)
 
     def canonical_launch(
         self, *, package: str, activity: str
@@ -1782,19 +2015,20 @@ class RecordingRuntimeDevice:
             if self.package and self.activity
             else ""
         )
+        task_id = self.policy.task_id + self._task_offset
         pids = () if self._pid is None else (self._pid,)
         return DeviceProbeReceipt(
             operation="read_foreground_state",
             commands=vectors,
             returncodes=(0, 0 if pids else 1, 0),
             outputs=(
-                f"mResumedActivity: ActivityRecord{{{component} t{self.policy.task_id}}}",
+                f"mResumedActivity: ActivityRecord{{{component} t{task_id}}}",
                 " ".join(str(pid) for pid in pids),
                 display_device_info(rotation=self._rotation, landscape=self._landscape),
             ),
             fields={
                 "component": component,
-                "task_id": self.policy.task_id,
+                "task_id": task_id,
                 "pid": self._pid,
                 "rotation": self._rotation,
                 "landscape": self._landscape,
@@ -1817,25 +2051,51 @@ class RecordingRuntimeDevice:
         )
 
     def _settle_landscape(self) -> None:
+        """Record the frozen destruction, creation, and resume of the rotation.
+
+        The settle is the one lifecycle side effect of the cell.  A named
+        lifecycle fault changes what the recorded settle proves -- the event
+        order, an event's uniqueness, the relaunch, the resumed landscape
+        surface, or the task and process identity -- and never adds a second
+        dispatch or a compensating rotation.
+        """
         package = self.package
         activity = self.activity
         component = _abbreviate_component(package, activity)
         token = "2a4b1c"
+        fault = self.policy.lifecycle_fault
         self._append(
             "I",
             "ActivityTaskManager",
             f"Config changes=480 {{1.0 1.5 1.0}} for ActivityRecord{{{token} u0 "
             f"{component} t{self.policy.task_id}}}",
         )
-        self._append(
-            "I",
-            "ActivityTaskManager",
-            f"Relaunching ActivityRecord{{{token} u0 {component} "
-            f"t{self.policy.task_id}}} due to config changes",
-        )
-        self._append("I", "am_on_destroy_called", f"[0,{component},performDestroy,126]")
-        self._append("I", "am_on_create_called", f"[0,{component},performCreate,254]")
-        self._append("I", "am_on_resume_called", f"[0,{component},RESUME_ACTIVITY,80]")
+        if fault != "relaunch_missing":
+            self._append(
+                "I",
+                "ActivityTaskManager",
+                f"Relaunching ActivityRecord{{{token} u0 {component} "
+                f"t{self.policy.task_id}}} due to config changes",
+            )
+        terms = {
+            "destroy": "am_on_destroy_called",
+            "create": "am_on_create_called",
+            "resume": "am_on_resume_called",
+        }
+        excerpts = {
+            "destroy": f"[0,{component},performDestroy,126]",
+            "create": f"[0,{component},performCreate,254]",
+            "resume": f"[0,{component},RESUME_ACTIVITY,80]",
+        }
+        order: tuple[str, ...] = ("destroy", "create", "resume")
+        if fault == "reordered_events":
+            order = ("resume", "create", "destroy")
+        elif fault == "duplicated_event":
+            order = ("destroy", "destroy", "create", "resume")
+        elif fault == "missing_event":
+            order = ("destroy", "create")
+        for name in order:
+            self._append("I", terms[name], excerpts[name])
         if self.policy.restart_target_process and self._pid is not None:
             self._append(
                 "I", "ActivityManager", f"Process {package} (pid {self._pid}) has died"
@@ -1848,17 +2108,34 @@ class RecordingRuntimeDevice:
             )
         if not self.policy.save_enabled:
             self._input.clear()
-        self._rotation = LANDSCAPE_ROTATION
-        self._landscape = True
+        if fault == "task_changed":
+            self._task_offset = 1
+        if fault == "pid_changed" and self._pid is not None:
+            self._pid = self.policy.pid + 1
+        if fault != "landscape_not_resumed":
+            self._rotation = LANDSCAPE_ROTATION
+            self._landscape = True
 
     def read_layout(self) -> LayoutObservation:
+        """Answer one layout read, applying the fault bound to its ordinal."""
         self._operations.begin("read_layout")
+        self._layout_reads += 1
         vector = layout_vector(self.serial)
         nodes = self._layout()
-        return LayoutObservation(
-            command=vector,
-            stdout=json.dumps(nodes, ensure_ascii=False),
-        )
+        fault = self._layout_fault()
+        if fault is None:
+            stdout = json.dumps(nodes, ensure_ascii=False)
+        else:
+            stdout = _faulted_layout_stdout(nodes, fault)
+        return LayoutObservation(command=vector, stdout=stdout)
+
+    def _layout_fault(self) -> str | None:
+        """Return the named fault bound to this layout read, if any."""
+        if self._layout_reads == RECORDED_BOUNDARY_LAYOUT_READ:
+            return self.policy.boundary_layout_fault
+        if self._layout_reads == RECORDED_POST_EVENT_LAYOUT_READ:
+            return self.policy.post_event_layout_fault
+        return None
 
     def tap(self, x: int, y: int) -> CommandResult:
         if type(x) is not int or type(y) is not int or x < 0 or y < 0:
@@ -1877,6 +2154,48 @@ class RecordingRuntimeDevice:
         self._installed_digest = _require_digest(
             digest, "recording_device_digest_invalid"
         )
+
+
+def _faulted_layout_stdout(
+    nodes: Sequence[Mapping[str, object]], fault: str
+) -> str:
+    """Return one recorded layout response carrying exactly one named fault."""
+    if fault == "malformed":
+        return "{\"nodes\": ["
+    value = [dict(node) for node in nodes]
+    matched = [
+        index
+        for index, node in enumerate(value)
+        if resource_id_matches(node, INPUT_RESOURCE_ID)
+    ]
+    if matched:
+        if fault == "missing_input":
+            value.pop(matched[0])
+        elif fault == "duplicate_input":
+            value.insert(matched[0], dict(value[matched[0]]))
+        elif fault == "invalid_geometry":
+            value[matched[0]]["bounds"] = "[500,400][100,100]"
+        elif fault == "wrong_text":
+            value[matched[0]]["text"] = f"{BOUNDARY_PRECONDITION_TEXT}5"
+        elif fault == "omitted_text":
+            value[matched[0]].pop("text", None)
+    return json.dumps(value, ensure_ascii=False)
+
+
+def _marker_line_indexes(lines: Sequence[str], marker: str) -> list[int]:
+    """Return the 0-based positions of one exact marker line in a capture."""
+    suffix = f"{MARKER_TAG}: {marker}"
+    return [
+        index for index, line in enumerate(lines) if line.rstrip().endswith(suffix)
+    ]
+
+
+def _drop_lines(lines: Sequence[str], indexes: Sequence[int]) -> str:
+    """Return one capture with the named lines removed."""
+    dropped = set(indexes)
+    return "\n".join(
+        line for index, line in enumerate(lines) if index not in dropped
+    )
 
 
 def _recorded_probe_output(field_name: str, fields: Mapping[str, object]) -> str:
@@ -2635,6 +2954,7 @@ REQUIRED_ACCOUNTABLE_COMPONENTS = (
     "boundary_precondition",
     "lifecycle_transition",
     "post_event_observation",
+    "post_cell_identity",
     "oracles",
     "device_operations",
 )
@@ -3000,6 +3320,8 @@ class _AttemptRun:
             self._collect_post_event_observation(phase)
         with self._phase("close-target-log-window") as phase:
             self._close_target_log_window(phase)
+        with self._phase("close-post-cell-identity") as phase:
+            self._close_post_cell_identity(phase)
         with self._phase("prove-lifecycle-transition") as phase:
             self._prove_lifecycle_transition(phase)
         with self._phase("evaluate-oracles") as phase:
@@ -3653,11 +3975,9 @@ class _AttemptRun:
                 "orientation_dispatch_failed",
                 "the lifecycle end marker was not written",
             )
-        if not settled:
-            phase.fail(
-                "orientation_not_observed",
-                "the landscape resume was not observed within the poll budget",
-            )
+        # Record the read-only poll evidence before the settled check: a poll
+        # that never observes the resume still owes every probe it did take, and
+        # the rejection never becomes a reason to poll again or to compensate.
         self.lifecycle_observations = observations
         final_fields = observations[-1].get("fields")
         self.foreground_after = (
@@ -3680,6 +4000,11 @@ class _AttemptRun:
             "before": dict(self.foreground_before),
             "after": dict(self.foreground_after),
         }
+        if not settled:
+            phase.fail(
+                "orientation_not_observed",
+                "the landscape resume was not observed within the poll budget",
+            )
 
     # -- phase 11: post-event observation ----------------------------------
 
@@ -3891,7 +4216,101 @@ class _AttemptRun:
         component["capture_sha256"] = entry["sha256"]
         component["capture_bytes"] = entry["bytes"]
 
-    # -- phase 13: prove the frozen lifecycle transition -------------------
+    # -- phase 13: close the post-cell identity ---------------------------
+
+    def _close_post_cell_identity(self, phase: _Phase) -> None:
+        """Re-probe the session after the cell and close its identity binding.
+
+        The re-probe is a real second observation, never the pre-cell receipt
+        read twice.  The close is recorded the moment it is attempted, so a
+        refused re-probe stays visible as an unclosed identity instead of being
+        retried on the abort path, and a drifted one is recorded before it
+        aborts the attempt.
+        """
+        reference = self.components.get("device_session")
+        reference_fields = (
+            reference.get("fields") if isinstance(reference, Mapping) else None
+        )
+        reference_fields = (
+            dict(reference_fields) if isinstance(reference_fields, Mapping) else {}
+        )
+        self.components["post_cell_identity"] = {
+            "operation": "probe_session",
+            "reference_fields": reference_fields,
+            "closed": False,
+        }
+        receipt = self._device_call(phase, self.device.probe_session)
+        fields = dict(receipt.fields)
+        drifted = session_identity_drift(reference_fields, fields)
+        self.components["post_cell_identity"].update(
+            {
+                "device_kind": self.device.device_kind,
+                "serial": self.device.serial,
+                "commands": [list(command) for command in receipt.commands],
+                "returncodes": list(receipt.returncodes),
+                "fields": fields,
+                "drifted_fields": drifted,
+                "closed": True,
+                "closed_at": _now(),
+            }
+        )
+        if any(code != 0 for code in receipt.returncodes):
+            phase.fail(
+                "device_session_identity_drifted",
+                "the post-cell session probe returned a non-zero code",
+            )
+        if drifted:
+            phase.fail(
+                "device_session_identity_drifted",
+                f"the post-cell identity drifted: {','.join(drifted)}",
+            )
+
+    def _best_effort_close_post_cell_identity(self) -> None:
+        """Close the post-cell identity on an aborted path without raising.
+
+        The close happens at most once across the whole attempt: an aborted
+        phase that already closed the identity is left alone, and a session
+        that never produced an identity is never re-probed, because that would
+        be a retry of the refusal the abort already owns.
+        """
+        if "post_cell_identity" in self.components:
+            return
+        reference = self.components.get("device_session")
+        if not isinstance(reference, Mapping):
+            return
+        reference_fields = reference.get("fields")
+        reference_fields = (
+            dict(reference_fields) if isinstance(reference_fields, Mapping) else {}
+        )
+        try:
+            receipt = self.device.probe_session()
+        except Exception as error:  # noqa: BLE001 - best effort only
+            # The abort reason already owns the receipt; a second refusal
+            # here must never mask it.
+            self.components["post_cell_identity"] = {
+                "operation": "probe_session",
+                "reference_fields": reference_fields,
+                "closed": False,
+                "capture": "unavailable_after_abort",
+                "capture_error": f"{type(error).__name__}: {error}",
+            }
+            return
+        fields = dict(receipt.fields)
+        self.components["post_cell_identity"] = {
+            "operation": receipt.operation,
+            "device_kind": self.device.device_kind,
+            "serial": self.device.serial,
+            "commands": [list(command) for command in receipt.commands],
+            "returncodes": list(receipt.returncodes),
+            "reference_fields": reference_fields,
+            "fields": fields,
+            "drifted_fields": session_identity_drift(reference_fields, fields),
+            "closed": True,
+            "closed_at": _now(),
+            "partial": True,
+        }
+
+    # -- phase 14: prove the frozen lifecycle transition -------------------
 
     def _prove_lifecycle_transition(self, phase: _Phase) -> None:
         text = self.window_text
@@ -4010,7 +4429,7 @@ class _AttemptRun:
             }
         )
 
-    # -- phase 14: attributed L1 and post-event L2 -------------------------
+    # -- phase 15: attributed L1 and post-event L2 -------------------------
 
     def _evaluate_oracles(self, phase: _Phase) -> None:
         window = _window_slice(
@@ -4077,7 +4496,7 @@ class _AttemptRun:
             "verdict": verdict,
         }
 
-    # -- phase 15: exactly-once evidence and sealed receipt ----------------
+    # -- phase 16: exactly-once evidence and sealed receipt ----------------
 
     def _require_accountable_evidence(self, phase: _Phase) -> None:
         """Prove the exactly-once device budget and component completeness."""
@@ -4232,6 +4651,7 @@ class _AttemptRun:
         }
         self.failure = failure
         self._best_effort_close_window()
+        self._best_effort_close_post_cell_identity()
         try:
             receipt = self._write_receipt(
                 terminal_state=NON_ACCOUNTABLE,
@@ -4522,7 +4942,7 @@ def _verify_phase_ledger(
 ) -> list[str]:
     """Recompute the recorded phase ledger as a frozen phase prefix.
 
-    An accountable attempt owes all fifteen frozen phases, in order, every one
+    An accountable attempt owes all sixteen frozen phases, in order, every one
     ``ok``.  A non-accountable attempt owes an ordered prefix whose final entry
     is the one failed phase: no phase may appear twice, out of order, or after
     the terminal failure.
@@ -4803,6 +5223,71 @@ def _verify_artifact_inventory(
             f"missing {missing}, unexpected {unexpected}",
         )
     return index, checks
+
+
+def _verify_post_cell_identity(
+    document: Mapping[str, object],
+) -> list[str]:
+    """Recompute the post-cell identity close from its two recorded probes.
+
+    The close is a second observation of the cell identity, so the verifier
+    recomputes the drift between the recorded pre-cell session fields and the
+    recorded post-cell fields instead of trusting the recorded drift list.  A
+    reference that does not restate the session probe, a close that never
+    happened, a refused re-probe, or any drift every one of them refuses the
+    accountable receipt.
+    """
+    components = document.get("components")
+    if not isinstance(components, Mapping):
+        _verification_violation(
+            "attempt_component_invalid", "the receipt components are missing"
+        )
+    session = components.get("device_session")
+    post_cell = components.get("post_cell_identity")
+    if not isinstance(session, Mapping) or not isinstance(post_cell, Mapping):
+        _verification_violation(
+            "attempt_component_invalid", "an accountable component is missing"
+        )
+    reference = session.get("fields")
+    observed = post_cell.get("fields")
+    if not isinstance(reference, Mapping) or not isinstance(observed, Mapping):
+        _verification_violation(
+            "attempt_post_cell_identity_mismatch",
+            "the post-cell identity fields are missing",
+        )
+    if post_cell.get("reference_fields") != dict(reference):
+        _verification_violation(
+            "attempt_post_cell_identity_mismatch",
+            "the recorded reference identity contradicts the session probe",
+        )
+    if post_cell.get("operation") != "probe_session":
+        _verification_violation(
+            "attempt_post_cell_identity_mismatch",
+            "the post-cell identity was not closed by a session re-probe",
+        )
+    if post_cell.get("closed") is not True:
+        _verification_violation(
+            "attempt_post_cell_identity_mismatch",
+            "the post-cell identity is not closed",
+        )
+    returncodes = post_cell.get("returncodes")
+    if not isinstance(returncodes, list) or any(code != 0 for code in returncodes):
+        _verification_violation(
+            "attempt_post_cell_identity_mismatch",
+            "the post-cell session probe did not succeed",
+        )
+    drifted = session_identity_drift(dict(reference), dict(observed))
+    if drifted:
+        _verification_violation(
+            "attempt_post_cell_identity_mismatch",
+            f"the cell identity drifted: {','.join(drifted)}",
+        )
+    if post_cell.get("drifted_fields") != drifted:
+        _verification_violation(
+            "attempt_post_cell_identity_mismatch",
+            "the recorded drift contradicts the recomputed drift",
+        )
+    return ["post-cell-identity"]
 
 
 def _verify_device_budget(
@@ -5332,10 +5817,11 @@ def verify_runtime_attempt(output_root: str | Path) -> dict[str, object]:
     The verifier re-reads the sealed receipt and its artifacts, recomputes the
     receipt identity, the record binding, every artifact digest, the frozen
     phase ledger, the marker bounded log window, the lifecycle signature, the
-    boundary precondition, the L1 attribution and L2 evaluation, the reduced
-    verdict, the failure scope of a non-accountable terminal state, and the
-    exactly-once device budget.  It never touches a device and never trusts a
-    recorded verdict or scope without recomputing it from the frozen tables.
+    boundary precondition, the post-cell identity close, the L1 attribution and
+    L2 evaluation, the reduced verdict, the failure scope of a non-accountable
+    terminal state, and the exactly-once device budget.  It never touches a
+    device and never trusts a recorded verdict or scope without recomputing it
+    from the frozen tables.
     """
     raw = Path(output_root).expanduser()
     if raw.is_symlink() or not raw.is_dir():
@@ -5359,10 +5845,11 @@ def verify_runtime_attempt(output_root: str | Path) -> dict[str, object]:
     recomputed: dict[str, object] | None = None
     if terminal_state == ACCOUNTABLE_CONCLUDED:
         budget_checks, _budget = _verify_device_budget(document)
+        identity_checks = _verify_post_cell_identity(document)
         log_checks, recomputed = _verify_log_and_oracles(
             document, root=root, index=index
         )
-        checks = [*checks, *budget_checks, *log_checks]
+        checks = [*checks, *budget_checks, *identity_checks, *log_checks]
         execution = record.get("execution")
         if not isinstance(execution, Mapping) or execution.get("status") != "completed":
             _verification_violation(

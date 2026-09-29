@@ -1,0 +1,121 @@
+{
+  "schema_version": 2,
+  "attempt_id": "72333948-7d00-40f3-8028-17b4f9456103",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T04:39:20.627+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "lifecycle_transition_unproven",
+    "message": "the resume event is not unique"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T04:39:20.627+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "attempt-setup",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "open-target-log-window",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "canonical-launch",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "journey",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "boundary-precondition",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "lifecycle-rotation",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "collect-post-event-observation",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "close-target-log-window",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "close-post-cell-identity",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "prove-lifecycle-transition",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "prove-lifecycle-transition",
+      "kind": "evidence",
+      "reason": "lifecycle_transition_unproven",
+      "message": "the resume event is not unique",
+      "scope": "lane_local"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [
+      "artifacts/journey/deterministic-journey-result.json",
+      "artifacts/journey/deterministic-observations.json",
+      "artifacts/journey/deterministic-driver-invocation.json",
+      "artifacts/boundary-layout.json",
+      "artifacts/post-event-layout.json",
+      "artifacts/target-log-window.log"
+    ],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "160f872fb94807739840078d17df52e92c4b6f1fef95e9b77747a89d7e77f756",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "72333948-7d00-40f3-8028-17b4f9456103",
+      "terminal_state": "non_accountable"
+    }
+  }
+}
