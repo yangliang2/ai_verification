@@ -1,0 +1,352 @@
+{
+  "artifacts": [],
+  "attempt_id": "ccaf37b4-6858-476b-a243-bf4b160808bb",
+  "claim_boundary": "one_accountable_preserved_state_runtime_attempt",
+  "components": {
+    "device_session": {
+      "commands": [
+        [
+          "android",
+          "--version"
+        ],
+        [
+          "adb",
+          "version"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "ro.boot.boot_id"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "ro.build.version.sdk"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "ro.build.fingerprint"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "ro.product.cpu.abi"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "ro.product.model"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "ro.product.hardware"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "ro.kernel.qemu.avd_name"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "ro.boot.qemu.version"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "persist.sys.locale"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "getprop",
+          "persist.sys.timezone"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "get",
+          "system",
+          "font_scale"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "get",
+          "system",
+          "ui_night_mode"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "get",
+          "global",
+          "window_animation_scale"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "get",
+          "global",
+          "transition_animation_scale"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "get",
+          "global",
+          "animator_duration_scale"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "get",
+          "secure",
+          "navigation_mode"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "get",
+          "secure",
+          "default_input_method"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "get",
+          "secure",
+          "enabled_accessibility_services"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "wm",
+          "size"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "wm",
+          "density"
+        ]
+      ],
+      "device_kind": "recording",
+      "fields": {
+        "abi": "arm64-v8a",
+        "activity": "com.darkempire78.opencalculator.activities.MainActivity",
+        "adb_version": "1.0.41 (35.0.2-android-tools)",
+        "android_cli_version": "1.0.15498356",
+        "api_level": 35,
+        "avd_config_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "avd_name": "aiverify_api35",
+        "boot_id": "8f4d1f2c-6c1f-4a4a-9a2b-4e6a9a24d1f0",
+        "display_density": "420",
+        "display_size": "1080x2400",
+        "emulator_version": "35.6.10 (stable)",
+        "fingerprint": "google/sdk_gphone64_arm64/emu64a:15/AP3A.241005.015/12313591:userdebug/dev-keys",
+        "hardware": "ranchu",
+        "model": "sdk_gphone64_arm64",
+        "package": "com.darkempire78.opencalculator.debug",
+        "serial": "recording-device",
+        "settings": {
+          "animator_duration_scale": "1.0",
+          "default_input_method": "com.google.android.inputmethod.latin/.LatinIME",
+          "enabled_accessibility_services": "",
+          "font_scale": "1.0",
+          "locale": "en-US",
+          "navigation_mode": "0",
+          "timezone": "UTC",
+          "transition_animation_scale": "1.0",
+          "ui_night_mode": "1",
+          "window_animation_scale": "1.0"
+        },
+        "system_image_manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "operation": "probe_session",
+      "returncodes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "serial": "recording-device"
+    },
+    "identity": {
+      "claim_boundary": "one_accountable_preserved_state_runtime_attempt",
+      "device": {
+        "activity": "com.darkempire78.opencalculator.activities.MainActivity",
+        "kind": "recording",
+        "package": "com.darkempire78.opencalculator.debug",
+        "serial": "recording-device"
+      },
+      "driver_plan": {
+        "bytes": 1315,
+        "path": "/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save-enabled-v1/runtime/lanes/lane-01/driver-plan.json",
+        "plan_id": "ocrc-v1-lane-01-driver-plan",
+        "run_spec_path": "runtime/lanes/lane-01/run-spec.yaml",
+        "run_spec_sha256": "3b2d64fead2145062c746e1526f7da2f6d86aa18932322b6857173fd8b19600c",
+        "sha256": "1f9599f4165b2a214873fc8d704c2569ebd315659cfbcde245a52c01083e73b6"
+      },
+      "evidence_class": "recorded_simulation",
+      "family": {
+        "id": "opencalc-runtime-calibration-v1",
+        "version": "v1"
+      },
+      "lane_id": "ocrc-v1-lane-01",
+      "preparation": {
+        "prepared": true,
+        "receipt_sha256": "cf9811eb7813169eb130e7d7e1af7922c304239a95521548840f44c6f0518912",
+        "rejection_code": null,
+        "test_substitutes": true
+      },
+      "run_spec": {
+        "canonical_sha256": "3b2d64fead2145062c746e1526f7da2f6d86aa18932322b6857173fd8b19600c",
+        "path": "/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save-enabled-v1/runtime/lanes/lane-01/run-spec.yaml",
+        "sha256": "834af4755faa87ebace044cce0925cf27dab32d6ae936eadefb7e3a04d366688"
+      },
+      "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+      "schema_version": 1,
+      "sealed_apk": {
+        "bytes": 33,
+        "path": "/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/sealed-apk-drifted-after-admission/sealed-runtime.apk",
+        "sha256": "437955028506b9269237501a5e50fc9a021190ef20e819a865f4f36f246ccd10"
+      },
+      "seam": "runtime_attempt_v1",
+      "setup_plan": {
+        "family_id": "opencalc-runtime-calibration-v1",
+        "family_version": "v1",
+        "id": "attempt-setup-plan-v1",
+        "operations": [
+          "clear_package_data",
+          "force_portrait"
+        ],
+        "package": "com.darkempire78.opencalculator.debug"
+      },
+      "started_at": "2026-09-29T00:00:00Z"
+    }
+  },
+  "evidence_class": "recorded_simulation",
+  "execution_record": {
+    "attempt_id": "ccaf37b4-6858-476b-a243-bf4b160808bb",
+    "path": "execution-record.json"
+  },
+  "failure": {
+    "kind": "evidence",
+    "message": "the sealed APK size changed",
+    "phase": "deploy-sealed-apk",
+    "reason": "sealed_apk_bytes_drifted",
+    "scope": "shared"
+  },
+  "finished_at": "2026-09-29T03:30:16.457+00:00",
+  "identity_sha256": "2fb1e5e304439e0114f642d95bba9108aadd742f7cfc3d55c5e25ee7c34b8d6e",
+  "lane_id": "ocrc-v1-lane-01",
+  "phases": [
+    {
+      "phase": "prepare-inputs",
+      "seconds": 0.0,
+      "status": "ok"
+    },
+    {
+      "phase": "establish-execution-record",
+      "seconds": 0.0,
+      "status": "ok"
+    },
+    {
+      "phase": "device-session",
+      "seconds": 0.0,
+      "status": "ok"
+    },
+    {
+      "phase": "deploy-sealed-apk",
+      "seconds": 0.0,
+      "status": "failed"
+    }
+  ],
+  "reason": "sealed_apk_bytes_drifted",
+  "retries": 0,
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "schema_version": 1,
+  "seam": "runtime_attempt_v1",
+  "started_at": "2026-09-29T00:00:00Z",
+  "terminal_state": "non_accountable",
+  "total_seconds": 0.0,
+  "verdict": "inconclusive"
+}

@@ -12,10 +12,20 @@ Design contracts owned here:
 - One ExecutionRecord is established before the first external side effect and
   is finalized exactly once.  Every pre-record rejection raises before any
   device I/O, so no fabricated record and no placeholder attempt is created.
+  A failure that cannot even seal the receipt still finalizes the established
+  record as failed instead of abandoning it in progress.
+- Every handled path binds exactly one canonical non-accountable reason and
+  classifies its scope as ``lane_local``, ``shared``, or ``unknown`` from one
+  frozen table that the independent verifier recomputes, so later family
+  orchestration never has to guess why a lane stopped.
+- The frozen phase ledger is a prefix discipline: an accountable attempt
+  records all fifteen phases ``ok``, a non-accountable attempt records a
+  strictly ordered prefix whose final entry is the failed phase.
 - The Target Log Window is cleared once and marker-bounded once.  Every
-  runner-reachable terminal path after the start marker writes exactly one end
+  runner-reachable terminal path after the start marker writes at most one end
   marker and captures exactly one all-buffer epoch dump.  A failure before the
-  start marker has no fabricated window receipt.
+  start marker has no fabricated window receipt, and a terminal path that
+  already dispatched the end marker never dispatches a second one.
 - The Lifecycle Transition Receipt binds the ordered destroy -> create ->
   resume signature, the relaunch tag, same task/PID, landscape resume at
   rotation 1, and the absence of target process start/death/restart.
@@ -280,6 +290,84 @@ SHARED_FAILURE_REASONS = frozenset(
     }
 )
 
+# Failure scope vocabulary.  The three names are the frozen family
+# orchestration vocabulary that runtime_family_preparation.py already binds:
+# a lane-local non-accountability may continue after shared-health checks close
+# again, while a shared or unknown failure aborts the remaining lanes.
+FAILURE_SCOPE_LANE_LOCAL = "lane_local"
+FAILURE_SCOPE_SHARED = "shared"
+FAILURE_SCOPE_UNKNOWN = "unknown"
+
+# The one frozen scope table.  The scope is derived from the canonical reason
+# alone -- never from a recorded label -- so the attempt and the independent
+# verifier cannot disagree about what a failure indicts.  The split is by the
+# seam boundary that produced the evidence:
+# - shared: an input or instrument outside this lane's own trial -- the device
+#   session, the sealed APK handoff and its installed bytes, the target log
+#   window instrument, the exactly-once device budget, evidence storage, and
+#   unclassified device I/O;
+# - lane_local: this lane's own attempt sequence -- package reset and portrait
+#   setup, the canonical launch and foreground proof, the Journey, the boundary
+#   precondition, the orientation dispatch and observation, the lifecycle
+#   transition proof, a target process restart, and the post-event layout;
+# - unknown: the evidence cannot separate the two -- an unattributable log
+#   event may be this lane's app or the shared capture path.
+FAILURE_SCOPES: Mapping[str, str] = {
+    "device_session_unavailable": FAILURE_SCOPE_SHARED,
+    "sealed_apk_unavailable": FAILURE_SCOPE_SHARED,
+    "sealed_apk_bytes_drifted": FAILURE_SCOPE_SHARED,
+    "sealed_apk_deployment_failed": FAILURE_SCOPE_SHARED,
+    "installed_apk_read_failed": FAILURE_SCOPE_SHARED,
+    "attempt_setup_failed": FAILURE_SCOPE_LANE_LOCAL,
+    "target_log_window_unavailable": FAILURE_SCOPE_SHARED,
+    "target_log_window_marker_error": FAILURE_SCOPE_SHARED,
+    "target_log_window_capture_failed": FAILURE_SCOPE_SHARED,
+    "canonical_launch_failed": FAILURE_SCOPE_LANE_LOCAL,
+    "journey_driver_failed": FAILURE_SCOPE_LANE_LOCAL,
+    "boundary_layout_unreadable": FAILURE_SCOPE_LANE_LOCAL,
+    "orientation_dispatch_failed": FAILURE_SCOPE_LANE_LOCAL,
+    "orientation_not_observed": FAILURE_SCOPE_LANE_LOCAL,
+    "lifecycle_transition_unproven": FAILURE_SCOPE_LANE_LOCAL,
+    "target_process_restarted": FAILURE_SCOPE_LANE_LOCAL,
+    "post_event_layout_unreadable": FAILURE_SCOPE_LANE_LOCAL,
+    "log_attribution_ambiguous": FAILURE_SCOPE_UNKNOWN,
+    "device_operation_budget_violated": FAILURE_SCOPE_SHARED,
+    "attempt_artifact_write_failed": FAILURE_SCOPE_SHARED,
+    "attempt_receipt_write_failed": FAILURE_SCOPE_SHARED,
+    "device_io_failed": FAILURE_SCOPE_SHARED,
+}
+
+
+def failure_scope(reason: object) -> str:
+    """Return the frozen scope of one canonical non-accountable reason."""
+    if not isinstance(reason, str) or not reason:
+        raise RuntimeAttemptError("attempt_failure_reason_invalid")
+    return FAILURE_SCOPES.get(reason, FAILURE_SCOPE_UNKNOWN)
+
+
+# Frozen phase ledger.  The pipeline records one entry per phase in this exact
+# order, and the verifier recomputes the recorded ledger as a prefix of it: an
+# accountable attempt owes every phase ``ok``, a non-accountable attempt owes a
+# prefix ending on its one failed phase.  A phase cannot appear twice, cannot
+# appear out of order, and cannot appear after the terminal failure.
+FROZEN_PHASES = (
+    "prepare-inputs",
+    "establish-execution-record",
+    "device-session",
+    "deploy-sealed-apk",
+    "attempt-setup",
+    "open-target-log-window",
+    "canonical-launch",
+    "journey",
+    "boundary-precondition",
+    "lifecycle-rotation",
+    "collect-post-event-observation",
+    "close-target-log-window",
+    "prove-lifecycle-transition",
+    "evaluate-oracles",
+    "finalize-receipt",
+)
+
 # Every phase that can reach the device owns one canonical failure reason, so a
 # device exception is never reported as an untyped harness crash.
 PHASE_FAILURE_REASONS: Mapping[str, str] = {
@@ -339,23 +427,19 @@ class RuntimeAttemptVerificationError(RuntimeAttemptError):
 
 
 class _AttemptAbort(Exception):
-    """Internal terminal signal carrying the canonical non-accountable reason."""
+    """Internal terminal signal carrying the canonical non-accountable reason.
 
-    def __init__(
-        self,
-        phase: str,
-        kind: str,
-        reason: str,
-        message: str,
-        *,
-        scope: str,
-    ) -> None:
+    The failure scope is derived from the reason through the one frozen table,
+    so an abort cannot carry a scope that contradicts its own reason.
+    """
+
+    def __init__(self, phase: str, kind: str, reason: str, message: str) -> None:
         super().__init__(f"{phase}: {reason}: {message}")
         self.phase = phase
         self.kind = kind
         self.reason = reason
         self.message = message
-        self.scope = scope
+        self.scope = failure_scope(reason)
 
 
 def canonical_sha256(value: object) -> str:
@@ -851,6 +935,11 @@ __all__ = [
     "EXPECTED_DEVICE_READ_COUNTS",
     "EXPECTED_ORIENTATION",
     "EXPECTED_ORIENTATION_EVENT",
+    "FAILURE_SCOPES",
+    "FAILURE_SCOPE_LANE_LOCAL",
+    "FAILURE_SCOPE_SHARED",
+    "FAILURE_SCOPE_UNKNOWN",
+    "FROZEN_PHASES",
     "FROZEN_TAP_TRAJECTORY",
     "INPUT_RESOURCE_ID",
     "JOURNEY_ACTION_STATUS_PASSED",
@@ -930,6 +1019,7 @@ __all__ = [
     "execute_runtime_attempt",
     "expected_device_mutation_order",
     "expected_device_read_counts",
+    "failure_scope",
     "foreground_state_vectors",
     "input_nodes",
     "installed_apk_vectors",
@@ -1258,7 +1348,14 @@ def component_matches(value: object, *, package: str, activity: str) -> bool:
 
 @dataclass(frozen=True)
 class RecordingDevicePolicy:
-    """Bounded, explicit simulation policy for the recording device."""
+    """Bounded, explicit simulation policy for the recording device.
+
+    Every knob is an explicit contradiction or residual the attempt must fail
+    closed on: a reported serial that is not the selected device, an installed
+    digest that contradicts the handoff, a target process that survived the
+    package clear, a display rotation that contradicts the portrait proof, and
+    a reported foreground component that is not the frozen target.
+    """
 
     serial: str = "recording-device"
     save_enabled: bool = True
@@ -1267,6 +1364,10 @@ class RecordingDevicePolicy:
     restart_target_process: bool = False
     clear_output: str = "Success"
     installed_digest_override: str | None = None
+    reported_serial: str | None = None
+    residual_target_process: bool = False
+    reported_rotation: int | None = None
+    reported_foreground_component: str | None = None
     fail_operations: frozenset[str] = frozenset()
     pid: int = 4501
     task_id: int = 7
@@ -1280,6 +1381,20 @@ class RecordingDevicePolicy:
             _require_digest(
                 self.installed_digest_override, "recording_device_digest_invalid"
             )
+        if self.reported_serial is not None and (
+            not isinstance(self.reported_serial, str) or not self.reported_serial
+        ):
+            raise RuntimeAttemptError("recording_device_serial_invalid")
+        if self.reported_rotation is not None and self.reported_rotation not in (
+            PORTRAIT_ROTATION,
+            LANDSCAPE_ROTATION,
+        ):
+            raise RuntimeAttemptError("recording_device_rotation_invalid")
+        if self.reported_foreground_component is not None and (
+            not isinstance(self.reported_foreground_component, str)
+            or not self.reported_foreground_component
+        ):
+            raise RuntimeAttemptError("recording_device_component_invalid")
 
 
 class RecordingRuntimeDevice:
@@ -1425,6 +1540,8 @@ class RecordingRuntimeDevice:
         self._operations.begin("probe_session")
         plan = session_probe_plan(self.serial)
         fields = dict(self._session_fields)
+        if self.policy.reported_serial is not None:
+            fields["serial"] = self.policy.reported_serial
         settings = fields.get("settings")
         recorded = dict(settings) if isinstance(settings, Mapping) else {}
         outputs: list[str] = []
@@ -1504,7 +1621,8 @@ class RecordingRuntimeDevice:
         vector = clear_package_data_vector(self.serial, package)
         self._operations.begin("clear_package_data", mutation=vector)
         self._launched = False
-        self._pid = None
+        if not self.policy.residual_target_process:
+            self._pid = None
         self._input.clear()
         self._landscape = False
         self._rotation = PORTRAIT_ROTATION
@@ -1549,6 +1667,11 @@ class RecordingRuntimeDevice:
         self._operations.begin("read_rotation_state")
         vectors = rotation_state_vectors(self.serial)
         width, height = display_size(self._landscape)
+        rotation = (
+            self._rotation
+            if self.policy.reported_rotation is None
+            else self.policy.reported_rotation
+        )
         return DeviceProbeReceipt(
             operation="read_rotation_state",
             commands=vectors,
@@ -1556,12 +1679,12 @@ class RecordingRuntimeDevice:
             outputs=(
                 str(self._settings["accelerometer_rotation"]),
                 str(self._settings["user_rotation"]),
-                display_device_info(rotation=self._rotation, landscape=self._landscape),
+                display_device_info(rotation=rotation, landscape=self._landscape),
             ),
             fields={
                 "accelerometer_rotation": self._settings["accelerometer_rotation"],
                 "user_rotation": self._settings["user_rotation"],
-                "rotation": self._rotation,
+                "rotation": rotation,
                 "portrait": not self._landscape,
                 "display_size": f"{width}x{height}",
             },
@@ -1654,7 +1777,7 @@ class RecordingRuntimeDevice:
             if not self._settle_pending:
                 self._settle_landscape()
         width, height = display_size(self._landscape)
-        component = (
+        component = self.policy.reported_foreground_component or (
             _abbreviate_component(self.package, self.activity)
             if self.package and self.activity
             else ""
@@ -2400,7 +2523,7 @@ class _Phase:
     def fail(self, reason: str, message: str, *, kind: str = "evidence") -> NoReturn:
         """Abort this attempt with the canonical reason and phase identity."""
         self.status = "failed"
-        raise _AttemptAbort(self.name, kind, reason, message, scope="attempt")
+        raise _AttemptAbort(self.name, kind, reason, message)
 
     def reason(self) -> str:
         """Return this phase's canonical device failure reason."""
@@ -2667,6 +2790,7 @@ class _AttemptRun:
         self.window_text = ""
         self.window_opened = False
         self.window_closed = False
+        self.window_end_dispatched = False
         self.window_start_line = 0
         self.window_end_line = 0
         self.foreground_before: Mapping[str, object] = {}
@@ -2698,6 +2822,13 @@ class _AttemptRun:
 
     def _phase(self, name: str) -> _Phase:
         return _Phase(name, clock=self.clock, phases=self.phases)
+
+    def _mark_phase_failed(self, name: str) -> None:
+        """Mark the already recorded ledger entry for one phase as failed."""
+        for entry in self.phases:
+            if entry.get("phase") == name:
+                entry["status"] = "failed"
+                return
 
     def _marker(self, kind: str) -> str:
         return attempt_marker(
@@ -2823,22 +2954,30 @@ class _AttemptRun:
     # -- pipeline -----------------------------------------------------------
 
     def run_pipeline(self) -> None:
-        """Verify inputs, establish the record, and run every phase once."""
+        """Verify inputs, establish the record, and run every phase once.
+
+        A rejection before the record exists propagates untouched, so no
+        fabricated record is ever created.  Once the record exists every
+        untyped harness failure is attributed to the phase that was running and
+        terminalized as one canonical non-accountable abort.
+        """
         self._prepare_inputs()
-        self._establish_record()
         try:
+            self._establish_record()
             self._run_phases()
         except _AttemptAbort:
             raise
         except RuntimeAttemptError as error:
+            if self.store is None:
+                raise
             reason = (
                 error.code
                 if error.code in SHARED_FAILURE_REASONS
                 else "device_io_failed"
             )
-            raise _AttemptAbort(
-                "attempt", "harness", reason, str(error), scope="attempt"
-            ) from error
+            name = str(self.phases[-1]["phase"])
+            self._mark_phase_failed(name)
+            raise _AttemptAbort(name, "harness", reason, str(error)) from error
 
     def _run_phases(self) -> None:
         with self._phase("device-session") as phase:
@@ -3055,7 +3194,13 @@ class _AttemptRun:
         }
 
     def _establish_record(self) -> None:
-        """Create the one ExecutionRecord before the first device side effect."""
+        """Create the one ExecutionRecord before the first device side effect.
+
+        The establishment has two effects: creating the record and creating its
+        artifact directory.  The record store is bound the moment it exists, so
+        a later directory failure still terminalizes the established record
+        instead of abandoning it in progress.
+        """
         with self._phase("establish-execution-record"):
             try:
                 store = ExecutionRecordStore.establish(
@@ -3064,15 +3209,20 @@ class _AttemptRun:
                     scenario=self.scenario,
                     started_at=self.started_at,
                 )
-                self.artifacts_dir = self.output_dir / ARTIFACTS_DIRNAME
-                self.journey_dir = self.artifacts_dir / JOURNEY_DIRNAME
-                self.artifacts_dir.mkdir(parents=True, exist_ok=True)
             except (ExecutionRecordStorageError, OSError) as error:
                 raise RuntimeAttemptError(
                     "attempt_record_establish_failed", str(error)
                 ) from error
             self.store = store
             self.attempt_id = store.attempt_id
+            self.artifacts_dir = self.output_dir / ARTIFACTS_DIRNAME
+            self.journey_dir = self.artifacts_dir / JOURNEY_DIRNAME
+            try:
+                self.artifacts_dir.mkdir(parents=True, exist_ok=True)
+            except OSError as error:
+                raise RuntimeAttemptError(
+                    "attempt_artifact_write_failed", str(error)
+                ) from error
 
     # -- phase 3: device session -------------------------------------------
 
@@ -3596,6 +3746,7 @@ class _AttemptRun:
             )
         end_marker = self._marker(TARGET_WINDOW_END)
         self.markers[TARGET_WINDOW_END] = end_marker
+        self.window_end_dispatched = True
         written = self._device_call(
             phase, lambda: self.device.write_log_marker(end_marker)
         )
@@ -3665,13 +3816,24 @@ class _AttemptRun:
         )
 
     def _best_effort_close_window(self) -> None:
-        """Close the log window on an aborted path without raising again."""
+        """Close the log window on an aborted path without raising again.
+
+        The end marker is dispatched at most once across the whole attempt: if
+        the aborted phase already dispatched it, the abort path captures the
+        dump instead of writing a second marker.
+        """
         if not self.window_opened or self.window_closed:
             return
-        end_marker = self._marker(TARGET_WINDOW_END)
+        end_marker = self.markers.get(
+            TARGET_WINDOW_END, self._marker(TARGET_WINDOW_END)
+        )
         self.markers[TARGET_WINDOW_END] = end_marker
+        dispatch_marker = not self.window_end_dispatched
+        self.window_end_dispatched = True
+        marker_receipt: DeviceCommandReceipt | None = None
         try:
-            written = self.device.write_log_marker(end_marker)
+            if dispatch_marker:
+                marker_receipt = self.device.write_log_marker(end_marker)
             dump = self.device.dump_all_buffers_epoch()
         except Exception as error:  # noqa: BLE001 - best effort only
             # The abort reason already owns the receipt; a second failure
@@ -3679,6 +3841,7 @@ class _AttemptRun:
             self.components.setdefault("target_log_window", {}).update(
                 {
                     "markers": dict(self.markers),
+                    "end_marker_dispatched": dispatch_marker,
                     "capture": "unavailable_after_abort",
                     "capture_error": f"{type(error).__name__}: {error}",
                     "closed": False,
@@ -3694,7 +3857,10 @@ class _AttemptRun:
         component.update(
             {
                 "markers": dict(self.markers),
-                "end_marker_returncode": written.returncode,
+                "end_marker_dispatched": dispatch_marker,
+                "end_marker_returncode": (
+                    None if marker_receipt is None else marker_receipt.returncode
+                ),
                 "dump_returncode": dump.returncode,
                 "start_lines": starts,
                 "end_lines": ends,
@@ -3971,14 +4137,24 @@ class _AttemptRun:
     # -- terminal conclusions ----------------------------------------------
 
     def conclude_accountable(self) -> RuntimeAttemptReceipt:
-        """Seal one accountable_concluded attempt and finalize its record."""
+        """Seal one accountable_concluded attempt and finalize its record.
+
+        If the receipt cannot be sealed the established record is still
+        finalized exactly once as a failed, non-accountable execution bound to
+        ``attempt_receipt_write_failed`` and the original error is re-raised:
+        a handled path never abandons the record in progress.
+        """
         self.finished_at = _now()
         self.finished_clock = self.clock()
         if self.verdict is None or self.exit_code is None:
             raise RuntimeAttemptError("attempt_receipt_identity_invalid")
-        receipt = self._write_receipt(
-            terminal_state=ACCOUNTABLE_CONCLUDED, reason=None, failure=None
-        )
+        try:
+            receipt = self._write_receipt(
+                terminal_state=ACCOUNTABLE_CONCLUDED, reason=None, failure=None
+            )
+        except RuntimeAttemptError as error:
+            self._conclude_receipt_failure(error)
+            raise
         self._finalize_record(
             lifecycle_state="completed",
             execution={
@@ -4000,14 +4176,53 @@ class _AttemptRun:
         )
         return receipt
 
+    def _conclude_receipt_failure(self, error: RuntimeAttemptError) -> None:
+        """Finalize the existing record once when no receipt can be sealed."""
+        reason = (
+            error.code
+            if error.code in SHARED_FAILURE_REASONS
+            else "attempt_receipt_write_failed"
+        )
+        failure: dict[str, object] = {
+            "phase": "finalize-receipt",
+            "kind": "evidence",
+            "reason": reason,
+            "message": str(error),
+            "scope": failure_scope(reason),
+        }
+        self.failure = failure
+        self.verdict = L1_OUTCOME_INCONCLUSIVE
+        self.exit_code = 2
+        self._mark_phase_failed("finalize-receipt")
+        self._finalize_record(
+            lifecycle_state="failed",
+            execution={
+                "status": "non_accountable",
+                "accounting_eligible": False,
+                "reason": reason,
+                "message": str(error),
+            },
+            process_exit_code=2,
+            phase_errors=[failure],
+            receipt_path=None,
+            provenance=None,
+        )
+
     def conclude_non_accountable(
         self, abort: _AttemptAbort
     ) -> RuntimeAttemptReceipt:
-        """Seal one non_accountable attempt bound to its one canonical reason."""
+        """Seal one non_accountable attempt bound to its one canonical reason.
+
+        An aborted attempt owns no authoritative oracle, so a partially
+        computed oracle component is dropped before the receipt is sealed: the
+        independent verifier refuses a non-accountable receipt that carries
+        one, while the raw oracle inputs remain in the artifact inventory.
+        """
         self.finished_at = _now()
         self.finished_clock = self.clock()
         self.verdict = L1_OUTCOME_INCONCLUSIVE
         self.exit_code = 2
+        self.components.pop("oracles", None)
         failure: dict[str, object] = {
             "phase": abort.phase,
             "kind": abort.kind,
@@ -4041,7 +4256,7 @@ class _AttemptRun:
                         "kind": "evidence",
                         "reason": terminal,
                         "message": str(error),
-                        "scope": "attempt",
+                        "scope": failure_scope(terminal),
                     },
                 ],
                 receipt_path=None,
@@ -4302,6 +4517,135 @@ def _verify_evidence_class(document: Mapping[str, object]) -> None:
         )
 
 
+def _verify_phase_ledger(
+    document: Mapping[str, object], *, terminal_state: str
+) -> list[str]:
+    """Recompute the recorded phase ledger as a frozen phase prefix.
+
+    An accountable attempt owes all fifteen frozen phases, in order, every one
+    ``ok``.  A non-accountable attempt owes an ordered prefix whose final entry
+    is the one failed phase: no phase may appear twice, out of order, or after
+    the terminal failure.
+    """
+    phases = document.get("phases")
+    if not isinstance(phases, list) or not phases:
+        _verification_violation(
+            "attempt_phase_ledger_invalid", "the phase ledger is missing"
+        )
+    names: list[str] = []
+    for position, entry in enumerate(phases):
+        if not isinstance(entry, Mapping):
+            _verification_violation(
+                "attempt_phase_ledger_invalid", f"phase {position} is not an object"
+            )
+        name = entry.get("phase")
+        status = entry.get("status")
+        seconds = entry.get("seconds")
+        if not isinstance(name, str) or not name:
+            _verification_violation(
+                "attempt_phase_ledger_invalid", f"phase {position} has no identity"
+            )
+        if status not in {"ok", "failed"}:
+            _verification_violation(
+                "attempt_phase_ledger_invalid", f"phase {name} has an unknown status"
+            )
+        if (
+            not isinstance(seconds, (int, float))
+            or isinstance(seconds, bool)
+            or seconds < 0
+        ):
+            _verification_violation(
+                "attempt_phase_ledger_invalid",
+                f"phase {name} has no bounded duration",
+            )
+        names.append(str(name))
+    if names != list(FROZEN_PHASES[: len(names)]):
+        _verification_violation(
+            "attempt_phase_ledger_invalid",
+            "the phase ledger is not a strictly ordered frozen phase prefix",
+        )
+    if terminal_state == ACCOUNTABLE_CONCLUDED:
+        if names != list(FROZEN_PHASES):
+            _verification_violation(
+                "attempt_phase_ledger_invalid",
+                "an accountable attempt owes every frozen phase",
+            )
+        if any(entry["status"] != "ok" for entry in phases):
+            _verification_violation(
+                "attempt_phase_ledger_invalid",
+                "an accountable attempt cannot record a failed phase",
+            )
+        return names
+    if phases[-1]["status"] != "failed":
+        _verification_violation(
+            "attempt_phase_ledger_invalid",
+            "a non-accountable attempt must end on its one failed phase",
+        )
+    if any(entry["status"] != "ok" for entry in phases[:-1]):
+        _verification_violation(
+            "attempt_phase_ledger_invalid",
+            "a non-accountable attempt cannot record an earlier failure",
+        )
+    return names
+
+
+def _verify_non_accountable_evidence(
+    document: Mapping[str, object],
+) -> dict[str, object]:
+    """Recompute the recorded failure and refuse a claimed authoritative oracle.
+
+    The failure phase must be the terminal ledger phase, the failure reason
+    must be the terminal reason, and the recorded scope must be the one the
+    frozen table derives from that reason, so later family orchestration can
+    trust the recorded scope without any lane-specific knowledge.
+    """
+    components = document.get("components")
+    components = components if isinstance(components, Mapping) else {}
+    if "oracles" in components:
+        _verification_violation(
+            "attempt_non_accountable_oracle_invalid",
+            "a non-accountable attempt cannot carry an authoritative oracle",
+        )
+    failure = document.get("failure")
+    if not isinstance(failure, Mapping):
+        _verification_violation(
+            "attempt_failure_invalid",
+            "a non-accountable attempt requires exactly one recorded failure",
+        )
+    for key in ("phase", "kind", "reason", "message", "scope"):
+        value = failure.get(key)
+        if not isinstance(value, str) or not value:
+            _verification_violation(
+                "attempt_failure_invalid", f"the recorded failure has no {key}"
+            )
+    reason = document.get("reason")
+    if not isinstance(reason, str) or failure.get("reason") != reason:
+        _verification_violation(
+            "attempt_failure_invalid",
+            "the recorded failure reason contradicts the terminal reason",
+        )
+    if failure.get("kind") not in {"device", "evidence", "harness"}:
+        _verification_violation(
+            "attempt_failure_invalid", "the recorded failure kind is unknown"
+        )
+    if failure.get("scope") != failure_scope(reason):
+        _verification_violation(
+            "attempt_failure_scope_invalid",
+            "the recorded failure scope contradicts its canonical reason",
+        )
+    phases = document.get("phases")
+    if not isinstance(phases, list) or not phases:
+        _verification_violation(
+            "attempt_phase_ledger_invalid", "the phase ledger is missing"
+        )
+    if failure.get("phase") != phases[-1].get("phase"):
+        _verification_violation(
+            "attempt_failure_invalid",
+            "the recorded failure phase is not the terminal ledger phase",
+        )
+    return dict(failure)
+
+
 def _verify_record_binding(
     document: Mapping[str, object], *, root: Path, receipt_sha256: str
 ) -> dict[str, object]:
@@ -4376,6 +4720,11 @@ def _verify_record_binding(
             _verification_violation(
                 "attempt_record_binding_mismatch",
                 "the terminal phase error does not match the receipt reason",
+            )
+        if phase_errors[-1].get("scope") != failure_scope(str(document.get("reason"))):
+            _verification_violation(
+                "attempt_failure_scope_invalid",
+                "the terminal record phase error scope contradicts its reason",
             )
     return record
 
@@ -4981,11 +5330,12 @@ def verify_runtime_attempt(output_root: str | Path) -> dict[str, object]:
     """Independently recompute one committed attempt without a live device.
 
     The verifier re-reads the sealed receipt and its artifacts, recomputes the
-    receipt identity, the record binding, every artifact digest, the marker
-    bounded log window, the lifecycle signature, the boundary precondition, the
-    L1 attribution and L2 evaluation, the reduced verdict, and the exactly-once
-    device budget.  It never touches a device and never trusts a recorded
-    verdict without recomputing it.
+    receipt identity, the record binding, every artifact digest, the frozen
+    phase ledger, the marker bounded log window, the lifecycle signature, the
+    boundary precondition, the L1 attribution and L2 evaluation, the reduced
+    verdict, the failure scope of a non-accountable terminal state, and the
+    exactly-once device budget.  It never touches a device and never trusts a
+    recorded verdict or scope without recomputing it from the frozen tables.
     """
     raw = Path(output_root).expanduser()
     if raw.is_symlink() or not raw.is_dir():
@@ -4998,12 +5348,14 @@ def verify_runtime_attempt(output_root: str | Path) -> dict[str, object]:
     receipt_sha256 = _verify_receipt_identity(document, expected_path=receipt_path)
     terminal_state = _verify_receipt_constants(document)
     _verify_evidence_class(document)
+    _verify_phase_ledger(document, terminal_state=terminal_state)
     record = _verify_record_binding(
         document, root=root, receipt_sha256=receipt_sha256
     )
     index, checks = _verify_artifact_inventory(
         document, root=root, require_complete=terminal_state == ACCOUNTABLE_CONCLUDED
     )
+    checks = [*checks, "phase-ledger"]
     recomputed: dict[str, object] | None = None
     if terminal_state == ACCOUNTABLE_CONCLUDED:
         budget_checks, _budget = _verify_device_budget(document)
@@ -5033,6 +5385,8 @@ def verify_runtime_attempt(output_root: str | Path) -> dict[str, object]:
                 "a preserved-state verdict requires exit code 0",
             )
     else:
+        _verify_non_accountable_evidence(document)
+        checks = [*checks, "failure-scope", "no-authoritative-oracle"]
         exit_code = record.get("process_outcome", {})
         exit_code = (
             exit_code.get("exit_code") if isinstance(exit_code, Mapping) else None

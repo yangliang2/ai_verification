@@ -1,0 +1,2562 @@
+{
+  "schema_version": 1,
+  "seam": "runtime_attempt_v1",
+  "claim_boundary": "one_accountable_preserved_state_runtime_attempt",
+  "baseline_head": "e2aee56",
+  "evidence_class": "recorded_simulation",
+  "lane_id": "ocrc-v1-lane-01",
+  "device_serial": "recording-device",
+  "frozen_phases": [
+    "prepare-inputs",
+    "establish-execution-record",
+    "device-session",
+    "deploy-sealed-apk",
+    "attempt-setup",
+    "open-target-log-window",
+    "canonical-launch",
+    "journey",
+    "boundary-precondition",
+    "lifecycle-rotation",
+    "collect-post-event-observation",
+    "close-target-log-window",
+    "prove-lifecycle-transition",
+    "evaluate-oracles",
+    "finalize-receipt"
+  ],
+  "failure_scopes": {
+    "device_session_unavailable": "shared",
+    "sealed_apk_unavailable": "shared",
+    "sealed_apk_bytes_drifted": "shared",
+    "sealed_apk_deployment_failed": "shared",
+    "installed_apk_read_failed": "shared",
+    "attempt_setup_failed": "lane_local",
+    "target_log_window_unavailable": "shared",
+    "target_log_window_marker_error": "shared",
+    "target_log_window_capture_failed": "shared",
+    "canonical_launch_failed": "lane_local",
+    "journey_driver_failed": "lane_local",
+    "boundary_layout_unreadable": "lane_local",
+    "orientation_dispatch_failed": "lane_local",
+    "orientation_not_observed": "lane_local",
+    "lifecycle_transition_unproven": "lane_local",
+    "target_process_restarted": "lane_local",
+    "post_event_layout_unreadable": "lane_local",
+    "log_attribution_ambiguous": "unknown",
+    "device_operation_budget_violated": "shared",
+    "attempt_artifact_write_failed": "shared",
+    "attempt_receipt_write_failed": "shared",
+    "device_io_failed": "shared"
+  },
+  "case_count": 19,
+  "cases": [
+    {
+      "label": "session-probe-refused",
+      "expected": {
+        "reason": "device_session_unavailable",
+        "scope": "shared",
+        "phase": "device-session"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "probe_session"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "device_session_unavailable",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "probe_session is not available on this device",
+        "phase": "device-session",
+        "reason": "device_session_unavailable",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "failed"
+      },
+      "components": [
+        "identity"
+      ],
+      "dispatched_mutations": [],
+      "dispatched_vectors": [],
+      "markers": [],
+      "operation_counts": {},
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "device_session_unavailable",
+          "message": "probe_session is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "device-session",
+            "kind": "device",
+            "reason": "device_session_unavailable",
+            "message": "probe_session is not available on this device",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/session-probe-refused/attempt-receipt.json",
+        "bytes": 3729,
+        "sha256": "9d469a0daa97640438ab47ce479d6804f3c79e8e63ff00c04904e15acfff31b7"
+      }
+    },
+    {
+      "label": "session-serial-drift",
+      "expected": {
+        "reason": "device_session_unavailable",
+        "scope": "shared",
+        "phase": "device-session"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": "emulator-9999",
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "device_session_unavailable",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "evidence",
+        "message": "the session serial contradicts the selected device",
+        "phase": "device-session",
+        "reason": "device_session_unavailable",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "failed"
+      },
+      "components": [
+        "identity"
+      ],
+      "dispatched_mutations": [],
+      "dispatched_vectors": [],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "device_session_unavailable",
+          "message": "the session serial contradicts the selected device"
+        },
+        "phase_errors": [
+          {
+            "phase": "device-session",
+            "kind": "evidence",
+            "reason": "device_session_unavailable",
+            "message": "the session serial contradicts the selected device",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/session-serial-drift/attempt-receipt.json",
+        "bytes": 3735,
+        "sha256": "45bfe76657f4669803174fb96d60cb6c32ccf5cf3d40466a0d55cccc4b6fe1c6"
+      }
+    },
+    {
+      "label": "session-required-field-missing",
+      "expected": {
+        "reason": "device_session_unavailable",
+        "scope": "shared",
+        "phase": "device-session"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [
+        "boot_id"
+      ],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "device_session_unavailable",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "evidence",
+        "message": "missing identity fields: boot_id",
+        "phase": "device-session",
+        "reason": "device_session_unavailable",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "failed"
+      },
+      "components": [
+        "identity"
+      ],
+      "dispatched_mutations": [],
+      "dispatched_vectors": [],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "device_session_unavailable",
+          "message": "missing identity fields: boot_id"
+        },
+        "phase_errors": [
+          {
+            "phase": "device-session",
+            "kind": "evidence",
+            "reason": "device_session_unavailable",
+            "message": "missing identity fields: boot_id",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/session-required-field-missing/attempt-receipt.json",
+        "bytes": 3727,
+        "sha256": "58f8f49b9dbf1867557f6dc58540d481e204f26370895c76acf794c154756585"
+      }
+    },
+    {
+      "label": "session-settings-missing",
+      "expected": {
+        "reason": "device_session_unavailable",
+        "scope": "shared",
+        "phase": "device-session"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [
+        "default_input_method"
+      ],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "device_session_unavailable",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "evidence",
+        "message": "missing identity settings: default_input_method",
+        "phase": "device-session",
+        "reason": "device_session_unavailable",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "failed"
+      },
+      "components": [
+        "identity"
+      ],
+      "dispatched_mutations": [],
+      "dispatched_vectors": [],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "device_session_unavailable",
+          "message": "missing identity settings: default_input_method"
+        },
+        "phase_errors": [
+          {
+            "phase": "device-session",
+            "kind": "evidence",
+            "reason": "device_session_unavailable",
+            "message": "missing identity settings: default_input_method",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/session-settings-missing/attempt-receipt.json",
+        "bytes": 3736,
+        "sha256": "5372b8173678e896ab283459c9a1b7979bd0d61d0ddc9e29d09fab96f339f30a"
+      }
+    },
+    {
+      "label": "sealed-apk-drifted-after-admission",
+      "expected": {
+        "reason": "sealed_apk_bytes_drifted",
+        "scope": "shared",
+        "phase": "deploy-sealed-apk"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": true,
+      "terminal_state": "non_accountable",
+      "reason": "sealed_apk_bytes_drifted",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "evidence",
+        "message": "the sealed APK size changed",
+        "phase": "deploy-sealed-apk",
+        "reason": "sealed_apk_bytes_drifted",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity"
+      ],
+      "dispatched_mutations": [],
+      "dispatched_vectors": [],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "sealed_apk_bytes_drifted",
+          "message": "the sealed APK size changed"
+        },
+        "phase_errors": [
+          {
+            "phase": "deploy-sealed-apk",
+            "kind": "evidence",
+            "reason": "sealed_apk_bytes_drifted",
+            "message": "the sealed APK size changed",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/sealed-apk-drifted-after-admission/attempt-receipt.json",
+        "bytes": 9177,
+        "sha256": "9a85dfc97c45bf8beb3f116dfb9bf0b4a37b9718db5f9ec115ff5b9e4e418543"
+      }
+    },
+    {
+      "label": "deployment-refused",
+      "expected": {
+        "reason": "sealed_apk_deployment_failed",
+        "scope": "shared",
+        "phase": "deploy-sealed-apk"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "deploy_apk"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "sealed_apk_deployment_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "deploy_apk is not available on this device",
+        "phase": "deploy-sealed-apk",
+        "reason": "sealed_apk_deployment_failed",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity"
+      ],
+      "dispatched_mutations": [],
+      "dispatched_vectors": [],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "sealed_apk_deployment_failed",
+          "message": "deploy_apk is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "deploy-sealed-apk",
+            "kind": "device",
+            "reason": "sealed_apk_deployment_failed",
+            "message": "deploy_apk is not available on this device",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/deployment-refused/attempt-receipt.json",
+        "bytes": 9182,
+        "sha256": "77cd582421fbdb22e5bd4f68b92d685a7f655774320721dc67d7521c9662f755"
+      }
+    },
+    {
+      "label": "installed-read-refused",
+      "expected": {
+        "reason": "sealed_apk_deployment_failed",
+        "scope": "shared",
+        "phase": "deploy-sealed-apk"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "read_installed_apk"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "sealed_apk_deployment_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "read_installed_apk is not available on this device",
+        "phase": "deploy-sealed-apk",
+        "reason": "sealed_apk_deployment_failed",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/installed-read-refused/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "sealed_apk_deployment_failed",
+          "message": "read_installed_apk is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "deploy-sealed-apk",
+            "kind": "device",
+            "reason": "sealed_apk_deployment_failed",
+            "message": "read_installed_apk is not available on this device",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/installed-read-refused/attempt-receipt.json",
+        "bytes": 9194,
+        "sha256": "f69d712e6c43dae9c800a862bdb25f0fa2dfd82ea881fc0c318bd939168ad446"
+      }
+    },
+    {
+      "label": "installed-bytes-drifted",
+      "expected": {
+        "reason": "sealed_apk_bytes_drifted",
+        "scope": "shared",
+        "phase": "deploy-sealed-apk"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "sealed_apk_bytes_drifted",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "evidence",
+        "message": "the installed APK bytes contradict the preparation handoff",
+        "phase": "deploy-sealed-apk",
+        "reason": "sealed_apk_bytes_drifted",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/installed-bytes-drifted/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "sealed_apk_bytes_drifted",
+          "message": "the installed APK bytes contradict the preparation handoff"
+        },
+        "phase_errors": [
+          {
+            "phase": "deploy-sealed-apk",
+            "kind": "evidence",
+            "reason": "sealed_apk_bytes_drifted",
+            "message": "the installed APK bytes contradict the preparation handoff",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/installed-bytes-drifted/attempt-receipt.json",
+        "bytes": 9197,
+        "sha256": "69262fa9238b37385fd20413f8ac3a694ae543194949a7d28aa185d18512249e"
+      }
+    },
+    {
+      "label": "package-clear-refused",
+      "expected": {
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local",
+        "phase": "attempt-setup"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "clear_package_data"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "attempt_setup_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "clear_package_data is not available on this device",
+        "phase": "attempt-setup",
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity",
+        "sealed_apk"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/package-clear-refused/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "attempt_setup_failed",
+          "message": "clear_package_data is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "attempt-setup",
+            "kind": "device",
+            "reason": "attempt_setup_failed",
+            "message": "clear_package_data is not available on this device",
+            "scope": "lane_local"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/package-clear-refused/attempt-receipt.json",
+        "bytes": 10793,
+        "sha256": "96ea62e69538e4f1ea47fd373aa6b90e8d9fceabd213e569543d9fd4c33268a9"
+      }
+    },
+    {
+      "label": "package-clear-contradicted",
+      "expected": {
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local",
+        "phase": "attempt-setup"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Failure",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "attempt_setup_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "evidence",
+        "message": "the package clear did not report Success",
+        "phase": "attempt-setup",
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity",
+        "sealed_apk"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/package-clear-contradicted/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "attempt_setup_failed",
+          "message": "the package clear did not report Success"
+        },
+        "phase_errors": [
+          {
+            "phase": "attempt-setup",
+            "kind": "evidence",
+            "reason": "attempt_setup_failed",
+            "message": "the package clear did not report Success",
+            "scope": "lane_local"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/package-clear-contradicted/attempt-receipt.json",
+        "bytes": 10800,
+        "sha256": "a3f2a81a49317253ec78de0eff5561a6e897cc409f0a9933d06dc0d730cf9177"
+      }
+    },
+    {
+      "label": "target-process-residual",
+      "expected": {
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local",
+        "phase": "attempt-setup"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": true,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "attempt_setup_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "evidence",
+        "message": "target processes survived the package clear",
+        "phase": "attempt-setup",
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity",
+        "sealed_apk"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/target-process-residual/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1,
+        "target_process_ids": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "attempt_setup_failed",
+          "message": "target processes survived the package clear"
+        },
+        "phase_errors": [
+          {
+            "phase": "attempt-setup",
+            "kind": "evidence",
+            "reason": "attempt_setup_failed",
+            "message": "target processes survived the package clear",
+            "scope": "lane_local"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/target-process-residual/attempt-receipt.json",
+        "bytes": 10794,
+        "sha256": "487b336f7e0c90a38130fd604529f8f40a84503165f46d8b1134c60b3755fc78"
+      }
+    },
+    {
+      "label": "setting-write-refused",
+      "expected": {
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local",
+        "phase": "attempt-setup"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "write_rotation_setting"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "attempt_setup_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "write_rotation_setting is not available on this device",
+        "phase": "attempt-setup",
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity",
+        "sealed_apk"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/setting-write-refused/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1,
+        "target_process_ids": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "attempt_setup_failed",
+          "message": "write_rotation_setting is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "attempt-setup",
+            "kind": "device",
+            "reason": "attempt_setup_failed",
+            "message": "write_rotation_setting is not available on this device",
+            "scope": "lane_local"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/setting-write-refused/attempt-receipt.json",
+        "bytes": 10797,
+        "sha256": "2b88c57c05c24937914770b2b9d0aee8e0bdb588a6923e42da5331c4fe76f734"
+      }
+    },
+    {
+      "label": "rotation-read-refused",
+      "expected": {
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local",
+        "phase": "attempt-setup"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "read_rotation_state"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "attempt_setup_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "read_rotation_state is not available on this device",
+        "phase": "attempt-setup",
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity",
+        "sealed_apk"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data",
+        "write_rotation_setting",
+        "write_rotation_setting"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/rotation-read-refused/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "accelerometer_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "user_rotation",
+          "0"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1,
+        "target_process_ids": 1,
+        "write_rotation_setting": 2
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "attempt_setup_failed",
+          "message": "read_rotation_state is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "attempt-setup",
+            "kind": "device",
+            "reason": "attempt_setup_failed",
+            "message": "read_rotation_state is not available on this device",
+            "scope": "lane_local"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/rotation-read-refused/attempt-receipt.json",
+        "bytes": 10794,
+        "sha256": "cfbd009ef1f456f31b3a8086081374f1b876662748642dd2b74d3cad15c04433"
+      }
+    },
+    {
+      "label": "portrait-contradicted",
+      "expected": {
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local",
+        "phase": "attempt-setup"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": 1,
+        "reported_foreground_component": null,
+        "fail_operations": [],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "attempt_setup_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "evidence",
+        "message": "portrait state was not proven",
+        "phase": "attempt-setup",
+        "reason": "attempt_setup_failed",
+        "scope": "lane_local"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "failed"
+      },
+      "components": [
+        "device_session",
+        "identity",
+        "sealed_apk"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data",
+        "write_rotation_setting",
+        "write_rotation_setting"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/portrait-contradicted/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "accelerometer_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "user_rotation",
+          "0"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1,
+        "target_process_ids": 1,
+        "write_rotation_setting": 2,
+        "read_rotation_state": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "attempt_setup_failed",
+          "message": "portrait state was not proven"
+        },
+        "phase_errors": [
+          {
+            "phase": "attempt-setup",
+            "kind": "evidence",
+            "reason": "attempt_setup_failed",
+            "message": "portrait state was not proven",
+            "scope": "lane_local"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/portrait-contradicted/attempt-receipt.json",
+        "bytes": 10774,
+        "sha256": "5b86e5c6ebc7951fbd133681491648d47d5b78a36f1359a5ddbb4c76345618de"
+      }
+    },
+    {
+      "label": "log-clear-refused",
+      "expected": {
+        "reason": "target_log_window_unavailable",
+        "scope": "shared",
+        "phase": "open-target-log-window"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "clear_log_buffers"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "target_log_window_unavailable",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "clear_log_buffers is not available on this device",
+        "phase": "open-target-log-window",
+        "reason": "target_log_window_unavailable",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup",
+        "open-target-log-window"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "ok",
+        "open-target-log-window": "failed"
+      },
+      "components": [
+        "attempt_setup",
+        "device_session",
+        "identity",
+        "sealed_apk"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data",
+        "write_rotation_setting",
+        "write_rotation_setting"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/log-clear-refused/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "accelerometer_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "user_rotation",
+          "0"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1,
+        "target_process_ids": 1,
+        "write_rotation_setting": 2,
+        "read_rotation_state": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "target_log_window_unavailable",
+          "message": "clear_log_buffers is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "open-target-log-window",
+            "kind": "device",
+            "reason": "target_log_window_unavailable",
+            "message": "clear_log_buffers is not available on this device",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/log-clear-refused/attempt-receipt.json",
+        "bytes": 12771,
+        "sha256": "7459df2b8d35caef9d4df652c6e0bc0039dacc5aa74feae67005106ac50409ab"
+      }
+    },
+    {
+      "label": "start-marker-refused",
+      "expected": {
+        "reason": "target_log_window_unavailable",
+        "scope": "shared",
+        "phase": "open-target-log-window"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "write_log_marker"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "target_log_window_unavailable",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "write_log_marker is not available on this device",
+        "phase": "open-target-log-window",
+        "reason": "target_log_window_unavailable",
+        "scope": "shared"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup",
+        "open-target-log-window"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "ok",
+        "open-target-log-window": "failed"
+      },
+      "components": [
+        "attempt_setup",
+        "device_session",
+        "identity",
+        "sealed_apk"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data",
+        "write_rotation_setting",
+        "write_rotation_setting",
+        "clear_log_buffers"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/start-marker-refused/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "accelerometer_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "user_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "logcat",
+          "-b",
+          "all",
+          "-c"
+        ]
+      ],
+      "markers": [],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1,
+        "target_process_ids": 1,
+        "write_rotation_setting": 2,
+        "read_rotation_state": 1,
+        "clear_log_buffers": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "target_log_window_unavailable",
+          "message": "write_log_marker is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "open-target-log-window",
+            "kind": "device",
+            "reason": "target_log_window_unavailable",
+            "message": "write_log_marker is not available on this device",
+            "scope": "shared"
+          }
+        ],
+        "attempt_artifacts": [],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/start-marker-refused/attempt-receipt.json",
+        "bytes": 12779,
+        "sha256": "13c28a55a89b6a956c39922cbe786e3261ba926fdecefdfbc82cc297be5448f1"
+      }
+    },
+    {
+      "label": "canonical-launch-refused",
+      "expected": {
+        "reason": "canonical_launch_failed",
+        "scope": "lane_local",
+        "phase": "canonical-launch"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "canonical_launch"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "canonical_launch_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "canonical_launch is not available on this device",
+        "phase": "canonical-launch",
+        "reason": "canonical_launch_failed",
+        "scope": "lane_local"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup",
+        "open-target-log-window",
+        "canonical-launch"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "ok",
+        "open-target-log-window": "ok",
+        "canonical-launch": "failed"
+      },
+      "components": [
+        "attempt_setup",
+        "device_session",
+        "identity",
+        "sealed_apk",
+        "target_log_window"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data",
+        "write_rotation_setting",
+        "write_rotation_setting",
+        "clear_log_buffers",
+        "write_log_marker",
+        "write_log_marker"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/canonical-launch-refused/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "accelerometer_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "user_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "logcat",
+          "-b",
+          "all",
+          "-c"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "log",
+          "-t",
+          "aiverify_attempt",
+          "aiverify-attempt:ocrc-v1-lane-01:75615604-e7bd-4009-be02-aafe1696ec3d:target-window-start"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "log",
+          "-t",
+          "aiverify_attempt",
+          "aiverify-attempt:ocrc-v1-lane-01:75615604-e7bd-4009-be02-aafe1696ec3d:target-window-end"
+        ]
+      ],
+      "markers": [
+        "aiverify-attempt:ocrc-v1-lane-01:75615604-e7bd-4009-be02-aafe1696ec3d:target-window-start",
+        "aiverify-attempt:ocrc-v1-lane-01:75615604-e7bd-4009-be02-aafe1696ec3d:target-window-end"
+      ],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1,
+        "target_process_ids": 1,
+        "write_rotation_setting": 2,
+        "read_rotation_state": 1,
+        "clear_log_buffers": 1,
+        "write_log_marker": 2,
+        "dump_all_buffers_epoch": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "canonical_launch_failed",
+          "message": "canonical_launch is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "canonical-launch",
+            "kind": "device",
+            "reason": "canonical_launch_failed",
+            "message": "canonical_launch is not available on this device",
+            "scope": "lane_local"
+          }
+        ],
+        "attempt_artifacts": [
+          "artifacts/target-log-window.log"
+        ],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "artifact:target_log_window",
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/canonical-launch-refused/attempt-receipt.json",
+        "bytes": 14506,
+        "sha256": "f31279b9a9ca279413db25ceca1196e8a3c4c9ca57bd46414e7f4155330377de"
+      }
+    },
+    {
+      "label": "foreground-read-refused",
+      "expected": {
+        "reason": "canonical_launch_failed",
+        "scope": "lane_local",
+        "phase": "canonical-launch"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": null,
+        "fail_operations": [
+          "read_foreground_state"
+        ],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "canonical_launch_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "device",
+        "message": "read_foreground_state is not available on this device",
+        "phase": "canonical-launch",
+        "reason": "canonical_launch_failed",
+        "scope": "lane_local"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup",
+        "open-target-log-window",
+        "canonical-launch"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "ok",
+        "open-target-log-window": "ok",
+        "canonical-launch": "failed"
+      },
+      "components": [
+        "attempt_setup",
+        "device_session",
+        "identity",
+        "sealed_apk",
+        "target_log_window"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data",
+        "write_rotation_setting",
+        "write_rotation_setting",
+        "clear_log_buffers",
+        "write_log_marker",
+        "canonical_launch",
+        "write_log_marker"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/foreground-read-refused/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "accelerometer_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "user_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "logcat",
+          "-b",
+          "all",
+          "-c"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "log",
+          "-t",
+          "aiverify_attempt",
+          "aiverify-attempt:ocrc-v1-lane-01:fefe339d-19eb-4cb6-b0f5-66e4264615b9:target-window-start"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "am",
+          "start",
+          "-W",
+          "-a",
+          "android.intent.action.MAIN",
+          "-c",
+          "android.intent.category.LAUNCHER",
+          "-n",
+          "com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "log",
+          "-t",
+          "aiverify_attempt",
+          "aiverify-attempt:ocrc-v1-lane-01:fefe339d-19eb-4cb6-b0f5-66e4264615b9:target-window-end"
+        ]
+      ],
+      "markers": [
+        "aiverify-attempt:ocrc-v1-lane-01:fefe339d-19eb-4cb6-b0f5-66e4264615b9:target-window-start",
+        "aiverify-attempt:ocrc-v1-lane-01:fefe339d-19eb-4cb6-b0f5-66e4264615b9:target-window-end"
+      ],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1,
+        "target_process_ids": 1,
+        "write_rotation_setting": 2,
+        "read_rotation_state": 1,
+        "clear_log_buffers": 1,
+        "write_log_marker": 2,
+        "canonical_launch": 1,
+        "dump_all_buffers_epoch": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "canonical_launch_failed",
+          "message": "read_foreground_state is not available on this device"
+        },
+        "phase_errors": [
+          {
+            "phase": "canonical-launch",
+            "kind": "device",
+            "reason": "canonical_launch_failed",
+            "message": "read_foreground_state is not available on this device",
+            "scope": "lane_local"
+          }
+        ],
+        "attempt_artifacts": [
+          "artifacts/target-log-window.log"
+        ],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "artifact:target_log_window",
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/foreground-read-refused/attempt-receipt.json",
+        "bytes": 14508,
+        "sha256": "3d5a4508919c412d25bcd3321fd7bf7c153beb93247f399e149fb0d749290781"
+      }
+    },
+    {
+      "label": "foreground-component-contradicted",
+      "expected": {
+        "reason": "canonical_launch_failed",
+        "scope": "lane_local",
+        "phase": "canonical-launch"
+      },
+      "policy": {
+        "serial": "recording-device",
+        "save_enabled": true,
+        "orientation_settle_polls": 2,
+        "inject_target_crash": false,
+        "restart_target_process": false,
+        "clear_output": "Success",
+        "installed_digest_override": null,
+        "reported_serial": null,
+        "residual_target_process": false,
+        "reported_rotation": null,
+        "reported_foreground_component": "com.other/.Main",
+        "fail_operations": [],
+        "pid": 4501,
+        "task_id": 7
+      },
+      "session_drop": [],
+      "drifted_sealed_apk": false,
+      "terminal_state": "non_accountable",
+      "reason": "canonical_launch_failed",
+      "verdict": "inconclusive",
+      "failure": {
+        "kind": "evidence",
+        "message": "the foreground read did not prove the resumed target",
+        "phase": "canonical-launch",
+        "reason": "canonical_launch_failed",
+        "scope": "lane_local"
+      },
+      "phases": [
+        "prepare-inputs",
+        "establish-execution-record",
+        "device-session",
+        "deploy-sealed-apk",
+        "attempt-setup",
+        "open-target-log-window",
+        "canonical-launch"
+      ],
+      "phase_statuses": {
+        "prepare-inputs": "ok",
+        "establish-execution-record": "ok",
+        "device-session": "ok",
+        "deploy-sealed-apk": "ok",
+        "attempt-setup": "ok",
+        "open-target-log-window": "ok",
+        "canonical-launch": "failed"
+      },
+      "components": [
+        "attempt_setup",
+        "device_session",
+        "identity",
+        "sealed_apk",
+        "target_log_window"
+      ],
+      "dispatched_mutations": [
+        "deploy_apk",
+        "clear_package_data",
+        "write_rotation_setting",
+        "write_rotation_setting",
+        "clear_log_buffers",
+        "write_log_marker",
+        "canonical_launch",
+        "write_log_marker"
+      ],
+      "dispatched_vectors": [
+        [
+          "android",
+          "run",
+          "--device=recording-device",
+          "--apks=/Users/80268204/Projects/ai_verification/docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/verification/handoffs/foreground-component-contradicted/sealed-runtime.apk",
+          "--activity=com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity",
+          "--type=ACTIVITY"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "pm",
+          "clear",
+          "com.darkempire78.opencalculator.debug"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "accelerometer_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "settings",
+          "put",
+          "system",
+          "user_rotation",
+          "0"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "logcat",
+          "-b",
+          "all",
+          "-c"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "log",
+          "-t",
+          "aiverify_attempt",
+          "aiverify-attempt:ocrc-v1-lane-01:50a30e7b-397b-4d11-be41-779e3f5e6c18:target-window-start"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "am",
+          "start",
+          "-W",
+          "-a",
+          "android.intent.action.MAIN",
+          "-c",
+          "android.intent.category.LAUNCHER",
+          "-n",
+          "com.darkempire78.opencalculator.debug/com.darkempire78.opencalculator.activities.MainActivity"
+        ],
+        [
+          "adb",
+          "-s",
+          "recording-device",
+          "shell",
+          "log",
+          "-t",
+          "aiverify_attempt",
+          "aiverify-attempt:ocrc-v1-lane-01:50a30e7b-397b-4d11-be41-779e3f5e6c18:target-window-end"
+        ]
+      ],
+      "markers": [
+        "aiverify-attempt:ocrc-v1-lane-01:50a30e7b-397b-4d11-be41-779e3f5e6c18:target-window-start",
+        "aiverify-attempt:ocrc-v1-lane-01:50a30e7b-397b-4d11-be41-779e3f5e6c18:target-window-end"
+      ],
+      "operation_counts": {
+        "probe_session": 1,
+        "deploy_apk": 1,
+        "read_installed_apk": 1,
+        "clear_package_data": 1,
+        "target_process_ids": 1,
+        "write_rotation_setting": 2,
+        "read_rotation_state": 1,
+        "clear_log_buffers": 1,
+        "write_log_marker": 2,
+        "canonical_launch": 1,
+        "read_foreground_state": 1,
+        "dump_all_buffers_epoch": 1
+      },
+      "record": {
+        "lifecycle_state": "failed",
+        "process_outcome": {
+          "exit_code": 2
+        },
+        "execution": {
+          "status": "non_accountable",
+          "accounting_eligible": false,
+          "reason": "canonical_launch_failed",
+          "message": "the foreground read did not prove the resumed target"
+        },
+        "phase_errors": [
+          {
+            "phase": "canonical-launch",
+            "kind": "evidence",
+            "reason": "canonical_launch_failed",
+            "message": "the foreground read did not prove the resumed target",
+            "scope": "lane_local"
+          }
+        ],
+        "attempt_artifacts": [
+          "artifacts/target-log-window.log"
+        ],
+        "has_attempt_receipt_path": true
+      },
+      "verification": {
+        "verified": true,
+        "checks": [
+          "artifact:target_log_window",
+          "phase-ledger",
+          "failure-scope",
+          "no-authoritative-oracle"
+        ],
+        "recomputed": null
+      },
+      "receipt": {
+        "path": "attempts/foreground-component-contradicted/attempt-receipt.json",
+        "bytes": 14539,
+        "sha256": "91ef33b06cabb96795b68b31882ea863799c190ea295283a9aec282c57869f7f"
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "attempt_id": "1e749bd6-b6c4-49c5-ab86-15eba5a3c48a",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.427+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "device_session_unavailable",
+    "message": "missing identity settings: default_input_method"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.427+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "device-session",
+      "kind": "evidence",
+      "reason": "device_session_unavailable",
+      "message": "missing identity settings: default_input_method",
+      "scope": "shared"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "5372b8173678e896ab283459c9a1b7979bd0d61d0ddc9e29d09fab96f339f30a",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "1e749bd6-b6c4-49c5-ab86-15eba5a3c48a",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

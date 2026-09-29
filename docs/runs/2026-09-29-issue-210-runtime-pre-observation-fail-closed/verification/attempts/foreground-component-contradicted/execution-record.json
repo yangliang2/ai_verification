@@ -1,0 +1,81 @@
+{
+  "schema_version": 2,
+  "attempt_id": "50a30e7b-397b-4d11-be41-779e3f5e6c18",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.809+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "canonical_launch_failed",
+    "message": "the foreground read did not prove the resumed target"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.809+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "attempt-setup",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "open-target-log-window",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "canonical-launch",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "canonical-launch",
+      "kind": "evidence",
+      "reason": "canonical_launch_failed",
+      "message": "the foreground read did not prove the resumed target",
+      "scope": "lane_local"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [
+      "artifacts/target-log-window.log"
+    ],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "91ef33b06cabb96795b68b31882ea863799c190ea295283a9aec282c57869f7f",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "50a30e7b-397b-4d11-be41-779e3f5e6c18",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

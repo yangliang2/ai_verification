@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "attempt_id": "71e42c94-0968-40b4-86db-5a9128a3d9ef",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.505+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "sealed_apk_deployment_failed",
+    "message": "read_installed_apk is not available on this device"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.505+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "deploy-sealed-apk",
+      "kind": "device",
+      "reason": "sealed_apk_deployment_failed",
+      "message": "read_installed_apk is not available on this device",
+      "scope": "shared"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "f69d712e6c43dae9c800a862bdb25f0fa2dfd82ea881fc0c318bd939168ad446",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "71e42c94-0968-40b4-86db-5a9128a3d9ef",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

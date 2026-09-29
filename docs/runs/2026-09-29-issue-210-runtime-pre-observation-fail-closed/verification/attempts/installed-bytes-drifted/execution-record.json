@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "attempt_id": "d7fbf348-6757-4ce3-b090-1ab449072f99",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.529+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "sealed_apk_bytes_drifted",
+    "message": "the installed APK bytes contradict the preparation handoff"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.529+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "deploy-sealed-apk",
+      "kind": "evidence",
+      "reason": "sealed_apk_bytes_drifted",
+      "message": "the installed APK bytes contradict the preparation handoff",
+      "scope": "shared"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "69262fa9238b37385fd20413f8ac3a694ae543194949a7d28aa185d18512249e",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "d7fbf348-6757-4ce3-b090-1ab449072f99",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

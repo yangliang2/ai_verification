@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "attempt_id": "9e368f7f-f27e-476a-a9ca-94b100af6e15",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.370+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "device_session_unavailable",
+    "message": "the session serial contradicts the selected device"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.370+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "device-session",
+      "kind": "evidence",
+      "reason": "device_session_unavailable",
+      "message": "the session serial contradicts the selected device",
+      "scope": "shared"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "45bfe76657f4669803174fb96d60cb6c32ccf5cf3d40466a0d55cccc4b6fe1c6",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "9e368f7f-f27e-476a-a9ca-94b100af6e15",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "attempt_id": "ccaf37b4-6858-476b-a243-bf4b160808bb",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.457+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "sealed_apk_bytes_drifted",
+    "message": "the sealed APK size changed"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.457+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "deploy-sealed-apk",
+      "kind": "evidence",
+      "reason": "sealed_apk_bytes_drifted",
+      "message": "the sealed APK size changed",
+      "scope": "shared"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "9a85dfc97c45bf8beb3f116dfb9bf0b4a37b9718db5f9ec115ff5b9e4e418543",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "ccaf37b4-6858-476b-a243-bf4b160808bb",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

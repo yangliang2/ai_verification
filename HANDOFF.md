@@ -1,6 +1,6 @@
 # HANDOFF
 
-更新时间：2026-09-28（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发与 #209 单 lane runtime attempt seam 完成；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
+更新时间：2026-09-29（已同步 #161 之后的 OpenCalc calibration 赛道与第二宿主赛道，并记录 #225 逐 lane mapping 重签发、#209 单 lane runtime attempt seam 与 #210 pre-observation fail-closed 加固完成；M9/M9-R 段落为 2026-08-12 历史收口记录，保持不可变）
 
 M9 与 M9-R 均已以不可变的 `Not Supported` 失败证据收口。#137 的六条 lane 均在
 install 前 non-accountable；fresh recovery packet #154 的唯一调用更早在
@@ -52,12 +52,25 @@ control rejection、0/6 review，零 retry/replacement/rerun。接手者应先�
   `accountable_concluded`、`inconclusive`，提交字节可再验证（16 checks）；
   聚焦 119 passed，全量 1468 tests / 18 个 pre-existing failures（与 `f87ae04`
   基线失败集逐行相同，零回归）。该证据只覆盖录制设备模拟，不构成真实设备声明。
-- **当前状态**：Runtime Attempt seam 已落地并有一条 recording-device lane 证据
-  （#209），但真实 device session 与真实 runtime attempt record 仍未创建。原已知
-  缺口（#206 mapping 中 lane 01/02 共享同一 ChangeTarget source 路径）已由 #225
-  解除；#216（real four-cell family preparation）等待消费新 release；DIL-M1 链条
-  的下一可动项是 #210（见「接手时的正确下一步」）。Runtime Calibration Family 按
-  定义不形成 benchmark denominator 或 capability claim。
+- **Pre-observation fail-closed 加固**（#210，
+  [run record](docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/README.md)）：
+  22 条 canonical reason 的冻结 failure-scope 表（lane_local/shared/unknown，
+  与 #208 family preparation 词汇表一致）、15 项冻结 phase ledger 与独立
+  verifier 复算（phase-ledger / failure-scope / no-authoritative-oracle）；
+  observation boundary 之前的每一类失败（device-session、sealed APK、attempt
+  setup、log window、canonical launch）都在声明边界停住，未开窗失败不伪造
+  log-window receipt，开窗后失败经 terminal finalization 恰好一次关闭，每条
+  handled path 恰好 finalize 一次已有 ExecutionRecord 且不带 authoritative
+  oracle；19 例 recording-device 矩阵逐例断言 reason/scope/phase/phase 顺序与
+  forbidden command 不可达，聚焦 145 passed，全量 1494 tests / 18 个
+  pre-existing failures（与 `e2aee56` 基线失败集逐行相同，零回归）。
+- **当前状态**：Runtime Attempt seam 已落地并有 recording-device 证据（#209 的
+  accountable lane、#210 的 19 例 pre-observation 失败矩阵），但真实 device
+  session 与真实 runtime attempt record 仍未创建。原已知缺口（#206 mapping 中
+  lane 01/02 共享同一 ChangeTarget source 路径）已由 #225 解除；#216（real
+  four-cell family preparation）等待消费新 release；DIL-M1 链条的下一可动项是
+  #211（见「接手时的正确下一步」）。Runtime Calibration Family 按定义不形成
+  benchmark denominator 或 capability claim。
 
 ### 第二宿主 tasks/tasks（2026-09-28）
 
@@ -334,8 +347,12 @@ run record 与其 artifacts 在 commit 前都不算 durable evidence。
    `runtime_attempt` seam 落地，lane 01 在录制设备上端到端 accountable。它
    2026-08-30 的关闭已被复核为不可审计（声称的 commit `040ebd6…` 与 run record
    均不存在，仓库中也没有 `runtime_attempt` seam），reopen 后由本次真正实现取代，
-   下游 #210–#218 的链路都建立在该 seam 之上。DIL-M1 链条的下一可动项是
-   **#210**，随后顺序为 #210 → #211 → #212 → #213 → #214 → #215 → #216
+   下游 #210–#218 的链路都建立在该 seam 之上。**#210**（DIL-M1.12：
+   pre-observation fail-closed）随后实现并提交
+   [run record](docs/runs/2026-09-29-issue-210-runtime-pre-observation-fail-closed/README.md)：
+   failure scope 表、冻结 phase ledger、exactly-once finalize 与 verifier 复算
+   就位，19 例 pre-observation 失败矩阵全绿。DIL-M1 链条的下一可动项是
+   **#211**，随后顺序为 #211 → #212 → #213 → #214 → #215 → #216
    （消费 `opencalc-runtime-mapping-release-v2` 做真实 four-cell family
    preparation）→ #217 → #218。本 issue 只提交录制设备模拟证据；真实 device
    session 与真实 runtime attempt record 未获明确授权前不得创建。

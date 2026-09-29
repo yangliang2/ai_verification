@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "attempt_id": "b30196a5-07fc-4959-b351-c5853a2e300a",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.324+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "device_session_unavailable",
+    "message": "probe_session is not available on this device"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.324+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "device-session",
+      "kind": "device",
+      "reason": "device_session_unavailable",
+      "message": "probe_session is not available on this device",
+      "scope": "shared"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "9d469a0daa97640438ab47ce479d6804f3c79e8e63ff00c04904e15acfff31b7",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "b30196a5-07fc-4959-b351-c5853a2e300a",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

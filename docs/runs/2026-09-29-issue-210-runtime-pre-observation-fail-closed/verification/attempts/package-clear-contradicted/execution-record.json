@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "attempt_id": "7537b570-1afc-4a47-bdcc-da4ce384d250",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.580+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "attempt_setup_failed",
+    "message": "the package clear did not report Success"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.580+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "attempt-setup",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "attempt-setup",
+      "kind": "evidence",
+      "reason": "attempt_setup_failed",
+      "message": "the package clear did not report Success",
+      "scope": "lane_local"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "a3f2a81a49317253ec78de0eff5561a6e897cc409f0a9933d06dc0d730cf9177",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "7537b570-1afc-4a47-bdcc-da4ce384d250",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

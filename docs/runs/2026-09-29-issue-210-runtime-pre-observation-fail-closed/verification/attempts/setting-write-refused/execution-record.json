@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "attempt_id": "91246cbc-4b48-4a5b-be20-f8aee128075c",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.628+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "attempt_setup_failed",
+    "message": "write_rotation_setting is not available on this device"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.628+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "attempt-setup",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "attempt-setup",
+      "kind": "device",
+      "reason": "attempt_setup_failed",
+      "message": "write_rotation_setting is not available on this device",
+      "scope": "lane_local"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "2b88c57c05c24937914770b2b9d0aee8e0bdb588a6923e42da5331c4fe76f734",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "91246cbc-4b48-4a5b-be20-f8aee128075c",
+      "terminal_state": "non_accountable"
+    }
+  }
+}

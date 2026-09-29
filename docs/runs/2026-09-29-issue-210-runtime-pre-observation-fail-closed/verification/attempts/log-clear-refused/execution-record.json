@@ -1,0 +1,74 @@
+{
+  "schema_version": 2,
+  "attempt_id": "30108bf5-424d-46ba-9807-7343e8c7991e",
+  "scenario": "ocrc-v1-lane-01:opencalc-preserve-expression",
+  "lifecycle_state": "failed",
+  "started_at": "2026-09-29T00:00:00Z",
+  "finished_at": "2026-09-29T03:30:16.692+00:00",
+  "execution": {
+    "status": "non_accountable",
+    "accounting_eligible": false,
+    "reason": "target_log_window_unavailable",
+    "message": "clear_log_buffers is not available on this device"
+  },
+  "process_outcome": {
+    "exit_code": 2
+  },
+  "timing": {
+    "started_at": "2026-09-29T00:00:00Z",
+    "finished_at": "2026-09-29T03:30:16.692+00:00",
+    "total_seconds": 0.0,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "attempt-setup",
+        "status": "ok",
+        "seconds": 0.0
+      },
+      {
+        "phase": "open-target-log-window",
+        "status": "failed",
+        "seconds": 0.0
+      }
+    ]
+  },
+  "phase_errors": [
+    {
+      "phase": "open-target-log-window",
+      "kind": "device",
+      "reason": "target_log_window_unavailable",
+      "message": "clear_log_buffers is not available on this device",
+      "scope": "shared"
+    }
+  ],
+  "evidence_refs": {
+    "attempt_artifacts": [],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "7459df2b8d35caef9d4df652c6e0bc0039dacc5aa74feae67005106ac50409ab",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "30108bf5-424d-46ba-9807-7343e8c7991e",
+      "terminal_state": "non_accountable"
+    }
+  }
+}
