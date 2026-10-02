@@ -1996,6 +1996,15 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="import path module:callable that returns the four exact lane inputs",
     )
+    execute = commands.add_parser(
+        "execute-family",
+        help="execute four prepared opaque lanes in one recording-only session",
+    )
+    execute.add_argument("candidate_root_positional", nargs="?")
+    execute.add_argument("--candidate-root", dest="candidate_root_option")
+    execute.add_argument("--predecessor-root", required=True, help="accepted prepare-family stage root")
+    execute.add_argument("--output-root", required=True, help="new empty execution stage root")
+    execute.add_argument("--recording-observations", required=True, help="bounded opaque lane observations JSON; simulation only")
     return parser
 
 
@@ -2100,6 +2109,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(
             json.dumps(receipt.to_dict(), ensure_ascii=False, sort_keys=True, indent=2)
         )
+        return 0 if receipt.accepted else 1
+    if args.command == "execute-family":
+        from aiverify.bench import runtime_family_execution
+
+        try:
+            observations = runtime_family_execution.load_recording_observations(
+                args.recording_observations
+            )
+            receipt = runtime_family_execution.execute_runtime_family(
+                candidate_root=candidate_root,
+                predecessor_root=args.predecessor_root,
+                output_root=args.output_root,
+                observations=observations,
+            )
+        except runtime_family_execution.RuntimeFamilyExecutionError as error:
+            print(error.code, file=sys.stderr)
+            return 1
+        print(json.dumps(receipt.to_dict(), ensure_ascii=False, sort_keys=True, indent=2))
         return 0 if receipt.accepted else 1
     parser.error("unsupported command")
 

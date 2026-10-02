@@ -953,6 +953,30 @@ def _preserve_artifacts(
     if document is not None:
         candidates.extend(_receipt_artifact_paths(document, lane))
     descriptors: list[Mapping[str, object]] = []
+    if document is not None:
+        # Typed receipts retain their exact bytes; mapping providers have no
+        # original byte representation, so preserve the validated canonical one.
+        receipt_bytes = (
+            lane_result.receipt.receipt_bytes
+            if isinstance(lane_result.receipt, RuntimePreparationReceipt)
+            else _canonical_bytes(document)
+        )
+        receipt_path = lane_root / "preparation-receipt.json"
+        try:
+            with receipt_path.open("xb") as stream:
+                stream.write(receipt_bytes)
+                stream.flush()
+                os.fsync(stream.fileno())
+            receipt_path.chmod(0o444)
+        except OSError as error:
+            raise RuntimeFamilyPreparationError(
+                "preparation_artifact_preservation_failed"
+            ) from error
+        descriptors.append(
+            _descriptor(
+                receipt_path, root=output_root, kind="raw_preparation_receipt", preserved=True
+            )
+        )
     observed: set[Path] = set()
     for index, source in enumerate(candidates, start=1):
         try:

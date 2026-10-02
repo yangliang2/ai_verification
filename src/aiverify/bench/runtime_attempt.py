@@ -1546,6 +1546,7 @@ class RecordingRuntimeDevice:
         package: str = "",
         activity: str = "",
         session_fields: Mapping[str, object] | None = None,
+        session_state: Mapping[str, object] | None = None,
     ) -> None:
         self.policy = policy or RecordingDevicePolicy()
         self._operations = _DeviceOperationLog(
@@ -1580,6 +1581,40 @@ class RecordingRuntimeDevice:
         self._probes = 0
         self._layout_reads = 0
         self._task_offset = 0
+        if session_state is not None:
+            # A family adapter starts with the actual state left by the previous
+            # lane. Operation counters and fault ordinals remain attempt-local.
+            self._session_fields = dict(session_state["session_fields"])
+            self._launched = bool(session_state["launched"])
+            self._pid = session_state["pid"]
+            self._installed_digest = session_state["installed_digest"]
+            self._installed_bytes = int(session_state["installed_bytes"])
+            self._input = list(session_state["input"])
+            self._settings = dict(session_state["settings"])
+            self._rotation = int(session_state["rotation"])
+            self._landscape = bool(session_state["landscape"])
+            self._log = list(session_state["log"])
+            self._epoch = float(session_state["epoch"])
+            self._markers = list(session_state["markers"])
+            self._task_offset = int(session_state["task_offset"])
+
+    def session_state(self) -> dict[str, object]:
+        """Carry real recorded device state to the next family lane adapter."""
+        return {
+            "session_fields": dict(self._session_fields),
+            "launched": self._launched,
+            "pid": self._pid,
+            "installed_digest": self._installed_digest,
+            "installed_bytes": self._installed_bytes,
+            "input": list(self._input),
+            "settings": dict(self._settings),
+            "rotation": self._rotation,
+            "landscape": self._landscape,
+            "log": list(self._log),
+            "epoch": self._epoch,
+            "markers": list(self._markers),
+            "task_offset": self._task_offset,
+        }
 
     # -- identity -----------------------------------------------------------
 

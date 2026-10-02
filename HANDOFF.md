@@ -91,6 +91,23 @@ control rejection、0/6 review，零 retry/replacement/rerun。接手者应先�
   「issue-206 fixture 路径」更正为「Gradle 9.1.0 分发包下载被 TLS 拦截
   （PKIX path building failed）」，三个 checksums 重算并复核；全量 1536 tests /
   1 failed（仅剩 m7，环境阻塞）/ 52 skipped、零回归。
+- **本机 m7 环境已解阻**（`e8de405`，2026-09-29，
+  [run record](docs/runs/2026-09-29-gradle-env-unblock/README.md)）：Gradle 9.1.0
+  分发包、AGP 9.0.1 依赖缓存与 `apkanalyzer` PATH 已就绪；提交的最终全量结果为
+  **1484 passed / 52 skipped / 0 failed**（1649.97 s），fresh login shell 的 m7
+  为 7 passed。上条与 #209–#211 中的 m7 失败是历史环境证据，不是当前阻塞；
+  其他宿主仍需独立核查环境，#226 的测试侧加固不在 #212 范围内。
+- **#212 recording 实现**（2026-10-02，发布分支 `issue-212-recording-family`）：新增 `execute-family`，
+  一个模拟 session 按冻结 opaque 顺序执行四 lane；局部失败须闭合共享健康检查，
+  shared/unknown failure 中止后续，未闭合 attempt 保持 nonterminal，teardown 独立保存。
+  新增 47 项测试通过，相关回归 **179 passed / 10 skipped**；独立复核发现的
+  Mapping receipt 兼容性缺口已修复并获针对性复核确认。CLI 四 lane 产物
+  已由既有单 lane verifier 逐一校验，L1 均 inconclusive、L2 为 pass/fail/pass/fail。
+  [run record](docs/runs/2026-10-02-issue-212-runtime-family-execution/README.md)
+  保存实际结果与限制，与实现一并提交。修复后全量 **1531 passed / 52 skipped / 3 warnings**
+  （禁用子进程 ANSI 颜色后，482.23 s）；用户已授权 commit/push、评论与 issue 处理。
+  发布及关闭状态以 GitHub #212 的提交链接与事件为准；下游开发须基于包含本实现的提交。
+  #213 reducer/verify-record 未实现，真实设备与 ADR promotion 未执行。
 - **当前状态**：Runtime Attempt seam 已落地并有 recording-device 证据（#209 的
   accountable lane、#210 的 19 例 pre-observation 失败矩阵、#211 的 31 例
   post-observation 失败矩阵与 7 例 L2 观测矩阵），但真实 device

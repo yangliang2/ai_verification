@@ -1,0 +1,61 @@
+........................................................................ [  4%]
+........................................................................ [  9%]
+........................................................................ [ 13%]
+........................................................................ [ 18%]
+........................................................................ [ 22%]
+......................................s................................. [ 27%]
+........................................................................ [ 31%]
+....................................ssssssssssssssssssssssssssssssssssss [ 36%]
+sssss................................................................... [ 40%]
+........................................................................ [ 45%]
+.......................................................ssssssssss....... [ 50%]
+........................................................................ [ 54%]
+........................................................................ [ 59%]
+........................................................................ [ 63%]
+........................................................................ [ 68%]
+........................................................................ [ 72%]
+........................................................................ [ 77%]
+........................................................................ [ 81%]
+........................................................................ [ 86%]
+........................................................................ [ 91%]
+.............................................................F.......... [ 95%]
+......................................................................   [100%]
+=================================== FAILURES ===================================
+___________________ test_default_run_skips_external_fixture ____________________
+
+tmp_path = PosixPath('/private/var/folders/9j/wg17v8pd4m567j4qxxrlkf0967jw4z/T/pytest-of-80268204/pytest-31/test_default_run_skips_externa0')
+
+    def test_default_run_skips_external_fixture(tmp_path: Path) -> None:
+        result = _run_probe(
+            tmp_path,
+            """
+    import pytest
+    
+    
+    def test_local_fixture():
+        pass
+    
+    
+    @pytest.mark.external_fixture
+    def test_repository_external_fixture():
+        pass
+    """,
+        )
+    
+        assert result.returncode == 0, result.stdout + result.stderr
+>       assert "1 passed, 1 skipped" in result.stdout
+E       AssertionError: assert '1 passed, 1 skipped' in '\x1b[32m.\x1b[0m\x1b[33ms\x1b[0m\x1b[32m                                                                       [100%]\x1b[0m\n\x1b[32m\x1b[32m\x1b[1m1 passed\x1b[0m, \x1b[33m1 skipped\x1b[0m\x1b[32m in 0.57s\x1b[0m\x1b[0m\n'
+E        +  where '\x1b[32m.\x1b[0m\x1b[33ms\x1b[0m\x1b[32m                                                                       [100%]\x1b[0m\n\x1b[32m\x1b[32m\x1b[1m1 passed\x1b[0m, \x1b[33m1 skipped\x1b[0m\x1b[32m in 0.57s\x1b[0m\x1b[0m\n' = CompletedProcess(args=['/Users/80268204/Projects/ai_verification/.venv/bin/python', '-m', 'pytest', '-q', '-p', 'aiver...\x1b[0m\n\x1b[32m\x1b[32m\x1b[1m1 passed\x1b[0m, \x1b[33m1 skipped\x1b[0m\x1b[32m in 0.57s\x1b[0m\x1b[0m\n', stderr='').stdout
+
+tests/test_external_fixture_gate.py:70: AssertionError
+=============================== warnings summary ===============================
+tests/agent/test_oracle_l2.py::test_l2_fail_when_node_gone
+tests/bench/test_goldset_process_death_02_state_loss.py::test_defect_build_l2_fails_with_state_loss
+tests/bench/test_runtime_permission_slice.py::test_missing_fallback_is_detected_after_denial
+  /Users/80268204/Projects/ai_verification/src/aiverify/agent/oracle/l2.py:123: DeprecationWarning: Testing an element's truth value will always return True in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    before_val = node_before.get(attr, "<absent>") if node_before else "<absent>"
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_external_fixture_gate.py::test_default_run_skips_external_fixture
+1 failed, 1529 passed, 52 skipped, 3 warnings in 769.06s (0:12:49)

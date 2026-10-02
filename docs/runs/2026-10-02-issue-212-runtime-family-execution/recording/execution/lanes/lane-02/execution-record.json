@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "attempt_id": "a90d8f05-680e-4a33-9ebb-de222289994f",
+  "scenario": "ocrc-v1-lane-02:opencalc-preserve-expression",
+  "lifecycle_state": "completed",
+  "started_at": "2026-10-02T05:29:33.248+00:00",
+  "finished_at": "2026-10-02T05:29:33.272+00:00",
+  "execution": {
+    "status": "completed",
+    "accounting_eligible": true,
+    "reason": null,
+    "message": null
+  },
+  "process_outcome": {
+    "exit_code": 1
+  },
+  "timing": {
+    "started_at": "2026-10-02T05:29:33.248+00:00",
+    "finished_at": "2026-10-02T05:29:33.272+00:00",
+    "total_seconds": 0.024744,
+    "phases": [
+      {
+        "phase": "prepare-inputs",
+        "status": "ok",
+        "seconds": 0.001741
+      },
+      {
+        "phase": "establish-execution-record",
+        "status": "ok",
+        "seconds": 0.001356
+      },
+      {
+        "phase": "device-session",
+        "status": "ok",
+        "seconds": 4.5e-05
+      },
+      {
+        "phase": "deploy-sealed-apk",
+        "status": "ok",
+        "seconds": 0.000186
+      },
+      {
+        "phase": "attempt-setup",
+        "status": "ok",
+        "seconds": 2.8e-05
+      },
+      {
+        "phase": "open-target-log-window",
+        "status": "ok",
+        "seconds": 1.6e-05
+      },
+      {
+        "phase": "canonical-launch",
+        "status": "ok",
+        "seconds": 1.9e-05
+      },
+      {
+        "phase": "journey",
+        "status": "ok",
+        "seconds": 0.014993
+      },
+      {
+        "phase": "boundary-precondition",
+        "status": "ok",
+        "seconds": 0.001585
+      },
+      {
+        "phase": "lifecycle-rotation",
+        "status": "ok",
+        "seconds": 8.1e-05
+      },
+      {
+        "phase": "collect-post-event-observation",
+        "status": "ok",
+        "seconds": 0.00163
+      },
+      {
+        "phase": "close-target-log-window",
+        "status": "ok",
+        "seconds": 0.001148
+      },
+      {
+        "phase": "close-post-cell-identity",
+        "status": "ok",
+        "seconds": 4.5e-05
+      },
+      {
+        "phase": "prove-lifecycle-transition",
+        "status": "ok",
+        "seconds": 0.001599
+      },
+      {
+        "phase": "evaluate-oracles",
+        "status": "ok",
+        "seconds": 0.000182
+      },
+      {
+        "phase": "finalize-receipt",
+        "status": "ok",
+        "seconds": 1.8e-05
+      }
+    ]
+  },
+  "phase_errors": [],
+  "evidence_refs": {
+    "attempt_artifacts": [
+      "artifacts/journey/deterministic-journey-result.json",
+      "artifacts/journey/deterministic-observations.json",
+      "artifacts/journey/deterministic-driver-invocation.json",
+      "artifacts/boundary-layout.json",
+      "artifacts/post-event-layout.json",
+      "artifacts/target-log-window.log",
+      "artifacts/lifecycle-window.log"
+    ],
+    "attempt_receipt_path": "attempt-receipt.json",
+    "execution_provenance": {
+      "path": "attempt-receipt.json",
+      "sha256": "f67b84746cdda32d1741e39a245e8e3110297bf32dbd5438dd96281032865715",
+      "kind": "runtime_attempt_receipt_v1",
+      "attempt_id": "a90d8f05-680e-4a33-9ebb-de222289994f",
+      "terminal_state": "accountable_concluded"
+    }
+  }
+}

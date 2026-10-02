@@ -1,0 +1,129 @@
+{
+  "apk": {
+    "built_path": "/Users/80268204/Projects/ai_verification/docs/runs/2026-10-02-issue-212-runtime-family-execution/recording/preparation/lanes/lane-03/artifacts/build/app-debug.apk",
+    "bytes": 17,
+    "compile_sdk": 35,
+    "debuggable": true,
+    "launcher_activity": "com.darkempire78.opencalculator.activities.MainActivity",
+    "min_sdk": 21,
+    "package": "com.darkempire78.opencalculator.debug",
+    "path": "/Users/80268204/Projects/ai_verification/docs/runs/2026-10-02-issue-212-runtime-family-execution/recording/preparation/lanes/lane-03/artifacts/build/app-debug.apk",
+    "sha256": "c7ee8e795f7c0d6a481f4253ed61bf6272a8146174e409acdfc545f31e7516af",
+    "signer_count": 1,
+    "signer_sha256": "86ad9afb262bca8c5658105977d9035fd7371a429ea73c36f756e84770dc4356",
+    "target_sdk": 35,
+    "v1_verified": true,
+    "v2_verified": true,
+    "version_code": 54,
+    "version_name": "3.2.1"
+  },
+  "build": {
+    "apk_glob": "build/app-debug.apk",
+    "args": [
+      "./gradlew",
+      "--offline",
+      "--no-daemon",
+      "--no-build-cache",
+      "--no-configuration-cache",
+      "--max-workers=1",
+      "--console=plain",
+      "clean",
+      ":app:assembleDebug"
+    ],
+    "identity_sha256": "b12fa4ab92960ccd0525ab05ef2e5cd326088da086104f7a02ff8544204bf8c5",
+    "private_input_root": "/Users/80268204/Projects/ai_verification/docs/runs/2026-10-02-issue-212-runtime-family-execution/recording/private-environment-ocrc-v1-lane-03",
+    "retry": false,
+    "returncode": 0,
+    "runtime_signing_identity": {
+      "alias": "test-runtime",
+      "apksigner_path": null,
+      "apksigner_sha256": null,
+      "certificate_path": "signing/runtime-cert.pem",
+      "certificate_sha256": "86ad9afb262bca8c5658105977d9035fd7371a429ea73c36f756e84770dc4356",
+      "keystore_path": "signing/runtime.keystore",
+      "keystore_sha256": "303649cec5cd1d890951e3be516d5635bfc2f22f67c7724a326c4f4d1dc2693f"
+    },
+    "test_substitutes": true,
+    "timeout_seconds": 900
+  },
+  "claim_boundary": "local_source_build_preparation_only",
+  "prepared": true,
+  "production_admission": {
+    "host": {
+      "clean": true,
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "production_admission_sha256": "335a1e7b419abfd44881d0bdf08972ad7086ced870e0b4fde49315cd19c356a2",
+  "receipt_identity_sha256": "657e96cdd5669ee3dc9b7e779df8a533889ef10dd904a7a10900bbbc79156af3",
+  "rejection_code": null,
+  "run_spec": {
+    "bytes": 890,
+    "path": "/Users/80268204/Projects/ai_verification/bench/runtime-calibration/opencalc-input-save-enabled-v1/runtime/lanes/lane-03/run-spec.yaml",
+    "scenario": "opencalc-preserve-expression",
+    "sha256": "0afec2af6d7997b7dbbb36905affe5d24956a1176c638b6c2e349121eb70f0c2"
+  },
+  "runtime_effects": {
+    "agent_or_model": false,
+    "android_deployment": false,
+    "device": false,
+    "execution_record": false,
+    "shell": false
+  },
+  "runtime_input_vault": {
+    "aggregate_sha256": "2682a6713c1975d22cc093715b7cf03b3e26cffeefdb11868f70e5008d024506",
+    "entry_count": 3,
+    "family_id": "opencalc-runtime-calibration-v1",
+    "family_version": "v1",
+    "manifest_path": "/Users/80268204/Projects/ai_verification/docs/runs/2026-10-02-issue-212-runtime-family-execution/recording/vault-manifest.json",
+    "manifest_sha256": "cfcb900463a565bf3da1ad633ec236519215fef06259aa48e3e6befe83af9a0f",
+    "retention": {
+      "reason": "recording fake",
+      "status": "retained_through_evidence_review"
+    },
+    "root": "/Users/80268204/Projects/ai_verification/docs/runs/2026-10-02-issue-212-runtime-family-execution/recording/vault",
+    "signing_identity": {
+      "alias": "test-runtime",
+      "apksigner_path": null,
+      "apksigner_sha256": null,
+      "certificate_path": "signing/runtime-cert.pem",
+      "certificate_sha256": "86ad9afb262bca8c5658105977d9035fd7371a429ea73c36f756e84770dc4356",
+      "keystore_path": "signing/runtime.keystore",
+      "keystore_sha256": "303649cec5cd1d890951e3be516d5635bfc2f22f67c7724a326c4f4d1dc2693f"
+    }
+  },
+  "schema_version": 1,
+  "sealed_apk": {
+    "bytes": 17,
+    "hard_links": 1,
+    "mode": "0444",
+    "path": "/Users/80268204/Projects/ai_verification/docs/runs/2026-10-02-issue-212-runtime-family-execution/recording/preparation/lanes/lane-03/artifacts/build/app-debug.apk",
+    "regular": true,
+    "sha256": "c7ee8e795f7c0d6a481f4253ed61bf6272a8146174e409acdfc545f31e7516af",
+    "symlink": false
+  },
+  "source": {
+    "after": {
+      "clean": true,
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "authority_kind": "_RecordingAuthority",
+    "before": {
+      "clean": true,
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "identity_sha256": "58f927d13144e8541b7b86464a35164915508783a8b5493bac8c065fbc6547a8",
+    "mapping_binding": {
+      "driver_plan_raw_sha256": "881f5e7f33a95086194fa2d3f90221699903aac288f389d2aff34fffde97aa4c",
+      "lane_id": "ocrc-v1-lane-03",
+      "lane_identity_sha256": "87bfd13e018167b948764e34a586b418c6ebf72d06b0120a8b55e1e847689bbb",
+      "projection_raw_sha256": "f69b1d3562bf6dcc030f1de831207e1b795ca5af4cc1634657126df89e9bf790",
+      "recipe_raw_sha256": "6f2cabfa17c4be00734e7d00360e96d506ccd867a23b889fa1a131dffedf8b28",
+      "release_id": "opencalc-runtime-mapping-release-v2",
+      "release_identity_sha256": "cd2c36ec0ac994d03a3118f44542f5114a3c9b61129e19bb110caf658d0b1cad",
+      "run_spec_raw_sha256": "0afec2af6d7997b7dbbb36905affe5d24956a1176c638b6c2e349121eb70f0c2",
+      "source_request_identity_sha256": "7676f0fb1934c7575a0fc58e3d78264376f5d8fb28d6b40b9d8e4d165bdcdc4f"
+    }
+  },
+  "status": "prepared"
+}
